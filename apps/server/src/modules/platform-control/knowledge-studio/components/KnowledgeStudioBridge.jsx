@@ -1,5 +1,6 @@
 'use client'
 
+// @req FR-289 — bridge the operator page to the local graph component and reader APIs.
 // @spec ADR-048 D1-D3
 // @tested tests/e2e/knowledge-studio/knowledge-studio.spec.js
 

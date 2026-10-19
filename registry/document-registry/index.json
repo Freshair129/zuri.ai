@@ -8589,6 +8589,31 @@
       "requirementCells": [],
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 503
+    },
+    {
+      "id": "FR-289",
+      "namespace": "ZAI",
+      "family": "FR",
+      "recordVersion": 2,
+      "status": "active",
+      "path": "docs/requirements/FR-289.md",
+      "provenance": "authored",
+      "authoredBaseRevision": "d648ec967bea9712c8ac63aac21b5bd5ca1f4f6d",
+      "approvalRevision": "d648ec967bea9712c8ac63aac21b5bd5ca1f4f6d",
+      "approvalPath": "docs/change-requests/knowledge/knowledge-studio-20261019.md",
+      "approvalVersion": "0.9.0",
+      "approvalSha256": "a5de3029db45ae96f855e7dffc95c83a90e8d416f2dfd668a44db8adbf4bfaae",
+      "migrationId": "knowledge-studio-20261020",
+      "manifestPath": "docs/migrations/document-reintegration/record-migrations/knowledge-studio-20261020.manifest.json",
+      "manifestSha256": "00500ad1821a21a84b5d4de1cd196702c6ae65907c4763942af54699ab7c0e45",
+      "rowSha256": "48c09b50cc2a752bc5cc43baa6de9d544f435b2845884c1f9d1ce12e466ccfd4",
+      "statementSha256": "a1aae900e5a33fcab162f054a57d876485d00ff03f77656cd4d093504bc8350d",
+      "subjectAnchor": "zuri knowledge studio is an installation operator only read",
+      "recordSha256": "45d44d60222b11e883e832eca8bf4ed7f67b9df566752a678b3d776ac014c532",
+      "statementCell": 2,
+      "requirementCells": [],
+      "exportDocument": "docs/PRD-SDD-v1.0.md",
+      "exportOrder": 504
     }
   ]
 }

@@ -1,3 +1,4 @@
+// @req FR-289 — require installation-operator authority for every Studio endpoint.
 // @spec ADR-048 D1-D3
 // @tested tests/unit/knowledge-studio/authorization.test.js
 

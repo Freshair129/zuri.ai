@@ -48,6 +48,7 @@ function systemTheme() {
 
 // @req FR-241 — the /roadmap member view reuses this frame (theme tokens, sign-out)
 // under its own title and footer; /control keeps the defaults.
+// @req FR-289 — offer the Knowledge Studio link only inside guarded Platform Control.
 export default function PlatformControlShell({ children, title = 'Platform Control', footer = 'Platform Control · read-only programme projection', showKnowledgeStudioLink = false }) {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)

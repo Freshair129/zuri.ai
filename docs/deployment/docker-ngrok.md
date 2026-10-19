@@ -1,5 +1,5 @@
 ---
-version: "1.3.4b"
+version: "1.3.5b"
 created_at: "2026-09-03T21:30:00+07:00,CLAUDE"
 last_update: "2026-10-20,SOL"
 status: "current"
@@ -12,7 +12,7 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose and optional ngrok
 
-**Version:** 1.3.4b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirements: FR-142, [FR-289](../requirements/FR-289.md)
+**Version:** 1.3.5b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirements: FR-142, [FR-289](../requirements/FR-289.md)
 
 For the owner-requested Windows reinstall and existing-database move, start with
 [Windows recovery and Docker handoff](windows-recovery-and-docker-handoff.md).
@@ -92,6 +92,19 @@ or, on Windows, run the two steps and the URL lookup in one go:
 ```powershell
 .\scripts\deploy.ps1
 ```
+
+For an isolated checkout or a separately named local stack, keep its private
+Compose values in a dedicated env file and select the Compose project explicitly:
+
+```powershell
+.\scripts\deploy.ps1 -EnvironmentFile .env.knowledge-studio.local -ProjectName zuri-knowledge-studio-local
+```
+
+`-EnvironmentFile` accepts a path relative to `apps/server` or an absolute path;
+`-ProjectName` scopes build, start and status commands to that Compose project.
+The default remains `.env` and the default Compose project name, so existing
+deployments keep their current behavior. The env file's values stay out of the
+command line.
 
 The wrapper defaults to local-only deployment. Add `-Public` to opt into ngrok;
 the token and assigned domain are checked before the public profile can start:
@@ -360,6 +373,10 @@ not being Vercel. Leave it unset otherwise.
 2026-10-20, version 1.3.3b → 1.3.4b: public ingress requires explicit profile
 selection, an authtoken and an assigned domain; default deploy is local-only. A
 temporary ngrok URL can no longer be created by the Compose service.
+
+2026-10-20, version 1.3.4b → 1.3.5b: the PowerShell deploy wrapper accepts a
+private Compose env-file path and an explicit project name for isolated local
+deployments, while retaining local-only defaults and the public-ingress gate.
 
 2026-10-20, version 1.3.2b → 1.3.3b: documents the read-only Knowledge Studio
 source mounts and local-renderer requirement; the deployment script refreshes the

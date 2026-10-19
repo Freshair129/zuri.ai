@@ -6,6 +6,7 @@ const path = require('node:path')
 const { e2eTarget } = require('../e2e-target')
 const { E2E_PASSWORD } = require('../e2e-auth')
 
+// @req FR-289 — verify the operator-only indexed graph and Markdown browser.
 // @spec ADR-048 D1-D3
 // @tested tests/e2e/knowledge-studio/knowledge-studio.spec.js
 

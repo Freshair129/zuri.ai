@@ -1,3 +1,4 @@
+// @req FR-289 — verify the local-only, read-only documentation deployment boundary.
 // @tested tests/unit/knowledge-studio/docker-runtime.test.js
 
 import { readFileSync } from 'node:fs'
@@ -31,12 +32,15 @@ describe('Knowledge Studio Docker runtime data', () => {
   it('makes local-only the default in both deploy wrappers', () => {
     const powershell = readFileSync(path.join(serverRoot, 'scripts/deploy.ps1'), 'utf8')
     const bash = readFileSync(path.join(serverRoot, 'scripts/deploy.sh'), 'utf8')
-    expect(powershell).toContain('docker compose --profile public up -d --remove-orphans')
-    expect(powershell).toContain('docker compose up -d --remove-orphans web')
-    expect(powershell).toContain('docker compose config --environment')
+    expect(powershell).toContain('docker compose @composeOptions --profile public up -d --remove-orphans')
+    expect(powershell).toContain('docker compose @composeOptions up -d --remove-orphans web')
+    expect(powershell).toContain('docker compose @composeOptions config --environment')
     expect(powershell).toContain('resolved Compose environment')
     expect(powershell).toContain("Get-ResolvedComposeValue 'COMPOSE_PROFILES'")
     expect(powershell).toContain("$activeProfiles -contains 'public'")
+    expect(powershell).toContain("[string]$EnvironmentFile = '.env'")
+    expect(powershell).toContain("$composeOptions = @('--env-file', $environmentPath)")
+    expect(powershell).toContain("$composeOptions += @('--project-name', $ProjectName)")
     expect(bash).toContain('docker compose --profile public up -d --remove-orphans')
     expect(bash).toContain('docker compose up -d --remove-orphans web')
     expect(bash).toContain('docker compose config --environment')
@@ -55,7 +59,7 @@ describe('Knowledge Studio Docker runtime data', () => {
     const powershell = readFileSync(path.join(serverRoot, 'scripts/deploy.ps1'), 'utf8')
     const bash = readFileSync(path.join(serverRoot, 'scripts/deploy.sh'), 'utf8')
     const powershellGraph = powershell.match(/^npm run docs:graph$/m)?.index ?? -1
-    const powershellBuild = powershell.match(/^  docker compose build$/m)?.index ?? -1
+    const powershellBuild = powershell.match(/^  docker compose @composeOptions build$/m)?.index ?? -1
     const bashGraph = bash.match(/^npm --prefix .* run docs:graph$/m)?.index ?? -1
     const bashBuild = bash.match(/^  docker compose build$/m)?.index ?? -1
     expect(powershellGraph).toBeGreaterThanOrEqual(0)

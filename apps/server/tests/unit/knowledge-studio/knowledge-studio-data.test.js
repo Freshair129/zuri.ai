@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
+// @req FR-289 — verify graph projection, grouping, source mapping, and bounds.
 import { mkdtemp, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'

@@ -1,3 +1,4 @@
+// @req FR-289 — verify operator authorization and fail-closed behavior.
 import { describe, expect, it, vi } from 'vitest'
 import { requireKnowledgeStudioOperator } from '@/modules/platform-control/knowledge-studio/authorization'
 

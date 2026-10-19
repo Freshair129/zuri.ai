@@ -17,8 +17,15 @@
 .PARAMETER Public
   Opt in to ngrok ingress. Requires NGROK_AUTHTOKEN and an assigned NGROK_DOMAIN.
 
+.PARAMETER EnvironmentFile
+  Private Compose interpolation/env file, relative to apps/server unless absolute.
+
+.PARAMETER ProjectName
+  Optional Compose project name for an isolated deployment.
+
 .EXAMPLE
   .\scripts\deploy.ps1
+  .\scripts\deploy.ps1 -EnvironmentFile .env.knowledge-studio.local -ProjectName zuri-knowledge-studio-local
   .\scripts\deploy.ps1 -Public
   .\scripts\deploy.ps1 -Pull
 #>
@@ -26,7 +33,9 @@
 param(
   [switch]$NoBuild,
   [switch]$Pull,
-  [switch]$Public
+  [switch]$Public,
+  [string]$EnvironmentFile = '.env',
+  [string]$ProjectName
 )
 
 $ErrorActionPreference = 'Stop'
@@ -38,11 +47,22 @@ function Assert-LastExit([string]$step) {
   if ($LASTEXITCODE -ne 0) { throw "[zuri] $step failed (exit $LASTEXITCODE)" }
 }
 
-if (-not (Test-Path -LiteralPath (Join-Path $root '.env'))) {
-  throw "[zuri] .env is missing. Copy .env.example to .env, fill DATABASE_URL and ZURI_SESSION_SECRET, then run again."
+$environmentPath = if ([System.IO.Path]::IsPathRooted($EnvironmentFile)) {
+  $EnvironmentFile
+} else {
+  Join-Path $root $EnvironmentFile
+}
+if (-not (Test-Path -LiteralPath $environmentPath -PathType Leaf)) {
+  throw "[zuri] Compose environment file is missing: $EnvironmentFile"
+}
+if ($ProjectName -and $ProjectName -notmatch '^[a-z0-9][a-z0-9_-]*$') {
+  throw '[zuri] ProjectName must start with a lowercase letter or digit and contain only lowercase letters, digits, underscores or hyphens.'
 }
 
-$composeEnvironment = @(docker compose config --environment)
+$composeOptions = @('--env-file', $environmentPath)
+if ($ProjectName) { $composeOptions += @('--project-name', $ProjectName) }
+
+$composeEnvironment = @(docker compose @composeOptions config --environment)
 Assert-LastExit 'docker compose resolved environment'
 function Get-ResolvedComposeValue([string]$name) {
   foreach ($line in $composeEnvironment) {
@@ -76,9 +96,11 @@ if ($Public) {
 docker info --format '{{.ServerVersion}}' | Out-Null
 Assert-LastExit 'docker info (is Docker Desktop running?)'
 
-docker compose config --quiet
+docker compose @composeOptions config --quiet
 Assert-LastExit 'docker compose config'
 
+# @req FR-289 — prepare the generated document graph before a Knowledge Studio deployment.
+# @tested tests/unit/knowledge-studio/docker-runtime.test.js — pins the deploy guard and graph-before-build order.
 # FR-289 consumes a generated graph mounted from the canonical repository docs.
 # Refresh that ignored artifact from source before building or starting the stack.
 Push-Location $repoRoot
@@ -87,24 +109,24 @@ Assert-LastExit 'docs:graph'
 Pop-Location
 
 if ($Pull) {
-  docker compose pull --ignore-buildable
+  docker compose @composeOptions pull --ignore-buildable
   Assert-LastExit 'docker compose pull'
 }
 
 if (-not $NoBuild) {
-  docker compose build
+  docker compose @composeOptions build
   Assert-LastExit 'docker compose build'
 }
 
 if ($Public) {
-  docker compose --profile public up -d --remove-orphans
+  docker compose @composeOptions --profile public up -d --remove-orphans
   Assert-LastExit 'docker compose public up'
 } else {
-  docker compose up -d --remove-orphans web
+  docker compose @composeOptions up -d --remove-orphans web
   Assert-LastExit 'docker compose local up'
 }
 
-docker compose ps
+docker compose @composeOptions ps
 Assert-LastExit 'docker compose ps'
 
 if ($Public) {

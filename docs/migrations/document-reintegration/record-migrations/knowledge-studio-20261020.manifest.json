@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "migrationId": "knowledge-studio-20261020",
+  "base": {
+    "commit": "d648ec967bea9712c8ac63aac21b5bd5ca1f4f6d",
+    "indexSha256": "c0f753451d0a1d40f2d4b4f02288426b7dd4468b9ad42c72f30b598ca1056bd5",
+    "ledgerSha256": "38c31e4dafd5494bfd4962505a40222c7d509a2b703760a0291d7efd382de3b3"
+  },
+  "approval": {
+    "path": "docs/change-requests/knowledge/knowledge-studio-20261019.md",
+    "revision": "d648ec967bea9712c8ac63aac21b5bd5ca1f4f6d",
+    "version": "0.9.0",
+    "sha256": "a5de3029db45ae96f855e7dffc95c83a90e8d416f2dfd668a44db8adbf4bfaae"
+  },
+  "records": [
+    {
+      "id": "FR-289",
+      "family": "FR",
+      "statement": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph. Operators can search and browse documents, filter graph nodes by kind and neighbor hops, use domain groupings derived only from explicit graph relations or document metadata, inspect each node's exact source path, and read its Markdown in a same-page viewer. Domain ownership is never inferred from directory names; explicit metadata and graph relations determine a unique domain grouping. When no unique domain exists, sources under docs/services are grouped in Services (unassigned), and other sources are grouped in Shared (unassigned). The graph and Markdown come only from the generated document graph and available repository source files. The original graph component must run on the operator's browser machine at a loopback origin; the view reports unavailable when it cannot connect, and Zuri does not host or redistribute the captured component bundle. The page and each graph or document API request require installation-operator authority and fail closed for node IDs absent from the graph, unsafe paths, or missing source files.",
+      "statementSha256": "a1aae900e5a33fcab162f054a57d876485d00ff03f77656cd4d093504bc8350d",
+      "subjectAnchor": "zuri knowledge studio is an installation operator only read"
+    }
+  ]
+}

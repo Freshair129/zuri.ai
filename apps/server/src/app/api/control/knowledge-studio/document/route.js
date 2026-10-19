@@ -1,3 +1,4 @@
+// @req FR-289 — serve indexed Markdown by graph node ID to installation operators.
 // @spec ADR-048 D1-D3
 // @tested tests/unit/knowledge-studio/authorization.test.js, tests/unit/knowledge-studio/knowledge-studio-data.test.js
 

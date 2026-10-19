@@ -1,5 +1,6 @@
 import KnowledgeStudioBridge from '@/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge'
 
+// @req FR-289 — serve the operator-only document graph browser.
 // @spec ADR-048 D1-D3
 // @tested tests/e2e/knowledge-studio/knowledge-studio.spec.js
 

@@ -415,6 +415,7 @@
     "FR-285",
     "FR-286",
     "FR-288",
+    "FR-289",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5279,6 +5280,19 @@
         {
           "anchor": "managed binary knowledge parsing",
           "since": "2026-10-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-289": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a1aae900e5a33fcab162f054a57d876485d00ff03f77656cd4d093504bc8350d",
+      "history": [
+        {
+          "anchor": "zuri knowledge studio is an installation operator only read",
+          "since": "2026-10-19",
           "reason": "declared"
         }
       ]
