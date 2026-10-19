@@ -2,6 +2,7 @@
 // @tested tests/unit/knowledge-studio/docker-runtime.test.js
 
 import { readFileSync } from 'node:fs'
+import { spawnSync } from 'node:child_process'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse } from 'yaml'
@@ -44,8 +45,24 @@ describe('Knowledge Studio Docker runtime data', () => {
     expect(powershell).toContain("Get-ResolvedComposeValue 'ZURI_WEB_ENV_FILE'")
     expect(powershell).toContain('custom -EnvironmentFile must set ZURI_WEB_ENV_FILE')
     expect(powershell).toContain('ZURI_WEB_DOCKER_ENV_FILE\\s*=')
+    expect(powershell).toContain("Get-ComposePathSelector $runtimeSelector.Groups[1].Value 'ZURI_WEB_ENV_FILE'")
+    expect(powershell).toContain("Get-ComposePathSelector $dockerSelector.Groups[1].Value 'ZURI_WEB_DOCKER_ENV_FILE'")
+    expect(powershell).toContain("Get-ComposePathSelector $knowledgeSelector.Groups[1].Value 'ZURI_KNOWLEDGE_ENV_FILE'")
+    expect(powershell).toContain('if ($dockerSelector.Success -and [string]::IsNullOrWhiteSpace($dockerSelectorValue))')
+    expect(powershell).toContain("$expectedDockerSelectorValue = if ($dockerSelector.Success) { $dockerSelectorValue } elseif ($dockerRuntimeEnvExists) { '.env.docker' } else { '' }")
+    expect(powershell).toContain("Get-ResolvedComposeValue 'ZURI_WEB_DOCKER_ENV_FILE'")
+    expect(powershell).toContain('The process environment overrides ZURI_WEB_ENV_FILE')
+    expect(powershell).toContain('The process environment overrides ZURI_WEB_DOCKER_ENV_FILE')
+    expect(powershell).toContain('ZURI_KNOWLEDGE_ENV_FILE cannot be an empty quoted value')
+    expect(powershell).toContain('A custom -EnvironmentFile must set a separate ZURI_KNOWLEDGE_ENV_FILE')
+    expect(powershell).toContain("Get-ResolvedComposeValue 'ZURI_KNOWLEDGE_ENV_FILE'")
+    expect(powershell).toContain('The process environment overrides ZURI_KNOWLEDGE_ENV_FILE')
     expect(powershell).toContain("Get-ResolvedComposeValue 'ZURI_WEB_IMAGE'")
     expect(powershell).toContain("Get-ResolvedComposeValue 'ZURI_TOOLS_IMAGE'")
+    expect(powershell).toContain('function Test-ImageTagIsProjectScoped')
+    expect(powershell).toContain('$tag.EndsWith("-$projectName", [System.StringComparison]::OrdinalIgnoreCase)')
+    expect(powershell).toContain('Test-ImageTagIsProjectScoped $webImage $ProjectName')
+    expect(powershell).toContain('Test-ImageTagIsProjectScoped $toolsImage $ProjectName')
     expect(powershell).toContain("'ngrok-url.ps1') -Port $inspectPort")
     const runtimeEnvGuard = powershell.indexOf('A custom -EnvironmentFile must set ZURI_WEB_ENV_FILE')
     const composeEnvironmentResolution = powershell.indexOf('docker compose @composeOptions config --environment')
@@ -57,6 +74,22 @@ describe('Knowledge Studio Docker runtime data', () => {
     expect(bash).toContain('resolved Compose environment')
     expect(bash).toContain('resolved_compose_value COMPOSE_PROFILES')
     expect(bash).toContain('== *,public,*')
+  })
+
+  it.skipIf(process.platform !== 'win32')('parses Compose selector comments and rejects variable interpolation', () => {
+    const helper = path.join(serverRoot, 'scripts/deploy-env-selectors.ps1').replace(/'/g, "''")
+    const command = [
+      ". '" + helper + "'",
+      "if ((Get-ComposePathSelector '.env.ks # per-project' 'ZURI_WEB_ENV_FILE') -ne '.env.ks') { throw 'inline comment parse failed' }",
+      "if ((Get-ComposePathSelector '\"dir with spaces/.env.ks\" # per-project' 'ZURI_WEB_ENV_FILE') -ne 'dir with spaces/.env.ks') { throw 'quoted path parse failed' }",
+      "if ((Get-ComposePathSelector '.env#literal' 'ZURI_WEB_ENV_FILE') -ne '.env#literal') { throw 'literal hash parse failed' }",
+      "if ((Get-ComposePathSelector '''$STACK_PATH''' 'ZURI_WEB_ENV_FILE') -ne '$STACK_PATH') { throw 'single-quoted literal parse failed' }",
+      "$rejected = $false",
+      "try { Get-ComposePathSelector '$STACK_PATH' 'ZURI_WEB_ENV_FILE' } catch { $rejected = $_.Exception.Message.Contains('variable interpolation is unsupported') }",
+      "if (-not $rejected) { throw 'variable interpolation was not rejected explicitly' }",
+    ].join('\n')
+    const result = spawnSync('powershell.exe', ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-Command', command], { encoding: 'utf8', windowsHide: true })
+    expect(result.status, result.stderr || result.stdout).toBe(0)
   })
 
   it('creates the registry mount target and refreshes the ignored graph in both deploy scripts', () => {

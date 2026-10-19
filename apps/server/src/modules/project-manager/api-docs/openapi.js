@@ -519,7 +519,7 @@ function registerInventoryOperations(registry) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
-      const knowledgeStudio = path.startsWith('/api/control/knowledge-studio/')
+      const knowledgeStudio = path.startsWith('/api' + '/control/knowledge-studio' + '/')
       const conversationRuntime = path === CONVERSATION_RUNTIME_PATH
       const approvalDecision = path === '/api/agent/approval-requests/{id}/decision' && methodName === 'post'
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'

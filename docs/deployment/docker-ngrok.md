@@ -98,17 +98,28 @@ Compose values in a dedicated env file and select the Compose project explicitly
 The selected file must set `ZURI_WEB_ENV_FILE` to the runtime env file that
 contains that stack's database URL and secrets. If `.env.docker` exists, set
 `ZURI_WEB_DOCKER_ENV_FILE` explicitly as well so a custom stack cannot silently
-inherit its overrides. Give each named project its own `ZURI_WEB_IMAGE` tag; if
-`local-db` is active, also give it its own `ZURI_TOOLS_IMAGE` tag. Project names
-scope containers and volumes, while image tags and external database targets are
+inherit its overrides. If `apps/server/.env.knowledge` exists, set
+`ZURI_KNOWLEDGE_ENV_FILE` to a separate per-project file; the wrapper rejects
+inheritance of the default knowledge credentials. Each named project must use web and (when `local-db` is
+active) tools image tags that end in `-<ProjectName>`; the wrapper checks this
+before building so two projects cannot retag or consume one another's images.
+Project names scope containers and volumes, while external database targets are
 shared unless configured separately.
+
+The PowerShell wrapper accepts quoted selector paths and trailing inline comments
+in Compose dotenv syntax. It requires the three runtime selector values to be
+literal paths and rejects variable interpolation so its isolation checks compare
+the same paths Compose loads. Other values in the selected env file retain normal
+Compose interpolation behavior.
 
 ```powershell
 .\scripts\deploy.ps1 -EnvironmentFile .env.knowledge-studio.local -ProjectName zuri-knowledge-studio-local
 ```
 
 `-EnvironmentFile` accepts a path relative to `apps/server` or an absolute path;
-`-ProjectName` scopes build, start and status commands to that Compose project.
+`-ProjectName` scopes build, start and status commands to that Compose project
+and is appended to each image tag as the uniqueness marker (for example,
+`ZURI_WEB_IMAGE=zuri-ai-knowledge-studio:next15-zuri-knowledge-studio-local`).
 The default remains `.env` and the default Compose project name, so existing
 deployments keep their current behavior. The env file's values stay out of the
 command line. For public mode, the Windows wrapper also reads

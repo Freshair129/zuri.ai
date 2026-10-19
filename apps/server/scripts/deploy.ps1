@@ -41,6 +41,8 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$selectorHelpers = Join-Path $PSScriptRoot 'deploy-env-selectors.ps1'
+. $selectorHelpers
 $root = Split-Path -Parent $PSScriptRoot
 $repoRoot = Split-Path -Parent (Split-Path -Parent $root)
 Set-Location $root
@@ -60,6 +62,9 @@ if (-not (Test-Path -LiteralPath $environmentPath -PathType Leaf)) {
 if ($ProjectName -and $ProjectName -notmatch '^[a-z0-9][a-z0-9_-]*$') {
   throw '[zuri] ProjectName must start with a lowercase letter or digit and contain only lowercase letters, digits, underscores or hyphens.'
 }
+if ($ProjectName -and $ProjectName.Length -gt 63) {
+  throw '[zuri] ProjectName must be 63 characters or fewer so project-scoped Docker tags stay portable.'
+}
 
 $composeOptions = @('--env-file', $environmentPath)
 if ($ProjectName) { $composeOptions += @('--project-name', $ProjectName) }
@@ -73,16 +78,48 @@ $isDefaultEnvironment = [string]::Equals(
 if (-not $isDefaultEnvironment) {
   $environmentFileText = Get-Content -LiteralPath $environmentPath -Raw
   $runtimeSelector = [regex]::Match($environmentFileText, '(?m)^\s*(?:export\s+)?ZURI_WEB_ENV_FILE\s*=\s*(.*)$')
-  $runtimeSelectorValue = if ($runtimeSelector.Success) { $runtimeSelector.Groups[1].Value.Trim() } else { $env:ZURI_WEB_ENV_FILE }
+  $runtimeSelectorValue = if ($runtimeSelector.Success) { Get-ComposePathSelector $runtimeSelector.Groups[1].Value 'ZURI_WEB_ENV_FILE' } else { '' }
   if ([string]::IsNullOrWhiteSpace($runtimeSelectorValue) -or $runtimeSelectorValue -in @('""', "''")) {
     throw '[zuri] A custom -EnvironmentFile must set ZURI_WEB_ENV_FILE to the intended container runtime env file.'
   }
 
   $dockerSelector = [regex]::Match($environmentFileText, '(?m)^\s*(?:export\s+)?ZURI_WEB_DOCKER_ENV_FILE\s*=\s*(.*)$')
-  $dockerSelectorValue = if ($dockerSelector.Success) { $dockerSelector.Groups[1].Value.Trim() } else { $env:ZURI_WEB_DOCKER_ENV_FILE }
-  if ([string]::IsNullOrWhiteSpace($dockerSelectorValue) -and (Test-Path -LiteralPath (Join-Path $root '.env.docker') -PathType Leaf)) {
+  $dockerSelectorValue = if ($dockerSelector.Success) { Get-ComposePathSelector $dockerSelector.Groups[1].Value 'ZURI_WEB_DOCKER_ENV_FILE' } else { '' }
+  $dockerRuntimeEnvExists = Test-Path -LiteralPath (Join-Path $root '.env.docker') -PathType Leaf
+  if ($dockerSelector.Success -and [string]::IsNullOrWhiteSpace($dockerSelectorValue)) {
+    throw '[zuri] ZURI_WEB_DOCKER_ENV_FILE cannot be an empty quoted value in a custom -EnvironmentFile.'
+  }
+  if ($dockerRuntimeEnvExists -and (-not $dockerSelector.Success -or [string]::IsNullOrWhiteSpace($dockerSelectorValue))) {
     throw '[zuri] A custom -EnvironmentFile must set ZURI_WEB_DOCKER_ENV_FILE explicitly when apps/server/.env.docker exists.'
   }
+  $expectedDockerSelectorValue = if ($dockerSelector.Success) { $dockerSelectorValue } elseif ($dockerRuntimeEnvExists) { '.env.docker' } else { '' }
+
+  $knowledgeSelector = [regex]::Match($environmentFileText, '(?m)^\s*(?:export\s+)?ZURI_KNOWLEDGE_ENV_FILE\s*=\s*(.*)$')
+  $knowledgeSelectorValue = if ($knowledgeSelector.Success) { Get-ComposePathSelector $knowledgeSelector.Groups[1].Value 'ZURI_KNOWLEDGE_ENV_FILE' } else { '' }
+  $defaultKnowledgeEnvironmentPath = Join-Path $root '.env.knowledge'
+  $defaultKnowledgeEnvironmentExists = Test-Path -LiteralPath $defaultKnowledgeEnvironmentPath -PathType Leaf
+  if ($knowledgeSelector.Success -and [string]::IsNullOrWhiteSpace($knowledgeSelectorValue)) {
+    throw '[zuri] ZURI_KNOWLEDGE_ENV_FILE cannot be an empty quoted value in a custom -EnvironmentFile.'
+  }
+  if ($defaultKnowledgeEnvironmentExists -and (-not $knowledgeSelector.Success -or [string]::IsNullOrWhiteSpace($knowledgeSelectorValue))) {
+    throw '[zuri] A custom -EnvironmentFile must set a separate ZURI_KNOWLEDGE_ENV_FILE when apps/server/.env.knowledge exists.'
+  }
+  if ($defaultKnowledgeEnvironmentExists) {
+    $selectedKnowledgeEnvironmentPath = if ([System.IO.Path]::IsPathRooted($knowledgeSelectorValue)) {
+      $knowledgeSelectorValue
+    } else {
+      Join-Path $root $knowledgeSelectorValue
+    }
+    if (-not (Test-Path -LiteralPath $selectedKnowledgeEnvironmentPath -PathType Leaf)) {
+      throw '[zuri] ZURI_KNOWLEDGE_ENV_FILE must resolve to an existing file when apps/server/.env.knowledge exists.'
+    }
+    $defaultKnowledgeResolved = (Resolve-Path -LiteralPath $defaultKnowledgeEnvironmentPath).ProviderPath
+    $selectedKnowledgeResolved = (Resolve-Path -LiteralPath $selectedKnowledgeEnvironmentPath).ProviderPath
+    if ([string]::Equals($defaultKnowledgeResolved, $selectedKnowledgeResolved, [System.StringComparison]::OrdinalIgnoreCase)) {
+      throw '[zuri] A custom -EnvironmentFile cannot reuse apps/server/.env.knowledge; select a separate per-project knowledge env file.'
+    }
+  }
+  $expectedKnowledgeSelectorValue = if ($knowledgeSelector.Success) { $knowledgeSelectorValue } elseif ($defaultKnowledgeEnvironmentExists) { '.env.knowledge' } else { '' }
 }
 
 $composeEnvironment = @(docker compose @composeOptions config --environment)
@@ -114,18 +151,44 @@ if (-not $isDefaultEnvironment) {
   if (-not (Test-Path -LiteralPath (Resolve-ServerPath $runtimeEnvironmentFile) -PathType Leaf)) {
     throw '[zuri] ZURI_WEB_ENV_FILE does not resolve to an existing file.'
   }
+  if ((Test-Path -LiteralPath (Join-Path $root '.env.docker') -PathType Leaf) -and
+      [string]::IsNullOrWhiteSpace((Get-ResolvedComposeValue 'ZURI_WEB_DOCKER_ENV_FILE'))) {
+    throw '[zuri] A custom -EnvironmentFile resolved ZURI_WEB_DOCKER_ENV_FILE to empty, which would load apps/server/.env.docker by default.'
+  }
+  if ($runtimeEnvironmentFile -ne $runtimeSelectorValue) {
+    throw '[zuri] The process environment overrides ZURI_WEB_ENV_FILE from the selected custom -EnvironmentFile; remove the conflicting override.'
+  }
+  if ((Get-ResolvedComposeValue 'ZURI_WEB_DOCKER_ENV_FILE') -ne $expectedDockerSelectorValue) {
+    throw '[zuri] The process environment overrides ZURI_WEB_DOCKER_ENV_FILE from the selected custom -EnvironmentFile; remove the conflicting override.'
+  }
+  $resolvedKnowledgeEnvironmentFile = Get-ResolvedComposeValue 'ZURI_KNOWLEDGE_ENV_FILE'
+  if ($resolvedKnowledgeEnvironmentFile -ne $expectedKnowledgeSelectorValue) {
+    throw '[zuri] The process environment overrides ZURI_KNOWLEDGE_ENV_FILE from the selected custom -EnvironmentFile; remove the conflicting override.'
+  }
+  if (-not [string]::IsNullOrWhiteSpace($resolvedKnowledgeEnvironmentFile) -and
+      -not (Test-Path -LiteralPath (Resolve-ServerPath $resolvedKnowledgeEnvironmentFile) -PathType Leaf)) {
+    throw '[zuri] ZURI_KNOWLEDGE_ENV_FILE does not resolve to an existing file.'
+  }
+}
 
+function Test-ImageTagIsProjectScoped([string]$image, [string]$projectName) {
+  if ([string]::IsNullOrWhiteSpace($image) -or [string]::IsNullOrWhiteSpace($projectName)) { return $false }
+  $reference = ($image -split '@', 2)[0]
+  $separator = $reference.LastIndexOf(':')
+  if ($separator -le $reference.LastIndexOf('/')) { return $false }
+  $tag = $reference.Substring($separator + 1)
+  return $tag.EndsWith("-$projectName", [System.StringComparison]::OrdinalIgnoreCase)
 }
 
 if ($ProjectName) {
   $webImage = Get-ResolvedComposeValue 'ZURI_WEB_IMAGE'
-  if ([string]::IsNullOrWhiteSpace($webImage) -or $webImage -eq 'zuri-ai-web:local') {
-    throw '[zuri] A named Compose project must set a checkout-specific ZURI_WEB_IMAGE to avoid cross-checkout retagging.'
+  if (-not (Test-ImageTagIsProjectScoped $webImage $ProjectName)) {
+    throw "[zuri] ZURI_WEB_IMAGE must have a Docker tag ending in '-$ProjectName' so named Compose projects cannot share or retag one another's image."
   }
   if ($activeProfiles -contains 'local-db') {
     $toolsImage = Get-ResolvedComposeValue 'ZURI_TOOLS_IMAGE'
-    if ([string]::IsNullOrWhiteSpace($toolsImage) -or $toolsImage -eq 'zuri-ai-tools:local') {
-      throw '[zuri] A named local-db project must set a checkout-specific ZURI_TOOLS_IMAGE to avoid cross-checkout retagging.'
+    if (-not (Test-ImageTagIsProjectScoped $toolsImage $ProjectName)) {
+      throw "[zuri] ZURI_TOOLS_IMAGE must have a Docker tag ending in '-$ProjectName' so named local-db projects cannot share or retag one another's image."
     }
   }
 }

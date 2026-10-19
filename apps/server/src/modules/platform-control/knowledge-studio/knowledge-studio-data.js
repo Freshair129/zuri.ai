@@ -18,6 +18,11 @@ function normalizeDocPath(value) {
   return parts.join('/')
 }
 
+function isWithinDirectory(directory, candidate) {
+  const relative = path.relative(directory, candidate)
+  return relative !== '' && relative !== '..' && !relative.startsWith(`..${path.sep}`) && !path.isAbsolute(relative)
+}
+
 function hash(value, length = 18) {
   return createHash('sha256').update(value).digest('hex').slice(0, length)
 }
@@ -294,10 +299,10 @@ async function existingMarkdownPaths(graph, root) {
   const texts = new Map()
   await Promise.all([...possible].map(async (sourcePath) => {
     const filePath = path.resolve(root, ...sourcePath.split('/'))
-    if (!filePath.startsWith(docsRoot + path.sep)) return
+    if (!isWithinDirectory(docsRoot, filePath)) return
     try {
       const resolved = await realpath(filePath)
-      if (!resolved.startsWith(docsRoot + path.sep)) return
+      if (!isWithinDirectory(docsRoot, resolved)) return
       const details = await stat(resolved)
       if (!details.isFile() || details.size > 1024 * 1024) return
       existing.add(sourcePath)
@@ -338,9 +343,9 @@ export async function readKnowledgeStudioDocument(nodeId, { root = repoRootFromP
   if (!normalized) return null
   const docsRoot = await realpath(path.join(root, 'docs'))
   const filePath = path.resolve(root, ...normalized.split('/'))
-  if (!filePath.startsWith(docsRoot + path.sep)) return null
+  if (!isWithinDirectory(docsRoot, filePath)) return null
   const resolved = await realpath(filePath)
-  if (!resolved.startsWith(docsRoot + path.sep)) return null
+  if (!isWithinDirectory(docsRoot, resolved)) return null
   const details = await stat(resolved)
   if (!details.isFile() || details.size > 512 * 1024) return null
   return { nodeId, path: normalized, markdown: await readFile(resolved, 'utf8') }
