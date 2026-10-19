@@ -4,9 +4,10 @@
 
 .DESCRIPTION
   Idempotent: safe to run again after a code change or a reboot. The script resolves
-  its Server app directory and reads apps/server/.env (and the optional
-  apps/server/.env.docker) — nothing is passed on the command line, so no secret
-  ends up in shell history. See docs/deployment/docker-ngrok.md.
+  its Server app directory. A custom EnvironmentFile must also select the runtime
+  env_file paths; isolated Compose projects must use image tags unique to this
+  checkout. Secret values are not passed on the command line. See
+  docs/deployment/docker-ngrok.md.
 
 .PARAMETER NoBuild
   Skip `docker compose build` (start whatever image is already present or pulled).
@@ -18,7 +19,8 @@
   Opt in to ngrok ingress. Requires NGROK_AUTHTOKEN and an assigned NGROK_DOMAIN.
 
 .PARAMETER EnvironmentFile
-  Private Compose interpolation/env file, relative to apps/server unless absolute.
+  Private Compose interpolation file, relative to apps/server unless absolute.
+  For a custom file, set ZURI_WEB_ENV_FILE there to the intended runtime file.
 
 .PARAMETER ProjectName
   Optional Compose project name for an isolated deployment.
@@ -62,6 +64,27 @@ if ($ProjectName -and $ProjectName -notmatch '^[a-z0-9][a-z0-9_-]*$') {
 $composeOptions = @('--env-file', $environmentPath)
 if ($ProjectName) { $composeOptions += @('--project-name', $ProjectName) }
 
+$defaultEnvironmentPath = [System.IO.Path]::GetFullPath((Join-Path $root '.env'))
+$isDefaultEnvironment = [string]::Equals(
+  [System.IO.Path]::GetFullPath($environmentPath),
+  $defaultEnvironmentPath,
+  [System.StringComparison]::OrdinalIgnoreCase
+)
+if (-not $isDefaultEnvironment) {
+  $environmentFileText = Get-Content -LiteralPath $environmentPath -Raw
+  $runtimeSelector = [regex]::Match($environmentFileText, '(?m)^\s*(?:export\s+)?ZURI_WEB_ENV_FILE\s*=\s*(.*)$')
+  $runtimeSelectorValue = if ($runtimeSelector.Success) { $runtimeSelector.Groups[1].Value.Trim() } else { $env:ZURI_WEB_ENV_FILE }
+  if ([string]::IsNullOrWhiteSpace($runtimeSelectorValue) -or $runtimeSelectorValue -in @('""', "''")) {
+    throw '[zuri] A custom -EnvironmentFile must set ZURI_WEB_ENV_FILE to the intended container runtime env file.'
+  }
+
+  $dockerSelector = [regex]::Match($environmentFileText, '(?m)^\s*(?:export\s+)?ZURI_WEB_DOCKER_ENV_FILE\s*=\s*(.*)$')
+  $dockerSelectorValue = if ($dockerSelector.Success) { $dockerSelector.Groups[1].Value.Trim() } else { $env:ZURI_WEB_DOCKER_ENV_FILE }
+  if ([string]::IsNullOrWhiteSpace($dockerSelectorValue) -and (Test-Path -LiteralPath (Join-Path $root '.env.docker') -PathType Leaf)) {
+    throw '[zuri] A custom -EnvironmentFile must set ZURI_WEB_DOCKER_ENV_FILE explicitly when apps/server/.env.docker exists.'
+  }
+}
+
 $composeEnvironment = @(docker compose @composeOptions config --environment)
 Assert-LastExit 'docker compose resolved environment'
 function Get-ResolvedComposeValue([string]$name) {
@@ -76,6 +99,37 @@ function Has-ResolvedComposeValue([string]$name) {
   return -not [string]::IsNullOrWhiteSpace((Get-ResolvedComposeValue $name))
 }
 
+function Resolve-ServerPath([string]$path) {
+  if ([System.IO.Path]::IsPathRooted($path)) { return [System.IO.Path]::GetFullPath($path) }
+  return [System.IO.Path]::GetFullPath((Join-Path $root $path))
+}
+
+$activeProfiles = @((Get-ResolvedComposeValue 'COMPOSE_PROFILES').Split(',') | ForEach-Object { $_.Trim() })
+
+if (-not $isDefaultEnvironment) {
+  $runtimeEnvironmentFile = Get-ResolvedComposeValue 'ZURI_WEB_ENV_FILE'
+  if ([string]::IsNullOrWhiteSpace($runtimeEnvironmentFile)) {
+    throw '[zuri] A custom -EnvironmentFile must set ZURI_WEB_ENV_FILE to the intended container runtime env file.'
+  }
+  if (-not (Test-Path -LiteralPath (Resolve-ServerPath $runtimeEnvironmentFile) -PathType Leaf)) {
+    throw '[zuri] ZURI_WEB_ENV_FILE does not resolve to an existing file.'
+  }
+
+}
+
+if ($ProjectName) {
+  $webImage = Get-ResolvedComposeValue 'ZURI_WEB_IMAGE'
+  if ([string]::IsNullOrWhiteSpace($webImage) -or $webImage -eq 'zuri-ai-web:local') {
+    throw '[zuri] A named Compose project must set a checkout-specific ZURI_WEB_IMAGE to avoid cross-checkout retagging.'
+  }
+  if ($activeProfiles -contains 'local-db') {
+    $toolsImage = Get-ResolvedComposeValue 'ZURI_TOOLS_IMAGE'
+    if ([string]::IsNullOrWhiteSpace($toolsImage) -or $toolsImage -eq 'zuri-ai-tools:local') {
+      throw '[zuri] A named local-db project must set a checkout-specific ZURI_TOOLS_IMAGE to avoid cross-checkout retagging.'
+    }
+  }
+}
+
 if (-not (Has-ResolvedComposeValue 'ZURI_SESSION_SECRET')) {
   Write-Warning '[zuri] ZURI_SESSION_SECRET is not set in the resolved Compose environment.'
 }
@@ -86,7 +140,6 @@ if ($Public) {
     }
   }
 } else {
-  $activeProfiles = @((Get-ResolvedComposeValue 'COMPOSE_PROFILES').Split(',') | ForEach-Object { $_.Trim() })
   if ($activeProfiles -contains 'public') {
     throw '[zuri] COMPOSE_PROFILES activates public ingress. Remove public for local-only deployment, or use -Public with a token and assigned domain.'
   }
@@ -130,5 +183,14 @@ docker compose @composeOptions ps
 Assert-LastExit 'docker compose ps'
 
 if ($Public) {
-  & (Join-Path $PSScriptRoot 'ngrok-url.ps1')
+  $inspectPortText = Get-ResolvedComposeValue 'NGROK_INSPECT_PORT'
+  $inspectPort = 4040
+  if (-not [string]::IsNullOrWhiteSpace($inspectPortText)) {
+    $parsedPort = 0
+    if (-not [int]::TryParse($inspectPortText, [ref]$parsedPort) -or $parsedPort -lt 1 -or $parsedPort -gt 65535) {
+      throw '[zuri] NGROK_INSPECT_PORT must be an integer between 1 and 65535.'
+    }
+    $inspectPort = $parsedPort
+  }
+  & (Join-Path $PSScriptRoot 'ngrok-url.ps1') -Port $inspectPort
 }

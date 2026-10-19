@@ -94,7 +94,14 @@ or, on Windows, run the two steps and the URL lookup in one go:
 ```
 
 For an isolated checkout or a separately named local stack, keep its private
-Compose values in a dedicated env file and select the Compose project explicitly:
+Compose values in a dedicated env file and select the Compose project explicitly.
+The selected file must set `ZURI_WEB_ENV_FILE` to the runtime env file that
+contains that stack's database URL and secrets. If `.env.docker` exists, set
+`ZURI_WEB_DOCKER_ENV_FILE` explicitly as well so a custom stack cannot silently
+inherit its overrides. Give each named project its own `ZURI_WEB_IMAGE` tag; if
+`local-db` is active, also give it its own `ZURI_TOOLS_IMAGE` tag. Project names
+scope containers and volumes, while image tags and external database targets are
+shared unless configured separately.
 
 ```powershell
 .\scripts\deploy.ps1 -EnvironmentFile .env.knowledge-studio.local -ProjectName zuri-knowledge-studio-local
@@ -104,7 +111,9 @@ Compose values in a dedicated env file and select the Compose project explicitly
 `-ProjectName` scopes build, start and status commands to that Compose project.
 The default remains `.env` and the default Compose project name, so existing
 deployments keep their current behavior. The env file's values stay out of the
-command line.
+command line. For public mode, the Windows wrapper also reads
+`NGROK_INSPECT_PORT` and passes it to the tunnel URL probe; the default remains
+4040.
 
 The wrapper defaults to local-only deployment. Add `-Public` to opt into ngrok;
 the token and assigned domain are checked before the public profile can start:
