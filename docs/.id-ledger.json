@@ -836,6 +836,7 @@
     "ADR-109",
     "ADR-110",
     "ADR-111",
+    "ADR-112",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10868,6 +10869,19 @@
         {
           "anchor": "scm service extraction",
           "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-112": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md",
+      "status": "current",
+      "statement_digest": "b3519ab32dae4f3c00aef04ad8d76bdecb20fbd6b04003a0eb4c9ef71e09653e",
+      "history": [
+        {
+          "anchor": "primary checkout development docker deployment and database",
+          "since": "2026-10-20",
           "reason": "declared"
         }
       ]
