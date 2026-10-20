@@ -172,6 +172,31 @@ its report never grants permission to omit checks. `npm run docs:services`
 regenerates the service map, an ignored view under ADR-081.
 
 
+### Primary-checkout development Docker and database boundary (ADR-112, 2026-10-20)
+
+The primary-checkout development preview runs in its own named Docker Compose
+project with a local PostgreSQL database and volume. The current instance is
+`zuri-main-dev-20261020` (`zuri_main_dev`) with the web container bound to
+`127.0.0.1:3100`; these are instance identifiers, not portable defaults.
+Read the [Docker + ngrok runbook](docs/deployment/docker-ngrok.md) and
+[ADR-112](docs/decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md)
+before changing the deployment target.
+
+Keep primary-checkout dev, Knowledge Studio, and each UAT stack isolated from
+one another by Compose project, database, volume, and environment configuration.
+Keep production database and runtime credentials separate from development and
+UAT; its data boundary remains governed by ADR-018. Never point a dev
+`DATABASE_URL` at UAT or production, and never promote work by repointing the
+dev container. Release a tested app artifact in a separate production runtime
+with production-specific configuration; run only approved migrations through
+the release gates in ADR-018, ADR-058 and ADR-104.
+
+An active ngrok tunnel makes the dev app reachable from the internet even when
+the container port binds to loopback. Use dev-only accounts and appropriate test
+data. Never put passwords, tokens, or generated environment values in tracked
+files. Signup creates a profile and credential without business scope,
+membership, capability, or platform authority.
+
 ## Mission
 
 Build zuri-ai: an AI-native business operating system. The Project Manager was

@@ -168,3 +168,4 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-109 — Notion OAuth installation and signed webhook boundary](../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md)
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md)
 - [ADR-111 — SCM service extraction: one deployable over Inventory, Procurement and Commerce](../decisions/ADR-111-SCM-SERVICE-EXTRACTION.md)
+- [ADR-112 — Primary-checkout development Docker deployment and database isolation](../decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md)
