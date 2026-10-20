@@ -1,0 +1,4 @@
+# Generated HTML can contain upstream page markup and graph content.
+*.preview.html
+preview-*.html
+preview-output/

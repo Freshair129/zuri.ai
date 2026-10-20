@@ -1,0 +1,80 @@
+/* Independently authored Zuri theme. It styles presentation surfaces only. */
+html[data-zuri-graph-preview] {
+  --zuri-amber-citrus: #E8820C;
+  --zuri-brand-hover: #F09420;
+  --zuri-brand-dark: #B86A08;
+  --zuri-brand-tint: #FDE8D0;
+  --zuri-brand-surface: #FFF8F0;
+  --zuri-app-surface: #F7F8FA;
+  --zuri-card: #FFFFFF;
+  --zuri-mid-surface: #EFF1F3;
+  --zuri-rest-blue: #D6ECFA;
+  --zuri-rest-blue-text: #3D7A9E;
+  --zuri-mustard: #C6A052;
+  --zuri-navigation-glass: rgba(31, 41, 55, 0.98);
+  color-scheme: light;
+  background: var(--zuri-app-surface);
+  color: #1F2937;
+  font-family: "IBM Plex Sans Thai", Manrope, sans-serif;
+}
+
+html[data-zuri-graph-preview] body {
+  background-color: var(--zuri-app-surface);
+  color: #1F2937;
+  font-family: "IBM Plex Sans Thai", Manrope, sans-serif;
+}
+
+html[data-zuri-graph-preview] body :where(h1, h2, h3, h4) {
+  color: #1F2937;
+  font-family: Manrope, "IBM Plex Sans Thai", sans-serif;
+}
+
+html[data-zuri-graph-preview] body :where(a) {
+  color: var(--zuri-rest-blue-text);
+}
+
+html[data-zuri-graph-preview] body :where(button, input, select, textarea, [role="button"]) {
+  font-family: "IBM Plex Sans Thai", Manrope, sans-serif;
+}
+
+html[data-zuri-graph-preview] body :where(button, [role="button"]) {
+  border-color: var(--zuri-mid-surface);
+  border-radius: 0.5rem;
+}
+
+html[data-zuri-graph-preview] body :where(button:hover, [role="button"]:hover) {
+  border-color: var(--zuri-brand-hover);
+}
+
+html[data-zuri-graph-preview] body :where(input, select, textarea) {
+  border-color: #D1D5DB;
+  border-radius: 0.375rem;
+  background-color: var(--zuri-card);
+  color: #1F2937;
+}
+
+html[data-zuri-graph-preview] body :where(header, [role="banner"]) {
+  background-color: var(--zuri-navigation-glass);
+  color: var(--zuri-card);
+}
+
+html[data-zuri-graph-preview] body :where([data-zuri-primary], .zuri-primary) {
+  border-color: var(--zuri-brand-dark);
+  background-color: var(--zuri-amber-citrus);
+  color: #FFFFFF;
+}
+
+html[data-zuri-graph-preview] body :where([data-zuri-primary], .zuri-primary):hover {
+  background-color: var(--zuri-brand-hover);
+}
+
+html[data-zuri-graph-preview] body :where([data-zuri-surface="brand"], .zuri-brand-surface) {
+  background-color: var(--zuri-brand-surface);
+}
+
+html[data-zuri-graph-preview] body :where([data-zuri-surface="blue"], .zuri-rest-surface) {
+  background-color: var(--zuri-rest-blue);
+  color: var(--zuri-rest-blue-text);
+}
+
+/* Keep the source graph's canvas, SVG, dimensions, and interaction styles intact. */

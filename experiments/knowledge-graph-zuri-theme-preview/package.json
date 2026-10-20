@@ -1,0 +1,9 @@
+{
+  "name": "knowledge-graph-zuri-theme-preview",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "preview": "node build-preview.mjs",
+    "test": "node --test test/build-preview.test.mjs"
+  }
+}
