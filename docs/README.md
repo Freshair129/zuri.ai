@@ -1,5 +1,5 @@
 ---
-version: "0.3.0"
+version: "0.4.0"
 status: active
 superseded_by: null
 ---
@@ -9,6 +9,14 @@ superseded_by: null
 This index links to the current ZAI source records, their compatibility exports,
 and generated navigation views. It is hand-authored so the generated category
 indexes do not index themselves.
+
+## Rebuild blueprint
+
+Use the [reconciled rebuild blueprint](architecture/blueprint/README.md) for the
+minimum source profile, six specification chapters, exact contracts and source
+precedence. Its operative projection rules preserve canonical IDs and separate
+retired or deferred clauses from product requirements. Delivery state, developer
+plans and historical test receipts are separate from the build specification.
 
 ## Source and identity
 
@@ -65,5 +73,5 @@ kit outside this execution repository.
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
-Version diff 0.2.0 → 0.3.0: adds the domain/service documentation layer and scoped
-verification entrypoints; preserves canonical records and generated feature views.
+Version diff 0.3.0 → 0.4.0: adds the reconciled rebuild blueprint entrypoint;
+preserves canonical records and generated feature views.

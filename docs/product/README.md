@@ -240,7 +240,7 @@ Generated navigation for current source documents in the product grouping. A pat
 - [Features (FEAT registry)](../FEATURES.md)
 - [Gap Analysis — zuri-ai requirements × ความสามารถเดิมใน GoVibe](../GAP-ANALYSIS-ZURI-GOVIBE.md)
 - [Zuri V2 — Project Manager Module: PRD & SDD](../PRD-SDD-v1.0.md)
-- [Zuri V2 — Product Definition](../PRODUCT.md)
+- [zuri.ai — Product Definition](../PRODUCT.md)
 
 ## Feature views
 
