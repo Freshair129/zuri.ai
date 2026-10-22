@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.3.0"
+version: "0.3.1"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 ---
 
@@ -57,7 +57,7 @@ Vitest runs are serialized because the proof reporter shares a cache path.
 | Final changed-test Server run | Root passed all 28 changed/new test files / 495 tests together on the frozen application patch; zero failed or skipped. |
 | Final generation/governance/build | Registry, service map, graph, 96 views, governance and corpus checks passed. Governance reports 0 critical / 4 baseline warnings / 43 informational items. Final Server build passed. |
 
-The independently reviewed application/Runtime freeze contains 70 changed/new
+The initial independently reviewed application/Runtime freeze at c19fae73 contains 70 changed/new
 paths against d1a3acb4. Its fingerprint is
 `743eeb7208b6042d337592ce7547e3ca89910ddbc5dd5120ddf63dceb18cb78d`:
 SHA-256 each UTF-8 file after LF normalization, join ordinal-sorted
@@ -65,6 +65,20 @@ SHA-256 each UTF-8 file after LF normalization, join ordinal-sorted
 joined text. The reviewer independently reproduced the digest and found no
 remaining P1/P2 in the reviewed patch. This binds source review; it does not
 claim that the reviewer reran tests.
+
+The first hosted run at c19fae73 found two stale test fixtures outside that
+changed-test set: the full Scope service mock omitted newly imported CRUD
+exports, and the answer-parity fixture supplied a zero context budget instead
+of Core's default prepared budget. The follow-up adds the mock exports and
+uses `DEFAULT_CONTEXT_BUDGET_CHARS`; it changes no production code and preserves
+the authorization and answer-parity assertions. All four relevant test files
+passed together, 41/41 tests. The original hosted run remains a failed run;
+qualification requires a fresh run on the corrected commit.
+
+The corrected application/Runtime freeze contains 72 changed/new paths against
+d1a3acb4, using the same fingerprint procedure:
+`16a0fa16eb8591c57ed5d0958b75f175448dc403157ab1b05f3edd39f885126e`.
+Its production source matches c19fae73; only the two test fixtures differ.
 
 The broad local diagnostic was interrupted after 245 completed files. It found
 seven stale assertions in `conversation-runtime-grounding.test.js` and
@@ -108,3 +122,6 @@ first-run configuration prompt; standalone lint is NOT_CONFIGURED, not PASS.
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
 engine boundaries and exact-head CI qualification without rewriting the original
 assessment or its matrix.
+
+0.3.0 → 0.3.1 records the two hosted-CI fixture corrections and their targeted
+verification without changing the implemented behavior or assessment snapshot.
