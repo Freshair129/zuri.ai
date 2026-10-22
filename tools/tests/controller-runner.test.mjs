@@ -1059,6 +1059,54 @@ test('CLI intake converts post-registration authoritative absence to bounded ret
   assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
 });
 
+test('CLI intake keeps a same-fingerprint post-registration hold without binding digest quarantined', async (t) => {
+  const f = candidateFixture(t);
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const getRun = controller.getRun.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 2) throw Object.assign(new Error('fixture post-registration read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      return getRun(taskId);
+    };
+    if (property === 'registerTask') return () => {
+      registrationCalls++;
+      throw Object.assign(new Error('fixture pre-commit failure'), { code: 'FIXTURE_NO_EFFECT' });
+    };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const unknown = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(unknown.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(registrationCalls, 1);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateBefore.stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+  assert.equal(stateBefore.records[unknown.fingerprint].state, 'REGISTRATION_IN_FLIGHT');
+
+  delete stateBefore.stickyHold.bindingDigest;
+  fs.writeFileSync(stateFile, JSON.stringify(stateBefore));
+  const stillHeld = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(stillHeld.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(stillHeld.hold, true);
+  assert.equal(stillHeld.fingerprint, unknown.fingerprint);
+  assert.equal(registrationCalls, 1);
+  const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfter.stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+  assert.equal(stateAfter.stickyHold.bindingDigest, undefined);
+  assert.equal(stateAfter.records[unknown.fingerprint].state, 'REGISTRATION_IN_FLIGHT');
+  assert.equal(stateAfter.records[unknown.fingerprint].attempts, 1);
+  assert.equal(stateAfter.reconciledStickyHolds, undefined);
+});
+
 test('CLI intake keeps a post-registration unknown hold quarantined after dependencies change', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });

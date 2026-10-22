@@ -132,8 +132,9 @@ function pendingSticky(fingerprint, code, detail, recordedAt, phase, bindingDige
 function isCurrentUnknownHold(hold, fingerprint, bindingDigest) {
   return hold?.code === 'DURABLE_CONTROLLER_STATE_UNKNOWN'
     && hold.fingerprint === fingerprint
-    && (hold.bindingDigest === undefined || hold.bindingDigest === bindingDigest)
-    && (hold.phase === undefined || UNKNOWN_HOLD_PHASES.includes(hold.phase));
+    && (hold.phase === undefined
+      ? hold.bindingDigest === undefined || hold.bindingDigest === bindingDigest
+      : UNKNOWN_HOLD_PHASES.includes(hold.phase) && hold.bindingDigest === bindingDigest);
 }
 
 function resolveUnknownHold(file, taskId, expectedHold, resolution, resolvedAt, record) {
