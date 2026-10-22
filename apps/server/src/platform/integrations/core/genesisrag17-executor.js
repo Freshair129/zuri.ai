@@ -35,12 +35,23 @@ import {
   GENESIS_RAG17_PARSER_PROFILES,
   GENESIS_RAG17_PARSER_VERSION_2,
   genesisRag17ParserIdentity,
+  genesisRag17BinaryParserIdentity,
+  isKnownGenesisRag17BinaryParserIdentity,
   genesisRag17ParserProfileForProvider,
   genesisRag17RecognizerIdentity,
   isHistoricalParserIdentity,
   parseGenesisRag17Document,
   parsedArtifactContentHash,
+  genesisRag17SourceLocators,
 } from '@/modules/knowledge/genesisrag17-source'
+import {
+  decodeKnowledgeBinary,
+  hashKnowledgeBinaryBytes,
+  isKnowledgeBinaryProfile,
+  knowledgeBinaryDescriptorFromRawContentType,
+  parseKnowledgeBinary,
+  rawKnowledgeBinaryContentType,
+} from '@/modules/knowledge/knowledge-binary-parser'
 import {
   assertZeroPii,
   STRUCTURED_RECORD_DENY_POLICY,
@@ -143,11 +154,24 @@ function inputValue(input) {
   const sourceId = source?.sourceId ?? source?.source_id
   const documentId = source?.documentId ?? source?.document_id
   const version = source?.version ?? source?.sourceVersion ?? source?.source_version
+  const contentType = source?.contentType ?? source?.content_type ?? RAW_CONTENT_TYPE
   const scope = parseGenesisRag17Scope(input?.scope || source?.scope)
   if (!sourceId || !documentId || !version || typeof content !== 'string' || !content.length) {
     throw serviceError(400, 'GenesisRAG17 raw entry requires sourceId, documentId, version and text content', 'GENESISRAG17_RAW_INPUT_INVALID')
   }
-  const contentHash = hashGenesisRag17Text(content)
+  const hasBinaryDescriptor = source?.binaryProfile !== undefined || source?.binaryEncoding !== undefined
+  if (!hasBinaryDescriptor && /(?:^|;)\s*zuri-(?:profile|encoding)\s*=/iu.test(contentType)) {
+    throw serviceError(400, 'GenesisRAG17 raw content type cannot carry a binary profile without an explicit descriptor', 'GENESISRAG17_BINARY_PROFILE_UNSUPPORTED')
+  }
+  if (hasBinaryDescriptor && !isKnowledgeBinaryProfile({ binaryProfile: source?.binaryProfile, binaryEncoding: source?.binaryEncoding, contentType })) {
+    throw serviceError(400, 'GenesisRAG17 binary profile or media type is unsupported', 'GENESISRAG17_BINARY_PROFILE_UNSUPPORTED')
+  }
+  const binaryBytes = hasBinaryDescriptor ? decodeKnowledgeBinary(content, { binaryProfile: source.binaryProfile, binaryEncoding: source.binaryEncoding, contentType }) : null
+  const rawByteLength = hasBinaryDescriptor ? binaryBytes.length : null
+  if (hasBinaryDescriptor && source?.rawByteLength !== undefined && source.rawByteLength !== rawByteLength) {
+    throw serviceError(400, 'GenesisRAG17 source rawByteLength does not match original bytes', 'GENESISRAG17_BINARY_LENGTH_MISMATCH')
+  }
+  const contentHash = hasBinaryDescriptor ? hashKnowledgeBinaryBytes(binaryBytes) : hashGenesisRag17Text(content)
   if (source?.contentHash && source.contentHash !== contentHash) {
     throw serviceError(400, 'GenesisRAG17 source contentHash does not match exact UTF-8 content', 'GENESISRAG17_CONTENT_HASH_MISMATCH')
   }
@@ -201,7 +225,7 @@ function inputValue(input) {
   // never supplies this pair —
   // `genesisRag17ParserIdentity` no longer returns it — so this path is
   // unreachable for anything but a historical request.
-  const isLegacyTextRequest = !structuredProfile && parserVersion !== undefined && isHistoricalParserIdentity(parserVersion, maxTokens) &&
+  const isLegacyTextRequest = !hasBinaryDescriptor && !structuredProfile && parserVersion !== undefined && isHistoricalParserIdentity(parserVersion, maxTokens) &&
     (requestedChunkerVersion === undefined || requestedChunkerVersion === GENESIS_RAG17_CHUNKER_VERSION)
   let expectedParserVersion
   let chunkerVersion
@@ -210,7 +234,9 @@ function inputValue(input) {
     chunkerVersion = GENESIS_RAG17_CHUNKER_VERSION
   } else {
     try {
-      expectedParserVersion = genesisRag17ParserIdentity({ maxTokens, profile: parserProfile })
+      expectedParserVersion = hasBinaryDescriptor
+        ? genesisRag17BinaryParserIdentity({ mediaType: contentType, maxTokens })
+        : genesisRag17ParserIdentity({ maxTokens, profile: parserProfile })
     } catch {
       throw serviceError(400, 'GenesisRAG17 parser configuration identity is unsupported', 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED')
     }
@@ -234,9 +260,10 @@ function inputValue(input) {
     version: String(version),
     content,
     contentHash,
+    ...(hasBinaryDescriptor ? { binaryProfile: source.binaryProfile, binaryEncoding: source.binaryEncoding, binaryBytes, rawByteLength, rawContentType: rawKnowledgeBinaryContentType(contentType, { binaryProfile: source.binaryProfile, binaryEncoding: source.binaryEncoding }) } : {}),
     sourceType: source?.sourceType ?? source?.source_type ?? RAW_SOURCE_TYPE,
     sourceUri: source?.sourceUri ?? source?.source_uri ?? sourceId,
-    contentType: source?.contentType ?? source?.content_type ?? RAW_CONTENT_TYPE,
+    contentType,
     policy: { allowEmbedding: policy.allowEmbedding, allowPublication: policy.allowPublication },
     maxTokens,
     parserProfile,
@@ -265,6 +292,7 @@ function sourceIdentity(value) {
     documentId: value.documentId,
     version: value.version,
     contentHash: value.contentHash,
+    ...(value.binaryProfile ? { binaryProfile: value.binaryProfile, binaryEncoding: value.binaryEncoding, mediaType: value.contentType, rawByteLength: value.rawByteLength } : {}),
   })
 }
 
@@ -302,7 +330,51 @@ function intentDerivation(value) {
   }
 }
 
-function parseForValue(value, rawArtifactId, parsedArtifactId) {
+async function parseForValue(value, rawArtifactId, parsedArtifactId) {
+  if (value.binaryProfile) {
+    const binary = await parseKnowledgeBinary({
+      bytes: value.binaryBytes,
+      mediaType: value.contentType,
+      sourceId: value.sourceId,
+      sourceVersion: value.version,
+      rawArtifactId,
+      parserVersion: value.parserVersion,
+    })
+    const parsedAndChunks = parseGenesisRag17Document({
+      documentId: value.documentId,
+      rawArtifactId,
+      parsedArtifactId,
+      content: binary.normalizedText,
+      maxTokens: value.maxTokens,
+    })
+    parsedAndChunks.parsed.parserVersion = value.parserVersion
+    parsedAndChunks.parsed.structure = binary.structure
+    parsedAndChunks.parsed.textBlocks = binary.textBlocks
+    parsedAndChunks.parsed.tables = binary.tables
+    parsedAndChunks.parsed.metadata = {
+      ...parsedAndChunks.parsed.metadata,
+      extractorVersion: value.parserVersion,
+      parserVersion: value.parserVersion,
+      sourceId: value.sourceId,
+      sourceVersion: value.version,
+      rawArtifactId,
+      sourceFormat: binary.metadata.sourceFormat,
+      binaryProfile: value.binaryProfile,
+      binaryEncoding: value.binaryEncoding,
+      mappingVersion: binary.metadata.mappingVersion,
+      rawSha256: value.contentHash,
+      rawByteLength: binary.metadata.rawByteLength,
+      extractedTextSha256: binary.metadata.extractedTextSha256,
+      sourceSpans: binary.sourceSpans,
+      warnings: binary.warnings,
+      ...(binary.metadata.elementCount !== undefined ? { elementCount: binary.metadata.elementCount } : {}),
+      ...(binary.metadata.pageCount !== undefined ? { pageCount: binary.metadata.pageCount } : {}),
+      ...(binary.metadata.archiveEntryCount !== undefined ? { archiveEntryCount: binary.metadata.archiveEntryCount } : {}),
+      ...(binary.metadata.expandedArchiveBytes !== undefined ? { expandedArchiveBytes: binary.metadata.expandedArchiveBytes } : {}),
+      ...(binary.metadata.outputByteLength !== undefined ? { outputByteLength: binary.metadata.outputByteLength } : {}),
+    }
+    return parsedAndChunks
+  }
   return parseGenesisRag17Document({
     documentId: value.documentId,
     rawArtifactId,
@@ -322,6 +394,7 @@ function intentRequest(value) {
     version: value.version,
     content: value.content,
     contentHash: value.contentHash,
+    ...(value.binaryProfile ? { binaryProfile: value.binaryProfile, binaryEncoding: value.binaryEncoding, rawByteLength: value.rawByteLength } : {}),
     sourceType: value.sourceType,
     sourceUri: value.sourceUri,
     contentType: value.contentType,
@@ -620,6 +693,21 @@ function payloadText(rawRecord) {
   }
 }
 
+function payloadValue(rawRecord) {
+  try { return JSON.parse(rawRecord.payloadJson) } catch { return null }
+}
+
+function payloadMatches(rawRecord, value) {
+  const payload = payloadValue(rawRecord)
+  if (!payload || payloadText(rawRecord) !== value.content) return false
+  if (!value.binaryProfile) return true
+  return payload.contentHash === value.contentHash
+    && payload.contentType === value.contentType
+    && payload.binaryProfile === value.binaryProfile
+    && payload.binaryEncoding === value.binaryEncoding
+    && payload.rawByteLength === value.rawByteLength
+}
+
 async function ensureCanonicalRawRecord(db, value, rawArtifactId, now) {
   if (value.rawExternalRecordId) {
     const existing = await db.rawExternalRecord.findFirst({
@@ -631,7 +719,7 @@ async function ensureCanonicalRawRecord(db, value, rawArtifactId, now) {
       },
     })
     if (!existing) throw serviceError(404, 'GenesisRAG17 RawExternalRecord is outside the requested scope', 'GENESISRAG17_RAW_SCOPE_DENIED')
-    if (existing.artifactId !== rawArtifactId || payloadText(existing) !== value.content) throw serviceError(409, 'GenesisRAG17 RawExternalRecord does not match the immutable source content', 'GENESISRAG17_RAW_MISMATCH')
+    if (existing.artifactId !== rawArtifactId || !payloadMatches(existing, value)) throw serviceError(409, 'GenesisRAG17 RawExternalRecord does not match the immutable source content', 'GENESISRAG17_RAW_MISMATCH')
     return existing
   }
   if (!value.connectionId) throw serviceError(400, 'GenesisRAG17 raw entry requires a canonical RawExternalRecord id or connectionId', 'GENESISRAG17_RAW_EXTERNAL_RECORD_REQUIRED')
@@ -657,11 +745,11 @@ async function ensureCanonicalRawRecord(db, value, rawArtifactId, now) {
     externalId: value.externalId,
     sourceType: ['PULL', 'WEBHOOK', 'FILE', 'MANUAL'].includes(value.sourceType) ? value.sourceType : 'MANUAL',
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
-    payload: { documentId: value.documentId, version: value.version, content: value.content, contentHash: value.contentHash },
+    payload: { documentId: value.documentId, version: value.version, content: value.content, contentHash: value.contentHash, contentType: value.contentType, ...(value.binaryProfile ? { binaryProfile: value.binaryProfile, binaryEncoding: value.binaryEncoding, rawByteLength: value.rawByteLength } : {}) },
     sourceUri: value.sourceUri,
     artifactId: rawArtifactId,
   }, { repository, now })
-  if (!result.rawRecord || result.rawRecord.artifactId !== rawArtifactId || payloadText(result.rawRecord) !== value.content) {
+  if (!result.rawRecord || result.rawRecord.artifactId !== rawArtifactId || !payloadMatches(result.rawRecord, value)) {
     throw serviceError(409, 'GenesisRAG17 canonical RawExternalRecord does not carry the requested immutable artifact', 'GENESISRAG17_RAW_MISMATCH')
   }
   return result.rawRecord
@@ -670,7 +758,7 @@ async function ensureCanonicalRawRecord(db, value, rawArtifactId, now) {
 async function ensureRaw(repository, value, rawArtifactId, canonicalRawRecord, now) {
   const existing = await repository.findRawByIdentity({ sourceId: value.sourceId, version: value.version, contentHash: value.contentHash, pipelineVersion: GENESIS_RAG17_PIPELINE_VERSION })
   if (existing) {
-    if (existing.id !== rawArtifactId || existing.rawExternalRecordId !== canonicalRawRecord.id || existing.content !== value.content || existing.documentId !== value.documentId || existing.visibility !== value.scope.visibility) throw serviceError(409, 'GenesisRAG17 raw identity was reused with different immutable content')
+    if (existing.id !== rawArtifactId || existing.rawExternalRecordId !== canonicalRawRecord.id || existing.content !== value.content || existing.contentType !== (value.rawContentType || value.contentType) || existing.documentId !== value.documentId || existing.visibility !== value.scope.visibility) throw serviceError(409, 'GenesisRAG17 raw identity was reused with different immutable content')
     return existing
   }
   return repository.createRaw({
@@ -683,7 +771,7 @@ async function ensureRaw(repository, value, rawArtifactId, canonicalRawRecord, n
     content: value.content,
     sourceType: value.sourceType,
     sourceUri: value.sourceUri,
-    contentType: value.contentType,
+    contentType: value.rawContentType || value.contentType,
     pipelineVersion: GENESIS_RAG17_PIPELINE_VERSION,
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
     ...value.scope,
@@ -694,7 +782,7 @@ async function ensureRaw(repository, value, rawArtifactId, canonicalRawRecord, n
 
 async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArtifactId, now) {
   const parserVersion = value.parserVersion
-  const parsedAndChunks = parseForValue(value, rawArtifactId, parsedArtifactId)
+  const parsedAndChunks = await parseForValue(value, rawArtifactId, parsedArtifactId)
   // Parser-1's parsed content is the raw text; parser-2's is the rendered
   // record text (FR-188, C-4). Either way it is the parser's own output.
   const parsedContent = parsedAndChunks.parsed.content
@@ -732,9 +820,11 @@ async function ensureParsedArtifact(repository, value, rawArtifactId, parsedArti
 
 async function ensureChunks(repository, value, rawArtifactId, parsedArtifactId, now) {
   const parserVersion = value.parserVersion
-  const parsedAndChunks = parseForValue(value, rawArtifactId, parsedArtifactId)
   const parsed = await repository.findParsedByRawAndParser(rawArtifactId, parserVersion)
   if (!parsed || parsed.id !== parsedArtifactId) throw serviceError(409, 'GenesisRAG17 chunking requires the matching parsed artifact')
+  const parsedAndChunks = value.binaryProfile
+    ? parseGenesisRag17Document({ documentId: value.documentId, rawArtifactId, parsedArtifactId, content: parsed.content, maxTokens: value.maxTokens })
+    : await parseForValue(value, rawArtifactId, parsedArtifactId)
   const chunks = []
   for (const candidate of parsedAndChunks.chunks) {
     const chunk = { ...candidate, parsedArtifactId }
@@ -764,7 +854,10 @@ async function ensureChunks(repository, value, rawArtifactId, parsedArtifactId, 
   if (persisted.length !== parsedAndChunks.chunks.length || persisted.some((chunk, index) => chunk.id !== chunks[index]?.id)) {
     throw serviceError(409, 'GenesisRAG17 persisted chunks do not match the immutable parser output', 'GENESISRAG17_CHUNK_LINEAGE_MISMATCH')
   }
-  return { parsed, chunks, parsedDocument: parsedAndChunks.parsed }
+  const parsedDocument = value.binaryProfile
+    ? { ...parsedAndChunks.parsed, parserVersion: parsed.parserVersion, structure: JSON.parse(parsed.structureJson), textBlocks: JSON.parse(parsed.textBlocksJson), tables: JSON.parse(parsed.tablesJson), metadata: JSON.parse(parsed.metadataJson) }
+    : parsedAndChunks.parsed
+  return { parsed, chunks, parsedDocument }
 }
 
 async function ensureIngestionIntent(repository, value, identity, run, rawArtifactId, now) {
@@ -951,7 +1044,16 @@ function lineageInputError() {
 // resolver and the batch resolver below both call exactly these, so they cannot disagree.
 function assertLineageRawIntegrity(raw) {
   if (!raw) throw serviceError(404, 'GenesisRAG17 raw artifact is outside the requested scope or missing', 'GENESISRAG17_LINEAGE_NOT_FOUND')
-  if (raw.contentHash !== hashGenesisRag17Text(raw.content)) throw serviceError(409, 'GenesisRAG17 raw artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+  const binary = knowledgeBinaryDescriptorFromRawContentType(raw.contentType)
+  if (binary) {
+    if (raw.contentType !== rawKnowledgeBinaryContentType(binary.mediaType, binary)) throw serviceError(409, 'GenesisRAG17 binary raw content type is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+    try {
+      const bytes = decodeKnowledgeBinary(raw.content, { ...binary })
+      if (raw.contentHash !== hashKnowledgeBinaryBytes(bytes)) throw new Error('binary hash mismatch')
+    } catch {
+      throw serviceError(409, 'GenesisRAG17 binary raw artifact hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+    }
+  } else if (raw.contentHash !== hashGenesisRag17Text(raw.content)) throw serviceError(409, 'GenesisRAG17 raw artifact content hash is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
 }
 
 function assertLineageRawMatches(raw, { sourceId, documentId, version }) {
@@ -962,6 +1064,14 @@ function assertLineageRawMatches(raw, { sourceId, documentId, version }) {
 
 function assertLineageCanonicalRaw(raw, canonicalRaw) {
   if (!canonicalRaw || canonicalRaw.artifactId !== raw.id || payloadText(canonicalRaw) !== raw.content) throw serviceError(409, 'GenesisRAG17 canonical RawExternalRecord link is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+  const binary = knowledgeBinaryDescriptorFromRawContentType(raw.contentType)
+  if (binary) {
+    const payload = payloadValue(canonicalRaw)
+    const bytes = decodeKnowledgeBinary(raw.content, { ...binary })
+    if (payload?.contentHash !== raw.contentHash || payload?.contentType !== binary.mediaType || payload?.binaryProfile !== binary.binaryProfile || payload?.binaryEncoding !== binary.binaryEncoding || payload?.rawByteLength !== bytes.length) {
+      throw serviceError(409, 'GenesisRAG17 canonical binary RawExternalRecord metadata is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+    }
+  }
 }
 
 function assertLineageParsed(raw, parsed) {
@@ -969,7 +1079,19 @@ function assertLineageParsed(raw, parsed) {
   // content is re-derived from the raw bytes here, so a citation still proves
   // raw -> parsed -> chunk rather than trusting the stored rendering.
   let expectedParsedContent = raw.content
-  if (parsed?.parserVersion === GENESIS_RAG17_PARSER_VERSION_2) {
+  const binary = knowledgeBinaryDescriptorFromRawContentType(raw.contentType)
+  if (binary) {
+    try {
+      const metadata = JSON.parse(parsed?.metadataJson || '{}')
+      const bytes = decodeKnowledgeBinary(raw.content, { ...binary })
+      const parserVersion = parsed?.parserVersion
+      if (!isKnownGenesisRag17BinaryParserIdentity({ parserVersion, mediaType: binary.mediaType, maxTokens: metadata.maxTokens }) || metadata.parserVersion !== parserVersion || metadata.extractorVersion !== parserVersion || metadata.sourceId !== raw.sourceId || metadata.sourceVersion !== raw.version || metadata.rawArtifactId !== raw.id || metadata.binaryProfile !== binary.binaryProfile || metadata.binaryEncoding !== binary.binaryEncoding || metadata.sourceFormat !== binary.mediaType || metadata.rawSha256 !== raw.contentHash || metadata.rawByteLength !== bytes.length || metadata.extractedTextSha256 !== hashGenesisRag17Text(parsed?.content) || !Array.isArray(metadata.sourceSpans) || metadata.mappingVersion !== 'source-locator-map-1') throw new Error('binary parsed lineage mismatch')
+      genesisRag17SourceLocators({ content: parsed.content, metadata }, 0, parsed.content.length)
+      expectedParsedContent = parsed.content
+    } catch {
+      throw serviceError(409, 'GenesisRAG17 binary parsed artifact does not match its raw parent', 'GENESISRAG17_LINEAGE_BROKEN')
+    }
+  } else if (parsed?.parserVersion === GENESIS_RAG17_PARSER_VERSION_2) {
     try {
       expectedParsedContent = parseGenesisRag17Document({ documentId: raw.documentId, rawArtifactId: raw.id, parsedArtifactId: parsed.id, content: raw.content, profile: GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD }).parsed.content
     } catch {
@@ -995,6 +1117,17 @@ function assertLineageChunk(parsed, chunk) {
 }
 
 function lineageCitation(raw, parsed, chunk) {
+  let sourceLocators = []
+  let locatorMappingVersion = null
+  try {
+    const metadata = JSON.parse(parsed.metadataJson || '{}')
+    if (metadata.mappingVersion === 'source-locator-map-1') {
+      locatorMappingVersion = metadata.mappingVersion
+      sourceLocators = genesisRag17SourceLocators({ content: parsed.content, metadata }, chunk.startOffset, chunk.endOffset)
+    }
+  } catch {
+    throw serviceError(409, 'GenesisRAG17 source locator metadata is invalid', 'GENESISRAG17_LINEAGE_BROKEN')
+  }
   return {
     sourceId: raw.sourceId,
     rawArtifactId: raw.id,
@@ -1006,6 +1139,7 @@ function lineageCitation(raw, parsed, chunk) {
     text: chunk.text,
     startOffset: chunk.startOffset,
     endOffset: chunk.endOffset,
+    ...(locatorMappingVersion ? { locatorMappingVersion, sourceLocators } : {}),
     rawExternalRecordId: raw.rawExternalRecordId,
   }
 }
@@ -1124,7 +1258,7 @@ export async function resolveGenesisRag17RawLineages(references, { db = prisma }
   return results
 }
 
-function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifactId, parsedContent, chunks, mentions }) {
+function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifactId, parsedContent, parsedMetadata, chunks, mentions }) {
   const stages = buildGenesisRag17StageIdentities(run.executionRunId, steps)
   const stage9 = stages.find((stage) => stage.stageNumber === 9)
   const batchId = deterministicId('grb', hashGenesisRag17Json({ executionRunId: run.executionRunId, attemptId: stage9.attemptId }))
@@ -1133,6 +1267,10 @@ function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifact
   // content, so that is what the batch carries. For parser-1 it is the raw
   // text byte for byte; for parser-2 it is the rendered record text (C-4).
   const content = typeof parsedContent === 'string' ? parsedContent : value.content
+  const binary = Boolean(value.binaryProfile)
+  const sourceLocators = (startOffset, endOffset) => binary
+    ? genesisRag17SourceLocators({ content, metadata: parsedMetadata }, startOffset, endOffset)
+    : undefined
   const source = {
     sourceId: value.sourceId,
     rawArtifactId,
@@ -1141,6 +1279,14 @@ function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifact
     version: value.version,
     contentHash: content === value.content ? value.contentHash : hashGenesisRag17Text(content),
     content,
+    ...(binary ? {
+      rawContentHash: value.contentHash,
+      binaryProfile: value.binaryProfile,
+      binaryEncoding: value.binaryEncoding,
+      mediaType: value.contentType,
+      parserVersion: value.parserVersion,
+      locatorMappingVersion: parsedMetadata.mappingVersion,
+    } : {}),
   }
   const contractChunks = chunks.map((chunk) => ({
     chunkId: chunk.id,
@@ -1150,7 +1296,17 @@ function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifact
     contentHash: chunk.contentHash,
     startOffset: chunk.startOffset,
     endOffset: chunk.endOffset,
+    ...(binary ? { locatorMappingVersion: parsedMetadata.mappingVersion, sourceLocators: sourceLocators(chunk.startOffset, chunk.endOffset) } : {}),
   }))
+  const contractMentions = mentions.map((mention) => {
+    const value = mentionContract(mention)
+    if (!binary) return value
+    const chunk = chunks.find((candidate) => candidate.id === mention.chunkId)
+    if (!chunk) throw serviceError(409, 'GenesisRAG17 Stage 8 mention is outside the parsed chunk set', 'GENESISRAG17_MENTION_DERIVATION_MISMATCH')
+    const startOffset = chunk.startOffset + mention.startOffset
+    const endOffset = chunk.startOffset + mention.endOffset
+    return { ...value, locatorMappingVersion: parsedMetadata.mappingVersion, sourceLocators: sourceLocators(startOffset, endOffset) }
+  })
   const batch = {
     schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
     batchId,
@@ -1161,7 +1317,7 @@ function buildBatch({ value, identity, run, steps, rawArtifactId, parsedArtifact
     source,
     policy: value.policy,
     chunks: contractChunks,
-    mentions,
+    mentions: contractMentions,
   }
   return { batch, stage9 }
 }
@@ -1315,7 +1471,7 @@ export async function ingestGenesisRag17Raw(input, {
             storage: storagePort,
             scope: value.scope,
             rawArtifactId: raw.id,
-            content: Buffer.from(value.content, 'utf8'),
+            content: value.binaryBytes || Buffer.from(value.content, 'utf8'),
             contentType: value.contentType || RAW_CONTENT_TYPE,
             bindingId: storageBinding.id,
             bindingRevision: storageBinding.revision,
@@ -1324,7 +1480,7 @@ export async function ingestGenesisRag17Raw(input, {
             now,
           })
         }
-        return { recordsIn: 1, recordsOut: 1, details: { artifactId: raw.id, rawExternalRecordId: raw.rawExternalRecordId, contentHash: raw.contentHash, receivedAt: raw.receivedAt.toISOString() } }
+        return { recordsIn: 1, recordsOut: 1, details: { artifactId: raw.id, rawExternalRecordId: raw.rawExternalRecordId, contentHash: raw.contentHash, ...(value.binaryProfile ? { rawByteLength: value.rawByteLength, binaryEncoding: value.binaryEncoding, mediaType: value.contentType } : {}), receivedAt: raw.receivedAt.toISOString() } }
       },
     },
     {
@@ -1335,7 +1491,7 @@ export async function ingestGenesisRag17Raw(input, {
         if (!raw) throw serviceError(409, 'GenesisRAG17 parsing requires the persisted raw artifact')
         const result = await ensureParsedArtifact(lineageRepository, value, raw.id, parsedArtifactId, now)
         parsed = result.parsed
-        return { recordsIn: 1, recordsOut: 1, details: { documentId: value.documentId, parsedArtifactId: parsed.id, structureCount: result.parsedDocument.structure.length, textBlockCount: result.parsedDocument.textBlocks.length, parserVersion: parsed.parserVersion, chunkerVersion: result.parsedDocument.metadata.chunkerVersion, maxTokens: result.parsedDocument.metadata.maxTokens } }
+        return { recordsIn: 1, recordsOut: 1, details: { documentId: value.documentId, parsedArtifactId: parsed.id, structureCount: result.parsedDocument.structure.length, textBlockCount: result.parsedDocument.textBlocks.length, parserVersion: parsed.parserVersion, chunkerVersion: result.parsedDocument.metadata.chunkerVersion, maxTokens: result.parsedDocument.metadata.maxTokens, ...(value.binaryProfile ? { sourceFormat: value.contentType, rawSha256: value.contentHash, rawByteLength: value.binaryBytes.length, mappingVersion: result.parsedDocument.metadata.mappingVersion, warningCount: result.parsedDocument.metadata.warnings.length } : {}) } }
       },
     },
     {
@@ -1357,7 +1513,7 @@ export async function ingestGenesisRag17Raw(input, {
           extractor_version: parsed.parserVersion,
           checksum: raw.contentHash,
         })
-        return { recordsIn: 1, recordsOut: 1, details: { provenanceHash: hashGenesisRag17Json(provenance), sourceId: value.sourceId, rawArtifactId: raw.id, parsedArtifactId: parsed.id } }
+        return { recordsIn: 1, recordsOut: 1, details: { provenanceHash: hashGenesisRag17Json(provenance), sourceId: value.sourceId, sourceVersion: value.version, sourceSha256: raw.contentHash, rawArtifactId: raw.id, parsedArtifactId: parsed.id, extractorVersion: parsed.parserVersion, ...(value.binaryProfile ? { rawByteLength: value.rawByteLength, binaryEncoding: value.binaryEncoding, mediaType: value.contentType } : {}) } }
       },
     },
     {
@@ -1365,8 +1521,9 @@ export async function ingestGenesisRag17Raw(input, {
       stageId: 'DPS-KI-NORMALIZE',
       recordsIn: 1,
       action: async () => {
-        const normalized = normalizeValue({ value: value.content, kind: 'text' })
-        const output = normalized.canonical === null ? value.content : normalized.canonical
+        const stageText = parsed?.content ?? value.content
+        const normalized = normalizeValue({ value: stageText, kind: 'text' })
+        const output = normalized.canonical === null ? stageText : normalized.canonical
         return { recordsIn: 1, recordsOut: 1, details: { normalization: 'rule_v1', canonicalHash: hashGenesisRag17Text(output), rawHash: value.contentHash } }
       },
     },
@@ -1382,7 +1539,7 @@ export async function ingestGenesisRag17Raw(input, {
         // runLocalStage commits as terminal STEP_FAILED evidence and the
         // admission runtime treats as permanent.
         const zeroPii = ZERO_PII_POLICY_BY_PROVIDER[value.provider]
-        if (zeroPii) zeroPii.assert(value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
+        if (zeroPii) zeroPii.assert(value.binaryProfile ? parsed?.content ?? value.content : value.content, { sourceId: value.sourceId, sourceUri: value.sourceUri })
         // The frozen v1 policy carries only the two processing permissions; the
         // six-field scope is still explicit and is validated before indexing.
         classification = { scope: value.scope, policy: value.policy, indexable: value.policy.allowEmbedding, publishable: value.policy.allowPublication }
@@ -1425,7 +1582,8 @@ export async function ingestGenesisRag17Raw(input, {
         if (!raw || !parsed) throw serviceError(409, 'GenesisRAG17 chunking requires raw and parsed artifacts')
         const result = await ensureChunks(lineageRepository, value, raw.id, parsedArtifactId, now)
         chunks = result.chunks
-        return { recordsIn: 1, recordsOut: chunks.length, details: { chunkCount: chunks.length, chunkIds: chunks.map((chunk) => chunk.id), exactSourceOffsets: true } }
+        const binaryMetadata = value.binaryProfile ? JSON.parse(parsed.metadataJson) : null
+        return { recordsIn: 1, recordsOut: chunks.length, details: { chunkCount: chunks.length, chunkIds: chunks.map((chunk) => chunk.id), exactSourceOffsets: true, ...(binaryMetadata ? { locatorMappingVersion: binaryMetadata.mappingVersion, sourceSpanCount: binaryMetadata.sourceSpans.length } : {}) } }
       },
     },
     {
@@ -1435,7 +1593,8 @@ export async function ingestGenesisRag17Raw(input, {
       action: async () => {
         if (!chunks.length) throw serviceError(409, 'GenesisRAG17 entity extraction requires persisted chunks')
         mentions = await ensureSourceMentions(lineageRepository, value, run, stage8ForMentions, raw, parsed, chunks, now)
-        return { recordsIn: chunks.length, recordsOut: mentions.length, details: { mentionCount: mentions.length, semanticTypes: [...new Set(mentions.map((mention) => mention.semanticType))], recognizer: value.recognizerVersion, recognizerVersion: value.recognizerVersion, recognizerProvenance: value.recognizerProvenance, derivationHash: hashGenesisRag17Json(intentDerivation(value)) } }
+        const binaryMetadata = value.binaryProfile ? JSON.parse(parsed.metadataJson) : null
+        return { recordsIn: chunks.length, recordsOut: mentions.length, details: { mentionCount: mentions.length, semanticTypes: [...new Set(mentions.map((mention) => mention.semanticType))], recognizer: value.recognizerVersion, recognizerVersion: value.recognizerVersion, recognizerProvenance: value.recognizerProvenance, derivationHash: hashGenesisRag17Json(intentDerivation(value)), ...(binaryMetadata ? { locatorMappingVersion: binaryMetadata.mappingVersion } : {}) } }
       },
     },
   ]
@@ -1480,7 +1639,7 @@ export async function ingestGenesisRag17Raw(input, {
   if (!mentions.length && raw && parsed && chunks.length) mentions = await ensureSourceMentions(lineageRepository, value, run, stage8ForMentions, raw, parsed, chunks, now)
   if (!raw || !parsed || !chunks.length) throw serviceError(409, 'GenesisRAG17 local lineage is incomplete; cannot create the Stage 9 batch')
   intent = await lineageRepository.updateIntent(intent.id, { status: 'RUNNING', nextStageNumber: 9, lastErrorJson: null })
-  const { batch, stage9 } = buildBatch({ value, identity, run, steps, rawArtifactId: raw.id, parsedArtifactId: parsed.id, parsedContent: parsed.content, chunks, mentions })
+  const { batch, stage9 } = buildBatch({ value, identity, run, steps, rawArtifactId: raw.id, parsedArtifactId: parsed.id, parsedContent: parsed.content, parsedMetadata: parsed ? JSON.parse(parsed.metadataJson || '{}') : {}, chunks, mentions })
   assertGenesisRag17BatchIntegrity(batch)
   let batchRow = await persistBatch(db, { batch, run, stage9, now, idFactory })
   let response = batchRow.responseJson ? JSON.parse(batchRow.responseJson) : null

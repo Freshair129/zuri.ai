@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-012 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Project, Domain and Feature implementation baseline](../../architecture/project-manager-system/23-PROJECT-DOMAIN-FEATURE-IMPLEMENTATION-BASELINE.md) — `references` · `metadata` · `current`
 - [ADR-102 — Project Manager execution trace and append-only replay](../../decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

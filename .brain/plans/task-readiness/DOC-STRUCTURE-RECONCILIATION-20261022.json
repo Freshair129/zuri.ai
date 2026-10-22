@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "task-readiness/v1",
+  "taskId": "DOC-STRUCTURE-RECONCILIATION-20261022",
+  "objective": "Reconcile the Zuri documentation structure and align docs:graph/docs:preflight with the canonical per-ID record registry, filesystem indexes, and source-linked domain SRS profile; correct lifecycle and link findings, remove false fixture edges, and reduce repeat filesystem root checks without weakening scan coverage or rewriting unresolved requirements.",
+  "acceptance": [
+    "AGENTS.md points writers to one current documentation structure standard and requires filesystem enumeration before creating or replacing documents.",
+    "The standard defines the product, canonical requirements, domain, service, decision, plan, roadmap, operations, and historical artifact boundaries without creating a second requirements source.",
+    "A domain SRS profile uses linked canonical requirements and preserves local clauses until individually reconciled; service documents explain execution and verification boundaries.",
+    "Plan and roadmap indexes identify the sole live delivery-state source and classify the 24-week Markdown and HTML artifacts without claiming stale data is current.",
+    "All 41 tracked direct files under docs/ at the reviewed base appear in a root-file register with declared status or an explicit unresolved classification.",
+    "All 20 tracked direct folders under docs/ at the reviewed base appear in a directory register with their existing entrypoint or an explicit missing-index note.",
+    "Current missing domain SRS coverage is recorded as a gap without inventing ownership, requirements, or acceptance.",
+    "Canonical IDs, local user changes, and historical approval evidence are preserved; replaced partial workflow text remains recoverable in Git history.",
+    "The direct-root register gives every one of the 41 files a role, reader evidence, and an explicit keep/history/conflict disposition; source conflicts and partial duplicates are reconciled only where accepted decisions or exact implementation evidence support it.",
+    "Every direct docs/ folder resolves to a local README, generated navigation, canonical ID index, or archive entrypoint; no duplicate folder catalog is added where a canonical index already exists.",
+    "The S-01 runbook path no longer carries a conflicting partial workflow copy and clearly points to the candidate source and active delivery policy.",
+    "The Workspace design note distinguishes implemented model/authority evidence from the remaining FR-066 UX correction, and its source paths resolve to the current monorepo locations.",
+    "GoVibe integration and gap-analysis documents are labeled as historical proposal/snapshot material; their relationship to ADR-009 and ADR-024 is stated without conflating those decisions.",
+    "Graph requirement and feature nodes, lifecycle, and membership are derived from canonical per-ID records located by registry/document-registry/index.json; PRD-SDD-v1.0.md and FEATURES.md are not semantic input sources.",
+    "Preflight validates canonical record and FEAT-to-FR consistency from the same records, without inferring domain ownership from a folder, service, or feature name.",
+    "Preflight checks the direct docs root-file and directory registers against live filesystem entries, excluding only named generated projections, and reports unregistered entries without deleting or moving files.",
+    "An SRS that declares doc_type: domain-srs-view is checked against the source-linked profile and canonical links; legacy SRS files without this marker remain untouched, no SRS is mandated for every domain, and no owner is inferred.",
+    "New focused tests prove canonical record authority, registry/index mismatch handling, inventory-register drift detection, and SRS profile validation; tests pass after an observed failing run.",
+    "Canonical graph lifecycle uses the same strict retirement semantics as the ID ledger; retired feature records retain their ADR successor edge and current/deferred requirement prose is not misread as retirement.",
+    "Workspace-root lookup is stable and cached per process, preserving app-local and repository-shared path mappings while avoiding repeated filesystem probes.",
+    "Synthetic requirement IDs in fixtures and stale @tested paths do not create dangling graph edges; graph reports zero dangling edges without reducing source or test enumeration.",
+    "Generated uncommitted corpus/report outputs are described as build commands instead of broken navigation links; missing approval/evidence artifacts remain explicitly reported rather than reconstructed."
+  ],
+  "writeScope": [
+    "AGENTS.md",
+    "docs/README.md",
+    "docs/governance/DOCUMENTATION-REQUIREMENTS-SPEC.md",
+    "docs/governance/ROOT-FILE-REGISTER.md",
+    "docs/governance/DOCS-DIRECTORY-REGISTER.md",
+    "docs/domains/README.md",
+    "docs/plans/README.md",
+    "docs/roadmap/README.md",
+    "docs/roadmap/ROADMAP-zuri-ai-24w-program.html",
+    "docs/templates/README.md",
+    "docs/templates/DOMAIN-SRS.md.template",
+    ".brain/plans/task-readiness/DOC-STRUCTURE-RECONCILIATION-20261022.json",
+    "docs/prompts/README.md",
+    "docs/runbooks/S-01.md",
+    "docs/zuri_workspace_system.md",
+    "docs/GOVIBE-INTEGRATION.md",
+    "docs/GAP-ANALYSIS-ZURI-GOVIBE.md",
+    "apps/server/scripts/doc-graph.mjs",
+    "apps/server/scripts/doc-preflight.mjs",
+    "apps/server/scripts/document-registry-format.mjs",
+    "apps/server/scripts/canonical-document-registry.mjs",
+    "apps/server/scripts/document-profile-validation.mjs",
+    "apps/server/tests/node/canonical-document-registry.test.mjs",
+    "apps/server/tests/node/document-profile-validation.test.mjs",
+    "tools/generate-document-views.mjs",
+    "tools/tests/document-views.test.mjs",
+    "docs/features/FEAT-001/design.md",
+    "docs/features/FEAT-002/design.md",
+    "docs/features/FEAT-003/design.md",
+    "docs/features/FEAT-004/design.md",
+    "docs/features/FEAT-005/design.md",
+    "docs/features/FEAT-006/design.md",
+    "docs/features/FEAT-007/design.md",
+    "docs/features/FEAT-008/design.md",
+    "docs/features/FEAT-009/design.md",
+    "docs/features/FEAT-010/design.md",
+    "docs/features/FEAT-011/design.md",
+    "docs/features/FEAT-012/design.md",
+    "docs/features/FEAT-013/design.md",
+    "docs/features/FEAT-014/design.md",
+    "docs/features/FEAT-015/design.md",
+    "docs/features/FEAT-016/design.md",
+    "docs/features/FEAT-017/design.md",
+    "docs/features/FEAT-018/design.md",
+    "docs/features/FEAT-019/design.md",
+    "docs/features/FEAT-020/design.md",
+    "docs/features/FEAT-021/design.md",
+    "docs/features/FEAT-022/design.md",
+    "docs/features/FEAT-023/design.md",
+    "docs/features/FEAT-024/design.md",
+    "docs/features/FEAT-025/design.md",
+    "docs/features/FEAT-026/design.md",
+    "docs/features/FEAT-027/design.md",
+    "docs/features/FEAT-028/design.md",
+    "docs/features/FEAT-029/design.md",
+    "docs/features/FEAT-030/design.md",
+    "docs/features/FEAT-031/design.md",
+    "docs/features/FEAT-032/design.md",
+    "docs/features/FEAT-033/design.md",
+    "docs/features/FEAT-034/design.md",
+    "docs/features/FEAT-035/design.md",
+    "docs/features/FEAT-036/design.md",
+    "docs/features/FEAT-037/design.md",
+    "docs/features/FEAT-038/design.md",
+    "docs/features/FEAT-039/design.md",
+    "docs/features/FEAT-040/design.md",
+    "docs/features/FEAT-041/design.md",
+    "docs/features/FEAT-042/design.md",
+    "docs/features/FEAT-043/design.md",
+    "docs/features/FEAT-044/design.md",
+    "docs/features/FEAT-045/design.md",
+    "docs/features/FEAT-046/design.md",
+    "docs/product/README.md",
+    "docs/operations/README.md",
+    "docs/governance/README.md",
+    "apps/server/scripts/doc-views.mjs",
+    "apps/server/scripts/id-anchors.mjs",
+    "apps/server/scripts/workspace-path.mjs",
+    "apps/server/src/modules/project-manager/application/approval-gateway.js",
+    "apps/server/tests/node/workspace-path.test.mjs",
+    "apps/server/tests/unit/governance-canonical-source.test.js",
+    "apps/server/tests/unit/program-task-evidence.test.js",
+    "docs/appendices/F-glossary.md",
+    "docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md",
+    "docs/domains/agent/CHARTER.md",
+    "docs/domains/asset-management/CHARTER.md",
+    "docs/domains/commerce/CHARTER.md",
+    "docs/domains/crm/CHARTER.md",
+    "docs/domains/identity/CHARTER.md",
+    "docs/domains/integration/CHARTER.md",
+    "docs/domains/inventory/CHARTER.md",
+    "docs/domains/knowledge/CHARTER.md",
+    "docs/domains/line-oa-studio/CHARTER.md",
+    "docs/domains/market-intelligence/CHARTER.md",
+    "docs/domains/marketing/CHARTER.md",
+    "docs/domains/platform-control/CHARTER.md",
+    "docs/domains/procurement/CHARTER.md",
+    "docs/domains/project-manager/CHARTER.md",
+    "docs/ERP-MODULE-MAP.md",
+    "docs/roadmap/PLAN-SMARTGIFT-DATA-BACKFILL-AND-CUSTOMER-IMPORT.md",
+    "docs/roadmap/ROADMAP-zuri-ai-24w-program.md"
+  ],
+  "checks": [
+    {
+      "shell": false,
+      "executable": "git",
+      "argv": [
+        "diff",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "tools/document-registry.mjs",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "--test",
+        "apps/server/tests/node/canonical-document-registry.test.mjs",
+        "apps/server/tests/node/document-profile-validation.test.mjs",
+        "apps/server/tests/node/workspace-path.test.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "--test",
+        "tools/tests/document-views.test.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "node_modules/vitest/vitest.mjs",
+        "run",
+        "--root",
+        ".",
+        "--config",
+        "./vitest.config.js",
+        "tests/unit/program-task-evidence.test.js",
+        "tests/unit/governance-canonical-source.test.js"
+      ],
+      "cwd": "apps/server"
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "apps/server/scripts/doc-graph.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "tools/generate-document-views.mjs"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "tools/generate-document-views.mjs",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "apps/server/scripts/doc-graph.mjs",
+        "--check"
+      ],
+      "cwd": "."
+    },
+    {
+      "shell": false,
+      "executable": "node",
+      "argv": [
+        "apps/server/scripts/doc-preflight.mjs",
+        "--strict"
+      ],
+      "cwd": "."
+    }
+  ],
+  "mandateReference": "Direct user requests to fix the documentation structure and the 2026-10-22 reply explicitly authorizing updates to docs:graph and docs:preflight to align with the new system."
+}

@@ -15,6 +15,8 @@ import {
 import { hasKnowledgeRunAuthority, hasKnowledgeScopeAuthority } from './knowledge-execution-authority'
 import { createKnowledgeRepository } from './knowledge-repository'
 import { GENESIS_RAG17_PARSER_VERSION_2 } from './genesisrag17-structured-record'
+import { isKnownGenesisRag17BinaryParserIdentity } from './genesisrag17-source'
+import { KNOWLEDGE_BINARY_MAPPING_VERSION, KNOWLEDGE_BINARY_PARSER_VERSION } from './knowledge-binary-parser'
 import {
   assertKnowledgeBusinessCurrent,
   assertKnowledgeFileCurrent,
@@ -300,11 +302,21 @@ function parsePublicationReceipt(value, ingestion, scope, decisionId) {
  * hash is that content's hash, not the raw ingestion hash. It is accepted only
  * when the parsed artifact is a parser-2 child of this exact raw artifact.
  */
-async function structuredParsedContentHash(repository, ingestion) {
+async function structuredParsedEvidence(repository, ingestion) {
   if (typeof repository.getParsedArtifact !== 'function') return null
   const parsed = await repository.getParsedArtifact(ingestion.parsedArtifactId)
-  if (!parsed || parsed.rawArtifactId !== ingestion.rawArtifactId || parsed.parserVersion !== GENESIS_RAG17_PARSER_VERSION_2 || typeof parsed.content !== 'string') return null
-  return hashGenesisRag17Text(parsed.content)
+  if (!parsed || parsed.rawArtifactId !== ingestion.rawArtifactId || typeof parsed.content !== 'string') return null
+  if (parsed.parserVersion === GENESIS_RAG17_PARSER_VERSION_2) return { contentHash: hashGenesisRag17Text(parsed.content), binary: null }
+  if (typeof parsed.parserVersion !== 'string' || !parsed.parserVersion.startsWith(`${KNOWLEDGE_BINARY_PARSER_VERSION};`)) return null
+  try {
+    const metadata = JSON.parse(parsed.metadataJson || '{}')
+    const parserVersion = parsed.parserVersion
+    if (!isKnownGenesisRag17BinaryParserIdentity({ parserVersion, mediaType: metadata.sourceFormat, maxTokens: metadata.maxTokens }) || metadata.parserVersion !== parserVersion || metadata.extractorVersion !== parserVersion || metadata.sourceId !== ingestion.sourceId || metadata.sourceVersion !== ingestion.sourceVersion || metadata.rawArtifactId !== ingestion.rawArtifactId || metadata.rawSha256 !== ingestion.contentHash || metadata.mappingVersion !== KNOWLEDGE_BINARY_MAPPING_VERSION || metadata.extractedTextSha256 !== hashGenesisRag17Text(parsed.content) || !Array.isArray(metadata.sourceSpans)) return null
+    return {
+      contentHash: hashGenesisRag17Text(parsed.content),
+      binary: { rawContentHash: metadata.rawSha256, binaryProfile: metadata.binaryProfile, binaryEncoding: metadata.binaryEncoding, mediaType: metadata.sourceFormat, parserVersion, locatorMappingVersion: metadata.mappingVersion },
+    }
+  } catch { return null }
 }
 
 async function verifyPublicationEvidence(repository, ingestion, source, corpus) {
@@ -340,9 +352,16 @@ async function verifyPublicationEvidence(repository, ingestion, source, corpus) 
   const batchSource = request?.source
   const stages = Array.isArray(request?.stages) ? request.stages : []
   const stage9 = stages.find((stage) => stage?.stageNumber === 9)
+  const parsedEvidence = await structuredParsedEvidence(repository, ingestion)
   const batchContentMatches = batchSource && (batchSource.contentHash === ingestion.contentHash
-    || batchSource.contentHash === await structuredParsedContentHash(repository, ingestion))
-  if (request.schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION || request.runId !== ingestion.executionRunId || !sameScope(requestScope, scope) || !sameScope(batchScope, scope) || !stage9 || stage9.runId !== ingestion.executionRunId || stage9.pipelineStageId !== stageIdForNumber(9) || stage9.executionStepId !== batch.stage9StepId || stage9.attemptId !== batch.stage9AttemptId || !batchSource || !sourceIdentityMatches(batchSource.sourceId, source) || !sourceIdentityMatches(batchSource.documentId, source) || batchSource.rawArtifactId !== ingestion.rawArtifactId || batchSource.parsedArtifactId !== ingestion.parsedArtifactId || batchSource.version !== ingestion.sourceVersion || !batchContentMatches) {
+    || batchSource.contentHash === parsedEvidence?.contentHash)
+  const batchBinaryMatches = !parsedEvidence?.binary || (batchSource.rawContentHash === parsedEvidence.binary.rawContentHash
+    && batchSource.binaryProfile === parsedEvidence.binary.binaryProfile
+    && batchSource.binaryEncoding === parsedEvidence.binary.binaryEncoding
+    && batchSource.mediaType === parsedEvidence.binary.mediaType
+    && batchSource.parserVersion === parsedEvidence.binary.parserVersion
+    && batchSource.locatorMappingVersion === parsedEvidence.binary.locatorMappingVersion)
+  if (request.schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION || request.runId !== ingestion.executionRunId || !sameScope(requestScope, scope) || !sameScope(batchScope, scope) || !stage9 || stage9.runId !== ingestion.executionRunId || stage9.pipelineStageId !== stageIdForNumber(9) || stage9.executionStepId !== batch.stage9StepId || stage9.attemptId !== batch.stage9AttemptId || !batchSource || !sourceIdentityMatches(batchSource.sourceId, source) || !sourceIdentityMatches(batchSource.documentId, source) || batchSource.rawArtifactId !== ingestion.rawArtifactId || batchSource.parsedArtifactId !== ingestion.parsedArtifactId || batchSource.version !== ingestion.sourceVersion || !batchContentMatches || !batchBinaryMatches) {
     throw publicationPrerequisite('Knowledge batch source lineage does not match the admitted source')
   }
 
@@ -526,6 +545,11 @@ function verifyLineage(lineage, citation, entry, scope) {
   }
   for (const key of SCOPE_KEYS) {
     if (lineage[key] !== undefined && lineage[key] !== scope[key]) throw serviceError(502, 'Knowledge query returned a chunk outside the requested scope', 'KNOWLEDGE_LINEAGE_MISMATCH')
+  }
+  if (lineage.locatorMappingVersion !== undefined) {
+    if (lineage.locatorMappingVersion !== KNOWLEDGE_BINARY_MAPPING_VERSION || !Array.isArray(lineage.sourceLocators) || !lineage.sourceLocators.length || lineage.sourceLocators.some((locator) => !Number.isSafeInteger(locator.artifactStartUtf16) || !Number.isSafeInteger(locator.artifactEndUtf16) || locator.artifactStartUtf16 < lineage.startOffset || locator.artifactEndUtf16 > lineage.endOffset || locator.artifactEndUtf16 <= locator.artifactStartUtf16 || typeof locator.location?.kind !== 'string')) {
+      throw serviceError(502, 'Knowledge query returned invalid typed source locators', 'KNOWLEDGE_LINEAGE_MISMATCH')
+    }
   }
   return lineage
 }
@@ -980,6 +1004,7 @@ export async function resolveKnowledgeCitation(
     text: lineage.text,
     startOffset: lineage.startOffset,
     endOffset: lineage.endOffset,
+    ...(lineage.locatorMappingVersion ? { locatorMappingVersion: lineage.locatorMappingVersion, sourceLocators: lineage.sourceLocators } : {}),
   }
 }
 

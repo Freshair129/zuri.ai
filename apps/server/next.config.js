@@ -8,7 +8,18 @@ const standalone = process.env.NEXT_OUTPUT === 'standalone'
 
 const nextConfig = {
   reactStrictMode: true,
-  ...(standalone ? { output: 'standalone' } : {}),
+  ...(standalone
+    ? {
+        output: 'standalone',
+        // The app has its own lockfile and Docker build context. Keep standalone
+        // tracing rooted here so local workspace lockfiles cannot relocate server.js.
+        outputFileTracingRoot: __dirname,
+        outputFileTracingIncludes: {
+          '/**': ['./node_modules/.prisma/client/**', './node_modules/@zuri/prisma-postgres/**'],
+        },
+      }
+    : {}),
+  serverExternalPackages: ['@zuri/prisma-postgres'],
   // @req NFR-008 — `next dev`'s on-demand-entries cache disposes a compiled
   // route after 60s of inactivity (Next's own default: maxInactiveAge, plus a
   // 5-route pagesBufferLength — see node_modules/next/dist/*/server/config-shared.js).
@@ -31,21 +42,6 @@ const nextConfig = {
     // plus headroom, so nothing gets evicted purely for exceeding the buffer.
     pagesBufferLength: 200,
   },
-  experimental: {
-    instrumentationHook: true,
-    serverComponentsExternalPackages: ['@zuri/prisma-postgres'],
-    ...(standalone
-      ? {
-          // Both generated Prisma clients carry a native query engine the file
-          // tracer cannot always follow (the Postgres one is an external package
-          // resolved at run time). Copy them explicitly into the standalone tree.
-          outputFileTracingIncludes: {
-            '/**': ['./node_modules/.prisma/client/**', './node_modules/@zuri/prisma-postgres/**'],
-          },
-        }
-      : {}),
-  },
-
   // `/line-oa/edge-connection` was renamed to `/line-oa/connections` when edge
   // execution was retired from LINE OA Studio. The old path is a page an owner may
   // have bookmarked, so it answers with a redirect rather than a 404. (Cited in

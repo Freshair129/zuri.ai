@@ -1,4 +1,4 @@
-const { defineConfig } = require('@playwright/test')
+const { chromium, defineConfig } = require('@playwright/test')
 const fs = require('fs')
 const path = require('path')
 // @req FR-046 — the port and the isolated database are one decision made in one
@@ -11,13 +11,15 @@ const { E2E_PLUGIN_CLIENT_ID, E2E_PLUGIN_CLIENT_NAME, e2ePluginRedirectUri } = r
 const target = e2eTarget()
 const useProductionServer = process.env.E2E_SERVER_MODE === 'production'
 
-// Prefer the Playwright-managed chromium for this version; if its download is
+// Prefer the Playwright-managed chromium for the installed package; if its download is
 // unavailable (offline machine), fall back to any locally installed
 // ms-playwright chromium build.
 function resolveChromium() {
+  const explicit = process.env.ZURI_E2E_BROWSER
+  if (explicit && fs.existsSync(explicit)) return explicit
   const root = path.join(process.env.LOCALAPPDATA || '', 'ms-playwright')
   try {
-    const own = path.join(root, 'chromium-1148', 'chrome-win', 'chrome.exe')
+    const own = chromium.executablePath()
     if (fs.existsSync(own)) return undefined // let Playwright use its default
     const candidates = fs
       .readdirSync(root)
@@ -37,8 +39,6 @@ function resolveChromium() {
   // "Executable doesn't exist" before a single page is opened, which reads as
   // 87 product failures instead of one missing download. ZURI_E2E_BROWSER pins
   // an explicit executable when the guess below is wrong.
-  const explicit = process.env.ZURI_E2E_BROWSER
-  if (explicit && fs.existsSync(explicit)) return explicit
   const programFiles = [process.env.ProgramFiles, process.env["ProgramFiles(x86)"], process.env.LOCALAPPDATA].filter(Boolean)
   for (const base of programFiles) {
     for (const rel of ["Google/Chrome/Application/chrome.exe", "Microsoft/Edge/Application/msedge.exe"]) {

@@ -1,7 +1,7 @@
 ---
-version: "1.40.0b"
+version: "1.42.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-10-05T00:00:00+07:00,Codex"
+last_update: "2026-10-19T00:00:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -12,6 +12,10 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
+Version diff 1.41.0b → 1.42.0b (2026-10-19): add `/control/knowledge-studio`, a read-only installation-operator surface over the generated Zuri document graph and the original local renderer; 118 page routes.
+
+Version diff 1.40.0b -> 1.41.0b: add `/notifications`, the authenticated in-app Agent approval inbox and idempotent mark-read action (TASK-ZAI-011 / FR-026); 117 page routes. This is local source only; no production migration or deployment is claimed.
+
 Version diff 1.39.0b -> 1.40.0b: add the FR-278 read-only `/growth/line-sales` executive dashboard and its explicit unavailable Ads/Lead/call states; 116 page routes.
 
 Version diff 1.38.0b -> 1.39.0b: add the FR-275 `/growth/insights` page (Marketing Insights); 115 page routes.
@@ -20,14 +24,14 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.40.0b |
+| **Version** | 1.42.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-10-05 |
+| **Last Updated** | 2026-10-19 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=116; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=118; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -93,6 +97,7 @@ mean production identity, external providers or cutover gates are complete.
 | `/plugin/authorize` | Plugin Authorization Consent (อนุมัติการเชื่อมต่อปลักอิน) | none — a bare server-rendered page, deliberately outside every shell so nothing about the granting account's scope surrounds a decision about delegating it | state, in server-derived terms only, what a first-party plugin is asking for — its registered name, the capabilities its own viewer resolves to, the exact redirect target and the granting account — and take approval or refusal. Only the POST it submits mints an authorization code (ADR-052 D4) | auth required (→ `/login`), invalid request refused in place without naming or following the `redirect_uri` that failed, session store unavailable stated as an outage rather than a refusal | implemented; `src/app/(entry)/plugin/authorize/page.jsx`, `POST /api/plugin/auth/authorize`, FR-123 |
 | `/workspace-home` | Workspace Home | BusinessRoutingShell | joined top-level Workspaces (Portfolio); owner collaboration panel — ACTIVE members with remove, PENDING invites with revoke, and a mint form whose invite code is shown once with copy affordances (AC-067.1/2/7); owner continuation into the FR-020 one-step Business creator; Business Routing link only when Business access exists (AC-066.6); shell header offers sign-out (FR-046/FR-095) | auth required, incomplete profile redirect, loading, empty, error, session unavailable (503 kept apart from 401 — retry state, no redirect); panel-only states: roster loading, roster refused (same 404 as an absent Workspace), no members, no pending invites, expired-but-revocable invite, minted-code shown once, per-action confirm and server refusal | implemented; `src/app/(entry)/workspace-home/page.jsx`, `src/modules/identity/workspace-collaboration-view.js`, `src/lib/viewer-failure.js`, `/api/onboarding/state`, `/api/workspace-memberships` (GET roster, DELETE remove), `/api/workspace-invites` (POST mint), `/api/workspace-invites/[id]` (DELETE revoke), FR-046, FR-066, FR-067 |
 | `/overview` | Business Home Dashboard | BusinessShell; shell-level cross-domain projection | Business briefing, KPI/health, strategy and attention links; Topbar offers sign-out (FR-046/FR-095) | Business required, ready, forbidden, loading, empty, error, offline | implemented beta; `src/app/(pm)/overview/page.jsx`, FR-060 |
+| `/notifications` | Agent Approval Notifications | BusinessShell; global Topbar destination | read the authenticated person's approval notices and unread count; acknowledge an individual notice idempotently | auth required, loading, empty, error; each notice is recipient-only | implemented locally; `src/app/(pm)/notifications/page.jsx`, `GET /api/agent/approval-notifications`, `POST /api/agent/approval-notifications/[id]`, TASK-ZAI-011 / FR-026; production migration and deployment not claimed |
 
 ### 3.2 Projects & Work domain — global surfaces
 
@@ -275,6 +280,7 @@ and does not require an active Business selection.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
+| `/control/knowledge-studio` | Knowledge Studio | PlatformControlShell → local document graph | read-only graph of indexed Zuri Markdown documents and explicit relations; domain/service grouping, source tree, search, kind and hop filters, exact Markdown reader; original graph renderer loaded from the loopback local host | installation operator only, no Business scope; auth, loading, forbidden, graph/source unavailable and local host unavailable are explicit | local integration; `src/app/(control)/control/knowledge-studio/page.jsx`, FR-289; local renderer is not bundled or deployed |
 | `/control/roadmap` | Platform Programme Roadmap | PlatformControlShell → programme plan snapshot | read-only six-phase / twelve-sprint / thirty-task plan, gates and deliverables; entered from `/settings` (operator-only link) and exits to `/businesses` through the shell header, which also offers sign-out (FR-046/FR-095) | auth required, loading, forbidden, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/roadmap/page.jsx`, FR-105 / ADR-048 |
 | `/control/mission-control` | Mission Control | PlatformControlShell → programme observability | read-only 119-node / 133-edge / 21-wave programme DAG, candidate-parallel merge gates, blocker families, and PORL observation boundary; no run, dispatch, approval, or deployment action | forbidden (404), auth required, ready; `isOperator` only; no Business scope; unknown/unavailable observations remain explicit | implemented locally; `src/app/(control)/control/mission-control/page.jsx`, FR-260–FR-264 / ADR-086 / ADR-092 |
 | `/control/errors` | Error events | PlatformControlShell → deduplicated error list | operator reads errors grouped by fingerprint with occurrence count and first/last seen, resolves one; no request/response content, only name/message/parsed stack frames | forbidden (404), auth required, ready; `isOperator` only; no Business scope | implemented locally; `src/app/(control)/control/errors/page.jsx`, FR-247 / ADR-095 |

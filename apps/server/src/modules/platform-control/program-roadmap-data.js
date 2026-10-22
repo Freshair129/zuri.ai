@@ -5,8 +5,8 @@
 
 import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 
-// Re-projected 2026-10-17 from the source document's own frontmatter and
-// tables (v0.4.35 → v0.4.36): the metadata below states what the
+// Re-projected 2026-10-18 from the source document's own frontmatter and
+// tables (v0.4.39 → v0.4.40): the metadata below states what the
 // DOCUMENT says about itself, never what today's git happens to be —
 // refreshing baselineCommit to "current HEAD" would falsify the plan's
 // provenance. The document's baseline moved because the document was
@@ -14,8 +14,8 @@ import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.36',
-  updated: '2026-10-17',
+  version: '0.4.40',
+  updated: '2026-10-18',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
   programmeEnd: '2027-02-07',
@@ -148,7 +148,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-008', 'SPR-ZAI-03', 'Role-scoped memory partition and retrieval policy', 'FR', 'C-3', 'H3', 'planned'],
   ['TASK-ZAI-009', 'SPR-ZAI-03', 'Agent Factory, the standard business agent template', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-010', 'SPR-ZAI-04', 'Approval Gateway L1 to L4 over the FR-026 action gate', 'FR', 'C-3', 'H3', 'planned'],
-  ['TASK-ZAI-011', 'SPR-ZAI-04', 'Verification and notification fabric on approval outcomes', 'FR', 'C-2', 'H2', 'planned'],
+  ['TASK-ZAI-011', 'SPR-ZAI-04', 'Verification and notification fabric on approval outcomes', 'FR', 'C-2', 'H2', 'done'],
   ['TASK-ZAI-012', 'SPR-ZAI-04', 'Mission feed: agent missions and their approvals surface as Development-domain work in the Project system', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-013', 'SPR-ZAI-05', 'Standard Business Template and provisioning path', 'FR', 'C-2', 'H2', 'planned'],
   ['TASK-ZAI-014', 'SPR-ZAI-05', 'Onboard Business number two end to end under isolation', 'FR', 'C-3', 'H3', 'planned'],

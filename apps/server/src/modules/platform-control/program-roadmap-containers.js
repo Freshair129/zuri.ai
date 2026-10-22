@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.37, 2026-10-18) so the board can open a task the way the html board
+// (v0.4.40, 2026-10-18) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -327,7 +327,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-008",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Claude",
     "executor": "Claude",
@@ -417,7 +417,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-010",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "Codex",
@@ -426,7 +426,7 @@ export const PROGRAMME_CONTAINERS = {
     "links": {
       "code": "apps/server/src/modules/agent/approval-gateway.js",
       "doc": "docs/change-requests/agent-approval/APPROVAL-GATEWAY-V1.md",
-      "test": "apps/server/tests/integration/agent-approval-gateway.test.js"
+      "test": "apps/server/tests/integration/agent-approval-tier-acceptance.test.js"
     },
     "linkState": {
       "code": "present",
@@ -438,7 +438,7 @@ export const PROGRAMME_CONTAINERS = {
     "dod": {
       "acceptance": {
         "text": "Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused",
-        "checked": false
+        "checked": true
       },
       "success": {
         "text": "Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder",
@@ -446,55 +446,55 @@ export const PROGRAMME_CONTAINERS = {
       },
       "exit": {
         "text": "Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case",
-        "checked": false
+        "checked": true
       }
     },
-    "changelog": "PR #684 merged as 67bf0371c60b948fe1ff73dc1f3b13cc5d96802d from exact head e3f252421d1e004b4999c130021b17d697a2ae5f. Local SQLite 176 tests, isolated PostgreSQL 15/15, governance/build, exact-head Governance/Edge/test shards and Verify passed; PR E2E/Desktop were skipped. The explicit L2 duplicate-vote test satisfies the success criterion. Keep the L4 under-quorum refusal and complete positive/negative evidence for every tier unchecked; task remains review. No production, Supabase, provider or live-agent activation is claimed.",
+    "changelog": "PR #684 (`67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`) delivered the gateway; PR #708 (`982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`) completed the missing under-quorum cases. Exact-head Governance/Edge and independent Verify/Review passed for both. Focused acceptance passed 176 SQLite + 15 isolated PostgreSQL for #684 and 28/28 for #708. E2E/Desktop were skipped, not passed. Contract v1.1.0 defines no production L3 action; L3 is an isolated registry fixture only. No production/provider activation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 58000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-007"
     ],
-    "evidence": "PR #684 merged; direct L4 under-quorum and complete tier-negative proof remain open"
+    "evidence": "PRs #684 and #708 merged; #708 completes the remaining under-quorum/tier-negative acceptance; exact-head checks and independent Verify/Review passed; see ROADMAP.md revision 2.164.0b"
   },
   "TASK-ZAI-011": {
     "container": "TC-TASK-ZAI-011",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Codex",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/app/api/agent/line-webhook/route.js",
-      "doc": "docs/FEATURE-MAP.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/agent/approval-notifications.js",
+      "doc": "docs/appendices/A-api-spec.md",
+      "test": "apps/server/tests/integration/agent-approval-notifications.test.js"
     },
     "linkState": {
-      "code": "missing",
-      "doc": "missing",
-      "test": "unavailable"
+      "code": "present",
+      "doc": "present",
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given an approval decision, when it is recorded, then the requester and the next approver are notified exactly once",
-        "checked": false
+        "text": "Given an approval decision is recorded, when its quorum step commits, then the same transaction stores one requester outcome notice and one notice for each eligible active, unvoted direct Business owner: next action while pending or outcome after a terminal decision.",
+        "checked": true
       },
       "success": {
-        "text": "Given a notification transport failure, when the send is retried, then no duplicate notification is delivered",
-        "checked": false
+        "text": "Given notice persistence fails during a decision, when the decision is retried, then rollback leaves no vote or notices and the retry stores one decision with exactly one notice per recipient.",
+        "checked": true
       },
       "exit": {
-        "text": "Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry",
-        "checked": false
+        "text": "Given a recipient reads an in-app approval notice, when another principal requests the same notice or the recipient repeats mark-read, then the other principal cannot see it and the repeated acknowledgement preserves the original readAt timestamp.",
+        "checked": true
       }
     },
-    "changelog": "Opened as the second half of deliverable nine. Audit exists through FR-014; verification and notification do not. FR-093 (outbound reply receipt) gives the delivery half a precedent to follow.",
+    "changelog": "Bounded in-app scope delivered in PR #714, merged as f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1 from exact head ac88c99672c945c38e26dcd63a312ee4e2a30652. The integration suite covers quorum-step recipients, recipient-only reads, idempotent mark-read, rollback on notification persistence failure, and a no-duplicate retry. This does not provide email or push transport and does not claim production migration apply or deployment.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 38000,
     "totalTokens": 0,
@@ -629,14 +629,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. PR #705 candidate c15ef9dd1f2246b24f71146a40baeae4785665f3 merged as b7add99074de4d310e3ee58e9b898cb0f0938e10 with matching tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac; hosted Governance 39054993823 and Edge 39054993820 passed applicable checks, and its two isolated synthetic same-principal A/B/A memory/context suites passed 16/16 and 32/32 (48/48 total), with E2E/Desktop skipped. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply, SmartGift-sentinel non-disclosure across every reader, broader generic private-memory scope, live-agent/provider switching and Task14 E2E remain unverified. Task14 stays in-progress / HOSTED_CI / MERGED, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
+    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-013"
     ],
-    "evidence": "PR #705 merged as `b7add99074de4d310e3ee58e9b898cb0f0938e10` from candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3`; matching tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98`, base parent `7a661d95c7db57122a0899652c354831cac559ac`. Hosted Governance 39054993823 and Edge 39054993820 passed applicable checks; isolated synthetic same-principal A/B/A memory/context suites 16/16 + 32/32 = 48/48; E2E/Desktop skipped. Standalone SmartGift MCP/CLI/local pricing readers remain out of scope; production corpusContext, all-reader SmartGift-sentinel non-disclosure, broader generic-memory scope, live-agent/provider switching and full Task14 E2E remain unverified."
+    "evidence": "Section 3.1 row 6"
   },
   "TASK-ZAI-015": {
     "container": "TC-TASK-ZAI-015",
@@ -739,14 +739,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/platform/integrations/providers/line/line-oa-evidence.js",
+      "code": "apps/server/src/modules/project-manager/mcp/transport.js (inbound Zuri MCP server only; no FlowAccount client exists)",
       "doc": "docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md",
-      "test": "unavailable"
+      "test": "unavailable (no FlowAccount MCP client or connector suite at accepted baseline)"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "unavailable"
+      "test": "missing"
     },
     "delivers": [
       "FR-125"
@@ -754,26 +754,26 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version",
+        "text": "Given a FlowAccount OAuth connection, when an authorized user selects one company, then the connection binds that company to the trusted Zuri Business and persists only an opaque credential reference",
         "checked": false
       },
       "success": {
-        "text": "Given a credential, when it is stored, then only an opaque reference is persisted and no secret transits a URL or log",
+        "text": "Given the official FlowAccount MCP connector, when Zuri connects, then OAuth data is secret-safe and FlowAccount create/mutate operations remain unreachable from this read-only task",
         "checked": false
       },
       "exit": {
-        "text": "Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited",
+        "text": "Given isolated MCP/OAuth contract tests, when the connector suite runs, then company binding, read allow-list enforcement, write/unknown-tool refusal, FR-081 provenance, audit and disconnect pass; live provider OAuth/company acceptance remains separate evidence",
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it \"design candidate only, nothing built and nothing authorized\". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.",
+    "changelog": "Opened from deliverable eight. LINE is connector one. FR-081 raw evidence remains the ingestion boundary. Historical 2026-09-13/2026-08-30 text proposed a REST Client Credentials pull; on 2026-10-18 direct human instruction, this task records a candidate to support FlowAccount's official hosted MCP connector with OAuth company selection and a Zuri-enforced read-only capability allow-list. The candidate does not amend normative FR-125 acceptance; historical FR-125 retains its original REST-first meaning; a sanctioned additive reviewed record must establish MCP requirements before implementation. No FlowAccount MCP client or provider acceptance evidence exists at the accepted baseline. The task stays planned / UNKNOWN / NOT_STARTED in SPR-ZAI-06; TASK-ZAI-005 remains its dependency. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) remain outside this task.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 42000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-005"
     ],
-    "evidence": "Section 3.1 row 8; ADR-053"
+    "evidence": "Section 3.1 row 8; FR-125; ADR-053 candidate section"
   },
   "TASK-ZAI-018": {
     "container": "TC-TASK-ZAI-018",
@@ -864,7 +864,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-012"
     ],
-    "evidence": "External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene/assets; no integrated Zuri product scene, renderer or route. Phase04 remains 0/5 accepted."
+    "evidence": "Section 3.1 row 1"
   },
   "TASK-ZAI-020": {
     "container": "TC-TASK-ZAI-020",
@@ -909,7 +909,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "T3 job/session presence is present in the external prototype; Zuri Business-scoped reads, route/read-port integration and live-source provenance are not evidenced."
+    "evidence": "Section 3.1 row 1"
   },
   "TASK-ZAI-021": {
     "container": "TC-TASK-ZAI-021",
@@ -954,7 +954,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "Partial reduced-motion animation freezing and labeled camera-control buttons are present in the prototype; full keyboard, screen-reader, WCAG, mobile and fallback acceptance remains unverified."
+    "evidence": "UI-DESIGN-SYSTEM section 3"
   },
   "TASK-ZAI-022": {
     "container": "TC-TASK-ZAI-022",
@@ -999,7 +999,7 @@ export const PROGRAMME_CONTAINERS = {
     "dependsOn": [
       "TASK-ZAI-020"
     ],
-    "evidence": "T3 job/session status inputs exist only in the external prototype; Zuri live-turn provenance, Business Mission feed and live-agent/provider switching acceptance are not evidenced."
+    "evidence": "Proposal scope, Business Layer"
   },
   "TASK-ZAI-023": {
     "container": "TC-TASK-ZAI-023",
@@ -1045,7 +1045,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-011",
       "TASK-ZAI-022"
     ],
-    "evidence": "L1-L4 approval queue, authorization and audit-equivalence acceptance are not evidenced; all implementation criteria remain unchecked."
+    "evidence": "Section 3.1 rows 1 and 9"
   },
   "TASK-ZAI-024": {
     "container": "TC-TASK-ZAI-024",
@@ -1173,14 +1173,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new. Public PR #704 remains OPEN/unmerged at actual head 452e49190018d8cf2174074f1436f540ef78610f; it changes a proposed contract and navigation only. Hosted Governance 39057868248 and Edge 39057868260 passed applicable checks, with E2E/Desktop skipped. This is not accepted contract, graph API/UI/runtime implementation, or test evidence; all implementation criteria remain unchecked and TASK-ZAI-027 stays planned behind TASK-ZAI-026.",
+    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 68000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-024"
     ],
-    "evidence": "Public PR #704 remains open/unmerged at head 452e49190018d8cf2174074f1436f540ef78610f and proposes a contract only. Hosted Governance 39057868248 and Edge 39057868260 passed applicable checks; E2E/Desktop skipped. No accepted contract, graph API/UI/runtime implementation or test proof; criteria remain unchecked and TASK-ZAI-027 planned behind it."
+    "evidence": "Section 3.1 row 3"
   },
   "TASK-ZAI-027": {
     "container": "TC-TASK-ZAI-027",
@@ -2241,14 +2241,14 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/parsing.js",
+      "code": "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
       "doc": "docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md",
-      "test": "unavailable"
+      "test": "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
     },
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "unavailable"
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
@@ -2266,14 +2266,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that \"adding a binary parser alone is not enough\" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that \"adding a binary parser alone is not enough\" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider. 2026-10-18: additive FR-288/SDD-114 govern the bounded managed binary candidate. PR #709's PDF/DOCX/static-HTML source, byte admission, deterministic locations and bounded table-span repair merged at `781e6a376e37162d9e930b59d30c2dac74073823` from `2984cae8fde6430f262520aeb409837cc17d0fdd`; the focused 21/21 patch-byte proof, independent Verify/Review and exact-head hosted Governance/Edge/Docker checks passed. Hosted E2E/Desktop were skipped. Task048 remains in-progress: full native Stage 9–17, OCR, binary browser/UAT, hard RSS/egress, provider, deployment and production exits remain open.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 56000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-046"
     ],
-    "evidence": "17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138"
+    "evidence": "17-stage flow, \"PDF/OCR/HTML/table parser\" row; FR-115, FR-138; bounded source PR #709 merged, native/OCR/UAT/provider/production exits open"
   },
   "TASK-ZAI-049": {
     "container": "TC-TASK-ZAI-049",

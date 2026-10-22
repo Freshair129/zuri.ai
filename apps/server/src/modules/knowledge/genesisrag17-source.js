@@ -14,6 +14,11 @@ import {
   isStructuredCatalogProvider,
   renderStructuredCatalogDocument,
 } from './genesisrag17-structured-record'
+import {
+  KNOWLEDGE_BINARY_FORMATS,
+  KNOWLEDGE_BINARY_MAPPING_VERSION,
+  KNOWLEDGE_BINARY_PARSER_VERSION,
+} from './knowledge-binary-parser'
 
 // @req FR-109 — Tier 1 preserves raw content, parsed structure, exact chunk
 // substrings and every source-mention occurrence for the GenesisRAG17 batch.
@@ -671,6 +676,31 @@ export function genesisRag17ParserIdentity({ maxTokens = GENESIS_RAG17_DEFAULT_M
   return `${GENESIS_RAG17_PARSER_VERSION_3};chunker=${GENESIS_RAG17_CHUNKER_VERSION_2};maxTokens=${boundedMaxTokens}`
 }
 
+const GENESIS_RAG17_BINARY_PARSER_BUILD_HISTORY = Object.freeze([
+  Object.freeze({ binaryParserVersion: 'knowledge-binary-parser-1', mappingVersion: 'source-locator-map-1', pdfjs: '6.4.299', parse5: '8.0.1', yauzl: '3.4.0', saxes: '6.0.0', textParserVersion: 'genesisrag17-parser-3', textChunkerVersion: 'genesisrag17-chunker-2' }),
+])
+const CURRENT_BINARY_PARSER_BUILD = GENESIS_RAG17_BINARY_PARSER_BUILD_HISTORY[0]
+
+function binaryParserIdentityForBuild(build, mediaType, maxTokens) {
+  const boundedMaxTokens = Math.max(1, Math.floor(maxTokens))
+  const textIdentity = boundedMaxTokens === GENESIS_RAG17_DEFAULT_MAX_TOKENS
+    ? build.textParserVersion
+    : `${build.textParserVersion};chunker=${build.textChunkerVersion};maxTokens=${boundedMaxTokens}`
+  return `${build.binaryParserVersion};mediaType=${String(mediaType).toLowerCase()};mapping=${build.mappingVersion};pdfjs=${build.pdfjs};parse5=${build.parse5};yauzl=${build.yauzl};saxes=${build.saxes};text=${textIdentity}`
+}
+
+/** Versioned identity for the bounded, offline binary profile and its locator map. */
+export function genesisRag17BinaryParserIdentity({ mediaType, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS } = {}) {
+  if (!Object.hasOwn(KNOWLEDGE_BINARY_FORMATS, String(mediaType || '').toLowerCase())) throw parserConfigError('GenesisRAG17 binary media type is unknown')
+  return binaryParserIdentityForBuild(CURRENT_BINARY_PARSER_BUILD, mediaType, maxTokens)
+}
+
+/** Keep accepted historical parser/build identities resolvable across upgrades. */
+export function isKnownGenesisRag17BinaryParserIdentity({ parserVersion, mediaType, maxTokens = GENESIS_RAG17_DEFAULT_MAX_TOKENS } = {}) {
+  if (!Object.hasOwn(KNOWLEDGE_BINARY_FORMATS, String(mediaType || '').toLowerCase())) return false
+  return GENESIS_RAG17_BINARY_PARSER_BUILD_HISTORY.some((build) => binaryParserIdentityForBuild(build, mediaType, maxTokens) === parserVersion)
+}
+
 function subjectBeforeRelation(text, relationOffset) {
   const boundary = Math.max(
     text.lastIndexOf('.', relationOffset - 1),
@@ -777,5 +807,54 @@ export function parsedArtifactContentHash(parsed) {
     textBlocks: parsed.textBlocks,
     tables: parsed.tables,
     metadata: parsed.metadata,
+  })
+}
+
+function validBinarySourceLocation(span) {
+  const nonnegative = (value) => Number.isSafeInteger(value) && value >= 0
+  const positive = (value) => Number.isSafeInteger(value) && value > 0
+  const validPath = (path) => Array.isArray(path) && path.length > 0 && path.every((part) => Array.isArray(part) && part.length === 2 && typeof part[0] === 'string' && part[0].length > 0 && nonnegative(part[1]))
+  switch (span?.kind) {
+    case 'pdf_page': return nonnegative(span.pageIndex)
+    case 'docx_paragraph': return nonnegative(span.bodyParagraphIndex)
+    case 'docx_table_cell': return nonnegative(span.tableIndex) && nonnegative(span.rowIndex) && nonnegative(span.cellIndex)
+      && nonnegative(span.gridColumn) && positive(span.gridSpan) && ['none', 'restart', 'continue'].includes(span.vMerge) && nonnegative(span.paragraphIndex)
+    case 'html_element': return validPath(span.elementPath) && typeof span.tagName === 'string' && span.tagName.length > 0
+    case 'html_table_cell': return nonnegative(span.tableIndex) && validPath(span.tablePath) && nonnegative(span.rowIndex)
+      && nonnegative(span.cellIndex) && nonnegative(span.gridColumn) && positive(span.rowSpan) && positive(span.colSpan)
+    default: return false
+  }
+}
+
+/** Return the exact typed raw-source pieces intersecting one parsed-text range. */
+export function genesisRag17SourceLocators(parsed, startOffset, endOffset) {
+  if (!parsed || !Number.isSafeInteger(startOffset) || !Number.isSafeInteger(endOffset) || startOffset < 0 || endOffset < startOffset || endOffset > parsed.content.length) {
+    throw new Error('GenesisRAG17 source locator range is invalid')
+  }
+  const spans = Array.isArray(parsed.metadata?.sourceSpans) ? parsed.metadata.sourceSpans : []
+  for (const span of spans) {
+    if (!Number.isSafeInteger(span.artifactStartUtf16) || !Number.isSafeInteger(span.artifactEndUtf16)
+      || !Number.isSafeInteger(span.unitStartUtf16) || !Number.isSafeInteger(span.unitEndUtf16)
+      || span.artifactStartUtf16 < 0 || span.artifactEndUtf16 <= span.artifactStartUtf16 || span.artifactEndUtf16 > parsed.content.length
+      || span.unitStartUtf16 < 0 || span.unitEndUtf16 < span.unitStartUtf16
+      || span.artifactEndUtf16 - span.artifactStartUtf16 !== span.unitEndUtf16 - span.unitStartUtf16
+      || typeof span.text !== 'string' || span.text !== parsed.content.slice(span.artifactStartUtf16, span.artifactEndUtf16)
+      || !validBinarySourceLocation(span)) {
+      throw new Error('GenesisRAG17 source locator span does not match parsed text')
+    }
+  }
+  return spans.flatMap((span, sourceSpanIndex) => {
+    const start = Math.max(startOffset, span.artifactStartUtf16)
+    const end = Math.min(endOffset, span.artifactEndUtf16)
+    if (end <= start) return []
+    const { text, kind, unitStartUtf16, unitEndUtf16: _unitEndUtf16, artifactStartUtf16, artifactEndUtf16, ...location } = span
+    return [{
+      sourceSpanIndex,
+      artifactStartUtf16: start,
+      artifactEndUtf16: end,
+      unitStartUtf16: unitStartUtf16 + start - artifactStartUtf16,
+      unitEndUtf16: unitStartUtf16 + end - artifactStartUtf16,
+      location: { kind, ...location },
+    }]
   })
 }

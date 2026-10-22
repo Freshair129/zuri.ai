@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-006 canonical record](feature.md).
 
 > 🟢 production queue, application schema/identity projection and `CUSTOMER_DATA_REVIEWER` binding verified; hosted review-store secret remains an explicit deployment configuration
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

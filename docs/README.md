@@ -1,5 +1,5 @@
 ---
-version: "0.3.0"
+version: "0.5.0"
 status: active
 superseded_by: null
 ---
@@ -9,6 +9,36 @@ superseded_by: null
 This index links to the current ZAI source records, their compatibility exports,
 and generated navigation views. It is hand-authored so the generated category
 indexes do not index themselves.
+
+## Rebuild blueprint
+
+Use the [reconciled rebuild blueprint](architecture/blueprint/README.md) for the
+minimum source profile, six specification chapters, exact contracts and source
+precedence. Its operative projection rules preserve canonical IDs and separate
+retired or deferred clauses from product requirements. Delivery state, developer
+plans and historical test receipts are separate from the build specification.
+
+## Documentation profiles and file indexes
+
+- [Proposed documentation requirements specification](governance/DOCUMENTATION-REQUIREMENTS-SPEC.md) defines product,
+  domain, feature, service, SRS, decision, plan, and evidence profiles.
+- [Domain inventory](domains/README.md) records charters, declared identifiers,
+  and observed SRS coverage.
+- [Plans index](plans/README.md) and [roadmap index](roadmap/README.md)
+  separate planning artifacts from canonical delivery state.
+- [Template index](templates/README.md) lists document templates and their
+  scope.
+- [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
+  tracked file directly under `docs/` at the reviewed base, records known path
+  readers, and calls out lifecycle, duplicate-source, and authority conflicts.
+- [Directory register](governance/DOCS-DIRECTORY-REGISTER.md) enumerates all
+  20 direct folders under `docs/` and names the local, generated, or canonical
+  index that serves as each folder's entrypoint.
+
+These indexes are navigation aids, not a complete filesystem census. Before
+asserting a file is absent or replacing or deleting one, enumerate tracked and
+untracked files in the affected directory and inspect the exact file and its
+references.
 
 ## Source and identity
 
@@ -37,13 +67,17 @@ reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md
 
 ## Domain ownership and service execution
 
-- [Domain map](DOMAIN-MAP.md) leads to business ownership and each domain charter.
+- [Domain index](domains/README.md) lists confirmed charters and observed
+  coverage.
 - [Service documentation](services/README.md) explains Core, Conversation Runtime,
   Market Intelligence and SCM execution boundaries and verification responsibilities.
+- [Model-source evidence rules](GOVERNANCE-MODEL-SOURCES.md) define how domain
+  charters bind owned models to Prisma or a repository-local SQL/Prisma source.
 - [Verification policy](architecture/VERIFICATION-POLICY.md) defines scoped evidence,
   conservative expansion and the bounded Runtime shadow pilot.
-- [Service map](architecture/SERVICE-MAP.md) is generated from the active project
-  inventory, pilot metadata and package scripts with `npm run docs:services`.
+- The service map is an optional generated projection from active project
+  inventory, pilot metadata, and package scripts. Its absence is not evidence
+  that a service or its documentation is absent.
 - [Pilot delivery and evidence](migrations/scoped-verification/PILOT.md) records
   what has actually been checked and what remains before CI omissions can change.
 
@@ -58,6 +92,7 @@ kit outside this execution repository.
 - [Architecture and decisions](architecture/README.md)
 - [Operations, plans and migrations](operations/README.md)
 - [Governance, change intake and templates](governance/README.md)
+- [Prompt artifacts](prompts/README.md)
 
 ## Existing source entrypoints
 
@@ -65,5 +100,10 @@ kit outside this execution repository.
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
-Version diff 0.2.0 → 0.3.0: adds the domain/service documentation layer and scoped
-verification entrypoints; preserves canonical records and generated feature views.
+Version diff 0.3.0 → 0.4.0: adds the reconciled rebuild blueprint entrypoint;
+preserves canonical records and generated feature views.
+
+Version diff 0.4.0 → 0.5.0 (2026-10-22): adds documentation profile and
+filesystem indexes, identifies exact root and directory registers, and links
+model-source evidence while keeping generated navigation and canonical records
+separate.

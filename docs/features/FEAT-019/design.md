@@ -32,7 +32,7 @@ Feature record: [ZAI:FEAT-019 canonical record](feature.md).
 - [FR-148 — Account-scoped CRM conversations](../../domains/crm/features/FR-148-account-scoped-conversations.md) — `relates` · `metadata` · `current`
 - [FR-148-P2 — Account-scoped CRM conversations](../../domains/crm/features/PHASE-FR-148-P2-account-scoped-conversations.md) — `relates` · `metadata` · `current`
 - [FR-148-P1 — Account-scoped CRM conversations](../../domains/line-oa-studio/features/PHASE-FR-148-P1-account-scoped-conversations.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-149 canonical record](requirements/FR-149.md)
 
@@ -55,7 +55,7 @@ Feature record: [ZAI:FEAT-019 canonical record](feature.md).
 - [FR-149-P2 — Server-owned LINE conversation transport](../../domains/line-oa-studio/features/PHASE-FR-149-P2-server-line-transport.md) — `relates` · `metadata` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
 - [Conversation Runtime extraction handoff](../../migrations/service-extraction/CONVERSATION-RUNTIME-HANDOFF.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-150 canonical record](requirements/FR-150.md)
 
@@ -74,7 +74,7 @@ Feature record: [ZAI:FEAT-019 canonical record](feature.md).
 - [FR-150-P1 — Optional Edge conversation execution](../../domains/line-oa-studio/features/PHASE-FR-150-P1-optional-edge-execution.md) — `relates` · `metadata` · `current`
 - [FR-150-P3 — Optional Edge conversation execution](../../domains/line-oa-studio/features/PHASE-FR-150-P3-optional-edge-execution.md) — `relates` · `metadata` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

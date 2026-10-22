@@ -56,7 +56,8 @@ Root Provider Layout
 ├── BusinessRoutingShell
 │   └── /businesses
 ├── PlatformControlShell (requires isOperator; no Business scope)
-│   └── /control/roadmap
+│   ├── /control/roadmap
+│   └── /control/knowledge-studio (read-only local document graph)
 └── BusinessShell (requires activeBusinessId)
     ├── /overview
     ├── /customer
@@ -156,11 +157,13 @@ until their parity and BusinessModule gates are met.
 - URLs do not carry Portfolio/Tenant/Business ids; selection is ambient.
 - `/businesses` is the only Business selector in this slice.
 - `/overview` and Business domain routes require an authorized Business selection.
-- `/control/roadmap` requires a trusted installation operator but no Business
+- `/control/**` requires a trusted installation operator but no Business
   selection. It is outside `DOMAINS`; `isPlatform`, role and Business ownership
-  are insufficient. See ADR-048. Since 2026-09-02 it is reachable from `/settings`
-  through an operator-only link (FR-105 / FR-075), and PlatformControlShell links
-  back to `/businesses`.
+  are insufficient. See ADR-048. `/control/roadmap` is reachable from `/settings`
+  through an operator-only link (FR-105 / FR-075). `/control/knowledge-studio`
+  is a read-only view over indexed docs and requires the local renderer at
+  `127.0.0.1:19860` by default (configurable through
+  `NEXT_PUBLIC_ZURI_KNOWLEDGE_STUDIO_ORIGIN`) (FR-289). PlatformControlShell links back to `/businesses`.
 - Missing viewer → `/login`.
 - Missing Business → `/businesses`.
 - Missing Profile → `/onboarding/profile` (ADR-027, FR-066 — implemented).

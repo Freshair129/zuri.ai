@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-008 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-036 — Projects Overview, and the fields it asks for that do not exist](../../decisions/ADR-036-PROJECTS-OVERVIEW-AND-THE-FIELDS-IT-NEEDS.md) — `relates` · `control-block` · `current`
 - [ADR-037 — Team is an organisational grouping, never an authority](../../decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-087 canonical record](requirements/FR-087.md)
 
@@ -41,7 +41,7 @@ Feature record: [ZAI:FEAT-008 canonical record](feature.md).
 > ✅ implemented; landed with the FR-086 dashboard slice — status flip 2026-08-26, code + tests were already in tree
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-036 — Projects Overview, and the fields it asks for that do not exist](../../decisions/ADR-036-PROJECTS-OVERVIEW-AND-THE-FIELDS-IT-NEEDS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-088 canonical record](requirements/FR-088.md)
 
@@ -52,7 +52,7 @@ Feature record: [ZAI:FEAT-008 canonical record](feature.md).
 > ✅ implemented; landed with the FR-086 dashboard slice — status flip 2026-08-26
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-036 — Projects Overview, and the fields it asks for that do not exist](../../decisions/ADR-036-PROJECTS-OVERVIEW-AND-THE-FIELDS-IT-NEEDS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-089 canonical record](requirements/FR-089.md)
 
@@ -64,7 +64,7 @@ Feature record: [ZAI:FEAT-008 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Resources — กำลังคน ตารางงาน และ Performance](../../architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) — `references` · `metadata` · `current`
 - [ADR-037 — Team is an organisational grouping, never an authority](../../decisions/ADR-037-TEAM-IS-AN-ORGANISATIONAL-GROUPING-NOT-AN-AUTHORITY.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

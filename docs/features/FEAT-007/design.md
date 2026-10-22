@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-083 canonical record](requirements/FR-083.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-084 canonical record](requirements/FR-084.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-085 canonical record](requirements/FR-085.md)
 
@@ -62,7 +62,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

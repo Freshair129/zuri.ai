@@ -3,6 +3,7 @@ import { CUSTOMER_LIFECYCLE } from '@/lib/validation/enums'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { authorizeScope, resolveAuthorizationContext } from '@/modules/identity/authorization-context'
 import { listActiveDirectBusinessOwnerIds } from '@/modules/identity/authorization-context'
+import { recordAgentApprovalDecisionNotifications } from './approval-notifications'
 
 const QUORUM_BY_TIER = Object.freeze({ L1: 1, L2: 2, L3: 3, L4: 4 })
 const REQUEST_LIFETIME_MS = 24 * 60 * 60 * 1000
@@ -275,6 +276,12 @@ export async function decideAgentApprovalRequest(db, { requestId, personId, deci
         entityType: 'AGENT_APPROVAL_DECISION', entityId: row.id, action: decision,
         actorType: 'LOCAL_USER', actorId: personId, tenantId: request.tenantId, businessId: request.businessId,
         payload: { requestId: request.id, actionName: request.actionName, decision, ...requestTarget(request) },
+      })
+      await recordAgentApprovalDecisionNotifications(tx, {
+        request,
+        decision: row,
+        approvalStatus: nextStatus,
+        now,
       })
       const updated = await tx.agentApprovalRequest.findUnique({ where: { id: request.id } })
       return { request: publicApprovalRequest(updated), decision: row }

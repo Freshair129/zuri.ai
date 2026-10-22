@@ -28,11 +28,8 @@ Feature record: [ZAI:FEAT-017 canonical record](feature.md).
 
 > ✅ implemented 2026-09-04 (PR #213) — `AssetExtractionJob`, the four device routes, the review-surface read and the provider choice; `tests/integration/fr143-asset-extraction-job.test.js` (9 real-database cases: queue idempotency, oldest-first claim, cross-Business refusal, byte access under a live lease only, candidate write, schema rejection, lease expiry, attempt ceiling, device-context refusal) plus two unit suites. Production migration `20260904090000` applied and recorded 2026-09-04. The edge runtime itself lives in `zuri-edge-device` (ADR-059 D6); cancellation authority stays deliberately unanswered, so CANCELLED is unreachable from any surface  Retirement deferred in this PR: ADR-110 D1 removes the Server route and UI, but the corresponding client caller remains under apps/edge; no new Edge behavior is available through this checkout.
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) — `supersedes` · `prd-registry` · `current`
-- [ADR-059 — Edge-executed evidence extraction (pull model)](../../decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md) — `supersedes` · `prd-registry` · `current`
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `relates` · `metadata` · `current`
-- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `prd-registry` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-144 canonical record](requirements/FR-144.md)
 
@@ -44,9 +41,9 @@ Feature record: [ZAI:FEAT-017 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `relates` · `metadata` · `current`
-- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `prd-registry` · `current`
+- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `canonical-registry` · `current`
 - [Zuri Edge Desktop — inventory และ wireframe แบบ sidebar](../../domains/agent/features/INVENTORY-FR-150-edge-desktop-ui.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

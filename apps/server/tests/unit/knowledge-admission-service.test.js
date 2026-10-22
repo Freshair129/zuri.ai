@@ -5,6 +5,8 @@
 import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
+import { hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_MAX_BYTES, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
+import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import {
   admitKnowledge,
   listKnowledgeIngestions,
@@ -119,6 +121,36 @@ describe('knowledge admission service', () => {
     })
   })
 
+  it('replays a prior canonical legacy request hash without binary descriptor fields', async () => {
+    const input = {
+      businessId: 'b-1',
+      idempotencyKey: 'legacy-hash-replay',
+      source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', title: 'Legacy policy', content: 'legacy content' },
+    }
+    await admitKnowledge(input, options(repository))
+
+    const legacyRequestHash = hashGenesisRag17Json({
+      businessId: 'b-1',
+      projectId: null,
+      source: {
+        kind: 'TEXT',
+        sourceKey: 'policy',
+        sourceVersion: 'v1',
+        title: 'Legacy policy',
+        fileAssetId: null,
+        contentHash: hashGenesisRag17Text('legacy content'),
+      },
+      scope,
+      policy,
+    })
+    repository.state.ingestions[0].requestHash = legacyRequestHash
+
+    const replayed = await admitKnowledge(input, options(repository))
+
+    expect(repository.state.ingestions[0].requestHash).toBe(legacyRequestHash)
+    expect(replayed).toMatchObject({ id: 'admission-1', unchanged: true })
+  })
+
   it('rejects whitespace-only text and preserves a UTF-8 BOM as immutable content', async () => {
     await expect(admitKnowledge({
       businessId: 'b-1',
@@ -187,6 +219,60 @@ describe('knowledge admission service', () => {
     })
     expect(metadata).not.toHaveProperty('content')
     expect(fileContentResolver).toHaveBeenCalledWith('file-1', expect.objectContaining({ visibleBusinessIds: ['b-1'] }))
+  })
+
+  it('admits binary FileAssets only after matching raw-byte hash, size and detected media', async () => {
+    const bytes = Buffer.from('<!doctype html><html><body><p>Static policy</p></body></html>', 'utf8')
+    const contentHash = hashKnowledgeBinaryBytes(bytes)
+    const fileAsset = {
+      id: 'file-html-1', businessId: 'b-1', projectId: null, name: 'policy.html', mime: 'text/html',
+      size: bytes.length, status: 'ACTIVE', storageKind: 'MANAGED_BLOB', version: 2, sha256: contentHash,
+    }
+    repository = fakeRepository({ fileAsset })
+    const authorization = vi.fn(async () => ({ authorized: true, asset: fileAsset }))
+    const fileContentResolver = vi.fn(async () => ({ content: bytes }))
+    await admitKnowledge({
+      businessId: 'b-1', idempotencyKey: 'binary-file-request', source: { kind: 'FILE', fileAssetId: fileAsset.id },
+    }, options(repository, { authorization, fileContentResolver }))
+
+    const queued = repository.state.ingestions[0]
+    const metadata = JSON.parse(queued.sourceMetaJson)
+    expect(queued.content).toBe(`data:text/html;base64,${bytes.toString('base64')}`)
+    expect(queued.contentHash).toBe(contentHash)
+    expect(queued.contentHash).not.toBe(hashKnowledgeBinaryBytes(Buffer.from(queued.content, 'utf8')))
+    expect(metadata).toMatchObject({
+      binaryProfile: KNOWLEDGE_BINARY_PARSER_VERSION,
+      binaryEncoding: KNOWLEDGE_BINARY_ENCODING,
+      binaryMediaType: 'text/html',
+      serialization: 'data-uri-base64',
+      rawByteLength: bytes.length,
+      size: bytes.length,
+    })
+
+    repository = fakeRepository({ fileAsset: { ...fileAsset, name: 'policy.pdf', mime: 'application/pdf' } })
+    await expect(admitKnowledge({
+      businessId: 'b-1', idempotencyKey: 'binary-file-mismatch', source: { kind: 'FILE', fileAssetId: fileAsset.id },
+    }, options(repository, { authorization: vi.fn(async () => ({ authorized: true, asset: { ...fileAsset, name: 'policy.pdf', mime: 'application/pdf' } })), fileContentResolver })))
+      .rejects.toMatchObject({ status: 415, code: 'KNOWLEDGE_FILE_MEDIA_MISMATCH' })
+    expect(repository.state.ingestions).toHaveLength(0)
+
+    const oversized = { ...fileAsset, name: 'too-large.pdf', mime: 'application/pdf', size: KNOWLEDGE_BINARY_MAX_BYTES + 1 }
+    repository = fakeRepository({ fileAsset: oversized })
+    const boundedResolver = vi.fn(async () => ({ content: Buffer.from('%PDF-1.7') }))
+    await expect(admitKnowledge({
+      businessId: 'b-1', idempotencyKey: 'binary-file-too-large', source: { kind: 'FILE', fileAssetId: oversized.id },
+    }, options(repository, { authorization: vi.fn(async () => ({ authorized: true, asset: oversized })), fileContentResolver: boundedResolver })))
+      .rejects.toMatchObject({ status: 413, code: 'KNOWLEDGE_CONTENT_TOO_LARGE' })
+    expect(boundedResolver).not.toHaveBeenCalled()
+
+    const mismatchedMime = { ...fileAsset, name: 'looks-like-pdf.pdf', mime: 'text/plain' }
+    repository = fakeRepository({ fileAsset: mismatchedMime })
+    const mismatchedResolver = vi.fn(async () => ({ content: Buffer.from('%PDF-1.7') }))
+    await expect(admitKnowledge({
+      businessId: 'b-1', idempotencyKey: 'binary-file-mime-mismatch', source: { kind: 'FILE', fileAssetId: mismatchedMime.id },
+    }, options(repository, { authorization: vi.fn(async () => ({ authorized: true, asset: mismatchedMime })), fileContentResolver: mismatchedResolver })))
+      .rejects.toMatchObject({ status: 415, code: 'KNOWLEDGE_FILE_TYPE_UNSUPPORTED' })
+    expect(mismatchedResolver).not.toHaveBeenCalled()
   })
 
   // @req FR-238, ADR-090 D7 — a LINE_STUDIO_DESCRIPTION source records its own

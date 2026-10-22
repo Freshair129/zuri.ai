@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-038 canonical record](feature.md).
 
 > ✅ merged #407 2026-09-14 (main af3f7822; not deployed; TASK-ZAI-093, ADR-090 D1–D5, FEAT-038) — `LineOaAccount.knowledgeGrounding`, the in-process `knowledge.query` reader and the traced mode-gated fallback; the SmartGift switch itself is TASK-ZAI-095, blocked on ADR-075 Phase 3
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-236 canonical record](requirements/FR-236.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-038 canonical record](feature.md).
 
 > ✅ merged #408 2026-09-14 (main 2e4b94b3; not deployed; TASK-ZAI-096, ADR-090 D6, FEAT-038) — `KnowledgeCandidate` model, the review surface and admission via ADR-072; the per-Business off switch is a later addition (PR #413, TASK-ZAI-099)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-237 canonical record](requirements/FR-237.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-038 canonical record](feature.md).
 
 > ✅ built 2026-09-14 (ADR-090 D7, FEAT-038, TASK-ZAI-097) — computed-on-read over the existing `AgentTraceEvent` (no new model): `knowledge-gap-report-service.js`, `GET /api/knowledge/gap-report`, `/knowledge/gap-report`; `tests/unit/knowledge-gap-report-service.test.js`, `tests/integration/fr237-knowledge-gap-report.test.js`, `tests/unit/knowledge-gap-report-ui.test.js`; branch `feat/knowledge-line-candidates`, not yet merged or deployed; no migration
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-238 canonical record](requirements/FR-238.md)
 
@@ -58,7 +58,7 @@ Feature record: [ZAI:FEAT-038 canonical record](feature.md).
 
 > ✅ built 2026-09-14 (ADR-090 D7, FEAT-038, TASK-ZAI-098) — a fourth admitted `kind` on the existing admission service, no new model or migration; hooked into the rich menu PUBLISH worker completion, LIFF app RECORD_LIFF_ID/registration-with-liffId and ARCHIVE, and account CONNECT/ARCHIVE (`line-oa-studio-description-admission.js`), best-effort so a knowledge-runtime failure never blocks the publisher's own action; `tests/unit/line-oa-studio-description-admission.test.js`, `tests/integration/fr238-line-studio-description-admission.test.js`; branch `feat/knowledge-line-candidates`, not yet merged or deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

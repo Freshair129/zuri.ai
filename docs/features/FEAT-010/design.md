@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 > 🟠 Issue #99 Phase 0 P0
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-088 — MFA factor secrets are sealed at rest](../../decisions/ADR-088-MFA-FACTOR-SECRETS-SEALED-AT-REST.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-095 canonical record](requirements/FR-095.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 > 🟠 Issue #99 Phase 0 P0
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-088 — MFA factor secrets are sealed at rest](../../decisions/ADR-088-MFA-FACTOR-SECRETS-SEALED-AT-REST.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-096 canonical record](requirements/FR-096.md)
 
@@ -50,7 +50,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 
 > 🟠 Issue #99 Phase 0 P0
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-097 canonical record](requirements/FR-097.md)
 
@@ -60,7 +60,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 
 > 🟠 ChannelIdentity lifecycle implemented and wired through webhook/turn/ingest with integration tests; provider-side onboarding evidence pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-098 canonical record](requirements/FR-098.md)
 
@@ -70,7 +70,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 
 > 🟠 Issue #99 Phase 0 P0
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

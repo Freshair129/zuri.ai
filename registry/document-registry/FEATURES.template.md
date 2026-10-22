@@ -198,6 +198,11 @@ also rejects retired classification terminology in live authoritative documents.
 ```json
 [
   {
+    "id": "FR-288",
+    "primaryDomain": "knowledge",
+    "useCase": "Ingest authorized managed PDF, DOCX and static HTML files with immutable raw-byte identity and exact version-bound source locations; native service acceptance and OCR remain separate."
+  },
+  {
     "id": "FR-286",
     "primaryDomain": "project-manager",
     "useCase": "Create a Business with a version-pinned domain and RBAC catalog snapshot and one default Business Space atomically, without new grants; preserve same-Business retries and backup integrity."
@@ -1046,6 +1051,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-284",
     "primaryDomain": "project-manager",
     "useCase": "จัดเก็บและอ่านไฟล์ managed ตามสิทธิ์ Business และ Project บน Windows หรือ Linux โดยรักษา path containment และส่งไฟล์ข้อความเข้า Knowledge ได้จริง"
+  },
+  {
+    "id": "FR-289",
+    "primaryDomain": "knowledge",
+    "useCase": "installation operator ค้นและสำรวจกราฟเอกสาร Markdown ของ Zuri ใน Knowledge Studio กรอง node ตามชนิดและจำนวน hop เปิด source path ที่แน่นอน และอ่านเอกสารในหน้าเดียว โดยแสดงการจัดกลุ่ม domain เฉพาะเมื่อ metadata หรือ graph relation ระบุเจ้าของได้ชัดเจน และใช้ renderer ที่รันบนเครื่อง operator เอง"
   }
 ]
 ```

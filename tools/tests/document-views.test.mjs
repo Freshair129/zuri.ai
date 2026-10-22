@@ -67,6 +67,13 @@ test('renders deterministic projections for canonical feature membership', () =>
   assert.doesNotMatch(evidenceDesign, /\.brain\/reports/);
 });
 
+test('accepts canonical-registry provenance on feature membership edges', () => {
+  const edge = graph.edges.find((item) => item.from === 'feat:FEAT-001'
+    && item.to === 'req:FR-037' && item.type === 'bundles');
+  assert.equal(edge?.source, 'canonical-registry');
+  assert.doesNotThrow(() => generate());
+});
+
 test('renders code and test graph bindings without asserting test results', () => {
   const verification = generate().get('docs/features/FEAT-001/verification.md');
   assert.match(verification, /Code paths — graph bindings/);
