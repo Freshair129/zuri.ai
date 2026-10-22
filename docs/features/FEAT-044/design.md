@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-044 canonical record](feature.md).
 
 > 🔜 approved implementation plan — adapter-only; not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-261 canonical record](requirements/FR-261.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-044 canonical record](feature.md).
 
 > 🔜 approved implementation plan — external PORL owner/freshness contract remains open; not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-262 canonical record](requirements/FR-262.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-044 canonical record](feature.md).
 
 > 🔜 approved implementation plan — no merge or scheduler action; not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-263 canonical record](requirements/FR-263.md)
 
@@ -58,7 +58,7 @@ Feature record: [ZAI:FEAT-044 canonical record](feature.md).
 
 > 🔜 approved implementation plan — redaction contract pending implementation; not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-264 canonical record](requirements/FR-264.md)
 
@@ -68,7 +68,7 @@ Feature record: [ZAI:FEAT-044 canonical record](feature.md).
 
 > 🔜 approved implementation plan — responsive verification pending; not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

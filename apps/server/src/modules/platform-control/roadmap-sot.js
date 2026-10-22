@@ -41,7 +41,7 @@ export const ROADMAP_SOT = {
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 67
+        "progress": 72
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -71,11 +71,11 @@ export const ROADMAP_SOT = {
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 71
+        "progress": 74
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 63
+        "progress": 69
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
@@ -746,23 +746,23 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-010",
     "sprint": "SPR-ZAI-04",
     "title": "Approval Gateway L1 to L4 over the FR-026 action gate",
-    "status": "review",
+    "status": "done",
     "proofScope": "HOSTED_CI",
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-007",
     "authority": "ROADMAP.md",
-    "evidence": "PR #684 exact head `e3f252421d1e004b4999c130021b17d697a2ae5f` merged as `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build passed; exact-head Governance `38943817999`, Edge `38943818026`, test shards and Verify passed; PR E2E/Desktop skipped. TC-TASK-ZAI-010 direct L4 under-quorum refusal and complete L1-L4 positive/negative suite remain unchecked; duplicate L2 vote rejection is covered."
+    "evidence": "PR #684 merged `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`; PR #708 merged `982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`. Exact-head Governance/Edge passed for both; independent Verify/Review PASS_SOURCE. Focused acceptance: #684 SQLite 176 + isolated PostgreSQL 15/15; #708 28/28. E2E/Desktop skipped, not PASS. Contract v1.1.0 assigns no production L3 action; L3 proof uses an isolated registry fixture. No production/Supabase/provider/live-agent activation claimed."
   },
   {
     "id": "TASK-ZAI-011",
     "sprint": "SPR-ZAI-04",
     "title": "Verification and notification fabric on approval outcomes",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-010",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 9"
+    "evidence": "PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed. Focused suite 84 passed/1 skipped; exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop skipped by workflow policy. Delivers transaction-bound, recipient-scoped in-app approval notices and idempotent read acknowledgements only. No external email/push, migration apply, production deployment, Supabase or live-agent activation claimed. See revision 2.166.0b and Task Container."
   },
   {
     "id": "TASK-ZAI-012",
@@ -822,13 +822,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-017",
     "sprint": "SPR-ZAI-06",
-    "title": "Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125",
+    "title": "Candidate connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection, explicit read-only tool allowlist and audited raw evidence; TASK-ZAI-017 candidate extension pending migration; FR-125 remains REST-first; ADR-053 candidate section",
     "status": "planned",
     "proofScope": "UNKNOWN",
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-005",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: FR-125/ADR-053 implementation is unauthorized; provider verification, owner sign-off and FlowAccount Sandbox credentials are required; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 8; ADR-053"
+    "evidence": "2026-10-18 direct human correction: propose support for the official FlowAccount MCP connector ([official setup guide](https://flowaccount.com/help-center/category/ai-connector-mcp/flowaccount-connector-in-claude)); the endpoint, OAuth/company-selection and read/report capability are documented. This candidate does not amend normative FR-125 acceptance; a sanctioned additive reviewed-record migration is pending. No outgoing MCP client, verified tool/schema/scope contract, live OAuth, or provider acceptance evidence exists; 24-week baseline; Section 3.1 row 8; FR-125; ADR-053"
   },
   {
     "id": "TASK-ZAI-018",
@@ -1164,12 +1164,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-048",
     "sprint": "SPR-ZAI-03",
     "title": "Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "in-progress",
+    "proofScope": "LOCAL",
+    "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-046",
     "authority": "ROADMAP.md",
-    "evidence": "Contract-only candidate proposal `docs/plans/TASK-ZAI-048-BINARY-PARSING-CONTRACT.md` merged in PR #676 as `dcaaffa71555389bb7a4e80499f31a269fe24588` from exact head `110d6f3952ddf0143e8b9ae715058179edc78964`; proposal remains unaccepted by product/service authorities. No parser runtime/tests, OCR/provider call, migration or deployment evidence; keep implementation acceptance open. ADR-072 still limits current admission to text/Markdown; 24-week baseline; 17-stage flow; FR-115, FR-138"
+    "evidence": "Bounded managed PDF/DOCX/static HTML source under additive FR-288 and SDD-114; design decision `docs/change-requests/knowledge/binary-document-parsing-20261018.md` preserves historical FR-115/SDD-063. PR #709 source head `2984cae8fde6430f262520aeb409837cc17d0fdd` merged to main as `781e6a376e37162d9e930b59d30c2dac74073823`. The focused root batch passed 21/21 on the reviewed patch bytes and the six committed file hashes match; independent Verify and Review passed. Exact-head Governance run `39118118499`, Edge run `39118118519` and Docker run `39118118567` passed; E2E and Desktop were skipped by workflow policy, not passes. The accepted bounded implementation adds raw-byte identity/admission, PDF/DOCX/static HTML parsing, deterministic source locations and bounded table-span work. Full native Stage 9 through 17 propagation, binary browser/UAT acceptance, hard RSS/egress isolation, OCR/provider, deployment and production remain open; parent task stays in-progress. Prior contract PR #676 remains historical evidence; FR-115, FR-138; ADR-072."
   },
   {
     "id": "TASK-ZAI-049",
@@ -1950,7 +1950,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
-    "evidence": "PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` completed successfully on exact head with all jobs including full E2E passing; delivered installation-operator Workers monitoring view backed by local controller ledger/events; earlier isolated responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; external PORL source binding and hosted/production exit proof remain open; FEAT-044 remains building; no external PORL, production deployment, or live Business/LINE behavior claimed; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, Governance `38905060924`, Edge `38905060947`, and manual E2E workflow `38905115144` passed; sanitized campaign intake, controller liveness and newest-first event diagnostics delivered; external PORL/production exit proof remains open"
+    "evidence": "PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` completed successfully on exact head with all jobs including full E2E passing; delivered installation-operator Workers monitoring view backed by local controller ledger/events; earlier isolated responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; external PORL source binding and hosted/production exit proof remain open; FEAT-044 remains building; no external PORL, production deployment, or live Business/LINE behavior claimed; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, Governance `38905060924`, Edge `38905060947`, and manual E2E workflow `38905115144` passed; sanitized campaign intake, controller liveness and newest-first event diagnostics delivered; PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; worker reader 23/23 and independent Verify/Review passed; exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed, E2E/Desktop skipped by workflow policy; worktree identity/status and candidate-head matching delivered; owner-provided local screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified; external PORL/production exit proof remains open"
   },
   {
     "id": "TASK-ZAI-120",

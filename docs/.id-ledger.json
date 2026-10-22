@@ -414,6 +414,8 @@
     "FR-284",
     "FR-285",
     "FR-286",
+    "FR-288",
+    "FR-289",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -551,6 +553,7 @@
     "SDD-110",
     "SDD-112",
     "SDD-113",
+    "SDD-114",
     "SEC-001",
     "SEC-002",
     "SEC-003",
@@ -833,6 +836,7 @@
     "ADR-109",
     "ADR-110",
     "ADR-111",
+    "ADR-112",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -5268,6 +5272,32 @@
         }
       ]
     },
+    "FR-288": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "44a270b22e0bb12546cbb1b2026268dade8d1c61e7754c02686ee8c844f5d232",
+      "history": [
+        {
+          "anchor": "managed binary knowledge parsing",
+          "since": "2026-10-18",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-289": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "a1aae900e5a33fcab162f054a57d876485d00ff03f77656cd4d093504bc8350d",
+      "history": [
+        {
+          "anchor": "zuri knowledge studio is an installation operator only read",
+          "since": "2026-10-19",
+          "reason": "declared"
+        }
+      ]
+    },
     "NFR-001": {
       "family": "NFR",
       "source": "docs/PRD-SDD-v1.0.md",
@@ -7077,6 +7107,19 @@
         {
           "anchor": "mount dialect contained io",
           "since": "2026-10-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "SDD-114": {
+      "family": "SDD",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "4212476d0ea920bffe6add465ec29395252acec2e081c9d93a8fc756927ebe36",
+      "history": [
+        {
+          "anchor": "versioned binary source projection",
+          "since": "2026-10-18",
           "reason": "declared"
         }
       ]
@@ -10826,6 +10869,19 @@
         {
           "anchor": "scm service extraction",
           "since": "2026-09-27",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-112": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md",
+      "status": "current",
+      "statement_digest": "b3519ab32dae4f3c00aef04ad8d76bdecb20fbd6b04003a0eb4c9ef71e09653e",
+      "history": [
+        {
+          "anchor": "primary checkout development docker deployment and database",
+          "since": "2026-10-20",
           "reason": "declared"
         }
       ]

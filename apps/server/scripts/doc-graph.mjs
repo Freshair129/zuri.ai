@@ -16,13 +16,17 @@ import { domainMap, traceView } from './doc-views.mjs'
 import { collectDocumentLinks, documentLinksView, hasLinkMetadata } from './doc-links.mjs'
 import { qualifyDocumentIds, assertUniqueNodeIds, isGeneratedDocumentView, indexDeclaredIdentities } from './doc-identities.mjs'
 import { generateDomainState, discoverFeatureRequirements } from './domain-state.mjs'
-import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology, capabilityInventory } from './capability-registry.mjs'
+import { classifyRequirements, assertCapabilityTerminology, capabilityInventory } from './capability-registry.mjs'
 import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // The same splitter the id ledger reads rows with. Two readings of one row, from
 // two splitters that disagree about `\|`, is how SDD-071's label reached
 // Appendix D as half a sentence.
 import { collectDeclared, splitRow } from './id-anchors.mjs'
-import { parseCanonicalIndex } from './document-registry-format.mjs'
+import {
+  buildCanonicalGraphEntries,
+  canonicalizeDeclaredIdentities,
+  loadCanonicalDocumentRegistry,
+} from './canonical-document-registry.mjs'
 import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 import { adaptTraceAnnotations, legacyRequirementIds } from './trace-annotations.mjs'
 
@@ -103,50 +107,6 @@ function docNode(file, type, idPrefix) {
     hash: hash(body),
     status: /superseded|cancelled/i.test(status) ? 'superseded' : 'current',
   }
-}
-
-// ------------------------------------------------------------- requirements
-// Registry rows live in the PRD's tables. Parsed line by line — a regex that
-// can cross newlines silently swallows every second row of a 2-column table.
-const REQ_ID = /^(FR|NFR|BR|SEC|SDD)-\d{3}$/
-
-function requirementNodes(prdPath) {
-  const body = read(prdPath)
-  const nodes = []
-  for (const line of body.split(/\r?\n/)) {
-    if (!line.startsWith('|')) continue
-    const cells = splitRow(line)
-    const id = cells[1]
-    if (!id || !REQ_ID.test(id)) continue
-    if (nodes.some((n) => n.id === `req:${id}`)) continue
-    const label = (cells[2] || '').replace(/\s+/g, ' ').trim()
-    const marker = cells.slice(3).join(' ')
-    const planned = marker.includes('🔜') || marker.trim() === 'planned'
-    nodes.push({
-      id: `req:${id}`,
-      type: 'requirement',
-      family: id.split('-')[0],
-      label,
-      defined_in: rel(prdPath),
-      // ✅/🔜 only appear in the FR registry; other families carry evidence text.
-      declared: marker.includes('✅') ? 'done' : planned ? 'planned' : 'n/a',
-      // A rule the registry itself retires is not a coverage defect, for the same
-      // reason a 🔜 FR is not one. Documents have carried this state since the
-      // control-block reader was written (`status:` above); requirement rows had
-      // no way to say it, so a retired rule sat in the denominator forever and
-      // made "rules anchored" mix three different things: not built yet, built
-      // but unannotated, and no longer true. Same predicate as the doc reader.
-      // Strikethrough on the STATEMENT, or an explicit word in the STATUS column —
-      // deliberately not a keyword search over the whole row, so a rule whose prose
-      // happens to discuss retirement is not silently dropped from the denominator.
-      status: /~~/.test(label) || /\b(supersed|cancelled|retired)/i.test(marker)
-        ? 'superseded'
-        : planned ? 'planned' : 'current',
-      // Kept so a retired rule's successors can be resolved into real edges below.
-      row_text: `${label} ${marker}`,
-    })
-  }
-  return nodes
 }
 
 // -------------------------------------------------------------- annotations
@@ -271,15 +231,20 @@ function build() {
 
   qualifyDocumentIds(nodes)
 
-  // Features (FEAT) are product capabilities bundling one or more FRs — a
-  // separate id family from requirements (owner decision, ADR-025 rev 2). The
-  // registry is docs/FEATURES.md; rows are `| FEAT-xxx | name | FR-a, FR-b | status |`.
-  const featRegistry = workspacePath(ROOT, 'docs', 'FEATURES.md')
-  if (existsSync(featRegistry)) {
-    for (const { id: fid, title, requirementIds, status } of parseFeatureBundles(read(featRegistry))) {
-      nodes.push({ id: `feat:${fid}`, type: 'feature', label: title, declared: status, status: 'current' })
-      for (const fr of requirementIds) addEdge(`feat:${fid}`, `req:${fr}`, 'bundles', 'feature-registry')
-    }
+  // Requirement and feature semantics come from the canonical records located
+  // by the generated index. PRD/FEATURES remain compatibility document nodes.
+  const canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
+  const canonicalGraph = buildCanonicalGraphEntries(canonicalRegistry.records)
+  const reqs = canonicalGraph.nodes.filter((node) => node.type === 'requirement')
+  nodes.push(...canonicalGraph.nodes)
+  for (const edge of canonicalGraph.edges) addEdge(edge.from, edge.to, edge.type, edge.source)
+  for (const { entry } of canonicalRegistry.records) {
+    const node = nodes.find((item) => item.id === `${entry.family === 'FEAT' ? 'feat' : 'req'}:${entry.id}`)
+    const declaration = nodes.find((item) => item.path === entry.path)
+    if (!node || !declaration) throw Error(`Missing canonical graph declaration: ${entry.namespace}:${entry.id}`)
+    node.canonical_path = entry.path
+    node.namespace = entry.namespace
+    addEdge(node.id, declaration.id, 'specifies', 'canonical-registry')
   }
 
   // Routes: every page.jsx / route.js under src/app is a user-visible surface or
@@ -332,22 +297,7 @@ function build() {
     nodes.push({ id: `model:${model}`, type: 'model', model_source: source, status: 'current' })
   }
 
-  // Requirements from the PRD registry.
-  const prd = workspacePath(ROOT, 'docs', 'PRD-SDD-v1.0.md')
-  const reqs = requirementNodes(prd)
-  nodes.push(...reqs)
-  const canonicalIndex = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
-  if (existsSync(canonicalIndex)) {
-    for (const record of parseCanonicalIndex(read(canonicalIndex)).records) {
-      const node = nodes.find(n => n.id === `${record.family === 'FEAT' ? 'feat' : 'req'}:${record.id}`)
-      const declaration = nodes.find(n => n.path === record.path)
-      if (!node || !declaration) throw Error(`Missing canonical graph declaration: ZAI:${record.id}`)
-      node.canonical_path = record.path
-      node.namespace = record.namespace
-      addEdge(node.id, declaration.id, 'specifies', 'canonical-registry')
-    }
-  }
-  const declarations = collectDeclared(ROOT)
+  const declarations = canonicalizeDeclaredIdentities(collectDeclared(ROOT), canonicalRegistry.records)
   if (declarations.missing.length) throw Error(`Missing identity source registries: ${JSON.stringify(declarations.missing)}`)
   if (declarations.duplicates.length) throw Error(`Duplicate identity declarations: ${declarations.duplicates.map(item => item.id).join(', ')}`)
   const qualifiedNodes = indexDeclaredIdentities(declarations, nodes)
@@ -367,7 +317,7 @@ function build() {
           .map((n) => n.id.slice(4))
       : [],
   )
-  for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'prd-registry')
+  for (const r of reqs) addEdge(r.id, 'doc:PRD-SDD-v1.0', 'specifies', 'compatibility-export')
   // A retired rule must be answerable as "replaced by what" from the graph, not
   // only from prose — the same obligation the lineage guard already puts on a
   // superseded document. The successors are the ids its own row names.
@@ -392,10 +342,15 @@ function build() {
   for (const r of retiredReqs) {
     const self = r.id.slice(4)
     for (const a of r.row_text.match(/ADR-\d{3}/g) || []) {
-      if (adrById.has(a)) addEdge(adrById.get(a), r.id, 'supersedes', 'prd-registry')
+      if (adrById.has(a)) addEdge(adrById.get(a), r.id, 'supersedes', 'canonical-registry')
     }
     for (const s of r.row_text.match(/\b(?:FR|BR|SEC|SDD|NFR)-\d{3}\b/g) || []) {
-      if (s !== self) addEdge(`req:${s}`, r.id, 'supersedes', 'prd-registry')
+      if (s !== self) addEdge(`req:${s}`, r.id, 'supersedes', 'canonical-registry')
+    }
+  }
+  for (const feature of canonicalGraph.nodes.filter((node) => node.type === 'feature' && node.status === 'superseded')) {
+    for (const successor of feature.retirement_marker.match(/ADR-\d{3}/g) || []) {
+      if (adrById.has(successor)) addEdge(adrById.get(successor), feature.id, 'supersedes', 'canonical-registry')
     }
   }
 

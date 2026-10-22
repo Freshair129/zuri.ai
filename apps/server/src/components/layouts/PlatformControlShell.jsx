@@ -48,7 +48,8 @@ function systemTheme() {
 
 // @req FR-241 — the /roadmap member view reuses this frame (theme tokens, sign-out)
 // under its own title and footer; /control keeps the defaults.
-export default function PlatformControlShell({ children, title = 'Platform Control', footer = 'Platform Control · read-only programme projection' }) {
+// @req FR-289 — offer the Knowledge Studio link only inside guarded Platform Control.
+export default function PlatformControlShell({ children, title = 'Platform Control', footer = 'Platform Control · read-only programme projection', showKnowledgeStudioLink = false }) {
   const router = useRouter()
   const [signingOut, setSigningOut] = useState(false)
   const [theme, setTheme] = useState(null)
@@ -103,7 +104,12 @@ export default function PlatformControlShell({ children, title = 'Platform Contr
             <p className="truncate text-sm font-bold">{title}</p>
           </div>
         </div>
-        <Link href="/businesses" className="ml-auto text-xs font-semibold text-white/80 underline-offset-2 hover:underline">
+        {showKnowledgeStudioLink && (
+          <Link href="/control/knowledge-studio" className="ml-auto mr-4 whitespace-nowrap text-xs font-semibold text-white/80 underline-offset-2 hover:underline">
+            Knowledge Studio
+          </Link>
+        )}
+        <Link href="/businesses" className={showKnowledgeStudioLink ? 'text-xs font-semibold text-white/80 underline-offset-2 hover:underline' : 'ml-auto text-xs font-semibold text-white/80 underline-offset-2 hover:underline'}>
           กลับสู่ Business
         </Link>
         <button

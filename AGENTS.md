@@ -172,6 +172,31 @@ its report never grants permission to omit checks. `npm run docs:services`
 regenerates the service map, an ignored view under ADR-081.
 
 
+### Primary-checkout development Docker and database boundary (ADR-112, 2026-10-20)
+
+The primary-checkout development preview runs in its own named Docker Compose
+project with a local PostgreSQL database and volume. The current instance is
+`zuri-main-dev-20261020` (`zuri_main_dev`) with the web container bound to
+`127.0.0.1:3100`; these are instance identifiers, not portable defaults.
+Read the [Docker + ngrok runbook](docs/deployment/docker-ngrok.md) and
+[ADR-112](docs/decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md)
+before changing the deployment target.
+
+Keep primary-checkout dev, Knowledge Studio, and each UAT stack isolated from
+one another by Compose project, database, volume, and environment configuration.
+Keep production database and runtime credentials separate from development and
+UAT; its data boundary remains governed by ADR-018. Never point a dev
+`DATABASE_URL` at UAT or production, and never promote work by repointing the
+dev container. Release a tested app artifact in a separate production runtime
+with production-specific configuration; run only approved migrations through
+the release gates in ADR-018, ADR-058 and ADR-104.
+
+An active ngrok tunnel makes the dev app reachable from the internet even when
+the container port binds to loopback. Use dev-only accounts and appropriate test
+data. Never put passwords, tokens, or generated environment values in tracked
+files. Signup creates a profile and credential without business scope,
+membership, capability, or platform authority.
+
 ## Mission
 
 Build zuri-ai: an AI-native business operating system. The Project Manager was
@@ -602,47 +627,80 @@ build green — an entry never leaves it, so a deleted line is the alarm.
 
 ### 19. Documentation architecture (what lives where)
 
-Set by [ADR-004](docs/decisions/ADR-004-DOCUMENTATION-ARCHITECTURE.md). Four layers, and only
-one of them is written by hand at feature level:
+Follow [ADR-025](docs/decisions/ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md)
+(revision 4) and the [canonical record format](docs/migrations/document-reintegration/CANONICAL-FORMAT.md).
+They define separate axes for business ownership, canonical records, service
+execution and generated navigation. When older documentation conflicts, follow
+the canonical-record cutover in ADR-025 revision 4 and the current reintegration
+contract; PRD/FEATURES are not hand-maintained registries.
 
 ```text
-Spine    docs/domains/<d>/  one folder per domain (ADR-025) — CHARTER.md = the lane; features/ = its notes
-Layer 0  docs/PRODUCT.md            what zuri-ai is: surfaces, scope chain, non-negotiables
-Layer 1-2  docs/PRD-SDD-v1.0.md   the FR/NFR/BR/SEC/SDD registry — ids are global, never per-domain
-Arch     docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft; taxonomy adopted by ADR-025)
-Registry docs/FEATURES.md           FEAT registry — a feature bundles one or more FRs (ADR-025 rev 2)
-Index    docs/FEATURE-MAP.md        GENERATED — the feature-driven user view; never hand-edit
-Index    docs/DOMAIN-MAP.md         GENERATED — one section per domain: lane, ownership, contents
-Index    docs/TRACE.md              GENERATED — the full chain per FR: surface → code → rules → tests
-Appendix docs/appendices/  A api - B db - C model cards - D traceability (generated) - E risks - F glossary
+Domain ownership   docs/domains/<d>/CHARTER.md — the domain boundary and ownership spine
+Product scope      docs/PRODUCT.md — product purpose, surfaces and non-negotiables
+Canonical FEAT     docs/features/FEAT-nnn/feature.md — one source record per feature
+Canonical FR       docs/features/FEAT-nnn/requirements/FR-nnn.md only when that FR has explicit FEAT membership
+Standalone/global  docs/requirements/<ID>.md — unbundled FR and NFR/BR/SEC/SDD records
+Record index       registry/document-registry/index.json — GENERATED locator for canonical records
+Compatibility      docs/PRD-SDD-v1.0.md and docs/FEATURES.md — GENERATED exports; never edit by hand
+Architecture       docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md — target architecture and adopted taxonomy
+Service execution  docs/services/<project>/SERVICE.md and TESTING.md — execution boundaries and verification rationale
+Domain rationale  docs/domains/<d>/features/ — optional notes for rationale or audience context
+Generated views    docs/FEATURE-MAP.md, docs/DOMAIN-MAP.md, docs/TRACE.md and feature design/verification views — navigation and traceability
+Appendices         docs/appendices/ — API, database, model cards, traceability, risks and glossary
 ```
 
-**Feature notes** carry frontmatter so the generator can link them by id, not path:
+Canonical record paths locate records; stable ZAI IDs identify them, and explicit
+registry membership determines FEAT-to-FR membership. A directory or filename does not assign domain ownership
+or create membership. The document registry index locates canonical records; it is
+generated and is not an alternate source for their statements. Domain charters own
+business boundaries, while service documents explain execution and testing across
+those boundaries.
 
-```yaml
----
-feature: FR-020
-module: project-manager
-source: v2-native        # or lifted-from-v1 / pending
----
-```
+Write a domain feature note only when it adds rationale or audience-specific
+context. Link the exact canonical IDs and revision it explains; do not duplicate
+requirement statements, identities, lifecycle, membership or implementation status.
+For features without additional rationale, use the canonical record and generated
+views. Follow the canonical format and typed-relations contract for current
+records; do not reuse the older `feature: FR-020` / `module` / `source` example
+as canonical record metadata.
 
-Write a feature note **only when there is rationale**: alternatives considered,
-constraints, why this shape. A feature with no interesting decisions needs no file —
-it already appears in `FEATURE-MAP.md` with its code, tests and task.
+**`FEATURE-MAP.md`, `DOMAIN-MAP.md`, `TRACE.md` and the per-feature design and
+verification pages are generated views.** `npm run docs:graph` builds the graph,
+maps and trace views from repository documents and source annotations.
+`npm run docs:views` builds feature and category views from the canonical registry
+and graph. They are navigation and traceability, not separate requirement authorities.
+Editing them by hand creates another copy of facts that already have canonical
+sources.
 
-**`FEATURE-MAP.md`, `DOMAIN-MAP.md` and `TRACE.md` are derived** (generators in
-`scripts/doc-views.mjs` + `scripts/doc-graph.mjs`), from the PRD registry + `@req` annotations + test
-edges + feature frontmatter + roadmap rows. Its `source` column is also the cutover
-dashboard for ADR-003. Editing it by hand creates a third copy of facts that already
-live in two places — exactly the drift the generators exist to prevent.
+Use the [documentation requirements specification](docs/governance/DOCUMENTATION-REQUIREMENTS-SPEC.md)
+as a proposed guide to document profiles and sections. It cannot override
+accepted ADRs or canonical record authority.
 
-When adding a new document, decide its layer first. If it does not fit one of the
-five slots above, that is a signal the structure needs an ADR, not a stray file.
+Before asserting that a document exists or is absent, or before creating,
+replacing, moving, or deleting one, enumerate the affected filesystem scope.
+Compare git ls-files docs with rg --files --hidden --no-ignore docs, inspect the
+target directory with Get-ChildItem -Force -Recurse, and use git status --short
+--ignored to distinguish tracked, modified, untracked, and ignored files. Read
+the exact existing file and its diff before replacement. README files, the
+canonical-ID registry, and generated graph are not complete filesystem
+inventories. An unlisted file is unclassified until reviewed; absence from an
+index is never deletion authorization.
 
-**Then run `npm run govern` and inspect its output.** Creating or editing any
-document — an ADR, a feature note, a PRD/FEATURES row — changes the graph's input,
-and the generated views do not update themselves. Per
+The [root-file register](docs/governance/ROOT-FILE-REGISTER.md) and
+[directory register](docs/governance/DOCS-DIRECTORY-REGISTER.md) are checked
+inventories of tracked direct children of `docs/` at their recorded revision.
+They are not approval lists and do not include ignored or untracked files;
+refresh the filesystem enumeration before relying on them for a later change.
+
+When adding a document, identify its authority and audience first. If the document
+would establish a new source of requirement, membership or ownership authority,
+update the applicable canonical contract through its reviewed workflow instead of
+creating a parallel registry.
+
+**Then run `npm run govern` and inspect its output.** Creating or editing an
+ADR, canonical record, domain feature note or other graph input changes the graph;
+generated views do not update themselves. PRD/FEATURES are compatibility exports,
+so change their canonical record source and regenerate them. Per
 [ADR-081](docs/decisions/ADR-081-GENERATED-VIEWS-ARE-BUILT-NOT-COMMITTED.md),
 the graph, maps, reports and `llms-full.txt` are build/ignored outputs: use them
 for local inspection or retain them as CI artifacts, but never stage them.

@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-046 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-109 — Notion OAuth installation and signed webhook boundary](../../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md) — `relates` · `metadata` · `current`
 - [FR-273 — Notion OAuth installation and webhook ingress](../../domains/integration/features/FR-273-notion-oauth-and-webhook.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-274 canonical record](requirements/FR-274.md)
 
@@ -42,7 +42,7 @@ Feature record: [ZAI:FEAT-046 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-109 — Notion OAuth installation and signed webhook boundary](../../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md) — `relates` · `metadata` · `current`
 - [FR-273 — Notion OAuth installation and webhook ingress](../../domains/integration/features/FR-273-notion-oauth-and-webhook.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

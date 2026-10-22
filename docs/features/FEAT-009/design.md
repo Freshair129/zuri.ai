@@ -31,7 +31,7 @@ Feature record: [ZAI:FEAT-009 canonical record](feature.md).
 - [ADR-070 — Execution Trace & Replay v0.3](../../decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) — `relates` · `metadata` · `current`
 - [FR-171 — Execution Trace & Replay v0.3](../../domains/agent/features/FR-171-execution-trace-and-replay.md) — `relates` · `metadata` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-093 canonical record](requirements/FR-093.md)
 
@@ -47,7 +47,7 @@ Feature record: [ZAI:FEAT-009 canonical record](feature.md).
 - [FR-171 — Execution Trace & Replay v0.3](../../domains/agent/features/FR-171-execution-trace-and-replay.md) — `relates` · `metadata` · `current`
 - [FR-171-P1 — Native SERVER LINE journal and playback](../../domains/agent/features/PHASE-FR-171-P1-native-server-line-journal.md) — `relates` · `metadata` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

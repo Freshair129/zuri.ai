@@ -355,10 +355,17 @@ silently truncate text, drop pages/cells, or persist a partial success.
 | DOCX table cells | 25,000 physical cells total | Count every table cell, including empty cells. Preserve coordinates; over limit refuses the document. |
 | HTML elements | 100,000 elements and depth 256 | Count static parsed DOM elements; no script execution, external fetch, CSS layout or browser-rendered DOM. |
 | HTML table cells | 25,000 physical cells total | Count cells before projection; over limit refuses the document. |
+| HTML table-grid work | 250,000 interval visits per document | Count each occupied interval inspected while placing cells or retiring row intervals across all tables. Visit 250,001 returns `TABLE_GRID_WORK_LIMIT`/413 and refuses the document before any parsed artifact is emitted. |
 | DOCX archive expansion | 100 MiB total expanded bytes and at most 20:1 expansion | Measure total uncompressed entry bytes and expansion ratio before XML parsing. Exceedance returns `ARCHIVE_EXPANSION_LIMIT` for the whole source version. |
 | DOCX ZIP entries | At most 2,000 central-directory entries | Count every ZIP entry, including directory entries, before decompression. More than 2,000 returns `ARCHIVE_ENTRY_COUNT_LIMIT` for the whole source version, distinct from expansion and table-cell limits. Reject encrypted entries, nested archives, macros, unsafe paths and external relationships; consume only expected OOXML parts. |
 | Normalized output | 10 MiB UTF-8 | Count exact serialized `normalizedText` bytes. Refuse rather than truncate. |
 | Parser process | 60 seconds wall time and 256 MiB resident memory per source | Run in a killable isolated worker. Timeout/resource refusal emits no partial artifact. |
+
+HTML table placement sweeps sorted, disjoint column intervals for active row
+spans; it never expands a span into per-column occupancy entries. Sparse
+physical rows are valid. Normalized table text stays in physical cell order,
+while each cell retains its computed grid column and exact output offset. The
+interval-visit cap is shared by every HTML table in one document.
 
 The parser selects format from validated content type/signature plus a supported
 profile, not extension alone. It makes no network calls. Unsupported encoding,
@@ -370,16 +377,18 @@ closed.
 requirement IDs or asserted FR-071 fields: `UNSUPPORTED_FORMAT`, `RAW_HASH_MISMATCH`,
 `MALFORMED_DOCUMENT`, `ENCRYPTED_DOCUMENT`, `INPUT_BYTES_LIMIT`,
 `PDF_PAGE_LIMIT`, `DOCX_PARAGRAPH_LIMIT`, `TABLE_CELL_LIMIT`,
-`HTML_ELEMENT_LIMIT`, `ARCHIVE_EXPANSION_LIMIT`, `ARCHIVE_ENTRY_COUNT_LIMIT`,
+`TABLE_GRID_WORK_LIMIT`, `HTML_ELEMENT_LIMIT`, `ARCHIVE_EXPANSION_LIMIT`, `ARCHIVE_ENTRY_COUNT_LIMIT`,
 `AMBIGUOUS_TABLE_MAPPING`, `PDF_TABLE_NOT_PROJECTED`, `OUTPUT_BYTES_LIMIT`, `PARSER_TIMEOUT`,
 `PARSER_RESOURCE_LIMIT`, `NO_EXTRACTABLE_TEXT`,
 `IMAGE_ONLY_DOCUMENT`, `IMAGE_CONTENT_NOT_PROCESSED`, and
 `NONDETERMINISTIC_OUTPUT`. `ARCHIVE_ENTRY_COUNT_LIMIT` is raised before
 decompression when the central directory contains more than 2,000 entries;
 `AMBIGUOUS_TABLE_MAPPING` is raised when table geometry cannot map every
-projected cell to one exact source coordinate. Either outcome refuses the whole
-source version: retain the raw artifact and typed failure evidence, but commit
-no ParsedArtifact, table cells, or source spans and start no downstream stage.
+projected cell to one exact source coordinate. `TABLE_GRID_WORK_LIMIT` is
+returned with status 413 when an interval visit would exceed 250,000 document-
+wide visits. Either table outcome refuses the whole source version: retain the
+raw artifact and typed failure evidence, but commit no ParsedArtifact, table
+cells, or source spans and start no downstream stage.
 Map these proposed codes to the existing FR-071 terminal evidence contract
 during implementation review; do not add or claim ledger status or field names
 here. `PDF_TABLE_NOT_PROJECTED` is a warning only when a PDF table is deliberately
@@ -535,6 +544,12 @@ ASCII decimal in `1..1000`. It rejects the literal `rowspan="x"` as
 `AMBIGUOUS_TABLE_MAPPING`; it does not use browser recovery or silently default
 the malformed span.
 
+The HTML contract test also covers a sparse second row with one physical cell:
+for `<tr><td rowspan="2">A</td><td>B</td></tr><tr><td>D</td></tr>`, output is
+`A\tB\nD`, and `D` maps to grid column 1 and artifact offsets `[4,5)`. A
+document-wide adversarial interval vector must refuse with
+`TABLE_GRID_WORK_LIMIT`/413 and no partial parsed output.
+
 **Success oracles.** The following record notation is exact JSON array data;
 line wrapping is for display only. A `sourceSpanRecord` starts with its `kind`;
 all ranges are zero-based, half-open UTF-16 code-unit offsets. The raw length
@@ -663,7 +678,7 @@ acceptance.
 | PDF page map — `pdf/two-page-sentinels.pdf` | Given exact page text `Page one` and `Page two`; when Stage 2 parses; then normalized text is `Page one\nPage two`, page 0 maps unit/artifact `[0,8)`, page 1 maps unit `[0,8)` to artifact `[9,17)`, and raw/text/parse-key/artifact hashes equal §8.1. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "PDF page map"`; cwd: repository root; common environment above. | Separate `dev-verifier` session runs and records fixture/hash and exact revision; `dev-reviewer` checks page/span oracles. |
 | DOCX paragraph and cells — `docx/paragraph-table-cells.docx`, `docx/table-ambiguous-geometry.docx` | Given the exact paragraph/table DOCX and a separate two-column grid with a three-column cell span; when parsed; then the first matches §8.1 text, hashes, UTF-16 offsets and typed cell coordinates, while the second returns `AMBIGUOUS_TABLE_MAPPING`, keeps only raw/failure evidence, emits no parsed artifact/table/source span, and starts no downstream stage. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "DOCX paragraph and cells"`; cwd: repository root; common environment above. | Separate `dev-verifier`; `dev-reviewer` independently checks the DOCX source coordinates and refusal oracle. |
 | HTML element and table cells — `html/nested-elements-table.html` | Given nested `main/section/p` elements and one two-cell table from the exact UTF-8 source; when parsed offline; then the paragraph path and cell path/ranges, exact text and four hashes match §8.1, with no script, CSS, network or browser-rendered input. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "HTML element and table cells"`; cwd: repository root; common environment above. | Separate `dev-verifier`; `dev-reviewer` checks the exact element paths, cell coordinates and oracle hashes. |
-| HTML spans — `html/table-rowspan-colspan.html` and `html/table-ambiguous-span.html` | Given valid spans `2x1`, `1x2`, `1x1`, `1x1` and a second fixture with literal `rowspan="x"`; when table locations are built; then the valid four cell coordinates/ranges match §8.1 and the invalid input returns `AMBIGUOUS_TABLE_MAPPING` with raw/failure evidence only and no ParsedArtifact, table cells, source spans, citation or downstream stage. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "HTML spans"`; cwd: repository root; common environment above. | Separate `dev-verifier`; `dev-reviewer` checks all positive coordinates and exact refusal result. |
+| HTML spans, sparse rows and bounded work — `html/table-rowspan-colspan.html`, `html/table-ambiguous-span.html`, plus in-memory vectors | Given valid spans `2x1`, `1x2`, `1x1`, `1x1`, a sparse second row with one cell, literal `rowspan="x"`, and interval work at/above 250,000; when table locations are built; then fixture coordinates/ranges match §8.1, sparse output is `A\tB\nD` with `D` at grid column 1 and `[4,5)`, exactly 250,000 visits succeeds, and visit 250,001 returns `TABLE_GRID_WORK_LIMIT`/413 with no partial artifact/table/source spans or downstream stage. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "HTML spans"`; cwd: repository root; common environment above. | Separate `dev-verifier`; `dev-reviewer` checks positive coordinates, sparse offsets and typed refusal results. |
 | OCR exclusion — `pdf/image-only.pdf` and `pdf/mixed-text-image.pdf` | Given image-only and mixed pages; when parsing offline; then image-only is typed refusal, mixed text retains its page locator and image warning, and a provider/OCR spy records exactly zero calls and zero OCR-derived text. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "OCR exclusion"`; cwd: repository root; common environment above. | Separate `dev-verifier` captures the zero-call spy and output hashes; `dev-reviewer` checks refusal/warning semantics. |
 | Limits and malformed inputs — in-memory boundary vectors plus `docx/archive-entry-count-2000.docx` and `docx/archive-entry-count-2001.docx` | Given each §7 boundary value and one unit above it; when guarded before projection; then the 2,000-entry fixture parses to the exact §8.1 DOCX oracle, 2,001 returns `ARCHIVE_ENTRY_COUNT_LIMIT` before decompression, expansion returns `ARCHIVE_EXPANSION_LIMIT`, and all other over-limit cases return the matching §7 code with raw/failure evidence only and no partial artifact or downstream stage. Malformed PDF/DOCX, encrypted DOCX and raw hash mismatch fail closed. | `npm --prefix apps/server test -- tests/unit/knowledge-binary-parser-contract.test.js -t "limits and malformed inputs"`; cwd: repository root; common environment above, with a deterministic fake clock for timeout boundary cases. | Separate `dev-verifier` records exact boundary values, measured sizes and generated inputs; `dev-reviewer` checks typed outcomes and no-partial-write evidence. |
 | Stage 3, 7–9 and restart lineage — `docx/paragraph-table-cells.docx` | Given one raw version and pinned parser tuple; when it passes Stage 3, chunks, mention extraction and GKS resolution, then the process restarts; then hashes/spans validate at every seam and each mention/citation returns the correct paragraph or cell. | `npm --prefix apps/server test -- tests/integration/knowledge-binary-parser-lineage.test.js -t "Stage 3 through 9 restart lineage"`; cwd: repository root; common environment above plus disposable local database/storage and isolated native service revisions recorded in the receipt. | Separate `dev-verifier` owns end-to-end evidence; `dev-reviewer` independently audits exact-head lineage and citation resolution. |

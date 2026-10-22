@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-034 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-086 — Programme delivery telemetry: measured beside planned, never as progress](../../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md) — `relates` · `control-block` · `current`
 - [ADR-092 — A time-boxed member view of the programme roadmap](../../decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-217 canonical record](requirements/FR-217.md)
 
@@ -42,7 +42,7 @@ Feature record: [ZAI:FEAT-034 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-086 — Programme delivery telemetry: measured beside planned, never as progress](../../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md) — `relates` · `control-block` · `current`
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-218 canonical record](requirements/FR-218.md)
 
@@ -54,7 +54,7 @@ Feature record: [ZAI:FEAT-034 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-086 — Programme delivery telemetry: measured beside planned, never as progress](../../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md) — `relates` · `control-block` · `current`
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-219 canonical record](requirements/FR-219.md)
 
@@ -66,7 +66,7 @@ Feature record: [ZAI:FEAT-034 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-086 — Programme delivery telemetry: measured beside planned, never as progress](../../decisions/ADR-086-PROGRAMME-DELIVERY-TELEMETRY.md) — `relates` · `control-block` · `current`
 - [ADR-092 — A time-boxed member view of the programme roadmap](../../decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

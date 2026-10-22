@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-040 canonical record](feature.md).
 
 > 🚧 2026-09-16 (ADR-094 D1–D5, FEAT-040): assignment on admission, replies and events, the account timeout column and the backfill merged in #420 (TASK-ZAI-106, main 000b26f1); job session id, the session filter with per-job trace, the Inbox divider and the timeout setting built on `feat/crm-conversation-sessions` (TASK-ZAI-107); migrations `20260916090000` and `20260916120000` written, not applied, not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-244 canonical record](requirements/FR-244.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-040 canonical record](feature.md).
 
 > 🚧 built 2026-09-16 on branch `feat/fr244-model-residency` (not merged), TASK-ZAI-109 (ADR-094 D6 option A) — resolved against ADR-061's identity boundary (owner-confirmed 2026-09-16): the job-claim wire carries no account id, so the edge cannot hold a per-account schedule; instead `LineOaAccount.businessHoursOpen`/`businessHoursClose`/`outOfHoursReplyText` (migration `20260916130000`, not applied) drive two server-side things — `POST /api/edge/model-residency` returns one aggregate `shouldBeWarm` boolean across every server-enabled account, identity-free, and admission (`admitLineTextMessage`) creates the job straight at `READY` with the out-of-hours text as its answer when the account is closed, so it is sent by the existing tick worker and never reaches execution. The edge polls the directive every 60s (`model-residency-schedule.ts`) and calls the existing `warmModel`/`releaseModel` only on a change, sharing `triggerWarm`'s own in-flight guard
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

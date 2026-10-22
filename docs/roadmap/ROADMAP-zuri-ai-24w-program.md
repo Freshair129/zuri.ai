@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.35"
-updated: "2026-10-17"
+version: "0.4.40"
+updated: "2026-10-18"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -24,7 +24,7 @@ related_docs:
   - "docs/FEATURE-MAP.md"
   - "docs/PRD-SDD-v1.0.md"
   - "docs/UI-DESIGN-SYSTEM.md"
-  - "docs/GOVIBE-INTEGRATION.md"
+  - "docs/GOVIBE-INTEGRATION.md" # historical proposal superseded by ADR-009
   - "docs/ARCHITECTURE.md"
   - "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md"
   - "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md"
@@ -35,7 +35,9 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
-Version diff 0.4.34 -> 0.4.35 (2026-10-17): Reconcile TASK-ZAI-014 with canonical ROADMAP.md Revision 2.161.0b after PR #695 and #696 merged. PR #695 passed exact-head Governance `39000419267` and Edge `39000419263`; PR #696 passed Governance `39000885341` and Edge `39000885363`, with Desktop passed and E2E skipped. Local targeted tests for the final fixes were NOT_RUN because `npx`/`tsx` were unavailable; applicable hosted exact-head test checks passed. Keep Task14 and TC-TASK-ZAI-014 in-progress, all acceptance/success/exit criteria unchecked, and TASK-ZAI-015 planned behind Task14 because standalone SmartGift readers, production corpusContext supply, full generic private-memory scope switching, live-agent switching and Task14 E2E remain unverified or open. Status counts and phase/sprint progress are unchanged; no production, Supabase, provider, deployment or UAT validation is claimed.
+Version diff 0.4.39 -> 0.4.40 (2026-10-18): Reconcile TASK-ZAI-011 with canonical ROADMAP.md Revision 2.166.0b after PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed; the focused integration suite passed 84 with 1 skipped, and local govern passed with 0 critical and 24 baseline warnings. Exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop were skipped by workflow policy, not passes. The accepted slice stores transaction-bound, recipient-scoped in-app notices for approval outcomes and supports idempotent read acknowledgements. Recompute from all 123 canonical task rows: 71 done, 16 review, 6 in-progress, 25 planned, 5 blocked (57.7% done); PHASE-ZAI-02 is 72, SPR-ZAI-03 is 74 and SPR-ZAI-04 is 69 under the documented status mapping. TASK-ZAI-012 remains planned, so the wave is not closed. No external email/push transport, production migration apply/deployment, Supabase or live-agent activation is claimed.
+Version diff 0.4.38 -> 0.4.39 (2026-10-18): Reconcile the TASK-ZAI-048 bounded source delivery with canonical ROADMAP.md Revision 2.165.0b. PR #709 merged at `781e6a376e37162d9e930b59d30c2dac74073823` from exact source head `2984cae8fde6430f262520aeb409837cc17d0fdd`. The focused root batch passed 21/21 on the reviewed patch bytes and all six committed file hashes match; independent Verify and Review passed. Exact-head Governance `39118118499`, Edge `39118118519` and Docker `39118118567` passed; hosted E2E and Desktop were skipped by workflow policy, not passes. Keep Task048 in-progress, with its full native Stage 9–17, OCR, binary browser/UAT, hard RSS/egress, provider, deployment and production criteria open; no task counts, sprint progress or phase progress change. The linked HTML remains the archived v0.4.9 snapshot, not a current rendered projection.
+Version diff 0.4.35 -> 0.4.36 (2026-10-17): Reconcile TASK-ZAI-119 with canonical ROADMAP.md Revision 2.162.0b after PR #701 merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d` from exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f`. The worker reader passed 23/23; independent Verify and Review passed; exact-head Governance `39015694506`, Edge `39015694513` and hosted test shards passed, while E2E/Desktop were skipped by workflow policy. PR #701 adds sanitized worktree identity/status, candidate-head matching and safe UI details. Local Server panel Vitest remains NOT_RUN. The owner-provided local screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`; authenticated runtime behavior is unverified and not fixed by this PR. Keep TASK-ZAI-119 review / HOSTED_CI / MERGED, P1 done, P2 planned, FEAT-044 building, and external PORL/hosted-production exit proof open. Task counts and phase/sprint progress are unchanged; no production, deployment, UAT or authenticated-worker-read claim is made.
 Version diff 0.4.33 -> 0.4.34 (2026-10-17): Reconcile TASK-ZAI-010 with canonical ROADMAP.md Revision 2.160.0b after PR #684 merged at `67bf0371c60b948fe1ff73dc1f3b13cc5d96802d` from exact head `e3f252421d1e004b4999c130021b17d697a2ae5f`. Local SQLite 11 suites/176 tests, isolated PostgreSQL 15/15, governance/build and exact-head hosted Governance, Edge, four test shards and Verify passed; E2E/Desktop were skipped. Keep the task in review because direct L4 under-quorum refusal and complete positive/negative cases for L1-L4 remain unchecked. The duplicate L2 vote criterion is checked from its explicit integration test. No production, provider, Supabase or live-agent activation is claimed.
 
 Version diff 0.4.32 -> 0.4.33 (2026-10-16): Reconcile TASK-ZAI-119 with canonical ROADMAP.md Revision 2.159.0b after PR #687 merged as `19b22dbe` and PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`. PR #688 adds sanitized campaign intake diagnostics, controller heartbeat/PID liveness and newest-first validated events to the read-only Workers view. Local focused checks and exact-head hosted Governance/Edge and manual E2E passed. Keep P1 done, P2 planned, the parent in review, FEAT-044 building and the external PORL/production exit criterion open; no deployment or live Business/LINE behavior is claimed.
@@ -191,7 +193,7 @@ the v0.4.0 column is what changed in the programme's first three weeks.
 | 5 | Five Core Agent Roles | Partial. One generic agent turn; no role registry, no role-scoped policy. | Unchanged in kind. FR-181 adds six SCM tools on the existing gates and FR-098 the authorization context those tools consume, which is the substrate a role policy will bind to. No registry. | Role registry plus five roles, SPR-ZAI-03 |
 | 6 | Two cross-integrated Businesses | Partial. Multi-business scaffolding live; exactly **one** business, SmartGift, onboarded. | Unchanged count. ADR-076 aligned the organizational hierarchy to ERP vocabulary and FR-193/194 put Employment and LegalEntity under Tenant, which is what a second Business's provisioning will stand on. | Business number two plus cross-business analytics, PHASE-ZAI-03 |
 | 7 | Up to 5 full automation workflows | None end to end. | Server-owned job ledgers exist for two narrow flows: FR-152 rich-menu publish jobs and FR-143 edge extraction jobs (ADR-059), both with retry and audit. Neither is a business workflow under approval. | Five workflows, SPR-ZAI-06 and SPR-ZAI-10 |
-| 8 | Up to 3 standard connectors (v0.4.9: plus conversation sessions and business-hours model residency under ADR-094, recorded staff replies and the chat evidence cold archive under ADR-093, TASK-ZAI-105 to 115; v0.4.7: plus the Integration credential vault, self-serve LINE OA onboarding and the complete LINE chat record under ADR-089 and ADR-091, TASK-ZAI-076 to 091, and the vault generalised to other provider kinds, TASK-ZAI-103) | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount declared as a read-only pull pipeline (FR-125, ADR-053) but not built; GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 re-stated to name FlowAccount; (v0.4.7) a LINE OA connected by its owner from the browser with no operator, SPR-ZAI-03 and SPR-ZAI-04 |
+| 8 | Up to 3 standard connectors (v0.4.9: plus conversation sessions and business-hours model residency under ADR-094, recorded staff replies and the chat evidence cold archive under ADR-093, TASK-ZAI-105 to 115; v0.4.7: plus the Integration credential vault, self-serve LINE OA onboarding and the complete LINE chat record under ADR-089 and ADR-091, TASK-ZAI-076 to 091, and the vault generalised to other provider kinds, TASK-ZAI-103) | One. LINE through FR-079/080/091/093. | LINE deepened (FR-146 to FR-153, FR-190, server-owned transport under ADR-061). FlowAccount's official MCP connector reads accounting data/reports and also advertises document creation. TASK-ZAI-017 records a read-only connector candidate, not yet built; it does not amend FR-125's normative REST-first definition. MCP implementation requires its own sanctioned additive reviewed record (historical FR-125; candidate ADR-053). GitHub projection partial (FR-130); Google Sheets snapshot intake real for Assets (FR-139). | Connectors two and three, SPR-ZAI-06 and SPR-ZAI-10 — TASK-ZAI-017 candidate proposes support for FlowAccount's official MCP; (v0.4.7) a LINE OA connected by its owner from the browser with no operator, SPR-ZAI-03 and SPR-ZAI-04 |
 | 9 | Approval L1 to L4 with audit, verification and notification | Partial. Immutable audit through FR-014; a **single** step-up tier; no notification fabric. | Audit strengthened: FR-198/199 give events queryable scope and a Business-readable access history (ADR-080); FR-191/196/197 add withdrawable grants, segregation of duties and time-boxed operator access (ADR-077/079). Approval is still one tier; FR-100 and FR-129 are single-purpose inboxes, not a ladder. | L1 to L4 ladder, verification, notification, SPR-ZAI-04 |
 | 10 | Deployment, data and security checklist, UAT, training, technical documentation | Partial. RLS, scope binding, evaluation and isolation harnesses; no UAT, training or handover pack. | **Deployment is real.** Production runs as a Docker Compose stack behind ngrok (ADR-058, FR-142 liveness probe, FR-145 pooler mode), redeployed many times, with two written outage RCAs. IAM hardening tail (FR-094 to FR-098) and TOTP step-up merged 2026-09-12. `llms.txt` / `llms-full.txt` give the documentation corpus one LLM-readable entry. No UAT, training or handover pack. | Hardening through handover, PHASE-ZAI-06 |
 | 11 | ERP business modules (CR-019) | Not in the proposal; nothing built. | **Built for Business one.** Inventory (FEAT-020), SmartGift SCM (FEAT-025), Sales Tasks (FEAT-022), Commerce (FEAT-023), Procurement (FEAT-024), Marketing (FEAT-021), Asset Management (FEAT-015 to 017), LINE OA Studio (FEAT-018/019), catalog convergence (FEAT-026); SCM and CRM parent slots, capabilities and module tabs (FR-167 to FR-172). Most lanes are "implemented locally" in the PRD with production migrations applied lane by lane. | Production activation and GATE-ZAI-09 for Business one (TASK-ZAI-043/044); Business two under deliverable 6; the SmartGift cost and quote engine (TASK-ZAI-052 to 059, v0.4.2) |
@@ -468,7 +470,7 @@ Week numbers map to the calendar in section 5.4. W1 begins Mon 2026-08-24.
 | Phase | Weeks | Dates | Goal | Governing SoT | Exit Criteria | Status | Progress |
 |---|---|---|---|---|---|---|---|
 | PHASE-ZAI-01 | 1-4 | 2026-08-24 to 2026-09-20 | Consolidate the inherited foundation into a production-grade base, (CR-019) land the ERP business modules for Business one, and open the SmartGift cost and quote engine on the owner's instruction (v0.4.2); (v0.4.7) bind the LINE OA platform plan to lanes before its work starts | `docs/PRD-SDD-v1.0.md` | The production session boundary is closed, no feature is built but undeclared, the memory contract is written, every deliverable-11 lane is merged with its migration written, the cost and quote decision record is written, the data pipeline map renders every confirmed chain (v0.4.3), and the board shows measured time and tokens for done work (v0.4.4) | in-progress | 95 |
-| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 67 |
+| PHASE-ZAI-02 | 5-8 | 2026-09-21 to 2026-10-18 | Stand up the agent workforce and the governance ladder above it; give the seventeen-stage pipeline its knowledge base and file system on production; activate deliverable 11 on production; pricing rules, the shared pricing engine and quotations for Business one; (v0.4.7) a Business owner connects a LINE OA from the browser through a write-only credential vault, and the LINE chat record is complete with declared retention | `docs/domains/agent/` | Five roles execute under an L1 to L4 approval ladder with audit, verification and notification; a real document is admitted, parsed, published and cited on production; GATE-ZAI-09's migration ledger matches; one production LINE OA account runs on server transport from a vault credential its owner entered, with no operator file (v0.4.7) | in-progress | 72 |
 | PHASE-ZAI-03 | 9-12 | 2026-10-19 to 2026-11-15 | Second business, cross-business analytics, first workflows and connectors; deliverable 11 accepted for Business one; (v0.4.7) one Context Composer for every LINE prompt, LINE answers grounded by the published corpus, reviewed knowledge candidates, and memory policy with erasure beyond Tier 1 once MSP can hold and erase it | `docs/ARCHITECTURE.md` | GATE-ZAI-04 and GATE-ZAI-07 are met for connectors one and two and workflows one and two; GATE-ZAI-09 is met; a SmartGift LINE answer cites the published corpus in the isolated harness with zero cross-tenant leakage (v0.4.7) | in-progress | 52 |
 | PHASE-ZAI-04 | 13-16 | 2026-11-16 to 2026-12-13 | Visual Office 2.5D and the agent activity experience | `docs/UI-DESIGN-SYSTEM.md` | GATE-ZAI-01 is met | planned | 0 |
 | PHASE-ZAI-05 | 17-20 | 2026-12-14 to 2027-01-10 | Second Brain, Node View 3D and the remaining automation | `docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md` | GATE-ZAI-02, GATE-ZAI-03 and GATE-ZAI-05 are met | in-progress | 61 |
@@ -489,8 +491,8 @@ locates the week.
 |---|---|---|---|---|---|---|---|
 | SPR-ZAI-01 | PHASE-ZAI-01 | 1-2 | 08-24 to 09-06 | Close identity, session and authorization to production standard; (CR-019) Inventory, Sales Tasks, Commerce, Procurement, Asset Management and LINE OA Studio lanes land | A request without a trusted session reaches no mutating route, proven by test; each lane merged with tests | in-progress | 88 |
 | SPR-ZAI-02 | PHASE-ZAI-01 | 3-4 | 09-07 to 09-20 | Settle tenancy, the ingestion pipeline monitor and the memory contract; account for the seventeen-stage knowledge intake and Tier 1 as built; (CR-019) SmartGift SCM, Marketing, billing/POS, catalog convergence and the identity lifecycle land; (v0.4.2) the cost and quote engine opens with its decision record and factory cost intake; (v0.4.3) the data pipeline registry and its node-edge map land under a Knowledge (GKS) slot; (v0.4.4) delivery telemetry on the programme board: phase card metrics, task card evidence badges with subtask progress, a usage meter over local session logs and a usage report endpoint; (v0.4.5) the Zuri harness usage plugin with browser-approved device pairing; (v0.4.6) the plugin specification and agent usage detail — thinking tokens, tool calls, prompts and compactions; (v0.4.7) the LINE OA platform plan registered with its lanes before work starts; (v0.4.8) a 30-day member view of the roadmap for signed-in people; (v0.4.9) ADR-093 and ADR-094 accepted and their tasks bound to lanes | The pipeline reports every stage, the memory contract is reviewed, a file admitted at Stage 1 reaches Stage 8 with lineage under test, every lane's migration is written, supplier cost sheets land with a locked FX rate, and the map shows every inbound source, outbound recipient and combine chain with its surface level, a done task shows tokens measured from a named source, every task card shows its evidence badges, a paired agent on another machine reports its sessions (v0.4.5), the board shows tool calls and token types per lane and person (v0.4.6), and a signed-in non-operator reads the plan at /roadmap until the window closes (v0.4.8); ADR-093 and ADR-094 read accepted with their requirements pinned (v0.4.9); error tracking and per-person feature usage extend the logger (v0.4.10) | in-progress | 97 |
-| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 71 |
-| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search; (v0.4.9) local model residency by business hours and staff replies recorded from the inbox | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7); the model is unloaded outside business hours and a staff reply is in the record (v0.4.9) | in-progress | 63 |
+| SPR-ZAI-03 | PHASE-ZAI-02 | 5-6 | 09-21 to 10-04 | Build the agent role registry and the five core roles; stand up the knowledge base console, binary parsing, durable file storage and the production seventeen-stage runtime; apply every pending deliverable-11 migration on production; pricing rule set, the shared pricing engine and quotations; live pipeline health on the data pipeline map; (v0.4.7) the Integration credential vault with Supabase Vault and envelope stores, the LINE channel claim and channel-admin port, and the AAL2 credential-write gate; (v0.4.9) conversation sessions on the record with their production apply | Each role resolves distinct tools, policy and memory partition; a PDF uploaded in the console is published as a cited corpus on production; the migration ledger matches the tree; a quote and the FR-181 tool price the same SKU to the same satang; a failed run is visible on its map edge for its own Business only; ADR-089 proofs 1 to 6 pass on both stores and a real test channel is validated in a dev deployment with no production migration applied (v0.4.7); a gap past the idle timeout opens a second session on production (v0.4.9) | in-progress | 74 |
+| SPR-ZAI-04 | PHASE-ZAI-02 | 7-8 | 10-05 to 10-18 | Approval Gateway L1 to L4 with verification, notification and Mission Control binding; ladder quotation on LINE and knowledge structured records; (v0.4.7) the self-serve LINE OA wizard with automatic webhook registration and derived quiescence, the first production account moved off the mount, and the complete chat record with retention sweep and inbox search; (v0.4.9) local model residency by business hours and staff replies recorded from the inbox | An L4 action cannot execute without four recorded approvals; a LINE quotation request is answered from the shared engine with no margin in the payload; one production LINE OA account runs on server transport from a credential its owner entered, and non-text LINE events appear in the inbox (v0.4.7); the model is unloaded outside business hours and a staff reply is in the record (v0.4.9) | in-progress | 69 |
 | SPR-ZAI-05 | PHASE-ZAI-03 | 9-10 | 10-19 to 11-01 | Standard business template and Business number two onboarding; (v0.4.7) the Context Composer, and LINE grounding from the published corpus with its isolated acceptance; (v0.4.9) the chat evidence archive writer, OWNER retrieval and the legal hold | Business two is live and isolated from SmartGift under test; every LINE prompt carries one ContextReceipt and a grounded answer cites the corpus in the four-process harness (v0.4.7); a swept body is decrypted from a verified archive by an OWNER at AAL2 (v0.4.9) | in-progress | 83 |
 | SPR-ZAI-06 | PHASE-ZAI-03 | 11-12 | 11-02 to 11-15 | Cross-business analytics, connector two, workflows one and two; GATE-ZAI-09 evidence run; (v0.4.7) the SmartGift grounding switch after ADR-075 Phase 3, LINE knowledge candidates, the gap report and Studio descriptions, and memory policy with erasure fan-out once MSP ships its thread and erase tools; (v0.4.9) the chat evidence archive on production and its offline copy | Analytics obey per-business visibility, two workflows run end to end, and the ERP acceptance record is signed; an approved locator-only candidate is admitted with Zero-PII checked twice (v0.4.7); the first manifest is recorded on production and copied offline (v0.4.9) | in-progress | 31 |
 | SPR-ZAI-07 | PHASE-ZAI-04 | 13-14 | 11-16 to 11-29 | Visual Office 2.5D scene model and shell | The scene renders live Business, Agent and Mission objects with no mock values | planned | 0 |
@@ -513,14 +515,14 @@ locates the week.
 | TASK-ZAI-007 | SPR-ZAI-03 | task | Agent Role registry with five core roles | P0 | Claude | done | TASK-ZAI-006 | Section 3.1 row 5 |
 | TASK-ZAI-008 | SPR-ZAI-03 | task | Role-scoped memory partition and retrieval policy | P0 | Claude | done | TASK-ZAI-007 | Section 3.1 rows 4 and 5 |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Agent Factory, the standard business agent template | P1 | Codex | done | TASK-ZAI-007 | Proposal scope, AI Control |
-| TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | review | TASK-ZAI-007 | PR #684 merged; direct L4 under-quorum and complete tier-negative proof remain open |
-| TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | planned | TASK-ZAI-010 | Section 3.1 row 9 |
+| TASK-ZAI-010 | SPR-ZAI-04 | task | Approval Gateway L1 to L4 over the FR-026 action gate | P0 | ATHER | done | TASK-ZAI-007 | PRs #684 and #708 merged; #708 completes the remaining under-quorum/tier-negative acceptance; exact-head checks and independent Verify/Review passed; see ROADMAP.md revision 2.164.0b |
+| TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | done | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | done | TASK-ZAI-009 | Section 3.1 row 6 |
 | TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | in-progress | TASK-ZAI-013 | Section 3.1 row 6 |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
-| TASK-ZAI-017 | SPR-ZAI-06 | task | Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125 | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; ADR-053 |
+| TASK-ZAI-017 | SPR-ZAI-06 | task | Candidate connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection, read-only tool allow-list and audited raw evidence; proposed FR-125 extension pending sanctioned additive reviewed-record migration | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; FR-125; ADR-053 candidate section |
 | TASK-ZAI-018 | SPR-ZAI-06 | task | Automation workflows one and two end to end | P1 | ATHER | planned | TASK-ZAI-010; TASK-ZAI-017 | Section 3.1 row 7 |
 | TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | Section 3.1 row 1 |
 | TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | Section 3.1 row 1 |
@@ -551,7 +553,7 @@ locates the week.
 | TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
 | TASK-ZAI-046 | SPR-ZAI-02 | task | Tier 1 stage calculators, composition and quarantine, Stage 2 to 8 — FR-111 to FR-119 | P0 | Claude | done | TASK-ZAI-045 | Section 3.1 row 4; ADR-050 |
 | TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
-| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | planned | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138 |
+| TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | in-progress | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138; bounded source PR #709 merged, native/OCR/UAT/provider/production exits open |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | review | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
 | TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | in-progress | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
@@ -622,7 +624,7 @@ locates the week.
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
-| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` passed all jobs including full E2E on exact head; P1 local operator route, blocker/gate evidence, and responsive Workers view done; P2 external PORL binding and hosted/production proof planned; parent remains review / HOSTED_CI / MERGED; FEAT-044 building; no external PORL, production deployment, or live Business/LINE behavior claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 ; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, exact-head Governance `38905060924`, Edge `38905060947`, and manual E2E `38905115144` passed; sanitized campaign-intake holds, controller liveness, and newest-first event diagnostics delivered; external PORL and production exit proof remain open; FEAT-044 remains building; no deployment or live Business/LINE proof claimed |
+| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` passed all jobs including full E2E on exact head; P1 local operator route, blocker/gate evidence, and responsive Workers view done; P2 external PORL binding and hosted/production proof planned; parent remains review / HOSTED_CI / MERGED; FEAT-044 building; no external PORL, production deployment, or live Business/LINE behavior claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 ; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, exact-head Governance `38905060924`, Edge `38905060947`, and manual E2E `38905115144` passed; PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; worker reader 23/23, independent Verify/Review, exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed; E2E/Desktop skipped by policy; sanitized worktree identity/status and candidate-head matching delivered; the owner-provided screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified; external PORL and production exit proof remain open; FEAT-044 remains building; no deployment or live Business/LINE proof claimed |
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 | TASK-ZAI-123 | SPR-ZAI-10 | task | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274; Business-scoped OAuth callback and vault custody, one-time AAL2 operator reveal, raw-body signature verification and receipt-only idempotent webhook | P1 | Codex | in-progress | TASK-ZAI-078 | ../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md |
@@ -997,7 +999,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: review
-version: 0.2.0
+version: 0.3.0
 pic: Claude
 executor: Claude
 approver: Owen
@@ -1084,8 +1086,8 @@ title: Approval Gateway L1 to L4 over the FR-026 action gate
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.2.0
+status: done
+version: 0.3.0
 pic: ATHER
 executor: Codex
 approver: Owen
@@ -1093,19 +1095,19 @@ auditor: ATHER
 symbol_links:
   code: apps/server/src/modules/agent/approval-gateway.js
   doc: docs/change-requests/agent-approval/APPROVAL-GATEWAY-V1.md
-  test: apps/server/tests/integration/agent-approval-gateway.test.js
+  test: apps/server/tests/integration/agent-approval-tier-acceptance.test.js
 delivers: []
 definition_of_done:
   acceptance_criteria:
     - criterion: Given an action classified L4, when fewer than four distinct approvals are recorded, then execution is refused
-      checked: false
+      checked: true
   success_criteria:
     - criterion: Given an approval, when the same principal approves twice, then the second approval does not count toward the ladder
       checked: true
   exit_criteria:
     - criterion: Given npm test, when the approval suite runs, then each of L1, L2, L3 and L4 has a passing positive and a passing negative case
-      checked: false
-changelog: PR #684 merged as 67bf0371c60b948fe1ff73dc1f3b13cc5d96802d from exact head e3f252421d1e004b4999c130021b17d697a2ae5f. Local SQLite 176 tests, isolated PostgreSQL 15/15, governance/build, exact-head Governance/Edge/test shards and Verify passed; PR E2E/Desktop were skipped. The explicit L2 duplicate-vote test satisfies the success criterion. Keep the L4 under-quorum refusal and complete positive/negative evidence for every tier unchecked; task remains review. No production, Supabase, provider or live-agent activation is claimed.
+      checked: true
+changelog: PR #684 (`67bf0371c60b948fe1ff73dc1f3b13cc5d96802d`) delivered the gateway; PR #708 (`982ae10ab9e03be8a9ef4af34fb46ba58c24d04b`) completed the missing under-quorum cases. Exact-head Governance/Edge and independent Verify/Review passed for both. Focused acceptance passed 176 SQLite + 15 isolated PostgreSQL for #684 and 28/28 for #708. E2E/Desktop were skipped, not passed. Contract v1.1.0 defines no production L3 action; L3 is an isolated registry fixture only. No production/provider activation is claimed.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1129,27 +1131,27 @@ title: Verification and notification fabric on approval outcomes
 requirement_type: FR
 complexity: C-2
 access_scope: H2
-status: planned
-version: 0.1.0
+status: done
+version: 0.2.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: src/app/api/agent/line-webhook/route.js
-  doc: docs/FEATURE-MAP.md
-  test: unavailable
+  code: apps/server/src/modules/agent/approval-notifications.js
+  doc: docs/appendices/A-api-spec.md
+  test: apps/server/tests/integration/agent-approval-notifications.test.js
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given an approval decision, when it is recorded, then the requester and the next approver are notified exactly once
-      checked: false
+    - criterion: "Given an approval decision is recorded, when its quorum step commits, then the same transaction stores one requester outcome notice and one notice for each eligible active, unvoted direct Business owner: next action while pending or outcome after a terminal decision."
+      checked: true
   success_criteria:
-    - criterion: Given a notification transport failure, when the send is retried, then no duplicate notification is delivered
-      checked: false
+    - criterion: "Given notice persistence fails during a decision, when the decision is retried, then rollback leaves no vote or notices and the retry stores one decision with exactly one notice per recipient."
+      checked: true
   exit_criteria:
-    - criterion: Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry
-      checked: false
-changelog: Opened as the second half of deliverable nine. Audit exists through FR-014; verification and notification do not. FR-093 (outbound reply receipt) gives the delivery half a precedent to follow.
+    - criterion: "Given a recipient reads an in-app approval notice, when another principal requests the same notice or the recipient repeats mark-read, then the other principal cannot see it and the repeated acknowledgement preserves the original readAt timestamp."
+      checked: true
+changelog: "Bounded in-app scope delivered in PR #714, merged as f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1 from exact head ac88c99672c945c38e26dcd63a312ee4e2a30652. The integration suite covers quorum-step recipients, recipient-only reads, idempotent mark-read, rollback on notification persistence failure, and a no-duplicate retry. This does not provide email or push transport and does not claim production migration apply or deployment."
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1389,7 +1391,7 @@ task_container_id: TC-TASK-ZAI-017
 task_id: TASK-ZAI-017
 parent_phase_id: PHASE-ZAI-03
 parent_sprint_id: SPR-ZAI-06
-title: Connector number two under the FR-081 ingestion boundary — FlowAccount read-only pull, FR-125
+title: TASK-ZAI-017 candidate extension: connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection and read-only evidence; FR-125 migration pending
 requirement_type: FR
 complexity: C-2
 access_scope: H2
@@ -1400,21 +1402,30 @@ executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/platform/integrations/providers/line/line-oa-evidence.js
+  code: apps/server/src/modules/project-manager/mcp/transport.js (inbound Zuri MCP server only; no FlowAccount client exists)
   doc: docs/decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md
-  test: unavailable
+  test: unavailable (no FlowAccount MCP client or connector suite at accepted baseline)
+# The MCP criteria below describe TASK-ZAI-017 candidate scope only. They do not
+# amend normative FR-125 acceptance; a sanctioned additive reviewed-record
+# migration is pending.
 delivers: [FR-125]
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given the second connector, when it ingests, then every record carries tenant, Business, connection, provider, lane, entity type and schema version
+    - criterion: Given a FlowAccount OAuth connection, when an authorized user selects one company, then the connection binds that company to the trusted Zuri Business and persists only an opaque credential reference
+      checked: false
+    - criterion: Given a discovered MCP capability, when a read is requested, then only a verified and explicitly allow-listed read capability can execute; unknown or write-capable tools are denied regardless of readOnlyHint
+      checked: false
+    - criterion: Given an allowed read result, when its provider schema and stable identity are verified, then the connector records it through FR-081 with trusted tenant, Business, connection, provider, lane, entity type, schema version and safe provenance
+      checked: false
+    - criterion: Given any connect, discovery, read, refusal or disconnect operation, when it is processed, then trusted viewer/Business authority is re-resolved and an audit record excludes tokens, secrets and raw financial payloads
       checked: false
   success_criteria:
-    - criterion: Given a credential, when it is stored, then only an opaque reference is persisted and no secret transits a URL or log
+    - criterion: Given the official FlowAccount MCP connector, when Zuri connects, then OAuth data is secret-safe and FlowAccount create/mutate operations remain unreachable from this read-only task
       checked: false
   exit_criteria:
-    - criterion: Given npm test, when the connector suite runs, then an out-of-scope read is refused and the refusal is audited
+    - criterion: Given isolated MCP/OAuth contract tests, when the connector suite runs, then company binding, read allow-list enforcement, write/unknown-tool refusal, FR-081 provenance, audit and disconnect pass; live provider OAuth/company acceptance remains separate evidence
       checked: false
-changelog: Opened from deliverable eight. LINE is connector one. The ingestion boundary already exists, and FR-092 added a provider-neutral translation core, so connector two is a conformance exercise rather than new architecture. Re-stated 2026-09-13 (v0.4.0) to name the connector — FR-125 and ADR-053 (2026-08-30) declared FlowAccount as a read-only pull pipeline over one OWNER-authorized Client Credentials connection; the PRD marks it "design candidate only, nothing built and nothing authorized". It stays planned in SPR-ZAI-06. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) are real but narrower than a connector under this deliverable's definition, and are not counted.
+changelog: Opened from deliverable eight. LINE is connector one. FR-081 raw evidence remains the ingestion boundary. Historical 2026-09-13/2026-08-30 text proposed a REST Client Credentials pull; on 2026-10-18 direct human instruction, this task records a candidate to support FlowAccount's official hosted MCP connector with OAuth company selection and a Zuri-enforced read-only capability allow-list. The candidate does not amend normative FR-125 acceptance; historical FR-125 retains its original REST-first meaning; a sanctioned additive reviewed record must establish MCP requirements before implementation. No FlowAccount MCP client or provider acceptance evidence exists at the accepted baseline. The task stays planned / UNKNOWN / NOT_STARTED in SPR-ZAI-06; TASK-ZAI-005 remains its dependency. Google Sheets snapshot intake (FR-139, Assets) and the GitHub repository projection (FR-130, partial) remain outside this task.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -2773,16 +2784,16 @@ title: Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with ra
 requirement_type: FR
 complexity: C-3
 access_scope: H3
-status: planned
+status: in-progress
 version: 0.1.0
 pic: Codex
 executor: Codex
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/modules/knowledge/parsing.js
+  code: apps/server/src/modules/knowledge/knowledge-binary-parser.js
   doc: docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
-  test: unavailable
+  test: apps/server/tests/unit/knowledge-binary-parser-contract.test.js
 definition_of_done:
   acceptance_criteria:
     - criterion: Given a PDF, DOCX or HTML FileAsset admitted at Stage 1, when Stage 2 runs, then a ParsedArtifact records the parser and its version, every text block maps back to a page, cell or element of the raw file, and a parser change is distinguishable from the original on reparse
@@ -2793,7 +2804,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the seventeen-stage acceptance suite extended with one PDF and one DOCX fixture, when it runs from the raw entrypoint, then Stage 3 provenance, Stage 7 chunk offsets and Stage 8 occurrences resolve after restart and a citation opens the correct page
       checked: false
-changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider.
+changelog: Opened 2026-09-13 (v0.4.1). FR-115 deliberately parses markdown and plain text only, and the flow's extension guide warns that "adding a binary parser alone is not enough" — raw mapping at Stage 3 and offsets at 7/8/9 change with it, so this task carries those three stages in its exit criterion. Reuses the Edge extraction path the Asset lane built rather than a second OCR provider. 2026-10-18: additive FR-288/SDD-114 govern the bounded managed binary candidate. PR #709's PDF/DOCX/static-HTML source, byte admission, deterministic locations and bounded table-span repair merged at `781e6a376e37162d9e930b59d30c2dac74073823` from `2984cae8fde6430f262520aeb409837cc17d0fdd`; the focused 21/21 patch-byte proof, independent Verify/Review and exact-head hosted Governance/Edge/Docker checks passed. Hosted E2E/Desktop were skipped. Task048 remains in-progress: full native Stage 9–17, OCR, binary browser/UAT, hard RSS/egress, provider, deployment and production exits remain open.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -6269,7 +6280,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here
       checked: false
-changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Sanitized responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; raw reports were removed. PR #686 merged as `a0d933fd` from exact head `23186eb7`; PR #687 merged as `19b22dbe` to reconcile its accepted Workers-view slice. PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`; the view now exposes sanitized local campaign intake holds, requires a fresh controller heartbeat and live PID to report LIVE, and sorts validated supervisor events newest-first before limiting UNKNOWN snapshots. Local checks passed (Node 35/35, isolated Vitest 6/6); exact-head Governance `38905060924` and Edge `38905060947` passed; manual workflow `38905115144` passed including E2E. P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. The diagnostics are read-only and local-only; no external PORL, production deployment, or live Business/LINE behavior is claimed.
+changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Sanitized responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; raw reports were removed. PR #686 merged as `a0d933fd` from exact head `23186eb7`; PR #687 merged as `19b22dbe` to reconcile its accepted Workers-view slice. PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`; the view now exposes sanitized local campaign intake holds, requires a fresh controller heartbeat and live PID to report LIVE, and sorts validated supervisor events newest-first before limiting UNKNOWN snapshots. Local checks passed (Node 35/35, isolated Vitest 6/6); exact-head Governance `38905060924` and Edge `38905060947` passed; manual workflow `38905115144` passed including E2E. P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. The diagnostics are read-only and local-only; no external PORL, production deployment, or live Business/LINE behavior is claimed. PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; local worker reader 23/23, independent Verify/Review, exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed, while E2E/Desktop were skipped by policy. It adds sanitized worktree identity/status and candidate-head matching. Local Server panel Vitest was NOT_RUN. The owner-provided screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified and is not fixed by #701; no authenticated snapshot or production behavior is claimed.
 created_at: 2026-09-19T00:00:00Z,RWANG,pending
 token_telemetry:
   model_name: gpt-5
@@ -7712,3 +7723,4 @@ second run over the same logs writes the same block.
 | 0.4.15 | 2026-09-20 | Hosted-CI reconciliation for TASK-ZAI-024, TASK-ZAI-036, TASK-ZAI-040 and TASK-ZAI-053: merged implementation evidence recorded; 024/053 are done, 036/040 remain review; production/provider/owner/release gates remain open or NOT_RUN. |
 | 0.4.16 | 2026-09-21 | Hosted-CI reconciliation for TASK-ZAI-056: PR #487 merged the integer-satang pricing engine and FR-181 integration at 5b2964c5; parity is fixture-only and production, owner, deployment, migration, MSP and GKS gates remain NOT_RUN. |
 | 0.4.19 | 2026-09-21 | Reconciled PR #501's scheduled/manual E2E policy and merged evidence for TASK-ZAI-036 (#507), TASK-ZAI-039 (#508), TASK-ZAI-040 (#503) and TASK-ZAI-041 (#506). Hosted Governance/Edge checks passed with E2E/Desktop skipped; all four tasks remain review where provider, migration, owner, release, production, MSP or PORL gates are open. |
+| 0.4.37 | 2026-10-18 | Recorded a TASK-ZAI-017 candidate to support FlowAccount's official hosted MCP connector. Added company-bound OAuth, discovered-capability/read-only policy and FR-081 evidence criteria. The candidate does not amend normative FR-125 acceptance; historical FR-125 retains its original REST-first meaning; a sanctioned additive reviewed record must establish MCP requirements before implementation. Task remains planned / UNKNOWN / NOT_STARTED with dependency TASK-ZAI-005. No provider acceptance is claimed. |

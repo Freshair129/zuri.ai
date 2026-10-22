@@ -473,6 +473,13 @@ button{font:inherit;color:inherit;}
 
 <main class="shell">
 
+  <div role="note" aria-label="Historical roadmap snapshot" style="margin:0 0 16px;padding:12px 16px;border:1px solid var(--status-warning);border-left:4px solid var(--status-warning);border-radius:var(--radius-md);background:var(--status-warning-bg);color:var(--text-primary);">
+    <strong>Historical snapshot — not current.</strong>
+    This static board reflects data measured at commit <span class="mono">7d8c9d0</span> on 2026-08-23.
+    Current delivery status is in <span class="mono">docs/roadmap/ROADMAP.md</span>; the 24-week schedule projection is in
+    <span class="mono">docs/roadmap/ROADMAP-zuri-ai-24w-program.md</span>.
+  </div>
+
   <!-- ===== Header card ===== -->
   <section class="card card-pad" aria-labelledby="hero-title">
     <div class="hero-top">
@@ -486,10 +493,10 @@ button{font:inherit;color:inherit;}
           แผนเริ่ม <b>จ. 24 ส.ค. 2026</b> จบ <b>อา. 7 ก.พ. 2027</b>
         </p>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
-          <span class="pill pill-brand">approved</span>
+          <span class="pill pill-brand">approved plan · historical snapshot</span>
           <span class="pill pill-planned mono">ROADMAP-ZURI-AI-24W-PROGRAM</span>
-          <span class="pill pill-planned mono">v0.4.9</span>
-          <span class="pill pill-planned">updated 2026-09-13</span>
+          <span class="pill pill-planned mono">snapshot v0.4.9</span>
+          <span class="pill pill-planned">data as of 2026-08-23</span>
           <span class="pill pill-planned mono">CR-019</span>
           <span class="pill pill-planned">owner Owen</span>
         </div>
@@ -666,7 +673,8 @@ button{font:inherit;color:inherit;}
         <code>planned 0</code> · <code>blocked 0</code>.
         เปอร์เซ็นต์ Phase และ Sprint คำนวณจาก task ในแผนนี้เท่านั้น ไม่รวมฐาน 82 feature ที่รับมา
         ตัวเลข Token เป็นค่าประมาณตอนวางแผน (<code>predicted_token_usage</code>) ยังไม่ใช่ยอดใช้จริง<br />
-        Source of truth: <code>docs/roadmap/ROADMAP-zuri-ai-24w-program.md</code> ·
+        Schedule projection: <code>docs/roadmap/ROADMAP-zuri-ai-24w-program.md</code> ·
+        Delivery-state source: <code>docs/roadmap/ROADMAP.md</code> · Historical snapshot measured at <code>7d8c9d0</code> (2026-08-23) ·
         Design tokens: <code>docs/UI-DESIGN-SYSTEM.md</code> (Zuri Heritage v2, ADR-010) ·
         Layout: GoVibe Mission Control A2 Roadmap Board ·
         ทุกตัวเลขวัดที่คอมมิต <code>7d8c9d0</code> (2026-08-23) — repo เคลื่อนทุกวัน ให้วัดใหม่ก่อนนำไปอ้าง

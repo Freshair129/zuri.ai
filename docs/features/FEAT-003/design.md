@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-003 canonical record](feature.md).
 > ✅ implemented; code + tests verified
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-028 — Human-visible execution roadmap and shared plan intake](../../decisions/ADR-028-HUMAN-VISIBLE-EXECUTION-ROADMAP.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-069 canonical record](requirements/FR-069.md)
 
@@ -45,7 +45,7 @@ Feature record: [ZAI:FEAT-003 canonical record](feature.md).
 - [ADR-049 — ExecutionPlanBundle is the package above PlanEnvelope](../../decisions/ADR-049-EXECUTION-PLAN-BUNDLE-IMPORT-ORCHESTRATION.md) — `relates` · `control-block` · `current`
 - [ADR-102 — Project Manager execution trace and append-only replay](../../decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md) — `relates` · `metadata` · `current`
 - [FR-069-P1 — Project Manager execution trace and append-only replay](../../domains/project-manager/features/PHASE-FR-069-P1-execution-trace-replay.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-070 canonical record](requirements/FR-070.md)
 
@@ -63,7 +63,7 @@ Feature record: [ZAI:FEAT-003 canonical record](feature.md).
 - [ADR-102 — Project Manager execution trace and append-only replay](../../decisions/ADR-102-PM-EXECUTION-TRACE-AND-REPLAY.md) — `relates` · `metadata` · `current`
 - [FR-251 — Project Execution Domains view](../../domains/project-manager/features/FR-251-project-execution-domains.md) — `references` · `metadata` · `current`
 - [FR-069-P1 — Project Manager execution trace and append-only replay](../../domains/project-manager/features/PHASE-FR-069-P1-execution-trace-replay.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D1, D2) — `WarehouseLocation` + two columns + migration `20260910120000_smartgift_scm_wip`, `inventory/domain/warehouse-location.js`, `application/location-transfer-service.js`; `tests/integration/fr174-warehouse-locations.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-175 canonical record](requirements/FR-175.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D3) — `inventory/domain/inventory-costing.js` (pure), `costSatang` on the ledger; `tests/unit/inventory-costing.test.js`, `tests/integration/fr177-kitting-work-order.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-176 canonical record](requirements/FR-176.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D4) — `inventory/domain/inventory-wip.js`, `application/customization-work-order-service.js`; `tests/integration/fr176-customization-work-order.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-177 canonical record](requirements/FR-177.md)
 
@@ -58,7 +58,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D5) — `scrapAllowanceFactor` on `ProductRecipe`, `application/kitting-work-order-service.js`; `tests/integration/fr177-kitting-work-order.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-178 canonical record](requirements/FR-178.md)
 
@@ -68,7 +68,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D6) — `application/de-kitting-service.js`; `tests/integration/fr178-de-kitting.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-179 canonical record](requirements/FR-179.md)
 
@@ -78,7 +78,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D7, BR-030) — two columns + `lastMaintainedAt`, `inventory/domain/inventory-wip.js` shelf-life calculators, `application/inventory-shelf-life-service.js`; `tests/integration/fr179-shelf-life-guard.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-180 canonical record](requirements/FR-180.md)
 
@@ -88,7 +88,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D8, BR-031) — `StockReservation` + migration, `application/inventory-atp-service.js`; `tests/integration/fr180-atp-reservations.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-181 canonical record](requirements/FR-181.md)
 
@@ -98,7 +98,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D9, SDD-091) — `agent/tools/smartgift-inventory-tools.js`, registered through the existing `createToolRegistry` / `createWriteToolRegistry`; `tests/integration/fr181-smartgift-agent-tools.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-182 canonical record](requirements/FR-182.md)
 
@@ -108,7 +108,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074, discharging consequence 5) — 13 route files under `src/app/api/inventory/**`, 3 new pages + `INVENTORY_TABS`, `applyCustomizationWorkOrderAction` / `applyKittingWorkOrderAction`; `tests/unit/scm-console-routes.test.js`, `tests/integration/fr182-scm-console-actions.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-184 canonical record](requirements/FR-184.md)
 
@@ -118,7 +118,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🔵 owner-approved 2026-09-11 — contract `.brain/rca/2026-09-11-warehouse-p4-console-contract.md` revision 0.8 and feature note `docs/domains/inventory/features/FR-184-inventory-stocktake.md`; implementation and local verification in progress, production migration excluded
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

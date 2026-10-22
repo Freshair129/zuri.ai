@@ -1,0 +1,126 @@
+<!doctype html>
+<!-- Test-only bridge fixture. This is not the captured graph renderer. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Knowledge Studio bridge test fixture</title>
+</head>
+<body>
+  <main id="knowledge-shell">
+    <h1>Bridge contract fixture</h1>
+    <p>Nodes: <span id="graph-node-count">0</span></p>
+    <p>Edges: <span id="graph-edge-count">0</span></p>
+    <p id="graph-view-status">Waiting for graph data</p>
+    <label>Search <input id="knowledge-search" type="search"></label>
+    <div id="search-results" hidden></div>
+    <label>Node kind
+      <select id="node-kind-filter">
+        <option value="all">All</option>
+        <option value="feature">Feature</option>
+      </select>
+    </label>
+    <label>Hops
+      <select id="hop-filter">
+        <option value="0">All</option>
+        <option value="1">1 hop</option>
+      </select>
+    </label>
+    <button id="apply-view" type="button">Apply</button>
+    <p id="document-path"></p>
+    <article id="markdown-content"></article>
+  </main>
+  <script>
+    const channel = 'zuri-knowledge-studio/v1'
+    const parentOrigin = new URLSearchParams(location.search).get('parentOrigin')
+    let dataset = null
+    let selectedNode = null
+    const byId = (id) => document.getElementById(id)
+    const send = (type, values = {}) => parent.postMessage({ channel, type, ...values }, parentOrigin)
+    const nodeKind = (node) => (node.panel?.details || []).find((detail) => detail.label === 'Node kind')?.value
+    const searchableText = (node) => [
+      node.id,
+      node.title,
+      node.description,
+      ...(node.panel?.details || []).flatMap((detail) => [detail.label, detail.value]),
+    ].join(' ').toLowerCase()
+
+    function renderSearch() {
+      const query = byId('knowledge-search').value.trim().toLowerCase()
+      const results = byId('search-results')
+      results.replaceChildren()
+      if (!query || !dataset) {
+        results.hidden = true
+        return
+      }
+      const matches = dataset.nodes.filter((node) => searchableText(node).includes(query)).slice(0, 30)
+      results.hidden = matches.length === 0
+      for (const node of matches) {
+        const button = document.createElement('button')
+        button.type = 'button'
+        button.textContent = `${node.title} (${node.id})`
+        button.addEventListener('click', () => {
+          selectedNode = node
+          send('document-request', { nodeId: node.id })
+        })
+        results.append(button)
+      }
+    }
+
+    function applyView() {
+      if (!dataset) return
+      const kind = byId('node-kind-filter').value
+      const hop = byId('hop-filter').value
+      let nodes = kind === 'all' ? dataset.nodes : dataset.nodes.filter((node) => nodeKind(node) === kind)
+      const origin = selectedNode || dataset.nodes[0]
+      if (hop !== '0' && origin) {
+        const distances = new Map([[origin.id, 0]])
+        const queue = [origin.id]
+        while (queue.length) {
+          const current = queue.shift()
+          const distance = distances.get(current)
+          if (distance >= Number(hop)) continue
+          for (const edge of dataset.edges || []) {
+            const neighbor = edge.source === current ? edge.target : edge.target === current ? edge.source : null
+            if (neighbor && !distances.has(neighbor)) {
+              distances.set(neighbor, distance + 1)
+              queue.push(neighbor)
+            }
+          }
+        }
+        nodes = nodes.filter((node) => distances.has(node.id))
+      }
+      byId('graph-node-count').textContent = String(nodes.length)
+      const from = origin?.title || 'graph'
+      byId('graph-view-status').textContent = hop === '0'
+        ? `Showing ${nodes.length} nodes`
+        : `Showing ${nodes.length} nodes · ${hop} hops from ${from}`
+    }
+
+    window.addEventListener('message', (event) => {
+      if (event.origin !== parentOrigin || event.source !== parent) return
+      const message = event.data
+      if (!message || message.channel !== channel) return
+      if (message.type === 'dataset' && message.dataset && Array.isArray(message.dataset.nodes)) {
+        dataset = message.dataset
+        byId('graph-edge-count').textContent = String(dataset.edges?.length || 0)
+        applyView()
+        renderSearch()
+        send('studio-ready', { counts: { nodes: dataset.nodes.length, edges: dataset.edges?.length || 0 } })
+      } else if (message.type === 'document' && message.nodeId === selectedNode?.id) {
+        byId('document-path').textContent = message.path || ''
+        byId('markdown-content').textContent = message.markdown || ''
+      }
+    })
+
+    byId('knowledge-search').addEventListener('input', renderSearch)
+    byId('apply-view').addEventListener('click', applyView)
+    const handshake = setInterval(() => send('bridge-ready'), 100)
+    window.addEventListener('message', (event) => {
+      if (event.origin === parentOrigin && event.source === parent && event.data?.channel === channel && event.data?.type === 'dataset') {
+        clearInterval(handshake)
+      }
+    })
+  </script>
+</body>
+</html>

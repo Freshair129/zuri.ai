@@ -32,16 +32,18 @@ export const dynamic = 'force-dynamic'
 
 const VIEWS = new Set(['programme', 'domains'])
 
-function serverRequest() {
-  const cookieHeader = cookies().getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+async function serverRequest() {
+  const cookieStore = await cookies()
+  const cookieHeader = cookieStore.getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
   return new Request('https://zuri.local/roadmap', { headers: { cookie: cookieHeader } })
 }
 
 export default async function ProgrammeRoadmapMemberPage({ searchParams }) {
+  const resolvedSearchParams = await searchParams
   let viewer = null
   let viewerError = null
   try {
-    viewer = await resolveRequestViewer(serverRequest())
+    viewer = await resolveRequestViewer(await serverRequest())
   } catch (error) {
     viewerError = error
   }
@@ -70,7 +72,7 @@ export default async function ProgrammeRoadmapMemberPage({ searchParams }) {
         audience="member"
         closesAt={MEMBER_VIEW_CLOSES_AT}
         domainMap={projectDomainMap(snapshot)}
-        initialView={VIEWS.has(searchParams?.view) ? searchParams.view : 'programme'}
+        initialView={VIEWS.has(resolvedSearchParams?.view) ? resolvedSearchParams.view : 'programme'}
         laneUsage={laneUsage}
         usageReports={{ available, count: reports.length }}
         taskUsageLedger={redactTaskUsageLedger(taskUsageLedger)}

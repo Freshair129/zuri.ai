@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-030 canonical record](feature.md).
 
 > ✅ implemented 2026-09-12 — ADR-080 D1/D2; migration `20260912150000_audit_scope_and_evidence.sql`, additive-only, no precondition block. APPLIED on production 2026-09-12
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-199 canonical record](requirements/FR-199.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-030 canonical record](feature.md).
 
 > ✅ implemented 2026-09-12 — ADR-080 D3/D4; closes the read-side gap ADR-077's whole lifecycle design assumed was already possible
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

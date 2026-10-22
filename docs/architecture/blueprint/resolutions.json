@@ -1,0 +1,222 @@
+{
+  "profile": "zuri-rebuild-core/1.0",
+  "baseMain": "18008b774fc54febd23ca675d142f15da7d67db5",
+  "authority": "Current user delegation to reconcile the minimum rebuild blueprint; existing accepted canonical records and controlling ADRs decide behavior. This profile does not edit or retire registry identities.",
+  "excludedFromProfile": {
+    "FR-050": {
+      "reason": "Legacy forwarding seam requires a separately selected transport profile; native Server LINE remains mandatory through FR-148/149/265.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D1, D4"
+    },
+    "FR-140": {
+      "reason": "Transport-bound zuri-cli/Edge asset handoff is not part of the minimum native-server profile; keep the original identity for a separate adapter profile.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D1"
+    },
+    "FR-143": {
+      "reason": "Edge-specific extraction behavior retired by accepted amendment; stored historical rows remain recoverable.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D1, D3, D5"
+    },
+    "FR-150": {
+      "reason": "Optional Edge conversation execution is outside current server-only execution vocabulary.",
+      "source": "docs/decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md",
+      "clause": "D1, D2; amended ADR-061 D2/D3/D6"
+    },
+    "SDD-085": {
+      "reason": "Retired Edge extraction design; no new device executor or credential flow.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D1, D3, D5"
+    },
+    "SEC-025": {
+      "reason": "Retired Edge device-credential/download surface; retained data stays subject to current authorization.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D1, D3, D5"
+    },
+    "FEAT-017": {
+      "reason": "Edge-specific feature is retired from active product scope by the accepted amendment despite stale deferred row prose.",
+      "source": "docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md",
+      "clause": "D5"
+    }
+  },
+  "overrides": {
+    "FR-091": {
+      "statement": "Provide the authorized CRM conversation reader: GET /api/crm/conversations returns customer, channel, message count, last-message preview/time and owning-Business label; GET /api/crm/conversations/{id} returns the thread oldest-first. Resolve the selected Business's Tenant and include only tenant-shared conversations or conversations in Businesses the viewer can already access. Staff replies are only the FR-246 authorized Business OWNER exception, sent through LINE Push and recorded as STAFF without consuming a replyToken. Automatic answers have one server-owned transport/execution owner under FR-265 and ADR-100/106/110. Reading does not transition Conversation.status or create a read receipt; display stored status without inventing an enum.",
+      "authority": [
+        "FR-091",
+        "FR-246",
+        "FR-265",
+        "BR-001",
+        "ADR-100 D1",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "FR-093": {
+      "statement": "Persist the outbound text accepted by the current server-owned LINE transport as a Message correlated to the inbound Message.id, after the successful send response rather than when answer text is merely prepared. Resolve the original inbound message within the authenticated owning scope; a foreign Tenant or Business cannot attach a reply. Preserve idempotency on reply:<inboundMessageId> so repeated acceptance receipts return the existing outbound row. Keep answer/fallback provenance in audit separately from the actual text. Preserve safe inboundMessageId, conversationId and eventId correlation on failure as required by the owning turn contract. LINE API acceptance is not proof that an end user read a message. The withdrawn Edge-to-Server delivery adapter is not recreated; the current Core-owned sender/job completion records the same business evidence.",
+      "authority": [
+        "FR-093",
+        "FR-148",
+        "FR-149",
+        "FR-265",
+        "ADR-100 D1/D2",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "FR-132": {
+      "statement": "Expose ladder quotation as a Gate E read-only tool in an existing authenticated LINE turn. Reuse the normalized ingestion and grounded-answer pipeline; do not create a second write path or converter. The quote tool computes without mutation, is registered readOnly:true, and resolves Tenant, Business and principal from the turn AuthContext before rate-card access. Round the quoted amount up to the nearest 10 THB; apply the margin-floor cost test before returning a quote and never expose the margin/floor in a customer payload. Return answer content to the single current server-owned LINE sender under FR-265 and ADR-100/110; tool execution does not consume replyToken or send another LINE message. Flex rendering belongs to that transport. The independent viewer-authenticated MCP registry is a separate surface, not implicitly exposed by this LINE tool.",
+      "authority": [
+        "FR-132",
+        "FR-047",
+        "FR-128",
+        "FR-265",
+        "BR-009",
+        "SDD-009",
+        "ADR-100 D1",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "FR-146": {
+      "statement": "Maintain one Business-scoped LineOaAccount aggregate per LINE Official Account, with internal UUID, Tenant-unique human code and exactly one Business. Derive Tenant/Business from the trusted viewer and selected authorized Business; LINE IDs remain external references. Reference one LINE_OA IntegrationConnection and an optional current agent channel-account binding. Preserve DRAFT -> CONNECTED -> LIVE|PAUSED|ARCHIVED lifecycle; derive LIVE from the owning active binding, never a client field. Current transportMode is CLOUD and executionMode is SERVER; runtimeOwner and quiescent CONFIGURE_EXECUTION follow FR-265/ADR-106. Do not select EDGE, mint an Edge credential or restore SWITCH_TRANSPORT_MODE. Enforce at most one default account per Business; moving an account means a new account plus archive. Visibility and the line-oa domain gate govern reads; Business OWNER or active LINE_OA_PUBLISHER binding governs publisher changes, with 404-shaped scope refusals. Connection creation remains owner-only in Integration, never returns credentials or implicitly activates routing. Compute safe connection/secret/binding/webhook/queue/quota health as read-model output. All mutations are transactional, versioned and audited without secrets or customer content.",
+      "authority": [
+        "FR-146",
+        "FR-265",
+        "FR-080",
+        "FR-076",
+        "FR-072",
+        "ADR-100 D1/D2",
+        "ADR-106 D3",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "FR-239": {
+      "statement": "Capture agent usage detail through the retained FR-217 operator-local usage meter and FR-218 deployment-bearer reporting contract. The local meter records per-session and per-branch thinking/reasoning tokens as part of output, 5-minute and 1-hour cache writes, web search/fetch requests, tool names with error/denial counts, prompts, compactions, API errors and per-model requests; count every billed request/call/result once under the same parity rules. Persist names and numbers only, never prompt/response/tool argument/output text. The reporting endpoint accepts an optional strictly validated detail object, stores headline columns plus bounded detail JSON, and includes detail in the replay digest. Under the retained FR-218 contract its identity is (source, sessionId): an identical full payload is an idempotent replay; any changed payload for that identity is 409. Reports without detail remain compatible. This minimum profile excludes endpoint per-branch identity and resumed-report extension, whose identity/update rule depended on the retired attribution contract. It does not prescribe aggregating branches or invent a replacement update protocol. Retired pairing/plugin collection is not recreated; preserved historical person/device attribution remains readable under current scope authorization.",
+      "authority": [
+        "FR-239",
+        "FR-217",
+        "FR-218",
+        "ADR-086 D7",
+        "ADR-110 D1/D3/D5"
+      ]
+    },
+    "BR-011": {
+      "statement": "A normalized LINE event has exactly one reply owner. Integration/Core retain trusted signature, channel credential and LINE transport authority; the admitted SERVER or CONVERSATION_RUNTIME cohort supplies answers under Core's fenced ownership rules. Neither a legacy local answerer, retired device, staff Push reply nor a second executor may consume the automatic event's replyToken or send a competing automatic answer. Knowledge/provider/answer policy remains in its owning domains; dispatch health does not grant identity or transport authority.",
+      "authority": [
+        "BR-011",
+        "FR-265",
+        "ADR-100 D1/D2",
+        "ADR-106 D3",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "NFR-008": {
+      "statement": "Every new or changed zuri-ai UI uses semantic/component design tokens, defines observable loading/empty/error/denied/conflict/recovery states, and meets the WCAG 2.2 AA baseline specified by the accepted design system. The cancelled legacy-product lifting and cutover program is not part of this requirement's rebuild scope.",
+      "authority": [
+        "NFR-008",
+        "ADR-010",
+        "ADR-024 D1/D2/D5"
+      ]
+    },
+    "SDD-010": {
+      "statement": "Implement the Zuri Heritage UI with three CSS token layers: primitive -> semantic -> component. Shared primitives and semantic aliases provide consistent component behavior and compatibility within zuri-ai. The retired V1 lifting/cutover program imposes no migration or visual-parity work on a new standalone build.",
+      "authority": [
+        "SDD-010",
+        "NFR-008",
+        "ADR-010",
+        "ADR-024 D1/D5"
+      ]
+    },
+    "SDD-025": {
+      "statement": "Use ports-and-adapters for the LINE grounded-answer slice. BusinessKnowledgeReadPort owns registered bounded reads; ModelProviderPort owns normalized generation; the grounded-answer service validates evidence before returning answer text. The current server Integration/Core sender owns signature validation and LINE replies under ADR-100/106/110. Supabase/PostgreSQL is the hosted operational relational profile; the local profile remains separately defined. GenesisBlockDB/MSP/GKS are external optional ports rather than implicit Phase 1 deployment dependencies.",
+      "authority": [
+        "SDD-025",
+        "ADR-018",
+        "ADR-100 D1",
+        "ADR-106 D3",
+        "ADR-110 D1/D4"
+      ]
+    },
+    "SDD-028": {
+      "statement": "Keep the FR-055 controlled operator port separate from ordinary runtime execution: strict inputs feed a dry-run-default CLI, and a dedicated least-privilege database role performs one versioned compare-and-swap mutation with an append-only event. Readiness, mutation and transport remain separate authorities. Select the zuri-cli operator evidence artifact contract from ADR-020 decisions 2/7/8 and FR-055 AC-055-07/08: hash-pin source/config evidence, redact the artifact, reject reply tokens, destinations, authorization headers, customer content and PII, and distinguish generated, evidence-verified and LINE-accepted states with display/read remaining unknown. Exclude the obsolete zuri.command-agent evidence adapter. This operator contract neither restores retired device credentials nor displaces the current server-owned native LINE transport under ADR-100/106/110; actual activation remains subject to its accepted operator authority and evidence.",
+      "authority": [
+        "SDD-028",
+        "FR-055",
+        "ADR-020 decisions 2/7/8",
+        "docs/domains/agent/features/FR-055-controlled-line-activation-receipt.md AC-055-07/08",
+        "ZV2-CR-006",
+        "ADR-100 D1",
+        "ADR-110 D1/D3"
+      ]
+    }
+  },
+  "candidatePolicy": "Candidate PMR/MA/workforce/fleet/contract-registry proposals, proposed MI and full Asset lifecycle clauses, and unintegrated inference-pool design cannot add behavior to this profile without an explicit canonical record or accepted controlling clause. Canonical declared requirements remain target obligations even when their old delivery cell says planned.",
+  "identityPolicy": "Preserve FR-070/071 and SDD-040/042 legacy contract_id meaning. No universal ContractDefinition table or inter-system-contract alias is adopted. Unavailable owner-resolved context remains unavailable; never manufacture an entity UUID.",
+  "clauseExclusions": {
+    "FR-239": {
+      "clauses": [
+        "Endpoint identity per branch",
+        "Extension of an already submitted report on session resume"
+      ],
+      "reason": "FR-239 and ADR-086 D7 carry resumed-session extension through ADR-087 D5/FR-221. That identity/update protocol conflicts with retained FR-218 immutable session identity after the harness retirement. This minimum profile explicitly selects FR-218 and excludes the FR-239 endpoint branch-key/extension clauses; local per-branch metering and optional detail survive. A replacement report-update profile needs a separate accepted contract.",
+      "authority": [
+        "FR-218",
+        "FR-239",
+        "ADR-110 D1/D3/D5"
+      ]
+    }
+  },
+  "localClauseDispositions": {
+    "LINE-OA-SRS:LOS-RQ-007": {
+      "disposition": "HISTORICAL_GENERIC_JOB_SKETCH_NOT_SELECTED",
+      "reason": "Generic LineOaTransportJob lifecycle/receipt is superseded for supported rich-menu and conversation paths. Unspecified other operations have no generic job contract adopted by this profile.",
+      "selectedContracts": [
+        "ADR-105",
+        "ADR-106",
+        "docs/domains/line-oa-studio/CHARTER.md",
+        "docs/services/conversation-runtime/SERVICE.md"
+      ],
+      "currentModels": {
+        "LineOaRichMenuJob": "Studio-owned rich-menu dispatch",
+        "LineConversationJob": "Core-owned conversation admission, writes and leases"
+      }
+    },
+    "LINE-OA-SRS:LOS-RQ-065": {
+      "disposition": "ACCEPTED_DURABILITY_INVARIANT_WITH_UNSELECTED_PROPOSED_DETAILS",
+      "selected": "ADR-105 D2/D3 governs Studio ownership of durable schedules and persisted firing with leases/idempotency; instance-local timers are wake-up hints, and accepted work survives process replacement.",
+      "excluded": "The proposed LineOaSchedule table/field design, generic LineOaTransportJob, flow-WAIT feature semantics and unsupported dispatch operations are not fixed contracts of this minimum profile. No replacement wire schema or model is invented.",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "clauses": "D2/D3; ADR-060 proposed status; local LOS clauses only within accepted scope",
+      "state": "Target architecture obligation; current schema/implementation completeness and production activation are separate evidence."
+    },
+    "LINE-OA-SRS:LOS-RQ-084": {
+      "disposition": "ACCEPTED_DURABILITY_INVARIANT_WITH_UNSELECTED_PROPOSED_DETAILS",
+      "selected": "ADR-105 D2/D3 governs Studio ownership of durable schedules and persisted firing with leases/idempotency; instance-local timers are wake-up hints, and accepted work survives process replacement.",
+      "excluded": "The proposed LineOaSchedule table/field design, generic LineOaTransportJob, flow-WAIT feature semantics and unsupported dispatch operations are not fixed contracts of this minimum profile. No replacement wire schema or model is invented.",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "clauses": "D2/D3; ADR-060 proposed status; local LOS clauses only within accepted scope",
+      "state": "Target architecture obligation; current schema/implementation completeness and production activation are separate evidence."
+    },
+    "LINE-OA-SRS:LOS-RQ-085": {
+      "disposition": "ACCEPTED_DURABILITY_INVARIANT_WITH_UNSELECTED_PROPOSED_DETAILS",
+      "selected": "ADR-105 D2/D3 governs Studio ownership of durable schedules and persisted firing with leases/idempotency; instance-local timers are wake-up hints, and accepted work survives process replacement.",
+      "excluded": "The proposed LineOaSchedule table/field design, generic LineOaTransportJob, flow-WAIT feature semantics and unsupported dispatch operations are not fixed contracts of this minimum profile. No replacement wire schema or model is invented.",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "clauses": "D2/D3; ADR-060 proposed status; local LOS clauses only within accepted scope",
+      "state": "Target architecture obligation; current schema/implementation completeness and production activation are separate evidence."
+    },
+    "LINE-OA-SRS:LOS-RQ-086": {
+      "disposition": "ACCEPTED_DURABILITY_INVARIANT_WITH_UNSELECTED_PROPOSED_DETAILS",
+      "selected": "ADR-105 D2/D3 governs Studio ownership of durable schedules and persisted firing with leases/idempotency; instance-local timers are wake-up hints, and accepted work survives process replacement.",
+      "excluded": "The proposed LineOaSchedule table/field design, generic LineOaTransportJob, flow-WAIT feature semantics and unsupported dispatch operations are not fixed contracts of this minimum profile. No replacement wire schema or model is invented.",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "clauses": "D2/D3; ADR-060 proposed status; local LOS clauses only within accepted scope",
+      "state": "Target architecture obligation; current schema/implementation completeness and production activation are separate evidence."
+    }
+  },
+  "acceptedArchitectureObligations": {
+    "ADR-105:D2/D3": {
+      "statement": "LINE OA Studio owns durable schedules. Persist firing state; claims use owner/lease/expiry/retry/idempotency discipline, local timers only wake workers, and replacement preserves unresolved states for reconciliation.",
+      "source": "docs/decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md",
+      "scope": "Accepted architecture invariant; no proposed concrete timer model, WAIT flow feature, migration or production activation is thereby adopted."
+    }
+  }
+}

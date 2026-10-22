@@ -292,8 +292,14 @@ export function validateReviewedProvenance(record, readSource) {
   const bytes = readSource(record.migrationDocument);
   if (bytes === undefined || bytes === null) fail(`missing reviewed provenance: ${record.migrationDocument}`);
   const text = bytes.toString().replace(/\r\n/g, '\n');
-  const { fields, body } = parseFrontmatter(text);
-  if (fields.status?.replace(/^["']|["']$/g, '') !== 'approved'
+  const frontmatter = text.match(/^---\n([\s\S]*?)\n---(?:\n|$)/);
+  if (!frontmatter) fail('reviewed migration approval mismatch');
+  const statuses = frontmatter[1].split('\n')
+    .map(line => line.match(/^status:\s*(.*?)\s*$/))
+    .filter(Boolean)
+    .map(([, value]) => value.replace(/^["']|["']$/g, ''));
+  const body = text.slice(frontmatter[0].length);
+  if (statuses.length !== 1 || statuses[0] !== 'approved'
     || !/^##\s+(?:การอนุมัติ|Approval)\s*$/im.test(body)) fail('reviewed migration approval mismatch');
   return { migrationBaseRevision: record.migrationBaseRevision,
     migrationDocument: record.migrationDocument, migrationDocumentSha256: digest(text) };

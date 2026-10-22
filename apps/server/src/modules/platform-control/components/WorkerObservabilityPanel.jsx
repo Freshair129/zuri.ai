@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useReducer } from 'react'
 import { Activity, AlertTriangle, GitBranch, Radio, ShieldCheck } from 'lucide-react'
 import { Card, Kpi } from '@/components/ui'
 import { unknownWorkerObservabilitySnapshot } from '../worker-observability-contract'
@@ -9,6 +9,56 @@ import styles from './worker-observability-panel.module.css'
 const POLL_MS = 5000
 const EMPTY_SNAPSHOT = unknownWorkerObservabilitySnapshot('LOADING')
 const EMPTY_INTAKE = EMPTY_SNAPSHOT.campaignIntake
+const SAFE_ERROR_CODE = /^[A-Z][A-Z0-9_]{0,63}$/
+
+export function classifyWorkerObservabilityFailure(status, errorCode) {
+  const code = typeof errorCode === 'string' && SAFE_ERROR_CODE.test(errorCode) ? errorCode : null
+
+  if (status === 401) {
+    return {
+      connection: 'auth-required',
+      reason: 'AUTH_REQUIRED',
+      label: 'ต้องเข้าสู่ระบบใหม่',
+      message: 'เซสชันหมดอายุหรือยังไม่ได้เข้าสู่ระบบ กรุณาเข้าสู่ระบบใหม่',
+    }
+  }
+
+  if (status === 403) {
+    if (code === 'OPERATOR_REQUIRED') {
+      return {
+        connection: 'operator-required',
+        reason: code,
+        label: 'ไม่มีสิทธิ์ Installation Operator',
+        message: 'บัญชีนี้ไม่มีสิทธิ์ Installation Operator',
+      }
+    }
+    if (code === 'SAME_ORIGIN_REQUIRED') {
+      return {
+        connection: 'forbidden',
+        reason: code,
+        label: 'คำขอไม่ตรงกับเว็บไซต์ต้นทาง',
+        message: 'คำขอถูกปฏิเสธ เพราะต้องอ่านข้อมูลจากเว็บไซต์ต้นทางเดียวกัน',
+      }
+    }
+    return {
+      connection: 'forbidden',
+      reason: code || 'HTTP_403',
+      label: 'คำขอถูกปฏิเสธ',
+      message: 'คำขอถูกปฏิเสธ',
+    }
+  }
+
+  if (status === 503 && code === 'SESSION_UNAVAILABLE') {
+    return {
+      connection: 'session-unavailable',
+      reason: code,
+      label: 'บริการเซสชันไม่พร้อมชั่วคราว',
+      message: 'บริการตรวจสอบเซสชันไม่พร้อมชั่วคราว กรุณาลองอีกครั้งภายหลัง',
+    }
+  }
+
+  return null
+}
 
 function timeLabel(value) {
   if (!value || !Number.isFinite(Date.parse(value))) return '—'
@@ -32,6 +82,21 @@ function handleAssignmentScrollKeyDown(event) {
   else if (event.key === 'ArrowRight') container.scrollLeft += step
   else return
   event.preventDefault()
+}
+
+export function TaskWorktreeStatus({ task, worktree }) {
+  const exactHead = worktree?.headCommit || null
+  return (
+    <p className={styles.worktreeStatus} data-testid={`worker-task-worktree-${task.taskId}`}>
+      Task worktree · <strong data-state={worktree?.verificationState || 'UNKNOWN'}>{worktree?.verificationState || 'UNKNOWN'}</strong>
+      <span> · ref <code>{worktree?.workspaceRef || 'UNKNOWN'}</code></span>
+      <span> · branch <code>{worktree?.branch || 'UNKNOWN'}</code></span>
+      <span> · verified HEAD <code title={exactHead || undefined} aria-label={exactHead ? `Exact worktree HEAD ${exactHead}` : undefined}>{exactHead ? shortHash(exactHead) : 'UNKNOWN'}</code></span>
+      <span> · dirty files {worktree?.dirtyFileCount == null ? 'UNKNOWN' : countLabel(worktree.dirtyFileCount)}</span>
+      <span> · candidate <strong data-state={worktree?.candidateHeadMatch || 'UNKNOWN'}>{worktree?.candidateHeadMatch || 'UNKNOWN'}</strong></span>
+      {worktree?.reason ? <span className={styles.muted}> · {worktree.reason}</span> : null}
+    </p>
+  )
 }
 
 export function collectLocalChanges(previous, next) {
@@ -58,11 +123,70 @@ export function collectLocalChanges(previous, next) {
   return changes
 }
 
+export function createInitialWorkerObservabilityState() {
+  return {
+    snapshot: EMPTY_SNAPSHOT,
+    connection: 'loading',
+    failure: null,
+    localChanges: [],
+    baseline: null,
+  }
+}
+
+export function reduceWorkerObservabilityState(state, action) {
+  if (action.type === 'failure') {
+    const failure = action.failure || null
+    return {
+      snapshot: unknownWorkerObservabilitySnapshot(failure?.reason || action.reason || 'SOURCE_UNAVAILABLE'),
+      connection: failure?.connection || action.connection || 'unavailable',
+      failure,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  if (action.type !== 'snapshot') return state
+
+  const next = action.snapshot
+  if (next?.schemaVersion !== 'worker-observability/v1' || !['LIVE', 'UNKNOWN'].includes(next.state)) {
+    return {
+      snapshot: unknownWorkerObservabilitySnapshot('SOURCE_INVALID'),
+      connection: 'unknown',
+      failure: null,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  if (next.state !== 'LIVE') {
+    return {
+      snapshot: next,
+      connection: 'unknown',
+      failure: null,
+      localChanges: [],
+      baseline: null,
+    }
+  }
+
+  const additions = state.baseline ? collectLocalChanges(state.baseline, next) : []
+  return {
+    snapshot: next,
+    connection: 'connected',
+    failure: null,
+    localChanges: [...additions, ...state.localChanges].slice(0, 100),
+    baseline: {
+      tags: Array.isArray(next.localTags) ? next.localTags : [],
+      tagsTruncated: next.localTagsTruncated === true,
+      tagSetFingerprint: next.localTagSetFingerprint ?? null,
+      headCommit: next.localStatus?.headCommit ?? null,
+      fingerprint: next.localStatus?.fingerprint ?? null,
+    },
+  }
+}
+
 export default function WorkerObservabilityPanel() {
-  const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT)
-  const [connection, setConnection] = useState('loading')
-  const [localChanges, setLocalChanges] = useState([])
-  const baseline = useRef(null)
+  const [viewState, dispatch] = useReducer(reduceWorkerObservabilityState, undefined, createInitialWorkerObservabilityState)
+  const { snapshot, connection, failure, localChanges } = viewState
 
   useEffect(() => {
     let disposed = false
@@ -84,40 +208,27 @@ export default function WorkerObservabilityPanel() {
           headers: { Accept: 'application/json' },
           signal: activeController.signal,
         })
-        if (response.status === 401 || response.status === 403) {
-          if (!disposed) {
-            setConnection('unauthorized')
-            setSnapshot(unknownWorkerObservabilitySnapshot('AUTH_REQUIRED'))
+        if ([401, 403, 503].includes(response.status)) {
+          let errorCode = null
+          try {
+            const body = await response.json()
+            errorCode = body?.error
+          } catch {
+            // Status still gives us a safe fallback when the error body is absent or invalid.
           }
-          return
+          const nextFailure = classifyWorkerObservabilityFailure(response.status, errorCode)
+          if (nextFailure) {
+            if (!disposed) dispatch({ type: 'failure', failure: nextFailure })
+            return
+          }
         }
         if (!response.ok) throw new Error('SOURCE_UNAVAILABLE')
         const next = await response.json()
         if (disposed) return
-        if (next?.schemaVersion !== 'worker-observability/v1' || !['LIVE', 'UNKNOWN'].includes(next.state)) {
-          setSnapshot(unknownWorkerObservabilitySnapshot('SOURCE_INVALID'))
-          setConnection('unknown')
-          return
-        }
-        if (next.state === 'LIVE' && baseline.current) {
-          const additions = collectLocalChanges(baseline.current, next)
-          if (additions.length) setLocalChanges((current) => [...additions, ...current].slice(0, 100))
-        }
-        if (next.state === 'LIVE') {
-          baseline.current = {
-            tags: Array.isArray(next.localTags) ? next.localTags : [],
-            tagsTruncated: next.localTagsTruncated === true,
-            tagSetFingerprint: next.localTagSetFingerprint ?? null,
-            headCommit: next.localStatus?.headCommit ?? null,
-            fingerprint: next.localStatus?.fingerprint ?? null,
-          }
-        }
-        setSnapshot(next)
-        setConnection(next.state === 'LIVE' ? 'connected' : 'unknown')
+        dispatch({ type: 'snapshot', snapshot: next })
       } catch (error) {
         if (!disposed && error?.name !== 'AbortError') {
-          setSnapshot(unknownWorkerObservabilitySnapshot('SOURCE_UNAVAILABLE'))
-          setConnection('unavailable')
+          dispatch({ type: 'failure', reason: 'SOURCE_UNAVAILABLE', connection: 'unavailable' })
         }
       } finally {
         inFlight = false
@@ -135,15 +246,15 @@ export default function WorkerObservabilityPanel() {
 
   const isLive = snapshot.state === 'LIVE'
   const campaignIntake = snapshot.campaignIntake ?? EMPTY_INTAKE
-  const statusLabel = connection === 'connected' ? 'LIVE · LOCAL' : connection === 'loading' ? 'กำลังอ่านข้อมูล' : connection === 'unauthorized' ? 'ไม่มีสิทธิ์อ่าน' : 'UNKNOWN'
+  const statusLabel = connection === 'connected' ? 'LIVE · LOCAL' : connection === 'loading' ? 'กำลังอ่านข้อมูล' : failure?.label || 'UNKNOWN'
 
   return (
     <section className={styles.panel} data-testid="worker-observability-panel" aria-labelledby="worker-observability-title">
       <div className={styles.heading}>
         <div>
-          <p className={styles.eyebrow}>LOCAL CONTROLLER · READ ONLY</p>
+          <p className={styles.eyebrow}>LOCAL CONTROLLER SNAPSHOT · READ ONLY</p>
           <h2 id="worker-observability-title">Workers and activity</h2>
-          <p className={styles.description}>สถานะจาก controller ledger และ local event receipts ณ เวลาที่อ่าน ไม่มีคำสั่ง dispatch, retry, merge หรือ deploy ในหน้านี้</p>
+          <p className={styles.description}>This view reads local controller role assignments and task-cycle leases only; counts are not process counts. SWARM means multiple active task-cycle leases. It does not show Codex sessions or every workspace. ไม่มีคำสั่ง dispatch, retry, merge หรือ deploy ในหน้านี้</p>
         </div>
         <span className={styles.connection} data-state={connection} role="status">
           <Radio size={14} aria-hidden /> {statusLabel}
@@ -153,14 +264,16 @@ export default function WorkerObservabilityPanel() {
       {snapshot.state === 'UNKNOWN' && (
         <div className={styles.notice} role="status" data-testid="worker-source-unknown">
           <AlertTriangle size={17} aria-hidden />
-          <span>อ่านข้อมูล worker ไม่ได้หรือหลักฐานไม่ครบ จึงแสดง UNKNOWN แทนการคาดเดา{snapshot.reason && snapshot.reason !== 'LOADING' ? ` · ${snapshot.reason}` : ''}</span>
+          <span>{failure
+            ? `${failure.message} จึงแสดง UNKNOWN แทนการคาดเดา · ${failure.reason}`
+            : `อ่านข้อมูล worker ไม่ได้หรือหลักฐานไม่ครบ จึงแสดง UNKNOWN แทนการคาดเดา${snapshot.reason && snapshot.reason !== 'LOADING' ? ` · ${snapshot.reason}` : ''}`}</span>
         </div>
       )}
 
       <div className={styles.kpis} aria-label="Worker summary">
-        <Kpi label="Workers active" value={isLive ? countLabel(snapshot.summary.activeWorkers) : '—'} meta={isLive ? `${countLabel(snapshot.summary.activeTasks)} task` : 'UNKNOWN'} />
-        <Kpi label="Queued" value={isLive ? countLabel(snapshot.summary.queuedWorkers) : '—'} meta="persisted READY stages" />
-        <Kpi label="Mode" value={isLive ? snapshot.summary.mode : 'UNKNOWN'} meta="distinct task leases" />
+        <Kpi label="Active role assignments" value={isLive ? countLabel(snapshot.summary.activeWorkers) : '—'} meta={isLive ? `${countLabel(snapshot.summary.activeTasks)} active task-cycle leases` : 'UNKNOWN'} />
+        <Kpi label="Queued role assignments" value={isLive ? countLabel(snapshot.summary.queuedWorkers) : '—'} meta="persisted READY roles" />
+        <Kpi label="Mode" value={isLive ? snapshot.summary.mode : 'UNKNOWN'} meta={isLive && snapshot.summary.mode === 'SWARM' ? 'multiple active task-cycle leases' : 'local controller state'} />
         <Kpi label="Last read" value={timeLabel(snapshot.observedAt)} meta={isLive ? 'local snapshot' : 'source not verified'} />
       </div>
 
@@ -193,11 +306,11 @@ export default function WorkerObservabilityPanel() {
         <div className={styles.sectionHeading}>
           <Activity size={16} aria-hidden />
           <h3>Assignments</h3>
-          <span className={styles.muted}>opaque references · no prompt, path, session, owner, model, or effort</span>
+          <span className={styles.muted}>local controller role assignments · not process counts · no prompt, path, session, owner, model, or effort</span>
         </div>
         {isLive && snapshot.assignments.length ? (
           <div className={styles.tableWrap} data-testid="worker-assignment-scroll-region" role="region"
-            aria-label="Worker assignments table; use Home, End, or arrow keys to view all columns"
+            aria-label="Local controller role assignments table; use Home, End, or arrow keys to view all columns"
             tabIndex={0} onKeyDown={handleAssignmentScrollKeyDown}>
             <table className={styles.table}>
               <thead><tr><th scope="col">Ref</th><th scope="col">Task / cycle</th><th scope="col">Role / stage</th><th scope="col">State / attempt</th><th scope="col">Lease</th><th scope="col">Checked head</th><th scope="col">Context</th></tr></thead>
@@ -220,16 +333,20 @@ export default function WorkerObservabilityPanel() {
       <Card className={styles.subsection}>
         <div className={styles.sectionHeading}><GitBranch size={16} aria-hidden /><h3>Tasks and local CI receipts</h3><span className={styles.muted}>receipt must match current head and base</span></div>
         {isLive && snapshot.tasks.length ? (
-          <div className={styles.taskList}>{snapshot.tasks.map((task) => (
-            <article className={styles.task} key={`${task.taskId}:${task.cycleNo}`} data-testid={`worker-task-${task.taskId}`}>
-              <div className={styles.taskTitle}><strong><code>{task.taskId}</code></strong><span className={styles.muted}>cycle {task.cycleNo} · {task.state}</span></div>
-              <div className={styles.hashes}><span>base <code title={task.baseCommit || ''}>{shortHash(task.baseCommit)}</code></span><span>candidate <code title={task.candidateHeadCommit || ''}>{shortHash(task.candidateHeadCommit)}</code></span></div>
-              <p className={styles.ci}>CI receipt (local): <strong data-state={task.ci?.state || 'UNKNOWN'}>{task.ci?.state || 'UNKNOWN'}</strong>
-                <span className={styles.muted}> · pass {countLabel(task.ci?.checks?.passed)} / fail {countLabel(task.ci?.checks?.failed)} / pending {countLabel(task.ci?.checks?.pending)} / unknown {countLabel(task.ci?.checks?.unknown)}</span>
-                {task.ci?.observedAt ? <span className={styles.muted}> · {timeLabel(task.ci.observedAt)}</span> : null}
-              </p>
-            </article>
-          ))}</div>
+          <div className={styles.taskList}>{snapshot.tasks.map((task) => {
+            const worktree = snapshot.localStatus?.taskWorktrees?.find((item) => item.taskId === task.taskId && item.cycleNo === task.cycleNo)
+            return (
+              <article className={styles.task} key={`${task.taskId}:${task.cycleNo}`} data-testid={`worker-task-${task.taskId}`}>
+                <div className={styles.taskTitle}><strong><code>{task.taskId}</code></strong><span className={styles.muted}>cycle {task.cycleNo} · {task.state}</span></div>
+                <div className={styles.hashes}><span>base <code title={task.baseCommit || ''}>{shortHash(task.baseCommit)}</code></span><span>candidate <code title={task.candidateHeadCommit || ''}>{shortHash(task.candidateHeadCommit)}</code></span></div>
+                <TaskWorktreeStatus task={task} worktree={worktree} />
+                <p className={styles.ci}>CI receipt (local): <strong data-state={task.ci?.state || 'UNKNOWN'}>{task.ci?.state || 'UNKNOWN'}</strong>
+                  <span className={styles.muted}> · pass {countLabel(task.ci?.checks?.passed)} / fail {countLabel(task.ci?.checks?.failed)} / pending {countLabel(task.ci?.checks?.pending)} / unknown {countLabel(task.ci?.checks?.unknown)}</span>
+                  {task.ci?.observedAt ? <span className={styles.muted}> · {timeLabel(task.ci.observedAt)}</span> : null}
+                </p>
+              </article>
+            )
+          })}</div>
         ) : <p className={styles.empty}>{isLive ? 'ยังไม่มี task ใน controller ledger' : 'ไม่มีข้อมูลที่ยืนยันได้'}</p>}
       </Card>
 

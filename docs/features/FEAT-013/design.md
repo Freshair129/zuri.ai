@@ -32,7 +32,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 - [GenesisRAG17 — execution flow and extension map](../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) — `relates` · `metadata` · `current`
 - [Knowledge ingestion — surfaces, data flow และ user journey](../../KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) — `relates` · `metadata` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-110 canonical record](requirements/FR-110.md)
 
@@ -46,7 +46,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 - [GenesisRAG17 — execution flow and extension map](../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) — `relates` · `metadata` · `current`
 - [Knowledge ingestion — surfaces, data flow และ user journey](../../KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) — `relates` · `metadata` · `current`
 - [TASK-ZAI-047 — Knowledge base console](../../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-111 canonical record](requirements/FR-111.md)
 
@@ -57,7 +57,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 > ✅ implemented 2026-08-27 — lattice, the four policy fields, classify-before-index and per-object execution location; 24 unit tests. AC-111.5 waits on an all-seventeen-stage executor consulting `resolveExecutionLocation` — wider than FR-118 (2026-08-28), whose seven-stage composition runs unconditionally and never calls it — AC-111.7 on Stage 15 embedding, AC-111.8 on Stage 6 dedup, AC-111.10 on the Stage 17 gate — each named rather than left as pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-173 canonical record](requirements/FR-173.md)
 
@@ -74,7 +74,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 - [Knowledge admission contract — phases 0–4](../../plans/KNOWLEDGE-ADMISSION-CONTRACT.md) — `relates` · `metadata` · `current`
 - [TASK-ZAI-047 — Knowledge base console](../../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md) — `references` · `metadata` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-254 canonical record](requirements/FR-254.md)
 
@@ -85,7 +85,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 > review 2026-09-17; isolated Console, Server tests, browser/native acceptance and build validated; TASK-ZAI-047, FEAT-013; production NOT_RUN
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-254 — Knowledge base console](../../domains/knowledge/features/FR-254-knowledge-base-console.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

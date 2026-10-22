@@ -618,22 +618,48 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
-### Current FR-286 static binding
+### Current TASK-ZAI-011 static binding
 
-Root adopts this source-only rebind under the same delegated repository mandate
-and [Standard Business Template v1](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md).
-Four Business marker/snapshot columns and Workspace.provisioningKey change the
-schema fingerprint without adding a model. All 205 existing model/schema/table
-mappings remain byte-equivalent as values; no historical receipt is rewritten.
+The notification model added by TASK-ZAI-011 is included in the portable snapshot
+census and the exact Phase B public-table inventory. The prior 207 mappings are
+preserved; `AgentApprovalNotification` is added as the 208th mapping. Approval
+notifications remain in-app records; this static rebind grants no external send,
+production migration, target connection or live recovery authority.
 
-- Exact canonical LF schema SHA-256: `4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7`.
-- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44`.
+- Exact canonical LF schema SHA-256: `47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b`.
+- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c`.
 
-The current loader binds these values and 205 models. The prior FR-285 binding
-below is historical, including its same model count, and is explicitly refused
-at loader and recovery-runner boundaries. Local tests still gate delivery;
-target visibility, custody, clean-target and production gates are unchanged.
-No external migration application, target connection or live recovery is granted.
+The loader binds these values and all 208 declared application models. The 207-table
+TASK-ZAI-010 binding below and all earlier bindings remain historical and are explicitly refused
+at loader and recovery-runner boundaries. Local tests still gate delivery; target
+visibility, custody, clean-target and production gates are unchanged.
+
+### Historical TASK-ZAI-010 static binding
+
+TASK-ZAI-010 added `AgentApprovalRequest` and `AgentApprovalDecision` to the
+205-model FR-286 census, preserving those mappings for 207 total application
+tables. Both models are portable history; restore invalidates nonterminal
+requests so approval cannot execute again. This binding is now historical because
+TASK-ZAI-011 adds `AgentApprovalNotification`.
+
+- Exact canonical LF schema SHA-256: `ddbda079e8fdc4a8521ef75e35cecc9a139a465aa9736d0158c9a779fb793c34`.
+- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `6ca13ac1246889b4449fee8f94af3aad8012e55159a3427bf9ef953f1adc9b76`.
+
+The former loader bound all 207 mappings. Its schema and target inventory hashes
+are retained for audit and are refused at loader and recovery-runner boundaries
+under the current 208-table binding. No live migration or recovery is implied.
+
+### Historical FR-286 static binding
+
+The 0.3.20b FR-286 snapshot records four Business marker/snapshot columns and
+Workspace.provisioningKey; those column additions did not change its 205-model
+inventory. It remains historical after TASK-ZAI-010 added approval request and
+decision models and TASK-ZAI-011 added the notification model. Its recorded
+canonical schema SHA-256 is `4679367cef0dcb57f17e68a9b1fe1ae56d2c84313d8618b8733b111a68b6cbb7`;
+its target inventory SHA-256 is `764149d3115fb3476983f1e8b1088985a137d15c3c7d9909476d523e8534fe44`.
+No historical receipt is rewritten. The old binding is refused at loader and
+recovery-runner boundaries. No external migration application, target connection
+or live recovery is granted.
 
 ### Historical FR-285 static binding
 
@@ -655,6 +681,7 @@ target visibility, clean-target, custody and production gates remain in force.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.21b | 2026-10-18 | beta | Bind TASK-ZAI-011 AgentApprovalNotification as the 208th static snapshot table; preserve the prior 207 mappings and all external recovery, migration and production gates | working-tree | Codex Root |
 | 0.3.20b | 2026-10-15 | beta | Rebind FR-286 Business/Workspace provisioning columns with all 205 prior mappings preserved; explicitly refuse the same-count FR-285 predecessor and retain external recovery/production gates | working-tree | Codex Root |
 | 0.3.19b | 2026-10-15 | beta | Add only FR-285 BusinessAgentConfig to the static 205-table census and bind canonical LF schema/inventory digests under delegated root disposition; preserve 204 prior mappings, custody refusals and all external recovery/production gates | working-tree | Codex Root |
 | 0.3.18b | 2026-10-12 | beta | Bind the four FR-270 Business WIG tables in the static 204-table inventory; preserve all earlier mappings, custody guards and production/recovery gates | working-tree | Codex |

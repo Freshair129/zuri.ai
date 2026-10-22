@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "migrationId": "knowledge-studio-20261020",
+  "status": "APPLIED",
+  "manifestSha256": "00500ad1821a21a84b5d4de1cd196702c6ae65907c4763942af54699ab7c0e45",
+  "base": {
+    "commit": "d648ec967bea9712c8ac63aac21b5bd5ca1f4f6d",
+    "indexSha256": "c0f753451d0a1d40f2d4b4f02288426b7dd4468b9ad42c72f30b598ca1056bd5",
+    "ledgerSha256": "38c31e4dafd5494bfd4962505a40222c7d509a2b703760a0291d7efd382de3b3"
+  },
+  "ids": [
+    "FR-289"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/knowledge-studio-20261020.approval.md": null,
+    "docs/requirements/FR-289.md": null,
+    "registry/document-registry/index.json": "c0f753451d0a1d40f2d4b4f02288426b7dd4468b9ad42c72f30b598ca1056bd5",
+    "docs/PRD-SDD-v1.0.md": "4f963aa954e7f0093a6de774bf5b6a1a61f44172ad0d51c3d0c5f029e4d5815d",
+    "docs/FEATURES.md": "f9c5152e2ecb66c8bffe4a9087f7ce579842b742f24b1df1f5dbb35d9c3a71b7",
+    "docs/.id-ledger.json": "38c31e4dafd5494bfd4962505a40222c7d509a2b703760a0291d7efd382de3b3"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/knowledge-studio-20261020.approval.md": "a5de3029db45ae96f855e7dffc95c83a90e8d416f2dfd668a44db8adbf4bfaae",
+    "docs/requirements/FR-289.md": "45d44d60222b11e883e832eca8bf4ed7f67b9df566752a678b3d776ac014c532",
+    "registry/document-registry/index.json": "ad17ccd508f2862428180ec34564343c693b4adde4aad6f77efa192562cd0479",
+    "docs/PRD-SDD-v1.0.md": "66f789b633fbc793296e48cfb8111b27a9c509f843dd8496e37a92216339050b",
+    "docs/FEATURES.md": "f9c5152e2ecb66c8bffe4a9087f7ce579842b742f24b1df1f5dbb35d9c3a71b7",
+    "docs/.id-ledger.json": "645547fe661317a4b7add5211c7243a6e201733bc00abf2f78b14f2ba1fa94f7"
+  }
+}

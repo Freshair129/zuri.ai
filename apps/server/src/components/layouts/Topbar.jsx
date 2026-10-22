@@ -169,13 +169,14 @@ export default function Topbar({ onOpenPalette }) {
             <span className="opacity-20">|</span>
             <span className="opacity-50">EN</span>
           </div>
-          <button
-            type="button"
+          <Link
+            href="/notifications"
             className="grid h-9 w-9 place-items-center rounded-xl text-white/60 transition hover:bg-white/10 hover:text-white"
             aria-label="Notifications"
+            title="Open notifications"
           >
             <Bell size={16} aria-hidden />
-          </button>
+          </Link>
           <Link href="/profile" aria-label="My profile" className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-[#374151] text-[11px] font-extrabold" title="My profile">
             <UserRound size={16} aria-hidden />
           </Link>

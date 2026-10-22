@@ -2,6 +2,10 @@
 id: ZAI:LINE-OA-SRS
 relations:
   - type: relates_to
+    target: ZAI:ADR-018
+  - type: relates_to
+    target: ZAI:ADR-025
+  - type: relates_to
     target: ZAI:ADR-061
   - type: relates_to
     target: ZAI:ADR-089
@@ -9,6 +13,10 @@ relations:
     target: ZAI:ADR-100
   - type: relates_to
     target: ZAI:ADR-105
+  - type: relates_to
+    target: ZAI:ADR-106
+  - type: relates_to
+    target: ZAI:ADR-110
   - type: relates_to
     target: ZAI:FEAT-019
   - type: relates_to
@@ -18,12 +26,14 @@ stable_domain_id: DOM-LINE-OA-STUDIO
 status: approved
 version: "0.6.0b"
 date: 2026-09-23
-architecture: domain-driven-modular-monolith-with-stateless-application-tier
+reconciliation_revision: "2026-10-21.1"
+reconciliation_date: 2026-10-21
+architecture: server-core-with-stateless-studio-and-versioned-runtime-boundaries
 ---
 
 # SRS — LINE OA Studio domain
 
-> Current conversation boundary: ADR-100 makes LINE OA conversation execution server-only; ADR-105 is approved for local implementation of stateless Studio API/runtime workers over durable domain state. Studio owns account/job state, Integration owns LINE transport and secrets, CRM owns history and Agent supplies answer contracts. FEAT-019 / FR-148..150 are distinct from FEAT-018 rich-menu/account design. [Phase and rollout map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md). Production activation and real-provider evidence remain separate gates.
+> Current boundary: ADR-100 and ADR-110 make LINE conversation execution server-only and retire the Edge Device product surfaces; ADR-105 defines durable Studio state behind stateless API/worker processes, and ADR-106 defines Core ownership plus the versioned Conversation Runtime boundary. Studio owns its declared account and operational state, Integration owns LINE transport and secret resolution, CRM owns conversation history, and Agent provides answer contracts. Native LINE behavior remains governed by FR-148, FR-149 and FR-265 with ADR-100/106/110. FR-150's former Edge conversation behavior is superseded and is outside the minimum profile. FR-050 and FR-140 remain in canonical source but their legacy transport-specific behavior is deferred. The phase plan is delivery evidence, not a product authority or activation proof.
 
 
 **System:** Zuri AI (`zuri-ai`)
@@ -31,16 +41,67 @@ architecture: domain-driven-modular-monolith-with-stateless-application-tier
 **Domain:** LINE OA Studio — the multi-account command center for LINE Official Accounts
 **Stable product-domain ID:** `DOM-LINE-OA-STUDIO`
 **Technical owner ID:** `TD-LINE-OA-STUDIO`
-**Status:** Proposed (Phase 0 declaration)
-**Version:** Draft v0.4.0b
+**Status:** Approved domain baseline v0.6.0b, subject to later accepted ADR amendments
+**Version:** v0.6.0b
 
-> **Clause-label note.** `LOS-RQ-*` labels below are local clause labels for
-> this proposal, in the convention CR-014 used for `AM-PRD-*`. They are **not**
-> Zuri global `FR-*` / `NFR-*` / `BR-*` / `SEC-*` / `SDD-*` ids, they are not
-> pinned in `docs/.id-ledger.json`, and this file is not an id registry. Global
-> ids remain defined only in `docs/PRD-SDD-v1.0.md` under the AGENTS.md §18
-> contract; each implementation slice SHALL reserve them before code is
-> annotated or shipped (ADR-060 D13).
+> **Clause-label and authority note.** `LOS-RQ-*` labels are local references
+> within this domain document; they are not global Zuri IDs and do not create
+> global registry rows, feature membership, or approval. Global requirement
+> identities and exact statements remain in their canonical records. A local
+> clause is part of the build baseline only to the extent that an accepted
+> canonical requirement or decision governs it. Later accepted decisions
+> supersede conflicting text below without rewriting historical source rows.
+
+### 0.1 Current precedence and superseding amendments
+
+Read this SRS with the global canonical records and the accepted decisions that
+control it. The current product baseline is Server/Core-owned LINE execution
+with durable Studio state and the versioned Runtime boundary. ADR-110 D1 and D5
+retire Edge Device pairing, device credentials, heartbeat, Edge asset extraction
+and Edge-to-Server adapters; ADR-110 D3 retains existing records and schema for
+recovery. Thus old Edge clauses below are historical source context only. They
+do not authorize new routes, credentials, clients, jobs, device execution or
+schema changes. ADR-100 supersedes the former Edge conversation path, and
+ADR-106 defines runtime ownership and fencing.
+
+The SRS is the approved 0.6.0b domain baseline identified by its frontmatter.
+This body reconciliation makes later accepted amendments explicit; it does not
+claim that every `LOS-RQ-*` clause is a globally registered requirement or that
+the product has been activated against a live LINE provider.
+
+**Version reconciliation.** The body now matches the frontmatter's approved
+`0.6.0b` version instead of the stale Draft `0.4.0b` label. The reconciliation
+adds no global requirement, changes no canonical subject or feature membership,
+and does not convert the historical proposed changelog entries below into
+current requirements.
+
+**Explanatory reconciliation 2026-10-21.1 (2026-10-21).** This dated note
+clarifies the accepted current job owners and separates them from the earlier
+generic transport-job sketch. It preserves the approved baseline version
+`0.6.0b`; it is not a new domain approval and creates no global requirement.
+
+**Current job ownership.** The earlier `LOS-RQ-007` statement that every LINE
+operation uses one `LineOaTransportJob` is historical as a generalized design
+sketch. The currently selected contracts are specific: Studio owns the durable
+`LineOaRichMenuJob` for rich-menu publishing (FR-152, ADR-061/105), while Core
+alone owns `LineConversationJob` writes and claim/lease state; the Conversation
+Runtime uses the versioned Core port (ADR-106). Integration owns the LINE
+provider port and secret resolution. No universal transport-job model or shared
+lifecycle is selected. LIFF, dispatch, Insight and other provider operations
+must use their own accepted contracts; where none is selected, this SRS does
+not supply a writer, queue or receipt protocol.
+
+**Schedule scope.** ADR-105 D2/D3 selects the general durability invariant:
+when accepted behavior uses scheduled work, Studio owns its declared schedule
+state, schedules persist and use the owning lease/idempotency discipline, and a
+process-local timer is only a wake-up hint. Those invariants remain in the
+minimum profile. The concrete `LineOaSchedule` model, in-process scheduler,
+scheduled-dispatch behavior and timed flow-WAIT behavior described by proposed
+[ADR-060](../../decisions/ADR-060-LINE-OA-STUDIO-DOMAIN-AND-MULTI-ACCOUNT-BOUNDARY.md)
+and local clauses LOS-RQ-065/084/085/086 are not selected by a current canonical
+FR or schema for this profile. The clauses and their 2026-09-05 historical
+answer remain here for provenance; this note grants no new approval or
+retirement and implies no replacement timer or job contract.
 
 ## 1. Purpose
 
@@ -64,15 +125,19 @@ chain, authorization and audit — and it makes the prototype multi-account.
 
 ## 2. Architectural constraints
 
-LINE OA Studio SHALL conform to Zuri's domain-driven modular monolith
-(`docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md`, ADR-025). It SHALL:
+LINE OA Studio SHALL follow its current Server/Core ownership and service
+boundaries under ADR-018, ADR-025 D8, ADR-100, ADR-105 and ADR-106. ADR-025 D8
+adopts domain taxonomy and logical ownership only; the candidate target
+modular-monolith runtime choices are not an accepted implementation contract.
+It SHALL:
 
-- live in the `zuri-ai` codebase and release boundary, under
-  `src/modules/line-oa-studio` and `docs/domains/line-oa-studio/`;
+- use the current Server/Core product boundary and this domain's owning
+  contracts; repository paths are documented by the service index;
 - own only its declared operational state and expose explicit application
   contracts;
 - use approved cross-domain contracts, read models and the shared audit seam;
-- reach LINE only through the trusted transport owner's pull-model job lane;
+- reach LINE only through the approved server Integration port and durable
+  Server/Core-owned work;
 - remain selectively extractable only if a future scale, security, availability
   or ownership requirement justifies it.
 
@@ -89,8 +154,14 @@ SecretStore and explicit contracts, not from process memory, local queues, local
 timers, local files or a particular worker identity.
 
 This requirement does not make the LINE OA Studio domain stateless. The domain
-continues to own durable account, design, dispatch, schedule, transport-job and
-insight state. A cache may be used only as a disposable optimisation.
+continues to own durable account, design, dispatch, schedule and insight state,
+and the Studio-owned `LineOaRichMenuJob` under its selected contract. Core owns
+conversation-job state and fencing. A cache may be used only as a disposable
+optimisation; this clause does not define a universal transport-job entity.
+Under ADR-105 D3, any schedule selected by an accepted behavior is durable and
+uses lease/idempotency recovery; a local timer is only a wake-up hint. This does
+not select the proposed `LineOaSchedule` schema or scheduler-specific dispatch
+and flow-WAIT behavior described in §5.7.
 
 ## 3. Authority and domain boundaries
 
@@ -112,11 +183,23 @@ authority (FR-080, FR-081, ADR-032).
   `RawExternalRecord` rows written by an integration adapter (provider
   `LINE_OA`, lane `INSIGHT`); the Studio SHALL translate, never ingest.
 
-### 3.2 Agent owns binding, routing, activation and the turn
+### 3.2 Core owns the turn; Agent supplies its declared answer policy
+
+The earlier `zuri.command-agent` transport-owner wording in BR-011 is a
+historical transport name. Current LINE admission, ownership fencing and reply
+execution follow the server-owned Core and Conversation Runtime contracts in
+ADR-100, ADR-106 and ADR-110. Agent remains a provider/answer-policy owner where
+its contract assigns that work; it does not independently authorize a second
+reply path or Edge relay. FR-050 and FR-140 remain preserved canonical records,
+but this minimum profile defers their legacy transport-specific behavior until
+a separately accepted replacement transport contract exists. Do not transplant
+FR-050's one-model-request clause into the Runtime tool-loop.
 
 `zuri_core.line_channel_binding`, activation/rollback/canary (FR-052, FR-055,
-ADR-020), the webhook seam (FR-028) and the single reply (FR-050, BR-011)
-remain agent authority.
+ADR-020) and the webhook seam (FR-028) remain governed by their current owning
+contracts. The one-reply user outcome follows current native LINE requirements
+and accepted server/runtime decisions, not the retired `zuri.command-agent`
+transport name.
 
 - **LOS-RQ-004 — Binding join.** `LineOaAccount.bindingCode` SHALL equal the
   agent binding `code` for the account's destination and identity's
@@ -130,14 +213,16 @@ remain agent authority.
   and a match produces the turn's one reply. The Studio SHALL NOT consume a reply
   token or send a reply itself.
 
-### 3.3 LINE transport is owned per account by its transport mode
+### 3.3 LINE conversation execution is server-owned
 
 > **Current amendment — ADR-100.** For new LINE OA conversation work, `EDGE` is
 > retired from this domain's execution vocabulary: transport is `CLOUD` and
 > execution is `SERVER`. The EDGE/CLOUD clauses below remain historical context
 > for the earlier FEAT-019 design and are not a license to create new EDGE
-> conversation jobs. Edge extraction and pairing capabilities outside LINE
-> conversation execution remain governed by their own ADRs.
+> conversation jobs. ADR-110 D1/D5 later retires the remaining Edge Device
+> extraction, credential and pairing surfaces; those behaviors are out of the
+> current product profile while ADR-110 D3 preserves their existing stored
+> records and schema.
 
 The paragraphs and clauses below preserve the earlier FEAT-019 topology for
 traceability. The current LINE OA path is the ADR-100 server-only amendment:
@@ -145,29 +230,37 @@ new accounts use `CLOUD` transport and `SERVER` execution, and the worker may be
 replaced or scaled because its authority is durable state rather than process
 memory.
 
-- **LOS-RQ-007 — Everything to LINE is a job.** Every operation that must reach
-  LINE (rich-menu image upload, create/set-default/link/delete rich menu, LIFF
-  create/update, push/multicast/broadcast/narrowcast send, Insight pull) SHALL be
-  a `LineOaTransportJob` with one lifecycle and one receipt shape regardless of
-  mode.
+- **LOS-RQ-007 — Generalized transport job (historical sketch).** The earlier
+  proposal assigned every LINE call to one `LineOaTransportJob`; that shared
+  entity and lifecycle are not selected by the current profile. Rich-menu
+  publication uses the Studio-owned `LineOaRichMenuJob` contract (FR-152,
+  ADR-061/105). Conversation admission and leases use the Core-owned
+  `LineConversationJob` contract (ADR-106). Other provider operations require
+  their own accepted contract; this local clause does not define one.
 - **LOS-RQ-017 — EDGE claimant (historical).** This earlier LINE conversation
-  path is retired by ADR-100. Edge extraction and pairing remain governed by
-  ADR-041/ADR-059 outside this conversation path.
-- **LOS-RQ-018 — Stateless server claimant.** For a current server-only account,
-  any eligible Studio worker instance SHALL claim the job under durable lease
-  rules and execute through the Integration lane's LINE Messaging port. The port
-  resolves the access token per call and never returns it; the Studio receives
-  results only.
+  path is retired by ADR-100/110. Device claim, extraction and pairing behavior
+  is retired from current product scope by ADR-110 D1/D5; stored records and
+  schema are retained by ADR-110 D3.
+- **LOS-RQ-018 — Disposable server workers.** A Studio worker may claim and
+  execute only work assigned to its selected owner contract. For rich-menu
+  publishing, the Studio worker uses the durable `LineOaRichMenuJob` contract
+  and Integration's LINE port. Core owns conversation job claims and leases;
+  the Conversation Runtime requests them through the versioned Core port. The
+  Integration port resolves credentials per call and never returns secret
+  material. This clause does not assign all LINE jobs to Studio.
 - **LOS-RQ-019 — Server-only owner.** A new LINE OA account SHALL use `CLOUD`
   transport and `SERVER` execution. No user action may switch a new account to
   EDGE conversation execution; historical rows are evidence of what ran and are
   not rewritten by this SRS.
-- **LOS-RQ-008 — Bytes to the lease holder only.** Bytes a job needs SHALL be
-  served by the cloud only to the device holding the job's live lease; no bucket
-  URL, signed link or storage credential SHALL be handed out (ADR-059 D4).
-- **LOS-RQ-009 — Results are references.** A job result SHALL carry external
-  identifiers, an acceptance class and counts only — never token material, a
-  request echo, or customer content beyond what the Studio queued.
+- **LOS-RQ-008 — Bytes to the lease holder only (historical Edge clause).** This
+  device-byte behavior is retired from active scope by ADR-110 D1/D5 together
+  with Edge extraction and device routes. ADR-110 D3 retains data and schema;
+  that retention does not authorize new device byte access.
+- **LOS-RQ-009 — Results are references.** The selected rich-menu job result
+  carries provider references and its accepted outcome only; it never carries
+  token material or an unapproved request/customer-content echo. Conversation
+  delivery receipts follow their Core/CRM contracts. This local clause does not
+  define a shared result schema for unrelated provider operations.
 
 ### 3.4 Identity owns persons, subjects and authority
 
@@ -210,8 +303,11 @@ memory.
 The Studio SHALL own business meaning and write authority for `LineOaAccount`,
 `LineOaRichMenu`(+versions), `LineOaFlexTemplate` / `LineOaFlexMessage`,
 `LineOaFlow` / `LineOaFlowVersion`, `LineOaFlowSession`, `LineOaLiffApp`,
-`LineOaTemplate`, `LineOaDispatch`, `LineOaTransportJob`, `LineOaInsightSnapshot`,
-and the pure calculators over them.
+`LineOaTemplate`, `LineOaDispatch`, the Studio-owned `LineOaRichMenuJob`,
+`LineOaInsightSnapshot`, and pure calculators over those records. Core owns
+`LineConversationJob` admission, writes, claims and leases; Integration owns the
+LINE provider port and secret resolution. No shared `LineOaTransportJob` is
+implied by the similar LINE subject matter.
 
 ### 3.8 Runtime statelessness and persistence boundary
 
@@ -275,11 +371,11 @@ and the pure calculators over them.
 - **LOS-RQ-028 — Account selection is a resource, not a shell scope.** The
   active account SHALL appear in the path (`/line-oa/accounts/[accountId]/…`)
   like a Project; Tenant and Business SHALL NOT (ADR-006).
-- **LOS-RQ-029 — Transport mode per account.** `transportMode` SHALL be `EDGE`
-  or `CLOUD`, fixed at connect time from whether the Business holds an ACTIVE
-  `EdgeDeviceCredential` (the ADR-059 D5 rule) and overridable by a publisher
-  at connect time; the mode SHALL be shown on every account card and health
-  view, and a Business MAY mix modes across its accounts.
+- **LOS-RQ-029 — Transport mode per account (superseded).** The former `EDGE` /
+  `CLOUD` account choice and `EdgeDeviceCredential` dependency are not current
+  behavior. New LINE conversation execution is server-owned under ADR-100 and
+  ADR-106; ADR-110 retires the device surfaces. No account selection, operator
+  action or saved historical mode may create Edge work.
 
 ## 5. Functional requirements by capability
 
@@ -288,7 +384,8 @@ and the pure calculators over them.
 - **LOS-RQ-030 — Account list and health.** The Dashboard and Accounts pages
   SHALL list the Business's accounts with computed health: connection status
   and secret readiness (integration), binding status (agent), last webhook
-  receipt time (integration raw evidence), queued/failed transport jobs (Studio),
+  receipt time (integration raw evidence), status from the selected
+  `LineOaRichMenuJob` and Core-owned `LineConversationJob` contracts,
   and quota (latest insight snapshot). Health SHALL be computed, never stored.
 - **LOS-RQ-031 — Connect.** A publisher SHALL be able to connect an account by
   selecting or creating a `LINE_OA` connection through the integration contract
@@ -309,12 +406,14 @@ and the pure calculators over them.
   (message, postback, URI, LIFF, rich-menu switch), validating bounds against
   the selected image size before save.
 - **LOS-RQ-041 — Versions.** Saving SHALL create a draft version; publishing
-  SHALL freeze the version and queue a transport job; the external `richMenuId`
-  returned by the job SHALL be recorded as an external reference on that
-  version.
+  SHALL freeze the version and queue a Studio-owned `LineOaRichMenuJob` under
+  FR-152; the external `richMenuId` returned by that contract SHALL be recorded
+  as an external reference on that version.
 - **LOS-RQ-042 — Default and aliases.** Setting the default rich menu, an alias,
-  or linking a menu to a subject SHALL each be a transport job with its own
-  receipt.
+  or linking a menu to a subject SHALL use only an accepted rich-menu operation
+  under the `LineOaRichMenuJob` contract. FR-152 selects publish, set-default
+  and set-alias operations; a separate subject-link operation is not implied by
+  this clause unless an accepted contract defines it.
 
 ### 5.3 Flex Message designer
 
@@ -350,21 +449,22 @@ and the pure calculators over them.
   reaches it and SHALL resume the session through a PUSH dispatch when the
   schedule fires. Until the scheduler ships (Phase 3) the designer SHALL refuse
   to publish a timed WAIT rather than accept it silently.
-- **LOS-RQ-066 — Single reply preserved.** A flow match SHALL produce at most one
-  reply per inbound event (FR-050); additional messages SHALL be PUSH dispatches
-  subject to §5.6.
-- **LOS-RQ-067 — Published configuration for edge runtimes.** An `EDGE`
-  account's device SHALL be able to pull the account's published configuration
-  snapshot (published flow versions, rich-menu aliases, bot profile) through a
-  device-authenticated, ETag-versioned read; the snapshot SHALL contain no secret
-  and no customer data, and the device SHALL evaluate the same interpreter
-  contract this repository publishes.
+- **LOS-RQ-066 — Single reply preserved.** A flow match SHALL produce no more
+  than the reply outcome allowed by the native LINE conversation contracts
+  (FR-148/FR-149 under ADR-100/106); additional Studio messages SHALL use the
+  approved dispatch flow in §5.6.
+- **LOS-RQ-067 — Published configuration for edge runtimes (historical).** This
+  device snapshot behavior is retired with the Edge Device surfaces by ADR-110
+  D1/D5. It does not authorize a device route, credential, client or new
+  execution path; existing rows/schema remain under ADR-110 D3.
 
 ### 5.5 LIFF and templates
 
-- **LOS-RQ-070 — LIFF registry.** An account MAY register LIFF apps (name, view
-  size, endpoint, scope); creation or update on LINE SHALL be a transport job,
-  and the external `liffId` SHALL be an external reference.
+- **LOS-RQ-070 — LIFF registry.** An account MAY register LIFF app metadata
+  under its accepted Studio contract. Provider-side LIFF creation or update is
+  not covered by the current rich-menu job contract; no shared transport job,
+  endpoint or receipt shape is selected here. The external `liffId`, when
+  supplied through an accepted contract, remains an external reference.
 - **LOS-RQ-071 — Template library.** Templates SHALL have a kind (FLOW, FLEX,
   RICH_MENU, LIFF), a category, a scope (`SYSTEM` | `TENANT` | `BUSINESS`), an
   official flag for SYSTEM seeds, and usage derived from lineage counts; search
@@ -382,27 +482,38 @@ and the pure calculators over them.
 - **LOS-RQ-081 — Approval and confirmation.** Queuing SHALL require publisher
   authority; BROADCAST and NARROWCAST SHALL additionally require a typed
   confirmation in the request body.
-- **LOS-RQ-082 — Idempotency.** One dispatch SHALL map to one transport job
-  under one idempotency key; re-queuing SHALL return the existing job.
+- **LOS-RQ-082 — Idempotency.** Apply the exact idempotency rule of the accepted
+  contract for a dispatch operation. The earlier one-dispatch/one-generic-job
+  mapping is not an operative contract, and this local clause does not create
+  a shared `LineOaTransportJob` or re-queue protocol.
 - **LOS-RQ-083 — Receipt.** The receipt SHALL record LINE's acceptance class,
   request id and counts; `ACCEPTED_BY_LINE` SHALL NOT be presented as delivered
-  or read (ADR-020 #7).
+  or read (ADR-020 #7). Receipt fields and persistence follow the accepted
+  operation contract; this clause does not define a universal transport receipt.
 - **LOS-RQ-084 — Scheduled dispatch.** A dispatch MAY carry a `scheduledFor`
   instant. Queuing it SHALL create a `LineOaSchedule` row instead of a transport
   job, and the transport job SHALL be created only when the schedule fires
   (LOS-RQ-085). Approval, consent, quota and confirmation gates SHALL be
   evaluated at scheduling time and again at fire time; a dispatch whose gate
   fails at fire time SHALL be marked FAILED with the reason, never sent.
-- **LOS-RQ-087 — One send, one receipt path.** A send SHALL be reported on
-  exactly one path, chosen by who initiated it: a reply or push the transport
-  owner sends while handling an inbound turn SHALL be reported by that owner
-  through `POST /api/agent/line-delivery` (FR-093) and SHALL never be queued as
-  a job; a Studio-initiated dispatch SHALL be reported only as its
-  `LineOaTransportJob` result, from which the Studio records any conversational
-  outbound Message through the crm contract on the cloud side. The transport
-  owner SHALL NOT report a job send through the delivery route (ADR-060 D5).
+- **LOS-RQ-087 — One send, one receipt path (current selected paths).** A
+  conversation reply uses the Core-owned conversation path and its CRM delivery
+  receipt contract (FR-093); it is not a Studio dispatch job. Rich-menu
+  publication uses its `LineOaRichMenuJob` result. A generic job/result path for
+  other Studio-initiated dispatches is not selected here. The withdrawn
+  Edge-to-Server delivery adapter is not recreated.
 
 ### 5.7 Scheduler (Studio-owned)
+
+> **Scope status.** The following clauses preserve a proposed local design and
+> its historical owner answer. [ADR-105 D2/D3](../../decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md)
+> selects the general invariant that Studio owns selected schedule state and
+> accepted schedules persist, use the owning lease/idempotency discipline, and
+> survive worker replacement; a process-local timer is only a wake-up hint.
+> Those invariants remain operative wherever an accepted behavior selects a
+> schedule. They do not adopt the concrete proposed `LineOaSchedule` model,
+> scheduled-dispatch behavior or timed flow-WAIT behavior below. No substitute
+> timer or job contract is defined here.
 
 The owner decided on 2026-09-05 that scheduling is a Studio requirement, not a
 platform one. This repository has no scheduler today; the Studio builds one for
@@ -432,10 +543,13 @@ its own needs rather than storing promises nothing keeps.
   name its source (LINE insight, crm read model, Studio records); nothing SHALL
   be estimated.
 - **LOS-RQ-092 — Command Center.** The Command Center SHALL show, per account:
-  health, queued/claimed/failed transport jobs with correlation ids, recent
-  dispatches and receipts, recent conversations (crm read model) with a deep
-  link to the CRM Inbox, and quota; it SHALL offer the dispatch console under
-  §5.6 rules. It SHALL NOT offer human takeover; that stays in the Inbox.
+  health, statuses and correlation ids exposed by the selected
+  `LineOaRichMenuJob` and Core `LineConversationJob` contracts, recent
+  dispatches and receipts available through their accepted contracts, recent
+  conversations (CRM read model) with a deep link to the CRM Inbox, and quota;
+  it SHALL offer the dispatch console under §5.6 rules. It SHALL NOT offer
+  human takeover; that stays in the Inbox. No universal transport-job status
+  projection is implied.
 
 ### 5.9 Projections and settings
 
@@ -461,9 +575,13 @@ its own needs rather than storing promises nothing keeps.
 - **LOS-RQ-103 — Surfaces.** Pages SHALL use the Zuri Heritage design system
   with explicit loading, empty and error states (NFR-008), Thai copy on
   user-facing surfaces, and SHALL be reachable by search and by browsing.
-- **LOS-RQ-104 — Offline-first.** Local SQLite and the existing Prisma
-  repository pattern SHALL be used; a later Postgres adapter SHALL preserve the
-  contracts.
+- **LOS-RQ-104 — Persistence profiles (resolved by accepted decisions).** Local
+  and offline use SHALL use the SQLite repository profile; hosted Server/Core
+  use SHALL use the accepted PostgreSQL profile under ADR-018. These profiles
+  preserve the owning domain contracts but do not imply network sync, dual-write,
+  automatic cutover, or per-domain PostgreSQL schemas (ADR-025 D8). This
+  clarification follows the accepted global persistence decision and does not
+  create a new global requirement row.
 - **LOS-RQ-120 — Disposable instances.** API and worker instances SHALL be safe to
   scale, restart and replace without relying on local process state.
 - **LOS-RQ-121 — Recovery.** Shutdown, timeout and crash recovery SHALL leave a
@@ -498,7 +616,13 @@ its own needs rather than storing promises nothing keeps.
   agent traces SHALL exclude channel secrets, model keys, authorization headers,
   raw LINE user ids and unapproved customer content.
 
-## 8. Data model candidates
+## 8. Data model candidates and source boundary
+
+The following historical sketches explain the domain design. They do not
+declare current Prisma fields, relations, routes or wire shapes. Read the exact
+persisted schema from `apps/server/prisma/schema.prisma` and exact API behavior
+from accepted canonical endpoint contracts. Any Edge-only field below is
+historical and cannot authorize new product behavior.
 
 | Candidate | Key fields (sketch) | Notes |
 |---|---|---|
@@ -510,21 +634,25 @@ its own needs rather than storing promises nothing keeps.
 | `LineOaLiffApp` | accountId, name, viewSize, endpointUrl, scopeJson, status, externalLiffId? | |
 | `LineOaTemplate` | kind, category, scope, tenantId?, businessId?, isOfficial, bodyJson | SYSTEM rows have no tenant |
 | `LineOaDispatch` | accountId, kind, audienceSpecJson, messagesJson, status, approvedBy, idempotencyKey, transportJobId?, receiptJson | |
-| `LineOaTransportJob` | accountId, businessId, kind, payloadJson, status, claimedByDeviceId?, leaseExpiresAt?, attempts, resultJson?, error?, correlationId, idempotencyKey, version | mirrors `AssetExtractionJob` |
+| Historical `LineOaTransportJob` sketch | accountId, businessId, kind, payloadJson, status, lease/version, attempts, resultJson?, error?, correlationId, idempotencyKey | not a current model or shared contract; current job owners are listed above |
 | `LineOaSchedule` | accountId, businessId, kind (DISPATCH_SEND_AT / FLOW_WAIT_RESUME), dueAt, targetRef (dispatchId or flowSessionId), status, leaseExpiresAt?, attempts, firedJobId?, idempotencyKey, version | the Studio's own timer; fires at most once |
 | `LineOaInsightSnapshot` | accountId, snapshotDate, followers, targetedReaches, blocks, deliveredJson, rawExternalRecordId, translationVersion | unique per (account, date, translationVersion) |
 
-All internal keys are UUIDs; every external identifier is a reference; every
-row carries timestamps and `version`.
+Internal keys and external references follow the owning persisted schema and
+canonical contract. This SRS candidate list does not impose a universal UUID,
+timestamp, or `version` field on every row.
 
-The physical database is shared by the modular monolith, but table ownership is
-logical: Identity owns identity rows, Integration owns connection and credential
-metadata, and Studio owns the `LineOa*` operational rows. Secret material is
-outside ordinary Prisma persistence in the configured SecretStore.
+The current Server schema is shared across its declared domain owners: Identity
+owns identity records, Integration owns connection and credential metadata,
+Studio owns its declared Studio records including `LineOaRichMenuJob`, and Core
+owns `LineConversationJob` admission and execution state. A similar LINE subject
+does not merge those ownership contracts. Runtime extraction does not grant the
+Runtime a second database or direct table access. Secret material stays outside
+ordinary Prisma persistence in the configured SecretStore.
 
 ## 9. Contracts
 
-### 9.1 Application contracts (direction)
+### 9.1 Historical device application contract (retired)
 
 See the charter's "Public contract direction". The device-facing transport-job
 routes are:
@@ -537,35 +665,38 @@ POST /api/line-oa/transport-jobs/[id]/fail            → { reason }
 GET  /api/line-oa/accounts/[accountId]/published-config → ETag-versioned snapshot for the EDGE runtime
 ```
 
-Each authenticates with `Authorization: Bearer edgk_…` (FR-144), never a session
-cookie, and is scoped to the Business of the presented credential. `CLOUD`
-accounts use none of these: their jobs are executed by the in-process worker
-through the integration lane's port.
+The route list and old `edgk_…` authentication text are historical only.
+ADR-110 retires the device credential and route surfaces; their retained rows
+and schema are for recovery/provenance, not new authorization. This text does
+not specify the current worker protocol or transport owner.
 
-The block above is the historical EDGE transport contract. It SHALL not be used
-for new LINE conversation execution after ADR-100. The current stateless runtime
-uses the contract direction in §9.3 and the worker authentication boundary
-specified by the implementation plan.
+The block above is a historical Edge Device contract. ADR-110 D1/D5 removes
+these surfaces from current product scope; ADR-110 D3 preserves their existing
+records and schema. No new implementation may use these paths or credentials.
+Current LINE execution uses the server-owned Core/Runtime boundary in ADR-100
+and ADR-106.
 
-### 9.2 Wire contract
+### 9.2 Historical Edge wire contract (retired)
 
-`contracts/line-oa-transport-job.schema.json` (Phase 1) SHALL define the job
-object and the four calls in the style of `contracts/edge-extraction-job.schema.json`:
-job status enum, lease semantics, and a `kind`-discriminated payload
-(`RICH_MENU_UPLOAD`, `RICH_MENU_CREATE`, `RICH_MENU_SET_DEFAULT`,
-`RICH_MENU_LINK`, `RICH_MENU_DELETE`, `LIFF_CREATE`, `LIFF_UPDATE`,
-`DISPATCH_SEND`, `INSIGHT_PULL`). The cloud owns the shape; the transport
-repository codes against it.
+The earlier proposal for `contracts/line-oa-transport-job.schema.json` to define
+device job calls in the style of `contracts/edge-extraction-job.schema.json` is
+retired with the Edge surfaces by ADR-110. Those historical schemas are not
+current API authorization. Current machine-readable LINE/Runtime contracts are
+the accepted Server-owned contracts selected by ADR-100 and ADR-106. The former
+proposal listed a job status enum, lease semantics and a `kind`-discriminated
+payload for rich-menu upload/create/update/delete, LIFF operations, dispatch,
+and Insight pull. This list is historical design context only; no device API,
+payload, queue or transport contract is authorized by it.
 
-### 9.3 Stateless runtime contract direction
+### 9.3 Current server and Runtime boundary
 
-The runtime contract SHALL support an authenticated bounded worker tick or an
-equivalent claim/complete/fail protocol. Its request and response carry ids,
-scope, lease/version, status, retry/idempotency key, external identifiers and
-acceptance class only. It SHALL never carry a reusable channel credential.
-
-The current worker may be the first implementation of this contract; an
-independent `line-runtime` service is a later deployment choice.
+The Runtime uses the versioned Core operations and trust boundary defined by
+ADR-106. Core owns viewer resolution, admission, durable state, ownership fencing
+and recovery; the Runtime owns only the versioned conversation computation
+contract and receives no direct database or reusable LINE credential authority.
+Do not infer a new queue protocol or transport owner from the retired device
+contract above. The service boundary, request schemas and operation behavior are
+those selected by the accepted ADR and current service contract.
 
 ## 10. Surfaces and navigation
 
@@ -592,40 +723,39 @@ implementation slice (ADR-060 D12).
 
 ## 11. Phasing and gates
 
-See ADR-060 D14 and the stateless runtime plan
-([PLAN-FEAT-019-STATELESS-APPLICATION-TIER](../../roadmap/PLAN-FEAT-019-STATELESS-APPLICATION-TIER.md)).
-The stateless gate includes durable lease/idempotency proof, restart recovery,
-secret-redaction proof, a two-instance canary and one real LINE operation with a
-truthful receipt. Production activation remains an owner/operator evidence gate.
+The phase and rollout maps under `docs/roadmap/` describe delivery sequencing
+and evidence. They do not expand the canonical product baseline, approve a
+Runtime implementation choice, or establish production activation. Runtime
+selection and behavior follow ADR-105/106; live provider behavior and activation
+remain separately qualified.
 
-## 12. Open questions for the owner
+## 12. Historical decisions and remaining evidence boundaries
 
-1. **Transport owner in production — answered 2026-09-05.** A Zuri Edge Device
-   exists only for tenants that want a local LLM through Ollama, or Codex CLI on
-   the monthly-plan quota instead of an API key; every other tenant is served
-   from the cloud. Hence `transportMode` per account (§3.3, LOS-RQ-029).
-2. **Cloud transport adapter — answered by the same decision.** It is the
-   `CLOUD` mode, behind the integration lane's Vault-resolved LINE port;
-   ADR-041 D2 is scoped to `EDGE` accounts (ADR-060 0.2.0).
-3. **Tenant-scope templates — answered 2026-09-05.** Business scope is enough
+The former Edge transport and device-owner answers below are historical and are
+superseded by ADR-100/106/110. They must not be read as a current execution or
+activation requirement. The still-applicable domain design decisions include:
+
+1. **Tenant-scope templates — answered in the earlier design.** Business scope is enough
    for the first release; `TENANT` stays a reserved value (LOS-RQ-024,
    LOS-RQ-072).
-4. **Scheduler — answered 2026-09-05.** A Studio requirement: the Studio owns
-   its own durable scheduler (§5.7, LOS-RQ-085/086); scheduled dispatch lands
-   in Phase 2 and timed WAIT in Phase 3.
-5. **Publisher role name — answered 2026-09-05.** `LINE_OA_PUBLISHER` is
+2. **Scheduler — answer recorded in proposed design history.** The 2026-09-05
+   answer described a Studio-owned scheduler, scheduled dispatch in Phase 2 and
+   timed WAIT in Phase 3 (§5.7, LOS-RQ-085/086). This preserves that historical
+   answer without selecting those concrete behaviors for this profile; the
+   accepted ADR-105 durability invariants remain as stated in §§0.1 and 2.1.
+3. **Publisher role name — answered in the earlier design.** `LINE_OA_PUBLISHER` is
    confirmed (LOS-RQ-010).
 
-5. **Stateless application tier — proposed 2026-09-23.** ADR-105 and the
-   implementation plan require owner approval before code changes. The proposal
-   makes API/worker processes disposable while retaining durable Studio,
-   Integration and journal authorities.
+This document does not establish production activation, successful LINE API
+delivery, or live-provider acceptance. Those claims require the appropriate
+current evidence under the verification policy.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Agent |
 |---|---|---|---|---|
-| 0.6.0b | 2026-09-23 | approved / in-progress | Owner approved ADR-105/SRS implementation; added durable worker checkpoint requirements and the first restart-safe transport-health scheduler slice | RWANG |
+| 0.6.0b / reconciliation 2026-10-21.1 | 2026-10-21 | explanatory reconciliation — no new approval | Clarified the selected rich-menu and conversation job owners and marked the earlier generalized transport-job sketch as historical; baseline version and canonical requirement identities are unchanged | Codex |
+| 0.6.0b | 2026-09-23 | approved baseline | Approved SRS revision; implementation and production activation are separate evidence questions | RWANG |
 | 0.5.0b | 2026-09-23 | candidate | Added ADR-105 proposal for stateless Studio API/runtime workers over durable domain state, Integration-owned secrets, purpose-specific journals and restart/idempotency requirements | RWANG |
 | 0.4.0b | 2026-09-06 | candidate | Added explicit FEAT-019 phase links and current server/Edge evidence boundaries; no runtime or ownership manifest changes | RWANG |
 | 0.3.1 | 2026-09-05 | proposed | Added LOS-RQ-087 (one send, one receipt path: FR-093 for reply-turn sends, the job result for Studio-initiated sends) and put the scheduler section in order as §5.7 | Claude Code |

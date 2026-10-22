@@ -99,7 +99,7 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
   db.exec(`CREATE TABLE controller_meta (key TEXT PRIMARY KEY, value TEXT NOT NULL);
     CREATE TABLE delivery_events (sequence INTEGER PRIMARY KEY, task_id TEXT, cycle_no INTEGER, event_type TEXT,
       occurred_at TEXT, payload_json TEXT, previous_hash TEXT, event_hash TEXT);
-    CREATE TABLE delivery_runs (task_id TEXT PRIMARY KEY, state TEXT, current_cycle INTEGER, base_commit TEXT,
+    CREATE TABLE delivery_runs (task_id TEXT PRIMARY KEY, worktree_root TEXT, state TEXT, current_cycle INTEGER, base_commit TEXT,
       initial_head_commit TEXT, candidate_head_commit TEXT, updated_at TEXT, created_at TEXT);
     CREATE TABLE delivery_cycles (task_id TEXT, cycle_no INTEGER, state TEXT, PRIMARY KEY(task_id,cycle_no));
     CREATE TABLE delivery_nodes (task_id TEXT, cycle_no INTEGER, node_id TEXT, stage TEXT, role TEXT, state TEXT,
@@ -113,8 +113,8 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
   for (const item of events) insertEvent.run(item.sequence, item.task_id, item.cycle_no, item.event_type,
     item.occurred_at, item.payload_json, item.previous_hash, item.event_hash);
   for (const run of runs) {
-    db.prepare(`INSERT INTO delivery_runs(task_id,state,current_cycle,base_commit,initial_head_commit,candidate_head_commit,updated_at,created_at)
-      VALUES(?,?,?,?,?,?,?,?)`).run(run.task_id, run.state, run.current_cycle, run.base_commit,
+    db.prepare(`INSERT INTO delivery_runs(task_id,worktree_root,state,current_cycle,base_commit,initial_head_commit,candidate_head_commit,updated_at,created_at)
+      VALUES(?,?,?,?,?,?,?,?,?)`).run(run.task_id, run.worktree_root ?? root, run.state, run.current_cycle, run.base_commit,
       run.initial_head_commit, run.candidate_head_commit, run.updated_at, run.updated_at);
     db.prepare('INSERT INTO delivery_cycles(task_id,cycle_no,state) VALUES(?,?,?)').run(run.task_id, run.current_cycle, run.cycle_state);
     for (const stage of run.stages) db.prepare(`INSERT INTO delivery_nodes(task_id,cycle_no,node_id,stage,role,state,attempt,lease_epoch,
@@ -125,6 +125,17 @@ function createRepoWithLedger({ events = [], runs = [], corruptHead = false,
   }
   db.close();
   return { root, privateRoot, heartbeatPath, databasePath: path.join(privateRoot, 'controller-v1.sqlite') };
+}
+
+function setRunWorktree(fixture, taskId, worktreeRoot, candidateHeadCommit) {
+  const db = new DatabaseSync(fixture.databasePath);
+  db.prepare('UPDATE delivery_runs SET worktree_root=?,candidate_head_commit=? WHERE task_id=?')
+    .run(worktreeRoot, candidateHeadCommit, taskId);
+  db.close();
+}
+
+function git(root, args) {
+  return execFileSync('git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], windowsHide: true }).trim();
 }
 
 function writeIntakeEvaluation(fixture, { result = {}, createdAt = now.toISOString() } = {}) {
@@ -194,6 +205,120 @@ test('read-only snapshot verifies ledger without changing its SQLite bytes and r
   assert.match(result.localTagSetFingerprint, /^[A-F0-9]{64}$/);
   const serialized = JSON.stringify(result);
   for (const privateValue of ['private-owner-id', root, 'NODE_LEASE_HEARTBEAT']) assert.equal(serialized.includes(privateValue), false);
+});
+
+test('task worktree status reports a stable opaque reference, verified head, dirty count, and candidate match without paths', (t) => {
+  const taskId = 'TASK-ZAI-119';
+  const run = activeRun(taskId);
+  const fixture = createRepoWithLedger({ runs: [run] });
+  const parent = mkdtempSync(path.join(tmpdir(), 'zuri-worker-worktree-'));
+  const worktreeRoot = path.join(parent, 'private-worktree-directory');
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  git(fixture.root, ['worktree', 'add', '-b', 'codex/task-zai-119', worktreeRoot, 'HEAD']);
+  const headCommit = git(worktreeRoot, ['rev-parse', '--verify', 'HEAD^{commit}']);
+  writeFileSync(path.join(worktreeRoot, 'private-changed-filename.txt'), 'local change');
+  setRunWorktree(fixture, taskId, worktreeRoot, headCommit);
+
+  const first = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  const second = readWorkerObservability({ repoRoot: fixture.root, now: () => now });
+  const status = first.localStatus.taskWorktrees.find((item) => item.taskId === taskId);
+  assert.equal(first.state, 'LIVE');
+  assert.equal(status.verificationState, 'VERIFIED');
+  assert.equal(status.branch, 'codex/task-zai-119');
+  assert.equal(status.headCommit, headCommit);
+  assert.equal(status.dirtyFileCount, 1);
+  assert.equal(status.candidateHeadMatch, 'MATCH');
+  assert.match(status.workspaceRef, /^workspace-[a-f0-9]{16}$/);
+  assert.equal(second.localStatus.taskWorktrees.find((item) => item.taskId === taskId).workspaceRef, status.workspaceRef);
+  const serialized = JSON.stringify(first);
+  for (const privateValue of [fixture.root, worktreeRoot, 'private-changed-filename.txt', 'private-owner-id', 'prompt', 'session']) {
+    assert.equal(serialized.includes(privateValue), false);
+  }
+  assert.equal(serialized.includes('worktree_root'), false);
+});
+
+test('credential-shaped worktree branch names are redacted from the snapshot', (t) => {
+  const taskId = 'TASK-ZAI-124';
+  const fixture = createRepoWithLedger({ runs: [activeRun(taskId)] });
+  const parent = mkdtempSync(path.join(tmpdir(), 'zuri-worker-worktree-credential-'));
+  const worktreeRoot = path.join(parent, 'credential-branch');
+  const branch = `codex/${['github', 'pat'].join('_')}_${'A'.repeat(40)}`;
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  git(fixture.root, ['worktree', 'add', '-b', branch, worktreeRoot, 'HEAD']);
+  const headCommit = git(worktreeRoot, ['rev-parse', '--verify', 'HEAD^{commit}']);
+  setRunWorktree(fixture, taskId, worktreeRoot, headCommit);
+
+  const statuses = readWorkerObservability({ repoRoot: fixture.root, now: () => now }).localStatus.taskWorktrees;
+  const status = statuses.find((item) => item.taskId === taskId);
+  assert.equal(status.verificationState, 'VERIFIED');
+  assert.equal(status.branch, 'UNKNOWN');
+  assert.equal(JSON.stringify(statuses).includes(branch), false);
+});
+
+test('task worktree candidate comparison reports MISMATCH when verified HEAD differs', (t) => {
+  const taskId = 'TASK-ZAI-120';
+  const fixture = createRepoWithLedger({ runs: [activeRun(taskId)] });
+  const parent = mkdtempSync(path.join(tmpdir(), 'zuri-worker-worktree-mismatch-'));
+  const worktreeRoot = path.join(parent, 'candidate');
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+  git(fixture.root, ['worktree', 'add', '-b', 'codex/task-zai-120', worktreeRoot, 'HEAD']);
+  const candidateHead = git(worktreeRoot, ['rev-parse', '--verify', 'HEAD^{commit}']);
+  writeFileSync(path.join(worktreeRoot, 'candidate.txt'), 'candidate');
+  git(worktreeRoot, ['add', 'candidate.txt']);
+  git(worktreeRoot, ['commit', '-m', 'candidate head']);
+  setRunWorktree(fixture, taskId, worktreeRoot, candidateHead);
+
+  const status = readWorkerObservability({ repoRoot: fixture.root, now: () => now }).localStatus.taskWorktrees[0];
+  assert.equal(status.verificationState, 'VERIFIED');
+  assert.notEqual(status.headCommit, candidateHead);
+  assert.equal(status.dirtyFileCount, 0);
+  assert.equal(status.candidateHeadMatch, 'MISMATCH');
+});
+
+test('missing, unregistered, and foreign task worktrees fail closed without exposing their paths', (t) => {
+  const taskIds = ['TASK-ZAI-121', 'TASK-ZAI-122', 'TASK-ZAI-123'];
+  const fixture = createRepoWithLedger({ runs: taskIds.map((taskId) => activeRun(taskId)) });
+  const parent = mkdtempSync(path.join(tmpdir(), 'zuri-worker-worktree-fail-'));
+  const missingRoot = path.join(parent, 'removed-registered-worktree');
+  const foreignRegisteredRoot = path.join(parent, 'replaced-registered-worktree');
+  const foreignUnregisteredRoot = path.join(parent, 'private-unregistered-repository');
+  t.after(() => rmSync(fixture.root, { recursive: true, force: true }));
+  t.after(() => rmSync(parent, { recursive: true, force: true }));
+
+  git(fixture.root, ['worktree', 'add', '-b', 'codex/task-zai-121', missingRoot, 'HEAD']);
+  git(fixture.root, ['worktree', 'add', '-b', 'codex/task-zai-123', foreignRegisteredRoot, 'HEAD']);
+  const candidateHead = git(missingRoot, ['rev-parse', '--verify', 'HEAD^{commit}']);
+  setRunWorktree(fixture, taskIds[0], missingRoot, candidateHead);
+  setRunWorktree(fixture, taskIds[1], foreignUnregisteredRoot, candidateHead);
+  setRunWorktree(fixture, taskIds[2], foreignRegisteredRoot, candidateHead);
+
+  rmSync(missingRoot, { recursive: true, force: true });
+  rmSync(foreignRegisteredRoot, { recursive: true, force: true });
+  execFileSync('git', ['init', foreignRegisteredRoot], { stdio: 'ignore', windowsHide: true });
+  execFileSync('git', ['init', foreignUnregisteredRoot], { stdio: 'ignore', windowsHide: true });
+  writeFileSync(path.join(foreignRegisteredRoot, 'foreign-private-file.txt'), 'foreign');
+  writeFileSync(path.join(foreignUnregisteredRoot, 'unregistered-private-file.txt'), 'foreign');
+
+  const statuses = readWorkerObservability({ repoRoot: fixture.root, now: () => now }).localStatus.taskWorktrees;
+  const byTask = new Map(statuses.map((item) => [item.taskId, item]));
+  assert.equal(byTask.get(taskIds[0]).verificationState, 'UNKNOWN');
+  assert.equal(byTask.get(taskIds[0]).reason, 'WORKTREE_UNAVAILABLE');
+  assert.equal(byTask.get(taskIds[1]).verificationState, 'UNKNOWN');
+  assert.equal(byTask.get(taskIds[1]).reason, 'WORKTREE_NOT_REGISTERED');
+  assert.equal(byTask.get(taskIds[2]).verificationState, 'UNKNOWN');
+  assert.equal(byTask.get(taskIds[2]).reason, 'WORKTREE_REPOSITORY_MISMATCH');
+  for (const status of statuses) {
+    assert.equal(status.headCommit, null);
+    assert.equal(status.dirtyFileCount, null);
+    assert.equal(status.candidateHeadMatch, 'UNKNOWN');
+  }
+  const serialized = JSON.stringify(statuses);
+  for (const privateValue of [missingRoot, foreignRegisteredRoot, foreignUnregisteredRoot, 'foreign-private-file.txt']) {
+    assert.equal(serialized.includes(privateValue), false);
+  }
 });
 
 test('CI receipt source distinguishes unconfigured, verified-empty, and invalid sources', (t) => {

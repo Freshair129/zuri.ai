@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-045 canonical record](feature.md).
 > 🚧 deployed 2026-09-21 (PR #500 `cfb62da3`; migration `20260921090000` applied; production main `5c5f12d3`; TASK-ZAI-120, ADR-100, FEAT-045) — production receipt NOT_RUN
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-100 — LINE OA runs server-executed, on browser-provisioned API keys](../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-266 canonical record](requirements/FR-266.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-045 canonical record](feature.md).
 > 🚧 deployed 2026-09-21 (PR #500, hardened by #518 and #522; production main `5c5f12d3`; TASK-ZAI-120, ADR-100 D4, D8) — no Business key saved yet; production receipt NOT_RUN
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-100 — LINE OA runs server-executed, on browser-provisioned API keys](../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-267 canonical record](requirements/FR-267.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-045 canonical record](feature.md).
 > 🚧 deployed 2026-09-21 (PR #520 `f9ea5c88`; private runtime settings on production; TASK-ZAI-121, ADR-100 D7) — no PRP key saved yet; production receipt NOT_RUN
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-100 — LINE OA runs server-executed, on browser-provisioned API keys](../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

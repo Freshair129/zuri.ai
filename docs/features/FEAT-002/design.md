@@ -32,7 +32,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 - [ADR-013 - Business-first Overview, Strategy, and HR domain boundary](../../decisions/ADR-013-BUSINESS-FIRST-OVERVIEW-AND-HR-DOMAIN.md) — `relates` · `control-block` · `current`
 - [ADR-014 - Project Business Ownership and Space Context](../../decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md) — `relates` · `control-block` · `current`
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-060 canonical record](requirements/FR-060.md)
 
@@ -43,7 +43,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 > ✅ (attention-queue goal signal defect fixed 2026-09-22 — see PRD 1.246.0b; local branch, not yet merged)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-268 canonical record](requirements/FR-268.md)
 
@@ -54,7 +54,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 > ✅ Phase 1 implemented — model, calculators, OWNER-only write-through service, routes, StrategyCard UI, attention-queue row (ADR-101 D6, TASK-ZAI-122; local branch, PR pending merge)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-269 canonical record](requirements/FR-269.md)
 
@@ -65,7 +65,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 > 🔜 declared — design only, not implemented, not deployed (ADR-101, FEAT-002, TASK-ZAI-122)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-270 canonical record](requirements/FR-270.md)
 
@@ -76,7 +76,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 > 🔜 declared — design only, not implemented, not deployed (ADR-101, FEAT-002, TASK-ZAI-122)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-271 canonical record](requirements/FR-271.md)
 
@@ -87,7 +87,7 @@ Feature record: [ZAI:FEAT-002 canonical record](feature.md).
 > ✅ Phase 1 implemented — `smart-checks.js`, enforced server-side at create/patch and shown live in the Key Result modal UI (ADR-101 D6, TASK-ZAI-122; local branch, PR pending merge)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-101 — Business Goals become OKR / SMART / Balanced Scorecard / 4DX, inside project-manager](../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 
