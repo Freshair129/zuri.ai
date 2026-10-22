@@ -1,8 +1,8 @@
 ---
 id: ZAI:LINE-OA-P3-MEMORYOS-CIN-EVIDENCE
-version: "0.1.2b"
+version: "0.1.3b"
 created_at: "2026-09-17T03:15:00+07:00,RWANG,base fb4b047a"
-last_update: "2026-09-17T03:53:00+07:00,RWANG"
+last_update: "2026-10-23T00:00:00+07:00,Codex, navigation only"
 status: beta
 superseded_by: null
 attributes:
@@ -12,11 +12,14 @@ attributes:
 
 # P3 MemoryOS and CIN: local evidence
 
-Implements P3 of [the approved plan](LINE-OA-LOCAL-LLM-CIN-EXECUTION.md), under
+Implements P3 of [the historical approved plan](https://github.com/Freshair129/zuri.ai/blob/e3474ef3c16b5cc5b6e797c63e69d6dc202c191f/docs/plans/LINE-OA-LOCAL-LLM-CIN-EXECUTION.md), under
 FR-232/FR-234 and ADR-091. Risk HIGH. MSP owns memory lifecycle; CIN introduces
 no second store. Production opt-in is unchanged.
 
 ## Version diff
+
+0.1.2b → 0.1.3b (2026-10-23): pins the removed plan's approval history to its
+Git revision. No original evidence or runtime claim changes.
 
 - Server API-011 transport adds only required MSP runtime variable names. Signed
   grants now carry the configured agent/workspace and fresh nonce. Unsupported

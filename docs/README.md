@@ -1,5 +1,5 @@
 ---
-version: "0.5.0"
+version: "0.6.0"
 status: active
 superseded_by: null
 ---
@@ -24,8 +24,12 @@ plans and historical test receipts are separate from the build specification.
   domain, feature, service, SRS, decision, plan, and evidence profiles.
 - [Domain inventory](domains/README.md) records charters, declared identifiers,
   and observed SRS coverage.
-- [Plans index](plans/README.md) and [roadmap index](roadmap/README.md)
-  separate planning artifacts from canonical delivery state.
+- [Plans location and retained-source index](plans/README.md) records the plan
+  cleanup and the contracts/evidence still held at legacy paths; the
+  [roadmap index](roadmap/README.md) separates delivery state from projections.
+- [Engineering assessments](../reports/README.md), including the
+  [2026-10-23 code/requirements gap assessment](../reports/gap-analysis-2026-10-23/README.md),
+  record dated findings and verification limits without creating requirements or plans.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -107,3 +111,7 @@ Version diff 0.4.0 → 0.5.0 (2026-10-22): adds documentation profile and
 filesystem indexes, identifies exact root and directory registers, and links
 model-source evidence while keeping generated navigation and canonical records
 separate.
+
+Version diff 0.5.0 → 0.6.0 (2026-10-23): links the dated code/requirements
+assessment and the explicit plan-cleanup inventory. Canonical authority and
+delivery status remain in their existing sources.

@@ -28,7 +28,6 @@ Feature record: [ZAI:FEAT-041 canonical record](feature.md).
 
 > 🚧 Phase 1 writer MERGED 2026-09-16 (PR #431, main `b6e002ef`, TASK-ZAI-111 — ADR-093 D2, D3 construction, D4) — `ArchiveManifest`/`CustomerArchiveKey`, migration `20260916150000` (not applied); retrieval built locally 2026-09-16 (TASK-ZAI-112, branch `feat/fr245-chat-evidence-archive`, not merged — ADR-093 D7): an OWNER at AAL2 recovers one Customer's archived messages for a date range grouped by session, every manifest and file re-verified before any line is trusted, a missing or hash-mismatched one reported rather than failing the whole retrieval. D3's actual disk mount and compose overlay, D5 (10-year expiry, still pending counsel), D6 (erasure/legal hold) and D8 (offline copy) are later phases (TASK-ZAI-113 to 115), not built by this change
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-246 canonical record](requirements/FR-246.md)
