@@ -7,6 +7,7 @@
 // @tested tests/unit/program-delivery-metrics.test.js
 import { describe, expect, it } from 'vitest'
 import {
+  STATUS_PROGRESS,
   mergeLaneUsage,
   phaseDeliveryMetrics,
   planWindowDays,
@@ -113,5 +114,10 @@ describe('FR-219 subtask progress', () => {
     expect(subtaskProgress([])).toBeNull()
     expect(subtaskProgress([{ status: 'done' }, { status: 'review' }, { status: 'planned' }])).toBe(63)
     expect(subtaskProgress([{ status: 'in-progress' }, { status: 'done' }])).toBe(75)
+  })
+
+  it('keeps owner-retired work at zero progress rather than marking it accepted', () => {
+    expect(STATUS_PROGRESS.retired).toBe(0)
+    expect(subtaskProgress([{ status: 'retired' }])).toBe(0)
   })
 })

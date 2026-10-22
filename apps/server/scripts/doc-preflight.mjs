@@ -1287,7 +1287,7 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
 
 // ---- Check 13: the roadmap's evidence column must resolve (ratchet) -------
 // ROADMAP.md declares itself `source_of_truth: true` and `live_document: true`,
-// and GoVibe Mission Control reads it directly. Its `Source Section` column is
+// and the retained `/control/roadmap` surface reads it directly. Its `Source Section` column is
 // the only pointer a reader has from a delivery claim to the artifact backing
 // it, so a pointer at a file that does not exist is a claim nobody can falsify.
 //
@@ -1397,7 +1397,7 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   const introduced = uncovered.filter((id) => !known.has(id))
   if (introduced.length) {
     add('critical', 'roadmap-coverage', `${introduced.length} delivered requirement(s) have no roadmap row`, introduced.join(', '), [rel(ROADMAP)],
-      'Add a Backlog Items row under the owning phase — the roadmap is source_of_truth and Mission Control reads it, so a delivered requirement with no row understates what shipped. ' +
+      'Add a Backlog Items row under the owning phase — the roadmap is source_of_truth and /control/roadmap reads it, so a delivered requirement with no row understates what shipped. ' +
         'Never widen .roadmap-coverage-baseline.json to silence this')
   }
   const repaid = baseline.filter((id) => !uncovered.includes(id))

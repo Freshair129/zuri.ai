@@ -2,9 +2,9 @@
 id: ZAI:PLAN-ROADMAP-W2-NEXT-WAVE
 title: "Roadmap W2 next-wave dispatch and evidence plan"
 version: "0.1.0b"
-status: candidate
+status: retired
 created_at: "2026-09-19T22:25:00+07:00,RWANG"
-last_update: "2026-09-19T22:25:00+07:00,RWANG"
+last_update: "2026-10-22T00:00:00+07:00,Codex, retired by ADR-113"
 attributes:
   domain: platform-control
   doc_type: execution-plan
@@ -18,6 +18,12 @@ relations:
 ---
 
 # Roadmap W2 next-wave dispatch and evidence plan
+
+> **Retired:** This DDC-specific candidate dispatch plan was retired by
+> [ADR-113](../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) on
+> 2026-10-22. Its former gate and dispatch instructions are historical only;
+> the ordinary Git, verification, review and hosted CI rules in `AGENTS.md`
+> apply to current developer work.
 
 This is a candidate dispatch plan derived from `docs/roadmap/ROADMAP.md` and
 its generated 119-node/133-edge/21-wave SOT. It creates no canonical task ID,

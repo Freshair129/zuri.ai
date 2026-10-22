@@ -50,9 +50,9 @@ const USAGE_BLOCK = /<!-- programme-usage:start -->\s*```json\s*([\s\S]*?)\s*```
 const TASK_LEDGER_BLOCK = /<!-- roadmap-task-ledger:start -->\s*([\s\S]*?)\s*<!-- roadmap-task-ledger:end -->/
 const ROADMAP_SOT_BLOCK = /<!-- roadmap-sot:start -->\s*```json\s*([\s\S]*?)\s*```\s*<!-- roadmap-sot:end -->/
 const UNATTRIBUTABLE_BRANCHES = new Set(['main', 'master', 'HEAD'])
-const STATUS_VALUES = new Set(['planned', 'in-progress', 'review', 'done', 'blocked'])
+const STATUS_VALUES = new Set(['planned', 'in-progress', 'review', 'done', 'blocked', 'retired'])
 const PROOF_SCOPE_VALUES = new Set(['SPEC', 'UNKNOWN', 'LOCAL', 'ISOLATED', 'HOSTED_CI', 'PRODUCTION'])
-const IMPLEMENTATION_STATE_VALUES = new Set(['NOT_STARTED', 'IN_PROGRESS', 'LOCAL', 'ISOLATED_ACCEPTED', 'MERGED', 'DEPLOYED', 'ACTIVE', 'BLOCKED', 'UNKNOWN'])
+const IMPLEMENTATION_STATE_VALUES = new Set(['NOT_STARTED', 'IN_PROGRESS', 'LOCAL', 'ISOLATED_ACCEPTED', 'MERGED', 'DEPLOYED', 'ACTIVE', 'BLOCKED', 'RETIRED', 'UNKNOWN'])
 
 export class ProgrammeDocumentError extends Error {
   constructor(message) {
@@ -213,7 +213,7 @@ export function reconcileDerivedProgramme({ markdown, ledger, sot }) {
     const phaseId = /^\| (PHASE-ZAI-\d{2}) \|/.exec(line)?.[1]
     const sprintId = /^\| (SPR-ZAI-\d{2}) \|/.exec(line)?.[1]
     const state = phaseId ? sot.programme.phases[phaseId] : sprintId ? sot.programme.sprints[sprintId] : null
-    if (state) return line.replace(/\| (planned|in-progress|review|done|blocked) \| \d+ \|$/, `| ${state.status} | ${state.progress} |`)
+    if (state) return line.replace(/\| (planned|in-progress|review|done|blocked|retired) \| \d+ \|$/, `| ${state.status} | ${state.progress} |`)
     return line
   })
   return lines.join('\n')

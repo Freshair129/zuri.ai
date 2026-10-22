@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-MULTI-AGENT-DELIVERY
 title: Luna Max execution workers with Terra decisions and Astra escalation
-version: "0.9.33b"
+version: "0.9.34b"
 status: candidate
 created_at: "2026-09-16T13:40:13+07:00,RWANG,design base 087f3025"
-last_update: "2026-10-10,Codex, select bounded WF00 policy and reconcile task source evidence; preserve candidate and closed runtime gates"
+last_update: "2026-10-22,Codex, retire the former developer DDC selection under ADR-113; retain PM product-workflow proposal as candidate"
 superseded_by: null
 attributes:
   doc_type: implementation-plan
@@ -21,18 +21,18 @@ relations:
 
 # Multi-agent execution — Luna Max workers → Terra decision gate → Astra escalation
 
-**Version:** 0.9.33b · **Status:** Candidate · **Version diff:** adds a scoped WF00 policy pointer and source reconciliation; existing candidate plan, source history, and closed runtime gates remain unchanged.
+**Version:** 0.9.34b · **Status:** Candidate · **Version diff:** marks the former scoped WF00 developer-delivery policy selection retired under ADR-113; the PM product-workflow proposal and its historical source evidence remain candidate material.
 
-**Current scoped selection:** For this admitted supervised WF00 bootstrap only,
-the selected model roles, gates, concurrency, and retry limits are in the
-[coding-delivery policy](../delivery-control/WORKFLOW-POLICY.md) and its
-[single model-policy contract](../delivery-control/contracts/model-policy.json).
-The historical model-profile paragraph immediately below and the role/model
-assignments in §2 remain historical profiles. §§4/5/6/10 remain source clauses
-for gates, packet evidence, ownership, and retry handling; their applicable
-behavior is summarized in the selected contract. Historical receipts do not
-transfer to this revision. This selection does not authorize later work or
-runtime dispatch. See the [WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md).
+**Retired developer-delivery selection:** The former supervised WF00 model-role,
+gate, concurrency, retry and controller selection was retired by
+[ADR-113](../../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) on
+2026-10-22. The adjacent historical model-profile paragraphs and the old
+controller/receipt clauses below are retained as provenance only; they do not
+govern current developer work and are not an implementation target. Product
+Project Manager approval, work allocation and business-agent behavior described
+elsewhere in this candidate document remain separate product design and must be
+evaluated against their own current requirements. See the historical
+[WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md).
 
 **Historical source profile (retained):** The paragraph below records the old
 Luna/Terra/Astra assignment and its original task-specific delegation; it is
@@ -90,9 +90,12 @@ Before these direction artifacts were created, all 71 files in this architecture
 <a id="pm-roles"></a>
 ## 2. ทีมและจำนวนงานพร้อมกัน
 
-The table below preserves the historical plan profile. Current WF00 role and
-capacity selection is defined only by the linked `model-policy.json`; this
-bounded selection does not lift the candidate dispatch gates below.
+The table below preserves the historical plan profile. The former WF00 model
+and capacity selection in the linked `model-policy.json` was retired by
+[ADR-113](../../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md); it
+does not select models, dispatch workers, or gate current developer work. The
+product Project Manager proposal below remains candidate material and must be
+evaluated against its own requirements before adoption.
 
 | Role | Model / effort | หน้าที่ | ขอบเขตการเขียน |
 |---|---|---|---|
@@ -165,7 +168,13 @@ flowchart TD
 - แก้เชิงความหมายหลัง verify แล้ว ต้องสร้าง submission revision ใหม่และตรวจ affected checks ใหม่. Root ไม่ใช้ผล PASS เก่ารับ patch ที่แก้เองโดยไม่มีหลักฐานใหม่
 
 <a id="pm-packet"></a>
-## 5. Task packet และผลส่งกลับ
+## 5. Historical developer task packet และผลส่งกลับ — retired
+
+> **Retired by ADR-113:** the task packet, rule-check record, G0, worker,
+> verifier, and final-receipt procedures in this section are historical
+> developer-delivery design only. Do not require or create these artifacts for
+> current repository work. Product Project Manager behavior remains candidate
+> material and needs its own approved product requirements.
 
 ### Input packet ที่ root ต้องให้ก่อน dispatch
 

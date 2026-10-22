@@ -88,7 +88,7 @@ The current `docs/PRD-SDD-v1.0.md` and `docs/FEATURES.md` remain compatibility p
 
 The templates in `registry/document-registry/` are projection scaffolding, not alternate sources for record content. A later record addition or retirement must update the canonical record and its projection slot through the document-registry workflow; generated exports and index stay machine-owned.
 
-## Reviewed additions
+## Reviewed additions and source-row migrations
 
 A reviewed addition was not present in the pinned initial source revision and must never be labelled `source-preserved`. The initial index keeps its pinned `sourceRevision`; each new canonical record uses `status: reviewed-migration`, omits `source_revision`, and records:
 
@@ -97,9 +97,9 @@ migration_base_revision: <full Git SHA-1 that is an ancestor of HEAD>
 migration_document: docs/change-requests/<approved migration document>.md
 ```
 
-`source_path` still names the compatibility registry that owns the projection slot, and `source_row_sha256` hashes the new row and its declared line ending. The migration document must have `status: approved` in frontmatter and an explicit approval section. Version 1 additions are deliberately limited to standalone FR records at `docs/requirements/FR-nnn.md`; feature membership is not inferred or changed.
+`source_path` still names the compatibility registry that owns the projection slot, and `source_row_sha256` hashes the migrated row and its declared line ending. The migration document must have `status: approved` in frontmatter and an explicit approval section. The reviewed-migration wrapper can also record an approved change to an existing FEAT or FR source row, including a supersession. Such a migration preserves its existing ID, source path, explicit FEAT membership and subject anchor; it removes the obsolete `source_revision` claim and binds the row change to the approved migration base and document. It never allocates a new identity. Version 1 *additions* remain deliberately limited to standalone FR records at `docs/requirements/FR-nnn.md`; feature membership is not inferred or changed.
 
-Register a reviewed record with `node tools/document-registry.mjs --register-reviewed <canonical-record-path>`. The command refuses an invalid or non-ancestor base revision, an unapproved/missing migration document, a duplicate or previously used ID/path, a conflicting ID-ledger subject, an invalid FR registry target, or a missing functional-requirement projection section. It inserts the projection slot after the last FR slot, then generates the index and compatibility export. The slot order is authoritative for generated `exportOrder` values, so later rows retain correct order after an insertion. The command never edits the ID ledger; run `npm run docs:ids -- --write` immediately after registration, then `npm run docs:registry` and `npm run govern`.
+Register a new reviewed record with `node tools/document-registry.mjs --register-reviewed <canonical-record-path>`. The command refuses an invalid or non-ancestor base revision, an unapproved/missing migration document, a duplicate or previously used ID/path, a conflicting ID-ledger subject, an invalid FR registry target, or a missing functional-requirement projection section. New registration is standalone-FR-only; existing FEAT/FR membership changes must use an approved source-row migration that preserves the prior identity and membership. The command inserts the projection slot after the last FR slot, then generates the index and compatibility export. The slot order is authoritative for generated `exportOrder` values, so later rows retain correct order after an insertion. The command never edits the ID ledger; run `npm run docs:ids -- --write` immediately after registration, then `npm run docs:registry` and `npm run govern`.
 
 `--write` and `--check` validate that each reviewed record still points to an approved migration document and carries its migration provenance. They do not rerun the ancestry check: registration records that point at the approved base revision, and subsequent CI checkouts may be shallow. The pinned source-preserved records, their row hashes, paths and subject anchors remain unchanged.
 
@@ -126,6 +126,8 @@ and refuses a checkout whose compatibility registries differ from that pin. It
 cannot label newly authored rows as if they existed in the historical revision.
 
 Version diff 0.1.1 → 0.2.0: adds a provenance-safe, reviewed workflow for new standalone FR records while preserving the initial source snapshot. Adds a writer-owned projection slot and export-order update; initial row content, hashes, paths and subject anchors remain unchanged.
+
+Version diff 0.3.0 (2026-10-22): permits an approved reviewed-migration wrapper to bind a change to an existing FEAT/FR source row while preserving its issued identity, explicit membership and subject anchor. New record registration remains standalone-FR-only; this is used to record approved retirement without deleting IDs or hand-editing generated exports.
 
 ## Acceptance
 

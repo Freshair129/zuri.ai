@@ -397,6 +397,8 @@
 .task[data-status='review']:hover { background: color-mix(in srgb, var(--tone-review) 8%, var(--tone-review-bg)); }
 .task[data-status='review'] { box-shadow: inset 4px 0 0 var(--tone-review); }
 .task[data-status='review'] .taskDot { background: var(--tone-review); }
+.task[data-status='retired'] { opacity: .66; }
+.task[data-status='retired'] .taskDot { background: var(--text-muted); }
 
 .metricFrame {
   max-width: 100%;

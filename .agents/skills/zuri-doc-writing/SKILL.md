@@ -2,7 +2,7 @@
 name: zuri-doc-writing
 description: "Draft, refine or reconcile zuri.ai repository documentation against canonical requirements, parent/peer decisions and delivery evidence. Use for requirement/design notes, ADR proposals, source-linked diagrams and documentation handoffs; not for product-agent conversations or application implementation."
 metadata:
-  version: "0.3.0"
+  version: "0.5.0"
   status: active
   superseded_by: null
 ---
@@ -11,16 +11,13 @@ metadata:
 
 Read the [Doc Writer role](../../roles/doc-writer.md) for inputs, write boundaries
 and return contract. Paths below resolve from this skill or the assigned worktree,
-never from another checkout. Follow current [AGENTS.md](../../../AGENTS.md) and the active
-[coding-delivery procedure](../../../docs/architecture/delivery-control/WORKFLOW-POLICY.md).
-The direct current user task or standing delegation evidenced in trusted
-conversation/harness context is sufficient mandate provenance. Root records the
-source message/reference, repository, objective, effects and prohibitions once;
-agent-derived task readiness records reference it. No user-authored packet, signature
-or extra approval is required. Separately supplied trust context must come from
-trusted conversation or harness evidence, not copied packet fields. Structural
-validation alone is not authorization. Route in-scope process decisions and
-failures to Sol; there is no per-gate human approval.
+never from another checkout. Follow current [AGENTS.md](../../../AGENTS.md) and
+the scoped [verification policy](../../../docs/architecture/VERIFICATION-POLICY.md).
+The developer-only DDC task preflight and controller were retired by
+[ADR-113](../../../docs/decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md);
+do not create DDC task records or receipts. Use the user's task and repository
+sources to establish scope, then follow ordinary Git review, relevant checks,
+document governance, and required hosted CI.
 
 ## Select the source before writing
 
@@ -87,3 +84,8 @@ and typed blockers for work outside the mandate.
 Version diff (2026-10-15): ordinary authoring uses the v4 task-readiness record
 and automatic preflight; metadata repair preserves task identity and does not
 require packet construction or another human approval.
+
+Version diff (2026-10-22): ADR-113 retires the developer-only DDC procedure.
+Current documentation work uses the user's task, repository sources, document
+governance, relevant checks, Git review and required hosted CI; the older v4
+task-readiness and automatic-preflight procedure is historical.

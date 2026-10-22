@@ -30,19 +30,19 @@
     "declarationWeight": 20,
     "codeWeight": 40,
     "testWeight": 40,
-    "featureRollup": "Mean of the progress percentages of the feature requirements",
-    "domainRollup": "Mean of unique requirement progress percentages in primary-domain features",
+    "featureRollup": "Mean of the progress percentages of active feature requirements; superseded items are history only",
+    "domainRollup": "Mean of unique active requirement progress percentages in primary-domain features; superseded items are excluded",
     "readinessRule": "Ready requires every underlying requirement to be verified and an explicit FEAT bundle to be live"
   },
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 173,
+    "featureCount": 170,
     "readyFeatureCount": 121,
-    "requirementCount": 287,
-    "verifiedRequirementCount": 248,
-    "progressPercent": 92.1,
-    "gapCount": 64,
+    "requirementCount": 278,
+    "verifiedRequirementCount": 247,
+    "progressPercent": 92.7,
+    "gapCount": 56,
     "gaps": [
       {
         "domain": "agent",
@@ -78,18 +78,6 @@
         "check": "requirements",
         "summary": "FR-132 is planned",
         "evidence": []
-      },
-      {
-        "domain": "agent",
-        "id": "REQ-FR-141",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-141 is not_implemented",
-        "evidence": [
-          "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-          "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-          "apps/server/tests/unit/integrations-page-claims.test.js"
-        ]
       },
       {
         "domain": "agent",
@@ -435,16 +423,6 @@
       },
       {
         "domain": "platform-control",
-        "id": "UI-STATUS-001",
-        "severity": "medium",
-        "check": "ui",
-        "summary": "At least one owned UI surface is not marked implemented",
-        "evidence": [
-          "/control/mission-control"
-        ]
-      },
-      {
-        "domain": "platform-control",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -474,82 +452,6 @@
       },
       {
         "domain": "platform-control",
-        "id": "REQ-FR-260",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-260 is partial",
-        "evidence": [
-          "apps/server/src/app/(control)/control/mission-control/page.jsx",
-          "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/e2e/worker-observability.spec.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/unit/mission-control-read-model.test.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js",
-          "apps/server/tests/unit/worker-observability-route.test.js"
-        ]
-      },
-      {
-        "domain": "platform-control",
-        "id": "REQ-FR-261",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-261 is partial",
-        "evidence": [
-          "apps/server/src/app/(control)/control/mission-control/page.jsx",
-          "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
-          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-          "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/unit/mission-control-contract.test.js",
-          "apps/server/tests/unit/mission-control-read-model.test.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js"
-        ]
-      },
-      {
-        "domain": "platform-control",
-        "id": "REQ-FR-262",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-262 is partial",
-        "evidence": [
-          "apps/server/src/app/(control)/control/mission-control/page.jsx",
-          "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/unit/mission-control-read-model.test.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js"
-        ]
-      },
-      {
-        "domain": "platform-control",
-        "id": "REQ-FR-263",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-263 is partial",
-        "evidence": [
-          "apps/server/src/app/(control)/control/mission-control/page.jsx",
-          "apps/server/src/modules/platform-control/programme-member-view.js",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js",
-          "apps/server/tests/unit/programme-member-view.test.js"
-        ]
-      },
-      {
-        "domain": "platform-control",
-        "id": "REQ-FR-264",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-264 is partial",
-        "evidence": [
-          "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js"
-        ]
-      },
-      {
-        "domain": "platform-control",
         "id": "REQ-FR-289",
         "severity": "medium",
         "check": "requirements",
@@ -561,7 +463,6 @@
           "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
           "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
           "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/unit/knowledge-studio/authorization.test.js",
           "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
           "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -615,23 +516,6 @@
         "check": "requirements",
         "summary": "FR-082 is planned",
         "evidence": []
-      },
-      {
-        "domain": "project-manager",
-        "id": "REQ-FR-260",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-260 is partial",
-        "evidence": [
-          "apps/server/src/app/api/platform/worker-observability/route.js",
-          "apps/server/src/modules/project-manager/api-docs/openapi.js",
-          "apps/server/tests/e2e/fr260-mission-control.spec.js",
-          "apps/server/tests/e2e/worker-observability.spec.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/unit/mission-control-read-model.test.js",
-          "apps/server/tests/unit/mission-control-route-contract.test.js",
-          "apps/server/tests/unit/worker-observability-route.test.js"
-        ]
       },
       {
         "domain": "project-manager",
@@ -817,7 +701,6 @@
           "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
           "apps/server/src/components/layouts/PlatformControlShell.jsx",
           "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/unit/knowledge-studio/authorization.test.js",
           "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
           "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -1014,19 +897,6 @@
           "testCount": 0
         },
         {
-          "id": "FR-141",
-          "title": "Edge Device heartbeat registry",
-          "declared": "n/a",
-          "status": "not_implemented",
-          "codeCount": 0,
-          "testCount": 3,
-          "evidence": [
-            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-            "apps/server/tests/unit/integrations-page-claims.test.js"
-          ]
-        },
-        {
           "id": "FR-147",
           "title": "LINE binding status read contract",
           "declared": "n/a",
@@ -1184,7 +1054,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -1312,17 +1182,6 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-141",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-141 is not_implemented",
-          "evidence": [
-            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-            "apps/server/tests/unit/integrations-page-claims.test.js"
-          ]
-        },
-        {
           "id": "REQ-FR-232",
           "severity": "medium",
           "check": "requirements",
@@ -1371,14 +1230,13 @@
         "FR-055",
         "FR-057",
         "FR-132",
-        "FR-141",
         "FR-171",
         "FR-277",
         "FR-285"
       ],
-      "featureCount": 19,
+      "featureCount": 18,
       "readyFeatureCount": 15,
-      "progressPercent": 69.6
+      "progressPercent": 70
     },
     "asset-management": {
       "status": "partial",
@@ -1645,7 +1503,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -2568,7 +2426,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 1
           }
         },
@@ -2761,7 +2619,6 @@
         "FEAT-027",
         "FEAT-029",
         "FEAT-030",
-        "FEAT-035",
         "FR-021",
         "FR-022",
         "FR-031",
@@ -2783,9 +2640,9 @@
         "FR-123",
         "FR-281"
       ],
-      "featureCount": 25,
+      "featureCount": 24,
       "readyFeatureCount": 18,
-      "progressPercent": 94.4
+      "progressPercent": 96.4
     },
     "integration": {
       "status": "partial",
@@ -3134,7 +2991,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -3555,7 +3412,7 @@
           "details": {
             "routes": 42,
             "inventoried": 42,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -4444,7 +4301,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -4642,7 +4499,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -4881,7 +4738,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -5156,14 +5013,6 @@
           "testCount": 8
         },
         {
-          "id": "FR-221",
-          "title": "~~Usage reports attributed to person, device and lane",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 3,
-          "testCount": 7
-        },
-        {
           "id": "FR-239",
           "title": "Agent usage detail capture",
           "declared": "done",
@@ -5220,93 +5069,12 @@
           "testCount": 0
         },
         {
-          "id": "FR-260",
-          "title": "Mission Control operator projection",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 3,
-          "testCount": 6,
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/e2e/worker-observability.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/worker-observability-route.test.js"
-          ]
-        },
-        {
-          "id": "FR-261",
-          "title": "Programme Orchestration Run Ledger observation contract",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 4,
-          "testCount": 4,
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-contract.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
-          "id": "FR-262",
-          "title": "DAG scheduling and merge-safety projection",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 3,
-          "testCount": 3,
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
-          "id": "FR-263",
-          "title": "Member roadmap redaction",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 2,
-          "testCount": 3,
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/programme-member-view.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/programme-member-view.test.js"
-          ]
-        },
-        {
-          "id": "FR-264",
-          "title": "Responsive Mission Control evidence view",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 1,
-          "testCount": 2,
-          "evidence": [
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
           "id": "FR-289",
           "title": "Zuri Knowledge Studio is an installation-operator-only, read-only browser for the indexed Zuri Markdown document graph",
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 7,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/app/(control)/control/knowledge-studio/page.jsx",
             "apps/server/src/components/layouts/PlatformControlShell.jsx",
@@ -5314,7 +5082,6 @@
             "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
             "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
             "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/knowledge-studio/authorization.test.js",
             "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
             "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -5325,23 +5092,14 @@
       ],
       "checks": {
         "ui": {
-          "status": "partial",
+          "status": "unknown",
           "evidence": [
             "docs/INTERFACE-INVENTORY.md"
           ],
-          "gaps": [
-            {
-              "id": "UI-STATUS-001",
-              "severity": "medium",
-              "summary": "At least one owned UI surface is not marked implemented",
-              "evidence": [
-                "/control/mission-control"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
-            "routes": 5,
-            "inventoried": 5,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -5355,7 +5113,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -5440,15 +5198,6 @@
       ],
       "gaps": [
         {
-          "id": "UI-STATUS-001",
-          "severity": "medium",
-          "check": "ui",
-          "summary": "At least one owned UI surface is not marked implemented",
-          "evidence": [
-            "/control/mission-control"
-          ]
-        },
-        {
           "id": "CONTRACT-001",
           "severity": "medium",
           "check": "runtimeContract",
@@ -5474,77 +5223,6 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-260",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-260 is partial",
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/e2e/worker-observability.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/worker-observability-route.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-261",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-261 is partial",
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-contract.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-262",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-262 is partial",
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-263",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-263 is partial",
-          "evidence": [
-            "apps/server/src/app/(control)/control/mission-control/page.jsx",
-            "apps/server/src/modules/platform-control/programme-member-view.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/programme-member-view.test.js"
-          ]
-        },
-        {
-          "id": "REQ-FR-264",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-264 is partial",
-          "evidence": [
-            "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js"
-          ]
-        },
-        {
           "id": "REQ-FR-289",
           "severity": "medium",
           "check": "requirements",
@@ -5556,7 +5234,6 @@
             "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
             "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
             "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/knowledge-studio/authorization.test.js",
             "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
             "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -5566,9 +5243,9 @@
         }
       ],
       "details": {
-        "routes": 11,
+        "routes": 10,
         "apiRoutes": 6,
-        "pageRoutes": 5,
+        "pageRoutes": 4,
         "ownedModels": 4,
         "featureNotes": 2
       },
@@ -5576,16 +5253,15 @@
         "FEAT-034",
         "FEAT-039",
         "FEAT-042",
-        "FEAT-044",
         "FR-105",
         "FR-142",
         "FR-145",
         "FR-211",
         "FR-241"
       ],
-      "featureCount": 9,
+      "featureCount": 8,
       "readyFeatureCount": 7,
-      "progressPercent": 94.7
+      "progressPercent": 100
     },
     "procurement": {
       "status": "partial",
@@ -5662,7 +5338,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 351,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -7035,24 +6711,6 @@
           "testCount": 22
         },
         {
-          "id": "FR-260",
-          "title": "Mission Control operator projection",
-          "declared": "planned",
-          "status": "partial",
-          "codeCount": 2,
-          "testCount": 6,
-          "evidence": [
-            "apps/server/src/app/api/platform/worker-observability/route.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/e2e/worker-observability.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/worker-observability-route.test.js"
-          ]
-        },
-        {
           "id": "FR-266",
           "title": "A Business owner provisions the model provider API key from the browser, write-only, without an operator or a host file",
           "declared": "n/a",
@@ -7325,13 +6983,12 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 7,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/app/api/control/knowledge-studio/document/route.js",
             "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
             "apps/server/src/components/layouts/PlatformControlShell.jsx",
             "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/knowledge-studio/authorization.test.js",
             "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
             "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -7371,9 +7028,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 182,
-            "inventoried": 182,
-            "openApiPaths": 351,
+            "routes": 181,
+            "inventoried": 181,
+            "openApiPaths": 350,
             "missingFromOpenApi": 0
           }
         },
@@ -7561,22 +7218,6 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-260",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-260 is partial",
-          "evidence": [
-            "apps/server/src/app/api/platform/worker-observability/route.js",
-            "apps/server/src/modules/project-manager/api-docs/openapi.js",
-            "apps/server/tests/e2e/fr260-mission-control.spec.js",
-            "apps/server/tests/e2e/worker-observability.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/unit/mission-control-read-model.test.js",
-            "apps/server/tests/unit/mission-control-route-contract.test.js",
-            "apps/server/tests/unit/worker-observability-route.test.js"
-          ]
-        },
-        {
           "id": "REQ-FR-269",
           "severity": "medium",
           "check": "requirements",
@@ -7753,7 +7394,6 @@
             "apps/server/src/app/api/control/knowledge-studio/graph/route.js",
             "apps/server/src/components/layouts/PlatformControlShell.jsx",
             "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/unit/knowledge-studio/authorization.test.js",
             "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
             "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -7763,8 +7403,8 @@
         }
       ],
       "details": {
-        "routes": 230,
-        "apiRoutes": 182,
+        "routes": 229,
+        "apiRoutes": 181,
         "pageRoutes": 48,
         "ownedModels": 48,
         "featureNotes": 45
@@ -11855,68 +11495,6 @@
       ]
     },
     {
-      "id": "FEAT-035",
-      "title": "~~Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`)~~",
-      "kind": "bundle",
-      "registryStatus": "superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
-      "requirementIds": [
-        "FR-220",
-        "FR-221",
-        "FR-222"
-      ],
-      "primaryDomain": "identity",
-      "contributorDomains": [
-        "platform-control"
-      ],
-      "useCase": "Retired by ADR-110 D5. Historical behavior: a Zuri plugin paired Claude Code or Codex installations through browser approval and attributed session usage to a person, device and lane; existing report rows remain historical.",
-      "progressPercent": 73.3,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FEAT-035 registry status is superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
-        "FR-220 is not_implemented",
-        "FR-222 is not_implemented"
-      ],
-      "requirements": [
-        {
-          "id": "FR-220",
-          "title": "~~Harness device pairing and report-only credential",
-          "status": "not_implemented",
-          "progressPercent": 60,
-          "codeCount": 0,
-          "testCount": 2
-        },
-        {
-          "id": "FR-221",
-          "title": "~~Usage reports attributed to person, device and lane",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 3,
-          "testCount": 7
-        },
-        {
-          "id": "FR-222",
-          "title": "~~Zuri harness plugin",
-          "status": "not_implemented",
-          "progressPercent": 60,
-          "codeCount": 0,
-          "testCount": 1
-        }
-      ],
-      "evidence": [
-        "apps/server/src/app/(control)/control/roadmap/page.jsx",
-        "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
-        "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
-        "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-        "apps/server/tests/unit/platform-control-domain-map.test.js",
-        "apps/server/tests/unit/platform-control-route-contract.test.js",
-        "apps/server/tests/unit/program-delivery-metrics.test.js",
-        "apps/server/tests/unit/programme-usage-reports.test.js",
-        "apps/server/tests/unit/task-usage-ledger.test.js"
-      ]
-    },
-    {
       "id": "FEAT-036",
       "title": "Connect LINE OA yourself — a Business owner connects a LINE Official Account from the browser: after a TOTP step-up they enter the Channel ID and Channel secret once, the server proves them with LINE, claims the bot for this installation, stores the secret write-only in the Integration vault (Supabase Vault, or an encrypted store on self-host) and mints short-lived tokens itself, sets and tests the webhook through LINE's API and decides on its own when the old transport has gone quiet — with no operator and no host file (ADR-089, `DOM-INTEGRATION`, `DOM-IDENTITY`, `DOM-LINE-OA-STUDIO`)",
       "kind": "bundle",
@@ -12842,96 +12420,6 @@
         }
       ],
       "evidence": []
-    },
-    {
-      "id": "FEAT-044",
-      "title": "Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092)",
-      "kind": "bundle",
-      "registryStatus": "building",
-      "requirementIds": [
-        "FR-260",
-        "FR-261",
-        "FR-262",
-        "FR-263",
-        "FR-264"
-      ],
-      "primaryDomain": "platform-control",
-      "contributorDomains": [
-        "platform-control",
-        "project-manager"
-      ],
-      "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
-      "progressPercent": 80,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FEAT-044 registry status is building",
-        "FR-260 is partial",
-        "FR-261 is partial",
-        "FR-262 is partial",
-        "FR-263 is partial",
-        "FR-264 is partial"
-      ],
-      "requirements": [
-        {
-          "id": "FR-260",
-          "title": "Mission Control operator projection",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 5,
-          "testCount": 6
-        },
-        {
-          "id": "FR-261",
-          "title": "Programme Orchestration Run Ledger observation contract",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 4,
-          "testCount": 4
-        },
-        {
-          "id": "FR-262",
-          "title": "DAG scheduling and merge-safety projection",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 3,
-          "testCount": 3
-        },
-        {
-          "id": "FR-263",
-          "title": "Member roadmap redaction",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 2,
-          "testCount": 3
-        },
-        {
-          "id": "FR-264",
-          "title": "Responsive Mission Control evidence view",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 1,
-          "testCount": 2
-        }
-      ],
-      "evidence": [
-        "apps/server/src/app/(control)/control/mission-control/page.jsx",
-        "apps/server/src/app/api/platform/worker-observability/route.js",
-        "apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js",
-        "apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js",
-        "apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx",
-        "apps/server/src/modules/platform-control/mission-control/mission-control-contract.js",
-        "apps/server/src/modules/platform-control/programme-member-view.js",
-        "apps/server/src/modules/project-manager/api-docs/openapi.js",
-        "apps/server/tests/e2e/fr260-mission-control.spec.js",
-        "apps/server/tests/e2e/worker-observability.spec.js",
-        "apps/server/tests/integration/openapi-docs.test.js",
-        "apps/server/tests/unit/mission-control-contract.test.js",
-        "apps/server/tests/unit/mission-control-read-model.test.js",
-        "apps/server/tests/unit/mission-control-route-contract.test.js",
-        "apps/server/tests/unit/programme-member-view.test.js",
-        "apps/server/tests/unit/worker-observability-route.test.js"
-      ]
     },
     {
       "id": "FEAT-045",
@@ -17895,41 +17383,6 @@
       "evidence": []
     },
     {
-      "id": "FR-141",
-      "title": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make.",
-      "kind": "requirement",
-      "registryStatus": "live",
-      "requirementIds": [
-        "FR-141"
-      ],
-      "primaryDomain": "agent",
-      "contributorDomains": [
-        "agent"
-      ],
-      "useCase": "เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์",
-      "progressPercent": 60,
-      "ready": false,
-      "readiness": "not_ready",
-      "blockers": [
-        "FR-141 is not_implemented"
-      ],
-      "requirements": [
-        {
-          "id": "FR-141",
-          "title": "Edge Device heartbeat registry",
-          "status": "not_implemented",
-          "progressPercent": 60,
-          "codeCount": 0,
-          "testCount": 3
-        }
-      ],
-      "evidence": [
-        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-        "apps/server/tests/unit/integrations-page-claims.test.js"
-      ]
-    },
-    {
       "id": "FR-142",
       "title": "Deployment liveness probe and public-origin abstraction (ADR-058): `GET /api/health` answers without a session, runs exactly one trivial query (`SELECT 1`) against the configured application database, and returns `{status:'ok', db:'ok'}` with 200 or `{status:'degraded', db:'unreachable'}` with 503 — states, counts and timings only, never an error message, host or credential (SEC-009). It is the probe Docker Compose uses to mark the `web` container healthy and to start ngrok only after it. The deployment's public origin is one run-time variable, `PUBLIC_BASE_URL` (`src/lib/public-base-url.js`: `PUBLIC_BASE_URL` → build-time `NEXT_PUBLIC_APP_URL` → `http://localhost:3100`, reduced to an origin; a non-HTTP or unparsable value is ignored, not propagated); the root layout's `metadataBase` and the Platform Integrations pairing payload and LINE webhook URL derive from it or from the origin the page was actually served from — no platform hostname is assumed anywhere.",
       "kind": "requirement",
@@ -19480,7 +18933,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 8,
-          "testCount": 7
+          "testCount": 6
         }
       ],
       "evidence": [
@@ -19493,7 +18946,6 @@
         "apps/server/src/modules/platform-control/knowledge-studio/components/KnowledgeStudioBridge.jsx",
         "apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js",
         "apps/server/tests/e2e/knowledge-studio/knowledge-studio.spec.js",
-        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/knowledge-studio/authorization.test.js",
         "apps/server/tests/unit/knowledge-studio/docker-runtime.test.js",
         "apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js",
@@ -19529,6 +18981,174 @@
         }
       ],
       "evidence": []
+    }
+  ],
+  "historicalFeatures": [
+    {
+      "id": "FEAT-035",
+      "title": "~~Zuri harness usage plugin — Claude Code and Codex agents on any machine pair once through a signed-in browser, hold a credential that can only report usage, and report each finished session attributed to the approving person, the device and the lane of its branch (ADR-087, `DOM-IDENTITY`, `DOM-PLATFORM-CONTROL`)~~",
+      "kind": "bundle",
+      "registryStatus": "superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
+      "requirementIds": [
+        "FR-220",
+        "FR-221",
+        "FR-222"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [],
+      "useCase": "Retired by ADR-110 D5. Historical behavior: a Zuri plugin paired Claude Code or Codex installations through browser approval and attributed session usage to a person, device and lane; existing report rows remain historical.",
+      "progressPercent": 73.3,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-035 registry status is superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
+        "FR-220 is not_implemented",
+        "FR-222 is not_implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-220",
+          "title": "~~Harness device pairing and report-only credential",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 2
+        },
+        {
+          "id": "FR-221",
+          "title": "~~Usage reports attributed to person, device and lane",
+          "status": "verified",
+          "progressPercent": 100,
+          "codeCount": 3,
+          "testCount": 7
+        },
+        {
+          "id": "FR-222",
+          "title": "~~Zuri harness plugin",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/(control)/control/roadmap/page.jsx",
+        "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+        "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+        "apps/server/tests/unit/platform-control-domain-map.test.js",
+        "apps/server/tests/unit/platform-control-route-contract.test.js",
+        "apps/server/tests/unit/program-delivery-metrics.test.js",
+        "apps/server/tests/unit/programme-usage-reports.test.js",
+        "apps/server/tests/unit/task-usage-ledger.test.js"
+      ]
+    },
+    {
+      "id": "FEAT-044",
+      "title": "~~Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092)~~",
+      "kind": "bundle",
+      "registryStatus": "superseded by ADR-113 — DDC retired and implementation removed",
+      "requirementIds": [
+        "FR-260",
+        "FR-261",
+        "FR-262",
+        "FR-263",
+        "FR-264"
+      ],
+      "primaryDomain": "platform-control",
+      "contributorDomains": [],
+      "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
+      "progressPercent": 28,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FEAT-044 registry status is superseded by ADR-113 — DDC retired and implementation removed",
+        "FR-260 is not_implemented",
+        "FR-261 is not_implemented",
+        "FR-262 is not_implemented",
+        "FR-263 is not_implemented",
+        "FR-264 is not_implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-260",
+          "title": "~~Mission Control operator projection",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 2
+        },
+        {
+          "id": "FR-261",
+          "title": "~~Programme Orchestration Run Ledger observation contract",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-262",
+          "title": "~~DAG scheduling and merge-safety projection",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-263",
+          "title": "~~Member roadmap redaction",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
+        },
+        {
+          "id": "FR-264",
+          "title": "~~Responsive Mission Control evidence view",
+          "status": "not_implemented",
+          "progressPercent": 20,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": [
+        "apps/server/tests/unit/data-pipeline-map.test.js",
+        "apps/server/tests/unit/fr124-product-readiness-ui.test.js"
+      ]
+    },
+    {
+      "id": "FR-141",
+      "title": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make.",
+      "kind": "requirement",
+      "registryStatus": "superseded",
+      "requirementIds": [
+        "FR-141"
+      ],
+      "primaryDomain": "agent",
+      "contributorDomains": [],
+      "useCase": "เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์",
+      "progressPercent": 60,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-141 is not_implemented"
+      ],
+      "requirements": [
+        {
+          "id": "FR-141",
+          "title": "Edge Device heartbeat registry",
+          "status": "not_implemented",
+          "progressPercent": 60,
+          "codeCount": 0,
+          "testCount": 3
+        }
+      ],
+      "evidence": [
+        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+        "apps/server/tests/unit/integrations-page-claims.test.js"
+      ]
     }
   ],
   "nonFunctionalRequirements": [
@@ -19594,8 +19214,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 14,
-      "testCount": 23,
+      "codeCount": 13,
+      "testCount": 21,
       "domains": [
         "knowledge",
         "platform-control",

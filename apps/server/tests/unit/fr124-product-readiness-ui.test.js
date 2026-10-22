@@ -28,6 +28,23 @@ describe('FR-124 product readiness UI contract', () => {
     expect(html).not.toContain('Invalid Date')
   })
 
+  it('shows superseded capabilities as history outside active readiness totals', () => {
+    const snapshot = getProductReadinessSnapshot()
+    const retired = snapshot.historicalFeatures.find((feature) => feature.id === 'FEAT-044')
+
+    expect(retired).toBeDefined()
+    expect(snapshot.features.some((feature) => feature.id === 'FEAT-044')).toBe(false)
+    expect(snapshot.overall.featureCount).toBe(snapshot.features.length)
+    expect(snapshot.overall.requirementCount).toBe(new Set(
+      snapshot.features.flatMap((feature) => feature.requirements.map((requirement) => requirement.id)),
+    ).size)
+
+    const html = renderToStaticMarkup(createElement(ProductReadinessDashboard, { snapshot }))
+    expect(html).toContain('Superseded capabilities (historical)')
+    expect(html).toContain('FEAT-044')
+    expect(html).toContain('FR-260')
+  })
+
   it('distinguishes Feature and Standalone FR on summary and domain drilldown', () => {
     const snapshot = getProductReadinessSnapshot()
     const feature = snapshot.features.find(item => item.kind === 'feature')

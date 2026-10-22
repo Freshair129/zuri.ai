@@ -10,6 +10,7 @@ import {
   buildDataPipelineMap,
   generateDataPipelineMap,
   parseRegistry,
+  requirementIndex,
 } from '../../scripts/data-pipeline-map.mjs'
 
 const domainState = {
@@ -61,6 +62,14 @@ const problemsOf = (fn) => {
 }
 
 describe('FR-212 data pipeline map generator', () => {
+  it('resolves historical requirement evidence without restoring it to active readiness totals', () => {
+    const index = requirementIndex({
+      features: [],
+      historicalFeatures: [{ id: 'FEAT-044', requirements: [{ id: 'FR-260', status: 'not_implemented', title: 'Old operator view' }] }],
+    })
+    expect(index.get('FR-260')).toEqual({ status: 'not_implemented', title: 'Old operator view', feature: 'FEAT-044' })
+  })
+
   it('derives build status, surface level and FEATs, and takes the weakest status for edges and chains', () => {
     const map = build(registry())
     const node = (id) => map.nodes.find((n) => n.id === id)

@@ -6,7 +6,7 @@
 import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 
 // Re-projected 2026-10-22 from the source document's own frontmatter and
-// tables (v0.4.40 → v0.4.41): the metadata below states what the
+// tables (v0.4.41 → v0.4.42): the metadata below states what the
 // DOCUMENT says about itself, never what today's git happens to be —
 // refreshing baselineCommit to "current HEAD" would falsify the plan's
 // provenance. The document's baseline moved because the document was
@@ -14,7 +14,7 @@ import { ROADMAP_SOT, ROADMAP_TASK_STATUS } from './roadmap-sot'
 export const PROGRAMME_SNAPSHOT = {
   documentId: 'ROADMAP-ZURI-AI-24W-PROGRAM',
   status: 'approved',
-  version: '0.4.41',
+  version: '0.4.42',
   updated: '2026-10-22',
   baselineCommit: '2b7ad27d',
   programmeStart: '2026-08-24',
@@ -256,7 +256,7 @@ const PROGRAMME_TASK_DEFINITIONS = [
   ['TASK-ZAI-116', 'SPR-ZAI-02', 'Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs', 'NFR', 'C-1', 'H2', 'done'],
   ['TASK-ZAI-117', 'SPR-ZAI-02', 'Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action', 'FR', 'C-2', 'H2', 'done'],
   ['TASK-ZAI-118', 'SPR-ZAI-02', 'Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup', 'FR', 'C-3', 'H3', 'review'],
-  ['TASK-ZAI-119', 'SPR-ZAI-02', 'Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations', 'FEAT', 'C-3', 'H3', 'review'],
+  ['TASK-ZAI-119', 'SPR-ZAI-02', 'Retired: developer Mission Control/DAG observability — FEAT-044 and FR-260..264 superseded by ADR-113; no current runtime or product acceptance claim', 'FEAT', 'C-3', 'H3', 'retired'],
   ['TASK-ZAI-120', 'SPR-ZAI-10', 'LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback', 'FEAT', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-121', 'SPR-ZAI-10', "LINE OA on the operator's Private Runtime Platform — FR-267 adds provider prp (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099", 'FEAT', 'C-3', 'H3', 'review'],
   ['TASK-ZAI-123', 'SPR-ZAI-10', 'Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274, ADR-109', 'FEAT', 'C-3', 'H3', 'in-progress'],

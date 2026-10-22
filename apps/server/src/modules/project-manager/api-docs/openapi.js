@@ -299,8 +299,6 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-106 — GET lists key metadata for the Tenants the caller may govern
   // (never key material); POST mints; DELETE revokes.
   ['/api/platform/api-access-keys', ['GET', 'POST']], ['/api/platform/api-access-keys/{id}', ['DELETE']],
-  // @req FR-260 — read-only installation-operator Worker observations; all other exported methods refuse writes.
-  ['/api/platform/worker-observability', ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']],
   ['/api/platform/integrations', ['GET', 'POST']], ['/api/platform/integrations/line-registry', ['GET', 'POST']], ['/api/platform/users', ['GET', 'PATCH']], ['/api/profile', ['GET']], ['/api/progress/portfolio', ['GET']], ['/api/progress/project/{id}', ['GET']], ['/api/progress/workstream/{id}', ['GET']],
   ['/api/projects', ['GET', 'POST']], ['/api/projects/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/projects/{id}/dependencies', ['GET']], ['/api/projects/{id}/files', ['GET', 'POST']], ['/api/projects/{id}/files/{fileId}', ['DELETE']], ['/api/projects/{id}/inventory', ['GET']], ['/api/projects/{id}/roadmap', ['GET']], ['/api/projects/{id}/domain-view', ['GET']],
   // @req FR-069, FR-070 — PM-owned execution trace resource and explicit replay command.

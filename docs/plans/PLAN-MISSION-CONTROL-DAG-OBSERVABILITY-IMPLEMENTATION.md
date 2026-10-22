@@ -2,9 +2,9 @@
 id: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION
 title: "Mission Control — DAG orchestration observability implementation plan"
 version: "0.3.0b"
-status: approved
+status: retired
 created_at: "2026-09-19T00:00:00+07:00,Luna Max"
-last_update: "2026-09-19T22:25:00+07:00,RWANG"
+last_update: "2026-10-22T00:00:00+07:00,Codex, retired by ADR-113"
 attributes:
   domain: platform-control
   scope: documentation-first implementation plan for operator-only DAG observability
@@ -22,6 +22,11 @@ relations:
 ---
 
 # Mission Control — DAG orchestration observability implementation plan
+
+> **Retired:** This developer-only DDC implementation and observation plan was
+> retired by [ADR-113](../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md)
+> on 2026-10-22. Keep the delivery and CI receipts below as history; this is no
+> longer an active plan or authorization.
 
 This is the implementation plan following approval of the design proposal.
 The bounded read-only runtime/UI slice described here is now merged in PR #468

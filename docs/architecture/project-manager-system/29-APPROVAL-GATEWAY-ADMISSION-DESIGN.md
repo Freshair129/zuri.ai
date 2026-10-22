@@ -26,7 +26,7 @@ relations:
 **Risk:** HIGH
 **Requirement source:** PMR-013, acceptance PMT-013
 **Parent handoff:** ADR-102 PM execution trace and replay
-**Implementation source state:** service, schema, routes, migrations, and test assets are present in this repository. **WF00-observed test execution, production release, and live use:** NOT_RUN. **Generic controller installation/implementation:** NOT_IMPLEMENTED; **controller execution:** NOT_RUN.
+**Implementation source state:** service, schema, routes, migrations, and test assets are present in this repository. **WF00-observed test execution, production release, and live use:** NOT_RUN. The developer-only DDC controller and observation surfaces were retired by [ADR-113](../../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md); this does not retire the product Approval Gateway.
 
 This candidate packet is the phase-level companion to [ADR-103](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md).
 Its proposed boundary and acceptance remain candidate design. Source presence
@@ -48,9 +48,10 @@ PMR-013 is registered as canonical **FR-272**, as verified in the
 [canonical FR-272 record](../../requirements/FR-272.md) and
 [PMR-013 source requirement](../../domains/project-manager/requirements/PMR-013-proposal-requirement.md).
 FR-196 remains Identity segregation-of-duties context and is not repurposed.
-This status correction does not claim production deployment or a live generic
-controller: those gates remain NOT_RUN / NOT_IMPLEMENTED. See the
-[WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md).
+This status correction does not claim production deployment or live use; those
+gates remain NOT_RUN. See the historical
+[WF00 source reconciliation](../delivery-control/SOURCE-RECONCILIATION.md) for
+the retired developer-control context.
 
 ## 0. WF00 source reconciliation — 2026-10-10
 

@@ -169,6 +169,7 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
   const scopeFeatures = activeDomain
     ? snapshot.features.filter((feature) => feature.primaryDomain === activeDomain)
     : snapshot.features
+  const historicalFeatures = (snapshot.historicalFeatures ?? []).filter((feature) => !activeDomain || feature.primaryDomain === activeDomain)
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
@@ -207,7 +208,7 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
 
       <div className="mb-4 grid grid-cols-6 gap-3 max-xl:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
         <Kpi label="Domains" value={contextual.domainCount} meta={domain ? 'Selected implementation lane' : 'ADR-025 implementation lanes'} />
-        <Kpi label="Capabilities" value={contextual.featureCount} meta="Features + Standalone FRs" />
+        <Kpi label="Capabilities" value={contextual.featureCount} meta="Active Features + Standalone FRs" />
         <Kpi label="Ready" value={contextual.readyFeatureCount} meta={`${contextual.featureCount - contextual.readyFeatureCount} not ready`} tone={contextual.readyFeatureCount === contextual.featureCount ? 'good' : 'warn'} />
         <Kpi label="Progress" value={percent(contextual.progressPercent)} meta="20% declaration · 40% code · 40% tests" />
         <Kpi label="Verified FRs" value={`${contextual.verifiedRequirementCount}/${contextual.requirementCount}`} meta="Code and test evidence complete" />
@@ -266,6 +267,29 @@ export default function ProductReadinessDashboard({ snapshot, initialDomain = nu
           {filtered.length === 0 && <EmptyState title="ไม่พบรายการ ที่ตรงกับตัวกรอง" hint="ล้างคำค้นหรือเปลี่ยน readiness filter โดย KPI ด้านบนยังคง denominator เดิม" />}
         </div>
       </section>
+
+      {historicalFeatures.length > 0 && (
+        <section className="mt-6" aria-label="Superseded capability history">
+          <SectionTitle caption="Superseded records remain available for reference and are excluded from active readiness totals.">
+            Superseded capabilities (historical)
+          </SectionTitle>
+          <Card>
+            <ul className="space-y-2 text-[11px]">
+              {historicalFeatures.map((feature) => (
+                <li key={feature.id} className="rounded-lg border border-[var(--border)] p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <strong>{feature.id}</strong>
+                    <span className="pill pill-done">Superseded</span>
+                    <span className="text-muted">{domainLabel(feature.primaryDomain)}</span>
+                  </div>
+                  <p className="mt-1">{feature.title}</p>
+                  <p className="mt-1 text-muted">Historical requirements: {feature.requirementIds.join(', ')}</p>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </section>
+      )}
     </div>
   )
 }
