@@ -105,6 +105,90 @@ test('plan is read-only; apply pins four authored records without changing impor
   } finally { f.cleanup(); }
 });
 
+test('applied replay accepts later canonical projection regeneration but keeps migration-owned records pinned', () => {
+  const f = fixture();
+  try {
+    const receiptPath = path.join(f.root, manifestPath.replace('.manifest.json', '.receipt.json'));
+    assert.equal(applyRecordMigration(f.root, manifestPath).status, 'APPLIED');
+    const receiptBefore = readFileSync(receiptPath);
+    const featuresTemplate = 'registry/document-registry/FEATURES.template.md';
+    put(f.root, featuresTemplate, '# Features with later approved presentation metadata\n');
+    writeCanonicalProjections(f.root);
+    assert.equal(planRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+    assert.deepEqual(readFileSync(receiptPath), receiptBefore);
+
+    put(f.root, 'docs/requirements/FR-900.md', 'tampered migration-owned record\n');
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration record drift/);
+  } finally { f.cleanup(); }
+});
+
+test('applied replay rejects tampered before hashes against its pinned base', () => {
+  const f = fixture();
+  try {
+    const receiptPath = path.join(f.root, manifestPath.replace('.manifest.json', '.receipt.json'));
+    applyRecordMigration(f.root, manifestPath);
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    receipt.before['docs/.id-ledger.json'] = 'f'.repeat(64);
+    put(f.root, manifestPath.replace('.manifest.json', '.receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
+
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration before snapshot drift/);
+  } finally { f.cleanup(); }
+});
+
+test('applied replay finds a second-parent receipt origin and permits regenerated shared projections', () => {
+  const f = fixture();
+  const receiptRelativePath = manifestPath.replace('.manifest.json', '.receipt.json');
+  const firstParentBranch = git(f.root, ['branch', '--show-current']);
+  try {
+    f.save();
+    git(f.root, ['add', manifestPath]);
+    git(f.root, ['commit', '--quiet', '-m', 'commit migration manifest seed']);
+    git(f.root, ['branch', 'valid-line']);
+    git(f.root, ['checkout', '--quiet', 'valid-line']);
+    git(f.root, ['commit', '--allow-empty', '--quiet', '-m', 'pin migration base']);
+    f.manifest.base.commit = git(f.root, ['rev-parse', 'HEAD']);
+    f.manifest.approval.revision = git(f.root, ['rev-parse', `${firstParentBranch}~1`]);
+    f.save();
+
+    applyRecordMigration(f.root, manifestPath);
+    const receiptBytes = readFileSync(path.join(f.root, receiptRelativePath));
+    put(f.root, 'registry/document-registry/FEATURES.template.md', '# Regenerated feature projection\n');
+    writeCanonicalProjections(f.root);
+    git(f.root, ['add', '-A']);
+    git(f.root, ['commit', '--quiet', '-m', 'apply migration and regenerate shared projection']);
+    const validOrigin = git(f.root, ['rev-parse', 'HEAD']);
+
+    git(f.root, ['checkout', '--quiet', firstParentBranch]);
+    put(f.root, receiptRelativePath, receiptBytes.toString());
+    git(f.root, ['add', receiptRelativePath]);
+    git(f.root, ['commit', '--quiet', '-m', 'add receipt on first-parent history']);
+    git(f.root, ['merge', '--no-edit', '--no-ff', 'valid-line']);
+
+    const defaultHistoryAdds = git(f.root, ['log', '--diff-filter=A', '--format=%H', '--', receiptRelativePath]).split(/\s+/);
+    const fullHistoryAdds = git(f.root, ['log', '--full-history', '--diff-filter=A', '--format=%H', '--', receiptRelativePath]).split(/\s+/);
+    assert.ok(!defaultHistoryAdds.includes(validOrigin), 'default path simplification must hide the valid second-parent origin');
+    assert.ok(fullHistoryAdds.includes(validOrigin), 'full history must retain the valid second-parent origin');
+    assert.equal(planRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+  } finally { f.cleanup(); }
+});
+
+test('applied replay rejects changed historical output hashes from the committed receipt', () => {
+  const f = fixture();
+  try {
+    const receiptRelativePath = manifestPath.replace('.manifest.json', '.receipt.json');
+    const receiptPath = path.join(f.root, receiptRelativePath);
+    applyRecordMigration(f.root, manifestPath);
+    git(f.root, ['add', '-A']);
+    git(f.root, ['commit', '--quiet', '-m', 'commit applied migration receipt']);
+
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    receipt.outputs['docs/PRD-SDD-v1.0.md'] = 'f'.repeat(64);
+    put(f.root, receiptRelativePath, `${JSON.stringify(receipt, null, 2)}\n`);
+
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration receipt drift/);
+  } finally { f.cleanup(); }
+});
+
 for (const fault of ['unsupported-version', 'wrong-family', 'collision', 'reserved', 'burnt', 'namespace', 'stale-base', 'stale-index', 'stale-ledger', 'wrong-anchor', 'duplicate', 'unknown-field', 'inherit-subject']) {
   test(`rejects ${fault} before changing tracked sources`, () => {
     const f = fixture();
@@ -203,7 +287,8 @@ test('reviewed registration after authored issuance maintains unique export orde
     assert.equal(index.records.find(record => record.id === 'FR-903').exportOrder, 1);
     assert.equal(index.records.find(record => record.id === 'FR-900').exportOrder, 2);
     assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
-    assert.throws(() => applyRecordMigration(f.root, manifestPath), /output|drift/);
+    assert.equal(applyRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+    assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
   } finally { f.cleanup(); }
 });
 

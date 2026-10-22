@@ -8614,6 +8614,31 @@
       "requirementCells": [],
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 504
+    },
+    {
+      "id": "FR-290",
+      "namespace": "ZAI",
+      "family": "FR",
+      "recordVersion": 2,
+      "status": "active",
+      "path": "docs/requirements/FR-290.md",
+      "provenance": "authored",
+      "authoredBaseRevision": "969b1b381d99dc8b18e00e45c1a8ea7e4e5b47de",
+      "approvalRevision": "969b1b381d99dc8b18e00e45c1a8ea7e4e5b47de",
+      "approvalPath": "docs/change-requests/integration/TASK017-FLOWACCOUNT-MCP-FR290-REASSESSMENT-20261022.md",
+      "approvalVersion": "1.0.0",
+      "approvalSha256": "a22e09281a0c046f6beeb4aa96a5856e7d519d9422b323c94e98e5a0c637d41c",
+      "migrationId": "flowaccount-mcp-v1-20261022",
+      "manifestPath": "docs/migrations/document-reintegration/record-migrations/flowaccount-mcp-v1-20261022.manifest.json",
+      "manifestSha256": "a7ebb416ea0aae56cfa0daa06b9b6b8e4e9b41910686950d5f2fbd8971e441df",
+      "rowSha256": "5e5a79a100b188faea6f251489bd1946445c6f000e87b287bec4535251d71df7",
+      "statementSha256": "690d5dc41d1cba1636d2beba7c4c18b9aa43b79efc999514c1087e6b78cd9740",
+      "subjectAnchor": "official flowaccount mcp connector",
+      "recordSha256": "c0b950dcda1ea76192852e4db37ce9d968be3e040c6e776c4ce3f8f2ab39fb98",
+      "statementCell": 2,
+      "requirementCells": [],
+      "exportDocument": "docs/PRD-SDD-v1.0.md",
+      "exportOrder": 505
     }
   ]
 }

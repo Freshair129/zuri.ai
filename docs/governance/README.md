@@ -37,6 +37,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [CR-019 — 24-week programme: deliverable 11, ERP business modules](../change-requests/CR-019-24W-PROGRAMME-DELIVERABLE-11-ERP-BUSINESS-MODULES.md)
 - [CR-020 — Observability gaps: error tracking and feature usage](../change-requests/CR-020-OBSERVABILITY-ERROR-TRACKING-AND-FEATURE-USAGE.md)
 - [Platform Control login and forbidden response](../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md)
+- [TASK-ZAI-017 — FlowAccount additive FR-290 reassessment](../change-requests/integration/TASK017-FLOWACCOUNT-MCP-FR290-REASSESSMENT-20261022.md)
 - [Managed binary knowledge parsing and immutable source locations](../change-requests/knowledge/binary-document-parsing-20261018.md)
 - [Local Zuri documentation graph studio](../change-requests/knowledge/knowledge-studio-20261019.md)
 - [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
