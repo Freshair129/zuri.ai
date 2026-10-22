@@ -203,7 +203,8 @@ test('reviewed registration after authored issuance maintains unique export orde
     assert.equal(index.records.find(record => record.id === 'FR-903').exportOrder, 1);
     assert.equal(index.records.find(record => record.id === 'FR-900').exportOrder, 2);
     assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
-    assert.throws(() => applyRecordMigration(f.root, manifestPath), /output|drift/);
+    assert.equal(applyRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+    assert.equal(readFileSync(path.join(f.root, receiptPath), 'utf8'), receipt);
   } finally { f.cleanup(); }
 });
 
