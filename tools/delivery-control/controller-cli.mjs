@@ -745,7 +745,7 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         catch {
           const detail = 'Registration failed and durable controller state could not be reconciled.';
           const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
-            new Date(currentTime).toISOString(), 'POST_REGISTRATION_ATTEMPT');
+            new Date(currentTime).toISOString(), 'POST_REGISTRATION_ATTEMPT', stableBindingDigest(binding));
           const saved = updateReconciliation(file, binding.taskId, (state) => {
             state.stickyHold ??= pending.hold;
             return state;

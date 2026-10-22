@@ -870,6 +870,11 @@ test('CLI intake recovers a pre-registration unknown hold after dependencies cha
   assert.equal(first.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
   assert.equal(registrationCalls, 0);
 
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.match(stateBefore.stickyHold.bindingDigest, /^[a-f0-9]{64}$/);
+
   f.task.dependencies = [{ taskId: 'DEP-DONE' }];
   fs.writeFileSync(f.taskFile, JSON.stringify(f.task));
   const changedPreflight = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
@@ -881,8 +886,6 @@ test('CLI intake recovers a pre-registration unknown hold after dependencies cha
   assert.equal(recovered.code, 'TASK_REGISTRATION_CONFIRMED');
   assert.notEqual(recovered.fingerprint, first.fingerprint);
   assert.equal(registrationCalls, 1);
-  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
-    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
   const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   assert.equal(stateAfter.stickyHold, undefined);
   assert.equal(stateAfter.reconciledStickyHolds.at(-1).hold.fingerprint, first.fingerprint);
@@ -942,6 +945,63 @@ test('CLI intake reconciles a stale pre-registration hold for a matching durable
   assert.equal(stateAfter.reconciledStickyHolds.at(-1).hold.fingerprint, first.fingerprint);
   assert.equal(stateAfter.reconciledStickyHolds.at(-1).resolution, 'MATCHING_DURABLE_REGISTRATION');
   assert.equal(stateAfter.stickyHold, undefined);
+});
+
+test('CLI intake keeps a stale pre-registration hold quarantined when a changed fingerprint has a mismatched binding digest', async (t) => {
+  const f = candidateFixture(t);
+  f.task.dependencies = [{ taskId: 'DEP-DONE' }];
+  fs.writeFileSync(f.taskFile, JSON.stringify(f.task));
+  const controller = await openDeliveryController({ repoRoot: f.worktree });
+  f.cleanupHooks.push(() => controller.close());
+  const config = intakeConfig(f);
+  const originalPreflight = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: f.baseCommit });
+  controller.registerTask({ taskRecord: f.task, preflightResult: originalPreflight, worktreeRoot: f.worktree,
+    trustedMandateBinding: config.tasks[0].trustedMandateBinding });
+  const getRun = controller.getRun.bind(controller);
+  let getRunCalls = 0;
+  let registrationCalls = 0;
+  const uncertainController = new Proxy(controller, { get(target, property) {
+    if (property === 'getRun') return (taskId) => {
+      getRunCalls++;
+      if (getRunCalls === 1) throw Object.assign(new Error('fixture pre-registration read failure'), { code: 'FIXTURE_READ_FAILURE' });
+      return getRun(taskId);
+    };
+    if (property === 'registerTask') return (input) => { registrationCalls++; return controller.registerTask(input); };
+    const value = Reflect.get(target, property, target);
+    return typeof value === 'function' ? value.bind(target) : value;
+  } });
+
+  const first = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(first.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(registrationCalls, 0);
+  const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+    `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+  const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.match(stateBefore.stickyHold.bindingDigest, /^[a-f0-9]{64}$/);
+
+  stateBefore.stickyHold.bindingDigest = 'f'.repeat(64);
+  fs.writeFileSync(stateFile, JSON.stringify(stateBefore));
+  const roadmapFile = path.join(f.worktree, 'docs', 'roadmap', 'ROADMAP.md');
+  fs.writeFileSync(roadmapFile, fs.readFileSync(roadmapFile, 'utf8').replace('Fixture evidence.', 'Updated dependency evidence.'));
+  f.git(['add', 'docs/roadmap/ROADMAP.md']);
+  f.git(['commit', '-qm', 'update fixture dependency evidence']);
+  const nextBase = f.git(['rev-parse', 'HEAD']);
+  config.tasks[0].base = nextBase;
+  const changedPreflight = preflightTask({ repo: f.worktree, taskFile: f.taskFile, base: nextBase });
+  assert.equal(changedPreflight.status, 'READY');
+  assert.notEqual(changedPreflight.dependencies[0].roadmapEvidence, originalPreflight.dependencies[0].roadmapEvidence);
+
+  const held = (await admitConfiguredTasks({ controller: uncertainController, repoRoot: f.worktree,
+    config, cache: new Map() }))[0];
+  assert.equal(held.code, 'DURABLE_CONTROLLER_STATE_UNKNOWN');
+  assert.equal(held.hold, true);
+  assert.equal(registrationCalls, 0);
+  assert.equal(controller.getRun(f.task.taskId).currentCycle, 1);
+  const stateAfter = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+  assert.equal(stateAfter.stickyHold.bindingDigest, 'f'.repeat(64));
+  assert.equal(stateAfter.stickyHold.fingerprint, first.fingerprint);
+  assert.equal(stateAfter.reconciledStickyHolds, undefined);
 });
 
 test('CLI intake converts post-registration authoritative absence to bounded retry without a hot re-register', async (t) => {
@@ -1029,6 +1089,7 @@ test('CLI intake keeps a post-registration unknown hold quarantined after depend
     `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
   const stateBefore = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
   assert.equal(stateBefore.stickyHold.phase, 'POST_REGISTRATION_ATTEMPT');
+  assert.match(stateBefore.stickyHold.bindingDigest, /^[a-f0-9]{64}$/);
 
   f.task.dependencies = [{ taskId: 'DEP-DONE' }];
   fs.writeFileSync(f.taskFile, JSON.stringify(f.task));
