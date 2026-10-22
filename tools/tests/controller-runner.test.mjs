@@ -509,6 +509,52 @@ test('CLI intake retries a registration failure only after a durable no-effect b
   assert.equal(controller.getRun(f.task.taskId).cycles[0].implementationRepairs, 0);
 });
 
+test('CLI intake fails closed when durable RETRY_WAIT attempts or retryAt are missing or malformed', async (t) => {
+  const corruptions = [
+    ['missing attempts', (record) => { delete record.attempts; }],
+    ['malformed attempts', (record) => { record.attempts = '1'; }],
+    ['missing retryAt', (record) => { delete record.retryAt; }],
+    ['malformed retryAt', (record) => { record.retryAt = 'not-a-date'; }],
+  ];
+
+  for (const [name, corrupt] of corruptions) {
+    await t.test(name, async (subtest) => {
+      const f = candidateFixture(subtest);
+      const controller = await openDeliveryController({ repoRoot: f.worktree });
+      f.cleanupHooks.push(() => controller.close());
+      const config = intakeConfig(f);
+      const clock = Date.parse('2030-01-01T00:00:00.000Z');
+      let registrationCalls = 0;
+      controller.registerTask = () => {
+        registrationCalls++;
+        throw Object.assign(new Error('fixture pre-commit failure'), { code: 'FIXTURE_NO_EFFECT' });
+      };
+
+      const first = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+        cache: new Map(), now: () => clock }))[0];
+      assert.equal(first.code, 'REGISTRATION_RETRY_BACKOFF');
+      assert.equal(first.attempts, 1);
+      assert.equal(registrationCalls, 1);
+
+      const stateFile = path.join(path.dirname(controller.databasePath), 'admission-reconciliation',
+        `${createHash('sha256').update(f.task.taskId).digest('hex')}.json`);
+      const state = JSON.parse(fs.readFileSync(stateFile, 'utf8'));
+      const record = state.records[first.fingerprint];
+      assert.equal(record.state, 'RETRY_WAIT');
+      corrupt(record);
+      fs.writeFileSync(stateFile, JSON.stringify(state));
+
+      const held = (await admitConfiguredTasks({ controller, repoRoot: f.worktree, config,
+        cache: new Map(), now: () => clock }))[0];
+      assert.equal(held.code, 'ADMISSION_RECONCILIATION_STATE_UNKNOWN');
+      assert.equal(held.hold, true);
+      assert.equal(registrationCalls, 1);
+      assert.equal(controller.getRun(f.task.taskId), null);
+      assert.deepEqual(JSON.parse(fs.readFileSync(stateFile, 'utf8')).records[first.fingerprint], record);
+    });
+  }
+});
+
 test('CLI intake reconciles a commit-then-error without duplicate runs, cycles, locks, or events', async (t) => {
   const f = candidateFixture(t);
   const controller = await openDeliveryController({ repoRoot: f.worktree });

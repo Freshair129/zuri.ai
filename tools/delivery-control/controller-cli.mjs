@@ -179,6 +179,10 @@ function readReconciliation(file, taskId) {
               || record.attempts > MAX_REGISTRATION_ATTEMPTS
               || typeof record.reservedAt !== 'string' || !Number.isFinite(Date.parse(record.reservedAt))
               || typeof record.confirmedAt !== 'string' || !Number.isFinite(Date.parse(record.confirmedAt))))
+          || (record.state === 'RETRY_WAIT'
+            && (!Number.isSafeInteger(record.attempts) || record.attempts < 1
+              || record.attempts >= MAX_REGISTRATION_ATTEMPTS
+              || typeof record.retryAt !== 'string' || !Number.isFinite(Date.parse(record.retryAt))))
           || (record.state === 'HOLD_SCOPE_CONFLICT'
             && !['worktree', 'writeScope', 'domain'].every((key) => Array.isArray(record.conflictSnapshot?.[key])))) {
         return { error: new Error('ADMISSION_STATE_RECORD_MISMATCH') };
