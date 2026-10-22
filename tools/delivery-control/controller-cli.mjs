@@ -64,12 +64,25 @@ function semanticDigest(value) {
 }
 
 function samePath(left, right) {
-  const normalize = (value) => {
-    let resolved = path.resolve(value);
-    try { resolved = fs.realpathSync.native(resolved); } catch {}
-    return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
-  };
-  return normalize(left) === normalize(right);
+  return pathIdentity(left) === pathIdentity(right);
+}
+
+function pathIdentity(value) {
+  let resolved = path.resolve(value);
+  try { resolved = fs.realpathSync.native(resolved); } catch {}
+  return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+}
+
+function stableBindingDigest(binding) {
+  return semanticDigest({ taskId: binding.taskId, worktree: pathIdentity(binding.worktree),
+    mandateDigest: semanticDigest(binding.trustedMandateBinding) });
+}
+
+function runMatchesStableIdentity(run, binding) {
+  return Boolean(run
+    && run.taskId === binding.taskId
+    && run.trustedMandateBinding?.digest === semanticDigest(binding.trustedMandateBinding)
+    && samePath(run.worktreeRoot, binding.worktree));
 }
 
 function runMatchesIdentity(run, binding, taskRecord) {
@@ -91,6 +104,13 @@ function runMatchesRegistrationInput(run, binding, taskRecord, preflightResult) 
       === JSON.stringify(normalizeSemantic(preflightResult.dependencies ?? [])));
 }
 
+function isCanonicalUtcTimestamp(value) {
+  return typeof value === 'string'
+    && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(value)
+    && Number.isFinite(Date.parse(value))
+    && new Date(value).toISOString() === value;
+}
+
 function inspectLockConflictSnapshot(controller, taskId, taskRecord) {
   const inspected = controller.inspectCycleAdmissionConflicts({ taskId, writeScope: taskRecord.writeScope });
   return normalizeSemantic({
@@ -104,13 +124,15 @@ function hasLockConflicts(snapshot) {
   return ['worktree', 'writeScope', 'domain'].some((key) => Array.isArray(snapshot?.[key]) && snapshot[key].length > 0);
 }
 
-function pendingSticky(fingerprint, code, detail, recordedAt, phase) {
-  return { kind: 'sticky', hold: { fingerprint, code, detail, recordedAt, ...(phase ? { phase } : {}) } };
+function pendingSticky(fingerprint, code, detail, recordedAt, phase, bindingDigest) {
+  return { kind: 'sticky', hold: { fingerprint, code, detail, recordedAt,
+    ...(phase ? { phase } : {}), ...(bindingDigest ? { bindingDigest } : {}) } };
 }
 
-function isCurrentUnknownHold(hold, fingerprint) {
+function isCurrentUnknownHold(hold, fingerprint, bindingDigest) {
   return hold?.code === 'DURABLE_CONTROLLER_STATE_UNKNOWN'
     && hold.fingerprint === fingerprint
+    && (hold.bindingDigest === undefined || hold.bindingDigest === bindingDigest)
     && (hold.phase === undefined || UNKNOWN_HOLD_PHASES.includes(hold.phase));
 }
 
@@ -182,7 +204,7 @@ function readReconciliation(file, taskId) {
           || (record.state === 'RETRY_WAIT'
             && (!Number.isSafeInteger(record.attempts) || record.attempts < 1
               || record.attempts >= MAX_REGISTRATION_ATTEMPTS
-              || typeof record.retryAt !== 'string' || !Number.isFinite(Date.parse(record.retryAt))))
+              || !isCanonicalUtcTimestamp(record.retryAt)))
           || (record.state === 'HOLD_SCOPE_CONFLICT'
             && !['worktree', 'writeScope', 'domain'].every((key) => Array.isArray(record.conflictSnapshot?.[key])))) {
         return { error: new Error('ADMISSION_STATE_RECORD_MISMATCH') };
@@ -191,6 +213,10 @@ function readReconciliation(file, taskId) {
     if (state.stickyHold && (typeof state.stickyHold.code !== 'string'
         || !/^[a-f0-9]{64}$/.test(state.stickyHold.fingerprint ?? ''))) {
       return { error: new Error('ADMISSION_STATE_HOLD_MISMATCH') };
+    }
+    if (state.stickyHold?.bindingDigest !== undefined
+        && !/^[a-f0-9]{64}$/.test(state.stickyHold.bindingDigest)) {
+      return { error: new Error('ADMISSION_STATE_HOLD_BINDING_MISMATCH') };
     }
     if (state.stickyHold?.phase !== undefined && !UNKNOWN_HOLD_PHASES.includes(state.stickyHold.phase)) {
       return { error: new Error('ADMISSION_STATE_HOLD_PHASE_MISMATCH') };
@@ -283,7 +309,7 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
       catch {
         const detail = 'Durable controller state could not be read.';
         const pending = pendingSticky(fingerprint, 'DURABLE_CONTROLLER_STATE_UNKNOWN', detail,
-          new Date(epochMs(now)).toISOString(), 'PRE_REGISTRATION_LOOKUP');
+          new Date(epochMs(now)).toISOString(), 'PRE_REGISTRATION_LOOKUP', stableBindingDigest(binding));
         const saved = updateReconciliation(file, binding.taskId, (state) => {
           state.stickyHold ??= pending.hold;
           return state;
@@ -302,8 +328,14 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         continue;
       }
       const stickyHold = loaded.state.stickyHold;
-      const reconcilableUnknownHold = isCurrentUnknownHold(stickyHold, fingerprint);
-      if (stickyHold && !reconcilableUnknownHold) {
+      const bindingDigest = stableBindingDigest(binding);
+      const reconcilableUnknownHold = isCurrentUnknownHold(stickyHold, fingerprint, bindingDigest);
+      const reconcilableStalePreRegistrationHold = stickyHold?.code === 'DURABLE_CONTROLLER_STATE_UNKNOWN'
+        && stickyHold.phase === 'PRE_REGISTRATION_LOOKUP'
+        && stickyHold.fingerprint !== fingerprint
+        && stickyHold.bindingDigest === bindingDigest
+        && (!existing || runMatchesStableIdentity(existing, binding));
+      if (stickyHold && !reconcilableUnknownHold && !reconcilableStalePreRegistrationHold) {
         observe(observations, holdObservation(binding.taskId, stickyHold.code, {
           fingerprint: stickyHold.fingerprint, detail: stickyHold.detail,
         }), runner, cache, fingerprint);
@@ -336,9 +368,12 @@ export async function admitConfiguredTasks({ controller, repoRoot, config, cache
         continue;
       }
 
-      if (reconcilableUnknownHold) {
+      if (reconcilableUnknownHold || reconcilableStalePreRegistrationHold) {
         if (existing) {
-          if (!runMatchesRegistrationInput(existing, binding, taskRecord, preflightResult)) {
+          const matchesUnknownHold = reconcilableStalePreRegistrationHold
+            ? runMatchesStableIdentity(existing, binding)
+            : runMatchesRegistrationInput(existing, binding, taskRecord, preflightResult);
+          if (!matchesUnknownHold) {
             observe(observations, holdObservation(binding.taskId, stickyHold.code, {
               fingerprint: stickyHold.fingerprint, detail: 'Durable state does not match the input bound to the unknown hold.',
             }), runner, cache, fingerprint);
