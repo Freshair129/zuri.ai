@@ -1,7 +1,10 @@
 {
   "policyId": "AUTONOMOUS-CODING-DELIVERY-MODEL-POLICY",
   "version": 4,
-  "status": "ACTIVE",
+  "status": "RETIRED",
+  "retiredOn": "2026-10-22",
+  "supersededBy": "ADR-113",
+  "retirementNotice": "Historical policy snapshot only. It grants no current task admission, preflight, dispatch, model-selection, or execution authority.",
   "authority": {
     "ownerDirectionDate": "2026-10-15",
     "source": "Direct current user task or standing delegation evidenced in trusted conversation or harness context",
@@ -413,7 +416,7 @@
     "highRiskEffectsRequireRiskSpecificGrantAndEvidence": true
   },
   "runtimeBoundary": {
-    "agentProcedurePolicy": "ACTIVE_V4",
+    "agentProcedurePolicy": "RETIRED_BY_ADR_113",
     "localContractValidator": "EXISTS",
     "durableLedger": "NOT_ASSUMED_SHIPPED",
     "runtimeController": "NOT_ASSUMED_SHIPPED",
@@ -429,8 +432,8 @@
     "draftPreparationCounterEnforcement": "LEGACY_V3_ONLY; no v4 ordinary task reservation is created"
   },
   "ordinaryPreflight": {
-    "status": "ACTIVE",
-    "enabled": true,
+    "status": "RETIRED",
+    "enabled": false,
     "schema": "task-readiness/v1",
     "tool": "tools/delivery-control/preflight.mjs",
     "invocation": "node tools/delivery-control/preflight.mjs --task-file <path> --base origin/main",
@@ -522,7 +525,7 @@
     "ordinaryV4UsesHistoricalCaps": false,
     "auditPolicy": {
       "version": 3,
-      "status": "ACTIVE",
+      "status": "RETIRED",
       "packetPreflight": {
         "draftPreparation": {
           "stage": "DRAFT_NOT_ADMITTED",

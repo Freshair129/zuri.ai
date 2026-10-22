@@ -19,34 +19,21 @@ preserves old v1 evidence and adds opt-in v2 reads. After changing source record
 run `docs:registry`, `docs:graph`, then `docs:views`; run the full `govern` chain,
 including registry, identity and view freshness checks, after document changes.
 
-## Autonomous coding delivery (2026-10-14)
+## Coding delivery — Git review and repository CI (2026-10-22)
 
-Follow the active v2 procedure in
-[`docs/architecture/delivery-control/WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
-and its single machine-readable authority,
-[`model-policy.json`](docs/architecture/delivery-control/contracts/model-policy.json).
-The root agent derives bounded admissions from the standing owner objective and
-trusted mandate. The direct current user task or standing delegation already
-evidenced in trusted conversation or harness context is sufficient provenance;
-root records the source message/reference, repository, objective, effects and
-prohibitions once and packets reference that record. G0 is agent preflight; there
-is no per-gate human approval or need for a user-authored packet/signature.
-This policy supersedes earlier routine per-node and per-gate human approval
-requirements for in-scope coding and documentation work. Explicit user
-prohibitions and required external grants remain binding.
-Actual dispatch requires the root-recorded mandate and verified authority
-binding from trusted conversation or harness evidence; copied packet fields or a
-structural validator result alone are not authorization. Route process decisions
-and in-scope repairs to Sol. Preserve all existing scope and production limits,
-require evidence for the exact revision, and permit commit/push/PR/merge only
-when they are already included in the trusted mandate. The local contract
-validator does not establish that a durable controller or ledger has shipped.
-Historical packets and receipts remain immutable; the policy update is a
-separate objective and does not reset an existing lineage.
+[ADR-113](docs/decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) retires
+the developer-only DDC task preflight, controller, supervisor, worker
+observation pipeline, and dedicated Mission Control surfaces. Do not use DDC
+commands, task records, receipts, or machine policies for current work.
 
-Version diff (2026-10-14): adds the autonomous delivery entry point and
-trusted-mandate dispatch boundary. No product requirement or runtime authority
-is changed.
+Follow the root [AGENTS.md](AGENTS.md), applicable product and architecture
+sources, the scoped [verification policy](docs/architecture/VERIFICATION-POLICY.md),
+normal Git branch/PR review, and exact-head hosted CI. Run change-relevant tests
+and document governance checks; obtain independent review for substantive
+changes. Production, destructive, and security-sensitive actions still require
+their actual environment-specific authority. Business Project Manager and
+product approval workflows, documentation governance, verification selection,
+and regular CI remain active and separate from DDC.
 
 ## Monorepo paths (ADR-062, 2026-09-06)
 
@@ -407,9 +394,9 @@ runs this chain and the applicable PR tests/build. Main retains full Server
 tests/build; E2E is scheduled/manual under the current verification policy.
 
 Run `docs:graph` **and** `docs:preflight` after any change that adds a route, a
-model, a requirement or a document. Both write machine-readable reports
-(`docs/.doc-graph.json`, `docs/.preflight-report.json`) that the roadmap and
-GoVibe Mission Control read.
+model, a requirement or a document. They write local/CI diagnostics
+(`docs/.doc-graph.json`, `docs/.preflight-report.json`); Knowledge Studio reads
+the generated document graph, while `/control/roadmap` reads the roadmap state.
 
 ### Where documentation lives (ADR-025 — domain-driven spine)
 
@@ -426,7 +413,7 @@ docs/TRACE.md                   GENERATED — the chain per FR: surface → code
 docs/ARCHITECTURE-TARGET-MODULAR-MONOLITH.md  target architecture (Draft — taxonomy adopted, runtime not yet)
 docs/decisions/ADR-*.md         decisions (ADR-024 = direction, ADR-025 = this structure)
 docs/appendices/                A api - B db - D traceability (generated) - E risks - F glossary
-docs/roadmap/                   live delivery state (GoVibe Mission Control reads this)
+docs/roadmap/                   live delivery state (`/control/roadmap` reads this)
 docs/archive/                   cold store — frozen records, excluded from all checks
 ```
 

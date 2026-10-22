@@ -95,7 +95,7 @@ export function parseCanonicalRecord(text) {
     if (!/^docs\/change-requests\/(?!.*(?:^|\/)\.\.(?:\/|$))[A-Za-z0-9._/-]+\.md$/.test(migrationDocument)) {
       fail('migration_document must be a safe path under docs/change-requests');
     }
-    if (family !== 'FR' || fields.feature_id) fail('reviewed-migration records currently support standalone FR records only');
+    if (!['FEAT', 'FR'].includes(family)) fail('reviewed-migration records support existing FEAT/FR registry rows only');
   }
   const sourcePath = requiredText(fields.source_path, 'source_path');
   if (!REGISTRY_PATHS.has(sourcePath)) fail(`unsupported source_path: ${sourcePath}`);
@@ -307,11 +307,26 @@ export function validateReviewedProvenance(record, readSource) {
 
 /** One identity/provenance comparison used by filesystem and snapshot readers. */
 export function validateCanonicalEntry(record, entry, index) {
+  const existingSourceMigration = record.recordVersion === 1
+    && record.status === 'reviewed-migration'
+    && entry.recordVersion === 1
+    && entry.status === 'source-preserved'
+    && record.id === entry.id
+    && record.namespace === entry.namespace
+    && record.family === entry.family
+    && record.sourcePath === entry.sourcePath
+    && record.featureId === entry.featureId;
   const keys = ['id', 'namespace', 'family', 'recordVersion', 'status', 'statementCell', 'featureId'];
   if (record.recordVersion === 1) {
     keys.push('sourcePath', 'sourceRowSha256');
     keys.push('migrationBaseRevision', 'migrationDocument');
     if (record.status === 'source-preserved' && record.sourceRevision !== index.sourceRevision) fail(`${record.id} source revision differs from index`);
+    if (existingSourceMigration) {
+      const migratedKeys = new Set(['status', 'sourceRowSha256', 'migrationBaseRevision', 'migrationDocument']);
+      for (const key of keys) if (!migratedKeys.has(key) && record[key] !== entry[key]) fail(`${record.id} index ${key} does not match its canonical record`);
+      if (JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells ?? [])) fail(`${record.id} requirementCells differ`);
+      return { existingSourceMigration: true };
+    }
   } else keys.push('provenance', ...authoredProvenanceKeys);
   for (const key of keys) if (record[key] !== entry[key]) fail(`${record.id} index ${key} does not match its canonical record`);
   if (JSON.stringify(record.requirementCells) !== JSON.stringify(entry.requirementCells ?? [])) fail(`${record.id} requirementCells differ`);

@@ -730,7 +730,9 @@ function featureMap(nodes, edges) {
       const tests = edges.filter((e) => e.to === r.id && e.type === 'verifies').length
       const doc = featureDocs.get(fid)
       const modules = [...new Set(code.map(moduleOf))].join(', ') || '—'
-      const status = code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
+      const status = r.status === 'superseded'
+        ? '⚫ superseded'
+        : code.length === 0 ? '🔜 planned' : r.declared === 'planned' ? '🟠 built, not declared' : '✅ live'
       const head = code.length > 2 ? `\`${code[0]}\` +${code.length - 1}` : code.map((c) => `\`${c}\``).join(', ') || '—'
       return `| ${fid} | ${cell(r.label)} | ${doc?.domain || '—'} | ${modules} | ${doc?.source || 'v2-native'} | ${status} | ${head} | ${tests} | ${doc ? `[doc](${doc.path.replace('docs/', '')})` : '—'} | ${deliveryTask(fid, code.length > 0)} | ${classification.get(fid).classification} | ${classification.get(fid).featureId || '—'} |`
     })

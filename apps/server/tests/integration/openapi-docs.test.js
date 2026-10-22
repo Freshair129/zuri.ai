@@ -301,12 +301,11 @@ describe('OpenAPI document', () => {
       // and session-step paths, each with one explicit mutation operation:
       // 336 + 7 = 343 paths; 441 + 7 = 448 operations.
       // FR-285 adds one path and five operations, including three refusals.
-      // FR-260 adds the read-only Worker observation path with five explicit refusal methods.
       // FR-026 adds the authenticated Agent approval queue and decision paths.
-      // Baseline 344 paths / 453 operations + 3 paths / 8 operations for FR-026
-      // and 2 notification paths / 2 operations plus 2 FR-289 read paths = 351 / 465.
-      pathCount: 351,
-      operationCount: 465,
+      // Baseline plus current routes after retiring Mission Control and worker
+      // observability: 350 paths / 459 operations.
+      pathCount: 350,
+      operationCount: 459,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get

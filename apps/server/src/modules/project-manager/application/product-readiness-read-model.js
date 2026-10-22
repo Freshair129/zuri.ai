@@ -23,6 +23,10 @@ const readinessSnapshot = {
     ...item,
     kind: item.id.startsWith('FEAT-') ? 'feature' : 'standalone-fr',
   })),
+  historicalFeatures: (domainState.historicalFeatures ?? []).map(item => ({
+    ...item,
+    kind: item.id.startsWith('FEAT-') ? 'feature' : 'standalone-fr',
+  })),
 }
 
 export function getProductReadinessSnapshot() {
@@ -35,6 +39,7 @@ export function getProductReadinessDomain(domainName) {
     domainName,
     domain: domainState.domains[domainName],
     features: readinessSnapshot.features.filter((feature) => feature.primaryDomain === domainName),
+    historicalFeatures: readinessSnapshot.historicalFeatures.filter((feature) => feature.primaryDomain === domainName),
   }
 }
 

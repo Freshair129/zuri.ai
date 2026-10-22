@@ -87,6 +87,13 @@ describe('FR-219 task cards', () => {
     expect(html).not.toContain('data-testid="task-subtasks-TASK-ZAI-005"')
   })
 
+  it('keeps completed subtask receipts historical when the parent task is retired', () => {
+    const html = render()
+    expect(html).toContain('data-testid="task-subtasks-TASK-ZAI-119"')
+    expect(html).toContain('retired · historical subtask states')
+    expect(html).not.toContain('TASK-ZAI-119 subtask progress')
+  })
+
   it('keeps task plan tokens separate from a directly measured actual', () => {
     const html = render({
       taskUsageLedger: {

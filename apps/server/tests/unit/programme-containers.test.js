@@ -13,8 +13,10 @@ import {
   parseContainerBlock,
   replaceUsageBlock,
   parseUsageBlock,
+  parseRoadmapTaskLedger,
   repositoryFileExists,
   validateDeliveryPlan,
+  validateRoadmapSot,
 } from '../../scripts/programme-containers.mjs'
 import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap-containers'
 import { PROGRAMME_LANES, PROGRAMME_SIZING } from '@/modules/platform-control/program-roadmap-telemetry'
@@ -95,6 +97,13 @@ describe('FR-219 subtasks', () => {
     expect(y.subtasks).toEqual([{ id: 'P0', title: 'First half', status: 'done' }, { id: 'P1', title: 'Second half: with a colon', status: 'planned' }])
     expect(() => buildContainers({ markdown: documentWith(block('\nsubtasks:\n  - id: Phase-1\n    title: x\n    status: done')), fileExists: () => true })).toThrow(/is not P0..P9/)
     expect(() => buildContainers({ markdown: documentWith(block('\nsubtasks:\n  - id: P0\n    title: x')), fileExists: () => true })).toThrow(/needs a title and a status/)
+  })
+
+  it('parses owner-retired work without treating it as done or accepted', () => {
+    const ledger = parseRoadmapTaskLedger(`<!-- roadmap-task-ledger:start -->
+| TASK-ZAI-900 | SPR-ZAI-02 | Retired by ADR-113 | retired | HOSTED_CI | RETIRED | - | ADR-113 | Acceptance not claimed |
+<!-- roadmap-task-ledger:end -->`)
+    expect(ledger.get('TASK-ZAI-900')).toMatchObject({ status: 'retired', implementationState: 'RETIRED', authority: 'ADR-113' })
   })
 })
 

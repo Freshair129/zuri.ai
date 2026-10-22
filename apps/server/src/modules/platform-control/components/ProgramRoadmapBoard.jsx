@@ -14,7 +14,7 @@
 // @tested tests/unit/platform-control-route-contract.test.js, tests/unit/platform-control-domain-map.test.js, tests/unit/program-roadmap-board-telemetry.test.js, tests/unit/programme-member-view.test.js
 
 import { useState } from 'react'
-import { Activity, Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
+import { Boxes, ChevronDown, ClipboardList, Flag, Gauge, History, Layers3, ShieldCheck } from 'lucide-react'
 import { Card, Kpi, PageHeader, ProgressBar, StatusPill } from '@/components/ui'
 import {
   PROGRAMME_DELIVERABLES,
@@ -37,7 +37,6 @@ import {
 } from '@/modules/platform-control/program-delivery-metrics'
 import { TONE_WORD } from '@/modules/platform-control/program-task-evidence'
 import DomainMapView from './DomainMapView'
-import WorkerObservabilityPanel from './WorkerObservabilityPanel'
 import TiltCard from './TiltCard'
 import styles from './program-roadmap-board.module.css'
 
@@ -77,7 +76,7 @@ function Criterion({ label, tone, item }) {
 // ---- FR-216 / FR-219 (ADR-086): delivery telemetry and evidence badges -------
 
 const TONE_GLYPH = { done: '✓', review: '◐', fix: '✕', empty: '○' }
-const STATUS_ORDER = ['done', 'review', 'in-progress', 'assigned', 'ready', 'planned', 'blocked']
+const STATUS_ORDER = ['done', 'review', 'in-progress', 'assigned', 'ready', 'planned', 'blocked', 'retired']
 
 function EvidenceBadges({ id, evidence }) {
   if (!evidence) return null
@@ -103,14 +102,16 @@ function EvidenceBadges({ id, evidence }) {
   )
 }
 
-function SubtaskBar({ id, subtasks }) {
+function SubtaskBar({ id, subtasks, retired = false }) {
   const percent = subtaskProgress(subtasks)
   if (percent === null) return null
   const done = subtasks.filter((s) => s.status === 'done').length
   return (
-    <div className={styles.subtaskBar} data-testid={`task-subtasks-${id}`}>
-      <span className="shrink-0 text-[11px] text-muted">subtask {done}/{subtasks.length} · {percent}%</span>
-      <span className="min-w-0 flex-1"><ProgressBar percent={percent} tone="green" label={`${id} subtask progress`} /></span>
+    <div className={styles.subtaskBar} data-testid={`task-subtasks-${id}`} data-retired={retired ? 'true' : 'false'}>
+      <span className="shrink-0 text-[11px] text-muted">
+        {retired ? 'retired · historical subtask states' : `subtask ${done}/${subtasks.length} · ${percent}%`}
+      </span>
+      {!retired && <span className="min-w-0 flex-1"><ProgressBar percent={percent} tone="green" label={`${id} subtask progress`} /></span>}
       <span className={styles.subtaskChips} aria-hidden>
         {subtasks.map((s) => <span key={s.id} className={styles.subtaskChip} data-status={s.status} title={`${s.id} · ${s.status} — ${s.title}`}>{s.id}</span>)}
       </span>
@@ -439,7 +440,6 @@ function HistoryChart({ history }) {
 const VIEWS = [
   { id: 'programme', label: 'Programme plan', icon: Layers3 },
   { id: 'domains', label: 'Domain map & inventory', icon: Boxes },
-  { id: 'workers', label: 'Workers & activity', icon: Activity },
 ]
 
 const TASK_SOT_BY_ID = new Map(ROADMAP_TASK_LEDGER.map((task) => [task.id, task]))
@@ -542,7 +542,7 @@ export default function ProgramRoadmapBoard({
   closesAt = null,
 }) {
   const member = audience === 'member'
-  const views = member ? VIEWS.filter(({ id }) => id !== 'workers') : VIEWS
+  const views = VIEWS
   const laneUsageMap = new Map(Object.entries(laneUsage))
   const taskUsageByCode = new Map((taskUsageLedger?.tasks || []).map((task) => [task.taskCode, task]))
   const [view, setView] = useState(domainMap && views.some(({ id }) => id !== 'programme' && id === initialView) ? initialView : 'programme')
@@ -608,11 +608,7 @@ export default function ProgramRoadmapBoard({
         </div>
       )}
 
-      {view === 'workers' && !member ? (
-        <div role="tabpanel" id="roadmap-panel-workers" aria-labelledby="roadmap-tab-workers">
-          <WorkerObservabilityPanel />
-        </div>
-      ) : view === 'domains' && domainMap ? (
+      {view === 'domains' && domainMap ? (
         <div role="tabpanel" id="roadmap-panel-domains" aria-labelledby="roadmap-tab-domains">
           <DomainMapView domainMap={domainMap} />
         </div>
@@ -737,7 +733,7 @@ export default function ProgramRoadmapBoard({
                                   <div className={styles.taskMeta}>
                                     <EvidenceBadges id={id} evidence={taskEvidence?.[id]} />
                                     <SotTags item={taskSot} testId={`roadmap-sot-task-${id}`} compact />
-                                    <SubtaskBar id={id} subtasks={container?.subtasks || []} />
+                                    <SubtaskBar id={id} subtasks={container?.subtasks || []} retired={status === 'retired'} />
                                     {taskUsageByCode.has(id) && <TaskUsageSummary usage={taskUsageByCode.get(id)} />}
                                   </div>
                                   {open && (

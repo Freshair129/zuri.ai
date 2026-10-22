@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.72.0b"
+version: "1.73.0b"
 status: active
 last_update: "2026-10-22,Codex Root"
 relations:
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.72.0b → 1.73.0b (2026-10-22): retire FEAT-044 and its FR-260..FR-264 bundle by ADR-113; remove the developer-only DDC UI/API and keep the issued IDs and FR membership burned as history. Product PM approvals, roadmap, document governance and standard CI remain active.
 
 Version diff 1.71.0b → 1.72.0b (2026-10-22): adds standalone FR-290 readiness metadata in integration for the planned, fixed-endpoint, provider-verified FlowAccount MCP connector. Live access and payload persistence remain disabled pending separate provider and data-lifecycle acceptance; no FEAT membership or provider activation is claimed.
 
@@ -53,7 +55,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager Standalon
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.70.0b |
+| **Version** | 1.73.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement

@@ -7,7 +7,7 @@
 // @tested tests/unit/program-delivery-metrics.test.js
 
 /** The board's status mapping, the same one the html board uses. */
-export const STATUS_PROGRESS = { done: 100, review: 90, 'in-progress': 50, assigned: 25, ready: 10, planned: 0, blocked: 0 }
+export const STATUS_PROGRESS = { done: 100, review: 90, 'in-progress': 50, assigned: 25, ready: 10, planned: 0, blocked: 0, retired: 0 }
 
 const DAY_MS = 86_400_000
 

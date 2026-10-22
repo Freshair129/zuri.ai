@@ -31,13 +31,16 @@ function canonicalRecord({
 
 function reviewedCanonicalRecord({
   id = 'FR-092',
+  family = 'FR',
   row = '| FR-092 | A separately reviewed capability | approved |\n',
   migrationBaseRevision = SOURCE_REVISION,
   migrationDocument = 'docs/change-requests/test/addendum.md',
+  featureId,
+  sourcePath = family === 'FEAT' ? 'docs/FEATURES.md' : 'docs/PRD-SDD-v1.0.md',
 } = {}) {
   const sourceRowSha256 = createHash('sha256').update(Buffer.from(row, 'utf8')).digest('hex');
   const storedRow = row.replace(/\r?\n$/, '');
-  return `---\nid: ${id}\nnamespace: ZAI\nfamily: FR\nversion: 1\nstatus: reviewed-migration\nmigration_base_revision: ${migrationBaseRevision}\nmigration_document: ${migrationDocument}\nsource_path: docs/PRD-SDD-v1.0.md\nsource_row_eol: LF\nsource_row_sha256: ${sourceRowSha256}\nstatement_cell: 2\nrequirement_cells: []\n---\n# ZAI:${id}\n\n<!-- canonical-row:start -->\n\`\`\`text\n${storedRow}\n\`\`\`\n<!-- canonical-row:end -->\n`;
+  return `---\nid: ${id}\nnamespace: ZAI\nfamily: ${family}\nversion: 1\nstatus: reviewed-migration\nmigration_base_revision: ${migrationBaseRevision}\nmigration_document: ${migrationDocument}\nsource_path: ${sourcePath}\nsource_row_eol: LF\nsource_row_sha256: ${sourceRowSha256}\nstatement_cell: 2\nrequirement_cells: ${family === 'FEAT' ? '[3]' : '[]'}\n${featureId ? `feature_id: ${featureId}\n` : ''}---\n# ZAI:${id}\n\n<!-- canonical-row:start -->\n\`\`\`text\n${storedRow}\n\`\`\`\n<!-- canonical-row:end -->\n`;
 }
 
 test('splitRow retains outer empty cells and matches legacy escaped-pipe behavior', () => {
@@ -86,6 +89,22 @@ test('parseCanonicalRecord keeps reviewed additions distinct from source-preserv
   assert.throws(() => parseCanonicalRecord(reviewedCanonicalRecord({ migrationDocument: '../private.md' })), /safe path under docs\/change-requests/);
 });
 
+test('parseCanonicalRecord supports approved migrations of existing FEAT rows and bundled FR membership', () => {
+  const feature = parseCanonicalRecord(reviewedCanonicalRecord({
+    id: 'FEAT-009', family: 'FEAT',
+    row: '| FEAT-009 | ~~Feature description~~ | FR-091 | superseded by ADR-113 |\n',
+  }));
+  assert.equal(feature.family, 'FEAT');
+  assert.deepEqual(feature.requirementKeys, ['FR-091']);
+
+  const bundled = parseCanonicalRecord(reviewedCanonicalRecord({
+    id: 'FR-091', family: 'FR', featureId: 'FEAT-009',
+    row: '| FR-091 | ~~Retired capability~~ | superseded by ADR-113 |\n',
+  }));
+  assert.equal(bundled.featureId, 'FEAT-009');
+  assert.equal(bundled.status, 'reviewed-migration');
+});
+
 test('readCanonicalRegistry verifies all pinned canonical records and explicit feature links', () => {
   const records = readCanonicalRegistry().filter(record => record.recordVersion === 1);
   assert.equal(records.length, 542);
@@ -97,8 +116,12 @@ test('readCanonicalRegistry verifies all pinned canonical records and explicit f
   for (const feature of records.filter((record) => record.family === 'FEAT')) {
     for (const id of feature.requirementKeys) assert.equal(byId.get(id)?.family, 'FR', `${feature.id} -> ${id}`);
   }
-  assert.equal(records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).join(','), 'FR-278,FR-285,FR-286');
-  assert.ok(records.filter((record) => !['FR-278', 'FR-285', 'FR-286'].includes(record.id)).every((record) => record.namespace === 'ZAI' && record.recordVersion === 1 && record.status === 'source-preserved'));
+  const reviewedMigrationIds = ['FEAT-044', 'FR-260', 'FR-261', 'FR-262', 'FR-263', 'FR-264', 'FR-278', 'FR-285', 'FR-286'];
+  assert.deepEqual(
+    records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).sort(),
+    reviewedMigrationIds.sort(),
+  );
+  assert.ok(records.filter((record) => !reviewedMigrationIds.includes(record.id)).every((record) => record.namespace === 'ZAI' && record.recordVersion === 1 && record.status === 'source-preserved'));
 });
 
 test('parseCanonicalIndex preserves additive fields and validates unique keys and paths', () => {

@@ -124,6 +124,6 @@ their applicable UI token or accessibility commitments.
 
 Users see the states of their actual business objects: Projects, Workstreams,
 imports, account connections, dispatches, conversations and receipts. Engineers
-see task readiness, implementation plans, CI/test results and delivery gates in
-separate delivery-control artifacts. A developer's plan status is not a
+see task plans, Git review, and CI/test results in development tooling. These
+remain separate from business-domain state. A developer's plan status is not a
 Business Project status, and a CI check is not a user's domain event.

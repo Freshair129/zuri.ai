@@ -18,74 +18,52 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/mission-control/page.jsx](../../../apps/server/src/app/%28control%29/control/mission-control/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/app/api/platform/worker-observability/route.js](../../../apps/server/src/app/api/platform/worker-observability/route.js) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js](../../../apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx](../../../apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
+No current binding of this type is present in the frozen graph.
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/e2e/fr260-mission-control.spec.js](../../../apps/server/tests/e2e/fr260-mission-control.spec.js) — `verifies` (`test-reference`)
-- [apps/server/tests/e2e/worker-observability.spec.js](../../../apps/server/tests/e2e/worker-observability.spec.js) — `verifies` (`transitive`)
-- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-read-model.test.js](../../../apps/server/tests/unit/mission-control-read-model.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-route-contract.test.js](../../../apps/server/tests/unit/mission-control-route-contract.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/worker-observability-route.test.js](../../../apps/server/tests/unit/worker-observability-route.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/fr124-product-readiness-ui.test.js](../../../apps/server/tests/unit/fr124-product-readiness-ui.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-261](requirements/FR-261.md)
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/mission-control/page.jsx](../../../apps/server/src/app/%28control%29/control/mission-control/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js](../../../apps/server/src/modules/platform-control/mission-control/application/programme-orchestration-run-ledger.js) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx](../../../apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/mission-control-contract.js](../../../apps/server/src/modules/platform-control/mission-control/mission-control-contract.js) — `implements` (`annotation`)
+No current binding of this type is present in the frozen graph.
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/e2e/fr260-mission-control.spec.js](../../../apps/server/tests/e2e/fr260-mission-control.spec.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-contract.test.js](../../../apps/server/tests/unit/mission-control-contract.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-read-model.test.js](../../../apps/server/tests/unit/mission-control-read-model.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-route-contract.test.js](../../../apps/server/tests/unit/mission-control-route-contract.test.js) — `verifies` (`transitive`)
+No current binding of this type is present in the frozen graph.
 
 ## [ZAI:FR-262](requirements/FR-262.md)
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/mission-control/page.jsx](../../../apps/server/src/app/%28control%29/control/mission-control/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js](../../../apps/server/src/modules/platform-control/mission-control/application/mission-control-read-model.js) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx](../../../apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx) — `implements` (`annotation`)
+No current binding of this type is present in the frozen graph.
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/e2e/fr260-mission-control.spec.js](../../../apps/server/tests/e2e/fr260-mission-control.spec.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-read-model.test.js](../../../apps/server/tests/unit/mission-control-read-model.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-route-contract.test.js](../../../apps/server/tests/unit/mission-control-route-contract.test.js) — `verifies` (`transitive`)
+No current binding of this type is present in the frozen graph.
 
 ## [ZAI:FR-263](requirements/FR-263.md)
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(control)/control/mission-control/page.jsx](../../../apps/server/src/app/%28control%29/control/mission-control/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/platform-control/programme-member-view.js](../../../apps/server/src/modules/platform-control/programme-member-view.js) — `implements` (`annotation`)
+No current binding of this type is present in the frozen graph.
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/e2e/fr260-mission-control.spec.js](../../../apps/server/tests/e2e/fr260-mission-control.spec.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/mission-control-route-contract.test.js](../../../apps/server/tests/unit/mission-control-route-contract.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/programme-member-view.test.js](../../../apps/server/tests/unit/programme-member-view.test.js) — `verifies` (`transitive`)
+No current binding of this type is present in the frozen graph.
 
 ## [ZAI:FR-264](requirements/FR-264.md)
 
 ### Code paths — graph bindings
 
-- [apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx](../../../apps/server/src/modules/platform-control/mission-control/components/MissionControlBoard.jsx) — `implements` (`annotation`)
+No current binding of this type is present in the frozen graph.
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/e2e/fr260-mission-control.spec.js](../../../apps/server/tests/e2e/fr260-mission-control.spec.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/mission-control-route-contract.test.js](../../../apps/server/tests/unit/mission-control-route-contract.test.js) — `verifies` (`test-reference`)
+No current binding of this type is present in the frozen graph.
 
 ## Limits
 

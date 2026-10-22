@@ -217,6 +217,43 @@ describe('domain state projection', () => {
     expect(state.domains.crm.featureCount).toBe(0)
   })
 
+  it('keeps superseded capabilities in history and excludes them from active rollups', () => {
+    const retiredNodes = [
+      ...featureNodes,
+      { id: 'feat:FEAT-998', type: 'feature', label: 'Retired delivery control', declared: 'superseded by ADR-113', status: 'superseded' },
+    ]
+    const retiredEdges = [
+      ...featureEdges,
+      { from: 'feat:FEAT-998', to: 'req:FR-069', type: 'bundles' },
+    ]
+    const state = buildDomainState({
+      nodes: retiredNodes,
+      edges: retiredEdges,
+      featurePresentation: [
+        { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates and reviews a project.' },
+        { id: 'FEAT-998', primaryDomain: 'project-manager', useCase: 'Historical delivery control record.' },
+      ],
+    })
+
+    expect(state.features.map((feature) => feature.id)).toEqual(['FEAT-999'])
+    expect(state.historicalFeatures).toEqual([
+      expect.objectContaining({ id: 'FEAT-998', requirementIds: ['FR-069'] }),
+    ])
+    expect(state.overall).toEqual(expect.objectContaining({
+      featureCount: 1,
+      readyFeatureCount: 1,
+      requirementCount: 1,
+      verifiedRequirementCount: 1,
+      progressPercent: 100,
+    }))
+    expect(state.domains['project-manager']).toEqual(expect.objectContaining({
+      featureIds: ['FEAT-999'],
+      featureCount: 1,
+      readyFeatureCount: 1,
+      progressPercent: 100,
+    }))
+  })
+
   it('fails closed when projected feature presentation metadata is incomplete', () => {
     expect(() => buildDomainState({
       nodes: featureNodes,
@@ -282,11 +319,12 @@ describe('domain state projection', () => {
     // Compared with the committed projection rather than a literal count: the
     // rescued draft asserted 80, which is the shape of assertion that goes stale
     // on the next FR and proves nothing about coverage in the meantime.
-    expect(presentation).toHaveLength(state.features.length)
+    const allFeatures = [...state.features, ...state.historicalFeatures]
+    expect(presentation).toHaveLength(allFeatures.length)
     expect(new Set(presentation.map((row) => row.id)).size).toBe(presentation.length)
     expect(presentation.every((row) => row.useCase.trim().length > 0)).toBe(true)
     expect(new Set(presentation.map((row) => row.id)))
-      .toEqual(new Set(state.features.map((feature) => feature.id)))
+      .toEqual(new Set(allFeatures.map((feature) => feature.id)))
   })
 })
 

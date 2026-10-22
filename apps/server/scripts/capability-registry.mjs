@@ -58,7 +58,8 @@ export function assertCapabilityTerminology(documents) {
 
 export function capabilityInventory(nodes, edges, readiness, noteOwnership = new Map()) {
   return classifyRequirements(nodes, edges).map(row => {
-    const item = readiness.features.find(f => f.id === (row.featureId || row.id))
+    const item = [...(readiness.historicalFeatures || []), ...readiness.features]
+      .find(f => f.id === (row.featureId || row.id))
     const evidence = item?.requirements.find(r => r.id === row.id)
     return {
       ...row,

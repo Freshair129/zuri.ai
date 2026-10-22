@@ -117,9 +117,6 @@ jobs:
         if: github.event_name != 'schedule'
         run: node --test tools/tests/verification-plan.test.mjs
 
-      - name: Verify delivery preflight, durable controller and role runner
-        run: npm run delivery:test
-
       - name: Compare Runtime shadow plan
         if: github.event_name == 'pull_request'
         shell: bash

@@ -123,8 +123,9 @@ They do not authorize seven unrelated mini-applications or duplicate entity
 tables.
 
 Human planning state belongs to the business Project and its work. Developer
-delivery plans, task-readiness records, CI results, test receipts and release
-gates belong to the delivery-control process. `ProjectExecutionRun` and
+task notes, Git history, CI results, test receipts and release checks are
+repository-delivery evidence, not business Project data; the retired DDC did
+not create a second product task authority. `ProjectExecutionRun` and
 `ProjectExecutionStep` describe persisted application execution where their
 owning contract says so; they are not a synonym for a human Workstream or for a
 developer task. `AgentTraceEvent` records agent execution evidence under its

@@ -2,9 +2,9 @@
 id: ZAI:PLAN-MISSION-CONTROL-DAG-OBSERVABILITY
 title: "Mission Control — DAG orchestration observability"
 version: "0.1.1"
-status: beta
+status: retired
 created_at: "2026-09-19T00:00:00+07:00,Luna Max,base 33cb69c7"
-last_update: "2026-09-19T00:30:00+07:00,Luna Max"
+last_update: "2026-10-22T00:00:00+07:00,Codex, retired by ADR-113"
 attributes:
   domain: platform-control
   doc_type: design-proposal
@@ -25,6 +25,11 @@ relations:
 ---
 
 # Mission Control — DAG orchestration observability
+
+> **Retired:** This developer-only DDC proposal was retired by
+> [ADR-113](../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) on
+> 2026-10-22. Keep this file as historical evidence; it is not an active
+> product requirement, implementation plan, or authorization.
 
 > Approved design baseline. This document does not allocate a registry ID, change
 > the roadmap, create a run ledger, expose a route, or authorize implementation.

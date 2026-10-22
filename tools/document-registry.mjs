@@ -44,6 +44,25 @@ function verifyMigrationBaseRevision(projectRoot, revision) {
   }
 }
 
+function verifyExistingSourceMigration(projectRoot, record, entry) {
+  verifyMigrationBaseRevision(projectRoot, record.migrationBaseRevision);
+  let previousText;
+  try {
+    previousText = execFileSync('git', ['--no-replace-objects', 'show', `${record.migrationBaseRevision}:${entry.path}`], {
+      cwd: projectRoot, windowsHide: true, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024,
+    });
+  } catch {
+    throw new Error(`${record.id} migration base does not contain its prior canonical record`);
+  }
+  const previous = parseCanonicalRecord(previousText);
+  if (previous.status !== 'source-preserved' || previous.id !== record.id
+    || previous.family !== record.family || previous.sourcePath !== record.sourcePath
+    || previous.featureId !== record.featureId || previous.subjectAnchor !== record.subjectAnchor
+    || anchor(previous.statement) !== anchor(record.statement)) {
+    throw new Error(`${record.id} reviewed source migration changed its prior identity, membership, or subject`);
+  }
+}
+
 function gitBlobText(value) {
   return value.replace(/\r\n/g, '\n');
 }
@@ -188,7 +207,10 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
     validateCanonicalEntry(record, entry, index);
     validateAuthoredProvenance(record, file => readFileSync(join(projectRoot, file)));
     if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
-    if (record.status === 'reviewed-migration') verifyApprovedMigrationDocument(projectRoot, record.migrationDocument);
+    if (record.status === 'reviewed-migration') {
+      verifyApprovedMigrationDocument(projectRoot, record.migrationDocument);
+      if (entry.status === 'source-preserved') verifyExistingSourceMigration(projectRoot, record, entry);
+    }
     return { ...entry, ...record, registrySourceRevision: index.sourceRevision, recordSha256: recordDigest };
   });
   const byId = new Map(records.map(record => [record.id, record]));

@@ -2,8 +2,8 @@
 version: "0.1.1b"
 created_at: "2026-09-21T00:00:00+07:00, Astra, pending commit"
 last_update: "2026-10-10, Codex, record scoped WF00 model-policy selection and source reconciliation"
-status: "candidate"
-superseded_by: null
+status: "retired"
+superseded_by: ZAI:ADR-113
 attributes:
   domain: "agent-governance"
   doc_type: "core-directive"
@@ -14,16 +14,16 @@ attributes:
 
 # STD-Multi agent workflow S-01
 
-สถานะ: candidate — มาตรฐานนี้เป็น design ที่บันทึกแล้ว แต่ยังไม่ใช่ระบบ
-บังคับใช้จริงจนกว่า P0 implementation backlog และ controlled pilot จะผ่าน
+**Status: Retired by ADR-113 on 2026-10-22.** The proposed developer-team
+controller, global enforcement, and Mission Control closeout in this document
+are no longer active design targets. The source pin and prior WF00 reconciliation
+remain historical evidence only.
 
-Current selection/navigation: the exact supervised WF00 bootstrap follows the
-[coding-delivery policy](architecture/delivery-control/WORKFLOW-POLICY.md) and
-[`model-policy.json`](architecture/delivery-control/contracts/model-policy.json).
-This pointer does not change the standard's candidate status, install its
-controller, or activate any later node. The role/model rows below retain the
-historical S-01 profile; the bounded WF00 selection is not a global model-policy
-cutover. See the [WF00 source reconciliation](architecture/delivery-control/SOURCE-RECONCILIATION.md).
+For current repository work, follow root [AGENTS.md](../AGENTS.md), the scoped
+[verification policy](architecture/VERIFICATION-POLICY.md), normal Git review,
+and required hosted CI. This retired proposal does not govern business Project
+Manager approvals, product agent admission, document governance, or repository
+CI.
 
 ## 1. Purpose and boundary
 

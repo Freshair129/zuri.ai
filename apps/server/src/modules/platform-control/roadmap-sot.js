@@ -12,7 +12,8 @@ export const ROADMAP_SOT = {
     "in-progress",
     "review",
     "done",
-    "blocked"
+    "blocked",
+    "retired"
   ],
   "proofScopeVocabulary": [
     "SPEC",
@@ -31,6 +32,7 @@ export const ROADMAP_SOT = {
     "DEPLOYED",
     "ACTIVE",
     "BLOCKED",
+    "RETIRED",
     "UNKNOWN"
   ],
   "programme": {
@@ -1944,13 +1946,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-119",
     "sprint": "SPR-ZAI-02",
-    "title": "Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations",
-    "status": "review",
-    "proofScope": "HOSTED_CI",
-    "implementationState": "MERGED",
+    "title": "Retired: developer Mission Control/DAG observability — FEAT-044 and FR-260..264 are superseded by ADR-113; prior implementation removed",
+    "status": "retired",
+    "proofScope": "UNKNOWN",
+    "implementationState": "RETIRED",
     "dependsOn": "TASK-ZAI-064",
     "authority": "ROADMAP.md",
-    "evidence": "PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` completed successfully on exact head with all jobs including full E2E passing; delivered installation-operator Workers monitoring view backed by local controller ledger/events; earlier isolated responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; external PORL source binding and hosted/production exit proof remain open; FEAT-044 remains building; no external PORL, production deployment, or live Business/LINE behavior claimed; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, Governance `38905060924`, Edge `38905060947`, and manual E2E workflow `38905115144` passed; sanitized campaign intake, controller liveness and newest-first event diagnostics delivered; PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; worker reader 23/23 and independent Verify/Review passed; exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed, E2E/Desktop skipped by workflow policy; worktree identity/status and candidate-head matching delivered; owner-provided local screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified; external PORL/production exit proof remains open"
+    "evidence": "Owner retired DDC on 2026-10-22; historical merges and CI remain provenance only; feature acceptance, external PORL, and production exit are not claimed"
   },
   {
     "id": "TASK-ZAI-120",

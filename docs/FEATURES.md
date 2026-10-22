@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.72.0b"
+version: "1.73.0b"
 status: active
 last_update: "2026-10-22,Codex Root"
 relations:
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.72.0b → 1.73.0b (2026-10-22): retire FEAT-044 and its FR-260..FR-264 bundle by ADR-113; remove the developer-only DDC UI/API and keep the issued IDs and FR membership burned as history. Product PM approvals, roadmap, document governance and standard CI remain active.
 
 Version diff 1.71.0b → 1.72.0b (2026-10-22): adds standalone FR-290 readiness metadata in integration for the planned, fixed-endpoint, provider-verified FlowAccount MCP connector. Live access and payload persistence remain disabled pending separate provider and data-lifecycle acceptance; no FEAT membership or provider activation is claimed.
 
@@ -53,7 +55,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager Standalon
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.70.0b |
+| **Version** | 1.73.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -152,7 +154,7 @@ code/test evidence state. Presentation domain is not an ownership claim.
 | FEAT-041 | Chat evidence — what a customer and the business said stays provable: staff replies sent from the inbox are part of the record, and message bodies past their retention window move to an encrypted, hash-chained archive on a local disk for 10 years, retrieved only by an owner at AAL2 with a case reference and kept past an erasure only under a recorded legal hold (ADR-093, `DOM-CRM`) | FR-245, FR-246 | declared |
 | FEAT-042 | Observability — error tracking and feature usage: operators read a deduplicated, resolvable error list and a per-person breakdown of which pages and actions are actually used, both extending the existing structured logger rather than a third-party service (ADR-095, `DOM-PLATFORM-CONTROL`) | FR-247, FR-248, FR-249 | building |
 | FEAT-043 | Server-owned self-hosted inference pool | FR-255, FR-256, FR-257, FR-258, FR-259 | approved design — repository declaration pending |
-| FEAT-044 | Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092) | FR-260, FR-261, FR-262, FR-263, FR-264 | building |
+| FEAT-044 | ~~Mission Control DAG orchestration observability — an installation-operator-only, read-only projection that joins the canonical roadmap DAG and its 21 waves with provenance-bound Programme Orchestration Run Ledger observations for workers, threads, branches, worktrees, commits, checks and evidence; same-wave work is only candidate-parallel until dependency, owner, lane, shared-file, revision and capability gates pass; missing or stale records stay UNKNOWN/NOT_RUN; /roadmap remains server-redacted and mobile uses the same SOT (ADR-048, ADR-086, ADR-092)~~ | FR-260, FR-261, FR-262, FR-263, FR-264 | superseded by ADR-113 — DDC retired and implementation removed |
 | FEAT-045 | LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-110 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema) | FR-265, FR-266, FR-267 | building |
 | FEAT-046 | Notion connection — a Business owner installs a Notion public connection through server-side OAuth token custody, while signed webhooks create only minimal idempotent receipts and never copy Notion content into business domains (ADR-109) | FR-273, FR-274 | building |
 

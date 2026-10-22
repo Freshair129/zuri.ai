@@ -14,6 +14,7 @@
     "overall",
     "domains",
     "features",
+    "historicalFeatures",
     "nonFunctionalRequirements"
   ],
   "properties": {
@@ -39,6 +40,12 @@
       "additionalProperties": { "$ref": "#/$defs/domain" }
     },
     "features": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/feature" },
+      "uniqueItems": true
+    },
+    "historicalFeatures": {
+      "description": "Superseded capabilities retained for provenance and historical browsing; excluded from active readiness totals.",
       "type": "array",
       "items": { "$ref": "#/$defs/feature" },
       "uniqueItems": true

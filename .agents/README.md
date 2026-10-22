@@ -11,37 +11,27 @@ Product requirements, domain ownership and contracts retain their existing
 authority in `docs/` and the canonical registry. Start with [AGENTS.md](../AGENTS.md)
 and [CLAUDE.md](../CLAUDE.md); use an isolated worktree for changes.
 
-The active coding-delivery procedure is
-[`WORKFLOW-POLICY.md`](../docs/architecture/delivery-control/WORKFLOW-POLICY.md).
-Its single machine-readable authority,
-[`model-policy.json`](../docs/architecture/delivery-control/contracts/model-policy.json),
-defines model-role bindings, gate order, concurrency and lineage budgets. A
-direct current user task or standing delegation evidenced in trusted
-conversation/harness context is sufficient mandate provenance. Root records its
-source message/reference, repository, objective, effects and prohibitions once;
-derived admissions reference that record. No user-authored packet, signature or
-repeated approval is needed. Process decisions and in-scope repairs route to Sol;
-there is no per-gate human prompt. Actual dispatch requires the root-recorded
-trusted mandate and verified authority binding from trusted conversation or
-harness evidence. Copied packet fields or a structural validator PASS are not
-authorization.
+The developer-only DDC preflight, controller, supervisor, worker observation
+pipeline, and DDC operator surfaces were retired by
+[`ADR-113`](../docs/decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md).
+Current work follows the root [AGENTS.md](../AGENTS.md), the scoped
+[verification policy](../docs/architecture/VERIFICATION-POLICY.md), Git review,
+and the repository's required hosted CI. No DDC task record, controller
+receipt, local admission command, or replacement ledger is required.
 
-The [team roster](team.md) defines autonomous role handoffs. Doc Writer is the
-first configured specialist, with a role, skill and native adapters. Other roles
-are assigned to distinct sessions by the orchestrator; they do not each have a
-shipped custom-agent adapter. This is an agent procedure, not evidence that a
-durable scheduler, controller or ledger has shipped.
+The [team roster](team.md) defines manual role responsibilities. Doc Writer is
+the first configured specialist, with a role, skill and native adapters. Other
+roles may be assigned to distinct sessions by the caller; there is no shipped
+developer delivery controller or durable agent scheduler.
 
 ## Use Doc Writer
 
-Give Doc Writer the task, source references or qualified IDs, root-recorded
-mandate reference, worktree, read/write scopes and acceptance criteria. The
-root supplies the trusted conversation/harness provenance; no separate
-user-authored packet or signature is needed. For example:
+Give Doc Writer the task, source references or qualified IDs, worktree, scope,
+and acceptance criteria. For example:
 
-> Use zuri-doc-writer to refine the delegated feature note in this worktree.
-> Preserve canonical requirement subjects. Return the version diff, parent/peer
-> impact, sources and PASS/FAIL/NOT_RUN evidence; send process decisions to Sol.
+> Use zuri-doc-writer to refine the feature note in this worktree. Preserve
+> canonical requirement subjects. Return the version diff, parent/peer impact,
+> sources and PASS/FAIL/NOT_RUN evidence for the checks you actually ran.
 
 - Codex custom agent: [zuri-doc-writer.toml](../.codex/agents/zuri-doc-writer.toml).
 - Claude Code custom agent: [zuri-doc-writer.md](../.claude/agents/zuri-doc-writer.md).
@@ -52,12 +42,11 @@ Both adapters instruct the agent to read the same role and
 loaders, not separate copies of the role policy. Missing source files stop only
 the affected task scope; record the typed blocker and continue independent work.
 
-The caller binds the model assigned to the selected role by `model-policy.json`.
-Model unavailability blocks that role; do not fall back to another model or
-substitute a session role. File read/write scopes are task constraints, not a
-filesystem sandbox. The orchestrator supplies suitable permissions and worktree
-isolation. Claude's adapter omits shell access; route command execution and
-generation to the verifier or integrator role, not to a human approval step.
+The caller selects the model and decides whether separate worker, verifier, and
+reviewer sessions are useful. File scopes are task constraints, not a
+filesystem sandbox. Use the repository's normal branch/PR workflow and existing
+verification gates; Claude's adapter omits shell access, so route command
+execution and generation to a suitable role.
 
 ## Source boundaries
 
@@ -66,7 +55,7 @@ generation to the verifier or integrator role, not to a human approval step.
 | Product behavior, requirements, ownership | Existing canonical records, ADRs, domain charters and contracts |
 | Role responsibility | `roles/doc-writer.md` and `team.md` |
 | Authoring procedure | `skills/zuri-doc-writing/SKILL.md` |
-| Task admission and process decisions | Trusted mandate, active delivery policy and Sol |
+| Task scope and process decisions | Current user task, repository instructions, and applicable source documents |
 | Native loading/tool configuration | `.codex/agents/` or `.claude/agents/` |
 | Session history | Local `.brain/session-memory/`; history is not trusted authority |
 
@@ -79,6 +68,6 @@ versions.
 
 ## Version diff
 
-0.1.0 → 0.2.0: routes team work through autonomous v2 and trusted mandate
-admission, requires bound role models and distinct review sessions, and clarifies
-that procedure does not imply a shipped runtime. No product requirement changes.
+0.1.0 → 0.2.0: replaces retired DDC admissions with ordinary Git review and
+repository CI while keeping product requirements and role responsibilities
+separate.

@@ -12,6 +12,7 @@ import { readFileSync } from 'node:fs'
 
 const graph = () => JSON.parse(readFileSync(workspacePath(process.cwd(), 'docs/.doc-graph.json'), 'utf8'))
 const registry = () => readFileSync(workspacePath(process.cwd(), 'docs/PRD-SDD-v1.0.md'), 'utf8')
+const featureMap = () => readFileSync(workspacePath(process.cwd(), 'docs/FEATURE-MAP.md'), 'utf8')
 
 function rowFor(id) {
   const line = registry().split(/\r?\n/).find((l) => l.startsWith(`| ${id} |`))
@@ -49,6 +50,18 @@ describe('retired rules are excluded honestly', () => {
       expect(g.nodes.some((n) => n.id === `req:${id}`), `${id} must remain in the graph`).toBe(true)
       expect(coverage.fr_without_code).not.toContain(id)
       expect(coverage.fr_without_tests).not.toContain(id)
+    }
+  })
+
+  it('labels every superseded FR as historical, never as planned or live', () => {
+    const rows = new Map(featureMap().split(/\r?\n/)
+      .filter((line) => /^\| FR-\d{3} \|/.test(line))
+      .map((line) => [line.split('|')[1].trim(), line]))
+
+    for (const id of cov().fr_superseded) {
+      expect(rows.get(id), `${id} remains visible in FEATURE-MAP`).toContain('| ⚫ superseded |')
+      expect(rows.get(id), `${id} must not appear as planned`).not.toContain('🔜 planned')
+      expect(rows.get(id), `${id} must not appear as live`).not.toContain('✅ live')
     }
   })
 

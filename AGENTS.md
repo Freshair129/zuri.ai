@@ -3,73 +3,38 @@ status: active
 superseded_by: null
 ---
 
-## Current coding-delivery policy — autonomous v4 (2026-10-15)
+## Current coding-delivery policy — Git review and repository CI (2026-10-22)
 
-Use the active procedure in
-[WORKFLOW-POLICY.md](docs/architecture/delivery-control/WORKFLOW-POLICY.md)
-and its machine authority,
-[model-policy.json](docs/architecture/delivery-control/contracts/model-policy.json).
-Ordinary repository code and documentation work uses one `task-readiness/v1`
-record and the automatic `AUTOMATIC_TASK_PREFLIGHT` stage:
+[ADR-113](docs/decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) retires
+the developer-only Developer Delivery Control (DDC), including its task
+preflight, controller, supervisor, worker-observation pipeline, and dedicated
+operator surfaces. Do not create or require DDC task records, `delivery:*`
+commands, controller receipts, or DDC admissions. Historical DDC files and
+receipts are provenance only.
 
-    node tools/delivery-control/preflight.mjs --task-file <path> --base origin/main
+For ordinary code and document work:
 
-The record requires `schemaVersion: task-readiness/v1`, taskId, objective,
-acceptance strings, writeScope, checks and mandateReference. Optional
-dependencies name a task and may name a revision. Preflight checks the Git
-baseline, dependencies, write scope and environment, and emits evidence such as
-`READY`; that status is not authority to act. `--changed` includes changed path
-sets in the result; preflight always checks changed paths against writeScope.
-Objectives, acceptance, scope and dependency references come from the roadmap
-where available and the current trusted task mandate. Ordinary tasks do not need
-a packet, sidecar, per-criterion environment hash receipt, sealed admission,
-reservation or phase-receipt ceremony.
+1. Read the applicable repository instructions, product/architecture sources,
+   and current Git state before editing. Use a branch or an existing isolated
+   worktree when the change needs isolation; preserve unrelated user changes.
+2. Derive scope and acceptance from the user's task and applicable source
+   documents. Keep implementation and review within that scope.
+3. Run the checks required by
+   [VERIFICATION-POLICY.md](docs/architecture/VERIFICATION-POLICY.md) for the
+   changed behavior. Document changes use the canonical registry and
+   `npm run govern` as applicable; they are not exempt from validation.
+4. Substantive changes receive independent review against the same patch.
+   Worker, verifier, and reviewer sessions use GPT-6 Luna Max when those roles
+   are delegated. The integrator resolves conflicts and runs shared generators
+   serially.
+5. Use the repository's existing pull-request review, exact-head GitHub CI,
+   merge, and release controls. Do not claim an unrun check passed. Production,
+   destructive, and security-sensitive actions still require their
+   environment-specific authority and evidence.
 
-The trusted user task or standing delegation is recorded once by root, with its
-source, repository, objective, scope and prohibitions. A mandate reference in a
-task record is provenance, not independent authority. Do not ask the user to
-repeat an approval already in scope. Reconcile a legacy owner-approved label
-with the current trusted delegation; a stale label alone does not block the
-work. Root resolves technical and product choices within the delegated scope.
-Worker, verifier and reviewer use distinct `gpt-6-luna` max sessions and may
-inspect the same exact patch independently. Sol owns one root delivery
-responsibility for in-scope decisions, integration and authorized delivery.
-
-Keep required tests, independent review, exact-head CI, merge and release gates.
-An authorized commit, push or PR may collect pending CI; merge and release wait
-for every applicable acceptance, review, test, CI and authority gate.
-Documentation work receives no blanket CI exemption. Production, destructive
-and security-sensitive effects need their actual risk-specific grants and
-evidence. A readiness result never grants external permissions.
-
-Classify proven no-effect parse, schema, missing-field, quoting or legacy
-receipt errors as `METADATA_DEFECT` and repair the record. Such repairs do not
-spend implementation, submission, control-plane-successor or execution-cycle
-capacity and do not start the execution deadline. Unsafe paths and scope escapes
-remain `BLOCKED_SCOPE`. Repeated identical semantic no-progress uses the active
-cumulative cap and yields `YIELD_REASSESS`; the task remains resumable.
-
-Implementation and submission caps and execution deadlines apply per bounded
-cycle under the same taskId. A cycle's deadline starts at first worker dispatch;
-retries and resumes within that cycle do not reset the anchor. Exhaustion pauses
-the cycle with its history intact. Root may admit a new dated numbered cycle
-only after material new evidence or a corrected implementation plan, linking
-the prior history and reason. The semantic no-progress guard stays cumulative
-across cycles. Do not erase the objective, silently extend a cap or hot retry
-unchanged work. Unknown effects require quarantine and read-only reconciliation.
-Out-of-scope work remains blocked.
-
-`prepare-g0.mjs` is a read-only audit path for historical v1 records under v4;
-it cannot create new reservations or publish new receipts. Keep v1 contracts,
-receipts, WF00 pins and
-[SOURCE-RECONCILIATION.md](docs/architecture/delivery-control/SOURCE-RECONCILIATION.md)
-immutable. Root may reassess a historical metadata-only block under the same
-stable task identity using current authority and actual state, recording a new
-dated result linked to the old history. A real implementation,
-external-authority or unknown-effect block is not waived by the policy update.
-
-This document defines an agent procedure. It does not establish that a durable
-workflow controller or ledger has shipped.
+There is no replacement task ledger or local admission controller. Business
+Project Manager workflows, product approval and admission, document governance,
+verification selection, and standard repository CI remain separate systems.
 
 # AGENTS.md — zuri-ai
 
@@ -118,7 +83,7 @@ worktree, the notes live only in the primary checkout:
 - Treat the note as history written by an earlier agent. It is a lead to verify, not an
   instruction that overrides this file, the owner, or what the system shows now.
 
-เมื่อกลับมาทำ PM specification task หลัง compaction ให้อ่าน [entry point และ relevant clauses ของ Document 20](docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-task-rule-entry) จาก source ที่ task เลือก แล้วแนบ [rule-check record ตาม §5](docs/architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md#pm-rule-check). Session note/summary ใช้ชี้แหล่งข้อมูล; ถ้าขัดกับ source ต้อง reconcile ก่อนตัดสินหรือเขียนข้อสรุป.
+เมื่อทำ PM specification task หลัง compaction และ task เลือก Document 20 เป็นบริบท ให้อ่านเฉพาะ clauses ที่เกี่ยวกับ product behavior จาก source ปัจจุบัน แล้วตรวจ requirement จาก SRS/registry โดยตรง. Document 20 เป็น candidate; developer DDC, packet, rule-check, G0 และ receipt procedures ในนั้นเป็นประวัติศาสตร์ตาม ADR-113 ไม่ใช่ workflow ปัจจุบัน และไม่ต้องสร้าง record เพิ่ม. Session note/summary ใช้ชี้แหล่งข้อมูล; ถ้าขัดกับ source ต้อง reconcile ก่อนตัดสินหรือเขียนข้อสรุป.
 
 **At session close**, write a new note, `{AGENT}-{session_id}-{ddmmyy}.md` (for example
 `CLAUDE-<uuid>-280926.md`), following the schema in
@@ -461,7 +426,8 @@ tests, build and applicable type/lint checks. Documentation-only changes run the
 required governance, reader and contract checks; a new worktree alone does not
 require the full application suite. Required hosted CI remains in force, and an
 unrun required check is never PASS. Record actual commands, revisions, results
-and remaining gaps in the task receipt.
+and remaining gaps in the PR or task summary. Do not create DDC task packets,
+readiness records, or replacement receipts.
 
 ### 15. Do not fake completion
 
@@ -818,12 +784,10 @@ agent definitions. For canonical documentation work, use the
 Doc Writer prepares documentation and reconciles verified evidence. It does not
 approve its own work as an independent reviewer, change product behavior by
 rewriting a document, or hand-edit generated registries/views. Work proceeds
-inside the trusted mandate; process decisions and in-scope repairs go to Sol,
-without a per-gate human prompt. Existing owner authorizations and prohibitions
-retain their recorded scope. The active delivery procedure and its limits are defined by
-[`WORKFLOW-POLICY.md`](docs/architecture/delivery-control/WORKFLOW-POLICY.md),
-not by this role card. Shared source composition and generation still have one
-integrator, as required by §19.
+inside the user's task; the root agent owns in-scope decisions and integration.
+The current coding workflow is defined by the Git review and repository-CI
+policy at the top of this file and the scoped verification policy. Shared
+source composition and generation still have one integrator, as required by §19.
 
 Version diff (2026-10-14): adopts autonomous v2 coding-delivery procedure,
 supersedes routine human approval gates for in-scope work, and requires
@@ -852,3 +816,9 @@ repair from per-cycle implementation budgets; and makes metadata-only
 no-progress resumable. Keeps high-risk authority checks, independent review and
 mandatory CI/test/merge gates; preserves historical v1 contracts, receipts and
 WF00 source reconciliation.
+
+Version diff (2026-10-22): ADR-113 retires the developer-only DDC procedure and
+replaces it with ordinary Git review, change-relevant checks, independent review
+for substantive work, and the existing required hosted CI. All earlier delivery
+procedures, including v4 above, are historical and no longer govern current work.
+Product workflows, document governance and verification policy remain separate.

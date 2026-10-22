@@ -2,7 +2,7 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.41"
+version: "0.4.42"
 updated: "2026-10-22"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
@@ -35,6 +35,7 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+Version diff 0.4.41 -> 0.4.42 (2026-10-22): Retire the developer DDC under ADR-113, including its controller, dispatch/observation surfaces and Mission Control UI. Mark TASK-ZAI-119 and its unstarted P2 as retired, set implementation state to RETIRED, and point the container at ADR-113; preserve prior evidence as history and keep the exit criterion unchecked. This is closure by owner retirement, not feature acceptance. Keep programme/phase/sprint progress unchanged; current 123-task status counts are 71 done, 15 review, 6 in-progress, 25 planned, 5 blocked and 1 retired. No external PORL, production cleanup or deployment claim.
 Version diff 0.4.40 -> 0.4.41 (2026-10-22): Reconcile PR #705's accepted synthetic Business A/B/A memory/context tests into TASK-ZAI-014 after merge as `b7add99074de4d310e3ee58e9b898cb0f0938e10` from candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3`; candidate and merge share tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98` and base parent `7a661d95c7db57122a0899652c354831cac559ac`. Exact-head Governance `39054993823` and Edge `39054993820` passed applicable checks; changed isolated suites passed 16/16 and 32/32, while E2E/Desktop were skipped. TASK-ZAI-014 remains in-progress with production `corpusContext`, broader generic-memory/live-agent switching and full Task14 E2E unverified. Record external Visual Office source revision `740eb1f5ef0cc8405af143e4a88f1c752d3e5098` as a standalone Three.js scene/assets with partial reduced-motion and labeled camera controls plus T3 job/session inputs, not a Zuri integration or acceptance. Separate zuri-agent-office PR #1 merged as `c1bff47147f7cde9da9589c50ff99b9d8c292c15`; its offline parity harness is simulation-only and live-provider parity remains NOT_RUN. Zuri.ai PR #704 merged as `297b11d2c7098eee6622030d375ecab03c43f3b1` from final head `8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84`; exact-head Governance `39085718812` and Edge `39085718800` passed applicable jobs, with E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / `source_of_truth: false`, proposes a contract only, and records no implementation or test evidence. Keep TASK-ZAI-019..023 and TASK-ZAI-026 planned with all criteria unchecked; PHASE-ZAI-04 stays 0/5 accepted and 0 progress. No task counts, phase/sprint status, dependency, deployment, production, provider, or UAT claim changes.
 
 Version diff 0.4.39 -> 0.4.40 (2026-10-18): Reconcile TASK-ZAI-011 with canonical ROADMAP.md Revision 2.166.0b after PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed; the focused integration suite passed 84 with 1 skipped, and local govern passed with 0 critical and 24 baseline warnings. Exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop were skipped by workflow policy, not passes. The accepted slice stores transaction-bound, recipient-scoped in-app notices for approval outcomes and supports idempotent read acknowledgements. Recompute from all 123 canonical task rows: 71 done, 16 review, 6 in-progress, 25 planned, 5 blocked (57.7% done); PHASE-ZAI-02 is 72, SPR-ZAI-03 is 74 and SPR-ZAI-04 is 69 under the documented status mapping. TASK-ZAI-012 remains planned, so the wave is not closed. No external email/push transport, production migration apply/deployment, Supabase or live-agent activation is claimed.
@@ -132,7 +133,10 @@ Two rules apply to every row below.
 
 Only these tokens are recognised by the board parser and may appear in a `Status` cell:
 
-`planned` / `in-progress` / `blocked` / `ready` / `assigned` / `review` / `done`
+`planned` / `in-progress` / `blocked` / `ready` / `assigned` / `review` / `done` / `retired`
+
+`retired` means the owner closed work without claiming its unmet acceptance
+criteria. It is not a synonym for `done` and contributes zero completion progress.
 
 `in_progress` with an underscore is **wrong** and degrades silently to `planned`.
 
@@ -626,7 +630,7 @@ locates the week.
 | TASK-ZAI-116 | SPR-ZAI-02 | task | Observability decision record — ADR-095 for error tracking and per-person feature usage, and the FR/NFR declarations it governs | P1 | Claude | done |  | CR-020; ADR-095 |
 | TASK-ZAI-117 | SPR-ZAI-02 | task | Error tracking — logger.exception() fingerprints and dedupes errors into a durable, operator-readable ErrorEvent table with a resolve action | P1 | Claude | done | TASK-ZAI-116 | ADR-095 D1; FR-247 |
 | TASK-ZAI-118 | SPR-ZAI-02 | task | Feature usage — UsageEvent at route and action level, per person, with a 90-day raw window then an aggregate-only rollup | P2 | Claude | done | TASK-ZAI-116 | ADR-095 D2, D3; FR-248, FR-249 |
-| TASK-ZAI-119 | SPR-ZAI-02 | task | Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates and provenance-bound PORL observations | P1 | RWANG | review | TASK-ZAI-064 | PR #686 merged on 2026-10-16 as `a0d933fd447c0de2cea90937307e1d0743c16c86` from exact head `23186eb7f6b6e78022a3caeac9b22b49798e47d7`; exact-head Governance `38889026140` and Edge `38889026166` passed applicable checks; PR E2E/Desktop skipped by workflow policy; manual Governance `38890209304` passed all jobs including full E2E on exact head; P1 local operator route, blocker/gate evidence, and responsive Workers view done; P2 external PORL binding and hosted/production proof planned; parent remains review / HOSTED_CI / MERGED; FEAT-044 building; no external PORL, production deployment, or live Business/LINE behavior claimed; ADR-048; ADR-086; ADR-092; FEAT-044; FR-260..264 ; PR #687 merged as `19b22dbe`; PR #688 exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999` merged as `dc6799fd870dcca670ec4511db88d1d56613d440`; local Node 35/35 and isolated Vitest 6/6, exact-head Governance `38905060924`, Edge `38905060947`, and manual E2E `38905115144` passed; PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; worker reader 23/23, independent Verify/Review, exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed; E2E/Desktop skipped by policy; sanitized worktree identity/status and candidate-head matching delivered; the owner-provided screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified; external PORL and production exit proof remain open; FEAT-044 remains building; no deployment or live Business/LINE proof claimed |
+| TASK-ZAI-119 | SPR-ZAI-02 | task | Retired: developer Mission Control/DAG observability — FEAT-044 and FR-260..264 superseded by ADR-113; no current runtime or product acceptance claim | P1 | RWANG | retired | TASK-ZAI-064 | ADR-113; historical merged implementation and CI receipts remain in the changelog only |
 | TASK-ZAI-120 | SPR-ZAI-10 | task | LINE OA on API keys only — FEAT-045 and FR-265/FR-266 retire EDGE conversation execution and the LOCAL_ONLY canned answerer, add browser-provisioned MODEL_PROVIDER_KEY resolution through SecretStorePort, and keep the Phase-1 resolver as an absence-only fallback | P1 | Claude | review | TASK-ZAI-103 | PR #500 merged as `cfb62da3` (hosted CI passed); follow-ups merged: #504 (e2e chain id), #509 (ADR-100 D5 correction), #515 (nav renamed to /line-oa/connections), #518 (model id checked with the key, login autofill blocked, key trimmed, readiness reads the validation outcome), #522 (operator step-up switch, ADR-100 D8). Migration `20260921090000` APPLIED and recorded on production 2026-09-21, together with the unapplied `20260919090000` it was blocked behind. Deployed 2026-09-21; production runs main `5c5f12d3` as `release-5c5f12d3-ki17-overlay` with `ZURI_CREDENTIAL_STEP_UP=off`; LINE jobs since the deploy run with executionMode SERVER. Production receipt NOT_RUN: no Business model key is saved yet (no MODEL_PROVIDER connection), so the three SERVER jobs since the deploy ended EXECUTION_FAILED; owner-entered key, an answered LINE message and rollback evidence remain open. Deploys `e61a9090`, `e35238ea` and `53161a2f` shipped the plain runner image without /opt/ki17 under a KI17 tag, leaving GenesisRAG17 batches PENDING until the 18:30 KI17 redeploy; every deploy from `2295dc2b` carries /opt/ki17 and passes ki17-smoke on both hops. Phase-1 resolver retirement remains TASK-ZAI-103 |
 | TASK-ZAI-121 | SPR-ZAI-10 | task | LINE OA on the operator's Private Runtime Platform — FR-267 adds provider `prp` (operator-configured endpoint, granted-model validation, reasoning stripped, no external fallback); first step of ADR-099 | P1 | Claude | review | TASK-ZAI-120 | PR #520 merged as `f9ea5c88` (hosted CI passed; local e2e fr149 and fr225 3 passed); deployed with main `2295dc2b` on 2026-09-21 and still present in `5c5f12d3`; `ZURI_PRIVATE_RUNTIME_BASE_URL` and `ZURI_PRIVATE_RUNTIME_MODEL` set on production, and the runtime answers 401 without a key from inside the web container. Production receipt NOT_RUN: no PRP key is saved yet and no LINE message has been answered through the private runtime. ADR-099 two-node pool, capacity leases, observations and data classification remain open |
 | TASK-ZAI-123 | SPR-ZAI-10 | task | Notion OAuth and signed webhook ingress — FEAT-046, FR-273/FR-274; Business-scoped OAuth callback and vault custody, one-time AAL2 operator reveal, raw-body signature verification and receipt-only idempotent webhook | P1 | Codex | in-progress | TASK-ZAI-078 | ../decisions/ADR-109-NOTION-OAUTH-AND-WEBHOOK-BOUNDARY.md |
@@ -6247,42 +6251,42 @@ task_container_id: TC-TASK-ZAI-119
 task_id: TASK-ZAI-119
 parent_phase_id: PHASE-ZAI-01
 parent_sprint_id: SPR-ZAI-02
-title: Mission Control DAG orchestration observability — FEAT-044 and FR-260..264, read-only operator projection with candidate-parallel merge gates, Workers monitoring, and provenance-bound PORL observations
+title: Retired developer Mission Control/DAG observability under ADR-113; previous runtime removed without product acceptance
 requirement_type: FEAT
 complexity: C-3
 access_scope: H3
-status: review
-version: 0.1.0b
+status: retired
+version: 0.1.1b
 pic: RWANG
 executor: RWANG
 approver: Owen
 auditor: ATHER
 symbol_links:
-  code: apps/server/src/app/(control)/control/mission-control/page.jsx
-  doc: docs/plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY-IMPLEMENTATION.md
-  test: apps/server/tests/e2e/fr260-mission-control.spec.js
+  code: unavailable
+  doc: docs/decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md
+  test: unavailable
 delivers: [FEAT-044, FR-260, FR-261, FR-262, FR-263, FR-264]
 subtasks:
   - id: P0
-    title: PORL observation contract and read-only DAG projection
+    title: Historical implementation completed before ADR-113 retired the DDC
     status: done
   - id: P1
-    title: Installation-operator route, blocker/gate evidence and responsive board including Workers view
+    title: Historical implementation completed before ADR-113 retired the DDC
     status: done
   - id: P2
-    title: External PORL source binding and hosted/production proof
-    status: planned
+    title: Cancelled by ADR-113; external PORL and production proof are not pursued
+    status: retired
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given an installation operator, when they open Mission Control, then the canonical DAG, dependency waves, task proof state, named blockers and merge-gate traces render without Business scope or mutation controls
-      checked: true
-  success_criteria:
-    - criterion: Given no configured PORL source, when the operator reads the board, then observations remain UNKNOWN or NOT_RUN and no stale record is treated as live
-      checked: true
-  exit_criteria:
-    - criterion: Given the external PORL owner and freshness contract, when the source is bound and hosted checks run, then provenance, mobile, authorization and read-only boundaries are verified without claiming deployment here
+    - criterion: Superseded by ADR-113. This historical Mission Control acceptance criterion is not a current product requirement or acceptance claim.
       checked: false
-changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Sanitized responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; raw reports were removed. PR #686 merged as `a0d933fd` from exact head `23186eb7`; PR #687 merged as `19b22dbe` to reconcile its accepted Workers-view slice. PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`; the view now exposes sanitized local campaign intake holds, requires a fresh controller heartbeat and live PID to report LIVE, and sorts validated supervisor events newest-first before limiting UNKNOWN snapshots. Local checks passed (Node 35/35, isolated Vitest 6/6); exact-head Governance `38905060924` and Edge `38905060947` passed; manual workflow `38905115144` passed including E2E. P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. The diagnostics are read-only and local-only; no external PORL, production deployment, or live Business/LINE behavior is claimed. PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; local worker reader 23/23, independent Verify/Review, exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed, while E2E/Desktop were skipped by policy. It adds sanitized worktree identity/status and candidate-head matching. Local Server panel Vitest was NOT_RUN. The owner-provided screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified and is not fixed by #701; no authenticated snapshot or production behavior is claimed.
+  success_criteria:
+    - criterion: Superseded by ADR-113. The retired DDC has no current success criterion or runtime acceptance claim.
+      checked: false
+  exit_criteria:
+    - criterion: Superseded by ADR-113. External PORL binding and hosted/production exit proof are not pursued for the retired developer DDC.
+      checked: false
+changelog: Opened 2026-09-19 after the owner approved the Mission Control implementation scope. Sanitized responsive receipt `.brain/reports/task-zai-119-responsive-receipt.json` records 1/1 at 390x844 and 430x932; raw reports were removed. PR #686 merged as `a0d933fd` from exact head `23186eb7`; PR #687 merged as `19b22dbe` to reconcile its accepted Workers-view slice. PR #688 merged as `dc6799fd` from exact head `c291b18c3c3de0ee296f8ba8a3dcd11d7b5f3999`; the view now exposes sanitized local campaign intake holds, requires a fresh controller heartbeat and live PID to report LIVE, and sorts validated supervisor events newest-first before limiting UNKNOWN snapshots. Local checks passed (Node 35/35, isolated Vitest 6/6); exact-head Governance `38905060924` and Edge `38905060947` passed; manual workflow `38905115144` passed including E2E. P1 is done. P2 remains planned for external PORL source binding and hosted/production proof; parent remains review and the exit criterion remains unchecked. FEAT-044 remains building. The diagnostics are read-only and local-only; no external PORL, production deployment, or live Business/LINE behavior is claimed. PR #701 exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f` merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d`; local worker reader 23/23, independent Verify/Review, exact-head Governance `39015694506`, Edge `39015694513`, and hosted test shards passed, while E2E/Desktop were skipped by policy. It adds sanitized worktree identity/status and candidate-head matching. Local Server panel Vitest was NOT_RUN. The owner-provided screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`, so authenticated runtime behavior remains unverified and is not fixed by #701; no authenticated snapshot or production behavior is claimed. Owner retired the entire developer DDC on 2026-10-22 under ADR-113. TASK-ZAI-119 is closed as retired, not done; prior P0/P1 and hosted-CI receipts are historical only, P2 is retired, and the exit criterion remains unchecked. No DDC product acceptance, external PORL, production cleanup, or deployment is claimed.
 created_at: 2026-09-19T00:00:00Z,RWANG,pending
 token_telemetry:
   model_name: gpt-5

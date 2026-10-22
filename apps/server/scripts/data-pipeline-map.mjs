@@ -54,7 +54,9 @@ export function parseRegistry(markdown) {
 /** FR id → { status, title, feature } from the FR-124 snapshot, the one source of requirement status. */
 export function requirementIndex(domainState) {
   const index = new Map()
-  for (const feature of domainState?.features || []) {
+  // Historical requirements remain resolvable by the pipeline registry, while
+  // Product Readiness keeps them outside its active feature and KPI rollups.
+  for (const feature of [...(domainState?.historicalFeatures || []), ...(domainState?.features || [])]) {
     for (const requirement of feature.requirements || []) {
       index.set(requirement.id, { status: requirement.status, title: requirement.title, feature: feature.id })
     }
