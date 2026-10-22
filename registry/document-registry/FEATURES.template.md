@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.71.0b"
+version: "1.72.0b"
 status: active
-last_update: "2026-10-15,Codex Root"
+last_update: "2026-10-22,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.71.0b → 1.72.0b (2026-10-22): adds standalone FR-290 readiness metadata in integration for the planned, fixed-endpoint, provider-verified FlowAccount MCP connector. Live access and payload persistence remain disabled pending separate provider and data-lifecycle acceptance; no FEAT membership or provider activation is claimed.
 
 Version diff 1.70.0b → 1.71.0b (2026-10-15): adds standalone FR-286 readiness metadata in project-manager for the versioned catalog-only Business bootstrap and stable default Business Space. No feature membership or access grant is inferred; Task13's delivery ledger owns actual acceptance and publication status.
 
@@ -1056,6 +1058,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-289",
     "primaryDomain": "knowledge",
     "useCase": "installation operator ค้นและสำรวจกราฟเอกสาร Markdown ของ Zuri ใน Knowledge Studio กรอง node ตามชนิดและจำนวน hop เปิด source path ที่แน่นอน และอ่านเอกสารในหน้าเดียว โดยแสดงการจัดกลุ่ม domain เฉพาะเมื่อ metadata หรือ graph relation ระบุเจ้าของได้ชัดเจน และใช้ renderer ที่รันบนเครื่อง operator เอง"
+  },
+  {
+    "id": "FR-290",
+    "primaryDomain": "integration",
+    "useCase": "Owner reviews the planned fixed-endpoint, provider-verified FlowAccount MCP connector and its read-only safeguards; live access and payload persistence remain disabled pending separate provider and data-lifecycle acceptance."
   }
 ]
 ```
