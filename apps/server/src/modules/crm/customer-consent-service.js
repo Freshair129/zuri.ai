@@ -3,6 +3,9 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
+import { eraseCustomerMemoryInTransaction } from '@/modules/identity/customer-memory-erasure'
+import { removeUnreferencedArchiveFile } from './chat-evidence-archive-service'
+import { recordErasureBlocked } from './chat-evidence-hold-reseal-service'
 
 // @req FR-103 — SEC-005: a Business owner attests that a Customer's PDPA consent
 //   was captured, and that attestation becomes a narrow, audited write — the crm
@@ -11,16 +14,19 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 //   model gets to set as a side effect of something else.
 // @spec SDD-053, BR-001, SEC-005, SDD-048
 // @tested tests/unit/customer-consent-service.test.js, tests/integration/crm-customer-consent.test.js,
-//   tests/integration/domain-visibility-server.test.js
+//   tests/integration/domain-visibility-server.test.js, tests/integration/fr236-knowledge-candidate.test.js
+// @req FR-232 — on DECLINED, erase this principal's Tier 1 memory projections
+//   with the consent change in one transaction while retaining identity/login
+//   and the independently authorized retention purpose.
 //
 // WHAT THIS DOES NOT DO
 // ----------------------
 // It does not gate AI processing, redact anything sent to a model provider, or
 // answer the retention/provider-terms questions — those are the other open items
 // in docs/domains/agent/ethics-governance.md (#1, #2, #3, #6), left open on
-// purpose. This closes exactly #4 (consent) at MVP scope: what a Business told
-// PDPA it captured, when, and from whom — answerable truthfully the moment a
-// PDPA request asks, per the ethics doc's standing rules.
+// purpose. A processing-consent decline erases the existing Tier 1 projections
+// and records a pending Core-owned MSP request; external erasure remains pending
+// until MSP returns a real receipt.
 
 const ATTESTABLE_STATUSES = ['GRANTED', 'DECLINED']
 
@@ -62,7 +68,9 @@ function consentSummary(customer) {
  * @param {{businessId: string, status: 'GRANTED'|'DECLINED', note?: string}} input
  * @param {{viewer: object, db?: object, correlationId?: string}} ctx
  */
-export async function recordCustomerConsent(customerId, input, { viewer, db = prisma, correlationId } = {}) {
+export async function recordCustomerConsent(customerId, input, {
+  viewer, db = prisma, correlationId, env = process.env, archiveBaseDir = undefined, alert = undefined,
+} = {}) {
   if (!customerId) throw failure(400, 'CUSTOMER_ID_REQUIRED')
   const data = zRecordCustomerConsent.parse(input)
 
@@ -90,41 +98,77 @@ export async function recordCustomerConsent(customerId, input, { viewer, db = pr
   // the caller supplies, because the lookup itself is bounded by it.
   const customer = await db.customer.findFirst({
     where: { id: customerId, tenantId: business.tenantId },
-    select: { id: true, code: true, displayName: true, consentStatus: true, memoryErasureStatus: true },
+    select: { id: true, personId: true, code: true, displayName: true, consentStatus: true, memoryErasureStatus: true },
   })
   if (!customer) throw failure(404, 'CUSTOMER_NOT_FOUND')
 
   const actorId = viewer?.principal?.id ?? null
 
-  return db.$transaction(async (tx) => {
-    const audit = await recordAudit(tx, {
-      entityType: 'CUSTOMER',
-      entityId: customer.id,
-      action: `CUSTOMER_CONSENT_${data.status}`,
-      actorId,
-      // @spec SDD-048 — no message content and no raw contact detail here; the
-      //   payload is exactly what a PDPA request needs answered, nothing the
-      //   observability emitter's allowlist would ever have to strip.
-      payload: {
-        businessId: data.businessId,
+  const recordedAt = new Date()
+  let resealFile = null
+  try {
+    return await db.$transaction(async (tx) => {
+      if (data.status === 'DECLINED') {
+        // The Customer's Person is derived from the tenant-scoped row above.
+        // Identity composes CRM, LINE, raw-record, and Knowledge-owned ports;
+        // no identity/login or retention-purpose rows are revoked here.
+        const memory = await eraseCustomerMemoryInTransaction(tx, {
+          tenantId: business.tenantId,
+          personId: customer.personId,
+          reason: 'CONSENT_DECLINED',
+          now: recordedAt,
+          viewer,
+          env,
+          archiveBaseDir,
+          preserveCustomerHolds: true,
+          includeArchivedCustomerLines: false,
+        })
+        resealFile = memory.resealFile
+      }
+
+      const audit = await recordAudit(tx, {
+        entityType: 'CUSTOMER',
+        entityId: customer.id,
+        action: `CUSTOMER_CONSENT_${data.status}`,
+        actorId,
+        // @spec SDD-048 — no message content and no raw contact detail here; the
+        //   payload is exactly what a PDPA request needs answered, nothing the
+        //   observability emitter's allowlist would ever have to strip.
+        payload: {
+          businessId: data.businessId,
+          tenantId: business.tenantId,
+          previousStatus: customer.consentStatus,
+          status: data.status,
+          ...(correlationId ? { correlationId } : {}),
+        },
+      })
+
+      const updated = await tx.customer.update({
+        where: { id: customer.id },
+        data: {
+          consentStatus: data.status,
+          consentRecordedAt: recordedAt,
+          consentRecordedByPersonId: actorId,
+          consentNote: data.note ?? null,
+          version: { increment: 1 },
+        },
+      })
+
+      return { ...consentSummary(updated), auditEventId: audit.id }
+    }, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+  } catch (error) {
+    if (!resealFile && error?.archiveFile) resealFile = error.archiveFile
+    if (resealFile) {
+      await removeUnreferencedArchiveFile(db, {
         tenantId: business.tenantId,
-        previousStatus: customer.consentStatus,
-        status: data.status,
-        ...(correlationId ? { correlationId } : {}),
-      },
-    })
-
-    const updated = await tx.customer.update({
-      where: { id: customer.id },
-      data: {
-        consentStatus: data.status,
-        consentRecordedAt: new Date(),
-        consentRecordedByPersonId: actorId,
-        consentNote: data.note ?? null,
-        version: { increment: 1 },
-      },
-    })
-
-    return { ...consentSummary(updated), auditEventId: audit.id }
-  })
+        runId: resealFile.runId,
+        relativePath: resealFile.relativePath,
+        baseDir: resealFile.baseDir,
+      })
+    }
+    if (error?.code === 'ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID') {
+      await recordErasureBlocked(db, error, alert ? { alert } : {})
+    }
+    throw error
+  }
 }

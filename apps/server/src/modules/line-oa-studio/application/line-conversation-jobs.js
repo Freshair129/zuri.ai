@@ -1304,7 +1304,9 @@ const RUNTIME_TRACE_KINDS = Object.freeze({
   MODEL_FAILED: { operation: 'turn-answer', payload: z.object({ operationId: z.string(), code: zRuntimeCode }).strict() },
   EXECUTION_FAILED: { operation: 'turn-answer', payload: z.object({ operationId: z.string(), code: zRuntimeCode }).strict() },
   // The runtime Context Composer's receipt: references, budget, drops and their
-  // hash, never content (services/conversation-runtime/src/context.js).
+  // hash, never content (services/conversation-runtime/src/context.js). Keep the
+  // earlier array-shaped event readable while the v1 caller moves to SDD-100's
+  // grouped receipt shape.
   CONTEXT_COMMITTED: { operation: null, payload: z.object({
     refs: z.array(z.object({ id: zContextRef, source: zContextSliceSource, citationId: zContextRef.nullable() }).strict()).max(64),
     budget: z.object({ max: z.number().int().min(0).max(32_000), used: z.number().int().min(0).max(32_000),
@@ -1313,11 +1315,38 @@ const RUNTIME_TRACE_KINDS = Object.freeze({
       reason: z.enum(['THREAD_SCOPE_MISMATCH', 'AUDIENCE_SCOPE_DENIED', 'BUDGET_EXCEEDED']) }).strict()).max(64),
     hash: z.string().regex(/^[0-9a-f]{64}$/),
   }).strict() },
+  CONTEXT_RECEIPT: { operation: null, payload: z.object({
+    receiptId: z.string().regex(/^ctxrcpt_[0-9a-f-]{36}$/),
+    refs: z.object({
+      msp: z.array(zContextRef).max(64),
+      citations: z.array(zContextRef).max(64),
+      records: z.array(zContextRef).max(64),
+    }).strict(),
+    hash: z.string().regex(/^[0-9a-f]{64}$/),
+    budget: z.object({ max: z.number().int().min(0).max(32_000), used: z.number().int().min(0).max(32_000),
+      trimmed: z.number().int().min(0).max(64) }).strict(),
+    dropped: z.array(z.object({ id: zContextRef, source: zContextSliceSource,
+      reason: z.enum(['THREAD_SCOPE_MISMATCH', 'AUDIENCE_SCOPE_DENIED', 'SUPERSEDED_BY_RECORD', 'BUDGET_TRIMMED']) }).strict()).max(64),
+  }).strict() },
 })
 
 /** Throws unless the runtime may report this kind, under this operation id, with exactly this shape. */
-export function assertRuntimeTraceEvent(claim, { kind, payload } = {}) {
+export function assertRuntimeTraceEvent(claim, { kind, payload, contextBinding } = {}) {
   if (!Object.hasOwn(RUNTIME_TRACE_KINDS, kind)) throw failure(400, 'TRACE_KIND_NOT_PERMITTED')
+  if (contextBinding !== undefined) {
+    let packetBytes = 0
+    try { packetBytes = contextBinding.contextPacket === null ? 0 : Buffer.byteLength(JSON.stringify(contextBinding.contextPacket), 'utf8') }
+    catch { throw failure(400, 'TRACE_CONTEXT_BINDING_INVALID') }
+    if (kind !== 'CONTEXT_RECEIPT' || !contextBinding || typeof contextBinding !== 'object' || Array.isArray(contextBinding)
+      || Object.keys(contextBinding).sort().join(',') !== 'contextPacket,contextReceiptHash,contextReceiptId'
+      || !/^ctxrcpt_[0-9a-f-]{36}$/.test(contextBinding.contextReceiptId ?? '')
+      || !/^[0-9a-f]{64}$/.test(contextBinding.contextReceiptHash ?? '')
+      || contextBinding.contextReceiptId !== payload?.receiptId || contextBinding.contextReceiptHash !== payload?.hash
+      || (contextBinding.contextPacket !== null && (!contextBinding.contextPacket || typeof contextBinding.contextPacket !== 'object'
+        || Array.isArray(contextBinding.contextPacket) || packetBytes > 32 * 1024))) {
+      throw failure(400, 'TRACE_CONTEXT_BINDING_INVALID')
+    }
+  }
   const { operation, payload: shape } = RUNTIME_TRACE_KINDS[kind]
   if (operation === null ? payload?.operationId !== undefined
     : payload?.operationId !== `${claim.jobId}:${operation}`) throw failure(400, 'TRACE_OPERATION_ID_INVALID')
@@ -1330,6 +1359,17 @@ export function assertRuntimeTraceEvent(claim, { kind, payload } = {}) {
       dropped: dropped.map(({ id, source, reason }) => ({ id, source, reason })) }
     if (budget.trimmed !== dropped.length || budget.used > budget.max
       || createHash('sha256').update(JSON.stringify(facts)).digest('hex') !== hash) throw failure(400, 'TRACE_PAYLOAD_INVALID')
+  }
+  if (kind === 'CONTEXT_RECEIPT') {
+    const { refs, budget, dropped, hash } = parsed.data
+    const facts = { refs: { msp: [...refs.msp], citations: [...refs.citations], records: [...refs.records] },
+      budget: { max: budget.max, used: budget.used, trimmed: budget.trimmed },
+      dropped: dropped.map(({ id, source, reason }) => ({ id, source, reason })) }
+    const referenceCount = refs.msp.length + refs.citations.length + refs.records.length
+    if (referenceCount > 64 || budget.trimmed !== dropped.filter(item => item.reason === 'BUDGET_TRIMMED').length
+      || budget.used > budget.max || createHash('sha256').update(JSON.stringify(facts)).digest('hex') !== hash) {
+      throw failure(400, 'TRACE_PAYLOAD_INVALID')
+    }
   }
 }
 

@@ -29,6 +29,7 @@ No current binding of this type is present in the frozen graph.
 ### Code paths — graph bindings
 
 - [apps/server/src/modules/crm/conversation-analysis-service.js](../../../apps/server/src/modules/crm/conversation-analysis-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/identity/customer-memory-erasure.js](../../../apps/server/src/modules/identity/customer-memory-erasure.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
@@ -36,6 +37,7 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/identity-erase-group-speakers.test.js](../../../apps/server/tests/integration/identity-erase-group-speakers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)

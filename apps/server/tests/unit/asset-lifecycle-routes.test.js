@@ -6,6 +6,7 @@ import { POST as responsibilityRoute } from '@/app/api/assets/register/[id]/resp
 import { POST as relocateRoute } from '@/app/api/assets/register/[id]/relocate/route'
 import { POST as allocateRoute } from '@/app/api/assets/register/[id]/allocate/route'
 import { POST as returnRoute } from '@/app/api/assets/register/[id]/return/route'
+import { allocateAssetToProject } from '@/modules/asset-management/application/asset-lifecycle-service'
 
 vi.mock('@/modules/identity/request-viewer', () => ({
   resolveRequestViewer: vi.fn().mockResolvedValue({
@@ -100,6 +101,20 @@ describe('Asset Lifecycle API Routes', () => {
       expect(res.status).toBe(201)
       const data = await res.json()
       expect(data.allocation.id).toBe('alloc-1')
+    })
+
+    it('maps allocation contract validation errors to HTTP 400', async () => {
+      allocateAssetToProject.mockRejectedValueOnce(Object.assign(new Error('quantity must be a positive finite number'), { status: 400 }))
+      const request = new Request('http://localhost:3000/api/assets/register/ast-1/allocate', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ businessId: 'biz-1', projectId: 'proj-1', quantity: 0, exclusive: 'yes' }),
+      })
+      const res = await allocateRoute(request, { params: Promise.resolve({ id: 'ast-1' }) })
+
+      expect(res.status).toBe(400)
+      expect(await res.json()).toEqual({ error: 'quantity must be a positive finite number' })
+      expect(allocateAssetToProject).toHaveBeenCalledWith(expect.objectContaining({ quantity: 0, exclusive: 'yes' }))
     })
   })
 

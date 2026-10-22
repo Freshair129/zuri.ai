@@ -21,6 +21,7 @@ model Portfolio {
   id        String   @id @default(uuid())
   code      String   @unique
   name      String
+  status    String   @default("ACTIVE")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   version   Int      @default(1)
@@ -167,6 +168,7 @@ model LegalEntity {
   status       String   @default("ACTIVE")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  version      Int      @default(1)
 
   tenant                  Tenant                   @relation(fields: [tenantId], references: [id])
   identifiers             LegalEntityIdentifier[]
@@ -416,6 +418,7 @@ model Branch {
   status                  String   @default("ACTIVE")
   createdAt               DateTime @default(now())
   updatedAt               DateTime @updatedAt
+  version                 Int      @default(1)
 
   business              Business               @relation(fields: [businessId], references: [id])
   // @req FR-194 — Restrict: a tax registration branch cannot be removed out

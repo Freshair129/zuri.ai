@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Card, SectionTitle, StatusPill } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 
-// FR-232 (erasure fan-out, a later task) is the only writer of TOMBSTONED;
+// FR-232's Knowledge-owned erasure service is the only writer of TOMBSTONED;
 // this page already renders it correctly if a row ever arrives in that state.
 const STATUS_LABEL = {
   PENDING_REVIEW: 'รอตรวจ',

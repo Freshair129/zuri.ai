@@ -33,6 +33,32 @@ const runtimeWith = (query, model = createDeterministicBusinessModel()) =>
   vi.fn().mockResolvedValue({ businessKnowledge: { query }, resolveModel: vi.fn().mockResolvedValue(model) })
 
 describe('server LINE answers from admitted CRM jobs', () => {
+  it('records one content-free receipt for non-memory evidence actually sent to the model', async () => {
+    const generate = vi.fn().mockResolvedValue({ text: 'AB-1 ราคา 50 บาท' })
+    const trace = { recordEvidence: vi.fn(), recordContextReceipt: vi.fn(), assertHealthy: vi.fn() }
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(async () => evidence(), { provider: 'fake', generate }) })
+    await answer(job(), { trace })
+    expect(generate).toHaveBeenCalledOnce()
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    const receipt = trace.recordContextReceipt.mock.calls[0][0]
+    expect(receipt.refs.citations).toHaveLength(1)
+    expect(receipt.budget.used).toBe(JSON.stringify(evidence().records[0]).length)
+    expect(receipt.budget.used).toBeLessThanOrEqual(receipt.budget.max)
+    expect(JSON.stringify(receipt)).not.toContain('AB-1')
+  })
+
+  it('does not invoke a model when the non-memory evidence exceeds the shared context budget', async () => {
+    const generate = vi.fn().mockResolvedValue({ text: 'oversized evidence leaked' })
+    const trace = { recordEvidence: vi.fn(), recordContextReceipt: vi.fn(), assertHealthy: vi.fn() }
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(async () => ({ records: [
+      { ...evidence().records[0], description: 'x'.repeat(5000) },
+    ] }), { provider: 'fake', generate }) })
+    const text = await answer(job(), { trace })
+    expect(generate).not.toHaveBeenCalled()
+    expect(trace.recordContextReceipt).not.toHaveBeenCalled()
+    expect(text).not.toContain('oversized evidence leaked')
+  })
+
   it('reads scoped public evidence and answers from it', async () => {
     const query = vi.fn().mockResolvedValue(evidence())
     const fetchFn = vi.fn()
@@ -103,12 +129,12 @@ describe('server LINE answers from admitted CRM jobs', () => {
     await expect(answer(job())).rejects.toThrow(/^LINE_ANSWER_UNAVAILABLE$/)
   })
 
-  it('bounds text without splitting an emoji surrogate', async () => {
+  it('keeps a valid emoji at the LINE text boundary', async () => {
     const records = evidence()
-    records.records[0].name = `${'ก'.repeat(4999)}😀`
-    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(async () => records) })(job())
+    const model = { provider: 'fake', generate: async () => ({ text: `${'ก'.repeat(4998)}😀` }) }
+    const text = await createServerLineAnswer({ runtimeFactory: runtimeWith(async () => records, model) })(job())
     expect(text.length).toBeLessThanOrEqual(5000)
-    expect(text).toBe('ก'.repeat(4999))
+    expect(text).toBe(`${'ก'.repeat(4998)}😀`)
   })
 })
 

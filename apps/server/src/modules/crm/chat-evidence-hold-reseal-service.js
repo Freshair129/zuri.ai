@@ -161,10 +161,10 @@ export async function captureLinesBeforeErasure(tx, { tenantId, messageIds }) {
  *
  * @returns {Promise<{holds: Map<string, {legalHoldId: string, heldCustomerId: string, conversationIds: Set<string>}>, members: Map}>}
  */
-async function findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustomerIds, now }) {
-  const erased = new Set(erasedCustomerIds)
+async function findQualifyingHolds(tx, { tenantId, conversationIds, excludedHoldCustomerIds, now }) {
+  const excluded = new Set(excludedHoldCustomerIds)
   const members = await findThreadCustomerMembers(tx, { tenantId, conversationIds })
-  const candidates = [...new Set([...members.values()].flatMap((thread) => [...thread.keys()]))].filter((id) => !erased.has(id)).sort()
+  const candidates = [...new Set([...members.values()].flatMap((thread) => [...thread.keys()]))].filter((id) => !excluded.has(id)).sort()
   const holdByCustomer = new Map()
   for (const customerId of candidates) {
     const customer = await tx.customer.findFirst({ where: { id: customerId, tenantId }, select: { deletedAt: true } })
@@ -243,6 +243,8 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
  */
 export async function resealErasedEvidenceUnderLegalHolds(tx, {
   tenantId, erasedCustomerIds, speakerChannelIdentityIds = [], capturedLines = [], now = new Date(), env = process.env, baseDir,
+  excludedHoldCustomerIds = erasedCustomerIds,
+  includeArchivedCustomerLines = true,
 }) {
   const none = { holds: [], file: null, manifestId: null, chainIntegrity: { valid: true } }
   const erased = [...new Set((erasedCustomerIds ?? []).filter(Boolean))]
@@ -257,7 +259,8 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
       : [],
   ])
   const conversationIds = [...new Set([...owned.map((c) => c.id), ...spoken.map((m) => m.conversationId), ...capturedLines.map((m) => m.conversation.id)])]
-  const { holds, members } = await findQualifyingHolds(tx, { tenantId, conversationIds, erasedCustomerIds: erased, now })
+  const excludedHolds = [...new Set((excludedHoldCustomerIds ?? []).filter(Boolean))]
+  const { holds, members } = await findQualifyingHolds(tx, { tenantId, conversationIds, excludedHoldCustomerIds: excludedHolds, now })
   if (holds.size === 0) return none
 
   const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
@@ -271,7 +274,9 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
     // durably after the rollback (`recordErasureBlocked`).
     throw new ErasureBlockedError('ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', details)
   }
-  const archived = await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
+  const archived = includeArchivedCustomerLines
+    ? await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
+    : new Map()
   const replySources = await resolveReplySources(tx, [...new Set(capturedLines.map((m) => m.conversation.id))])
   const allLines = new Map(archived)
   for (const message of capturedLines) {
@@ -308,14 +313,14 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
   }
   const { relativePath, fileSha256 } = await writeArchiveFile({ baseDir: resolvedBaseDir, tenantId, runId, now, header, segments })
   const file = { runId, relativePath, baseDir: resolvedBaseDir }
-  const ids = [...messageIds]
-  const messageIdListHash = hashMessageIdList(ids)
-  const previous = await tx.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
-  const previousManifestHash = previous?.manifestHash ?? null
-  const manifestHash = computeManifestHash({
-    tenantId, runId, filePath: relativePath, fileSha256, messageCount: ids.length, messageIdListHash, previousManifestHash,
-  })
   try {
+    const ids = [...messageIds]
+    const messageIdListHash = hashMessageIdList(ids)
+    const previous = await tx.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
+    const previousManifestHash = previous?.manifestHash ?? null
+    const manifestHash = computeManifestHash({
+      tenantId, runId, filePath: relativePath, fileSha256, messageCount: ids.length, messageIdListHash, previousManifestHash,
+    })
     const manifest = await tx.archiveManifest.create({
       data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: ids.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
     })

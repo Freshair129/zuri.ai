@@ -14,7 +14,7 @@ const unverifiedScope = { tenantId: claim.tenantId, businessId: claim.businessId
 const verifiedScope = { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId,
   identityId: 'identity-1', identityVersion: 1 }
 const turn = { question: 'มีสินค้าอะไรบ้าง', evidence: { records: [{ product: 'synthetic' }] }, authorized: true, slices: [],
-  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null }
+  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 4000, workCommand: null }
 
 function portsWith(resolves, sink) {
   let calls = 0

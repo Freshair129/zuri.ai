@@ -1,7 +1,7 @@
 ---
 status: active
 superseded_by: null
-version: "0.2.0"
+version: "0.2.1"
 ---
 
 # Conversation Runtime verification
@@ -55,6 +55,23 @@ keeps identity/consent, admission/jobs, channel credentials, protected Work writ
 and Knowledge/MSP/GKS authority. These checks use fakes/disposable data and do not
 prove live integrations or a deployed cohort.
 
+Receipt changes also require the Core memory integration and Runtime turn tests:
+check a canonical receipt before provider entry, missing/forged receipt refusal,
+the selected evidence and mixed API-010/API-011 packet, budget trimming, current
+authority, and receipt reuse after reclaim. A fake MSP response proves local
+protocol behavior only. The dated
+[application verification record](../../../reports/gap-analysis-2026-10-23/application-fixes.md)
+keeps actual results separate from these test obligations.
+
+Validate the published schema with AJV as well as the executable request
+validator: a null packet requires empty MSP references and a non-null packet
+requires included MSP references. Cross-sibling receipt ID/hash equality and
+serialized UTF-8 limits are executable checks. Runtime prompt tests also cover
+retained versus trimmed prepared RECORD slices without reclassifying those
+facts as MSP memory. The existing answer verifier still checks numeric/code
+claims against Knowledge evidence; this does not implement unspecified typed
+CRM/ERP fact read ports or close their separate authority gap.
+
 For manual exact-main execution and receipt rules, read the
 [Q1 qualification record](../../migrations/scoped-verification/QUALIFICATION.md).
 The PostgreSQL package command currently runs WorkToolPort and the memory-erasure
@@ -63,3 +80,4 @@ due-query suite. Retain both; narrowing that existing engine guard is outside Q1
 Version diff 0.0 → 0.1.0: adds reproducible scope guidance and the shadow-only limit.
 0.1.0 → 0.2.0: adds explicit semantic consumers, contract fallback and manual
 qualification navigation without changing ordinary CI conditions.
+0.2.0 → 0.2.1: records receipt-integrity consumer checks and their evidence limit.

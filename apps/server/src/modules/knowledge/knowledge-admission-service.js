@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
 import { resolveFileAssetContent as defaultResolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
+import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
   canonicalGenesisRag17Json,
   hashGenesisRag17Json,
@@ -543,6 +544,106 @@ function resultForAdmission(ingestion, { corpus, source, unchanged = false } = {
   }
 }
 
+const CANDIDATE_SOURCE_PREFIX = 'knowledge-candidate:'
+
+function candidateAdmissionError(status, message, code, extra = {}) {
+  return Object.assign(new Error(message), { status, code, ...extra })
+}
+
+function resolveCandidateApproval(value, candidateApproval) {
+  if (value.source.kind !== 'LINE_FAQ_CANDIDATE') return null
+  const sourceKey = value.source.sourceKey
+  const candidateId = sourceKey.startsWith(CANDIDATE_SOURCE_PREFIX)
+    ? sourceKey.slice(CANDIDATE_SOURCE_PREFIX.length)
+    : ''
+  if (
+    !candidateApproval
+    || !candidateId
+    || candidateApproval.candidateId !== candidateId
+    || value.idempotencyKey !== sourceKey
+    || candidateApproval.businessId !== value.businessId
+    || !Number.isInteger(candidateApproval.expectedVersion)
+    || candidateApproval.expectedVersion < 1
+  ) {
+    throw candidateAdmissionError(
+      409,
+      'LINE FAQ candidate admission requires its Knowledge-owned approval fence',
+      'KNOWLEDGE_CANDIDATE_ADMISSION_FENCE_REQUIRED',
+    )
+  }
+  return candidateApproval
+}
+
+/**
+ * The candidate row is the serialization fence shared with FR-232 erasure.
+ * This CAS runs inside the same transaction that writes the source/ingestion:
+ * an erasure that committed first is observed as a tombstone, while an
+ * admission that acquired the row first commits APPROVED plus its source link
+ * before the erasure can continue and withdraw it.
+ */
+async function reserveCandidateApproval(tx, approval, admittedAt) {
+  if (typeof tx?.knowledgeCandidate?.updateMany !== 'function') {
+    throw candidateAdmissionError(503, 'Knowledge candidate admission fence is unavailable', 'KNOWLEDGE_CANDIDATE_ADMISSION_FENCE_UNAVAILABLE')
+  }
+  const reserved = await tx.knowledgeCandidate.updateMany({
+    where: {
+      id: approval.candidateId,
+      tenantId: approval.tenantId,
+      businessId: approval.businessId,
+      version: approval.expectedVersion,
+      status: 'PENDING_REVIEW',
+      tombstonedAt: null,
+    },
+    data: { version: { increment: 1 }, updatedAt: admittedAt },
+  })
+  if (reserved.count !== 1) {
+    throw candidateAdmissionError(
+      409,
+      'Knowledge candidate changed or was erased before admission; retry the decision if it remains reviewable',
+      'KNOWLEDGE_CANDIDATE_ADMISSION_CONFLICT',
+      { retryable: true },
+    )
+  }
+}
+
+async function commitCandidateApproval(tx, approval, admission) {
+  const sourceId = admission?.source?.id
+  const ingestionId = admission?.id ?? admission?.admissionId
+  if (!sourceId || !ingestionId || typeof tx?.knowledgeCandidate?.updateMany !== 'function') {
+    throw candidateAdmissionError(503, 'Knowledge candidate admission could not be linked atomically', 'KNOWLEDGE_CANDIDATE_ADMISSION_LINK_UNAVAILABLE')
+  }
+  const linked = await tx.knowledgeCandidate.updateMany({
+    where: {
+      id: approval.candidateId,
+      tenantId: approval.tenantId,
+      businessId: approval.businessId,
+      version: approval.expectedVersion + 1,
+      status: 'PENDING_REVIEW',
+      tombstonedAt: null,
+    },
+    data: {
+      status: 'APPROVED',
+      decidedByPersonId: approval.actorId ?? null,
+      decidedAt: approval.decidedAt,
+      decisionReason: approval.reason ?? null,
+      admittedSourceId: sourceId,
+      admittedIngestionId: ingestionId,
+    },
+  })
+  if (linked.count !== 1) {
+    throw candidateAdmissionError(409, 'Knowledge candidate changed during admission; retry the decision', 'KNOWLEDGE_CANDIDATE_ADMISSION_CONFLICT', { retryable: true })
+  }
+  await recordAudit(tx, {
+    entityType: 'KNOWLEDGE_CANDIDATE',
+    entityId: approval.candidateId,
+    action: 'KNOWLEDGE_CANDIDATE_APPROVED',
+    actorId: approval.actorId ?? null,
+    tenantId: approval.tenantId,
+    businessId: approval.businessId,
+    payload: { businessId: approval.businessId, admittedSourceId: sourceId, admittedIngestionId: ingestionId },
+  })
+}
+
 // A Prisma error carries its own code, and its message echoes the failing
 // query's data (a catalog record can contain the word "unique"). Only P2002 is
 // a unique violation; the message fallback is for drivers without a code.
@@ -806,10 +907,12 @@ export async function admitKnowledge(input, {
   now = new Date(),
   repository = createKnowledgeRepository(db),
   authorization,
+  candidateApproval: candidateApprovalInput,
   runtimeResolver = resolveKnowledgeRuntimeBinding,
   fileContentResolver = defaultResolveFileAssetContent,
 } = {}) {
   const value = knowledgeAdmissionInput.parse(input)
+  const candidateApproval = resolveCandidateApproval(value, candidateApprovalInput)
   const sourceDescriptor = value.source.kind === 'FILE'
     ? {
         kind: 'FILE',
@@ -891,9 +994,10 @@ export async function admitKnowledge(input, {
       binaryMediaType: source.contentType,
       rawByteLength: source.rawByteLength,
     }))
-    return await repository.transaction(async (tx) => {
+    return await repository.transaction(async (tx, transactionClient) => {
+      if (candidateApproval) await reserveCandidateApproval(transactionClient, candidateApproval, admittedAt)
       const corpus = await resolveCorpus(tx, { value, scope, policy, admittedAt })
-      return admitOneRecord(tx, {
+      const admission = await admitOneRecord(tx, {
         corpus,
         viewer,
         kind: value.source.kind,
@@ -908,7 +1012,9 @@ export async function admitKnowledge(input, {
         requestHashValue,
         admittedAt,
       })
-    })
+      if (candidateApproval) await commitCandidateApproval(transactionClient, candidateApproval, admission)
+      return admission
+    }, candidateApproval ? { maxWait: 10_000, timeout: 30_000 } : undefined)
   } catch (error) {
     if (error?.status) throw error
     if (isUniqueError(error)) throw failure(409, 'KNOWLEDGE_ADMISSION_CONFLICT', 'Knowledge admission conflicts with a concurrent request')

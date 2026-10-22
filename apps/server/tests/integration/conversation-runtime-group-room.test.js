@@ -12,6 +12,7 @@ import { admitLineConversation, completeRuntimeConversationJob, runLineConversat
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
+import { sha256 } from '@/modules/agent/execution-trace'
 import { withLineCatalogCommand, lineCatalogViewer } from '@/modules/agent/line-catalog-command'
 import { confirmLineWork, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
@@ -270,7 +271,7 @@ describe('Conversation Runtime group and room audiences', () => {
     const turn = await ports.context.prepare(claim, authority)
     // The question is this message alone: no group history, no thread memory, no slices.
     expect(turn).toEqual({ question: text, evidence, slices: [], authorized: true, audienceKind: audience,
-      threadId: null, maxBudgetChars: 0, workCommand: null })
+      threadId: null, maxBudgetChars: 4000, workCommand: null })
 
     // The legacy answer has no audience-dependent input on a non-memory turn: the same text
     // from the same speaker as a GROUP/ROOM job and as a DIRECT job reads and asks the same.
@@ -282,8 +283,18 @@ describe('Conversation Runtime group and room audiences', () => {
     expect(legacyReads).toHaveLength(2)
     expect(legacyReads[0]).toEqual(legacyReads[1])
     const legacyAsks = modelCalls.filter(call => call.label === 'legacy').map(call => withoutTrace(call.input))
-    expect(legacyAsks[0]).toEqual(legacyAsks[1])
-    expect(legacyAsks[0]).toEqual({ question: text, evidence, contextPacket: null })
+    const comparableAsk = ({ contextReceipt, ...ask }) => ({ ...ask,
+      contextReceipt: contextReceipt ? { ...contextReceipt, receiptId: '<per-turn>' } : null })
+    expect(comparableAsk(legacyAsks[0])).toEqual(comparableAsk(legacyAsks[1]))
+    expect(legacyAsks[0]).toMatchObject({ question: text, evidence, contextPacket: null,
+      contextReceipt: { receiptId: expect.stringMatching(/^ctxrcpt_[0-9a-f-]{36}$/),
+        refs: { msp: [], citations: ['knowledge:0'], records: [] }, budget: { max: 4000, trimmed: 0 }, dropped: [] } })
+    const receiptFacts = ({ refs, budget, dropped }) => ({ refs, budget, dropped })
+    for (const ask of legacyAsks) {
+      expect(ask.contextReceipt.hash).toBe(sha256(receiptFacts(ask.contextReceipt)))
+    }
+    expect(legacyAsks[0].contextReceipt.receiptId).not.toBe(legacyAsks[1].contextReceipt.receiptId)
+    expect(legacyAsks[0].contextReceipt.hash).toBe(legacyAsks[1].contextReceipt.hash)
     // …and Core's prepare reads the knowledge base with exactly the legacy query.
     expect(knowledgeCalls.filter(call => call.label === 'runtime').map(call => call.input)).toEqual([legacyReads[0]])
     // A `#sku` catalogue command is never honoured in a group or room; it is an ordinary question.

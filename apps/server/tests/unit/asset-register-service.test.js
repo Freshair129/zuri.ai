@@ -159,6 +159,7 @@ describe('Asset Register Service', () => {
         assetProcurementRef: { updateMany: vi.fn().mockResolvedValue({ count: 1 }) },
         assetLocationHistory: { create: vi.fn().mockResolvedValue({ id: 'loc-1' }) },
         assetResponsibility: { create: vi.fn().mockResolvedValue({ id: 'resp-1' }) },
+        membership: { findFirst: vi.fn().mockResolvedValue({ id: 'membership-1' }) },
         assetIntake: { update: vi.fn().mockResolvedValue({ id: 'intake-1', status: 'REGISTERED' }) },
         auditEvent: { create: vi.fn().mockResolvedValue({ id: 'aud-1' }) },
       }
@@ -185,6 +186,57 @@ describe('Asset Register Service', () => {
           data: expect.objectContaining({ status: 'REGISTERED' }),
         })
       )
+    })
+
+    it('rejects initial responsibility people without an active direct membership in the intake Business', async () => {
+      const intake = {
+        id: 'intake-1',
+        tenantId: 'tenant-1',
+        businessId: 'biz-1',
+        status: 'READY_FOR_REGISTRATION',
+        normalizedEnvelopeJson: JSON.stringify({
+          item: { name: 'ThinkPad X1', categoryCode: 'IT_EQUIPMENT' },
+          responsibility: { accountablePersonId: 'p-1', custodianPersonId: 'p-foreign' },
+        }),
+        evidence: [],
+        procurementRefs: [],
+      }
+
+      const mockTx = {
+        membership: {
+          findFirst: vi.fn(({ where }) => Promise.resolve(
+            where.personId === 'p-1' ? { id: 'membership-1' } : null
+          )),
+        },
+        registeredAsset: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          findUnique: vi.fn().mockResolvedValue(null),
+          create: vi.fn().mockImplementation(({ data }) => ({ id: 'ast-created-1', ...data })),
+        },
+        assetEvidence: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        assetProcurementRef: { updateMany: vi.fn().mockResolvedValue({ count: 0 }) },
+        assetLocationHistory: { create: vi.fn() },
+        assetResponsibility: { create: vi.fn() },
+        assetIntake: { update: vi.fn() },
+        auditEvent: { create: vi.fn() },
+      }
+      const mockDb = {
+        assetIntake: { findFirst: vi.fn().mockResolvedValue(intake) },
+        $transaction: vi.fn().mockImplementation((callback) => callback(mockTx)),
+      }
+
+      await expect(registerAssetFromIntake({
+        businessId: 'biz-1',
+        intakeId: 'intake-1',
+        viewer: { ownedBusinessIds: ['biz-1'], principal: { id: 'user-admin' } },
+        db: mockDb,
+      })).rejects.toMatchObject({ status: 404, message: 'Person not found in current business' })
+
+      expect(mockTx.membership.findFirst).toHaveBeenCalledTimes(2)
+      expect(mockTx.registeredAsset.create).not.toHaveBeenCalled()
+      expect(mockTx.assetResponsibility.create).not.toHaveBeenCalled()
+      expect(mockTx.assetIntake.update).not.toHaveBeenCalled()
+      expect(mockTx.auditEvent.create).not.toHaveBeenCalled()
     })
   })
 })

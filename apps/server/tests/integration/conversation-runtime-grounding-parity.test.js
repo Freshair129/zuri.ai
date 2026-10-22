@@ -119,7 +119,7 @@ describe('Core prepare grounding parity with the legacy Server answer path', () 
           // path selected (records only: the runtime never sees retrievalRefs/meta).
           expect(core.prepared.evidence).toEqual({ records: legacy.evidence.records ?? [] })
           expect(core.prepared).toMatchObject({ question, slices: [], authorized: true, audienceKind: 'DIRECT',
-            threadId: null, maxBudgetChars: 0, workCommand: null })
+            threadId: null, maxBudgetChars: 4000, workCommand: null })
           // Same sources read, in the same order, with the same scoped inputs.
           expect(core.corpusCalls).toEqual(legacy.corpusCalls)
           expect(core.businessCalls).toEqual(legacy.businessCalls)

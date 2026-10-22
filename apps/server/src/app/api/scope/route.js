@@ -1,15 +1,16 @@
-// @req FR-001, FR-020 — scope hierarchy CRUD (portfolio/tenant/business/workspace); one-step tenant+business+workspace creation
+// @req FR-001, FR-020 — scope hierarchy CRUD (portfolio/tenant/business/branch/legalEntity/workspace); one-step tenant+business+workspace creation
 // @req FR-046 — every mutating request resolves one trusted viewer and fails closed.
 // @req FR-074 — each creator is authorized at the scope it writes: Business
 // ownership, Tenant ownership, self-service provisioning, or FR-075 operator
 // authority for the primitives above any Tenant.
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr074-scope-creation-authorization.test.js
+// @tested tests/integration/fr001-scope-crud.test.js
 // @req FR-046 — the compatibility scope inventory is filtered to the trusted
 // viewer's visible Businesses before it reaches the shell.
 // @spec SEC-001, SEC-008
 // @tested tests/unit/authorization-seam-routes.test.js
-import { handle } from '../_helpers'
+import { handle, httpError } from '../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import {
@@ -22,6 +23,18 @@ import {
   createLegalEntity,
   createTaxRegistrationBranch,
   createBranch,
+  updatePortfolio,
+  archivePortfolio,
+  updateTenant,
+  archiveTenant,
+  updateBusiness,
+  archiveBusiness,
+  updateLegalEntity,
+  archiveLegalEntity,
+  updateBranch,
+  archiveBranch,
+  updateWorkspace,
+  archiveWorkspace,
 } from '@/modules/project-manager/application/scope-service'
 
 export const dynamic = 'force-dynamic'
@@ -73,6 +86,24 @@ const CREATORS = {
   branch: createBranch,
 }
 
+const UPDATERS = {
+  portfolio: updatePortfolio,
+  tenant: updateTenant,
+  business: updateBusiness,
+  legalEntity: updateLegalEntity,
+  branch: updateBranch,
+  workspace: updateWorkspace,
+}
+
+const ARCHIVERS = {
+  portfolio: archivePortfolio,
+  tenant: archiveTenant,
+  business: archiveBusiness,
+  legalEntity: archiveLegalEntity,
+  branch: archiveBranch,
+  workspace: archiveWorkspace,
+}
+
 export async function POST(request) {
   return handle(async () => {
     // Resolved before the body is read, so an unauthenticated caller learns
@@ -86,5 +117,27 @@ export async function POST(request) {
     // on their behalf that would not be wrong for most of them — which is the
     // whole reason this route stayed on the baseline while the others were paid.
     return creator(body.data, { viewer })
+  })
+}
+
+export async function PATCH(request) {
+  return handle(async () => {
+    const viewer = await resolveRequestViewer(request)
+    const body = await request.json()
+    const updater = UPDATERS[body.entity]
+    if (!updater) throw new Error(`Unknown scope entity: ${body.entity}`)
+    if (typeof body.id !== 'string' || !body.id.trim()) throw httpError(400, 'Scope id is required')
+    return updater(body.id, body.data, { viewer, expectedVersion: body.expectedVersion })
+  })
+}
+
+export async function DELETE(request) {
+  return handle(async () => {
+    const viewer = await resolveRequestViewer(request)
+    const body = await request.json()
+    const archiver = ARCHIVERS[body.entity]
+    if (!archiver) throw new Error(`Unknown scope entity: ${body.entity}`)
+    if (typeof body.id !== 'string' || !body.id.trim()) throw httpError(400, 'Scope id is required')
+    return archiver(body.id, { viewer, expectedVersion: body.expectedVersion })
   })
 }

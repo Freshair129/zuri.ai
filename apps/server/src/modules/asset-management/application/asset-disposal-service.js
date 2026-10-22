@@ -35,66 +35,78 @@ export async function finalizeAssetDisposal({
     throw dispError(`Invalid disposal method. Must be one of: ${DISPOSAL_METHODS.join(', ')}`, 400)
   }
 
-  const asset = await db.registeredAsset.findFirst({
-    where: { id: registeredAssetId, businessId, deletedAt: null },
-    include: {
-      projectAllocations: {
-        where: { effectiveTo: null, status: 'ACTIVE' },
+  return db.$transaction(async (tx) => {
+    const asset = await tx.registeredAsset.findFirst({
+      where: { id: registeredAssetId, businessId, deletedAt: null },
+    })
+
+    if (!asset) {
+      throw dispError('Registered asset not found in business scope', 404)
+    }
+
+    if (asset.status === 'DISPOSED') {
+      throw dispError('Asset is already disposed and cannot be modified', 400)
+    }
+
+    // Allocation and disposal serialize on the same RegisteredAsset version.
+    // Claim before reading open allocations so only one lifecycle writer can
+    // commit based on the observed status and interval state.
+    const versionClaim = await tx.registeredAsset.updateMany({
+      where: { id: registeredAssetId, businessId, deletedAt: null, version: asset.version },
+      data: { version: { increment: 1 } },
+    })
+    if (versionClaim.count !== 1) {
+      throw dispError('Registered asset changed during disposal; retry', 409)
+    }
+
+    const activeAllocationCount = await tx.assetProjectAllocation.count({
+      where: { registeredAssetId, businessId, effectiveTo: null, status: 'ACTIVE' },
+    })
+    if (activeAllocationCount > 0) {
+      throw dispError('Cannot dispose asset while it is actively allocated to a project. Return it first.', 400)
+    }
+
+    const disposedAt = new Date()
+    // Update asset status to DISPOSED and condition to DAMAGED or POOR if scrapped/loss.
+    await tx.registeredAsset.update({
+      where: { id: registeredAssetId },
+      data: {
+        status: 'DISPOSED',
+        condition: method === 'LOSS_THEFT' ? 'DAMAGED' : method === 'SCRAP' ? 'DAMAGED' : asset.condition,
+        updatedAt: disposedAt,
       },
-    },
+    })
+
+    // Close active responsibilities in the same transaction as the status change and audit.
+    await tx.assetResponsibility.updateMany({
+      where: { registeredAssetId, effectiveTo: null },
+      data: { effectiveTo: disposedAt },
+    })
+
+    const disposalPayload = {
+      registeredAssetId,
+      assetCode: asset.assetCode,
+      name: asset.name,
+      method,
+      reason: reason.trim(),
+      salePrice: salePrice ? String(salePrice) : null,
+      buyerOrRecipient: buyerOrRecipient ? String(buyerOrRecipient).trim() : null,
+      documentRef: documentRef ? String(documentRef).trim() : null,
+      evidenceFileAssetId: evidenceFileAssetId || null,
+      disposedByPersonId: viewer?.personId || null,
+      disposedAt: disposedAt.toISOString(),
+    }
+
+    await recordAudit(tx, {
+      entityType: 'REGISTERED_ASSET',
+      entityId: registeredAssetId,
+      action: 'ASSET_DISPOSED',
+      payload: disposalPayload,
+      actorId: viewer?.personId || 'SYSTEM',
+    })
+
+    return disposalPayload
   })
-
-  if (!asset) {
-    throw dispError('Registered asset not found in business scope', 404)
-  }
-
-  if (asset.status === 'DISPOSED') {
-    throw dispError('Asset is already disposed and cannot be modified', 400)
-  }
-
-  if (asset.projectAllocations.length > 0) {
-    throw dispError('Cannot dispose asset while it is actively allocated to a project. Return it first.', 400)
-  }
-
-  // Update asset status to DISPOSED and condition to DAMAGED or POOR if scrapped/loss
-  await db.registeredAsset.update({
-    where: { id: registeredAssetId },
-    data: {
-      status: 'DISPOSED',
-      condition: method === 'LOSS_THEFT' ? 'DAMAGED' : method === 'SCRAP' ? 'DAMAGED' : asset.condition,
-      updatedAt: new Date(),
-    },
-  })
-
-  // Close active responsibilities
-  await db.assetResponsibility.updateMany({
-    where: { registeredAssetId, effectiveTo: null },
-    data: { effectiveTo: new Date() },
-  })
-
-  const disposalPayload = {
-    registeredAssetId,
-    assetCode: asset.assetCode,
-    name: asset.name,
-    method,
-    reason: reason.trim(),
-    salePrice: salePrice ? String(salePrice) : null,
-    buyerOrRecipient: buyerOrRecipient ? String(buyerOrRecipient).trim() : null,
-    documentRef: documentRef ? String(documentRef).trim() : null,
-    evidenceFileAssetId: evidenceFileAssetId || null,
-    disposedByPersonId: viewer?.personId || null,
-    disposedAt: new Date().toISOString(),
-  }
-
-  await recordAudit(db, {
-    entityType: 'REGISTERED_ASSET',
-    entityId: registeredAssetId,
-    action: 'ASSET_DISPOSED',
-    payloadJson: JSON.stringify(disposalPayload),
-    actorId: viewer?.personId || 'SYSTEM',
-  })
-
-  return disposalPayload
 }
 
 /**

@@ -100,11 +100,26 @@ status: generated
 ### Code paths — graph bindings
 
 - [apps/server/src/modules/agent/msp-thread-memory-port.js](../../../apps/server/src/modules/agent/msp-thread-memory-port.js) — `implements` (`annotation`)
+- [apps/server/src/modules/crm/customer-consent-service.js](../../../apps/server/src/modules/crm/customer-consent-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/identity/customer-memory-erasure.js](../../../apps/server/src/modules/identity/customer-memory-erasure.js) — `implements` (`annotation`)
+- [apps/server/src/modules/identity/erase-principal.js](../../../apps/server/src/modules/identity/erase-principal.js) — `implements` (`annotation`)
+- [apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js](../../../apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/agent-msp-thread-memory.test.js](../../../apps/server/tests/integration/agent-msp-thread-memory.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-archive-legal-hold.test.js](../../../apps/server/tests/integration/crm-archive-legal-hold.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-customer-consent.test.js](../../../apps/server/tests/integration/crm-customer-consent.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-customer-erasure.test.js](../../../apps/server/tests/integration/crm-customer-erasure.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr236-knowledge-candidate.test.js](../../../apps/server/tests/integration/fr236-knowledge-candidate.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/identity-erase-group-speakers.test.js](../../../apps/server/tests/integration/identity-erase-group-speakers.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/identity-erase-speaker-events.test.js](../../../apps/server/tests/integration/identity-erase-speaker-events.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/identity-erase.test.js](../../../apps/server/tests/integration/identity-erase.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-worker-memory.test.js](../../../apps/server/tests/integration/line-worker-memory.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/phase-b-identity-erasure.test.js](../../../apps/server/tests/integration/phase-b-identity-erasure.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/customer-consent-service.test.js](../../../apps/server/tests/unit/customer-consent-service.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-233](requirements/FR-233.md)
 

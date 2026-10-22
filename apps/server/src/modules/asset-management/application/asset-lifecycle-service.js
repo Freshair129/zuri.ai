@@ -5,6 +5,7 @@ import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ASSET_RESPONSIBILITY_ROLES } from '@/lib/validation/enums'
 import { assertAssetIntakeWrite } from './asset-authority'
+import { assertCurrentBusinessPerson } from './asset-person-scope'
 
 function lifecycleError(message, status = 400) {
   const error = new Error(message)
@@ -54,6 +55,12 @@ export async function transferAssetResponsibility({
     if (!asset) {
       throw lifecycleError('Registered asset not found', 404)
     }
+
+    await assertCurrentBusinessPerson(tx, {
+      personId,
+      tenantId: asset.tenantId,
+      businessId,
+    })
 
     const person = await tx.person.findFirst({
       where: { id: personId },
@@ -237,6 +244,12 @@ export async function allocateAssetToProject({
   if (!businessId || !registeredAssetId || !projectId) {
     throw lifecycleError('businessId, registeredAssetId, and projectId are required', 400)
   }
+  if (typeof quantity !== 'number' || !Number.isFinite(quantity) || quantity <= 0) {
+    throw lifecycleError('quantity must be a positive finite number', 400)
+  }
+  if (typeof exclusive !== 'boolean') {
+    throw lifecycleError('exclusive must be a boolean', 400)
+  }
   if (viewer) {
     assertAssetIntakeWrite(viewer, businessId)
   }
@@ -253,6 +266,9 @@ export async function allocateAssetToProject({
     if (!asset) {
       throw lifecycleError('Registered asset not found', 404)
     }
+    if (asset.status === 'DISPOSED') {
+      throw lifecycleError('Disposed asset cannot be allocated', 409)
+    }
 
     // Verify project belongs to the same business
     const project = await tx.project.findFirst({
@@ -267,20 +283,76 @@ export async function allocateAssetToProject({
       throw lifecycleError('Project not found in current business', 404)
     }
 
-    // If exclusive allocation, check and close any active existing allocation
-    if (exclusive) {
-      await tx.assetProjectAllocation.updateMany({
+    if (workstreamId) {
+      const workstream = await tx.workstream.findFirst({
+        where: { id: workstreamId, projectId: project.id },
+        select: { id: true },
+      })
+      if (!workstream) {
+        throw lifecycleError('Workstream not found in current project', 404)
+      }
+    }
+
+    // Serialize allocation checks for one RegisteredAsset. A versioned update
+    // takes the row lock before reading intervals and makes a stale contender
+    // fail after the winning transaction commits.
+    const versionClaim = await tx.registeredAsset.updateMany({
+      where: { id: registeredAssetId, businessId, deletedAt: null, version: asset.version },
+      data: { version: { increment: 1 } },
+    })
+    if (versionClaim.count !== 1) {
+      throw lifecycleError('Registered asset changed during allocation; retry', 409)
+    }
+
+    // Allocations use half-open intervals [effectiveFrom, effectiveTo). An
+    // already-open interval that began before this effective date can be
+    // replaced at the boundary; any closed/future interval that reaches past
+    // the boundary must remain immutable and blocks the new booking whenever
+    // either side is exclusive.
+    const overlapping = await tx.assetProjectAllocation.findMany({
+      where: {
+        registeredAssetId,
+        businessId,
+        deletedAt: null,
+        OR: [{ effectiveTo: null }, { effectiveTo: { gt: effectiveDate } }],
+      },
+      select: { id: true, exclusive: true, status: true, effectiveFrom: true, effectiveTo: true },
+    })
+    const replaceableIds = []
+    for (const existing of overlapping) {
+      if (!exclusive && !existing.exclusive) continue
+
+      const existingStart = new Date(existing.effectiveFrom).getTime()
+      const canReplace = existing.status === 'ACTIVE'
+        && existing.effectiveTo == null
+        && Number.isFinite(existingStart)
+        && effectiveDate.getTime() > existingStart
+      if (canReplace) {
+        replaceableIds.push(existing.id)
+        continue
+      }
+
+      throw lifecycleError('Asset allocation overlaps an existing exclusive interval', 409)
+    }
+
+    if (replaceableIds.length) {
+      const replaced = await tx.assetProjectAllocation.updateMany({
         where: {
+          id: { in: replaceableIds },
           registeredAssetId,
           businessId,
           status: 'ACTIVE',
           effectiveTo: null,
+          deletedAt: null,
         },
         data: {
           status: 'REPLACED',
           effectiveTo: effectiveDate,
         },
       })
+      if (replaced.count !== replaceableIds.length) {
+        throw lifecycleError('Asset allocation changed during replacement; retry', 409)
+      }
     }
 
     const allocation = await tx.assetProjectAllocation.create({
@@ -366,11 +438,23 @@ export async function returnAssetFromProject({
       throw lifecycleError('Registered asset not found', 404)
     }
 
+    // Serialize returns with allocation changes on the same RegisteredAsset.
+    // Allocation and return transactions acquire this version claim before
+    // reading interval state, so a stale return cannot close a replacement.
+    const versionClaim = await tx.registeredAsset.updateMany({
+      where: { id: registeredAssetId, businessId, deletedAt: null, version: asset.version },
+      data: { version: { increment: 1 } },
+    })
+    if (versionClaim.count !== 1) {
+      throw lifecycleError('Registered asset changed during return; retry', 409)
+    }
+
     // Find active allocation (either by allocationId or registeredAssetId)
     const where = {
       registeredAssetId,
       businessId,
       status: 'ACTIVE',
+      effectiveTo: null,
     }
     if (allocationId) {
       where.id = allocationId
@@ -385,13 +469,35 @@ export async function returnAssetFromProject({
       throw lifecycleError('Active project allocation not found for this asset', 404)
     }
 
-    const updatedAllocation = await tx.assetProjectAllocation.update({
-      where: { id: allocation.id },
+    const allocationStart = new Date(allocation.effectiveFrom).getTime()
+    if (returnDate.getTime() < allocationStart) {
+      throw lifecycleError('effectiveTo cannot be before allocation effectiveFrom', 400)
+    }
+
+    // Guard the observed active/open interval as well as the asset-level
+    // version claim. This makes a changed/replaced allocation fail closed.
+    const allocationClaim = await tx.assetProjectAllocation.updateMany({
+      where: {
+        id: allocation.id,
+        registeredAssetId,
+        businessId,
+        status: 'ACTIVE',
+        effectiveTo: null,
+        version: allocation.version,
+      },
       data: {
         status: 'RETURNED',
         effectiveTo: returnDate,
+        version: { increment: 1 },
       },
     })
+    if (allocationClaim.count !== 1) {
+      throw lifecycleError('Asset allocation changed during return; retry', 409)
+    }
+    const updatedAllocation = await tx.assetProjectAllocation.findUnique({ where: { id: allocation.id } })
+    if (!updatedAllocation) {
+      throw lifecycleError('Asset allocation changed during return; retry', 409)
+    }
 
     // Check if there are other active allocations remaining
     const remainingActive = await tx.assetProjectAllocation.count({

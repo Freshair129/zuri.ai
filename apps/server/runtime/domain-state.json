@@ -42,7 +42,7 @@
     "requirementCount": 278,
     "verifiedRequirementCount": 247,
     "progressPercent": 92.7,
-    "gapCount": 56,
+    "gapCount": 61,
     "gaps": [
       {
         "domain": "agent",
@@ -88,7 +88,18 @@
         "evidence": [
           "apps/server/src/modules/agent/msp-thread-memory-port.js",
           "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-          "apps/server/tests/integration/line-worker-memory.test.js"
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-consent.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
+          "apps/server/tests/unit/customer-consent-service.test.js"
         ]
       },
       {
@@ -116,6 +127,43 @@
         "evidence": [
           "docs/domains/asset-management/CHARTER.md",
           "docs/domains/asset-management/features/FR-133-asset-management-foundation.md"
+        ]
+      },
+      {
+        "domain": "crm",
+        "id": "CONTRACT-001",
+        "severity": "medium",
+        "check": "runtimeContract",
+        "summary": "At least one requirement in this domain is not fully code-and-test verified"
+      },
+      {
+        "domain": "crm",
+        "id": "TEST-001",
+        "severity": "medium",
+        "check": "tests",
+        "summary": "At least one requirement lacks complete code-and-test evidence"
+      },
+      {
+        "domain": "crm",
+        "id": "REQ-FR-232",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-232 is partial",
+        "evidence": [
+          "apps/server/src/modules/crm/customer-consent-service.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-consent.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
+          "apps/server/tests/unit/customer-consent-service.test.js"
         ]
       },
       {
@@ -190,6 +238,30 @@
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/unit/doc-graph-retired-rules.test.js",
           "apps/server/tests/unit/integrations-page-claims.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-232",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-232 is partial",
+        "evidence": [
+          "apps/server/src/modules/identity/customer-memory-erasure.js",
+          "apps/server/src/modules/identity/erase-principal.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-consent.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
+          "apps/server/tests/unit/customer-consent-service.test.js"
         ]
       },
       {
@@ -274,6 +346,29 @@
         "evidence": [
           "apps/edge/tests/unit/genesisrag17-edge.test.ts",
           "apps/edge/tests/unit/genesisrag17-products.test.ts"
+        ]
+      },
+      {
+        "domain": "knowledge",
+        "id": "REQ-FR-232",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-232 is partial",
+        "evidence": [
+          "apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js",
+          "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-consent.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
+          "apps/server/tests/integration/line-worker-memory.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
+          "apps/server/tests/unit/customer-consent-service.test.js"
         ]
       },
       {
@@ -720,7 +815,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 46
+          "testCount": 48
         },
         {
           "id": "FR-025",
@@ -838,7 +933,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-079",
@@ -958,11 +1053,22 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 2,
+          "testCount": 13,
           "evidence": [
             "apps/server/src/modules/agent/msp-thread-memory-port.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js"
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
           ]
         },
         {
@@ -1035,7 +1141,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "checks": {
@@ -1189,7 +1295,18 @@
           "evidence": [
             "apps/server/src/modules/agent/msp-thread-memory-port.js",
             "apps/server/tests/integration/agent-msp-thread-memory.test.js",
-            "apps/server/tests/integration/line-worker-memory.test.js"
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
           ]
         },
         {
@@ -1262,8 +1379,8 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 34
+          "codeCount": 13,
+          "testCount": 38
         },
         {
           "id": "FR-136",
@@ -1461,7 +1578,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-196",
@@ -1588,7 +1705,7 @@
       "progressPercent": 100
     },
     "crm": {
-      "status": "verified",
+      "status": "partial",
       "requirements": [
         {
           "id": "FR-022",
@@ -1596,7 +1713,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 46
+          "testCount": 48
         },
         {
           "id": "FR-023",
@@ -1652,7 +1769,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-127",
@@ -1660,7 +1777,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-146",
@@ -1743,6 +1860,30 @@
           "testCount": 19
         },
         {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 13,
+          "evidence": [
+            "apps/server/src/modules/crm/customer-consent-service.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
+        },
+        {
           "id": "FR-233",
           "title": "Conversation inbox read models and search",
           "declared": "done",
@@ -1816,12 +1957,18 @@
           "gaps": []
         },
         "runtimeContract": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md",
             "src/modules/project-manager/import/plan-schema.js"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "CONTRACT-001",
+              "severity": "medium",
+              "summary": "At least one requirement in this domain is not fully code-and-test verified"
+            }
+          ]
         },
         "jsonSchema": {
           "status": "verified",
@@ -1847,11 +1994,17 @@
           "gaps": []
         },
         "tests": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/TRACE.md"
           ],
-          "gaps": []
+          "gaps": [
+            {
+              "id": "TEST-001",
+              "severity": "medium",
+              "summary": "At least one requirement lacks complete code-and-test evidence"
+            }
+          ]
         }
       },
       "evidence": [
@@ -1871,7 +2024,42 @@
         "docs/domains/crm/features/PHASE-FR-149-P5-server-line-transport.md",
         "src/modules/project-manager/import/plan-schema.js"
       ],
-      "gaps": [],
+      "gaps": [
+        {
+          "id": "CONTRACT-001",
+          "severity": "medium",
+          "check": "runtimeContract",
+          "summary": "At least one requirement in this domain is not fully code-and-test verified"
+        },
+        {
+          "id": "TEST-001",
+          "severity": "medium",
+          "check": "tests",
+          "summary": "At least one requirement lacks complete code-and-test evidence"
+        },
+        {
+          "id": "REQ-FR-232",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-232 is partial",
+          "evidence": [
+            "apps/server/src/modules/crm/customer-consent-service.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
+        }
+      ],
       "details": {
         "routes": 0,
         "apiRoutes": 0,
@@ -1979,8 +2167,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 46
+          "codeCount": 7,
+          "testCount": 48
         },
         {
           "id": "FR-026",
@@ -2028,7 +2216,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 81
+          "testCount": 82
         },
         {
           "id": "FR-059",
@@ -2076,7 +2264,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-075",
@@ -2084,7 +2272,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-076",
@@ -2116,7 +2304,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-096",
@@ -2156,7 +2344,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-104",
@@ -2221,6 +2409,14 @@
           "status": "verified",
           "codeCount": 9,
           "testCount": 20
+        },
+        {
+          "id": "FR-127",
+          "title": "Conversation intelligence analysis",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 12
         },
         {
           "id": "FR-144",
@@ -2302,7 +2498,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-192",
@@ -2377,12 +2573,37 @@
           "testCount": 12
         },
         {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 13,
+          "evidence": [
+            "apps/server/src/modules/identity/customer-memory-erasure.js",
+            "apps/server/src/modules/identity/erase-principal.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
+        },
+        {
           "id": "FR-252",
           "title": "Project Feature authority",
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 46
+          "testCount": 47
         }
       ],
       "checks": {
@@ -2605,6 +2826,29 @@
             "apps/server/tests/unit/doc-graph-retired-rules.test.js",
             "apps/server/tests/unit/integrations-page-claims.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-232",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-232 is partial",
+          "evidence": [
+            "apps/server/src/modules/identity/customer-memory-erasure.js",
+            "apps/server/src/modules/identity/erase-principal.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
         }
       ],
       "details": {
@@ -2653,7 +2897,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 46
+          "testCount": 48
         },
         {
           "id": "FR-028",
@@ -3730,6 +3974,30 @@
           "testCount": 5
         },
         {
+          "id": "FR-232",
+          "title": "Erasure propagation beyond Tier 1",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 13,
+          "evidence": [
+            "apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
+        },
+        {
           "id": "FR-235",
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
@@ -3950,6 +4218,28 @@
           ]
         },
         {
+          "id": "REQ-FR-232",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-232 is partial",
+          "evidence": [
+            "apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js",
+            "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-consent.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-worker-memory.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/unit/customer-consent-service.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-288",
           "severity": "medium",
           "check": "requirements",
@@ -4009,7 +4299,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 46
+          "testCount": 48
         },
         {
           "id": "FR-026",
@@ -4938,7 +5228,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 81
+          "testCount": 82
         },
         {
           "id": "FR-075",
@@ -4946,7 +5236,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-095",
@@ -4954,7 +5244,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-105",
@@ -5428,7 +5718,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 18
         },
         {
           "id": "FR-002",
@@ -5572,7 +5862,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-021",
@@ -5588,7 +5878,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 46
+          "testCount": 48
         },
         {
           "id": "FR-026",
@@ -5724,7 +6014,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 81
+          "testCount": 82
         },
         {
           "id": "FR-056",
@@ -5852,7 +6142,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-073",
@@ -5868,7 +6158,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 18
+          "testCount": 19
         },
         {
           "id": "FR-075",
@@ -5876,7 +6166,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-077",
@@ -5980,7 +6270,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-097",
@@ -6012,7 +6302,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-104",
@@ -6092,7 +6382,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-133",
@@ -6115,8 +6405,8 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 15,
-          "testCount": 34
+          "codeCount": 16,
+          "testCount": 38
         },
         {
           "id": "FR-136",
@@ -6420,7 +6710,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-193",
@@ -6436,7 +6726,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-195",
@@ -6692,7 +6982,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-253",
@@ -6967,7 +7257,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-286",
@@ -6975,7 +7265,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         },
         {
           "id": "FR-289",
@@ -7095,8 +7385,8 @@
             }
           ],
           "details": {
-            "mutations": 138,
-            "guardedMutations": 137,
+            "mutations": 140,
+            "guardedMutations": 139,
             "reads": 83,
             "unguardedReads": 11
           }
@@ -8420,7 +8710,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-096",
@@ -8512,6 +8802,7 @@
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
         "apps/server/tests/integration/fr210-line-catalog-command.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/iam-authorization.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
@@ -8940,6 +9231,7 @@
       "primaryDomain": "crm",
       "contributorDomains": [
         "crm",
+        "identity",
         "project-manager"
       ],
       "useCase": "ทีมขายเปิดโปรไฟล์ลูกค้าที่ AI สรุปจากบทสนทนา LINE ดูผลวิเคราะห์รายบทสนทนา และรับ Daily Sales Brief ของ Business ในแต่ละวัน",
@@ -8965,8 +9257,8 @@
           "title": "Conversation intelligence analysis",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 11
+          "codeCount": 3,
+          "testCount": 12
         },
         {
           "id": "FR-128",
@@ -8979,10 +9271,12 @@
       ],
       "evidence": [
         "apps/server/src/modules/crm/conversation-analysis-service.js",
+        "apps/server/src/modules/identity/customer-memory-erasure.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
@@ -9040,8 +9334,8 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 28,
-          "testCount": 34
+          "codeCount": 30,
+          "testCount": 38
         },
         {
           "id": "FR-136",
@@ -9075,6 +9369,7 @@
         "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
         "apps/server/src/modules/asset-management/application/asset-lookup-service.js",
         "apps/server/src/modules/asset-management/application/asset-maintenance-service.js",
+        "apps/server/src/modules/asset-management/application/asset-person-scope.js",
         "apps/server/src/modules/asset-management/application/asset-register-service.js",
         "apps/server/src/modules/asset-management/application/asset-request-scope.js",
         "apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
@@ -9085,10 +9380,12 @@
         "apps/server/src/modules/asset-management/domain/depreciation.js",
         "apps/server/src/modules/asset-management/index.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
+        "apps/server/tests/integration/asset-disposal-audit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -9098,6 +9395,8 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/project-inventory-stall.test.js",
+        "apps/server/tests/integration/project-inventory.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/asset-depreciation.test.js",
         "apps/server/tests/unit/asset-disposal-routes.test.js",
@@ -9137,6 +9436,7 @@
         "apps/server/tests/unit/platform/pipeline-tracking-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
+        "apps/server/tests/unit/project-inventory-read-model.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js"
       ]
     },
@@ -10674,7 +10974,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-192",
@@ -10711,10 +11011,12 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr191-access-grant-lifecycle.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
         "apps/server/tests/integration/governance-snapshot-capture.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
@@ -10792,7 +11094,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -10819,6 +11121,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -11687,6 +11990,8 @@
       "contributorDomains": [
         "agent",
         "crm",
+        "identity",
+        "knowledge",
         "line-oa-studio",
         "project-manager"
       ],
@@ -11729,8 +12034,8 @@
           "title": "Erasure propagation beyond Tier 1",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 1,
-          "testCount": 2
+          "codeCount": 5,
+          "testCount": 13
         },
         {
           "id": "FR-233",
@@ -11768,12 +12073,16 @@
         "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
         "apps/server/src/modules/crm/conversation-search-service.js",
+        "apps/server/src/modules/crm/customer-consent-service.js",
         "apps/server/src/modules/crm/line-ingest-service.js",
         "apps/server/src/modules/crm/line-unsend-tombstone.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-override-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/crm/retention-sweep-tombstone.js",
+        "apps/server/src/modules/identity/customer-memory-erasure.js",
+        "apps/server/src/modules/identity/erase-principal.js",
+        "apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
@@ -11783,10 +12092,12 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
         "apps/server/tests/integration/crm-conversation-search.test.js",
+        "apps/server/tests/integration/crm-customer-consent.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/crm-retention-override-service.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
@@ -11795,6 +12106,7 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
@@ -11808,6 +12120,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
@@ -11819,6 +12132,7 @@
         "apps/server/tests/unit/crm-conversation-retention-migration.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/crm-retention-sweep-route.test.js",
+        "apps/server/tests/unit/customer-consent-service.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
@@ -12622,7 +12936,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 14
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -12636,9 +12950,12 @@
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/navigation-reachability.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
@@ -12646,7 +12963,8 @@
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/project-list-contract.test.js",
         "apps/server/tests/unit/projects-dashboard-ui.test.js",
-        "apps/server/tests/unit/route-reachability.test.js"
+        "apps/server/tests/unit/route-reachability.test.js",
+        "apps/server/tests/unit/scope-crud-schema-contract.test.js"
       ]
     },
     {
@@ -13464,7 +13782,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -13480,6 +13798,7 @@
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr169-business-capability.test.js",
@@ -13562,8 +13881,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 46
+          "codeCount": 32,
+          "testCount": 48
         }
       ],
       "evidence": [
@@ -13586,6 +13905,7 @@
         "apps/server/src/modules/crm/retention-consent-reader.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
         "apps/server/src/modules/identity/classify-principal.js",
+        "apps/server/src/modules/identity/customer-memory-erasure.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/gate.js",
@@ -13615,6 +13935,7 @@
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/identity-classify.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
@@ -13635,6 +13956,7 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/unit/chat-evidence-hold-reseal-errors.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/crm-retention-consent-migration.test.js",
         "apps/server/tests/unit/crm-retention-consent-routes.test.js",
@@ -14603,7 +14925,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 81
+          "testCount": 82
         }
       ],
       "evidence": [
@@ -14705,6 +15027,7 @@
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr038-business-membership-add.test.js",
         "apps/server/tests/integration/fr046-entry-contract.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
@@ -15764,7 +16087,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 72
+          "testCount": 73
         }
       ],
       "evidence": [
@@ -15808,6 +16131,7 @@
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
@@ -15948,7 +16272,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -15961,6 +16285,7 @@
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr046-entry-contract.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
@@ -16004,7 +16329,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 41
+          "testCount": 42
         }
       ],
       "evidence": [
@@ -16024,6 +16349,7 @@
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
@@ -16422,7 +16748,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 24
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -16441,6 +16767,7 @@
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/crm-retention-consent.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
         "apps/server/tests/integration/identity-erase.test.js",
@@ -18164,7 +18491,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 46
+          "testCount": 47
         }
       ],
       "evidence": [
@@ -18206,6 +18533,7 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
         "apps/server/tests/integration/governance-snapshot-capture.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
@@ -18781,7 +19109,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -18797,6 +19125,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -18837,7 +19166,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 24
+          "testCount": 25
         }
       ],
       "evidence": [
@@ -18850,6 +19179,7 @@
         "apps/server/tests/integration/business-provisioning-backup.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",

@@ -621,11 +621,20 @@ export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, 
     throw error instanceof ChatEvidenceArchiveWriteError ? error : new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_RENAME_FAILED', error)
   }
 
-  const readBack = await fs.readFile(finalPath)
-  const actualSha256 = createHash('sha256').update(readBack).digest('hex')
-  if (actualSha256 !== expectedSha256) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_VERIFICATION_FAILED')
-
-  return { relativePath: path.relative(baseDir, finalPath).split(path.sep).join('/'), fileSha256: actualSha256 }
+  const relativePath = path.relative(baseDir, finalPath).split(path.sep).join('/')
+  const archiveFile = { runId, relativePath, baseDir }
+  try {
+    const readBack = await fs.readFile(finalPath)
+    const actualSha256 = createHash('sha256').update(readBack).digest('hex')
+    if (actualSha256 !== expectedSha256) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_VERIFICATION_FAILED')
+    return { relativePath, fileSha256: actualSha256 }
+  } catch (error) {
+    // Rename has committed the final path. The erasure transaction caller must
+    // receive enough identity to remove this unmanifested file if it rolls
+    // back; otherwise a read-back error strands an unverifiable archive.
+    error.archiveFile = archiveFile
+    throw error
+  }
 }
 
 /**

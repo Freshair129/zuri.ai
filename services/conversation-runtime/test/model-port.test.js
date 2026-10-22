@@ -35,7 +35,7 @@ for (const providerCase of productionProviders) {
     const provider = providerCase.provider
     const credential = { provider, model: providerCase.model ?? 'm', apiKey: 'synthetic-key',
       ...(providerCase.baseUrl ? { baseUrl: providerCase.baseUrl } : {}) }
-    const result = await model.generate({ question: 'q', evidence: { records: [{ code: 'A1' }] }, credential,
+    const result = await model.generate({ question: 'q', evidence: { records: [{ code: 'A1' }] }, recordFacts: [], credential,
       deadlineAt: new Date(Date.now() + 5000).toISOString() })
 
     assert.equal(result, 'ok')
@@ -70,6 +70,55 @@ test('model port invokes a fixed approved endpoint and returns bounded provider 
     ].join('\n'),
     max_output_tokens: 500,
   })
+})
+
+test('model prompt keeps source text but omits Core-only source segment metadata', async () => {
+  let request
+  const model = createModelPort({ fetchFn: async (url, options) => {
+    request = { url: String(url), options }
+    return new Response(JSON.stringify({ output_text: 'ok' }), { status: 200 })
+  } })
+  await model.generate({ question: 'q', evidence: { records: [{ citationId: 'c1' }] },
+    contextPacket: { policyDecision: 'ALLOW', text: 'first slice\nsecond slice',
+      sourceSegments: [{ id: 'exchange:e1', startByte: 0, byteLength: 11 }, { id: 'episodic:m1', startByte: 12, byteLength: 12 }] },
+    credential: { provider: 'openai', model: 'm', apiKey: 'synthetic-key' }, deadlineAt: new Date(Date.now() + 5000).toISOString() })
+  const body = JSON.parse(request.options.body)
+  assert.match(body.input, /first slice\\nsecond slice/)
+  assert.doesNotMatch(body.input, /sourceSegments|exchange:e1|episodic:m1/)
+})
+
+test('model prompt separates Core-prepared RECORD facts from MSP context and preserves source precedence', async () => {
+  let request
+  const model = createModelPort({ fetchFn: async (url, options) => {
+    request = { url: String(url), options }
+    return new Response(JSON.stringify({ output_text: 'ok' }), { status: 200 })
+  } })
+  await model.generate({ question: 'q', evidence: { records: [{ citationId: 'c1' }] },
+    recordFacts: ['Core-prepared CRM fact'],
+    contextPacket: { policyDecision: 'ALLOW', text: 'private thread context',
+      sourceSegments: [{ id: 'exchange:private-id', startByte: 0, byteLength: 21 }] },
+    credential: { provider: 'openai', model: 'm', apiKey: 'synthetic-key' }, deadlineAt: new Date(Date.now() + 5000).toISOString() })
+  const body = JSON.parse(request.options.body)
+  const prompt = body.input
+  const recordFactsAt = prompt.indexOf('RECORD FACTS:')
+  const evidenceAt = prompt.indexOf('EVIDENCE:')
+  const threadAt = prompt.indexOf('THREAD CONTEXT PACKET (')
+  assert.ok(recordFactsAt >= 0 && evidenceAt > recordFactsAt && threadAt > evidenceAt)
+  assert.match(prompt, /\["Core-prepared CRM fact"\]/)
+  assert.match(prompt, /private thread context/)
+  assert.doesNotMatch(prompt, /sourceSegments|exchange:private-id/)
+})
+
+test('model port bounds serialized RECORD facts before provider entry', async () => {
+  let called = false
+  const model = createModelPort({ fetchFn: async () => {
+    called = true
+    return new Response(JSON.stringify({ output_text: 'ok' }), { status: 200 })
+  } })
+  await assert.rejects(model.generate({ question: 'q', evidence: { records: [{}] }, recordFacts: ['x'.repeat(32 * 1024)],
+    credential: { provider: 'openai', model: 'm', apiKey: 'synthetic-key' }, deadlineAt: new Date(Date.now() + 5000).toISOString() }),
+  error => error.code === 'MODEL_RECORD_FACTS_TOO_LARGE')
+  assert.equal(called, false)
 })
 
 test('model port refuses user-selected endpoints and never includes provider error bodies', async () => {

@@ -21,6 +21,7 @@ export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS', 'CATALOG_COMMAND'])
 export const MEMORY_OPERATIONS = Object.freeze(['read', 'append', 'receipt'])
 export const MEMORY_INJECTION_STATES = Object.freeze(['RESOLVED', 'SUBMITTED', 'COMPLETED', 'FAILED'])
 export const MAX_MEMORY_PACKET_BYTES = 32 * 1024
+const MAX_TRACE_CONTEXT_REQUEST_BYTES = 40 * 1024
 export const MAX_REQUEST_BYTES = 64 * 1024
 export const MAX_RESPONSE_BYTES = 64 * 1024
 // Core admits LINE text up to LINE_TEXT_MAX_CHARS (apps/server line-conversation-jobs.js) and the legacy
@@ -85,6 +86,9 @@ export function validateCoreEnvelope(value, expectedOperation = null) {
   if (!value.payload || typeof value.payload !== 'object' || Array.isArray(value.payload)
     || Object.keys(value.payload).length > 32) throw fail('CONTRACT_PAYLOAD_INVALID')
   validateOperationPayload(value.operation, value.payload)
+  if (value.operation === 'trace' && value.payload.kind === 'CONTEXT_RECEIPT') {
+    boundedJsonWithin(value, MAX_TRACE_CONTEXT_REQUEST_BYTES, 'TRACE_PAYLOAD_INVALID')
+  }
   return value
 }
 
@@ -99,7 +103,10 @@ const CLAIM_REF_FIELDS = ['jobId', 'executionId', 'claimantId', 'version', 'tena
 
 export function validateOperationPayload(operation, payload) {
   const allowed = PAYLOAD_FIELDS[operation]
-  if (!allowed || Object.keys(payload).some(key => !allowed.includes(key))) throw fail('CONTRACT_PAYLOAD_FIELD_INVALID')
+  const conditionalAllowed = operation === 'trace' && payload.kind === 'CONTEXT_RECEIPT' ? ['contextBinding'] : []
+  if (!allowed || Object.keys(payload).some(key => !allowed.includes(key) && !conditionalAllowed.includes(key))) {
+    throw fail('CONTRACT_PAYLOAD_FIELD_INVALID')
+  }
   for (const field of allowed) if (!Object.hasOwn(payload, field)) throw fail('CONTRACT_PAYLOAD_FIELD_REQUIRED')
   if (operation === 'claim') boundedText(payload.claimantId, 128, 'CLAIMANT_ID_INVALID')
   if (['renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory'].includes(operation)) {
@@ -126,8 +133,32 @@ export function validateOperationPayload(operation, payload) {
     boundedText(payload.kind, 80, 'TRACE_KIND_INVALID')
     if (!payload.payload || typeof payload.payload !== 'object' || Array.isArray(payload.payload)) throw fail('TRACE_PAYLOAD_INVALID')
     boundedJsonWithin(payload.payload, 8 * 1024, 'TRACE_PAYLOAD_INVALID')
+    if (payload.kind === 'CONTEXT_RECEIPT') {
+      validateTraceContextBinding(payload.contextBinding, payload.payload)
+      boundedJsonWithin(payload, MAX_TRACE_CONTEXT_REQUEST_BYTES, 'TRACE_PAYLOAD_INVALID')
+    }
   }
   return payload
+}
+
+function validateTraceContextBinding(binding, receipt) {
+  const invalid = () => { throw fail('TRACE_CONTEXT_BINDING_INVALID') }
+  if (!binding || typeof binding !== 'object' || Array.isArray(binding)
+    || Object.keys(binding).length !== 3
+    || Object.keys(binding).some(key => !['contextReceiptId', 'contextReceiptHash', 'contextPacket'].includes(key))) invalid()
+  if (typeof binding.contextReceiptId !== 'string' || !/^ctxrcpt_[0-9a-f-]{36}$/.test(binding.contextReceiptId)
+    || typeof binding.contextReceiptHash !== 'string' || !/^[0-9a-f]{64}$/.test(binding.contextReceiptHash)
+    || receipt?.receiptId !== binding.contextReceiptId || receipt?.hash !== binding.contextReceiptHash
+    || !receipt?.refs || typeof receipt.refs !== 'object' || Array.isArray(receipt.refs)
+    || !Array.isArray(receipt.refs.msp)) invalid()
+
+  if (binding.contextPacket === null) {
+    if (receipt.refs.msp.length !== 0) invalid()
+    return
+  }
+  if (!binding.contextPacket || typeof binding.contextPacket !== 'object' || Array.isArray(binding.contextPacket)
+    || binding.contextPacket.policyDecision !== 'ALLOW' || receipt.refs.msp.length === 0) invalid()
+  boundedJsonWithin(binding.contextPacket, MAX_MEMORY_PACKET_BYTES, 'TRACE_CONTEXT_BINDING_INVALID')
 }
 
 export function validateClaim(value) {
@@ -176,16 +207,33 @@ export function validateMemoryRequest(value) {
   if (!MEMORY_OPERATIONS.includes(value.operation)) throw fail('MEMORY_OPERATION_INVALID')
   boundedToken(value.operationId, 200, 'MEMORY_IDEMPOTENCY_REQUIRED')
   if (!value.input || typeof value.input !== 'object' || Array.isArray(value.input)) throw fail('MEMORY_INPUT_INVALID')
-  boundedJsonWithin(value.input, 16 * 1024, 'MEMORY_INPUT_INVALID')
+  const injectionContext = value.operation === 'receipt' && value.input.state !== undefined
+    && (value.input.contextReceiptId !== undefined || value.input.contextReceiptHash !== undefined || value.input.contextPacket !== undefined)
+  boundedJsonWithin(value.input, injectionContext ? 40 * 1024 : 16 * 1024, 'MEMORY_INPUT_INVALID')
   const fields = Object.keys(value.input)
   if (value.operation === 'read') {
     if (fields.length) throw fail('MEMORY_INPUT_INVALID')
   } else if (value.operation === 'append') {
     if (fields.length !== 1 || fields[0] !== 'text') throw fail('MEMORY_INPUT_INVALID')
     boundedText(value.input.text, 5000, 'MEMORY_INPUT_INVALID')
-  } else if (fields.some(field => field !== 'state')
-    || (value.input.state !== undefined && !MEMORY_INJECTION_STATES.includes(value.input.state))) {
-    throw fail('MEMORY_INPUT_INVALID')
+  } else {
+    if (fields.some(field => !['state', 'contextReceiptId', 'contextReceiptHash', 'contextPacket'].includes(field))
+      || (value.input.state !== undefined && !MEMORY_INJECTION_STATES.includes(value.input.state))) {
+      throw fail('MEMORY_INPUT_INVALID')
+    }
+    const bindingFields = ['contextReceiptId', 'contextReceiptHash', 'contextPacket']
+    const bindingCount = bindingFields.filter(field => value.input[field] !== undefined).length
+    if (bindingCount !== 0 && (value.input.state === undefined || bindingCount !== bindingFields.length)) {
+      throw fail('MEMORY_INPUT_INVALID')
+    }
+    if (bindingCount) {
+      if (typeof value.input.contextReceiptId !== 'string'
+        || !/^ctxrcpt_[0-9a-f-]{36}$/.test(value.input.contextReceiptId)
+        || typeof value.input.contextReceiptHash !== 'string' || !/^[0-9a-f]{64}$/.test(value.input.contextReceiptHash)
+        || !value.input.contextPacket || typeof value.input.contextPacket !== 'object' || Array.isArray(value.input.contextPacket)
+        || value.input.contextPacket.policyDecision !== 'ALLOW') throw fail('MEMORY_INPUT_INVALID')
+      boundedJsonWithin(value.input.contextPacket, MAX_MEMORY_PACKET_BYTES, 'MEMORY_INPUT_INVALID')
+    }
   }
   return value
 }

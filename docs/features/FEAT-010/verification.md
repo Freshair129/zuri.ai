@@ -117,6 +117,7 @@ status: generated
 - [apps/server/tests/integration/crm-customer-erasure.test.js](../../../apps/server/tests/integration/crm-customer-erasure.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr191-access-grant-lifecycle.test.js](../../../apps/server/tests/integration/fr191-access-grant-lifecycle.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr236-knowledge-candidate.test.js](../../../apps/server/tests/integration/fr236-knowledge-candidate.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/identity-erase-group-speakers.test.js](../../../apps/server/tests/integration/identity-erase-group-speakers.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/identity-erase-speaker-events.test.js](../../../apps/server/tests/integration/identity-erase-speaker-events.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/identity-erase.test.js](../../../apps/server/tests/integration/identity-erase.test.js) — `verifies` (`transitive`)

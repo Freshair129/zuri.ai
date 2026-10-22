@@ -119,8 +119,8 @@ describe('Phase B offline recovery runners', () => {
   // @req TASK-ZAI-011 — notification history joins portable snapshots and the pinned census.
   it('loads the committed pinned 208-table inventory', () => {
     expect(inventory.applicationTables).toHaveLength(208)
-    expect(inventory.schemaSha256).toBe("47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b")
-    expect(inventory.targetSchemaSha256).toBe("cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c")
+    expect(inventory.schemaSha256).toBe("579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8")
+    expect(inventory.targetSchemaSha256).toBe("af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683")
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -271,6 +271,9 @@ describe('Phase B offline recovery runners', () => {
   })
 
   for (const historical of [
+    // FR-001 adds archive/version columns without adding or remapping tables.
+    // The previous same-count schema must not pass the current recovery fence.
+    { name: 'TASK-ZAI-011 208-model predecessor', schemaSha256: '47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b', targetSchemaSha256: 'cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c', omit: [] },
     // FR-286 changes columns, not the 205 model mappings. A same-count prior
     // schema is still a distinct historical binding, refused at every boundary.
     { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: ['AgentApprovalRequest', 'AgentApprovalDecision', 'AgentApprovalNotification'] },

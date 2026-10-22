@@ -78,6 +78,7 @@ status: generated
 - [apps/server/tests/e2e/smoke.spec.js](../../../apps/server/tests/e2e/smoke.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr001-scope-crud.test.js](../../../apps/server/tests/integration/fr001-scope-crud.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js](../../../apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr074-scope-creation-authorization.test.js](../../../apps/server/tests/integration/fr074-scope-creation-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)

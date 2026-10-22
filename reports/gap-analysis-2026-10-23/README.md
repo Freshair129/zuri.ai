@@ -8,6 +8,10 @@ code_revision: "e3474ef3c16b5cc5b6e797c63e69d6dc202c191f"
 
 # Zuri code / requirements gap assessment
 
+Follow-up: [application fixes and their verification](application-fixes.md)
+track the separately authorized implementation after this assessment was pushed.
+The inventory below remains evidence for its stated application revision.
+
 ยังสรุปว่าเอกสารและ implementation ครบไม่ได้ แม้ FR ที่กราฟจัดเป็น current
 จะมี code/test bindings ครบ รายงานนี้พบทั้งพฤติกรรมที่ยังขาด ข้อมูลสถานะที่ขัดกัน
 และหลักฐาน runtime/deployment ที่ยังไม่ได้ตรวจ จึงไม่ใช้ roadmap หรือเครื่องหมาย

@@ -16,40 +16,10 @@ import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/l
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
 // execution placement and external model permission are distinct decisions.
-// @req FR-234 — on the MSP-opt-in path, the MSP packet is split into
-// provenance-bearing slices (one per exchange/summary/protected record/
-// participant) and run through `context-composer.js`; the model and the MSP
-// injection receipt receive ONLY the packet rebuilt from the composer's
-// included slices, and the recorded `ContextReceipt` describes exactly that
-// rebuilt packet — never the original, un-composed one. Exchanges are
-// budgeted newest-first (a contiguous window of the most recent turns is
-// kept, oldest dropped) and rebuilt chronologically; `packet.knowledge` has
-// no composer-representable shape yet and is stripped rather than leaked
-// unbudgeted; the rebuilt manifest folds in the composer's own drops so it
-// cannot claim nothing was truncated when the composer trimmed something.
-// Coverage today is partial: the non-opt-in path's business-evidence model
-// invocation does not run through the composer and records no receipt (see the
-// composer module's own note). This sentence named the LOCAL_ONLY path too until
-// FR-265 retired it.
-// @req FR-235 — the account's `knowledgeGrounding` mode (ADR-090 D1) selects
-// the reader `answerBusinessQuestion`'s single `knowledge.query` call uses.
-// `BUSINESS_KNOWLEDGE` (default) is completely unwrapped — same reader, same
-// external trace wrapper as before this requirement, so its trace and answer
-// stay byte-identical. `GKS_CORPUS` / `GKS_THEN_BUSINESS_KNOWLEDGE` replace
-// `businessKnowledge` with a mode-gated grounding reader
-// (`line-knowledge-grounding.js`) that traces every hop it attempts and
-// returns evidence only — it never composes and never records a receipt. On
-// a memory-opt-in turn this evidence is composed together with the MSP
-// packet, in exactly one `composeContext` call here, under one budget
-// (FR-234/SDD-100); `businessKnowledge` is then replaced by a reader that
-// returns exactly the composer's included knowledge slices, so
-// `answerBusinessQuestion` neither re-fetches nor re-traces, and the evidence
-// the model receives is exactly what the one recorded `ContextReceipt` lists
-// — recorded only when that evidence is non-empty, i.e. only when a model
-// will actually be invoked. On a non-memory-opt-in turn the grounding
-// reader's evidence flows to `answerBusinessQuestion` directly, uncomposed,
-// exactly as before this fix (no MSP packet exists to compose it with, and
-// FR-234's own documented coverage is MSP-opt-in only).
+// @req FR-234, FR-235 — every model attempt receives only the evidence and MSP
+// slices selected under one composer budget. A content-free receipt is recorded
+// immediately before the provider entry; empty/fully-trimmed evidence calls no model.
+// The private-memory opt-in gates MSP recall independently of public knowledge.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
@@ -455,7 +425,7 @@ export function composeLineMemoryPacket({ memoryContext, route, authorizedForMem
     ...(episodicAuthorized ? mspPacketSlices(null, episodicEntries) : []),
   ]
   const composed = composeContext({
-    authorized: groundingMode === 'BUSINESS_KNOWLEDGE' ? authorizedForMemory : true,
+    authorized: true,
     scope: { threadId: memoryContext.thread.threadId },
     audienceKind: route.audienceKind,
     mspSlices,
@@ -483,7 +453,7 @@ export function lineKnowledgeSliceInputs(records) {
     // it — exactly the starvation the composer's own doc comment
     // warns a shared sequence can cause, and exactly why these stay
     // untagged (each judged, and dropped, on its own fit).
-    return { id, citationId: record.citationId ?? null, text: typeof record.text === 'string' ? record.text : JSON.stringify(record) }
+    return { id, citationId: record.citationId ?? null, text: JSON.stringify(record) }
   })
   return { knowledgeSliceInputs, knowledgeRecordById }
 }
@@ -652,145 +622,66 @@ export function createServerLineAnswer({
         })
       }
 
-      let memoryContext = null
-      let memoryInbound = null
-      let contextReceipt = null
-      let injectedPacket = null
-      let recordEpisodicReceiptBeforeModel = null
-      if (memoryOptIn) {
-        const prepared = await prepareLineMemoryContext({ job, route, question,
-          threadMemory: selectedThreadMemory,
-          projectionReceiptWriter, contextAssembler, memoryStateReader, env })
-        memoryContext = prepared.memoryContext
-        memoryInbound = prepared.memoryInbound
-        const authorizedForMemory = prepared.authorizedForMemory
-        // @req FR-235 — for a corpus-grounding mode, pre-fetch this turn's
-        // knowledge evidence ONCE, here, before composing. This is the exact
-        // same `knowledge.query` call `answerBusinessQuestion` would otherwise
-        // make internally — `selectRegisteredQuery` is a pure function of
-        // `question` alone, so deriving its input out here and handing
-        // `answerBusinessQuestion` a reader that simply returns what was
-        // already fetched changes nothing about which evidence is selected,
-        // only when. The grounding reader's own per-hop EVIDENCE_SELECTED
-        // tracing (line-knowledge-grounding.js) fires on this call exactly as
-        // it does on the non-memory-opt-in path — nothing here traces a hop.
-        let knowledgeSliceInputs = []
-        let knowledgeRecordById = new Map()
-        if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
-          const registeredQuery = selectRegisteredQuery(question)
-          const groundingEvidence = await businessKnowledge.query({ tenantId, businessId, ...registeredQuery })
-          const groundingRecords = Array.isArray(groundingEvidence?.records) ? groundingEvidence.records : []
-          ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingRecords))
-        }
-        // @req FR-234, FR-235 — compose the MSP packet and (for a corpus-
-        // grounding mode) this turn's knowledge evidence in ONE call, under
-        // ONE prompt-wide budget — never two compositions and never two
-        // ContextReceipts for one model invocation (FR-234/SDD-100). CRM/ERP
-        // facts (FR-231) remain a separate, later phase; `records` stays empty.
-        //
-        // `authorized` here governs this shared composition's own contract; it
-        // is deliberately NOT reused for the knowledge slices when a
-        // grounding mode is active, because `authorizedForMemory` answers a
-        // different question (may this turn see PRIVATE, personal MSP thread
-        // memory) than knowledge access does (the Business's own published
-        // corpus is authorized upstream, by ADR-072, independent of MSP
-        // audience policy) — composeContext's single `authorized` flag denies
-        // the WHOLE packet, so reusing the MSP-specific denial here would
-        // silently drop a valid product answer in, say, a GROUP chat the
-        // audience policy denies private memory to. The MSP-specific denial
-        // is still applied exactly as before: `mspSlices` is `[]` whenever
-        // `authorizedForMemory` is false, same as pre-FR-235. For
-        // BUSINESS_KNOWLEDGE mode (no knowledge slices ever composed here),
-        // `authorized: authorizedForMemory` is unchanged, so this call
-        // composes and its receipt records byte-identically to before FR-235.
-        // The packet handed to the model and to MSP's injection receipt is
-        // rebuilt from ONLY the slices the composer included — never the
-        // original packet — so the receipt this turn records can never
-        // describe less than what the model actually saw.
-        const memoryPacket = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
-          episodicEntries: episodicMemoryEntries, episodicAuthorized,
-          groundingMode, knowledgeSliceInputs })
-        const composed = memoryPacket.composed
-        injectedPacket = memoryPacket.injectedPacket
-        contextReceipt = composed.receipt
-        trace?.recordThreadMemory?.({
-          contextPacket: injectedPacket,
-          thread: memoryContext.thread,
-          exchangeId: memoryInbound.message.exchangeId,
-          inboundMessageId: memoryInbound.message.messageId,
-        })
-        if (groundingMode === 'BUSINESS_KNOWLEDGE') {
-          // Unchanged: this mode never composes knowledge evidence, so its
-          // (MSP-only) receipt is recorded exactly as it was before FR-235.
-          contextReceipt = composed.receipt
-          if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
-        } else {
-          // @req FR-235 — rebuild the evidence answerBusinessQuestion will see
-          // from ONLY the composer's included KNOWLEDGE slices, so a recorded
-          // receipt can never list a citation the model did not receive, and
-          // an omitted one can never describe evidence the model did receive.
-          const finalKnowledgeRecords = composedKnowledgeRecords(composed, knowledgeRecordById)
-          // `answerBusinessQuestion`'s own `knowledge.query` call now returns
-          // exactly this — already selected, already composed — evidence; it
-          // fetches and traces nothing a second time.
-          businessKnowledge = { query: async () => ({ records: finalKnowledgeRecords }) }
-          // @req FR-234/SDD-100 — exactly one ContextReceipt per model
-          // invocation, and never one when no model will be called.
-          // `answerBusinessQuestion` decides that call solely from
-          // `evidence.records.length`, which is exactly `finalKnowledgeRecords`
-          // here — so this is not a guess about what it will decide, it is
-          // the same decision, made once.
-          if (finalKnowledgeRecords.length > 0) {
-            if (typeof trace?.recordContextReceipt === 'function') await trace.recordContextReceipt(contextReceipt)
-          }
-        }
-      } else if (episodicAuthorized) {
-        let knowledgeSliceInputs = []
-        let knowledgeRecordById = new Map()
-        let groundingEvidence = null
-        if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
-          groundingEvidence = await businessKnowledge.query({ tenantId, businessId, ...selectRegisteredQuery(question) })
-          ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingEvidence?.records))
-        }
-        const episodicPacket = composeLineEpisodicPacket({ entries: episodicMemoryEntries, route: memoryRoute(job), knowledgeSliceInputs })
-        contextReceipt = episodicPacket.composed.receipt
-        injectedPacket = episodicPacket.injectedPacket
-        if (groundingEvidence) {
-          const finalKnowledgeRecords = composedKnowledgeRecords(episodicPacket.composed, knowledgeRecordById)
-          businessKnowledge = { query: async () => ({ records: finalKnowledgeRecords }) }
-          if (finalKnowledgeRecords.length > 0 && typeof trace?.recordContextReceipt === 'function') {
-            await trace.recordContextReceipt(contextReceipt)
-          }
-        } else {
-          let recorded = false
-          recordEpisodicReceiptBeforeModel = async () => {
-            if (recorded || typeof trace?.recordContextReceipt !== 'function') return
-            await trace.recordContextReceipt(contextReceipt)
-            recorded = true
-          }
-        }
-      }
-      // @req FR-235 — a grounding-mode reader (GKS_CORPUS /
-      // GKS_THEN_BUSINESS_KNOWLEDGE) already traces every hop it attempts
-      // internally (line-knowledge-grounding.js), tagged with the source that
-      // hop actually used; wrapping it here too would double-trace the same
-      // turn under the wrong, hard-coded 'BUSINESS_QUERY' source. Only the
-      // untouched BUSINESS_KNOWLEDGE path keeps this external wrapper, so its
-      // trace stays exactly what it was before this requirement.
+      // Fetch once and compose every cohort, including public Business evidence.
+      // Private memory authority gates only MSP slices, never public knowledge.
       const tracedKnowledge = trace && groundingMode === 'BUSINESS_KNOWLEDGE' ? { query: async input => {
         const evidence = await businessKnowledge.query(input)
         await trace.recordEvidence(input, evidence)
         return evidence
       } } : businessKnowledge
+      let memoryContext = null
+      let memoryInbound = null
+      let preparedMemory = null
+      let composed
+      let injectedPacket = null
+      if (memoryOptIn) {
+        preparedMemory = await prepareLineMemoryContext({ job, route, question,
+          threadMemory: selectedThreadMemory,
+          projectionReceiptWriter, contextAssembler, memoryStateReader, env })
+        memoryContext = preparedMemory.memoryContext
+        memoryInbound = preparedMemory.memoryInbound
+      }
+      // Keep the runtime and legacy memory turn's external read order aligned:
+      // Core completes the authorized MSP read before it queries public GKS
+      // evidence. This also avoids a corpus read when MSP fails closed.
+      const groundingEvidence = await tracedKnowledge.query({ tenantId, businessId, ...selectRegisteredQuery(question) })
+      const { knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(groundingEvidence?.records)
+      if (memoryOptIn) {
+        const memoryPacket = composeLineMemoryPacket({ memoryContext, route,
+          authorizedForMemory: preparedMemory.authorizedForMemory,
+          episodicEntries: episodicMemoryEntries, episodicAuthorized,
+          groundingMode, knowledgeSliceInputs })
+        composed = memoryPacket.composed
+        injectedPacket = memoryPacket.injectedPacket
+        trace?.recordThreadMemory?.({ contextPacket: injectedPacket, thread: memoryContext.thread,
+          exchangeId: memoryInbound.message.exchangeId, inboundMessageId: memoryInbound.message.messageId })
+      } else {
+        const packet = composeLineEpisodicPacket({ entries: episodicAuthorized ? episodicMemoryEntries : [],
+          route: episodicAuthorized ? memoryRoute(job) : null, knowledgeSliceInputs })
+        composed = packet.composed
+        injectedPacket = packet.injectedPacket
+      }
+      const contextReceipt = composed.receipt
+      const boundedKnowledge = { query: async () => ({
+        // Only composed, budgeted evidence reaches the model. Corpus retrieval
+        // references and mode metadata remain in the GKS trace, outside the prompt.
+        records: composedKnowledgeRecords(composed, knowledgeRecordById),
+      }) }
+      let receiptRecorded = false
+      const recordContextReceiptBeforeModel = async () => {
+        if (receiptRecorded || typeof trace?.recordContextReceipt !== 'function') return
+        await trace.recordContextReceipt(contextReceipt)
+        receiptRecorded = true
+      }
       // `injectedPacket` — never `memoryContext.threadMemory` — is what MSP's
       // injection receipt hashes and what the model actually receives below;
       // a packet the composer denied or fully trimmed is `null` here, so
       // `withInjectionReceipt` correctly skips wrapping (no injection to
       // attest) and the model gets no memory content at all.
       const episodicIncluded = Array.isArray(injectedPacket?.memory?.episodic) && injectedPacket.memory.episodic.length > 0
-      let invocationModel = recordEpisodicReceiptBeforeModel || episodicIncluded
-        ? { generate: async input => {
-          if (recordEpisodicReceiptBeforeModel) await recordEpisodicReceiptBeforeModel()
+      let invocationModel = recordContextReceiptBeforeModel || episodicIncluded
+        ? { ...model, generate: async input => {
+          if (recordContextReceiptBeforeModel) await recordContextReceiptBeforeModel()
           if (episodicIncluded) await assertLineEpisodicMemoryJobLive({ job, memoryStateReader,
             authorizationResolver, scopeResolver, env })
           return model.generate(input)
@@ -807,7 +698,7 @@ export function createServerLineAnswer({
       }
       if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader, env)
       const result = await answerBusinessQuestion({ tenantId, businessId, question }, {
-        knowledge: tracedKnowledge, model: invocationModel, trace,
+        knowledge: boundedKnowledge, model: invocationModel, trace, contextReceipt,
         contextPacket: memoryOptIn || episodicAuthorized ? injectedPacket : null,
       })
       // Grounding may choose a deterministic fallback after a provider failure;

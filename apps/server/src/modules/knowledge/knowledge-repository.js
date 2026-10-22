@@ -30,10 +30,10 @@ export function createKnowledgeRepository(db = prisma) {
     // `options` ({ maxWait, timeout }) is passed to Prisma's interactive
     // transaction; without it Prisma closes the transaction after 5s.
     transaction(callback, options) {
-      if (typeof db.$transaction !== 'function') return callback(repository)
+      if (typeof db.$transaction !== 'function') return callback(repository, db)
       return options
-        ? db.$transaction((tx) => callback(createKnowledgeRepository(tx)), options)
-        : db.$transaction((tx) => callback(createKnowledgeRepository(tx)))
+        ? db.$transaction((tx) => callback(createKnowledgeRepository(tx), tx), options)
+        : db.$transaction((tx) => callback(createKnowledgeRepository(tx), tx))
     },
     getCorpus: (id) => db.knowledgeCorpus.findUnique({ where: { id } }),
     findCorpusByKey: (corpusKey) => db.knowledgeCorpus.findUnique({ where: { corpusKey } }),

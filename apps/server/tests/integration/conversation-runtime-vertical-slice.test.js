@@ -364,7 +364,7 @@ describe('Conversation Runtime durable vertical slice', () => {
       expect(coreRequests.filter(entry => entry.startsWith('CORE_RESPONSE send'))).toEqual([])
       const trace = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.id }, orderBy: { occurredAt: 'asc' } })
       expect(trace.map(row => row.kind)).toEqual(expect.arrayContaining([
-        'TURN_RECEIVED', 'EXECUTION_STARTED', 'MODEL_STARTED', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED',
+        'TURN_RECEIVED', 'EXECUTION_STARTED', 'MODEL_STARTED', 'MODEL_COMPLETED', 'CONTEXT_RECEIPT',
         'ANSWER_READY', 'SEND_STARTED', 'SEND_RESULT', 'OUTBOUND_RECORDED',
       ]))
       const raw = await prisma.rawExternalRecord.findFirst({ where: { connectionId: account.integrationConnectionId, externalId: token } })

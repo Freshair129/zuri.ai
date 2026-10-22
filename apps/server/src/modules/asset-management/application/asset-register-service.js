@@ -4,6 +4,7 @@
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { assertAssetIntakeWrite } from './asset-authority'
+import { assertCurrentBusinessPerson } from './asset-person-scope'
 
 function registerError(message, status = 400) {
   const error = new Error(message)
@@ -302,6 +303,19 @@ export async function registerAssetFromIntake({
   const now = new Date()
 
   return await db.$transaction(async (tx) => {
+    const responsibilityPersonIds = [...new Set([
+      responsibility?.accountablePersonId,
+      responsibility?.custodianPersonId,
+    ].filter(Boolean))]
+    for (const personId of responsibilityPersonIds) {
+      await assertCurrentBusinessPerson(tx, {
+        personId,
+        tenantId: intake.tenantId,
+        businessId: intake.businessId,
+        now,
+      })
+    }
+
     // Generate or validate asset code
     let assetCode = customAssetCode?.trim()
     if (!assetCode) {

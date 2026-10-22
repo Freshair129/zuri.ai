@@ -47,6 +47,66 @@ test('WorkTool inputs use the same fixed operation shapes and nested bounds as C
   assert.throws(() => validateCoreEnvelope(envelope('trace', { claim, kind: 'test', payload: tracePayload })), /TRACE_PAYLOAD_INVALID/)
 })
 
+test('trace context bindings are required only on matching canonical context receipts and stay bounded', () => {
+  const claim = { jobId: 'j', executionId: 'e', claimantId: 'c', version: 1, tenantId: 't', businessId: 'b', accountId: 'a' }
+  const receipt = {
+    receiptId: 'ctxrcpt_00000000-0000-4000-8000-000000000001', hash: 'a'.repeat(64),
+    refs: { msp: ['api010-1'], citations: [], records: [] },
+    budget: { max: 100, used: 12, trimmed: 0 }, dropped: [],
+  }
+  const packet = { policyDecision: 'ALLOW', text: 'private fact',
+    sourceSegments: [{ id: 'api010-1', startByte: 0, byteLength: 12 }] }
+  const contextBinding = { contextReceiptId: receipt.receiptId, contextReceiptHash: receipt.hash, contextPacket: packet }
+  const event = { claim, kind: 'CONTEXT_RECEIPT', payload: receipt, contextBinding }
+
+  assert.deepEqual(validateCoreEnvelope(envelope('trace', event)).payload.contextBinding, contextBinding)
+  const publicReceipt = { ...receipt, refs: { ...receipt.refs, msp: [] } }
+  assert.doesNotThrow(() => validateCoreEnvelope(envelope('trace', {
+    claim, kind: 'CONTEXT_RECEIPT', payload: publicReceipt,
+    contextBinding: { contextReceiptId: publicReceipt.receiptId, contextReceiptHash: publicReceipt.hash, contextPacket: null },
+  })))
+
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    ...event, contextBinding: { ...contextBinding, contextReceiptId: 'ctxrcpt_00000000-0000-4000-8000-000000000002' },
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    claim, kind: 'CONTEXT_RECEIPT', payload: receipt,
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    ...event, contextBinding: { ...contextBinding, contextReceiptHash: 'b'.repeat(64) },
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    ...event, contextBinding: { ...contextBinding, contextPacket: null },
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    claim, kind: 'MODEL_STARTED', payload: { operationId: 'model-1' }, contextBinding,
+  })), /CONTRACT_PAYLOAD_FIELD_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    ...event, contextBinding: { ...contextBinding, extra: true },
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+  assert.throws(() => validateCoreEnvelope(envelope('trace', {
+    ...event, contextBinding: { ...contextBinding,
+      contextPacket: { policyDecision: 'ALLOW', text: 'x'.repeat(32 * 1024) } },
+  })), /TRACE_CONTEXT_BINDING_INVALID/)
+
+  const largePacket = { policyDecision: 'ALLOW', text: 'x'.repeat(32_600),
+    sourceSegments: [{ id: 'api010-1', startByte: 0, byteLength: 32_600 }] }
+  const largeReceipt = { ...receipt, dropped: [] }
+  for (let index = 0; index < 200; index += 1) {
+    largeReceipt.dropped.push({ id: `drop-${index}-${'d'.repeat(24)}`, source: 'MSP', reason: 'BUDGET_TRIMMED' })
+    if (Buffer.byteLength(JSON.stringify(largeReceipt), 'utf8') > 8 * 1024) {
+      largeReceipt.dropped.pop()
+      break
+    }
+  }
+  const largeTraceEnvelope = envelope('trace', { claim, kind: 'CONTEXT_RECEIPT', payload: largeReceipt,
+    contextBinding: { ...contextBinding, contextPacket: largePacket } })
+  assert.ok(Buffer.byteLength(JSON.stringify(largeReceipt), 'utf8') <= 8 * 1024)
+  assert.ok(Buffer.byteLength(JSON.stringify(largePacket), 'utf8') <= 32 * 1024)
+  assert.ok(Buffer.byteLength(JSON.stringify(largeTraceEnvelope), 'utf8') > 40 * 1024)
+  assert.throws(() => validateCoreEnvelope(largeTraceEnvelope), /TRACE_PAYLOAD_INVALID/)
+})
+
 test('published operation schema closes nested WorkTool fields and uses bounded JSON payloads', async () => {
   const schemaPath = fileURLToPath(new URL('../contracts/v1/operation.schema.json', import.meta.url))
   const schema = JSON.parse(await readFile(schemaPath, 'utf8'))
@@ -54,6 +114,11 @@ test('published operation schema closes nested WorkTool fields and uses bounded 
   assert.equal(schema.$defs.workPropose.additionalProperties, false)
   assert.equal(schema.$defs.workConfirm.additionalProperties, false)
   assert.deepEqual(schema.$defs.trace.properties.payload.additionalProperties, { $ref: '#/$defs/boundedJson' })
+  assert.deepEqual(schema.$defs.trace.properties.contextBinding, { $ref: '#/$defs/contextBinding' })
+  assert.equal(schema.$defs.contextBinding.additionalProperties, false)
+  assert.match(schema.$defs.contextBinding.$comment, /40 KiB/)
+  assert.ok(schema.$defs.trace.allOf.some(rule => rule.if?.properties?.kind?.const === 'CONTEXT_RECEIPT'
+    && rule.then?.required?.includes('contextBinding') && rule.else?.not?.required?.includes('contextBinding')))
 })
 
 test('core client sends a strict bearer request and maps lost responses to typed timeouts', async () => {
