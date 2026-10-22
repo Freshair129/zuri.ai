@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.40"
-updated: "2026-10-18"
+version: "0.4.41"
+updated: "2026-10-22"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,8 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+Version diff 0.4.40 -> 0.4.41 (2026-10-22): Reconcile PR #705's accepted synthetic Business A/B/A memory/context tests into TASK-ZAI-014 after merge as `b7add99074de4d310e3ee58e9b898cb0f0938e10` from candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3`; candidate and merge share tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98` and base parent `7a661d95c7db57122a0899652c354831cac559ac`. Exact-head Governance `39054993823` and Edge `39054993820` passed applicable checks; changed isolated suites passed 16/16 and 32/32, while E2E/Desktop were skipped. TASK-ZAI-014 remains in-progress with production `corpusContext`, broader generic-memory/live-agent switching and full Task14 E2E unverified. Record external Visual Office source revision `740eb1f5ef0cc8405af143e4a88f1c752d3e5098` as a standalone Three.js scene/assets with partial reduced-motion and labeled camera controls plus T3 job/session inputs, not a Zuri integration or acceptance. Separate zuri-agent-office PR #1 merged as `c1bff47147f7cde9da9589c50ff99b9d8c292c15`; its offline parity harness is simulation-only and live-provider parity remains NOT_RUN. Zuri.ai PR #704 merged as `297b11d2c7098eee6622030d375ecab03c43f3b1` from final head `8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84`; exact-head Governance `39085718812` and Edge `39085718800` passed applicable jobs, with E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / `source_of_truth: false`, proposes a contract only, and records no implementation or test evidence. Keep TASK-ZAI-019..023 and TASK-ZAI-026 planned with all criteria unchecked; PHASE-ZAI-04 stays 0/5 accepted and 0 progress. No task counts, phase/sprint status, dependency, deployment, production, provider, or UAT claim changes.
+
 Version diff 0.4.39 -> 0.4.40 (2026-10-18): Reconcile TASK-ZAI-011 with canonical ROADMAP.md Revision 2.166.0b after PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed; the focused integration suite passed 84 with 1 skipped, and local govern passed with 0 critical and 24 baseline warnings. Exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop were skipped by workflow policy, not passes. The accepted slice stores transaction-bound, recipient-scoped in-app notices for approval outcomes and supports idempotent read acknowledgements. Recompute from all 123 canonical task rows: 71 done, 16 review, 6 in-progress, 25 planned, 5 blocked (57.7% done); PHASE-ZAI-02 is 72, SPR-ZAI-03 is 74 and SPR-ZAI-04 is 69 under the documented status mapping. TASK-ZAI-012 remains planned, so the wave is not closed. No external email/push transport, production migration apply/deployment, Supabase or live-agent activation is claimed.
 Version diff 0.4.38 -> 0.4.39 (2026-10-18): Reconcile the TASK-ZAI-048 bounded source delivery with canonical ROADMAP.md Revision 2.165.0b. PR #709 merged at `781e6a376e37162d9e930b59d30c2dac74073823` from exact source head `2984cae8fde6430f262520aeb409837cc17d0fdd`. The focused root batch passed 21/21 on the reviewed patch bytes and all six committed file hashes match; independent Verify and Review passed. Exact-head Governance `39118118499`, Edge `39118118519` and Docker `39118118567` passed; hosted E2E and Desktop were skipped by workflow policy, not passes. Keep Task048 in-progress, with its full native Stage 9–17, OCR, binary browser/UAT, hard RSS/egress, provider, deployment and production criteria open; no task counts, sprint progress or phase progress change. The linked HTML remains the archived v0.4.9 snapshot, not a current rendered projection.
 Version diff 0.4.35 -> 0.4.36 (2026-10-17): Reconcile TASK-ZAI-119 with canonical ROADMAP.md Revision 2.162.0b after PR #701 merged as `820abc93739e7e4f135c3497e2b57c7a67bd1d3d` from exact head `4b43aa53804a6c2cc2c32bcee8cdb558989fb51f`. The worker reader passed 23/23; independent Verify and Review passed; exact-head Governance `39015694506`, Edge `39015694513` and hosted test shards passed, while E2E/Desktop were skipped by workflow policy. PR #701 adds sanitized worktree identity/status, candidate-head matching and safe UI details. Local Server panel Vitest remains NOT_RUN. The owner-provided local screenshot still shows `AUTH_REQUIRED`/`UNKNOWN`; authenticated runtime behavior is unverified and not fixed by this PR. Keep TASK-ZAI-119 review / HOSTED_CI / MERGED, P1 done, P2 planned, FEAT-044 building, and external PORL/hosted-production exit proof open. Task counts and phase/sprint progress are unchanged; no production, deployment, UAT or authenticated-worker-read claim is made.
@@ -519,19 +521,19 @@ locates the week.
 | TASK-ZAI-011 | SPR-ZAI-04 | task | Verification and notification fabric on approval outcomes | P0 | Codex | done | TASK-ZAI-010 | Section 3.1 row 9 |
 | TASK-ZAI-012 | SPR-ZAI-04 | task | Mission feed: agent missions and their approvals surface as Development-domain work in the Project system | P1 | ATHER | planned | TASK-ZAI-010 | Section 3.1 row 2; FR-040, FR-063, FR-068, FR-108 |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template and provisioning path | P0 | Codex | done | TASK-ZAI-009 | Section 3.1 row 6 |
-| TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | in-progress | TASK-ZAI-013 | Section 3.1 row 6 |
+| TASK-ZAI-014 | SPR-ZAI-05 | task | Onboard Business number two end to end under isolation | P0 | ATHER | in-progress | TASK-ZAI-013 | PR #705 candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3` merged as `b7add99074de4d310e3ee58e9b898cb0f0938e10`; same tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98`, base parent `7a661d95c7db57122a0899652c354831cac559ac`. Exact-head Governance `39054993823` and Edge `39054993820` passed; isolated synthetic same-principal A/B/A suites `agent-multi-principal.test.js` 16/16 and `conversation-runtime-memory.test.js` 32/32 passed; E2E/Desktop skipped. Production `corpusContext`, all-reader SmartGift-sentinel non-disclosure, broader generic-memory Business switching, live-agent/provider switching and Task14 E2E remain unverified; Task14 is not done. |
 | TASK-ZAI-015 | SPR-ZAI-05 | task | Per-business visibility regression at two-business scale | P1 | Claude | planned | TASK-ZAI-014 | FEATURE-MAP FR-061 and FR-062 |
 | TASK-ZAI-016 | SPR-ZAI-06 | task | Cross-business governed analytics read model | P0 | Claude | planned | TASK-ZAI-014 | Section 3.1 row 6 |
 | TASK-ZAI-017 | SPR-ZAI-06 | task | Candidate connector number two under FR-081 — FlowAccount official hosted MCP, OAuth company selection, read-only tool allow-list and audited raw evidence; proposed FR-125 extension pending sanctioned additive reviewed-record migration | P0 | Codex | planned | TASK-ZAI-005 | Section 3.1 row 8; FR-125; ADR-053 candidate section |
 | TASK-ZAI-018 | SPR-ZAI-06 | task | Automation workflows one and two end to end | P1 | ATHER | planned | TASK-ZAI-010; TASK-ZAI-017 | Section 3.1 row 7 |
-| TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | Section 3.1 row 1 |
-| TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | Section 3.1 row 1 |
-| TASK-ZAI-021 | SPR-ZAI-07 | task | Accessibility and reduced-motion contract for the 2.5D surface | P1 | Claude | planned | TASK-ZAI-019 | UI-DESIGN-SYSTEM section 3 |
-| TASK-ZAI-022 | SPR-ZAI-08 | task | Live agent activity presence and mission tracking in-scene | P0 | Codex | planned | TASK-ZAI-020 | Proposal scope, Business Layer |
-| TASK-ZAI-023 | SPR-ZAI-08 | task | Surface the L1 to L4 approval queue inside Visual Office | P1 | Codex | planned | TASK-ZAI-011; TASK-ZAI-022 | Section 3.1 rows 1 and 9 |
+| TASK-ZAI-019 | SPR-ZAI-07 | task | Visual Office 2.5D scene model and shell | P0 | Codex | planned | TASK-ZAI-012 | External source revision `740eb1f5ef0cc8405af143e4a88f1c752d3e5098` contains a standalone Three.js scene loading local room, desk and floor-tile glTF assets; no Business-scoped scene route or renderer is integrated into the Zuri product checkout. PHASE-ZAI-04 remains 0/5 accepted. |
+| TASK-ZAI-020 | SPR-ZAI-07 | task | Bind Business, Agent, Mission and Approval objects to live reads | P0 | Codex | planned | TASK-ZAI-019 | The external prototype receives T3 session and job inputs; no Zuri Business-scoped reads, Mission/Approval read-model binding, route/read-port integration or live-source provenance is evidenced. |
+| TASK-ZAI-021 | SPR-ZAI-07 | task | Accessibility and reduced-motion contract for the 2.5D surface | P1 | Claude | planned | TASK-ZAI-019 | The external prototype has a prefers-reduced-motion branch and labeled camera buttons. Full keyboard, screen-reader, mobile, fallback and accessibility acceptance remains unverified; all criteria remain unchecked. |
+| TASK-ZAI-022 | SPR-ZAI-08 | task | Live agent activity presence and mission tracking in-scene | P0 | Codex | planned | TASK-ZAI-020 | The external prototype derives presence from T3 session/job data; it does not evidence Zuri live-turn provenance, a Business Mission feed, agreed latency or live-agent/provider switching acceptance. |
+| TASK-ZAI-023 | SPR-ZAI-08 | task | Surface the L1 to L4 approval queue inside Visual Office | P1 | Codex | planned | TASK-ZAI-011; TASK-ZAI-022 | No L1-L4 queue, Zuri authorization binding or approval/audit-equivalence acceptance is evidenced; all implementation criteria remain unchecked. |
 | TASK-ZAI-024 | SPR-ZAI-09 | task | Second Brain retrieval by Business, Role and Permission | P0 | Claude | done | TASK-ZAI-008 | PR #481 merged at `823ae325`; hosted verify/govern/tests/build/edge/changes passed; production NOT_RUN |
 | TASK-ZAI-025 | SPR-ZAI-09 | task | Memory lineage, replay and the no-silent-replay guarantee | P1 | Claude | review | TASK-ZAI-024 | PR #494 implementation head `a2bd5f90` merged at `06d61da5`; hosted Governance run #1381 govern/tests/build/verify/changes passed with E2E skipped; Edge run #711 edge-verify/changes passed with desktop skipped; local focused 52 tests, govern and build passed; production, owner activation, MSP, GKS, migrations, deployment and credentials remain NOT_RUN; broader task criteria remain open |
-| TASK-ZAI-026 | SPR-ZAI-10 | task | Interactive Node View 3D over the governed relation graph | P0 | Codex | planned | TASK-ZAI-024 | Section 3.1 row 3 |
+| TASK-ZAI-026 | SPR-ZAI-10 | task | Interactive Node View 3D over the governed relation graph | P0 | Codex | planned | TASK-ZAI-024 | PR #704 merged as `297b11d2c7098eee6622030d375ecab03c43f3b1` from final head `8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84`; exact-head Governance `39085718812` and Edge `39085718800` passed applicable jobs, E2E/Desktop skipped. Its merged TASK-ZAI-026 source remains candidate / `source_of_truth: false` and proposes a bounded Business graph contract only; no requirement adoption, implementation or test evidence is claimed. Keep criteria unchecked and TASK-ZAI-027 planned behind it. |
 | TASK-ZAI-027 | SPR-ZAI-10 | task | Structure and edge direct manipulation with handoff contracts | P0 | Codex | planned | TASK-ZAI-026 | FEATURE-MAP FR-082 to FR-085 |
 | TASK-ZAI-028 | SPR-ZAI-10 | task | Automation workflows three to five and connector number three | P1 | ATHER | planned | TASK-ZAI-018 | Section 3.1 rows 7 and 8 |
 | TASK-ZAI-029 | SPR-ZAI-11 | task | Integration hardening plus load and security test campaign | P0 | ATHER | planned | TASK-ZAI-028 | Section 3.1 row 10 |
@@ -1283,7 +1285,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the two-business isolation spec runs, then a cross-business read fails closed
       checked: false
-changelog: Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.
+changelog: Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8), PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751) and PR #705 (candidate c15ef9dd1f2246b24f71146a40baeae4785665f3, merge b7add99074de4d310e3ee58e9b898cb0f0938e10). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head test checks passed. PR #705 candidate and merge share tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac; exact-head Governance 39054993823 and Edge 39054993820 passed applicable checks. Its changed isolated synthetic same-principal A/B/A suites agent-multi-principal.test.js (16/16) and conversation-runtime-memory.test.js (32/32) passed; E2E/Desktop were skipped. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, Business-scoped Edge SmartGift/RAG/template behavior, and synthetic memory/context isolation. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent/provider switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1513,7 +1515,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run build, when the route is included, then the production build succeeds and the route is reachable in npm run test:e2e
       checked: false
-changelog: Opened as the first task of the largest greenfield deliverable. Scene model precedes any renderer choice.
+changelog: Opened as the first task of the largest greenfield deliverable. External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene and local room/desk/floor-tile glTF assets; it is reference material only and does not evidence the Zuri Business-scoped route, read-port or acceptance. The task remains planned and all criteria remain unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1557,7 +1559,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the scene spec runs, then every rendered figure is asserted against the API that produced it
       checked: false
-changelog: Opened to keep the 2.5D surface inside the live-data-only rule this repository already applies to FR-060.
+changelog: Opened to keep the 2.5D surface inside the live-data-only rule this repository already applies to FR-060. The external prototype exposes T3 session/job inputs but does not evidence Zuri Business, Mission or Approval read-model binding or live-source provenance; all criteria remain unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1601,7 +1603,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the design-system suite runs, then the 2.5D surface consumes semantic tokens only and no primitive palette value directly
       checked: false
-changelog: Opened because UI-DESIGN-SYSTEM section 3 already binds motion, focus and token layering, and a new visual surface is the easiest place to break all three.
+changelog: Opened because UI-DESIGN-SYSTEM section 3 already binds motion, focus and token layering, and a new visual surface is the easiest place to break all three. External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 includes a prefers-reduced-motion branch and labeled camera buttons; full keyboard, screen-reader, mobile, fallback and accessibility acceptance remains unverified, so all criteria stay unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1645,7 +1647,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the presence spec runs, then a real agent turn drives the on-screen state
       checked: false
-changelog: Opened from the proposal Business Layer scope line covering agent status and mission tracking.
+changelog: Opened from the proposal Business Layer scope line covering agent status and mission tracking. The external prototype derives presence from T3 session/job data but does not evidence Zuri live-turn provenance, a Business Mission feed, agreed latency or live-agent/provider switching; all criteria remain unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1689,7 +1691,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm run test:e2e, when the approval queue spec runs, then approving from the scene records the same audit row as approving from the API
       checked: false
-changelog: Opened to join the approval ladder to the visual surface so that deliverables one and nine are demonstrated together at UAT.
+changelog: Opened to join the approval ladder to the visual surface so that deliverables one and nine are demonstrated together at UAT. The external scene and separate execution-contract harness do not evidence a Zuri L1-L4 queue, authorization binding or audit-equivalence acceptance; all criteria remain unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -1821,7 +1823,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given npm test, when the graph traversal suite runs, then a known path is asserted rather than eyeballed
       checked: false
-changelog: Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new.
+changelog: Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new. Zuri.ai PR #704 merged as 297b11d2c7098eee6622030d375ecab03c43f3b1 from final head 8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84; exact-head Governance 39085718812 and Edge 39085718800 passed applicable jobs, with E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / source_of_truth: false and proposes a bounded Business graph contract only; it does not adopt requirements or claim implementation/test evidence. The task remains planned and all criteria remain unchecked.
 created_at: 2026-08-20T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
