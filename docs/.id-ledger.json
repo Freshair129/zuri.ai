@@ -416,6 +416,7 @@
     "FR-286",
     "FR-288",
     "FR-289",
+    "FR-290",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5294,6 +5295,19 @@
         {
           "anchor": "zuri knowledge studio is an installation operator only read",
           "since": "2026-10-19",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-290": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "690d5dc41d1cba1636d2beba7c4c18b9aa43b79efc999514c1087e6b78cd9740",
+      "history": [
+        {
+          "anchor": "official flowaccount mcp connector",
+          "since": "2026-10-22",
           "reason": "declared"
         }
       ]
