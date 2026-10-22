@@ -122,6 +122,36 @@ test('applied replay accepts later canonical projection regeneration but keeps m
   } finally { f.cleanup(); }
 });
 
+test('applied replay rejects tampered before hashes against its pinned base', () => {
+  const f = fixture();
+  try {
+    const receiptPath = path.join(f.root, manifestPath.replace('.manifest.json', '.receipt.json'));
+    applyRecordMigration(f.root, manifestPath);
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    receipt.before['docs/.id-ledger.json'] = 'f'.repeat(64);
+    put(f.root, manifestPath.replace('.manifest.json', '.receipt.json'), `${JSON.stringify(receipt, null, 2)}\n`);
+
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration before snapshot drift/);
+  } finally { f.cleanup(); }
+});
+
+test('applied replay rejects changed historical output hashes from the committed receipt', () => {
+  const f = fixture();
+  try {
+    const receiptRelativePath = manifestPath.replace('.manifest.json', '.receipt.json');
+    const receiptPath = path.join(f.root, receiptRelativePath);
+    applyRecordMigration(f.root, manifestPath);
+    git(f.root, ['add', '-A']);
+    git(f.root, ['commit', '--quiet', '-m', 'commit applied migration receipt']);
+
+    const receipt = JSON.parse(readFileSync(receiptPath, 'utf8'));
+    receipt.outputs['docs/PRD-SDD-v1.0.md'] = 'f'.repeat(64);
+    put(f.root, receiptRelativePath, `${JSON.stringify(receipt, null, 2)}\n`);
+
+    assert.throws(() => planRecordMigration(f.root, manifestPath), /applied migration receipt drift/);
+  } finally { f.cleanup(); }
+});
+
 for (const fault of ['unsupported-version', 'wrong-family', 'collision', 'reserved', 'burnt', 'namespace', 'stale-base', 'stale-index', 'stale-ledger', 'wrong-anchor', 'duplicate', 'unknown-field', 'inherit-subject']) {
   test(`rejects ${fault} before changing tracked sources`, () => {
     const f = fixture();

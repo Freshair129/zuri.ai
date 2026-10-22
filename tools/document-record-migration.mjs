@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
+import { isDeepStrictEqual } from 'node:util';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { anchor, collectDeclared, sameAnchor } from '../apps/server/scripts/id-anchors.mjs';
 import { inheritedFrom, reservedBranchIds } from '../apps/server/scripts/id-stability.mjs';
@@ -81,16 +82,50 @@ export function authoredRecordMarkdown(item, manifest, manifestPath, manifestSha
   ].join('\n');
 }
 
+function digestAtRevision(root, revision, file) {
+  if (git(root, ['ls-tree', '--name-only', revision, '--', file]).trim() !== file) return null;
+  return sha256(normalized(git(root, ['show', `${revision}:${file}`])));
+}
+
+function verifyCommittedReceipt(root, receiptPath, manifest, receipt) {
+  if (git(root, ['ls-tree', '--name-only', 'HEAD', '--', receiptPath]).trim() !== receiptPath) return;
+
+  const additions = git(root, ['log', '--diff-filter=A', '--format=%H', '--', receiptPath]).split(/\s+/).filter(Boolean);
+  const origins = additions.filter(revision => {
+    try {
+      git(root, ['merge-base', '--is-ancestor', manifest.base.commit, revision]);
+      return true;
+    } catch (error) {
+      if (error.status === 1) return false;
+      throw error;
+    }
+  });
+  insist(origins.length > 0, `applied migration receipt has no committed origin after its pinned base: ${receiptPath}`);
+
+  for (const revision of origins) {
+    const historical = JSON.parse(normalized(git(root, ['show', `${revision}:${receiptPath}`])));
+    insist(isDeepStrictEqual(receipt, historical), `applied migration receipt drift: ${receiptPath}`);
+    for (const [file, expectedDigest] of Object.entries(receipt.outputs)) {
+      insist(digestAtRevision(root, revision, file) === expectedDigest, `applied receipt historical output drift: ${file}`);
+    }
+  }
+}
+
 function verifyApplied(root, manifest, receipt, manifestSha256) {
   insist(receipt.version === 1 && receipt.migrationId === manifest.migrationId && receipt.status === 'APPLIED' && receipt.manifestSha256 === manifestSha256, 'migration identity already has different/partial output');
   const expected = [...manifest.records.map(item => `docs/requirements/${item.id}.md`),
     `${MIGRATIONS}/${manifest.migrationId}.approval.md`, INDEX, LEDGER, 'docs/PRD-SDD-v1.0.md', 'docs/FEATURES.md'].sort();
   insist(receipt.outputs && JSON.stringify(Object.keys(receipt.outputs).sort()) === JSON.stringify(expected), 'applied receipt output inventory mismatch');
-  const expectedBefore = expected;
-  insist(receipt.before && JSON.stringify(Object.keys(receipt.before).sort()) === JSON.stringify(expectedBefore), 'applied receipt before inventory mismatch');
+  insist(receipt.before && JSON.stringify(Object.keys(receipt.before).sort()) === JSON.stringify(expected), 'applied receipt before inventory mismatch');
   insist(receipt.base?.commit === manifest.base.commit && receipt.base?.indexSha256 === manifest.base.indexSha256
     && receipt.base?.ledgerSha256 === manifest.base.ledgerSha256
     && JSON.stringify(receipt.ids) === JSON.stringify(manifest.records.map(item => item.id)), 'applied receipt base or ID inventory mismatch');
+  for (const file of expected) {
+    const beforeDigest = digestAtRevision(root, manifest.base.commit, file);
+    insist(receipt.before[file] === beforeDigest, `applied migration before snapshot drift: ${file}`);
+    insist(/^[a-f0-9]{64}$/.test(receipt.outputs[file]), `applied migration output digest invalid: ${file}`);
+  }
+  verifyCommittedReceipt(root, `${MIGRATIONS}/${manifest.migrationId}.receipt.json`, manifest, receipt);
   const approval = normalized(git(root, ['show', `${manifest.approval.revision}:${manifest.approval.path}`]));
   validateApprovalSource(approval, manifest.approval.version, manifest.approval.sha256);
   insist(sha256(approval) === manifest.approval.sha256, 'pinned approval source drift');
