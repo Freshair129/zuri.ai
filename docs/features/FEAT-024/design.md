@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-024 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-07 — three models (both schemas, additive migration `20260907010000_procurement` shared with FR-165; production SQL **not applied**), the only writers `supplier-service.js` and `purchase-order-service.js`, `GET/POST /api/procurement/suppliers`, `GET/PATCH /api/procurement/suppliers/[id]`, `GET/POST /api/procurement/purchase-orders`, `GET/PATCH /api/procurement/purchase-orders/[id]`, the new `procurement` domain slot with the `/procurement` dashboard and the `/procurement/purchase-orders` console, `PROCUREMENT_BUYER` role, snapshot coverage; one integration suite (AC-164.1–.5), two unit suites, one e2e spec shared with FR-165. Not claimed: purchase requests and approvals, RFQs and quotes, supplier invoices and payables, an order from a LINE chat
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-165 canonical record](requirements/FR-165.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-024 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-07 — two models (both schemas, migration shared with FR-164; production SQL **not applied**), the only writer `goods-receipt-service.js`, `GET/POST /api/procurement/purchase-orders/[id]/receipts`, the receipt panel of the purchase-orders console; one integration suite (AC-165.1–.5), calculators in the unit suite, the e2e spec shared with FR-164 (the Warehouse's on-hand rises by what the receipts posted). Not claimed: purchase returns and credit notes, quality inspection or quarantine on receipt, warehouse locations, landed cost
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

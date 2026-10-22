@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-023 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-07 — two models (both schemas, additive migration `20260907000000_commerce_orders_payments` shared with FR-163; production SQL **not applied**), the only writer `sales-order-service.js`, `GET/POST /api/commerce/orders`, `GET/PATCH /api/commerce/orders/[id]`, the `commerce` slot live with `/commerce/orders`, snapshot coverage; one integration suite (AC-162.1–.6), two unit suites, one e2e spec shared with FR-163. Not claimed: the offer / price catalogue, invoices, an order from a LINE chat, serial-tracked fulfilment
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-163 canonical record](requirements/FR-163.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-023 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-07 — model (both schemas, migration shared with FR-166; production SQL **not applied**), the only writer `payment-service.js`, the read-only `revenue-read-model.js`, `GET/POST /api/commerce/orders/[id]/payments`, `GET/PATCH /api/commerce/payments/[id]`, `GET /api/commerce/revenue`, the `/commerce` dashboard and the payment panel of the orders console, `PAYMENT_VERIFIER` role; one integration suite (AC-163.1–.4), calculators in the unit suite. Not claimed: slip OCR, receipts and invoices, store credit, bank reconciliation
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

@@ -2,11 +2,21 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Status** | Active |
+| **Version** | 1.0.1 |
+| **Status** | Historical proposal — ongoing integration boundary superseded by ADR-009 |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-12 |
-| **Last Updated** | 2026-08-12 |
+| **Last Updated** | 2026-10-22 |
+
+> **Historical proposal, not an active integration contract.** This document
+> predates [ADR-009](decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md),
+> which assigns GoVibe an optional owner-run, one-time bootstrap role and states
+> that Zuri has no live GoVibe dependency. Do not use the routing suggestions or
+> next steps below as current workflow instructions. [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md)
+> governs Zuri's relationship to the legacy zuri product; it does not decide
+> developer governance or replace ADR-009.
+
+**Superseded by:** [ADR-009](decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md).
 
 ## ความสัมพันธ์ของสองระบบ
 
@@ -66,3 +76,7 @@ SYS--ZURI-V2-LAB
    ให้การพัฒนา zuri.ai อยู่ใต้ masterplan เดียว
 3. Zuri V1 `ref/` ใน GoVibe ควรเพิ่ม pointer มายัง repo นี้ (รอ owner เพราะ ref/ เป็น
    vendored area)
+
+## Version diff
+
+1.0.0 → 1.0.1 (2026-10-22): Marks this proposal historical and distinguishes the GoVibe boundary in ADR-009 from Zuri's standalone-product boundary in ADR-024; proposal content retained as historical evidence.

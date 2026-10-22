@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D1) — `ProductMaster.nature` / `defaultStockPolicy`, `natureRule` in `inventory/domain/inventory-governance.js`, the catalogue service, the summary counts, the dashboard form; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; `tests/integration/fr201-inventory-sku-governance.test.js` AC-201.1, `tests/unit/inventory-governance.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-202 canonical record](requirements/FR-202.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D2) — `variantValues` / `variantKeyFor` / `lookalikeFingerprint` / `normalizeToken` in `inventory-governance.js`, the NULL-tolerant unique index `(productMasterId, variantKey)`, `createProduct` and the UPDATE path; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; AC-202.1, AC-202.2
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-203 canonical record](requirements/FR-203.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D3) — `ProductIdentifier`, `isValidGtin` / `identifierCollision`, `inventory-identity-service.js` (`addIdentifier`, `applyIdentifierAction`, `listIdentifiers`, `resolveProduct`), three handlers; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; AC-203.1. Console surface 2026-09-13: the SKU detail page `/inventory/products/[productId]` lists, adds (a failing GTIN check digit is caught in the form) and two-step retires identifiers, and names the SKU that already holds a refused value by asking `resolve`; the dashboard's SKU codes open that page and its lookup box resolves a scanned code to its SKU (`inventory/ui/sku-console.js`, `tests/unit/inventory-sku-console.test.js`, `tests/unit/inventory-product-page.test.js`, `tests/e2e/fr203-sku-identifiers-console.spec.js`)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-204 canonical record](requirements/FR-204.md)
 
@@ -58,7 +58,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D4) — `ProductUnitConversion`, `toBaseQuantity`, `zRecordMovement.unit`, `appendMovement`, `inventory-identity-service.js`; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; AC-204.1. Console surface 2026-09-13: the same SKU page declares, edits and two-step retires unit conversions ("1 BOX12 = 12 EA") and says why a service or a serial-tracked SKU takes none; the dashboard movement form offers the chosen SKU's units and previews the base quantity with the domain's own `toBaseQuantity` before it posts
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-205 canonical record](requirements/FR-205.md)
 
@@ -68,7 +68,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D5) — `productLifecycleRule` / `archiveGuard` / `mergeRule`, `applyProductAction` in `inventory-catalog-service.js`, `movementRule`, `Product.mergedIntoProductId`, the `/inventory/hygiene` merge desk; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; AC-205.1, AC-205.2
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-206 canonical record](requirements/FR-206.md)
 
@@ -78,7 +78,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented 2026-09-13 (ADR-083 D6; main 52c9881e deployed 2026-09-13) — `hygieneReport` in `inventory-governance.js`, `inventory-hygiene-service.js`, `GET /api/inventory/catalog-hygiene`, `/inventory/hygiene`; no schema; AC-206.1, `tests/unit/inventory-governance.test.js`, `tests/unit/inventory-hygiene-page.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-207 canonical record](requirements/FR-207.md)
 
@@ -88,7 +88,7 @@ Feature record: [ZAI:FEAT-031 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-083 D6) — three `Product` columns, `replenishmentRow`, `stockSummaryRow`, `GET /api/inventory/replenishment`, the replenishment card on `/inventory/hygiene`; migration `20260913120000_inventory_sku_governance` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; ledger row written, effect verified: 3 + 6 columns, both tables with forced RLS, 0 masters to backfill) and main 52c9881e deployed; AC-207.1
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

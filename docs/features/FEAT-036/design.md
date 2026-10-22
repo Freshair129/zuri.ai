@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > 🚧 merged #398 2026-09-14 (main 2aef8caa; not deployed; migrations applied on production 2026-09-14; TASK-ZAI-078, ADR-089 D1, D2, D5, FEAT-036) — `SecretStorePort`, Supabase Vault and envelope stores, dispatching secret manager, credential lifecycle; `IntegrationCredentialVersion`, `IntegrationSecretEnvelope` and the new `IntegrationCredential` columns; migrations 20260914140000, 20260914140200, 20260914140300 applied on production 2026-09-14; write-only routes: `POST /api/line-oa/connections` (secret body), `POST /api/line-oa/connections/[id]/credential` (rotate), `…/credential/revoke`, `…/credential/validate` (TASK-ZAI-080)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-224 canonical record](requirements/FR-224.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `relates` · `control-block` · `current`
 - [ADR-100 — LINE OA runs server-executed, on browser-provisioned API keys](../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-225 canonical record](requirements/FR-225.md)
 
@@ -50,7 +50,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > ✅ merged #406 2026-09-14 (main 9b7d8d59; not deployed; ADR-089 D2, D3, D7, FEAT-036; TASK-ZAI-082) — `LineOaConnectWizard.jsx` (Thai wizard: step-up, inline TOTP enrolment, Channel ID/secret/token, error table) replaces the Studio's deployment-secret field; `POST /api/line-oa/connections` (already vault-capable since TASK-ZAI-080) plus `POST /api/line-oa/accounts` create the DRAFT `LineOaAccount`; a DEPLOYMENT_MOUNT-backed credential migrates via the existing rotate route (`LineOaCredentialMigrationCard.jsx`); `tests/integration/fr225-line-oa-self-serve-onboarding.test.js`, `tests/unit/line-oa-connect-wizard-copy.test.js`, `tests/unit/line-oa-connect-wizard-render.test.js`, `tests/e2e/fr225-line-oa-self-serve-wizard.spec.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-226 canonical record](requirements/FR-226.md)
 
@@ -60,7 +60,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > 🚧 merged #398 2026-09-14 (main 2aef8caa; not deployed; migrations applied on production 2026-09-14; TASK-ZAI-079, ADR-089 D6, FEAT-036) — `ChannelAccountClaim` with partial unique on live claims, claim service and `connectLineChannelWithSecret` (validate → claim → store); migration 20260914140100 applied on production 2026-09-14; reached through `POST /api/line-oa/connections` with a Channel ID and secret (TASK-ZAI-080); the Thai wizard is FR-225
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-227 canonical record](requirements/FR-227.md)
 
@@ -70,7 +70,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > ✅ merged #398 (port) and #410 (publisher action) 2026-09-14 (main 6d6b16ba; not deployed; TASK-ZAI-079, TASK-ZAI-083, ADR-089 D7, FEAT-036) — Integration LINE channel-admin port plus the publisher action, `LineOaAccount.webhookStateJson` and the Thai manual card fallback
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-228 canonical record](requirements/FR-228.md)
 
@@ -80,7 +80,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > ✅ merged #410 2026-09-14 (main 6d6b16ba; not deployed; TASK-ZAI-084, ADR-089 D8, FEAT-036) — `ENABLE_SERVER` derives quiescence for a vault-backed account; a mount-backed account keeps the typed confirmation
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

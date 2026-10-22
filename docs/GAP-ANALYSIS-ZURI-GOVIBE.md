@@ -2,11 +2,20 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.1 |
-| **Status** | Active |
+| **Version** | 1.0.2 |
+| **Status** | Historical snapshot — capability comparison as of 2026-08-31 |
 | **Author** | Owen + Claude |
 | **Created** | 2026-08-31 |
-| **Last Updated** | 2026-08-31 |
+| **Last Updated** | 2026-10-22 |
+
+> This report records a cross-repository comparison from 2026-08-31. Its
+> capability counts, gap states, code locations, and recommended sequence are
+> historical evidence, not current implementation status or an active delivery
+> plan. Use accepted in-repo decisions and current source repositories for
+> present-day boundaries and evidence. For the GoVibe relationship, see
+> [ADR-009](decisions/ADR-009-SELF-GOVERNANCE-LINEAGE-AND-IR-BOUNDARY.md); for
+> the product's standalone boundary, see
+> [ADR-024](decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md).
 
 > **อัปเดต 1.0.1**: หลังจุดตัดของการวิเคราะห์นี้ Stage 9 (entity resolution)
 > ส่งมอบแล้วฝั่ง GKS เมื่อ 2026-08-30 (ROADMAP revision 2.10.0, merge `e412ec0`
@@ -34,7 +43,7 @@ GoVibe ครอบคลุมดีที่สุดตรง **แกน mem
 ## 1. กรอบการเทียบ: ใครอยู่ tier ไหน
 
 ตาม ADR-043/ADR-050 สถาปัตยกรรม runtime เป็นสี่ tier และ **GoVibe ไม่ใช่ tier ใดเลย**
-`GOVIBE-INTEGRATION.md` (v1.0.0, 2026-08-12) เก่ากว่า ADR ชุดหลัง — บทบาทปัจจุบัน
+`GOVIBE-INTEGRATION.md` (v1.0.0, 2026-08-12) เป็นเอกสารประวัติที่ถูกแทนโดย ADR-009 — บทบาทปัจจุบัน
 ของ GoVibe คือ *dev-time governance meta-layer* + *repo ต้นทางของ MSP runtime* เท่านั้น
 
 | Tier | ระบบ | เจ้าของอะไร |
@@ -78,7 +87,7 @@ Stage 1–8 ปิดฝั่ง Tier 1 แล้ว (FR-112..119) และต
 ใช้ `zuri-rag-service :8888` คั่นไว้ (ADR-046, Recall@5 0.80) โดย seam
 ถูกออกแบบให้สลับเป็น GKS ได้จุดเดียว
 
-### 2.3 ความคาดหวังเชิง dev-time (GOVIBE-INTEGRATION.md)
+### 2.3 ความคาดหวังเชิง dev-time ในเอกสารประวัติ (GOVIBE-INTEGRATION.md; superseded by ADR-009)
 
 | ความคาดหวัง | สภาพจริง | สถานะ |
 |---|---|---|
@@ -122,3 +131,7 @@ Stage 1–8 ปิดฝั่ง Tier 1 แล้ว (FR-112..119) และต
    ได้เลย (🔜 เดียวของ FEAT-013) โดยไม่ต้องรอ GKS เสร็จ
 6. **อย่า reuse Deep Scan / code-symbol IR** สำหรับ business knowledge —
    ADR-009 ตัดออกจาก scope แล้ว (ตัวแทนคือ `@req`/`@spec` annotation graph)
+
+## Version diff
+
+1.0.1 → 1.0.2 (2026-10-22): Marks the 2026-08-31 comparison as historical, not current capability state or an active plan; analysis values and recommendations are unchanged.

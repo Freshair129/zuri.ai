@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-014 canonical record](feature.md).
 
 > 🔜 declared only — no schema, service or surface exists; authorized shape is ADR-054 D2/D3
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-127 canonical record](requirements/FR-127.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-014 canonical record](feature.md).
 
 > 🟠 partial local implementation 2026-08-31 — ConversationAnalysis schema and consent-gated authorized persistence/read, PDPA erasure and snapshot restore; no worker/LLM producer, UI/public API or applied production migration; ADR-054 D2/D3; 2026-09-03: production migration `20260830221729_conversation_analysis` applied and recorded on the owner's explicit instruction (ADR-054 had withheld it) — still no worker/LLM producer, public route or UI
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-128 canonical record](requirements/FR-128.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-014 canonical record](feature.md).
 
 > 🔜 declared only — no schema, worker or delivery path exists; authorized shape is ADR-054 D2/D3
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

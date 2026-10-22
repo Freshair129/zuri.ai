@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-020 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-06 — seven models (both schemas, additive migrations shared with FR-155; production SQL **not applied**), the only writer `inventory-catalog-service.js`, six `GET/POST /api/inventory/*` collections and `GET/PATCH /api/inventory/products/[id]`, the `inventory` domain slot and `/inventory` dashboard, `INVENTORY_MANAGER` role, snapshot coverage; one integration suite (AC-154.1–.6), two unit suites. Not claimed: Excel/LINE intake, images, costing, the Commerce offer layer
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-155 canonical record](requirements/FR-155.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-020 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-06 — three models (both schemas, migrations shared with FR-154; production SQL **not applied**), the only writer `inventory-stock-service.js`, `GET/POST /api/inventory/lots`, `GET /api/inventory/serial-units`, `GET/POST /api/inventory/stock-movements`, `GET /api/inventory/stock`, the dashboard's KPIs, on-hand table and movement form; one integration suite (AC-155.1–.5), calculators in the unit suite. Not claimed: warehouse locations, reservations, expiry alerts, stocktake campaigns, costing
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-156 canonical record](requirements/FR-156.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-020 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-06 — two models (both schemas, additive migration `20260906233000_inventory_recipe`; production SQL **not applied**), the only writer `inventory-recipe-service.js`, `GET/POST /api/inventory/recipes`, `GET/PATCH /api/inventory/recipes/[id]`, `POST /api/inventory/recipes/[id]/build`, snapshot coverage; one integration suite (AC-156.1–.5), calculators in the unit suite. Not claimed: a recipe editor page, costing, yield loss, multi-level explosion
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

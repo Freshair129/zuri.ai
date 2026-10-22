@@ -20,9 +20,20 @@ import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
-import { parseFeatureBundles, classifyRequirements, assertCapabilityTerminology } from './capability-registry.mjs'
+import { classifyRequirements, assertCapabilityTerminology } from './capability-registry.mjs'
 import { generateDomainState } from './domain-state.mjs'
-import { parseCanonicalIndex, parseCanonicalRecord } from './document-registry-format.mjs'
+import { parseCanonicalRecord } from './document-registry-format.mjs'
+import {
+  buildCanonicalGraphEntries,
+  canonicalizeDeclaredIdentities,
+  loadCanonicalDocumentRegistry,
+} from './canonical-document-registry.mjs'
+import {
+  compareDocumentationInventory,
+  parseDirectDirectoryRegister,
+  parseDirectRootFileRegister,
+  validateDomainSrsView,
+} from './document-profile-validation.mjs'
 import { collectDocumentClaims, isGeneratedDocumentView, requiresSuccessor } from './doc-identities.mjs'
 import { modelSourceFromFrontmatter, readDomainModelSource } from './domain-model-source.mjs'
 import { maskExpectedViewerAssertions } from './viewer-fixture-scan.mjs'
@@ -63,10 +74,94 @@ const labDocs = walk(workspacePath(ROOT, 'docs'), '.md').filter((f) => !f.starts
 const specDocs = []
 const allDocs = labDocs
 const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
-const canonicalRecords = existsSync(canonicalIndexPath) ? parseCanonicalIndex(read(canonicalIndexPath)).records : []
+let canonicalRegistry = { index: { records: [] }, records: [] }
+if (existsSync(canonicalIndexPath)) {
+  try {
+    canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
+  } catch (error) {
+    add('critical', 'canonical-record-registry', 'Canonical document registry is invalid', error.message,
+      ['registry/document-registry/index.json'], 'Repair the canonical record/index mismatch; compatibility exports are projections')
+  }
+} else {
+  add('critical', 'canonical-record-registry', 'Canonical document registry index is missing', canonicalIndexPath,
+    ['registry/document-registry/index.json'], 'Restore the canonical registry index before checking document semantics')
+}
+const canonicalRecords = canonicalRegistry.index.records
+const canonicalRecordItems = canonicalRegistry.records
 const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
 const approvalContexts = new Map(canonicalRecords.filter(record => record.recordVersion === 2)
   .map(record => [record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'), record.approvalPath]))
+
+// Direct-root inventory is intentionally based on the live filesystem. The
+// register is a checked reader index, not permission to delete or move entries.
+{
+  const rootRegisterPath = path.join(SPEC_PACK, 'governance', 'ROOT-FILE-REGISTER.md')
+  const directoryRegisterPath = path.join(SPEC_PACK, 'governance', 'DOCS-DIRECTORY-REGISTER.md')
+  if (!existsSync(rootRegisterPath) || !existsSync(directoryRegisterPath)) {
+    add('critical', 'docs-inventory', 'Documentation filesystem register is missing',
+      'Both direct-root and directory registers are required for inventory checks',
+      [rel(rootRegisterPath), rel(directoryRegisterPath)], 'Restore the registered inventory documents')
+  } else {
+    const entries = readdirSync(SPEC_PACK, { withFileTypes: true })
+    const generatedRootFiles = [
+      '.data-pipeline-map.json',
+      '.doc-graph-drift-report.json',
+      '.doc-graph.json',
+      '.domain-state.json',
+      '.preflight-report.json',
+      'DOCUMENT-LINKS.md',
+      'DOMAIN-MAP.md',
+      'FEATURE-MAP.md',
+      'TRACE.md',
+    ]
+    const inventory = compareDocumentationInventory({
+      registeredRootFiles: parseDirectRootFileRegister(read(rootRegisterPath)),
+      registeredDirectories: parseDirectDirectoryRegister(read(directoryRegisterPath)),
+      actualRootFiles: entries.filter(entry => entry.isFile() || entry.isSymbolicLink()).map(entry => entry.name),
+      actualDirectories: entries.filter(entry => entry.isDirectory()).map(entry => entry.name),
+      generatedRootFiles,
+    })
+    for (const file of inventory.unregisteredRootFiles) {
+      add('critical', 'docs-inventory', `Unregistered direct file under docs/: ${file}`,
+        'The path exists on disk but is absent from the direct-root file register', [`docs/${file}`],
+        'Classify and register this exact file; preflight never moves or deletes it')
+    }
+    for (const file of inventory.missingRootFiles) {
+      add('critical', 'docs-inventory', `Registered direct file is missing: ${file}`,
+        'The register points to a direct-root file that is absent from the live filesystem', [`docs/${file}`],
+        'Restore the file or reconcile its registration with the authorized change')
+    }
+    for (const directory of inventory.unregisteredDirectories) {
+      add('critical', 'docs-inventory', `Unregistered direct directory under docs/: ${directory}`,
+        'The directory exists on disk but is absent from the direct-directory register', [`docs/${directory}`],
+        'Classify and register this exact directory; preflight never moves or deletes it')
+    }
+    for (const directory of inventory.missingDirectories) {
+      add('critical', 'docs-inventory', `Registered direct directory is missing: ${directory}`,
+        'The register points to a direct directory that is absent from the live filesystem', [`docs/${directory}`],
+        'Restore the directory or reconcile its registration with the authorized change')
+    }
+  }
+}
+
+// Opt-in source-linked SRS validation. Existing SRS documents without the
+// explicit profile marker remain untouched, and missing SRS coverage is not a
+// failure because ownership and applicability are not inferred here.
+for (const file of allDocs.filter(candidate => path.basename(candidate).toLowerCase() === 'srs.md')) {
+  const body = read(file)
+  const charterPath = path.join(path.dirname(file), 'CHARTER.md')
+  const result = validateDomainSrsView({
+    relativePath: rel(file),
+    body,
+    charterPath: rel(charterPath),
+    charterBody: existsSync(charterPath) ? read(charterPath) : '',
+    records: canonicalRecordItems,
+  })
+  for (const issue of result.issues) {
+    add('critical', 'domain-srs-profile', issue.message, issue.code, [rel(file), rel(charterPath)].filter(Boolean),
+      'Resolve the SRS view against its declared charter and canonical per-ID records')
+  }
+}
 
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
@@ -76,15 +171,14 @@ const approvalContexts = new Map(canonicalRecords.filter(record => record.record
     const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
       .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)
     assertCapabilityTerminology([...sources, ...orientationDocs].map(f => ({ path: rel(f), body: read(f) })))
-    const bundles = parseFeatureBundles(read(path.join(SPEC_PACK, 'FEATURES.md')))
+    const canonicalGraph = buildCanonicalGraphEntries(canonicalRecordItems)
+    classifyRequirements(canonicalGraph.nodes, canonicalGraph.edges)
     if (existsSync(GRAPH)) {
       const graph = JSON.parse(read(GRAPH))
-      const nodes = graph.nodes.filter(n => n.type !== 'feature')
+      const nodes = graph.nodes.filter(n => !['feature', 'requirement'].includes(n.type))
+      nodes.push(...canonicalGraph.nodes)
       const edges = graph.edges.filter(e => e.type !== 'bundles')
-      for (const row of bundles) {
-        nodes.push({ id: `feat:${row.id}`, type: 'feature', label: row.title, declared: row.status })
-        for (const id of row.requirementIds) edges.push({ from: `feat:${row.id}`, to: `req:${id}`, type: 'bundles' })
-      }
+      edges.push(...canonicalGraph.edges)
       classifyRequirements(nodes, edges)
       const fresh = generateDomainState({ root: ROOT, nodes, edges })
       const projected = workspacePath(ROOT, 'docs/.domain-state.json')
@@ -93,7 +187,8 @@ const approvalContexts = new Map(canonicalRecords.filter(record => record.record
       }
     }
   } catch (error) {
-    add('critical', 'capability-classification', error.message, 'Explicit Feature / Standalone FR contract', ['docs/FEATURES.md'], 'Fix the canonical sources and regenerate with npm run govern')
+    add('critical', 'capability-classification', error.message, 'Canonical FEAT membership and standalone FR classification',
+      ['registry/document-registry/index.json'], 'Fix the canonical records and regenerate the compatibility projections')
   }
   const saved = existsSync(GRAPH) ? JSON.parse(read(GRAPH)).nodes : []
   const nodes = sources.map(f => {
@@ -175,8 +270,10 @@ if (!existsSync(GRAPH)) {
   if (g.stats.dangling_edges > 0) {
     add('warning', 'doc-code-symlink', 'Annotations pointing at unknown nodes', `${g.stats.dangling_edges} dangling edge(s)`, [], 'Fix the @req/@tested target')
   }
-  // Requirement ids used in code but never declared in the PRD registry.
-  const declared = new Set(g.nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)))
+  // Requirement ids used in code but never declared in canonical per-ID records.
+  const declared = new Set(canonicalRecordItems
+    .filter(({ record }) => record.family !== 'FEAT')
+    .map(({ record }) => record.id))
   const used = new Set()
   for (const n of g.nodes.filter((n) => n.type === 'code_file')) {
     for (const list of Object.values(n.annotations || {})) {
@@ -185,7 +282,8 @@ if (!existsSync(GRAPH)) {
   }
   const undocumented = [...used].filter((id) => !declared.has(id))
   if (undocumented.length) {
-    add('critical', 'requirement-coverage', 'Requirement ids referenced in code but not declared', undocumented.join(', '), [], 'Declare them in the PRD registry')
+    add('critical', 'requirement-coverage', 'Requirement ids referenced in code but not declared', undocumented.join(', '), [],
+      'Create or reconcile the canonical per-ID record at its registry-selected path; compatibility exports are generated')
   }
   // ID sequence gaps per family.
   const byFamily = {}
@@ -238,8 +336,7 @@ if (!existsSync(GRAPH)) {
       }
     }
     // Same assertion for the other generated views: DOMAIN-MAP must cite every
-    // domain directory; TRACE must cite every FR in the registry; FEAT ids in
-    // the FEATURES registry must be unique and bundle only declared FRs.
+    // domain directory and TRACE must cite every canonical FR.
     const domainMapPath = path.join(SPEC_PACK, 'DOMAIN-MAP.md')
     const domainsDir = path.join(SPEC_PACK, 'domains')
     if (existsSync(domainMapPath) && existsSync(domainsDir)) {
@@ -263,30 +360,6 @@ if (!existsSync(GRAPH)) {
       if (missing.length) {
         add('critical', 'generated-view', `TRACE is blind to ${missing.length} FR(s)`, missing.join(', '), [],
           'Fix scripts/doc-views.mjs and rerun docs:graph')
-      }
-    }
-    const featPath = path.join(SPEC_PACK, 'FEATURES.md')
-    if (existsSync(featPath)) {
-      const seen = new Map()
-      const declaredFr = existsSync(GRAPH)
-        ? new Set(JSON.parse(read(GRAPH)).nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)))
-        : null
-      for (const line of read(featPath).split('\n')) {
-        const m = /^\|\s*(FEAT-\d{3})\s*\|[^|]*\|\s*([^|]*)\|/.exec(line)
-        if (!m) continue
-        const [, fid, frs] = m
-        seen.set(fid, (seen.get(fid) || 0) + 1)
-        if (declaredFr) {
-          for (const fr of frs.match(/FR-\d{3}/g) || []) {
-            if (!declaredFr.has(fr)) {
-              add('critical', 'id-uniqueness', `${fid} bundles ${fr}, which is not declared in the PRD registry`, 'features bundle real requirements only', ['docs/FEATURES.md'],
-                'Declare the FR first, then bundle it')
-            }
-          }
-        }
-      }
-      for (const [fid, n] of seen) {
-        if (n > 1) add('critical', 'id-uniqueness', `${fid} appears ${n} times in the FEATURES registry`, 'feature ids are immutable keys', ['docs/FEATURES.md'], 'The later row takes the next free number')
       }
     }
   }
@@ -541,7 +614,7 @@ if (existsSync(GRAPH)) {
   const introduced = orphans.filter((p) => !known.has(p))
   if (introduced.length) {
     add('critical', 'route-anchor', `${introduced.length} route(s) implement no declared requirement`, introduced.join(', '), introduced,
-      'Declare the FR in docs/PRD-SDD-v1.0.md and add `@req FR-xxx` to the route — never widen .route-anchor-baseline.json to silence this')
+      'Create or reconcile the canonical FR record at its registry-selected path and add `@req FR-xxx` to the route; PRD-SDD is a generated compatibility export')
   }
   const repaid = baseline.filter((p) => !orphans.includes(p))
   if (repaid.length) {
@@ -1201,7 +1274,7 @@ const ID_LEDGER = path.join(SPEC_PACK, '.id-ledger.json')
   ].map((f) => ({ path: rel(f), body: read(f) }))
 
   for (const f of evaluateIdStability({
-    declared: collectDeclared(ROOT),
+    declared: canonicalizeDeclaredIdentities(collectDeclared(ROOT), canonicalRecordItems),
     ledger,
     readDoc,
     citersOf,
@@ -1271,7 +1344,7 @@ if (existsSync(ROADMAP)) {
   const introduced = broken.filter((b) => !known.has(b))
   if (introduced.length) {
     add('critical', 'roadmap-evidence', `${introduced.length} roadmap row(s) cite evidence that does not exist`, introduced.join(', '), [rel(ROADMAP)],
-      'Point the Source Section at the real file, or cite the registry (e.g. `PRD-SDD FR-xxx`) when no document backs the row — ' +
+      'Point the Source Section at the real file, or cite the canonical record ID/path from registry/document-registry/index.json when no separate artifact backs the row — ' +
         'never widen .roadmap-evidence-baseline.json to silence this')
   }
   const repaid = baseline.filter((b) => !broken.includes(b))
@@ -1710,9 +1783,9 @@ const MEMBERSHIP_WRITER_BASELINE = path.join(SPEC_PACK, '.membership-writer-base
     const edgeOwn = new Set(
       JSON.parse(read(edgeGraph)).nodes.filter((n) => n.type === 'requirement').map((n) => n.id.slice(4)),
     )
-    const rootDeclared = new Set(
-      [...read(path.join(SPEC_PACK, 'PRD-SDD-v1.0.md')).matchAll(/^\|\s*((?:FR|NFR|BR|SEC|SDD)-\d+)/gm)].map((m) => m[1]),
-    )
+    const rootDeclared = new Set(canonicalRecordItems
+      .filter(({ record }) => record.family !== 'FEAT')
+      .map(({ record }) => record.id))
     const ambiguous = new Map()
     // `walk` takes one extension, so the TypeScript sources Edge is written in
     // need their own passes rather than an array.
@@ -1826,7 +1899,7 @@ const report = {
     info: counts.info || 0,
     overall: counts.critical ? 'CRITICAL' : counts.warning ? 'WARN' : 'PASS',
   },
-  trust_hierarchy: 'code > SDD > PRD — when they disagree, the downstream artefact wins',
+  trust_hierarchy: 'Accepted decisions and source-owned contracts govern; canonical per-ID records govern requirement statements and lifecycle; code is implementation evidence; compatibility exports and generated views are not authoring authority. Conflicts remain explicit until reconciled.',
   findings,
 }
 writeFileSync(REPORT, JSON.stringify(report, null, 2) + '\n')

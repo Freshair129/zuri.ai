@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-001 canonical record](feature.md).
 > ✅
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-016 — SQLite authority and managed local file workspace](../../decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-045 canonical record](requirements/FR-045.md)
 
@@ -41,7 +41,7 @@ Feature record: [ZAI:FEAT-001 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-016 — SQLite authority and managed local file workspace](../../decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md) — `relates` · `control-block` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-058 canonical record](requirements/FR-058.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-001 canonical record](feature.md).
 
 > ✅
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

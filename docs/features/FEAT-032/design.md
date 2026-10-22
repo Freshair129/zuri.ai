@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-032 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-084 D1, D2) — `inventory/domain/catalog-intake.js` (envelope, pure planner, hashes), `application/catalog-intake-service.js`, the catalogue writers accept a transaction client (`inTx`), four handlers, `InventoryCatalogIntake` model; migration `20260913200000_inventory_catalog_intake` APPLIED on production 2026-09-13 (owner-instructed, ADR-057; rolled-back dry run first, ledger row written, effect verified: 21 columns, forced RLS, one runtime policy, runtime-only grants) and main ada5188b deployed; `tests/unit/inventory-catalog-intake.test.js`, `tests/integration/fr208-inventory-catalog-intake.test.js`, `tests/integration/fr208-inventory-catalog-intake-rollback.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-209 canonical record](requirements/FR-209.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-032 canonical record](feature.md).
 
 > 🟠 implemented 2026-09-13 (ADR-084 D3; main ada5188b deployed) — `inventory/import/catalog-workbook.js`, two handlers, `src/app/(pm)/inventory/catalog-intake/page.jsx` (seventh Inventory tab); `tests/unit/inventory-catalog-workbook.test.js`, `tests/unit/inventory-catalog-intake-page.test.js`, AC-209.1, `tests/e2e/fr209-catalog-intake.spec.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-210 canonical record](requirements/FR-210.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-032 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-084 D4) — `inventory/import/catalog-line-command.js` (parser, reply formatters), `agent/line-catalog-command.js` (`withLineCatalogCommand`, `lineCatalogViewer`), `api/line-oa/worker/route.js` wraps the answer port; `tests/unit/inventory-catalog-line-command.test.js`, `tests/unit/agent-line-catalog-command.test.js`, `tests/integration/fr210-line-catalog-command.test.js`; production migration shared with FR-208 and APPLIED 2026-09-13; main ada5188b deployed (the `#sku` command is live on the server-owned LINE worker)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

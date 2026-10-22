@@ -408,7 +408,7 @@ Risk score is Probability × Impact, on a 1–5 scale.
 - [DuckDB exporter](../../apps/server/scripts/export_smartgift_business_knowledge.py)
 - [Import SQL builder](../../apps/server/scripts/build_business_knowledge_import.py)
 - [Production post-apply inventory](../../apps/server/supabase/tests/production_import_post_apply_inventory.sql)
-- [Current documentation preflight](../.preflight-report.json)
+- Current documentation preflight is generated locally at `docs/.preflight-report.json` by `npm run docs:preflight`.
 
 ## Current state
 

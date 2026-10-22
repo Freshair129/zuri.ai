@@ -672,6 +672,26 @@ and graph. They are navigation and traceability, not separate requirement author
 Editing them by hand creates another copy of facts that already have canonical
 sources.
 
+Use the [documentation requirements specification](docs/governance/DOCUMENTATION-REQUIREMENTS-SPEC.md)
+as a proposed guide to document profiles and sections. It cannot override
+accepted ADRs or canonical record authority.
+
+Before asserting that a document exists or is absent, or before creating,
+replacing, moving, or deleting one, enumerate the affected filesystem scope.
+Compare git ls-files docs with rg --files --hidden --no-ignore docs, inspect the
+target directory with Get-ChildItem -Force -Recurse, and use git status --short
+--ignored to distinguish tracked, modified, untracked, and ignored files. Read
+the exact existing file and its diff before replacement. README files, the
+canonical-ID registry, and generated graph are not complete filesystem
+inventories. An unlisted file is unclassified until reviewed; absence from an
+index is never deletion authorization.
+
+The [root-file register](docs/governance/ROOT-FILE-REGISTER.md) and
+[directory register](docs/governance/DOCS-DIRECTORY-REGISTER.md) are checked
+inventories of tracked direct children of `docs/` at their recorded revision.
+They are not approval lists and do not include ignored or untracked files;
+refresh the filesystem enumeration before relying on them for a later change.
+
 When adding a document, identify its authority and audience first. If the document
 would establish a new source of requirement, membership or ownership authority,
 update the applicable canonical contract through its reviewed workflow instead of

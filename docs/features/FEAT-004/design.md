@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 
 > Phase 1 active - owner-approved 2026-08-14
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-079 canonical record](requirements/FR-079.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 
 > 🟠 local runtime/adapter implemented; production evidence pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-080 canonical record](requirements/FR-080.md)
 
@@ -53,7 +53,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 - [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) — `relates` · `control-block` · `current`
 - [ADR-053 — FlowAccount read-only pull pipeline and credential provisioning](../../decisions/ADR-053-FLOWACCOUNT-READ-ONLY-PULL-PIPELINE-AND-CREDENTIAL-PROVISIONING.md) — `relates` · `control-block` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

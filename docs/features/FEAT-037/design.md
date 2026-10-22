@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `relates` · `control-block` · `current`
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-230 canonical record](requirements/FR-230.md)
 
@@ -43,7 +43,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 - [ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `relates` · `control-block` · `current`
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
 - [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-231 canonical record](requirements/FR-231.md)
 
@@ -53,7 +53,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 
 > 🔜 declared only 2026-09-14 (ADR-091 D3, D4, FEAT-037) — planned `LineOaAccount.memoryPolicy` and `MemoryProjectionReceipt` (agent); blocked on MSP TASK-MEMOS-002 and TASK-MEMOS-004
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-232 canonical record](requirements/FR-232.md)
 
@@ -63,7 +63,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 
 > 🔜 declared only 2026-09-14 (ADR-091 D6, ADR-090 D8, FEAT-037) — `erasePrincipal` calls no MSP or knowledge writer
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-233 canonical record](requirements/FR-233.md)
 
@@ -74,7 +74,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 > ✅ built 2026-09-14 (ADR-091 D5, FEAT-037, TASK-ZAI-090) — `Conversation.lastMessageAt`/`lastMessagePreview`/`retentionClass`, a computed-on-read `unreadCount`, the search reader (`pg_trgm` on Postgres, `LIKE` on SQLite) and per-account follow/unfollow counts are all built and tested against SQLite; migration `20260914150400`, not applied
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-234 canonical record](requirements/FR-234.md)
 
@@ -86,7 +86,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Data pipeline map — ข้อมูลเข้าจากไหน รวมที่ไหน และส่งให้ใคร](../../DATA-PIPELINE-MAP.md) — `relates` · `metadata` · `current`
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 
