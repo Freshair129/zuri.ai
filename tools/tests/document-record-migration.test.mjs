@@ -135,6 +135,43 @@ test('applied replay rejects tampered before hashes against its pinned base', ()
   } finally { f.cleanup(); }
 });
 
+test('applied replay finds a second-parent receipt origin and permits regenerated shared projections', () => {
+  const f = fixture();
+  const receiptRelativePath = manifestPath.replace('.manifest.json', '.receipt.json');
+  const firstParentBranch = git(f.root, ['branch', '--show-current']);
+  try {
+    f.save();
+    git(f.root, ['add', manifestPath]);
+    git(f.root, ['commit', '--quiet', '-m', 'commit migration manifest seed']);
+    git(f.root, ['branch', 'valid-line']);
+    git(f.root, ['checkout', '--quiet', 'valid-line']);
+    git(f.root, ['commit', '--allow-empty', '--quiet', '-m', 'pin migration base']);
+    f.manifest.base.commit = git(f.root, ['rev-parse', 'HEAD']);
+    f.manifest.approval.revision = git(f.root, ['rev-parse', `${firstParentBranch}~1`]);
+    f.save();
+
+    applyRecordMigration(f.root, manifestPath);
+    const receiptBytes = readFileSync(path.join(f.root, receiptRelativePath));
+    put(f.root, 'registry/document-registry/FEATURES.template.md', '# Regenerated feature projection\n');
+    writeCanonicalProjections(f.root);
+    git(f.root, ['add', '-A']);
+    git(f.root, ['commit', '--quiet', '-m', 'apply migration and regenerate shared projection']);
+    const validOrigin = git(f.root, ['rev-parse', 'HEAD']);
+
+    git(f.root, ['checkout', '--quiet', firstParentBranch]);
+    put(f.root, receiptRelativePath, receiptBytes.toString());
+    git(f.root, ['add', receiptRelativePath]);
+    git(f.root, ['commit', '--quiet', '-m', 'add receipt on first-parent history']);
+    git(f.root, ['merge', '--no-edit', '--no-ff', 'valid-line']);
+
+    const defaultHistoryAdds = git(f.root, ['log', '--diff-filter=A', '--format=%H', '--', receiptRelativePath]).split(/\s+/);
+    const fullHistoryAdds = git(f.root, ['log', '--full-history', '--diff-filter=A', '--format=%H', '--', receiptRelativePath]).split(/\s+/);
+    assert.ok(!defaultHistoryAdds.includes(validOrigin), 'default path simplification must hide the valid second-parent origin');
+    assert.ok(fullHistoryAdds.includes(validOrigin), 'full history must retain the valid second-parent origin');
+    assert.equal(planRecordMigration(f.root, manifestPath).status, 'ALREADY_APPLIED');
+  } finally { f.cleanup(); }
+});
+
 test('applied replay rejects changed historical output hashes from the committed receipt', () => {
   const f = fixture();
   try {

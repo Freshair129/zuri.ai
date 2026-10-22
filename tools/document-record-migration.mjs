@@ -90,7 +90,9 @@ function digestAtRevision(root, revision, file) {
 function verifyCommittedReceipt(root, receiptPath, manifest, receipt) {
   if (git(root, ['ls-tree', '--name-only', 'HEAD', '--', receiptPath]).trim() !== receiptPath) return;
 
-  const additions = git(root, ['log', '--diff-filter=A', '--format=%H', '--', receiptPath]).split(/\s+/).filter(Boolean);
+  // A merge can place the actual receipt addition on its second parent while
+  // path simplification reports only a duplicate addition on the first parent.
+  const additions = git(root, ['log', '--full-history', '--diff-filter=A', '--format=%H', '--', receiptPath]).split(/\s+/).filter(Boolean);
   const origins = additions.filter(revision => {
     try {
       git(root, ['merge-base', '--is-ancestor', manifest.base.commit, revision]);
@@ -105,7 +107,14 @@ function verifyCommittedReceipt(root, receiptPath, manifest, receipt) {
   for (const revision of origins) {
     const historical = JSON.parse(normalized(git(root, ['show', `${revision}:${receiptPath}`])));
     insist(isDeepStrictEqual(receipt, historical), `applied migration receipt drift: ${receiptPath}`);
-    for (const [file, expectedDigest] of Object.entries(receipt.outputs)) {
+    // Authored records and the sealed approval copy are migration-owned and
+    // immutable. Registry indexes and compatibility exports are shared
+    // projections that may be regenerated later; their current derivation is
+    // checked below, rather than requiring the first-apply hash forever.
+    const migrationOwned = [...manifest.records.map(item => `docs/requirements/${item.id}.md`),
+      `${MIGRATIONS}/${manifest.migrationId}.approval.md`];
+    for (const file of migrationOwned) {
+      const expectedDigest = receipt.outputs[file];
       insist(digestAtRevision(root, revision, file) === expectedDigest, `applied receipt historical output drift: ${file}`);
     }
   }
