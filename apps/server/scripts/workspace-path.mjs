@@ -17,7 +17,7 @@ export function workspaceRoot(appRoot) {
 export function workspacePath(appRoot, ...parts) {
   const relative = path.join(...parts)
   const first = relative.split(/[\\/]/)[0]
-  const shared = ['docs', '.brain', '.github', 'AGENTS.md', 'CLAUDE.md', 'apps', 'services', 'plugins', 'artifacts', 'reference', 'reports', 'import-data'].includes(first)
+  const shared = ['docs', 'registry', '.brain', '.github', 'AGENTS.md', 'CLAUDE.md', 'apps', 'services', 'plugins', 'artifacts', 'reference', 'reports', 'import-data'].includes(first)
   return path.join(shared ? workspaceRoot(appRoot) : appRoot, relative)
 }
 

@@ -14,6 +14,8 @@ test('dual-root lookup is stable for the lifetime of a process', () => {
 
     assert.equal(workspaceRoot(appRoot), root)
     assert.equal(workspacePath(appRoot, 'docs', 'README.md'), path.join(root, 'docs', 'README.md'))
+    assert.equal(workspacePath(appRoot, 'registry', 'document-registry', 'index.json'),
+      path.join(root, 'registry', 'document-registry', 'index.json'))
     assert.equal(workspacePath(appRoot, 'src', 'index.js'), path.join(appRoot, 'src', 'index.js'))
 
     rmSync(path.join(root, 'monorepo.json'))
