@@ -1,5 +1,9 @@
 # Appendix A — API Specification
 
+Version diff 1.109.0b → 1.110.0b (2026-10-19): add FR-289's installation-operator-only document graph and exact-source Markdown GET routes. Inventory: 350 route handlers, 351 OpenAPI paths and 465 operations. The viewer is read-only and has no Business scope or production-hosted captured component.
+
+Version diff 1.108.0b → 1.109.0b (2026-10-18): add TASK-ZAI-011 recipient-scoped approval notification inbox and idempotent acknowledgement. Inventory: 348 route handlers, 349 OpenAPI paths, 463 operations. The additive schema migrations are local source only; no production or Supabase migration apply is claimed.
+
 Version diff 1.106.0b → 1.107.0b (2026-10-16): add FR-260's installation-operator-only read-only Worker observations and explicit refusal methods. Inventory: 344 route handlers, 345 OpenAPI paths, 459 operations. No provider/live-agent activation, hosted deployment, or external migration apply is claimed.
 
 Version diff 1.107.0b → 1.108.0b (2026-10-16): add the authenticated FR-026 Agent approval queue and decision paths, with explicit 400/401/403/404/409 responses. Inventory: 346 route handlers, 347 OpenAPI paths, 461 operations. Source migrations are not applied to Supabase or production.
@@ -14,6 +18,17 @@ Approval is a prerequisite to selected Agent writes. Identity resolves the authe
 | POST | `/api/agent/approval-requests/[id]/decision` | The session-authenticated OWNER submits APPROVE or REJECT. Actor identity is derived from the session. The request must include the session-bound `X-CSRF-Token` issued by `GET /api/auth/csrf` and a matching `Origin`. Duplicate, terminal, expired or stale decisions return 409. |
 
 Tier quorum is L1=1, L2=2, L3=3 and L4=4. Only the original requester may resubmit the same request ID with its exact action, concrete target, target version and canonical input. An under-quorum retry returns `ACTION_PENDING` with that request ID and performs no business write. Execution rechecks requester authorization, current OWNER quorum, target version, and a fresh single-use HIGH step-up where required. Gate F, canonical writers and their audit transaction remain mandatory. Invalid input is 400, missing records 404, ineligible viewers or invalid CSRF/Origin are 403, stale/non-open conflicts 409, and unavailable session or CSRF configuration is 503.
+
+### Agent approval notifications (TASK-ZAI-011 / FR-026)
+
+The in-app inbox exposes only the authenticated person's notices. A recorded human vote creates requester outcome and remaining eligible direct Business Owner notices in the same approval transaction. This slice covers vote decisions only: expiry, stale-request and post-approval execution lifecycle events are outside its scope. Responses are no-store; no email, LINE or provider delivery is added.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/agent/approval-notifications` | Reject query parameters; return `{ notifications, unreadCount }` for the signed-in recipient, newest first, capped at 100. Each item contains safe approval/request/decision references, decision/status, timestamps and read state. |
+| POST | `/api/agent/approval-notifications/[id]` | Require the signed-in recipient and valid write-CSRF token; idempotently mark that recipient's notice read and return `{ notification }`. Replays preserve the first `readAt`; another recipient receives the same not-found result as an absent row. |
+
+The source migrations and portable-backup support are authored locally. Runtime database migration, production deployment and live Supabase behavior remain unverified and are not claimed.
 
 ### Business Agent Factory v1 (FR-285)
 
@@ -75,9 +90,20 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.106.0b |
+| **Version** | 1.110.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-10-15 |
+| **Last Updated** | 2026-10-19 |
+
+### Knowledge Studio document reads (FR-289)
+
+Both routes resolve the current signed session and require installation-operator
+authority on every request. They have no Business scope and perform no database
+reads or writes. Responses use `Cache-Control: private, no-store` and `Vary: Cookie`.
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/control/knowledge-studio/graph` | Returns `{ dataset, nodeIds, counts }` from the generated document graph and canonical document registry. The projection is bounded to 2,048 nodes, 8,192 edges and 32 sections; only indexed Markdown paths under `docs/` that exist on disk are included. `401` requires authentication, `403` requires installation-operator authority, and `503` means the generated graph is unavailable. |
+| GET | `/api/control/knowledge-studio/document?nodeId=` | Returns `{ nodeId, path, markdown }` for a node ID from the current projection, resolving the exact indexed Markdown source under `docs/` (maximum 512 KiB). Unknown, stale or unsafe sources return `404`; authentication/authority refusals are `401`/`403`, and unavailable graph/source data is `503`. |
 
 ทุก endpoint เป็น local route handler โดย protected routes ใช้ trusted request-session
 seam; credential login ออก signed HttpOnly session cookie และไม่มี demo bypass. Six
@@ -127,7 +153,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=346 -->
+<!-- api-spec-counts: route_handlers=350 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

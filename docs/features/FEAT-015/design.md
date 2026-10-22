@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-015 canonical record](feature.md).
 
 > 🟠 foundation implementation authorized under ADR-055 / FEAT-015
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-134 canonical record](requirements/FR-134.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-015 canonical record](feature.md).
 
 > 🟠 CR-017 multi-evidence UX/validation correction approved; LINE binary, live Sheet and Procurement adapters remain gated
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-135 canonical record](requirements/FR-135.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-015 canonical record](feature.md).
 
 > 🟠 local contracts/schema/validation authorized; Project Inventory DTO expansion deferred until allocation persistence is delivered atomically
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-136 canonical record](requirements/FR-136.md)
 
@@ -58,7 +58,7 @@ Feature record: [ZAI:FEAT-015 canonical record](feature.md).
 
 > 🟠 local deterministic calculator/schema contract authorized; Finance approval/posting gated
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

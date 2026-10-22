@@ -17,8 +17,10 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 
 ## Requirements and identity
 
-- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md): the FR / NFR / BR / SEC / SDD registry — global ids that never move
-- [docs/FEATURES.md](docs/FEATURES.md): capability classification — explicit FEAT bundles and Standalone FRs retain separate identities
+- [Canonical ZAI record index](registry/document-registry/index.json): generated locator for the individual source records; record files preserve the ZAI identities, statements and explicit FEAT membership.
+- [Canonical record format](docs/migrations/document-reintegration/CANONICAL-FORMAT.md): defines record locations, provenance and generated compatibility exports.
+- [docs/PRD-SDD-v1.0.md](docs/PRD-SDD-v1.0.md): generated compatibility export of FR / NFR / BR / SEC / SDD records; IDs remain global and pinned.
+- [docs/FEATURES.md](docs/FEATURES.md): generated compatibility export of FEAT records and explicit bundles; standalone FRs retain separate identities.
 - [docs/decisions/](docs/decisions/): ADRs — ADR-024 (direction), ADR-025 (domain spine), ADR-039 (id pinning), ADR-062 (monorepo)
 - [docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md](docs/decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md): ids are keys — never renumber, never reuse, never recycle a burnt number
 - [docs/GOVERNANCE-LINK-METADATA.md](docs/GOVERNANCE-LINK-METADATA.md): stable document ids, relations and wikilinks
@@ -46,7 +48,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 - `src/app/(pm)/` — UI routes · `src/app/api/` — route handlers
 - `src/modules/<domain>/` — one folder per domain; enumerate `ls apps/server/src/modules/` rather than trusting any prose list
 - `src/lib/` — db, ids, `validation/enums.js` (enum source of truth), `shell-mode.js`, `db-boundary.js`
-- `prisma/schema.prisma` — SQLite for dev/test; `schema.postgres.prisma` + `supabase/migrations/` for production
+- `prisma/schema.prisma` — SQLite for `npm run dev` and tests; the primary Docker dev preview uses an isolated PostgreSQL database ([ADR-112](docs/decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md), [runbook](docs/deployment/docker-ngrok.md)); `schema.postgres.prisma` + `supabase/migrations/` serve production
 - `contracts/` — JSON Schema + sample envelopes ([PlanEnvelope](apps/server/contracts/plan-envelope.schema.json), [ExecutionPlanBundle](apps/server/contracts/execution-plan-bundle.schema.json))
 - `tests/{unit,integration,e2e}` · `scripts/` — doc governance generators
 
@@ -62,7 +64,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 ## Conventions that are enforced, not suggested
 
 - **JavaScript + Zod at the boundary, not TypeScript** (SDD-008); contract tests guard endpoints whose consumers already exist
-- **Declare the FR before writing code** — an `@req` id absent from the PRD registry is a preflight CRITICAL, and so is a route implementing no declared requirement
+- **Declare the requirement before writing code** — `@req` ids resolve to canonical records; the generated PRD is a compatibility projection and check target, and a route implementing no declared requirement is a preflight CRITICAL
 - **Work in a chartered lane** — a module with no charter claiming it, or writing a model another charter owns, is a CRITICAL
 - **Annotate source files**: `@req` (requirement) · `@spec` (rule or design decision) · `@tested` (test file) — the doc graph is built from these
 - **External ids are never primary keys** — internal UUID + human `code` + `ExternalRef` mapping (BR-002)

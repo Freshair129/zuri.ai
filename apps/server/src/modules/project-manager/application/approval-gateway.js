@@ -9,7 +9,7 @@ import { canonicalize } from './execution-trace'
 // @req FR-272 — exact-hash, two-party PM approval admission for effectful
 // Agent/Fleet steps; read-only steps do not create an approval row.
 // @spec ADR-103, PMR-013, PMT-013, SEC-001, SEC-003, SEC-008
-// @tested tests/integration/project-approval-gateway.test.js, tests/unit/project-approval-gateway.test.js
+// @tested tests/integration/project-approval-gateway.test.js
 
 export const APPROVAL_ACTION_CLASSES = Object.freeze([
   'READ_ONLY',

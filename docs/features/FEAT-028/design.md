@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-028 canonical record](feature.md).
 > ✅ implemented 2026-09-12 — ADR-078 D1; `employment-service.js` (create / on-leave / reinstate / end); `people-service.js` reads Employment; `rbac-service.js`'s `assertEmployee` renamed to `assertTenantMember` (it checked Membership, not employment). Migration `20260912130000_org_employment_legal_entity.sql` APPLIED on production 2026-09-12
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Resources — กำลังคน ตารางงาน และ Performance](../../architecture/project-manager-system/15-WORKFORCE-CAPACITY-SCHEDULE-AND-PERFORMANCE.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-194 canonical record](requirements/FR-194.md)
 
@@ -39,8 +39,7 @@ Feature record: [ZAI:FEAT-028 canonical record](feature.md).
 
 > ✅ implemented 2026-09-12 — ADR-078 D2/D3; migration `20260912130000_org_employment_legal_entity.sql` APPLIED on production 2026-09-12. The "zero rows" precondition was re-confirmed directly before the apply (LegalEntity 0, Branch 0) and re-asserted by the migration itself; the earlier note that it could not be checked from that session is superseded. This migration is the wave's only destructive one — it drops `LegalEntity.portfolioId`, `Branch.taxBranchCode`, `Membership.branchId` and `Membership.employeeRef`, all verified gone afterwards
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [ADR-078 — Employment is not Membership, and a legal entity lives inside a Tenant](../../decisions/ADR-078-ORG-EMPLOYMENT-LEGAL-ENTITY.md) — `supersedes` · `prd-registry` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

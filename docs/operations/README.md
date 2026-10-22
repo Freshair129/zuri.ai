@@ -14,7 +14,7 @@ status: generated
 
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
-- [Deploying zuri-ai with Docker Compose + ngrok](../deployment/docker-ngrok.md)
+- [Deploying zuri-ai with Docker Compose and optional ngrok](../deployment/docker-ngrok.md)
 - [Windows ใหม่ → กู้ฐาน Zuri-AI เดิม → deploy Docker](../deployment/windows-recovery-and-docker-handoff.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
@@ -26,7 +26,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Documentation reintegration proposal](../migrations/document-reintegration/PROPOSAL.md)
 - [Documentation reintegration implementation receipt](../migrations/document-reintegration/RECEIPT.md)
 - [Managed binary knowledge parsing and immutable source locations](../migrations/document-reintegration/record-migrations/binary-document-parsing-20261018.approval.md)
-- [TASK-ZAI-017 — Official FlowAccount MCP connector v1](../migrations/document-reintegration/record-migrations/flowaccount-mcp-v1-20261018.approval.md)
+- [Local Zuri documentation graph studio](../migrations/document-reintegration/record-migrations/knowledge-studio-20261020.approval.md)
 - [Main-first reconciliation before report receiver coding](../migrations/document-reintegration/record-migrations/marketing-report-receiver-reconciled-20261005.approval.md)
 - [Portable managed file content](../migrations/document-reintegration/record-migrations/portable-managed-files-20261014.approval.md)
 - [Document query tooling contract](../migrations/document-reintegration/TOOLING.md)
@@ -63,6 +63,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Mission Control — DAG orchestration observability](../plans/PLAN-MISSION-CONTROL-DAG-OBSERVABILITY.md)
 - [Roadmap W2 next-wave dispatch and evidence plan](../plans/PLAN-ROADMAP-W2-NEXT-WAVE.md)
 - [Zuri Visual Office 2.5D — Implementation elaboration](../plans/PLAN-VISUAL-OFFICE-2-5D.md)
+- [Plans index](../plans/README.md)
 - [Release safety repair specification — restore, usage rollup and archive storage](../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md)
 - [TASK-ZAI-009: Agent Factory contract proposal](../plans/TASK-ZAI-009-AGENT-FACTORY-CONTRACT-PROPOSAL.md)
 - [TASK-ZAI-026 — Business-scoped Knowledge Node View](../plans/TASK-ZAI-026-NODE-VIEW-CONTRACT.md)
@@ -74,6 +75,6 @@ Generated navigation for current source documents in the operations grouping. A 
 - [LINE_OA provider merge runbook](../runbooks/line-oa-provider-merge.md)
 - [LINE Phase 1 canary runbook](../runbooks/LINE-PHASE1-CANARY.md)
 - [Production PostgreSQL migration reconciliation runbook](../runbooks/production-migration-reconciliation.md)
-- [STD-Multi Agent Workflow S-01](../runbooks/S-01.md)
+- [S-01 navigation pointer](../runbooks/S-01.md)
 - [Self-hosted inference pool — qualification, activation and recovery](../runbooks/SELF-HOSTED-INFERENCE-POOL.md)
 - [TASK-ZAI-095 — LINE OA grounding-mode production switch runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md)

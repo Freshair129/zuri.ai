@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-039 canonical record](feature.md).
 > ✅ deployed 2026-09-14 (daca80fb; ADR-086 D7) — `plugins/zuri-harness/lib/detail.mjs` (shared by the plugin and `scripts/programme-usage-meter.mjs`), `modules/platform-control/application/programme-usage-reports.js`; `tests/unit/usage-detail.test.js`, `tests/unit/zuri-harness-plugin.test.js`; migration `20260914120000_usage_detail` APPLIED on production 2026-09-14 (owner-instructed, ADR-057): read-only inventory (ProgrammeUsageReport 21 columns, 0 rows), a rolled-back dry run through the transaction pooler, then apply with ledger row `20260914120000 usage_detail`; effect verified (26 columns: reasoningTokens, toolCallCount, toolErrorCount, promptCount integer NOT NULL default 0, detailJson text nullable)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 - [Retired Zuri harness plugin — historical specification](../../ZURI-HARNESS-PLUGIN-SPEC.md) — `relates` · `metadata` · `current`
 
 ### [ZAI:FR-240 canonical record](requirements/FR-240.md)
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-039 canonical record](feature.md).
 
 > ✅ deployed 2026-09-14 (daca80fb; ADR-086 D7) — `program-delivery-metrics.js`, `ProgramRoadmapBoard.jsx`; `tests/unit/usage-detail.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

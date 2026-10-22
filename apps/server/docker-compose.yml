@@ -1,6 +1,7 @@
 # docker-compose.yml — zuri-ai without Vercel (ADR-058).
 #
-#   Internet ──► ngrok HTTPS endpoint ──► ngrok container ──► web:3000 (Next.js: UI + API + LINE seam)
+#   Local browser ────────────────────────────────────────────► web:3000 (Next.js: UI + API + LINE seam)
+#   Internet ──► ngrok HTTPS endpoint (profile public) ───────► web:3000
 #                                                              │
 #                                        (profile local-db)    └──► db:5432 (Postgres, volume db-data)
 #                                                            or an external Postgres (Supabase) via DATABASE_URL
@@ -65,6 +66,9 @@ services:
       # .env cannot leak into the container.
       ZURI_LINE_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
       ZURI_CUSTOMER_REVIEW_DB_CA_FILE: /app/certs/supabase-prod-ca-2021.crt
+      # FR-289 reads the generated graph and canonical Markdown from the checkout.
+      # Keep these read-only host mounts separate from the application image.
+      ZURI_KNOWLEDGE_STUDIO_ROOT: /app/knowledge-studio-data
     ports:
       # Loopback by default: the public path is ngrok, not the host's LAN interface.
       - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
@@ -85,6 +89,10 @@ services:
     networks:
       - zuri-network
     volumes:
+      # FR-289 — the operator-only documentation studio reads the current generated
+      # graph, source Markdown and canonical registry from the host checkout.
+      - ../../docs:/app/knowledge-studio-data/docs:ro
+      - ../../registry/document-registry/index.json:/app/knowledge-studio-data/registry/document-registry/index.json:ro
       # ADR-075 Phase 3 §6 — msp.sqlite and gks.sqlite. Both MSP sides and every GKS
       # child must open the SAME files with working locks (C8), which a Windows bind
       # mount through Docker Desktop's file-sharing layer cannot give them, so this is
@@ -194,6 +202,9 @@ services:
         max-file: "5"
 
   ngrok:
+    # Public ingress is opt-in. Use --profile public only with an assigned domain
+    # and a configured authtoken; the default Compose deployment stays local-only.
+    profiles: ["public"]
     image: ngrok/ngrok:3
     restart: unless-stopped
     depends_on:
@@ -202,12 +213,12 @@ services:
     environment:
       # Never hardcoded: comes from .env (gitignored) or the shell.
       NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+      NGROK_DOMAIN: ${NGROK_DOMAIN:-}
     volumes:
       - ./deploy/ngrok/ngrok.yml:/etc/ngrok.yml:ro
     # `web:3000` — the Compose DNS name of the app. `localhost` inside this container
-    # would be the ngrok container itself. `--url` is added only when NGROK_DOMAIN is
-    # set (a static/assigned domain keeps the public URL stable across restarts);
-    # without it ngrok assigns a temporary URL — read it with scripts/ngrok-url.ps1.
+    # would be the ngrok container itself. Public ingress requires both credentials
+    # and an assigned/static domain; a temporary URL is never created.
     # `--url=https://<domain>`, not the older `--domain=<domain>`: verified 2026-09-04
     # against the pulled ngrok/ngrok:3 image (agent v3.39) — `--domain` still works but
     # logs "Flag --domain has been deprecated, use --url instead".
@@ -217,7 +228,12 @@ services:
     # (SEC-006), so the public hostname must reach it unchanged.
     entrypoint: ["/bin/sh", "-c"]
     command:
-      - exec ngrok http web:3000 --config /etc/ngrok.yml --host-header=preserve --log stdout --log-format json ${NGROK_DOMAIN:+--url=https://${NGROK_DOMAIN}}
+      - >-
+        if [ -z "$$NGROK_AUTHTOKEN" ] || [ -z "$$NGROK_DOMAIN" ]; then
+          echo 'ngrok public profile requires NGROK_AUTHTOKEN and an assigned NGROK_DOMAIN' >&2;
+          exit 1;
+        fi;
+        exec ngrok http web:3000 --config /etc/ngrok.yml --host-header=preserve --log stdout --log-format json --url="https://$$NGROK_DOMAIN"
     ports:
       # ngrok's local inspection API/UI — loopback only, never public.
       - "127.0.0.1:${NGROK_INSPECT_PORT:-4040}:4040"

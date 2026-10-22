@@ -1054,8 +1054,8 @@ also rejects retired classification terminology in live authoritative documents.
   },
   {
     "id": "FR-289",
-    "primaryDomain": "integration",
-    "useCase": "ทีมเชื่อม Business หนึ่งรายการกับบริษัท FlowAccount ที่เลือกผ่าน official MCP หลังยืนยัน OAuth, protocol, tool schema และสิทธิ์แล้ว โดยรับเฉพาะข้อมูลอ่านที่ผ่าน allow-list พร้อม provenance และปฏิเสธคำสั่งเขียน"
+    "primaryDomain": "knowledge",
+    "useCase": "installation operator ค้นและสำรวจกราฟเอกสาร Markdown ของ Zuri ใน Knowledge Studio กรอง node ตามชนิดและจำนวน hop เปิด source path ที่แน่นอน และอ่านเอกสารในหน้าเดียว โดยแสดงการจัดกลุ่ม domain เฉพาะเมื่อ metadata หรือ graph relation ระบุเจ้าของได้ชัดเจน และใช้ renderer ที่รันบนเครื่อง operator เอง"
   }
 ]
 ```

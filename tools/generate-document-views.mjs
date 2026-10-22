@@ -163,13 +163,13 @@ function checkGraph(root, records, graph) {
       const bundled = graph.edges.some((edge) => edge.from === featureNode.id
         && edge.to === requirementNode.id
         && edge.type === 'bundles'
-        && edge.source === 'feature-registry'
+        && edge.source === 'canonical-registry'
         && edge.status === 'current');
       if (!bundled) throw new Error(`${feature.id} is missing current bundles edge for ${requirementId}`);
     }
 
     const actual = new Set(graph.edges
-      .filter((edge) => edge.from === featureNode.id && edge.type === 'bundles' && edge.source === 'feature-registry')
+      .filter((edge) => edge.from === featureNode.id && edge.type === 'bundles' && edge.source === 'canonical-registry')
       .map((edge) => edge.to?.replace(/^req:/, '')));
     if (actual.size !== expected.size || [...actual].some((id) => !expected.has(id))) {
       throw new Error(`${feature.id} graph membership differs from its canonical FR list`);

@@ -41,7 +41,7 @@ export const ROADMAP_SOT = {
       },
       "PHASE-ZAI-02": {
         "status": "in-progress",
-        "progress": 67
+        "progress": 72
       },
       "PHASE-ZAI-03": {
         "status": "in-progress",
@@ -71,11 +71,11 @@ export const ROADMAP_SOT = {
       },
       "SPR-ZAI-03": {
         "status": "in-progress",
-        "progress": 71
+        "progress": 74
       },
       "SPR-ZAI-04": {
         "status": "in-progress",
-        "progress": 63
+        "progress": 69
       },
       "SPR-ZAI-05": {
         "status": "in-progress",
@@ -757,12 +757,12 @@ export const ROADMAP_TASK_LEDGER = [
     "id": "TASK-ZAI-011",
     "sprint": "SPR-ZAI-04",
     "title": "Verification and notification fabric on approval outcomes",
-    "status": "planned",
-    "proofScope": "UNKNOWN",
-    "implementationState": "NOT_STARTED",
+    "status": "done",
+    "proofScope": "HOSTED_CI",
+    "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-010",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 9"
+    "evidence": "PR #714 merged as `f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1` from exact head `ac88c99672c945c38e26dcd63a312ee4e2a30652`. Independent Verify/Review passed. Focused suite 84 passed/1 skipped; exact-head Governance `39142448721` and Edge `39142448618` passed all applicable checks; E2E/Desktop skipped by workflow policy. Delivers transaction-bound, recipient-scoped in-app approval notices and idempotent read acknowledgements only. No external email/push, migration apply, production deployment, Supabase or live-agent activation claimed. See revision 2.166.0b and Task Container."
   },
   {
     "id": "TASK-ZAI-012",
@@ -795,7 +795,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "MERGED",
     "dependsOn": "TASK-ZAI-013",
     "authority": "ROADMAP.md",
-    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. Final local targeted tests for #695/#696 were NOT_RUN due missing npx/tsx; exact-head hosted test checks passed. SmartGift standalone MCP/CLI/local pricing readers remain out of scope, production corpusContext supply is unverified, and full generic-memory Business switching, live-agent switching, and Task14 E2E remain open; Task14 is not done."
+    "evidence": "PR #671 merged as 1662ede0094044d12eb019c44a476d821410c330 at 2026-10-15T07:15:11Z from b982d20733c213640a7cb3e42656f8a37925564a. PR #695 head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9 merged as 64e91e1d90291733a7ac255a6dafffe7b1fba7c8; exact-head Governance 39000419267 and Edge 39000419263 passed. PR #696 head a26550f071976d37c2003e7d85ded6f7f13ce3e8 merged as 1167d8d28e746e05cac5eda88e07e9418b8e0751; exact-head Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E was skipped. Final local targeted tests for #695/#696 were NOT_RUN due missing npx/tsx; exact-head hosted test checks passed. PR #705 candidate c15ef9dd1f2246b24f71146a40baeae4785665f3 merged as b7add99074de4d310e3ee58e9b898cb0f0938e10; candidate and merge share tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac. Exact-head Governance 39054993823 and Edge 39054993820 passed applicable checks; changed synthetic same-principal A/B/A suites agent-multi-principal.test.js (16/16) and conversation-runtime-memory.test.js (32/32) passed; E2E/Desktop were skipped. SmartGift standalone MCP/CLI/local pricing readers remain out of scope, production corpusContext supply is unverified, and SmartGift-sentinel non-disclosure across every reader, full generic-memory Business switching, live-agent/provider switching, and Task14 E2E remain open; Task14 is not done."
   },
   {
     "id": "TASK-ZAI-015",
@@ -850,7 +850,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-012",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 1"
+    "evidence": "External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene loading local room, desk and floor-tile glTF assets. No Business-scoped scene route or renderer is integrated into the Zuri product checkout; PHASE-ZAI-04 remains 0/5 accepted."
   },
   {
     "id": "TASK-ZAI-020",
@@ -861,7 +861,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-019",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 1"
+    "evidence": "The external prototype receives T3 session and job inputs; no Zuri Business-scoped reads, Mission/Approval read-model binding, route/read-port integration or live-source provenance is evidenced."
   },
   {
     "id": "TASK-ZAI-021",
@@ -872,7 +872,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-019",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; UI-DESIGN-SYSTEM section 3"
+    "evidence": "The external prototype has a prefers-reduced-motion branch and labeled camera buttons. Full keyboard, screen-reader, mobile, fallback and accessibility acceptance remains unverified; all criteria remain unchecked."
   },
   {
     "id": "TASK-ZAI-022",
@@ -883,7 +883,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-020",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Proposal scope, Business Layer"
+    "evidence": "The external prototype derives presence from T3 session/job data; it does not evidence Zuri live-turn provenance, a Business Mission feed, agreed latency or live-agent/provider switching acceptance."
   },
   {
     "id": "TASK-ZAI-023",
@@ -894,7 +894,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-011; TASK-ZAI-022",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 rows 1 and 9"
+    "evidence": "No L1-L4 queue, Zuri authorization binding or approval/audit-equivalence acceptance is evidenced; all implementation criteria remain unchecked."
   },
   {
     "id": "TASK-ZAI-024",
@@ -927,7 +927,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-024",
     "authority": "ROADMAP.md",
-    "evidence": "Audit wave 2026-09-21: FR-082..085/ADR-035 remains design-only; no approved node/traversal/redaction contract; no implementation or test evidence claimed; 24-week baseline; Section 3.1 row 3"
+    "evidence": "PR #704 merged as 297b11d2c7098eee6622030d375ecab03c43f3b1 from final head 8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84. Exact-head Governance 39085718812 and Edge 39085718800 passed applicable jobs; E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / source_of_truth: false and recommends a bounded Business graph contract; it does not adopt requirements or claim runtime, implementation or tests. Keep this task planned with criteria unchecked and TASK-ZAI-027 planned behind it."
   },
   {
     "id": "TASK-ZAI-027",

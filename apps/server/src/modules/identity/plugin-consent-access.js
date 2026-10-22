@@ -11,7 +11,7 @@ import { buildPluginConsent } from './plugin-consent-view'
 // @tested tests/unit/fr123-plugin-consent-view.test.js
 
 export async function readPluginConsent(searchParams) {
-  const jar = cookies()
+  const jar = await cookies()
   const cookieHeader = jar.getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
   const result = await buildPluginConsent({
     searchParams,

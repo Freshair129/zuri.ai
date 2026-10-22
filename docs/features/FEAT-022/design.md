@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-022 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-06 — model (both schemas, additive migration `20260906235500_crm_sales_task`; production SQL **not applied**), the only writer `sales-task-service.js`, `GET/POST /api/crm/sales-tasks` and `GET/PATCH /api/crm/sales-tasks/[id]`, the `/customer/sales-tasks` page under the CRM domain, `SALES_REP` role, snapshot coverage; one integration suite (AC-161.1–.6), two unit suites, one e2e spec. Not claimed: creating a task from a LINE chat, reminders, Notion/calendar sync
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-011 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](../../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) — `relates` · `control-block` · `current`
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-100 canonical record](requirements/FR-100.md)
 
@@ -43,7 +43,7 @@ Feature record: [ZAI:FEAT-011 canonical record](feature.md).
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](../../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) — `relates` · `control-block` · `current`
 - [ADR-047 — SoT data plane: a Tenant-bound service-account key, not an operator grant](../../decisions/ADR-047-SOT-DATA-PLANE-SERVICE-ACCOUNT-KEY.md) — `relates` · `control-block` · `current`
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-101 canonical record](requirements/FR-101.md)
 
@@ -55,7 +55,7 @@ Feature record: [ZAI:FEAT-011 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-046 — SoT pipeline: interim serving on :8888, and decisions leave by pull](../../decisions/ADR-046-SOT-PIPELINE-INTERIM-SERVING-AND-PULLED-DECISIONS.md) — `relates` · `control-block` · `current`
 - [ADR-050 — Knowledge Ingestion Tier Boundary and Stage Ownership](../../decisions/ADR-050-KNOWLEDGE-INGESTION-TIER-BOUNDARY.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

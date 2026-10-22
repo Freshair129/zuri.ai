@@ -21,6 +21,7 @@ import {
 
 const execFile = promisify(execFileCallback)
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const syntheticFr = (number) => `FR-${String(number).padStart(3, '0')}`
 const projectId = '11111111-1111-4111-8111-111111111111'
 const tenantId = '22222222-2222-4222-8222-222222222222'
 const businessId = '33333333-3333-4333-8333-333333333333'
@@ -91,7 +92,7 @@ async function makeAuthoredFixture(fault = null) {
   const base = await makeFixture(value => { value.files[approvalPath] = approval; value.files['docs/.id-ledger.json'] = '{}\n'; return value })
   const manifestPath = 'docs/migrations/document-reintegration/record-migrations/snapshot-fixture.manifest.json'
   const statement = 'Report credential isolation: a synthetic standalone machine permission.'
-  const item = { id: 'FR-900', family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
+  const item = { id: syntheticFr(900), family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
   const migration = { version: 1, migrationId: 'snapshot-fixture',
     base: { commit: base.commitSha, indexSha256: fault === 'forged-base' ? 'a'.repeat(64) : sha256(await readFile(path.join(base.root, CANONICAL_INDEX_PATH))), ledgerSha256: sha256('{}\n') },
     approval: { path: approvalPath, revision: fault === 'forged-origin' ? 'f'.repeat(40) : base.commitSha, version: '1.0.0', sha256: sha256(approval) }, records: [item] }
@@ -100,7 +101,7 @@ async function makeAuthoredFixture(fault = null) {
   if (fault === 'unsupported-record') text = text.replace('version: 2', 'version: 3')
   if (fault === 'statement-hash') text = text.replace(`statement_sha256: ${item.statementSha256}`, `statement_sha256: ${'e'.repeat(64)}`)
   const parsed = parseCanonicalRecord(authoredRecordMarkdown(item, migration, manifestPath, sha256(manifestText)))
-  const recordPath = 'docs/requirements/FR-900.md'
+  const recordPath = `docs/requirements/${syntheticFr(900)}.md`
   const entry = buildCanonicalIndex([{ ...parsed, path: recordPath, recordSha256: sha256(text), exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 1 }]).records[0]
   if (fault === 'unsupported-record') entry.recordVersion = 3
   const index = JSON.parse(await readFile(path.join(base.root, CANONICAL_INDEX_PATH), 'utf8'))
@@ -116,12 +117,12 @@ async function makeAuthoredFixture(fault = null) {
     second.migrationId = 'second-fixture'
     if (fault === 'cache-forged-base') second.base.ledgerSha256 = 'f'.repeat(64)
     const statement = 'Second report evidence: independently verified authored provenance.'
-    const item = { id: 'FR-901', family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
+    const item = { id: syntheticFr(901), family: 'FR', statement, statementSha256: sha256(statement), subjectAnchor: anchor(statement) }
     second.records = [item]
     const secondPath = manifestPath.replace('snapshot-fixture', second.migrationId)
     const manifestText = `${JSON.stringify(second, null, 2)}\n`
     const text = authoredRecordMarkdown(item, second, secondPath, sha256(manifestText))
-    const recordPath = 'docs/requirements/FR-901.md'
+    const recordPath = `docs/requirements/${syntheticFr(901)}.md`
     const parsed = parseCanonicalRecord(text)
     index.records.push(buildCanonicalIndex([{ ...parsed, path: recordPath, recordSha256: sha256(text), exportDocument: 'docs/PRD-SDD-v1.0.md', exportOrder: 2 }]).records[0])
     files[CANONICAL_INDEX_PATH] = JSON.stringify(index)
@@ -150,7 +151,7 @@ async function withReviewedRecord(base, fault = null) {
     const tree = await git(['rev-parse', `${base.commitSha}^{tree}`], base.root)
     revision = await git(['commit-tree', tree, '-m', 'unrelated reviewed base'], base.root)
   }
-  const record = canonical('FR-903', 'FR', '| FR-903 | Reviewed standalone evidence. | approved |', 'docs/requirements/FR-903.md')
+  const record = canonical(syntheticFr(903), 'FR', `| ${syntheticFr(903)} | Reviewed standalone evidence. | approved |`, `docs/requirements/${syntheticFr(903)}.md`)
   record.text = record.text.replace('status: source-preserved', 'status: reviewed-migration')
     .replace(`source_revision: ${sourceRevision}`, `migration_base_revision: ${revision}\nmigration_document: ${document}`)
   record.entry = { ...record.entry, status: 'reviewed-migration', recordSha256: sha256(record.text),
@@ -217,10 +218,10 @@ describe('canonical source snapshot v2', () => {
     expect((await capture(mixed)).validationStatus).toBe('VALID')
     const args = await replay(mixed)
     const port = createGovernanceEvidencePort({ env: mixed.env })
-    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FR-903' })).toMatchObject({
+    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: syntheticFr(903) })).toMatchObject({
       state: 'AVAILABLE', canonicalSubject: 'Reviewed standalone evidence.',
     })
-    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FR-900' })).toMatchObject({ state: 'AVAILABLE' })
+    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: syntheticFr(900) })).toMatchObject({ state: 'AVAILABLE' })
   })
 
   it.each(['draft', 'no-approval', 'missing-approval', 'non-ancestor'])('refuses reviewed %s provenance', async fault => {
@@ -234,10 +235,10 @@ describe('canonical source snapshot v2', () => {
     expect(verified.manifest.schemaVersion).toBe('2.0.0')
     const args = await replay(mixed)
     const port = createGovernanceEvidencePort({ env: mixed.env })
-    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FR-900' })).toMatchObject({
+    expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: syntheticFr(900) })).toMatchObject({
       state: 'AVAILABLE', canonicalSubject: 'Report credential isolation: a synthetic standalone machine permission.',
     })
-    expect(await port.verifyRequirement({ ...args, feature: { canonicalFeatureKey: 'FR-900' }, sourceNamespace: 'ZAI', requirementKey: 'FR-900',
+    expect(await port.verifyRequirement({ ...args, feature: { canonicalFeatureKey: syntheticFr(900) }, sourceNamespace: 'ZAI', requirementKey: syntheticFr(900),
       revisionHash: statementDigest('Report credential isolation: a synthetic standalone machine permission.') })).toMatchObject({ state: 'AVAILABLE' })
     expect(await port.verifyFeatureKey({ ...args, canonicalFeatureKey: 'FEAT-001' })).toMatchObject({ state: 'AVAILABLE', canonicalSubject: 'Feature one' })
   })

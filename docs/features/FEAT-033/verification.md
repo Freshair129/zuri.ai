@@ -24,6 +24,7 @@ status: generated
 
 - [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js](../../../apps/server/tests/unit/knowledge-studio/knowledge-studio-data.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/programme-containers.test.js](../../../apps/server/tests/unit/programme-containers.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-213](requirements/FR-213.md)

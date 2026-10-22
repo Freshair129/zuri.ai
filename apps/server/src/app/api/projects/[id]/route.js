@@ -16,10 +16,11 @@ import { assertProjectReadable } from '@/modules/project-manager/application/pro
 export const dynamic = 'force-dynamic'
 
 export async function GET(request, { params }) {
+  const { id } = await params
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const target = await prisma.project.findUnique({
-      where: { id: params.id },
+      where: { id },
       select: {
         id: true,
         deletedAt: true,
@@ -32,19 +33,21 @@ export async function GET(request, { params }) {
       throw httpError(404, 'Project not found')
     }
     await assertProjectReadable(viewer, target, { db: prisma })
-    const project = await getProject(params.id)
+    const project = await getProject(id)
     if (!project) throw new Error('Project not found')
     return project
   })
 }
 
 export async function PATCH(request, { params }) {
+  const { id } = await params
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return updateProject(params.id, await request.json(), { viewer })
+    return updateProject(id, await request.json(), { viewer })
   })
 }
 
 export async function DELETE(request, { params }) {
-  return handle(async () => archiveProject(params.id, { viewer: await resolveRequestViewer(request) }))
+  const { id } = await params
+  return handle(async () => archiveProject(id, { viewer: await resolveRequestViewer(request) }))
 }

@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.39, 2026-10-18) so the board can open a task the way the html board
+// (v0.4.41, 2026-10-22) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -462,39 +462,39 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-011",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-04",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Codex",
     "executor": "Codex",
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "src/app/api/agent/line-webhook/route.js",
-      "doc": "docs/FEATURE-MAP.md",
-      "test": "unavailable"
+      "code": "apps/server/src/modules/agent/approval-notifications.js",
+      "doc": "docs/appendices/A-api-spec.md",
+      "test": "apps/server/tests/integration/agent-approval-notifications.test.js"
     },
     "linkState": {
-      "code": "missing",
-      "doc": "missing",
-      "test": "unavailable"
+      "code": "present",
+      "doc": "present",
+      "test": "present"
     },
     "delivers": [],
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given an approval decision, when it is recorded, then the requester and the next approver are notified exactly once",
-        "checked": false
+        "text": "Given an approval decision is recorded, when its quorum step commits, then the same transaction stores one requester outcome notice and one notice for each eligible active, unvoted direct Business owner: next action while pending or outcome after a terminal decision.",
+        "checked": true
       },
       "success": {
-        "text": "Given a notification transport failure, when the send is retried, then no duplicate notification is delivered",
-        "checked": false
+        "text": "Given notice persistence fails during a decision, when the decision is retried, then rollback leaves no vote or notices and the retry stores one decision with exactly one notice per recipient.",
+        "checked": true
       },
       "exit": {
-        "text": "Given npm test, when the notification suite runs, then at-most-once delivery is asserted under a forced retry",
-        "checked": false
+        "text": "Given a recipient reads an in-app approval notice, when another principal requests the same notice or the recipient repeats mark-read, then the other principal cannot see it and the repeated acknowledgement preserves the original readAt timestamp.",
+        "checked": true
       }
     },
-    "changelog": "Opened as the second half of deliverable nine. Audit exists through FR-014; verification and notification do not. FR-093 (outbound reply receipt) gives the delivery half a precedent to follow.",
+    "changelog": "Bounded in-app scope delivered in PR #714, merged as f97e0ab36687ce27b87352daf88cb0d5c6d2f4f1 from exact head ac88c99672c945c38e26dcd63a312ee4e2a30652. The integration suite covers quorum-step recipients, recipient-only reads, idempotent mark-read, rollback on notification persistence failure, and a no-duplicate retry. This does not provide email or push transport and does not claim production migration apply or deployment.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 38000,
     "totalTokens": 0,
@@ -629,14 +629,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8) and PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head tests passed. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, and Business-scoped Edge SmartGift/RAG/template behavior. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
+    "changelog": "Partial delivery accepted by PR #671 (merge 1662ede0094044d12eb019c44a476d821410c330), PR #695 (exact head b4d6ef2a0a994d97056592b7d6ad53e5d4e5c3d9, merge 64e91e1d90291733a7ac255a6dafffe7b1fba7c8), PR #696 (exact head a26550f071976d37c2003e7d85ded6f7f13ce3e8, merge 1167d8d28e746e05cac5eda88e07e9418b8e0751) and PR #705 (candidate c15ef9dd1f2246b24f71146a40baeae4785665f3, merge b7add99074de4d310e3ee58e9b898cb0f0938e10). #695 exact-head Governance 39000419267 and Edge 39000419263 passed; #696 Governance 39000885341 and Edge 39000885363 passed, Desktop passed and E2E skipped. Final local targeted tests for #695/#696 were NOT_RUN because npx/tsx were unavailable; hosted exact-head test checks passed. PR #705 candidate and merge share tree ff8c9b3594db39e9fa3a45109fff78a6f9784c98 and base parent 7a661d95c7db57122a0899652c354831cac559ac; exact-head Governance 39054993823 and Edge 39054993820 passed applicable checks. Its changed isolated synthetic same-principal A/B/A suites agent-multi-principal.test.js (16/16) and conversation-runtime-memory.test.js (32/32) passed; E2E/Desktop were skipped. The bounded slices cover Business-two creation/switching and CRM visibility, private-memory scope enforcement, Business-scoped Edge SmartGift/RAG/template behavior, and synthetic memory/context isolation. The three Task14 criteria remain unchecked: standalone SmartGift MCP/CLI/local pricing readers are out of scope; production corpusContext supply is unverified; full generic private-memory and live-agent/provider switching plus Task14 E2E remain open. Task14 is still in-progress, TASK-ZAI-015 stays planned behind it, and no production, Supabase, provider, deployment or UAT validation is claimed.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 52000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-013"
     ],
-    "evidence": "Section 3.1 row 6"
+    "evidence": "PR #705 candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3` merged as `b7add99074de4d310e3ee58e9b898cb0f0938e10`; same tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98`, base parent `7a661d95c7db57122a0899652c354831cac559ac`. Exact-head Governance `39054993823` and Edge `39054993820` passed; isolated synthetic same-principal A/B/A suites `agent-multi-principal.test.js` 16/16 and `conversation-runtime-memory.test.js` 32/32 passed; E2E/Desktop skipped. Production `corpusContext`, all-reader SmartGift-sentinel non-disclosure, broader generic-memory Business switching, live-agent/provider switching and Task14 E2E remain unverified; Task14 is not done."
   },
   "TASK-ZAI-015": {
     "container": "TC-TASK-ZAI-015",
@@ -857,14 +857,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened as the first task of the largest greenfield deliverable. Scene model precedes any renderer choice.",
+    "changelog": "Opened as the first task of the largest greenfield deliverable. External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 contains a standalone Three.js scene and local room/desk/floor-tile glTF assets; it is reference material only and does not evidence the Zuri Business-scoped route, read-port or acceptance. The task remains planned and all criteria remain unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 74000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-012"
     ],
-    "evidence": "Section 3.1 row 1"
+    "evidence": "External source revision `740eb1f5ef0cc8405af143e4a88f1c752d3e5098` contains a standalone Three.js scene loading local room, desk and floor-tile glTF assets; no Business-scoped scene route or renderer is integrated into the Zuri product checkout. PHASE-ZAI-04 remains 0/5 accepted."
   },
   "TASK-ZAI-020": {
     "container": "TC-TASK-ZAI-020",
@@ -902,14 +902,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened to keep the 2.5D surface inside the live-data-only rule this repository already applies to FR-060.",
+    "changelog": "Opened to keep the 2.5D surface inside the live-data-only rule this repository already applies to FR-060. The external prototype exposes T3 session/job inputs but does not evidence Zuri Business, Mission or Approval read-model binding or live-source provenance; all criteria remain unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 50000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "Section 3.1 row 1"
+    "evidence": "The external prototype receives T3 session and job inputs; no Zuri Business-scoped reads, Mission/Approval read-model binding, route/read-port integration or live-source provenance is evidenced."
   },
   "TASK-ZAI-021": {
     "container": "TC-TASK-ZAI-021",
@@ -947,14 +947,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened because UI-DESIGN-SYSTEM section 3 already binds motion, focus and token layering, and a new visual surface is the easiest place to break all three.",
+    "changelog": "Opened because UI-DESIGN-SYSTEM section 3 already binds motion, focus and token layering, and a new visual surface is the easiest place to break all three. External source revision 740eb1f5ef0cc8405af143e4a88f1c752d3e5098 includes a prefers-reduced-motion branch and labeled camera buttons; full keyboard, screen-reader, mobile, fallback and accessibility acceptance remains unverified, so all criteria stay unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 22000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-019"
     ],
-    "evidence": "UI-DESIGN-SYSTEM section 3"
+    "evidence": "The external prototype has a prefers-reduced-motion branch and labeled camera buttons. Full keyboard, screen-reader, mobile, fallback and accessibility acceptance remains unverified; all criteria remain unchecked."
   },
   "TASK-ZAI-022": {
     "container": "TC-TASK-ZAI-022",
@@ -992,14 +992,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened from the proposal Business Layer scope line covering agent status and mission tracking.",
+    "changelog": "Opened from the proposal Business Layer scope line covering agent status and mission tracking. The external prototype derives presence from T3 session/job data but does not evidence Zuri live-turn provenance, a Business Mission feed, agreed latency or live-agent/provider switching; all criteria remain unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 46000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-020"
     ],
-    "evidence": "Proposal scope, Business Layer"
+    "evidence": "The external prototype derives presence from T3 session/job data; it does not evidence Zuri live-turn provenance, a Business Mission feed, agreed latency or live-agent/provider switching acceptance."
   },
   "TASK-ZAI-023": {
     "container": "TC-TASK-ZAI-023",
@@ -1037,7 +1037,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened to join the approval ladder to the visual surface so that deliverables one and nine are demonstrated together at UAT.",
+    "changelog": "Opened to join the approval ladder to the visual surface so that deliverables one and nine are demonstrated together at UAT. The external scene and separate execution-contract harness do not evidence a Zuri L1-L4 queue, authorization binding or audit-equivalence acceptance; all criteria remain unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 32000,
     "totalTokens": 0,
@@ -1045,7 +1045,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-011",
       "TASK-ZAI-022"
     ],
-    "evidence": "Section 3.1 rows 1 and 9"
+    "evidence": "No L1-L4 queue, Zuri authorization binding or approval/audit-equivalence acceptance is evidenced; all implementation criteria remain unchecked."
   },
   "TASK-ZAI-024": {
     "container": "TC-TASK-ZAI-024",
@@ -1173,14 +1173,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new.",
+    "changelog": "Opened from deliverable three. FR-040 provides a 2D read-only project map today; the 3D relationship view is new. Zuri.ai PR #704 merged as 297b11d2c7098eee6622030d375ecab03c43f3b1 from final head 8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84; exact-head Governance 39085718812 and Edge 39085718800 passed applicable jobs, with E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / source_of_truth: false and proposes a bounded Business graph contract only; it does not adopt requirements or claim implementation/test evidence. The task remains planned and all criteria remain unchecked.",
     "created": "2026-08-20T00:00:00Z,Claude,pending",
     "predictedTokens": 68000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-024"
     ],
-    "evidence": "Section 3.1 row 3"
+    "evidence": "PR #704 merged as `297b11d2c7098eee6622030d375ecab03c43f3b1` from final head `8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84`; exact-head Governance `39085718812` and Edge `39085718800` passed applicable jobs, E2E/Desktop skipped. Its merged TASK-ZAI-026 source remains candidate / `source_of_truth: false` and proposes a bounded Business graph contract only; no requirement adoption, implementation or test evidence is claimed. Keep criteria unchecked and TASK-ZAI-027 planned behind it."
   },
   "TASK-ZAI-027": {
     "container": "TC-TASK-ZAI-027",

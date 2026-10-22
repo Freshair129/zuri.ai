@@ -119,6 +119,8 @@ COPY --from=builder --chown=node:node /app/contracts ./contracts
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
+RUN mkdir -p /app/knowledge-studio-data/registry/document-registry \
+ && chown -R node:node /app/knowledge-studio-data
 USER node
 EXPOSE 3000
 # FR-142 — `GET /api/health` runs one trivial query against the configured database.

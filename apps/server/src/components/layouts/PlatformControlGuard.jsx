@@ -12,8 +12,9 @@ import { resolvePlatformControlDecision } from '@/lib/platform-control-guard'
 import { SESSION_UNAVAILABLE_DETAIL_TH, SESSION_UNAVAILABLE_TITLE_TH } from '@/lib/viewer-failure'
 import PlatformControlSessionRetry from './PlatformControlSessionRetry'
 
-function serverRequest() {
-  const cookieHeader = cookies().getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
+async function serverRequest() {
+  const cookieStore = await cookies()
+  const cookieHeader = cookieStore.getAll().map(({ name, value }) => `${name}=${encodeURIComponent(value)}`).join('; ')
   return new Request('https://zuri.local/control/roadmap', { headers: { cookie: cookieHeader } })
 }
 
@@ -21,7 +22,7 @@ export default async function PlatformControlGuard({ children }) {
   let viewer = null
   let viewerError = null
   try {
-    viewer = await resolveRequestViewer(serverRequest())
+    viewer = await resolveRequestViewer(await serverRequest())
   } catch (error) {
     viewerError = error
   }

@@ -1,7 +1,7 @@
 ---
-version: "1.2.0"
+version: "1.3.0"
 created_at: "2026-08-20T12:00:00+07:00,ATHER"
-last_update: "2026-10-15,Codex Root, owner-directed Login and forbidden response correction"
+last_update: "2026-10-20,Codex Root, FR-289 documentation-studio route boundary"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -12,9 +12,9 @@ attributes:
 
 # ADR-048 — Platform Control is outside the Business Shell
 
-**Status:** Accepted and authorized for the FR-105 read-only implementation slice.
+**Status:** Accepted; D5 defines the FR-289 documentation-studio extension. The original FR-105 roadmap board remains as D3 defines.
 
-**Amended by:** [ADR-092](ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — a 30-day read-only view of the plan for signed-in people at `/roadmap`, outside `/control`; D1–D4 unchanged for `/control/**`.
+**Amended by:** [ADR-092](ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — a 30-day read-only view of the plan for signed-in people at `/roadmap`, outside `/control`. D1–D4 remain unchanged for `/control/**`; D5 defines a separate documentation-only route and does not alter `/control/roadmap`.
 
 **Relates to:** FR-075, FR-105, NFR-008, ADR-015, ADR-024, ADR-028, `docs/ROUTES-SITEMAP.md`.
 
@@ -83,12 +83,29 @@ own URL and authorization boundary. It does not use the legacy `zuri1.0` Vercel
 project and does not need a separate Business subdomain. A custom subdomain, if
 later required, is routing/hosting configuration only; it must preserve D1-D3.
 
+### D5 — Knowledge Studio is a separate read-only documentation surface
+
+`/control/knowledge-studio` is a second page in the `PlatformControlShell`,
+authorized by the same installation-operator capability in D2. Each graph and
+Markdown API request independently checks that capability. The APIs return only
+the generated Zuri documentation graph and exact indexed Markdown; they provide
+no Business/user data, write operation or mutable progress state.
+
+D3 and FR-105 continue to define `/control/roadmap` as the static programme
+snapshot with no API path. D5 does not replace that board or expand its data
+source. The documentation view is an independent read-only surface; it derives
+domain/service grouping from explicit graph metadata and leaves unowned records
+in Shared or Services instead of inferring ownership. It does not use `isPlatform`
+or Business visibility as authorization.
+
 ## Consequences
 
 - Business users cannot mistake platform programme tracking for their operational
   work, and programme removal is a contained deletion.
 - Operators get a Zuri-branded board without duplicated Business navigation.
 - There is no write path or new persistence model in this slice.
+- The Knowledge Studio has a separate read-only documentation API; it does not
+  change the static `/control/roadmap` contract or expose Business/user data.
 - The plan may be viewed as an operator snapshot but remains non-authoritative;
   gates and status retain the submitted-plan vocabulary until a source-of-truth
   contract is approved.
@@ -109,6 +126,7 @@ installation-wide authority.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.0 | 2026-10-20 | accepted | Add the FR-289 read-only documentation surface while preserving the static `/control/roadmap` contract and operator boundary | approval-base | Codex Root |
 | 1.2.0 | 2026-10-15 | accepted | Owner-directed Login for absent sessions and final403/noindex for signed-in non-operators; preserve the original Operator predicate and store-outage handling | working-tree | Codex Root |
 | 1.0.0 | 2026-08-20 | accepted | Separated the installation-operator programme board from the Business Shell and fixed its authorization/data boundaries | working-tree | ATHER |
 | 1.1.0 | 2026-09-14 | accepted | Amended by ADR-092: a time-boxed member view of the plan outside `/control`; this decision's D1–D4 still govern `/control/**` | working-tree | Claude Opus 5 |
