@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE transport reachability](../../domains/line-oa-studio/features/FR-190-line-transport-health.md) — `references` · `metadata` · `current`
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-147 canonical record](requirements/FR-147.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the SmartGift Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-151 canonical record](requirements/FR-151.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 > 🟠 implemented locally 2026-09-06 — both models (both schemas, additive migrations; production SQL **not applied**), the only writer `line-oa-rich-menu-service.js`, `GET/POST /api/line-oa/rich-menus` and `GET/PATCH /api/line-oa/rich-menus/[id]`, snapshot coverage; one integration suite (AC-151.1–.7) and three unit suites. Not claimed: the designer page, publish/default/alias transport jobs, the external `richMenuId` write
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-152 canonical record](requirements/FR-152.md)
 
@@ -62,7 +62,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 > 🟠 implemented locally 2026-09-06 — model (both schemas, additive migrations; production SQL **not applied**), the Integration rich menu port, the only writer and worker `line-oa-rich-menu-jobs.js`, `GET/POST/PATCH /api/line-oa/rich-menus/[id]/jobs`, the worker route and script tick, snapshot coverage; one integration suite (AC-152.1–.7), three unit suites. Not exercised against LINE; activation needs FR-149's credential mount and worker deployment
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-153 canonical record](requirements/FR-153.md)
 
@@ -73,7 +73,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 > 🟠 implemented locally 2026-09-06 — model (both schemas, additive migrations; production SQL **not applied**), the only writer `line-oa-liff-app-service.js`, `GET/POST /api/line-oa/liff-apps` and `GET/PATCH /api/line-oa/liff-apps/[id]`, the resolution wired into FR-152's translator, snapshot coverage; one integration suite (AC-153.1–.5), two unit suites. Not claimed: any LINE call, the designer's LIFF tab, flow LIFF nodes
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE OA — reliability remediation record for the reviewed branch](../../domains/line-oa-studio/features/REVIEW-LINE-OA-RELIABILITY-2026-09-10.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

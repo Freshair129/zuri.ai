@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-029 canonical record](feature.md).
 
 > ✅ implemented 2026-09-12 — `src/modules/identity/access-invite-service.js`; migration `20260912140000_access_invite_sod_operator.sql` APPLIED on production 2026-09-12. The four invite audit writes stamp `tenantId`/`businessId` as columns, which is what makes them visible to FR-199's scoped read (ADR-080 erratum)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-196 canonical record](requirements/FR-196.md)
 
@@ -39,7 +39,7 @@ Feature record: [ZAI:FEAT-029 canonical record](feature.md).
 > ✅ implemented 2026-09-12 — `rbac.js`, `rbac-service.js`, `payment-service.js`, `goods-receipt-service.js`; migration `20260912140000_access_invite_sod_operator.sql` APPLIED on production 2026-09-12. The conflict is refused at reactivation as well as at assignment, so it cannot be assembled in stages (`tests/integration/fr196-sod-cannot-be-assembled.test.js`)
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-103 — Project Manager approval gateway admission](../../decisions/ADR-103-PM-APPROVAL-GATEWAY-ADMISSION.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-197 canonical record](requirements/FR-197.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-029 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Standard Business Template v1](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md) — `references` · `metadata` · `current`
 - [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-200 canonical record](requirements/FR-200.md)
 
@@ -63,7 +63,7 @@ Feature record: [ZAI:FEAT-029 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-082 — Explicit Superadmin authority](../../decisions/ADR-082-EXPLICIT-SUPERADMIN-AUTHORITY.md) — `references` · `metadata` · `current`
 - [FR-200 — Explicit Superadmin access](../../domains/identity/features/FR-200-explicit-superadmin.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

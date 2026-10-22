@@ -2,13 +2,34 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.0.0 |
-| **Status** | Design approved — implementation pending |
+| **Version** | 1.0.1 |
+| **Status** | Design approved — core model and authority boundaries implemented; FR-066 profile/Home UX follow-up remains tracked |
 | **Author** | Boss + Claude |
 | **Created** | 2026-08-17 |
-| **Last Updated** | 2026-08-17 |
+| **Last Updated** | 2026-10-22 |
 | **Layer** | 0 — product model (above the per-module PRD/SDD) |
-| **Governed by** | [ADR-027](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) §D2/§D8, [ADR-014](decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md), FR-043, FR-066, FR-067, BR-001, BR-016 |
+| **Governed by** | [ADR-027](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) §D2/§D8, [ADR-014](decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md), [FR-043](requirements/FR-043.md), [FR-066](requirements/FR-066.md), [FR-067](requirements/FR-067.md), [BR-001](requirements/BR-001.md), [BR-016](requirements/BR-016.md) |
+
+## Implementation status (checked 2026-10-22)
+
+The former “implementation pending” label is stale. The current Server schema
+contains the `Workspace` (Space), `Project`, `Business`, and
+`WorkspaceMembership` models; the Project service enforces direct Business
+ownership against Space context; and the Profile, Workspace invitation, and
+membership flows have implementation and unit-test files. See the current
+[`Domain model`](DOMAIN-MODEL.md), [`Server schema`](../apps/server/prisma/schema.prisma),
+[`project-service.js`](../apps/server/src/modules/project-manager/application/project-service.js),
+[`onboarding-service.js`](../apps/server/src/modules/identity/onboarding-service.js),
+[`workspace-membership-service.js`](../apps/server/src/modules/identity/workspace-membership-service.js),
+and the unit tests for [onboarding](../apps/server/tests/unit/onboarding-service.test.js),
+[invites](../apps/server/tests/unit/workspace-invite-service.test.js), and
+[collaboration views](../apps/server/tests/unit/workspace-collaboration-view.test.js),
+plus the [Project/Business binding integration test](../apps/server/tests/integration/project-business-binding.test.js).
+
+This design note is not a complete acceptance report. FR-043 and FR-067 record
+implemented boundaries. [FR-066](requirements/FR-066.md) records that its authority boundary is
+implemented while the approved current-person Profile/Home UX correction
+remains tracked; do not infer that this follow-up is complete from this document.
 
 This file exists because one word was doing two jobs and one box was being
 described as a level. Everything below is the corrected model. Where a statement
@@ -91,7 +112,7 @@ a grouping rather than a level:
   sits in, not who owns it.
 
 The two must agree. `resolveProjectBusinessId` in
-`src/modules/project-manager/application/project-service.js` enforces it and
+[`apps/server/src/modules/project-manager/application/project-service.js`](../apps/server/src/modules/project-manager/application/project-service.js) enforces it and
 throws rather than guessing:
 
 | Situation | Result |
@@ -109,8 +130,10 @@ Three facts, each checkable:
 
 ### 4.1 A Project cannot exist without a Space
 
-`prisma/schema.prisma` declares `workspaceId String` — **not** `String?` — and
-`zProjectInput` requires `workspaceId: z.string().min(1)`.
+[`apps/server/prisma/schema.prisma`](../apps/server/prisma/schema.prisma) declares
+`workspaceId String` — **not** `String?` — and
+[`zProjectInput`](../apps/server/src/lib/validation/entities.js) requires
+`workspaceId: z.string().min(1)`.
 
 So the automatically created **Default Space is infrastructure, not a
 convenience.** It ships in the same change that removes Space from onboarding, or
@@ -122,9 +145,9 @@ Authorization for Project work is read off the **Space**, not off the Project:
 
 | Site | Reads |
 |---|---|
-| `project-team-service.js` | `assertTeamReadable(workspace.businessId, viewer)` — a Space with no `businessId` makes team management read-only by design |
-| `import-authorization.js` (FR-065) | `ownsBusiness(viewer, workspace.businessId)` |
-| `project-service.js` | `resolveProjectBusinessId`, per the table above |
+| [`project-team-service.js`](../apps/server/src/modules/project-manager/application/project-team-service.js) | `assertTeamReadable(workspace.businessId, viewer)` — a Space with no `businessId` makes team management read-only by design |
+| [`import-authorization.js`](../apps/server/src/modules/project-manager/import/import-authorization.js) (FR-065) | `ownsBusiness(viewer, workspace.businessId)` |
+| [`project-service.js`](../apps/server/src/modules/project-manager/application/project-service.js) | `resolveProjectBusinessId`, per the table above |
 
 | Default Space created… | Result |
 |---|---|
@@ -229,8 +252,13 @@ Four questions, in order:
 
 - [ADR-027](decisions/ADR-027-PROFILE-FIRST-WORKSPACE-ONBOARDING.md) — §D2 the two lists, §D5 the membership key, §D8 hidden-not-absent
 - [ADR-014](decisions/ADR-014-PROJECT-BUSINESS-OWNERSHIP-AND-SPACE-CONTEXT.md) — Project ownership vs Space context
-- FR-043 — Project owner/Space invariant
-- FR-066 — profile-first onboarding, AC-066.8…11
-- FR-067 — Workspace invitation and scoped membership
-- FR-065 — import target authorization, and why portfolio-scoped Spaces are refused
-- BR-001 — `tenant_id` is the isolation scope
+- [FR-043](requirements/FR-043.md) — Project owner/Space invariant
+- [FR-066](requirements/FR-066.md) — profile-first onboarding, AC-066.8…11
+- [FR-067](requirements/FR-067.md) — Workspace invitation and scoped membership
+- [FR-065](requirements/FR-065.md) — import target authorization, and why portfolio-scoped Spaces are refused
+- [BR-001](requirements/BR-001.md) — `tenant_id` is the isolation scope
+- [BR-016](requirements/BR-016.md) — Business grant authority boundary
+
+## Version diff
+
+1.0.0 → 1.0.1 (2026-10-22): Reconciles the stale implementation label against current schema, service and test evidence; corrects monorepo source paths and links canonical requirements. No requirement behavior changed; the FR-066 Profile/Home UX correction remains open.

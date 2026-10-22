@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-005 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ความหมายของแท็บเดิม ก่อนจัดหมวดเมนูใหม่](../../architecture/project-manager-system/14-EXISTING-PROJECT-TAB-SEMANTICS.md) — `references` · `metadata` · `current`
 - [ADR-034 — Project Inventory read model boundary](../../decisions/ADR-034-PROJECT-INVENTORY-READ-MODEL.md) — `relates` · `control-block` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

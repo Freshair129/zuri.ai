@@ -226,9 +226,9 @@ export const splitRow = (line) => line.split(/(?<!\\)\|/).map((c) => c.replace(/
  */
 const RETIREMENT_WORD = /^(superseded|supersedes|supersede|cancelled|canceled|retired|deprecated)\b/i
 /** Leading chrome — emoji, bullets, bold markers, dashes — is not the word. */
-const opensWithRetirement = (cell) => RETIREMENT_WORD.test(cell.replace(/^[^\p{L}]+/u, ''))
+export const opensWithRetirement = (cell) => RETIREMENT_WORD.test(cell.replace(/^[^\p{L}]+/u, ''))
 
-function tableStatus(statement, cells) {
+export function tableStatus(statement, cells) {
   if (/~~/.test(statement)) return 'superseded'
   if (cells.some(opensWithRetirement)) return 'superseded'
   return 'current'

@@ -9,14 +9,16 @@ import { PROGRAMME_CONTAINERS } from '@/modules/platform-control/program-roadmap
 import { PROGRAMME_TASKS } from '@/modules/platform-control/program-roadmap-data'
 import { getProductReadinessSnapshot } from '@/modules/project-manager/application/product-readiness-read-model'
 
+const syntheticFr = (number) => `FR-${String(number).padStart(3, '0')}`
+
 const snapshot = {
   features: [
-    { id: 'FEAT-100', readiness: 'ready', progressPercent: 100, primaryDomain: 'inventory', requirementIds: ['FR-500', 'FR-501'] },
-    { id: 'FEAT-101', readiness: 'not_ready', progressPercent: 60, primaryDomain: 'knowledge', requirementIds: ['FR-502'] },
+    { id: 'FEAT-100', readiness: 'ready', progressPercent: 100, primaryDomain: 'inventory', requirementIds: [syntheticFr(500), syntheticFr(501)] },
+    { id: 'FEAT-101', readiness: 'not_ready', progressPercent: 60, primaryDomain: 'knowledge', requirementIds: [syntheticFr(502)] },
   ],
   domains: {
-    inventory: { requirements: [{ id: 'FR-500', status: 'verified' }, { id: 'FR-501', status: 'verified' }] },
-    knowledge: { requirements: [{ id: 'FR-502', status: 'planned' }, { id: 'FR-503', status: 'partial' }] },
+    inventory: { requirements: [{ id: syntheticFr(500), status: 'verified' }, { id: syntheticFr(501), status: 'verified' }] },
+    knowledge: { requirements: [{ id: syntheticFr(502), status: 'planned' }, { id: syntheticFr(503), status: 'partial' }] },
   },
   nonFunctionalRequirements: [{ id: 'NFR-010', status: 'not_implemented', domains: ['platform-control'] }],
 }
@@ -43,27 +45,27 @@ describe('FR-219 link badges', () => {
 
 describe('FR-219 requirement badges', () => {
   it('is green when every delivered id is built, orange when partly built', () => {
-    const done = taskEvidence({ task: task('done'), container: container({ delivers: ['FEAT-100', 'FR-500', 'FR-501'] }), index })
+    const done = taskEvidence({ task: task('done'), container: container({ delivers: ['FEAT-100', syntheticFr(500), syntheticFr(501)] }), index })
     expect(tone(done, 'FR')).toBe('done')
     expect(tone(done, 'FEAT')).toBe('done')
     expect(tone(done, 'NFR')).toBe('empty')
-    const partial = taskEvidence({ task: task('in-progress'), container: container({ delivers: ['FEAT-101', 'FR-503'] }), index })
+    const partial = taskEvidence({ task: task('in-progress'), container: container({ delivers: ['FEAT-101', syntheticFr(503)] }), index })
     expect(tone(partial, 'FR')).toBe('review')
     expect(tone(partial, 'FEAT')).toBe('review')
   })
 
   it('is red for an id the snapshot does not know, or a done/review task whose id is not built', () => {
-    expect(tone(taskEvidence({ task: task('planned'), container: container({ delivers: ['FR-999'] }), index }), 'FR')).toBe('fix')
-    expect(tone(taskEvidence({ task: task('review'), container: container({ delivers: ['FR-502'] }), index }), 'FR')).toBe('fix')
+    expect(tone(taskEvidence({ task: task('planned'), container: container({ delivers: [syntheticFr(999)] }), index }), 'FR')).toBe('fix')
+    expect(tone(taskEvidence({ task: task('review'), container: container({ delivers: [syntheticFr(502)] }), index }), 'FR')).toBe('fix')
     expect(tone(taskEvidence({ task: task('done'), container: container({ delivers: ['NFR-010'] }), index }), 'NFR')).toBe('fix')
     // The same unbuilt id on a planned task is simply not started yet.
-    expect(tone(taskEvidence({ task: task('planned'), container: container({ delivers: ['FR-502'] }), index }), 'FR')).toBe('empty')
+    expect(tone(taskEvidence({ task: task('planned'), container: container({ delivers: [syntheticFr(502)] }), index }), 'FR')).toBe('empty')
   })
 
   it('names the domain from the delivered FEAT, then the FR, then the code link, and shows complexity and priority', () => {
-    const byFeat = taskEvidence({ task: task('done', 'C-2'), container: container({ delivers: ['FR-502', 'FEAT-100'] }), index })
+    const byFeat = taskEvidence({ task: task('done', 'C-2'), container: container({ delivers: [syntheticFr(502), 'FEAT-100'] }), index })
     expect(byFeat.descriptors.map((d) => d.label)).toEqual(['DOM-INVENTORY', 'C-2', 'P0'])
-    expect(taskEvidence({ task: task('done'), container: container({ delivers: ['FR-503'] }), index }).descriptors[0].label).toBe('DOM-KNOWLEDGE')
+    expect(taskEvidence({ task: task('done'), container: container({ delivers: [syntheticFr(503)] }), index }).descriptors[0].label).toBe('DOM-KNOWLEDGE')
     expect(taskEvidence({ task: task('done'), container: container(), index }).descriptors[0].label).toBe('DOM-INVENTORY')
     expect(taskEvidence({ task: task('done'), container: container({ links: { code: 'unavailable' } }), index }).descriptors[0].label).toBe('DOM-—')
   })

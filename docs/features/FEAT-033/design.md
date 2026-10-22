@@ -29,7 +29,7 @@ Feature record: [ZAI:FEAT-033 canonical record](feature.md).
 > 🟠 implemented locally 2026-09-13 (ADR-085 D2–D4) — `scripts/data-pipeline-map.mjs`, the registry in `docs/DATA-PIPELINE-MAP.md` (20 chains), `doc-graph.mjs` wiring, `runtime/data-pipeline-map.json`, the CI committed-state guard; `tests/unit/data-pipeline-map.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Data pipeline map — ข้อมูลเข้าจากไหน รวมที่ไหน และส่งให้ใคร](../../DATA-PIPELINE-MAP.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-213 canonical record](requirements/FR-213.md)
 
@@ -40,7 +40,7 @@ Feature record: [ZAI:FEAT-033 canonical record](feature.md).
 > 🟠 implemented locally 2026-09-13 (ADR-085 D4, D6) — `src/app/(pm)/knowledge/data-pipeline/page.jsx`, `modules/knowledge/pipeline-map/`, `DataPipelineMapView.jsx`; `tests/unit/knowledge-data-pipeline-map-ui.test.js`, `tests/e2e/fr213-data-pipeline-map.spec.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Data pipeline map — ข้อมูลเข้าจากไหน รวมที่ไหน และส่งให้ใคร](../../DATA-PIPELINE-MAP.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-214 canonical record](requirements/FR-214.md)
 
@@ -50,7 +50,7 @@ Feature record: [ZAI:FEAT-033 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-13 (ADR-085 D1) — `src/config/domains.js`, `src/app/(pm)/knowledge/page.jsx` (Dashboard); `tests/unit/knowledge-data-pipeline-map-ui.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-215 canonical record](requirements/FR-215.md)
 
@@ -60,7 +60,7 @@ Feature record: [ZAI:FEAT-033 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-16 (ADR-085 D5, TASK-ZAI-063) — `GET /api/pipelines/health`, four owning read ports, Business/owner-domain authorization, live overlay and monitor links; failed reads remain unavailable/null and unbacked edges show no number. Focused local tests pass; merge, production activation and external GKS/MSP evidence are not claimed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

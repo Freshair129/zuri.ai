@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](../../domains/knowledge/features/FR-188-genesisrag17-parser-2.md) — `relates` · `metadata` · `current`
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](../../domains/knowledge/features/FR-189-edge-published-generation.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-188 canonical record](requirements/FR-188.md)
 
@@ -41,7 +41,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 > 🟡 implemented locally (PR #327, tests) — rollout step 3, merges after GenesisBlock#174 and Genesis-Knowledge-System#7; not deployed; four-process acceptance run pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](../../domains/knowledge/features/FR-189-edge-published-generation.md) — `relates` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-189 canonical record](requirements/FR-189.md)
 
@@ -51,7 +51,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 > 🔜 approved 2026-09-11 (ADR-075 approved); fallback window set 2026-09-11 (120 days after cutover or end of the New Year 2027 season, whichever is later) — Phase 4 needs its own gate; no code, no cutover
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

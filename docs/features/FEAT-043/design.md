@@ -31,7 +31,7 @@ Feature record: [ZAI:FEAT-043 canonical record](feature.md).
 - [FR-257 — Inference capacity routing and health](../../domains/agent/features/FR-257-inference-capacity-routing-and-health.md) — `references` · `metadata` · `current`
 - [FR-255 — Inference node registration and trust](../../domains/integration/features/FR-255-inference-node-registration-and-trust.md) — `references` · `metadata` · `current`
 - [FR-259 — Self-hosted inference policy and cutover](../../domains/line-oa-studio/features/FR-259-self-hosted-inference-policy-and-cutover.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-256 canonical record](requirements/FR-256.md)
 
@@ -47,7 +47,7 @@ Feature record: [ZAI:FEAT-043 canonical record](feature.md).
 - [FR-256-P2 — Server-owned self-hosted model execution](../../domains/integration/features/PHASE-FR-256-P2-server-owned-self-hosted-model-execution.md) — `references` · `metadata` · `current`
 - [FR-259 — Self-hosted inference policy and cutover](../../domains/line-oa-studio/features/FR-259-self-hosted-inference-policy-and-cutover.md) — `references` · `metadata` · `current`
 - [FR-256-P3 — Server-owned self-hosted model execution](../../domains/line-oa-studio/features/PHASE-FR-256-P3-server-owned-self-hosted-model-execution.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-257 canonical record](requirements/FR-257.md)
 
@@ -59,7 +59,7 @@ Feature record: [ZAI:FEAT-043 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-257 — Inference capacity routing and health](../../domains/agent/features/FR-257-inference-capacity-routing-and-health.md) — `references` · `metadata` · `current`
 - [FR-258 — Inference pool operations projection](../../domains/platform-control/features/FR-258-inference-pool-operations-projection.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-258 canonical record](requirements/FR-258.md)
 
@@ -70,7 +70,7 @@ Feature record: [ZAI:FEAT-043 canonical record](feature.md).
 > 🔜 approved design — not registered, not implemented, not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-258 — Inference pool operations projection](../../domains/platform-control/features/FR-258-inference-pool-operations-projection.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-259 canonical record](requirements/FR-259.md)
 
@@ -81,7 +81,7 @@ Feature record: [ZAI:FEAT-043 canonical record](feature.md).
 > 🔜 approved design — not registered, not implemented, not deployed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [FR-259 — Self-hosted inference policy and cutover](../../domains/line-oa-studio/features/FR-259-self-hosted-inference-policy-and-cutover.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 - [Self-hosted inference pool — qualification, activation and recovery](../../runbooks/SELF-HOSTED-INFERENCE-POOL.md) — `references` · `metadata` · `current`
 
 ## Limits

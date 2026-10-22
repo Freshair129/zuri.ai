@@ -28,7 +28,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 
 > 🟢 locally verified beta from approved CR-018; production activation pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-158 canonical record](requirements/FR-158.md)
 
@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 
 > 🟢 locally verified PM handoff slice; broader runtime and production gates remain open
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-160 canonical record](requirements/FR-160.md)
 
@@ -48,7 +48,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 
 > 🟠 implementation in progress from approved CR-018
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-157 canonical record](requirements/FR-157.md)
 
@@ -59,7 +59,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 > 🟠 implementation in progress from approved CR-018
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Content and Creative — immutable briefs and approved file references](../../domains/marketing/features/FR-157-content-creative.md) — `references` · `metadata` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-162 canonical record](requirements/FR-162.md)
 
@@ -69,7 +69,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 
 > 🟠 implementation in progress from approved CR-018
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-185 canonical record](requirements/FR-185.md)
 
@@ -79,7 +79,7 @@ Feature record: [ZAI:FEAT-021 canonical record](feature.md).
 
 > 🟠 locally implementing approved P5; provider metrics, audience/consent resolution, send, worker and production migration remain out of scope
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits
 

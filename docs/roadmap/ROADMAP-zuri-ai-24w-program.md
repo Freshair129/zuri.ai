@@ -24,7 +24,7 @@ related_docs:
   - "docs/FEATURE-MAP.md"
   - "docs/PRD-SDD-v1.0.md"
   - "docs/UI-DESIGN-SYSTEM.md"
-  - "docs/GOVIBE-INTEGRATION.md"
+  - "docs/GOVIBE-INTEGRATION.md" # historical proposal superseded by ADR-009
   - "docs/ARCHITECTURE.md"
   - "docs/decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md"
   - "docs/decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md"

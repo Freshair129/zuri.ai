@@ -6,9 +6,9 @@
      starts. Status inside the document (Draft v0.1) stands. -->
 
 > For LLM readers: [llms.txt](../llms.txt) is the repository index, and
-> [llms-full.txt](../llms-full.txt) inlines this specification, the working rules
-> and every domain charter into one file. (Added above the imported text, which
-> stays verbatim below.)
+> Optional corpus: `npm run docs:llms` builds a local `llms-full.txt` containing
+> this specification, working rules and domain charters; it is not committed.
+> This note is above the imported text, which stays verbatim below.
 
 # Zuri Modular Monolith + Shared Database Architecture Specification
 

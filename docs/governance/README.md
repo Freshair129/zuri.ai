@@ -87,3 +87,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [ZV2-CR-009 — Asset Management domain delivery](../changes/ZV2-CR-009-ASSET-MANAGEMENT-DOMAIN.md)
 - [ZV2-CR-010 — Asset Evidence Intake Execution](../changes/ZV2-CR-010-ASSET-EVIDENCE-INTAKE-EXECUTION.md)
 - [Document link metadata](../GOVERNANCE-LINK-METADATA.md)
+- [Direct directories under `docs/`](DOCS-DIRECTORY-REGISTER.md)
+- [Zuri documentation requirements specification](DOCUMENTATION-REQUIREMENTS-SPEC.md)
+- [Direct files under `docs/`](ROOT-FILE-REGISTER.md)
+- [Documentation templates](../templates/README.md)

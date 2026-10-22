@@ -29,10 +29,10 @@ Feature record: [ZAI:FEAT-035 canonical record](feature.md).
 > Superseded by ADR-110 D5 — pairing and report-only credential endpoints/UI are removed; historical rows remain
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `prd-registry` · `current`
+- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `canonical-registry` · `current`
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `relates` · `metadata` · `current`
-- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `prd-registry` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `canonical-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 - [Retired Zuri harness plugin — historical specification](../../ZURI-HARNESS-PLUGIN-SPEC.md) — `relates` · `metadata` · `current`
 
 ### [ZAI:FR-221 canonical record](requirements/FR-221.md)
@@ -44,11 +44,11 @@ Feature record: [ZAI:FEAT-035 canonical record](feature.md).
 > Superseded by ADR-110 D5 — new harness attribution is retired; historical person/device report fields remain readable and FR-218 deployment-bearer reporting continues
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `prd-registry` · `current`
+- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `canonical-registry` · `current`
 - [ADR-092 — A time-boxed member view of the programme roadmap](../../decisions/ADR-092-TIME-BOXED-MEMBER-VIEW-OF-THE-PROGRAMME-ROADMAP.md) — `relates` · `control-block` · `current`
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `relates` · `metadata` · `current`
-- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `prd-registry` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `canonical-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 - [Retired Zuri harness plugin — historical specification](../../ZURI-HARNESS-PLUGIN-SPEC.md) — `relates` · `metadata` · `current`
 
 ### [ZAI:FR-222 canonical record](requirements/FR-222.md)
@@ -60,10 +60,10 @@ Feature record: [ZAI:FEAT-035 canonical record](feature.md).
 > Superseded by ADR-110 D5 — the in-repository Zuri harness plugin source and marketplace entry are removed; no user-file cleanup is performed
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `relates` · `control-block` · `current`
-- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `prd-registry` · `current`
+- [ADR-087 — Harness usage plugin: browser-paired devices with a report-only credential](../../decisions/ADR-087-HARNESS-USAGE-PLUGIN-AND-DEVICE-PAIRING.md) — `supersedes` · `canonical-registry` · `current`
 - [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `relates` · `metadata` · `current`
-- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `prd-registry` · `current`
-- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `prd-registry` · `current`
+- [ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow](../../decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md) — `supersedes` · `canonical-registry` · `current`
+- [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 - [Retired Zuri harness plugin — historical specification](../../ZURI-HARNESS-PLUGIN-SPEC.md) — `relates` · `metadata` · `current`
 
 ## Limits
