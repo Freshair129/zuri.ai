@@ -3,9 +3,9 @@ doc_type: intake-note
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PROPOSAL-20261023
 status: approved
 superseded_by: null
-version: "0.3.2"
+version: "0.4.0"
 date: "2026-10-23"
-migration_base_revision: 8cd98190669748a74131eaedc7f8993e69b77f49
+migration_base_revision: ba0167e90d9a4d6059f7b7f85c886cc60fd3e5cc
 relations:
   - type: references
     target: ZAI:FEAT-045
@@ -35,6 +35,33 @@ applied. The owner API/UI pass 38 focused tests; the fixture/runtime/Server
 path passes 119 focused tests. Independent runtime review found no remaining
 P1/P2; live main-dev acceptance remains pending. This does not authorize production provider changes
 or production activation.
+
+## Approved memory amendment — 2026-10-24
+
+The owner selected "เพิ่ม memory ให้โปรไฟล์ Ollama ใน main-dev แล้วทดสอบ" after
+being told that the original main-dev profile deliberately refused memory.
+This amends the earlier memory exclusion only for the separately opted-in,
+allowlisted main-dev profile. Earlier no-memory clauses below describe the
+0.3.2 baseline; this amendment and the updated FR-079 row control that scope.
+The original fixture source, model/database/account allowlists, production
+provider restrictions and FR-080 UI behavior remain unchanged.
+
+`ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED` is false by default. Only the exact
+string `true` enables it; malformed values fail closed. The standard MSP flags
+still select thread/episodic ports. Account policy and immutable job enrollment
+remain required. Episodic access additionally requires verified identity,
+GRANTED consent, DIRECT audience and a valid mapped Project/Workspace.
+Thread and episodic packets use the existing bounded composer, injection and
+projection receipts, delivery reconciliation, retention and erasure paths.
+No customer consent is fabricated and no legacy vault contents are copied.
+Unknown owners, absent signer/transport, revoked policy, scope mismatch and
+invalid model output fail closed. A public Product fixture never authorizes a
+private memory slice. Production keeps its existing provider profile.
+
+This is an approved same-ID, same-subject FR-079 source-row migration from
+`ba0167e90d9a4d6059f7b7f85c886cc60fd3e5cc`; membership and ID stay pinned.
+Implementation, independent review, CI, built-image main-dev acceptance and
+production activation are separate gates and are not claimed by this approval.
 
 ## Objective and boundary
 
@@ -216,7 +243,7 @@ subject anchor `phase 1 line runtime connection cut over` and membership in
 FEAT-004.
 
 ```text
-| FR-079 | Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime keeps the existing Business-key-first behavior and selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope when no Business model key applies. The existing credentialed connection path resolves its opaque `secretRef` through the configured provider-neutral SecretManagerPort before the ModelProviderPort call. The default-off `MAIN_DEV_LOCAL_OLLAMA` profile may instead use a Business-owner-selected installed Ollama model without a `secretRef` or credential only when the Server verifies the actual main-dev database identity through its Prisma-backed connection and verifies the resolved Tenant, Business, and internal LINE OA account ID against separate server-side allowlists. It uses the existing Prisma-backed `resolvePhase1PrimaryConnection` and a separate operator-configured, read-only, size-bounded, SHA-256-pinned fixture built only from the existing main-dev TEST ONLY PCAT product metadata; the source price list and stock are excluded. The versioned fixture is bound to the trusted Tenant, Business, and internal LINE OA account ID, labeled `TEST_ONLY_PUBLIC`, and contains only existing BusinessKnowledge Product metadata passing the FR-047 contract, with `sell_price`, `currency`, and `moq` null and no stock fields. This synthetic fixture is authorized only for the scoped main-dev test; it does not classify any real Business data as customer-public or authorize a production data path. The local profile does not use the production-pinned `zuri_core`/Supabase reader and rejects GKS/corpus grounding, memory opt-ins, and grounding shadow for this test OA/job, then supplies only the fixture reader through the existing answer-budget composer. ADR-100 D5 remains unchanged: a present Business `MODEL_PROVIDER_KEY` retains precedence and prevents this local-Ollama acceptance. This local profile uses only the exact server-configured `http://host.docker.internal:11434` origin, ignores/rejects browser- and connection-metadata-supplied origins, preserves SERVER execution, and uses the existing compare-and-swap/uniqueness gate for exactly one active primary. The trusted OA account ID is carried from the verified LINE job/account binding into model resolution, never supplied by the client. `NODE_ENV=production` does not enable the local profile; the existing `PRODUCTION_LINE` path continues to reject local-vault, raw-credential, and Ollama selection. Untrusted scope, profile/database/allowlist/fixture hash/schema mismatch, unsafe or unknown fixture source, zero or multiple candidates, credentialed-provider secret-manager failure/expiry/version mismatch, Ollama endpoint/model failure, or an invalid provider response fails closed before a test reply, with no automatic fallback. Production provider behavior is unchanged. | 🟠 keyed runtime and main-dev Ollama implementation tested; main-dev live LINE and production evidence pending |
+| FR-079 | Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime keeps the existing Business-key-first behavior and selects exactly one `ACTIVE` `PRIMARY` `PHASE1_LINE_LLM` IntegrationConnection under that scope when no Business model key applies. The existing credentialed connection path resolves its opaque `secretRef` through the configured provider-neutral SecretManagerPort before the ModelProviderPort call. The default-off `MAIN_DEV_LOCAL_OLLAMA` profile may instead use a Business-owner-selected installed Ollama model without a `secretRef` or credential only when the Server verifies the actual main-dev database identity through its Prisma-backed connection and verifies the resolved Tenant, Business, and internal LINE OA account ID against separate server-side allowlists. It uses the existing Prisma-backed `resolvePhase1PrimaryConnection` and a separate operator-configured, read-only, size-bounded, SHA-256-pinned fixture built only from the existing main-dev TEST ONLY PCAT product metadata; the source price list and stock are excluded. The versioned fixture is bound to the trusted Tenant, Business, and internal LINE OA account ID, labeled `TEST_ONLY_PUBLIC`, and contains only existing BusinessKnowledge Product metadata passing the FR-047 contract, with `sell_price`, `currency`, and `moq` null and no stock fields. This synthetic fixture is authorized only for the scoped main-dev test; it does not classify any real Business data as customer-public or authorize a production data path. The local profile does not use the production-pinned `zuri_core`/Supabase reader and rejects GKS/corpus grounding and grounding shadow for this test OA/job. Memory remains refused unless the separate server-side `ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED=true` opt-in is set. With this opt-in, the same allowlisted main-dev OA may use existing MSP thread and principal-private episodic memory through the standard account policy, authenticated identity, per-turn authorization, consent, audience, signed-grant, receipt, retention and erasure gates of FR-057 and ADR-091; it grants no additional memory authority and never falls back to shared legacy Workspace storage. The bounded context composer may include only those authorized memory slices alongside the unchanged synthetic Product fixture. Missing memory transport or signer fails closed before inference. ADR-100 D5 remains unchanged: a present Business `MODEL_PROVIDER_KEY` retains precedence and prevents this local-Ollama acceptance. This local profile uses only the exact server-configured `http://host.docker.internal:11434` origin, ignores/rejects browser- and connection-metadata-supplied origins, preserves SERVER execution, and uses the existing compare-and-swap/uniqueness gate for exactly one active primary. The trusted OA account ID is carried from the verified LINE job/account binding into model resolution, never supplied by the client. `NODE_ENV=production` does not enable the local profile; the existing `PRODUCTION_LINE` path continues to reject local-vault, raw-credential, and Ollama selection. Untrusted scope, profile/database/allowlist/fixture hash/schema mismatch, unsafe or unknown fixture source, zero or multiple candidates, credentialed-provider secret-manager failure/expiry/version mismatch, Ollama endpoint/model failure, or an invalid provider response fails closed before a test reply, with no automatic fallback. Production provider behavior is unchanged. | 🟠 keyed runtime and main-dev Ollama implementation tested; main-dev live LINE and production evidence pending |
 ```
 
 ### `ZAI:FR-080`

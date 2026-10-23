@@ -2463,9 +2463,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "3d497b2f70e90ec3d94e1f563f87e617404cf677a7781eb19f3c9837bb185f61",
+      "statement_digest": "eacaa6291a39800c5b32cd83ddbc1f972438fe62169f0fd63d0a13ae4071f488",
       "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Reviewed approved main-dev TEST ONLY Ollama runtime amendment in LINE-LOCAL-OLLAMA-MAIN-DEV-20261023 v0.3.2; same pinned subject and identity, keyed production behavior retained."
+      "statement_digest_reason": "Owner approved separately opted-in main-dev Ollama memory using FR-057 and ADR-091 gates on 2026-10-24; same subject and membership"
     },
     "FR-080": {
       "family": "FR",

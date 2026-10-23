@@ -174,13 +174,60 @@ async function assertNoBusinessModelProviderKey(db, { tenantId, businessId }) {
   }
 }
 
+function composeMspMemoryPorts(ports, env, mspTransport) {
+  const threadMemoryEnabled = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+  const episodicMemoryEnabled = env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
+  if (threadMemoryEnabled || episodicMemoryEnabled) {
+    const transport = mspTransport ?? createMspTransportFromEnvironment(env)
+    if (!transport) throw new Error('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED')
+    const serviceKey = env.ZURI_MSP_THREAD_SERVICE_KEY
+    if (threadMemoryEnabled && (typeof serviceKey !== 'string' || serviceKey.length < 32)) {
+      throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+    }
+    if (threadMemoryEnabled) {
+      ports.threadMemory = createMspThreadMemoryPort({
+        transport,
+        actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+        agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
+        workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
+        serviceKey,
+        maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
+        idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),
+        recentExchangeCount: Number(env.MSP_THREAD_RECENT_EXCHANGES ?? 6),
+      })
+    } else {
+      ports.threadMemory = null
+    }
+    if (episodicMemoryEnabled) {
+      const serviceKeyring = env.MSP_THREAD_SERVICE_KEYRING
+      if ((typeof serviceKey !== 'string' || serviceKey.length < 32) && !serviceKeyring) {
+        throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+      }
+      const resolver = createMspVaultResolver({ transport,
+        actor: env.ZURI_MSP_EPISODIC_MEMORY_ACTOR ?? 'zuri-line-agent', serviceKey, serviceKeyring })
+      ports.episodicMemory = createMspMemoryPort({ transport, vaultSetResolver: resolver })
+    } else {
+      ports.episodicMemory = null
+    }
+  } else {
+    ports.threadMemory = null
+    ports.episodicMemory = null
+  }
+  return ports
+}
+
 function createMainDevLocalOllamaPorts(env, {
   fetchFn,
   integrationDb,
   connectionResolver,
+  mspTransport,
 } = {}) {
   const profile = readMainDevLocalOllamaProfile(env)
   if (!profile) throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_DISABLED')
+  if (!profile.memoryEnabled && (env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    || env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true')) {
+    throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_MEMORY_DISABLED')
+  }
   if (env.ZURI_MODEL_PROVIDER || env.ZURI_MODEL_NAME || env.ZURI_MODEL_CREDENTIAL || env.ZURI_OLLAMA_BASE_URL) {
     throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_LEGACY_MODEL_CONFIG_FORBIDDEN')
   }
@@ -267,7 +314,7 @@ function createMainDevLocalOllamaPorts(env, {
     })
   }
 
-  return {
+  return composeMspMemoryPorts({
     runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
     businessKnowledge: Object.freeze({
       async query(input) {
@@ -283,10 +330,8 @@ function createMainDevLocalOllamaPorts(env, {
     bindingResolver: null,
     model: null,
     resolveModel,
-    threadMemory: null,
-    episodicMemory: null,
     close: async () => {},
-  }
+  }, env, mspTransport)
 }
 
 export function createPhase1BusinessAgentPortsFromEnv(
@@ -306,6 +351,7 @@ export function createPhase1BusinessAgentPortsFromEnv(
       fetchFn,
       integrationDb,
       connectionResolver,
+      mspTransport,
     })
   }
 
@@ -477,45 +523,7 @@ export function createPhase1BusinessAgentPortsFromEnv(
     resolveModel,
     close: async () => {},
   }
-  const threadMemoryEnabled = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-  const episodicMemoryEnabled = env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
-  if (threadMemoryEnabled || episodicMemoryEnabled) {
-    const transport = mspTransport ?? createMspTransportFromEnvironment(env)
-    if (!transport) throw new Error('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED')
-    const serviceKey = env.ZURI_MSP_THREAD_SERVICE_KEY
-    if (threadMemoryEnabled && (typeof serviceKey !== 'string' || serviceKey.length < 32)) {
-      throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
-    }
-    if (threadMemoryEnabled) {
-      ports.threadMemory = createMspThreadMemoryPort({
-        transport,
-        actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
-        agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
-        workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
-        serviceKey,
-        maxContextBytes: Number(env.ZURI_MSP_CONTEXT_MAX_BYTES ?? 24000),
-        idleTimeoutMinutes: Number(env.MSP_THREAD_IDLE_TIMEOUT_MINUTES ?? 30),
-        recentExchangeCount: Number(env.MSP_THREAD_RECENT_EXCHANGES ?? 6),
-      })
-    } else {
-      ports.threadMemory = null
-    }
-    if (episodicMemoryEnabled) {
-      const serviceKeyring = env.MSP_THREAD_SERVICE_KEYRING
-      if ((typeof serviceKey !== 'string' || serviceKey.length < 32) && !serviceKeyring) {
-        throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
-      }
-      const resolver = createMspVaultResolver({ transport,
-        actor: env.ZURI_MSP_EPISODIC_MEMORY_ACTOR ?? 'zuri-line-agent', serviceKey, serviceKeyring })
-      ports.episodicMemory = createMspMemoryPort({ transport, vaultSetResolver: resolver })
-    } else {
-      ports.episodicMemory = null
-    }
-  } else {
-    ports.threadMemory = null
-    ports.episodicMemory = null
-  }
-  return ports
+  return composeMspMemoryPorts(ports, env, mspTransport)
 }
 
 function badRequest(message) {
