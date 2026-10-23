@@ -1,8 +1,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
-import { createBusiness, createPortfolio, createTenant, createWorkspace } from '../factories/scope'
-import { makeViewer, ownsElsewhere } from '../factories/viewer'
-import { commitPlan } from '@/modules/project-manager/import/plan-import-service'
+import { createPmApprovalContext, createPmApprovalFixture, pmApprovalInput as approvalInput } from '../helpers/pm-approval-fixture'
+import { ownsElsewhere } from '../factories/viewer'
 import { replayProjectExecutionTrace } from '@/modules/project-manager/application/project-execution-trace-service'
 import {
   admitApprovedStep,
@@ -16,106 +15,14 @@ import {
 // @spec ADR-103, PMR-013, PMT-013, SEC-001, SEC-003, SEC-008
 // @tested tests/integration/project-approval-gateway.test.js
 
-const CAPABILITY = 'project.execution.approve'
-const HASH_A = 'a'.repeat(64)
 const HASH_B = 'b'.repeat(64)
-const COMMIT_SHA = 'c'.repeat(40)
-
-let business
-let workspace
-let requester
-let reviewer
-let revokedReviewer
-let sequence = 0
-
-function approvalInput(fixture, over = {}) {
-  return {
-    projectId: fixture.project.id,
-    executionRunId: fixture.run.executionRunId,
-    executionStepId: fixture.step.executionStepId,
-    actionClass: 'PROJECT_WRITE',
-    effectKey: `project-write:${fixture.run.executionRunId}`,
-    manifestHash: HASH_A,
-    inputHash: HASH_A,
-    artifactHashes: [HASH_A],
-    commitSha: COMMIT_SHA,
-    payloadSummary: { target: fixture.project.code, change: 'update bounded project state' },
-    expectedEffects: { records: 1, externalCalls: 0 },
-    eligibleReviewerCapability: CAPABILITY,
-    policyVersion: 'pm-approval-gateway.test.v1',
-    expiresAt: new Date(Date.now() + 60 * 60 * 1000),
-    ...over,
-  }
-}
-
-async function freshRun(label) {
-  sequence += 1
-  const code = `APP-${label}-${sequence}`
-  const plan = {
-    schemaVersion: '1.2',
-    generatedBy: 'approval-gateway-test',
-    scope: { workspaceCode: workspace.code },
-    project: { code: `PRJ-${code}`, name: `Approval ${label} ${sequence}`, status: 'ACTIVE' },
-    trace: { correlationId: `approval-${code}`, idempotencyKey: `approval-idem-${code}` },
-    domainBinding: {
-      primaryDomainId: 'DOM-DEVELOPMENT',
-      supportingDomainIds: [],
-      technicalOwnerDomainId: 'TD-PROJECT-MANAGER',
-    },
-    identityRefs: {},
-    workstreams: [{
-      code: `WST-${code}`,
-      name: `Approval workstream ${sequence}`,
-      executionMode: 'SOFTWARE_SPRINT',
-      executionModeId: 'EXM-SOFTWARE-SPRINT',
-      executionContractId: 'EXC-SOFTWARE-SPRINT-V1',
-      contractVersion: '1.0.0',
-      progressStrategy: 'TASK_WEIGHT',
-      items: [{ code: `TASK-${code}`, subtype: 'TASK', title: 'Approval test task' }],
-    }],
-  }
-  const committed = await commitPlan(plan, { viewer: requester })
-  const project = await prisma.project.findUnique({ where: { id: committed.projectId } })
-  const run = await prisma.projectExecutionRun.findUnique({
-    where: { executionRunId: committed.executionRunId },
-    include: { steps: true },
-  })
-  const step = run.steps.find((row) => row.stepKey === 'plan.commit')
-  await prisma.projectExecutionRun.update({ where: { id: run.id }, data: { status: 'RUNNING' } })
-  const readyStep = await prisma.projectExecutionStep.update({
-    where: { id: step.id },
-    data: { status: 'READY', inputHash: HASH_A },
-  })
-  return { project, run: { ...run, status: 'RUNNING' }, step: readyStep }
-}
+let context, requester, reviewer, revokedReviewer
+const freshRun = label => createPmApprovalFixture({ db: prisma, label, context })
 
 describe('Project Manager approval gateway admission', () => {
   beforeAll(async () => {
-    const portfolio = await createPortfolio({ name: 'Approval Group', code: 'PF-APPROVAL' })
-    const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Approval Tenant', code: 'TNT-APPROVAL' })
-    business = await createBusiness({ tenantId: tenant.id, name: 'Approval Business', code: 'BUS-APPROVAL' })
-    workspace = await createWorkspace({
-      name: 'Approval Workspace',
-      scopeType: 'BUSINESS',
-      businessId: business.id,
-      code: 'WS-APPROVAL',
-    })
-    requester = makeViewer({
-      visibleBusinessIds: [business.id],
-      ownedBusinessIds: [business.id],
-      principal: { id: 'person-approval-requester', code: 'PER-APP-REQ', displayName: 'Requester' },
-    })
-    reviewer = makeViewer({
-      visibleBusinessIds: [business.id],
-      ownedBusinessIds: [business.id],
-      permissionsByBusinessId: { [business.id]: [CAPABILITY] },
-      principal: { id: 'person-approval-reviewer', code: 'PER-APP-REV', displayName: 'Reviewer' },
-    })
-    revokedReviewer = makeViewer({
-      visibleBusinessIds: [business.id],
-      ownedBusinessIds: [business.id],
-      principal: { id: 'person-approval-revoked', code: 'PER-APP-REVOKED', displayName: 'Revoked reviewer' },
-    })
+    context = await createPmApprovalContext()
+    ;({ requester, reviewer, revokedReviewer } = context)
   })
 
   it('does not create an approval row for READ_ONLY and is idempotent for the same digest', async () => {
