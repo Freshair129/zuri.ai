@@ -59,7 +59,7 @@ describe('commitPlan transaction sizing (2026-09-14 production incident)', () =>
 
     expect(captured).toHaveLength(1)
     expect(captured[0].options).toBe(PLAN_COMMIT_TRANSACTION_OPTIONS)
-    expect(captured[0].options).toEqual({ maxWait: 4_000, timeout: 120_000 })
+    expect(captured[0].options).toEqual({ maxWait: 4_000, timeout: 120_000, isolationLevel: 'Serializable' })
     // A regression back to "no options" is exactly the bug this test exists to
     // catch, so assert the shape explicitly rather than only truthiness.
     expect(typeof captured[0].fn).toBe('function')
