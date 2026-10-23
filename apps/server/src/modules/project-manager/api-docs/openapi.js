@@ -16,7 +16,7 @@ import {
   zGovernanceVerificationProof, zGovernanceSnapshot,
 } from '../application/governance-source-verifier'
 import { zSnapshotCaptureResult } from '../application/governance-snapshot-service'
-import { EXECUTION_MODES, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
+import { EXECUTION_MODES, MODEL_ID_PATTERN, PROGRESS_STRATEGIES } from '@/lib/validation/enums'
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
 import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 import { zApiWriteCsrfToken, zApiWriteCsrfError } from '@/modules/identity/api-write-csrf'
@@ -130,6 +130,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/integration/model-providers', ['GET', 'POST']],
   ['/api/integration/model-providers/{id}/revoke', ['POST']],
   ['/api/integration/model-providers/{id}/validate', ['POST']],
+  // @req FR-079, FR-080 — default-off, owner-scoped main-dev local model test profile.
+  ['/api/integration/local-ollama/models', ['GET']],
+  ['/api/integration/local-ollama/selection', ['POST']],
   // @req FR-273 — Business-scoped Notion OAuth, including its exact unprefixed callback.
   ['/api/integrations/notion/connect', ['GET']], ['/oauth/notion/callback', ['GET']],
   // @req FR-274 — signed, receipt-only Notion webhook and operator challenge controls.
@@ -367,6 +370,23 @@ const zLineStockDisclosureRequest = z.object({
   reason: z.string().trim().min(1).max(2000),
 }).strict().openapi({ description: 'Strict owner-managed LINE stock-disclosure grant request.' })
 
+const zLocalOllamaModelListResponse = z.object({
+  businessId: z.string(),
+  accountId: z.string(),
+  accountName: z.string(),
+  models: z.array(z.string()),
+  selectedModelId: z.string().nullable(),
+}).strict().openapi({ description: 'Installed model IDs and current selection for the server-derived Business/OA scope.' })
+const zLocalOllamaSelectionRequest = z.object({
+  modelId: z.string().trim().regex(MODEL_ID_PATTERN),
+}).strict().openapi({ description: 'Only an installed model ID; Business, account, endpoint and credential fields are not accepted.' })
+const zLocalOllamaSelectionResponse = z.object({
+  businessId: z.string(),
+  accountId: z.string(),
+  modelId: z.string(),
+  selected: z.literal(true),
+}).strict().openapi({ description: 'The selected local test model in the server-derived Business/OA scope.' })
+
 const zKnowledgeStudioGraphResponse = z.object({
   dataset: z.record(z.string(), z.unknown()),
   nodeIds: z.array(z.string()),
@@ -537,9 +557,65 @@ function conversationRuntimeResponses(method, contractVersion) {
   }
 }
 
+function localOllamaResponse(schemaName, description) {
+  return {
+    description,
+    headers: { 'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } } },
+    content: { 'application/json': { schema: { $ref: `#/components/schemas/${schemaName}` } } },
+  }
+}
+
+function localOllamaError(description) {
+  return {
+    description,
+    headers: { 'Cache-Control': { schema: { type: 'string', enum: ['no-store'] } } },
+    content: { 'application/json': { schema: zError } },
+  }
+}
+
+function registerLocalOllamaOperations(registry) {
+  registry.registerPath({
+    method: 'get',
+    path: '/api/integration/local-ollama/models',
+    operationId: 'listMainDevLocalOllamaModels',
+    summary: 'List installed main-dev local Ollama models',
+    description: 'Session-authenticated Business owner read for the default-off main-dev TEST ONLY profile. The server derives the unique allowlisted Business and connected server-owned LINE OA account from the viewer and persisted state; the request accepts no scope, endpoint or credential. This does not enable the profile outside its configured main-dev scope.',
+    tags: ['Local model selection'],
+    security: [{ SessionAuth: [] }],
+    responses: {
+      200: localOllamaResponse('LocalOllamaModelListResponse', 'Installed model IDs and the current selection for the server-derived scope.'),
+      401: localOllamaError('AUTH_REQUIRED: a live authenticated session is required.'),
+      404: localOllamaError('Profile is default-off, or the authenticated owner has no unique eligible allowlisted Business/OA scope.'),
+      409: localOllamaError('A Business model-provider credential exists or the current primary selection is ambiguous/ineligible.'),
+      503: localOllamaError('The local model inventory is unavailable; no model selection is changed.'),
+    },
+  })
+  registry.registerPath({
+    method: 'post',
+    path: '/api/integration/local-ollama/selection',
+    operationId: 'selectMainDevLocalOllamaModel',
+    summary: 'Select an installed main-dev local Ollama model',
+    description: 'Session-authenticated Business owner mutation for the default-off main-dev TEST ONLY profile. The strict request carries only modelId; the server derives the unique allowlisted Business and connected server-owned LINE OA account, re-lists installed models, stores model metadata only and promotes through the existing primary compare-and-swap/uniqueness gate. No endpoint, API key, IntegrationCredential or secret reference is accepted or created.',
+    tags: ['Local model selection'],
+    security: [{ SessionAuth: [] }],
+    request: { body: { required: true, content: { 'application/json': { schema: zLocalOllamaSelectionRequest } } } },
+    responses: {
+      200: localOllamaResponse('LocalOllamaSelectionResponse', 'The installed local model is selected for the server-derived Business/OA scope.'),
+      400: localOllamaError('MALFORMED_REQUEST or OLLAMA_MODEL_NOT_INSTALLED: modelId is invalid or absent from the current installed-model inventory.'),
+      401: localOllamaError('AUTH_REQUIRED: a live authenticated session is required.'),
+      404: localOllamaError('Profile is default-off, or the authenticated owner has no unique eligible allowlisted Business/OA scope.'),
+      409: localOllamaError('Business credential, provider configuration, primary selection or concurrent compare-and-swap conflict; no partial selection is reported.'),
+      413: localOllamaError('LOCAL_OLLAMA_INPUT_TOO_LARGE: request body exceeds 16 KiB.'),
+      503: localOllamaError('The local model inventory is unavailable; no model selection is changed.'),
+    },
+  })
+}
+
 function registerInventoryOperations(registry) {
   const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'get /api/projects/{id}/feature-view', 'get /api/projects/{id}/features', 'get /api/projects/{id}/features/{featureId}', 'get /api/projects/{id}/governance-snapshots', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
   detailedOperations.add('post /api/growth/external-marketing-reports')
+  detailedOperations.add('get /api/integration/local-ollama/models')
+  detailedOperations.add('post /api/integration/local-ollama/selection')
   for (const route of FEATURE_MUTATIONS) detailedOperations.add(`${route.method} ${route.path}`)
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
@@ -730,6 +806,9 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     description: 'Authenticates the Conversation Runtime process only. Core derives actor and Business authority from the claimed job and authoritative state.',
   })
   registry.register('Error', zError)
+  registry.register('LocalOllamaModelListResponse', zLocalOllamaModelListResponse)
+  registry.register('LocalOllamaSelectionRequest', zLocalOllamaSelectionRequest)
+  registry.register('LocalOllamaSelectionResponse', zLocalOllamaSelectionResponse)
   registry.registerComponent('securitySchemes', 'MarketingReportBinding', {
     type: 'http', scheme: 'bearer', bearerFormat: 'zmr_ report-only secret',
     description: 'Current active dedicated source/target binding plus deny-default Business ingest policy. Not a SessionAuth or Enterprise API credential. Rechecked on every intake, replay and contention retry.',
@@ -1053,6 +1132,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     responses: { 200: { description: 'XLSX workbook' } },
   })
 
+  registerLocalOllamaOperations(registry)
   registerInventoryOperations(registry)
 
   const generator = new OpenApiGeneratorV3(registry.definitions)
@@ -1083,6 +1163,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Domain view', description: 'Authorized Project Execution Domains projections' },
       { name: 'Feature view', description: 'Scoped explicit Project Features and verified reference reads' },
       { name: 'Feature mutations', description: 'Owner writes with live CSRF, CAS, idempotency and atomic audit' },
+      { name: 'Local model selection', description: 'Default-off owner controls for the main-dev TEST ONLY local model profile' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Inventory', description: 'Explicitly scoped inventory disclosure policy administration' },
       { name: 'Platform Control', description: 'Installation-operator-only operational reads' },

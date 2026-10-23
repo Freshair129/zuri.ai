@@ -1,9 +1,9 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.1"
+version: "0.3.3"
 checked_at: "2026-10-23"
-checked_base_revision: "e3474ef3c16b5cc5b6e797c63e69d6dc202c191f"
+checked_base_revision: "fa10e309ac1e2833ad518f5432e921a5822d5d4d"
 ---
 
 # Plans location and retained sources
@@ -35,8 +35,19 @@ separate from retired DDC procedures.
 | [Existing PM delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Source reconciliation, Feature role/recovery proof, strategy/bootstrap qualification and selected release. |
 | [Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Contract adoption before the four design-gated FR-082–085 implementation slices. |
 
-Enumeration for this plan addition: fourteen direct files, no child directories
-(the nine retained sources below, this README, and four approved plans).
+The selected base contained fourteen tracked direct files and no child
+directories. This approved plan adds one document on disk; the current patch
+therefore contains fifteen direct files and no child directories.
+
+## Approved implementation plans
+
+The plan below is approved for bounded main-dev implementation. The roadmap
+remains the only source of current delivery status; approval does not claim that
+implementation or runtime acceptance has occurred.
+
+| Plan | Scope |
+|---|---|
+| [Main-dev LINE local Ollama](LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) | Approved default-off, allowlisted keyless Ollama selection for the isolated main-dev LINE test, with production provider denials preserved; implementation and runtime acceptance remain pending. |
 
 ## Retained files
 
@@ -82,3 +93,4 @@ after owner approval of the linked SRS. Preserve cleanup history and retained
 contracts; no application work or production activation is recorded as done.
 
 0.3.1 (2026-10-23): record owner approval of the package and selection of A1; preserve the separate Pipeline and release gates.
+0.3.2 (2026-10-23): refresh this inventory at `fa10e309` and index the pending main-dev local Ollama plan without changing delivery state.

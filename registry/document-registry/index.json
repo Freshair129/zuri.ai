@@ -1188,32 +1188,36 @@
       "namespace": "ZAI",
       "family": "FR",
       "recordVersion": 1,
-      "status": "source-preserved",
+      "status": "reviewed-migration",
       "path": "docs/features/FEAT-004/requirements/FR-079.md",
       "sourcePath": "docs/PRD-SDD-v1.0.md",
-      "sourceRowSha256": "5958fa7e0cdb7b896c22d6b540a724c56eda6f91c72a48d862896f47956f9cad",
-      "recordSha256": "5145bef14dd5526bf4552656c726b186290f0b31fd92d71033153c92cdc3889b",
+      "sourceRowSha256": "778789f9818449e498a872a04f07ae4ed4a589375c9ecbbfa8c6716eb1bde96f",
+      "recordSha256": "77ac1597ff0ab78d3fe565a468d57f8965247f19620277e6ecbedd5d7aafedae",
       "statementCell": 2,
       "requirementCells": [],
       "featureId": "FEAT-004",
       "exportDocument": "docs/PRD-SDD-v1.0.md",
-      "exportOrder": 78
+      "exportOrder": 78,
+      "migrationBaseRevision": "8cd98190669748a74131eaedc7f8993e69b77f49",
+      "migrationDocument": "docs/change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md"
     },
     {
       "id": "FR-080",
       "namespace": "ZAI",
       "family": "FR",
       "recordVersion": 1,
-      "status": "source-preserved",
+      "status": "reviewed-migration",
       "path": "docs/features/FEAT-004/requirements/FR-080.md",
       "sourcePath": "docs/PRD-SDD-v1.0.md",
-      "sourceRowSha256": "90801d62dbf89f22b79605560ec391ff3e390f3b669b5cf10bf19e8066095d12",
-      "recordSha256": "99f36f57c5925533c2d7209bd3d785553f92b08366729b18647ce6be2adbffcc",
+      "sourceRowSha256": "14a118088d16570a2612d5435cd7616f06c9fa011519daa9eef1f0bb569f860e",
+      "recordSha256": "bf7c3e214d8a3c37b6e8b90181c3f9d01893a2c0ccd3ba1bad0717ad6c279b94",
       "statementCell": 2,
       "requirementCells": [],
       "featureId": "FEAT-004",
       "exportDocument": "docs/PRD-SDD-v1.0.md",
-      "exportOrder": 79
+      "exportOrder": 79,
+      "migrationBaseRevision": "8cd98190669748a74131eaedc7f8993e69b77f49",
+      "migrationDocument": "docs/change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md"
     },
     {
       "id": "FR-081",
@@ -8322,17 +8326,19 @@
       "namespace": "ZAI",
       "family": "FEAT",
       "recordVersion": 1,
-      "status": "source-preserved",
+      "status": "reviewed-migration",
       "path": "docs/features/FEAT-045/feature.md",
       "sourcePath": "docs/FEATURES.md",
-      "sourceRowSha256": "5df39fc47bb89ba58c3375dd2f2e4cf80c488c97dd0670935ecd9a3922b0a947",
-      "recordSha256": "c60d268e68e9fb219939ddd71378ed92c44bccae8d9ee8812de7c2db40ab6c17",
+      "sourceRowSha256": "655c2e04617a0933df33d21a7ea43259862f34e9b35f9500e06c0b606e987a96",
+      "recordSha256": "be3201c6ef95a4a71df23457d0c865fbdc5591157f2b16eaf330aaac54721f9a",
       "statementCell": 2,
       "requirementCells": [
         3
       ],
       "exportDocument": "docs/FEATURES.md",
-      "exportOrder": 44
+      "exportOrder": 44,
+      "migrationBaseRevision": "fa10e309ac1e2833ad518f5432e921a5822d5d4d",
+      "migrationDocument": "docs/change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md"
     },
     {
       "id": "FEAT-046",
