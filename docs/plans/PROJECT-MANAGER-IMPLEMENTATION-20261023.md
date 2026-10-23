@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.3"
+version: "0.1.4"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -77,7 +77,7 @@ from Track C because the selected FEAT's source already names them.
 | Plan | Independently reviewable deliverable | Dependencies | May start coding now? |
 |---|---|---|---|
 | [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
-| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 documentation selected; B2/B3 code remains unstarted and external/live steps also need the selected environment's authority |
+| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 accepted at 56b6ed97; owner authorized B2 isolated role/service/recovery qualification. B3 remains unstarted and external/live steps need the selected environment's authority |
 | [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | No; ADR-035 is still design-only |
 
 ```mermaid
@@ -163,9 +163,19 @@ and correction. Hosted CI/merge and release remain separate. The owner next
 selected B1 source reconciliation; its [current disposition](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b1-source-reconciliation--2026-10-23)
 records implementation ancestry, the 62-FR retained-scope recheck and held canonical
 status proposals. B1 found FR-271 shared server SMART evaluation partial and amended
-B3 for contract reconciliation/regressions before coding. B2–B4 and C0–C4 remain
-unstarted; B1 closes only after its documentation checks and independent review.
+B3 for contract reconciliation/regressions before coding. B1 passed its checks
+and independent review at `56b6ed97`. The owner then selected
+[B2 isolated qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b2-isolated-qualification--2026-10-23)
+with real runtime-role, service/recovery tests and review. B3–B4 and C0–C4 remain
+unstarted; the actual deployment's ADR-097 role/grant proof remains a separate gate.
+The B2 evidence records local isolated acceptance (final role/service/recovery
+13/13, SQLite 98/98, generated consumers 51/51, build/governance and independent
+review). Its broader PostgreSQL profile was 124/126 then a focused 16/16 rerun;
+this is explicitly composed evidence, not a single clean full-profile result.
 
 0.1.2 (2026-10-23): record A1's local result without closing the remaining PM plan.
 
 0.1.3 (2026-10-23): record B1 selection/source reconciliation and its FR-271 finding; B2 and later execution remain unstarted. No application or canonical change.
+
+0.1.4 (2026-10-23): record B1 acceptance and B2 isolated qualification with the
+composed-check caveat; B3, production and held canonical migrations remain excluded.

@@ -2603,7 +2603,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 47
+          "testCount": 48
         }
       ],
       "checks": {
@@ -6982,7 +6982,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-253",
@@ -18491,7 +18491,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 47
+          "testCount": 48
         }
       ],
       "evidence": [
@@ -18551,6 +18551,7 @@
         "apps/server/tests/integration/project-feature-mutations.test.js",
         "apps/server/tests/integration/project-feature-read-routes.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/postgres/phase-b-runtime-role.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",

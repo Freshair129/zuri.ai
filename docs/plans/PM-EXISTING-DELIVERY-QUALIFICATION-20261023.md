@@ -3,7 +3,7 @@ id: ZAI:PM-EXISTING-DELIVERY-PLAN-20261023
 title: Existing PM delivery qualification plan
 doc_type: implementation-plan
 status: approved
-version: "0.2.0"
+version: "0.3.0"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -80,17 +80,17 @@ to make an old status sentence look green.
 - Consume `createProjectFeatureRepository({db:runtime,dialect:'postgres'}).withProjectTransaction({projectId,viewer,mode}, callback)` and the existing Feature services; never emulate RLS in JavaScript.
 - Consume `loadFrozenSchemaInventory()`, `runProtectedExport(...)` and `runCleanTargetRestore(...)` from the existing recovery scripts. Use the current inventory and exact schema/snapshot digests; the old 175/177/179-model proofs are historical.
 
-- [ ] Add tests `missing_scope_cannot_read_or_write`, `foreign_business_is_invisible`, `scope_settings_do_not_leak_across_reused_connections` and `authorized_service_binds_scope_locally`. Direct role queries must return no foreign rows or refuse writes; service refusals remain redacted. Verify catalog policies/grants as well as behavior.
-- [ ] Add `membership_expiry_after_project_lock_refuses_write`, `competing_versions_have_one_winner`, `allocation_overflow_race_rolls_back` and `audit_failure_preserves_feature_and_receipt`. Use real sessions and observed lock waits. Do not replace authorization clocks or policy with fixtures that merely return success.
-- [ ] Add/extend recovery assertions for checksum mismatch, non-empty target refusal, missing authoritative family, revoked/retained personal fields, exact receipt/audit links and fail-closed inventory mismatch. Invoke the actual protected-export and clean-target-restore CLIs on synthetic owned targets; confirm preview/no-confirm performs no insertion and explicit clean-target confirmation is required.
-- [ ] Run the real-role proof, then current SQLite recovery/service regressions. Expected results are executed assertions, zero required skips and verified cleanup; test code or SQL-text inspection alone does not close this task.
+- [x] Add tests `missing_scope_cannot_read_or_write`, `foreign_business_is_invisible`, `scope_settings_do_not_leak_across_reused_connections` and `authorized_service_binds_scope_locally`. Direct role queries must return no foreign rows or refuse writes; service refusals remain redacted. Verify catalog policies/grants as well as behavior.
+- [x] Add `membership_expiry_after_project_lock_refuses_write`, `competing_versions_have_one_winner`, `allocation_overflow_race_rolls_back` and `audit_failure_preserves_feature_and_receipt`. Use real sessions and observed lock waits. Do not replace authorization clocks or policy with fixtures that merely return success.
+- [x] Add/extend recovery assertions for checksum mismatch, non-empty target refusal, missing authoritative family, revoked/retained personal fields, exact receipt/audit links and fail-closed inventory mismatch. Invoke the actual protected-export and clean-target-restore CLIs on synthetic owned targets; confirm preview/no-confirm performs no insertion and explicit clean-target confirmation is required.
+- [x] Run the real-role proof, then current SQLite recovery/service regressions. Expected results are executed assertions, zero required skips and verified cleanup; test code or SQL-text inspection alone does not close this task.
 
 ```text
 npm --prefix apps/server run test:postgres -- tests/postgres/phase-b-runtime-role.test.js
 npm --prefix apps/server test -- tests/integration/project-feature-mutations.test.js tests/integration/project-feature-graph.test.js tests/integration/project-feature-read-routes.test.js tests/integration/project-feature-erasure.test.js tests/integration/phase-b-recovery.test.js tests/integration/phase-b-web-recovery.test.js tests/integration/phase-b-identity-erasure.test.js tests/unit/phase-b-feature-migration.test.js tests/unit/phase-b-backup.test.js
 ```
 
-- [ ] If tests expose a defect, add the failing assertion, repair only its owning port/transaction, rerun the affected engines and relevant Identity/CRM consumers. Obtain independent review of the exact composed patch, run build/governance and commit as `test(pm): qualify Feature runtime isolation and recovery` (or a scoped fix).
+- [x] If tests expose a defect, add the failing assertion, repair only its owning port/transaction, rerun the affected engines and relevant Identity/CRM consumers. Obtain independent review of the exact composed patch, run build/governance and commit as `test(pm): qualify Feature runtime isolation and recovery` (or a scoped fix).
 
 **Exit:** isolated role/policy/service/recovery proof is reproducible. The actual
 deployment's current role and grants still require the separately authorized
@@ -290,11 +290,150 @@ Current explanatory conflicts are resolved in the FR-252/268–271 notes, roadma
 and SRS section 6, while canonical delivery changes remain explicitly held above.
 FR-271 is partial and its B3 task is amended before code. The 62-item retained
 scope is covered at the stated static depth; no fresh application acceptance is
-claimed. B2 is the next task only after this B1 documentation governance and
-independent review pass; it has not started and its environment boundary remains.
+claimed. B1 passed documentation governance and independent review at
+`56b6ed973b8aac2804a7e91b59b08950a22bdc2f`. The owner subsequently selected
+B2 isolated qualification, recorded below; its environment boundary remains.
 This B1 document introduces no controller record, DDC procedure or alternate
 requirement registry. Documentation checks/review results are retained with the
 B1 commit/session summary, separately from historic runtime results.
 
 
 0.2.0 (2026-10-23): complete B1 source reconciliation and held six-row delivery proposal; record static FR-271 partial behavior and amend B3 before any correction. B2/B3 execution, hosted integration and release remain open.
+
+## B2 isolated qualification — 2026-10-23
+
+This is supporting execution evidence for Task B2 against base
+`56b6ed973b8aac2804a7e91b59b08950a22bdc2f`, not a canonical delivery-cell
+migration or deployment acceptance. The owner authorized isolated PostgreSQL
+role/service/recovery tests and independent review; production and B3 remain
+outside this increment.
+
+### Target and authority
+
+The [target helper](../../apps/server/tests/helpers/pm-role-target.js) accepts no
+connection URL. It starts an owned PostgreSQL 17 cluster on loopback with fresh
+synthetic credentials, applies the current full generated schema, then recreates
+only the six empty Phase B tables with the **unchanged issued**
+[provider migration](../../apps/server/supabase/migrations/20260917041000_add_phase_b_feature_authority.sql).
+This preserves the provider CHECK/index/policy definitions that Prisma alone
+cannot represent. It is not replay of every historical provider migration.
+
+Only this disposable cluster receives the prerequisite roles. The fixture models
+existing application-table privileges on the other tables; it does not claim to
+reproduce the deployed installation's complete ACLs. The issued SQL supplies the
+bounded six-table privileges. `zuri_web_login` inherits the non-login
+`zuri_app_runtime` role. Catalog assertions check both roles are non-superuser and
+non-bypass, neither owns a protected table, all six tables force RLS, the eight
+policy bindings require both scope keys, no PUBLIC/direct login/anonymous/service-role
+grants or runtime grant options exist, and the immutable tables have only
+SELECT/INSERT privileges.
+
+Both competing Prisma clients log in as `zuri_web_login`; the suite never swaps
+them to admin or emulates policy in JavaScript. Admin is used for schema/fixture
+arrangement, lock observation and the separately privileged maintenance CLIs.
+Every client disconnects before the helper's verified cluster shutdown; the
+source and each clean recovery target are disposed in `finally`/suite teardown.
+
+### Executed behavior and evidence limits
+
+The [PostgreSQL suite](../../apps/server/tests/postgres/phase-b-runtime-role.test.js)
+uses the existing repository and service with persisted Person, Membership and
+authenticated Session rows. It exercises missing/partial/foreign scope, including
+different Businesses within one Tenant and a foreign Tenant, both local scope
+keys on a reused one-connection pool after commit and rollback, service audit/receipt
+linkage, immutable receipt refusal, elapsed Membership expiry while a real
+Project lock is held, competing versions, allocation overflow and audit-failure
+rollback. Race barriers observe distinct backend PIDs and PostgreSQL lock
+blockers before releasing the leader. No authorization result or clock is mocked.
+
+Recovery spawns the actual protected-export and clean-target-restore processes
+against owned source/clean targets. All six families contain rows and survive a
+restore/re-export comparison, including exact UUID/version/receipt/audit links.
+Synthetic governance evidence is arrangement; no Git verifier or browser capture
+acceptance is asserted. A reviewed PM erasure runs through the actual runtime
+transaction before export: the erased field stays erased and unreviewed fields
+remain. Synthetic disabled-person and revoked-session state remains revoked
+after restore; the existing portable-session contract preserves records and
+token hashes, not raw session tokens.
+
+The suite verifies no-confirm preview inserts into none of the current 208
+application tables, explicit clean-target confirmation, nonempty-target refusal,
+checksum mismatch, missing authoritative family and unexpected catalog table
+refusal with their specific error codes. An ordinary runtime-role protected
+export must refuse complete visibility rather than emit a partial snapshot.
+Recovery intentionally uses a privileged maintenance connection only for owned
+synthetic targets; it does not grant recovery privilege to runtime.
+
+The current inventory binds schema SHA-256
+`579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8`
+and target inventory SHA-256
+`af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683`.
+Each CLI artifact's exact byte digest is recomputed and checked at runtime;
+temporary synthetic snapshots and credentials are removed with the target.
+
+Initial execution exposed two test-expectation errors: the service's existing
+CAS error is `VERSION_MISMATCH`, and portable recovery deliberately retains
+Session records. Source/contract inspection corrected the expectations. The
+11-case targeted rerun and the nine-file SQLite regression command above passed
+11/11 and 98/98 respectively. No application defect was reproduced and no
+application service, schema, issued migration or canonical record was changed.
+
+The extended configured PostgreSQL profile executed 126 cases: 124 passed and
+two failed. The new runtime-export refusal was correct but the assertion omitted
+the `PHASE_B_` error prefix; it now uses the exported error-code constant. The
+pre-existing memory-erasure held-page scan timed out at 30 seconds. No unrelated
+test timeout or application behavior was changed. The following focused rerun
+passed **16/16** with zero skips: all **12 B2 cases** and all four memory-erasure
+cases (the previously timed-out case completed in 5.6 seconds).
+
+```text
+npm --prefix apps/server run test:postgres
+# FAIL: 124/126; assertion-prefix mismatch and existing scan timeout
+npm --prefix apps/server run test:postgres -- tests/postgres/phase-b-runtime-role.test.js tests/integration/line-memory-erasure-due-query.test.js
+# PASS: 16/16 after the assertion correction; B2 12/12 included
+```
+
+This is composed verification, **not a single clean 126-case suite run**. The
+full-profile timing failure remains recorded; an isolated rerun does not prove
+that its performance is stable in the combined profile.
+
+Independent GPT-6 Luna Max review found gaps in the proof, not a reproduced
+product defect: tenant-setting reset/policy coverage, PUBLIC/grant-option checks,
+same-Tenant cross-Business isolation, and an unasserted retained Session hash.
+These were corrected with direct catalog/behavior assertions and exact retained
+hash/revocation comparisons. The added partial-key case brings B2 to **13 cases**.
+The final sibling-Business fixture explicitly populates all six families under
+the same Tenant as the first Business; every negative read proves source rows
+exist, so tenant-only filtering cannot pass the cross-Business test. The reviewer
+confirmed those source/test gaps are closed with no remaining substantive blocker.
+
+### Final local acceptance
+
+| Check | Executed result |
+|---|---|
+| Task B2 PostgreSQL command above, after review corrections | PASS **13/13**, zero skips; final run 16:55:38 +07:00 |
+| Nine-file SQLite service/recovery/Identity command above | PASS **98/98**, zero skips |
+| Broader configured PostgreSQL profile | FAIL **124/126**, followed by focused **16/16** and final B2 **13/13** as explained above; no single clean full-profile claim |
+| Generated projection consumers | PASS **51/51** across five files with the command below |
+| `npm --prefix apps/server run build` | PASS, including lint/type checking; existing multiple-lockfile workspace-root warning remains |
+| `npm run docs:graph`, `npm run docs:views`, `npm run govern` | PASS: 552 canonical records, 96 views, zero dangling edges; preflight **0 critical / 0 warning / 43 info** |
+| `npm run docs:llms`, `npm run docs:llms:check` | PASS; 409 KB ignored corpus, not staged |
+| Independent review | GPT-6 Luna Max; identified proof gaps corrected and source/test design accepted; final composed evidence reviewed before commit |
+| Target teardown | All owned PM clusters verified stopped/removed after the runs; synthetic snapshots removed |
+
+```text
+npm --prefix apps/server test -- tests/unit/domain-state.test.js tests/unit/capability-registry.test.js tests/unit/domain-model-source.test.js tests/unit/doc-graph-retired-rules.test.js tests/unit/data-pipeline-map.test.js
+```
+
+Only the tests/config, this plan/master-plan evidence, and the required generated
+`apps/server/runtime/domain-state.json` projection are included. That projection
+adds the new test path and changes the three FR-252 test-file counts from 47 to
+48; its `verified` labels describe generated bindings, not production acceptance.
+No application writer, issued provider migration, current schema inventory or
+held canonical row was changed. B2's **isolated qualification exit** is met.
+Hosted exact-head CI and the broader full-profile timing caveat remain explicit.
+The actual installation's current role/grants, production writes/migrations and
+release still require separate ADR-097/environment authority. **B3 has not started.**
+
+0.3.0 (2026-10-23): record owned PostgreSQL runtime-role/service/recovery
+qualification without adopting the held canonical rows or opening B3/production.

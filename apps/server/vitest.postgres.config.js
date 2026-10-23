@@ -32,7 +32,9 @@ export default {
   ...base,
   test: {
     ...base.test,
-    include: ['tests/postgres/project-approval-gateway-races.test.js', 'tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js'],
+    include: ['tests/postgres/phase-b-runtime-role.test.js', 'tests/postgres/project-approval-gateway-races.test.js', 'tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js'],
+    // @req FR-252 — actual runtime-role service/recovery qualification.
+    // @tested tests/postgres/phase-b-runtime-role.test.js
     globalSetup: ['tests/global-setup-postgres.js'],
     hookTimeout: 120000,
   },
