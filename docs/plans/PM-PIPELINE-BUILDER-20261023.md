@@ -189,7 +189,7 @@ source. The approved C0 examples and historical Phase B schema inventory remain
 unchanged. The initial reviewed C1 PM application/contracts/Prisma checkpoint is `e41240f17ad617b1672d232de4d0ca597d312723`;
 reviewed test-only follow-ups end at `30120d04ea7de61e317f51674d67f4d79f91346a`.
 Git comparison confirms no C1 PM application, contract or Prisma differences between
-those revisions. The final main synchronization at `75e20709` retains upstream
+those revisions. The earlier main synchronization at `75e20709` retains upstream
 PR #734/#735 changes outside that PM tree and preserves both PostgreSQL test
 selections. Hosted checks must evaluate the final PR head independently.
 
@@ -236,6 +236,13 @@ reviewed this seven-file application/fixture correction and found no remaining
 source blocker after the OpenAPI representation was corrected. Record fresh
 PostgreSQL, build, governance and final-head hosted results in the PR before
 acceptance; the earlier source checkpoint does not prove this correction.
+The corrected application source is committed at `0842c3e9`; fresh qualification
+passed 26/26 actual-role PostgreSQL tests (C1 plus retained Phase B), the
+production build, one isolated browser attempt and strict governance before the
+latest main composition. Upstream main `6b66fd28` (PR #736, Agent/Ollama and
+FR-079) was subsequently merged without C1 PM application changes. Regenerate
+canonical outputs and run governance on that composed tree; final hosted tests
+and build must qualify the final PR head.
 
 C2 canvas gestures, C3 structure editing, C4 Board/CRUD release enforcement,
 production migration, deployment and merge remain outside this increment.
