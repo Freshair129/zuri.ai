@@ -2,7 +2,7 @@
 doc_type: implementation-plan
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PLAN-20261023
 status: approved
-version: "0.4.0"
+version: "0.4.1"
 date: "2026-10-23"
 relations:
   - type: references
@@ -35,7 +35,13 @@ behavior or claims deployment or a successful Ollama/LINE conversation.
 
 The owner selected the main-dev Ollama memory extension. This section amends
 the historical no-memory baseline below; it does not widen production provider
-access, fixture data, model endpoints or canonical private-memory ownership.
+access, source data, model endpoints or canonical private-memory ownership.
+Version 0.4.1 reconciles the native RAG contract merged in PR #734. Both
+TEST_ONLY_FIXTURE and GENESISRAG17_TEST_ONLY retain default memory denial and
+the same explicit opt-in. Native RAG source pins, public Product projection,
+pre/post-generation revalidation and final send fencing remain required; private
+memory does not authorize Business facts or widen public knowledge sources.
+The original fixture-only exclusions below remain historical baseline context.
 
 1. [ ] Migrate only FR-079 under the approved intake amendment, preserving its
    subject, FEAT membership and source slot. Run the sanctioned statement review
@@ -43,7 +49,7 @@ access, fixture data, model endpoints or canonical private-memory ownership.
 2. [ ] In `main-dev-local-ollama.js`, add a separate default-off
    `ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED` setting with strict boolean parsing.
    Keep original no-memory refusal unless opted in. Keep server/account scope,
-   database, fixture/corpus/shadow and SERVER execution guards unchanged.
+   database, selected knowledge-source/shadow and SERVER execution guards unchanged.
 3. [ ] In `phase1-runtime.js`, reuse one MSP-port composition helper for normal
    and opted-in local profiles. Carry `mspTransport` through the local factory;
    use signed thread and distinct principal-private ports and fail closed on

@@ -2463,9 +2463,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "eb621c051dfc25e01851b1251a246aebcd8c54d45a60349f4ded2db5405ae865",
+      "statement_digest": "b913c921c5d7cf6a5c36217bc8d90d5059456aa8f25964a16989d1fb25669e09",
       "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Owner authorized real GenesisRAG17 TEST ONLY retrieval in isolated main-dev; reviewed same-ID migration preserves subject, scope and FR-291 owner facts."
+      "statement_digest_reason": "Approved main-dev memory opt-in reconciled with PR734 native RAG; same subject and membership, source pins and delivery fencing retained."
     },
     "FR-080": {
       "family": "FR",
