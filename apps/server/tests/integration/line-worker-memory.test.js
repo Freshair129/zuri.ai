@@ -57,7 +57,7 @@ function event(suffix, source = 'user') {
       : { type: 'user', userId: `user-${suffix}` }
   return { type: 'message', webhookEventId: `event-${suffix}`, replyToken: `reply-${suffix}`,
     source: sourceRow, message: { type: 'text', id: `message-${suffix}`,
-      text: source === 'group' ? 'ซูริ AB-1 ราคาเท่าไร' : 'AB-1 ราคาเท่าไร' } }
+      text: source === 'group' ? 'ซูริ AB-1 ชื่ออะไรคะ' : 'AB-1 ชื่ออะไรคะ' } }
 }
 
 async function admittedFixture({ optIn = true, source = 'user', memoryPolicy = 'ON' } = {}) {
@@ -418,7 +418,7 @@ describe('server answer memory composition', () => {
     return { tenantId: tenant.id, businessId: business.id, account: { tenantId: tenant.id, businessId: business.id, bindingCode: 'memory-binding' },
       channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER', modelAccess: 'EXTERNAL_MODEL_ALLOWED',
       memorySyncOptIn: true, audienceKind, eventId: `event-${audienceKind}`, sourceUserId: `user-${audienceKind}`,
-      inbound: { id: `inbound-${audienceKind}`, body: 'AB-1 ราคาเท่าไร', conversation: { tenantId: tenant.id, businessId: business.id,
+      inbound: { id: `inbound-${audienceKind}`, body: 'AB-1 ชื่ออะไรคะ', conversation: { tenantId: tenant.id, businessId: business.id,
         channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: `thread-${audienceKind}` } } }
   }
 
@@ -439,8 +439,8 @@ describe('server answer memory composition', () => {
     }))
     const authorizationResolver = policyFor(audienceKind, authorizationOverrides)
     const answer = createServerLineAnswer({ env: { ...sealEnv, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, threadMemory, contextAssembler, authorizationResolver,
-      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
-        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }))) })
+      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: null,
+        moq: null, specification: {}, as_of: now.toISOString() }] }))) })
     return { answer, appendMessage, contextAssembler, authorizationResolver, threadMemory }
   }
 
@@ -448,7 +448,7 @@ describe('server answer memory composition', () => {
     const composedAnswer = composed('DIRECT')
     const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn() }
     const result = await composedAnswer.answer(answerJob(), { trace })
-    expect(result).toContain('AB-1')
+    expect(result).toContain('แก้ว (AB-1)')
     expect(composedAnswer.appendMessage).toHaveBeenCalledTimes(2)
     expect(composedAnswer.appendMessage.mock.calls[0][0]).toMatchObject({ direction: 'INBOUND', messageId: 'inbound-DIRECT', speakerKind: 'HUMAN' })
     expect(composedAnswer.appendMessage.mock.calls[1][0]).toMatchObject({ direction: 'OUTBOUND', deliveryState: 'QUEUED', replyToMessageId: 'msp-inbound' })
@@ -485,7 +485,7 @@ describe('server answer memory composition', () => {
     const composedAnswer = composed('DIRECT')
     const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
     const result = await composedAnswer.answer(answerJob(), { trace })
-    expect(result).toContain('AB-1')
+    expect(result).toContain('แก้ว (AB-1)')
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
     expect(receipt).toMatchObject({ refs: { msp: [], citations: ['knowledge:0'], records: [] } })
@@ -504,14 +504,14 @@ describe('server answer memory composition', () => {
     // The pre-FR-234 trace shape (no recordContextReceipt): the default path's
     // behaviour is unchanged, and composing a receipt never throws for it.
     const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn() }
-    await expect(composedAnswer.answer(answerJob(), { trace })).resolves.toContain('AB-1')
+    await expect(composedAnswer.answer(answerJob(), { trace })).resolves.toContain('แก้ว (AB-1)')
   })
 
   it('excludes the MSP slice from the receipt when private memory is denied for a GROUP thread', async () => {
     const composedAnswer = composed('GROUP')
     const trace = { recordThreadMemory: vi.fn(), recordEvidence: vi.fn(), assertHealthy: vi.fn(), recordContextReceipt: vi.fn() }
     const result = await composedAnswer.answer(answerJob('GROUP'), { trace })
-    expect(result).toContain('AB-1')
+    expect(result).toContain('แก้ว (AB-1)')
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
     expect(receipt.refs).toEqual({ msp: [], citations: ['knowledge:0'], records: [] })
@@ -533,7 +533,7 @@ describe('server answer memory composition', () => {
         account: { tenantId: tenant.id, businessId: business.id, bindingCode: 'memory-binding' },
         channelAccountId: 'memory-binding', transportEpoch: 1, executionMode: 'SERVER',
         memorySyncOptIn: true, audienceKind: 'DIRECT', eventId: 'event-budget', sourceUserId: 'user-budget',
-        inbound: { id: 'inbound-budget', body: 'AB-1 ราคาเท่าไร', conversation: { tenantId: tenant.id, businessId: business.id,
+        inbound: { id: 'inbound-budget', body: 'AB-1 ชื่ออะไรคะ', conversation: { tenantId: tenant.id, businessId: business.id,
           channel: 'LINE', channelAccountId: 'memory-binding', externalThreadId: 'thread-budget' } } }
     }
 
@@ -558,8 +558,8 @@ describe('server answer memory composition', () => {
       const authorizationResolver = policyFor('DIRECT')
       const spyModel = { provider: 'test', model: 'spy', generate: vi.fn(async () => ({ provider: 'test', model: 'spy', status: 'ok', text: 'รับทราบค่ะ' })) }
       const runtimeFactory = vi.fn(async () => ({
-        businessKnowledge: { query: async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
-          currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }) },
+        businessKnowledge: { query: async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: null,
+          moq: null, specification: {}, as_of: now.toISOString() }] }) },
         resolveModel: async () => spyModel, threadMemory,
       }))
       const answer = createServerLineAnswer({ env: { ...sealEnv, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, threadMemory, contextAssembler, authorizationResolver, runtimeFactory })
@@ -717,7 +717,7 @@ describe('server answer memory composition', () => {
     for (const audienceKind of ['GROUP', 'ROOM']) {
       const composedAnswer = composed(audienceKind)
       const result = await composedAnswer.answer(answerJob(audienceKind))
-      expect(result).toContain('AB-1')
+      expect(result).toContain('แก้ว (AB-1)')
       expect(composedAnswer.contextAssembler.mock.calls[1][0].threadRoute).toMatchObject({ audienceKind })
       expect(composedAnswer.appendMessage.mock.calls[0][0]).toMatchObject({ direction: 'INBOUND' })
       expect(composedAnswer.appendMessage.mock.calls[1][0]).toMatchObject({ direction: 'OUTBOUND', deliveryState: 'QUEUED' })
@@ -772,8 +772,8 @@ describe('server answer memory composition', () => {
     }))
     const answer = vi.fn(createServerLineAnswer({ threadMemory, contextAssembler,
       env: { ...sealEnv, ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' },
-      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
-        currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }))) }))
+      runtimeFactory: runtimeWith(vi.fn(async () => ({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: null,
+        moq: null, specification: {}, as_of: now.toISOString() }] }))) }))
     const worker = workerFor(fixture, { answer })
     const first = await runLineConversationWorker(worker)
     expect(first).toMatchObject({ id: fixture.jobId, status: 'UNKNOWN', executed: 1, sent: 0 })

@@ -1,5 +1,5 @@
 ---
-version: "0.3.1"
+version: "0.3.2"
 status: approved
 ---
 
@@ -178,6 +178,45 @@ Snapshot schema versions remain separate from record/index versions. Existing sn
 
 Version diff 0.1.1 → 0.2.0: adds the owner-approved authored record/index format, sanctioned manifest writer and per-record snapshot provenance checks. The initial import contract and version-1 reader remain unchanged.
 
+
+## Same-ID authored amendment (2026-10-24)
+
+[The approved LINE product-facts change](../../change-requests/integration/line-product-facts-natural-language-20261024.md)
+uses `tools/document-record-amendment.mjs --plan|--apply <manifest-path>` for one
+existing active standalone authored-v2 FR. This companion preserves its issued
+ID, subject anchor, record kind, path, membership and export order. The original
+add-only writer and strict canonical readers keep their existing contracts.
+
+The manifest pins fresh committed HEAD, index and ledger digests, and a committed
+approved proposal's path, version, revision and digest. That approval must be an
+ancestor of the base and contain exactly the proposed row in its selected-ID
+text fence. Planning verifies prior record/manifest/approval provenance and all
+affected committed projection preimages before proposing writes. Applying creates
+a new immutable manifest identity, sealed approval copy and receipt, then writes
+the amended wrapper and derived projections. Old evidence is never overwritten.
+Run `npm run docs:ids -- --review FR-291 --reason "<approved amendment reason>"`
+from `apps/server/` separately for the statement witness, then regenerate and
+validate the normal registry, graph and views. The companion never writes the
+ledger or allocates an ID.
+
+Historical add-only receipts retain their existing auxiliary-evidence semantics:
+verify their exact committed blob, manifest/base/ID inventories, base preimages
+and migration-owned record/approval outputs at a committed origin. Their shared
+projection hashes are historical diagnostics; current projections are independently
+derived and checked. New amendment receipts additionally bind every output hash
+at a committed apply origin. Neither rule permits editing frozen old receipts
+or accepting stale current record/index/export contents.
+
+Graph/preflight navigation classifies earlier approval copies only through the
+current record's validated same-ID authored ancestry, including the committed
+base index/record and exact manifest/approval digests. Unindexed copies remain
+live scan inputs. These navigation commands require the referenced Git history;
+their CI jobs fetch full history. Canonical record loading itself remains strict
+and independent of that historical navigation.
+
+Version diff 0.3.1 -> 0.3.2: documents the reviewed same-ID authored amendment
+companion and the distinct verification of legacy versus new receipts. Product
+approval remains in the linked change; this section grants no new runtime scope.
 
 ## Unified provenance and coordinated issuance — approved 2026-10-05
 

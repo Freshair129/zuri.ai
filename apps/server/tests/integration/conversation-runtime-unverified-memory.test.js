@@ -33,6 +33,7 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // Core alone decides the PENDING mode, from the job's CHANNEL_IDENTITY_ADMITTED record;
 //   the v1 `memory` request carries no field that could select it.
 // @spec ADR-106 D2-D4 and its 2026-09-27 amendment; SDD-110
+// Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/conversation-runtime-unverified-memory.test.js
 const serviceToken = 'synthetic-unverified-memory-core-token-0001'
 const mspServiceKey = 'synthetic-msp-unverified-service-key-00001'
@@ -354,7 +355,7 @@ describe('unverified memory-sync turns: byte parity with the legacy tick', () =>
 
   it('no evidence: the fixed reply, appended PENDING, and no model', async () => {
     evidence = { records: [] }
-    const result = await bothPaths('มีบริการซ่อมรถไหมคะ')
+    const result = await bothPaths('ขอข้อมูลบริการซ่อมรถค่ะ')
     expectPendingParity(result, { names: PENDING_TURN })
     expect(result.legacy.inputs).toEqual([])
     expect(result.runtime.inputs).toEqual([])

@@ -20,6 +20,7 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // Only the GKS corpus service (reached through MSP in production), the business
 // knowledge reader, the model call and the LINE transport are local fakes.
 // @spec ADR-106 D2-D3, ADR-090 D1-D3, SEC-032
+// Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/conversation-runtime-grounding.test.js
 const queryKnowledgeCorpusMock = vi.hoisted(() => vi.fn())
 vi.mock('@/modules/knowledge/knowledge-corpus-service', async (importOriginal) => ({
@@ -32,7 +33,7 @@ const sealKey = '6d'.repeat(32)
 const lineUser = 'synthetic-grounding-line-user'
 const MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
-const corpusHit = { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ ราคา 50 บาท', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1 }
+const corpusHit = { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1 }
 
 let tenant, business, provider, actor, ownerViewer
 let openJobs = []
@@ -54,7 +55,7 @@ async function createAccount({ runtimeOwner = 'SERVER', knowledgeGrounding = 'BU
   return account
 }
 
-async function admit(accountId, eventId, text = 'AB-1 ราคาเท่าไร') {
+async function admit(accountId, eventId, text = 'AB-1 คือสินค้าอะไร') {
   const current = await prisma.lineOaAccount.findUnique({ where: { id: accountId } })
   const { jobId } = await admitLineConversation({ db: prisma, account: current,
     env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, correlationId: eventId, now: new Date(),
@@ -191,7 +192,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
       const authority = await ports.authority.resolve(claim)
       const turn = await ports.context.prepare(claim, authority)
 
-      expect(turn).toEqual({ question: 'AB-1 ราคาเท่าไร', evidence: { records: testCase.expected }, slices: [], authorized: true,
+      expect(turn).toEqual({ question: 'AB-1 คือสินค้าอะไร', evidence: { records: testCase.expected }, slices: [], authorized: true,
         audienceKind: 'DIRECT', threadId: null, maxBudgetChars: DEFAULT_CONTEXT_BUDGET_CHARS, workCommand: null })
       expect(queryKnowledgeCorpusMock).toHaveBeenCalledTimes(testCase.corpusCalls)
       if (testCase.corpusCalls) {

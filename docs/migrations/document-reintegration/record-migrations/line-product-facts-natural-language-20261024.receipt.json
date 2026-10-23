@@ -1,0 +1,28 @@
+{
+  "version": 1,
+  "migrationId": "line-product-facts-natural-language-20261024",
+  "status": "APPLIED",
+  "manifestSha256": "aa5369c937e7895a61b64762c2712208d510f4092c57cf93739b996869520464",
+  "base": {
+    "commit": "b6fbbaadc5599bd8034968f35973dfe1a3f9fd13",
+    "indexSha256": "5b7bb9da6a90e62712038b2fa47e9908c211474f0acc8f0cc3441ab1a8bceb12",
+    "ledgerSha256": "606250e19aa6decd45ca73ce858349029e32d4d1c096b2f14e5fcfd3e697380c"
+  },
+  "ids": [
+    "FR-291"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/line-product-facts-natural-language-20261024.approval.md": null,
+    "docs/requirements/FR-291.md": "d64dc4ec63e2371e1e4f2420c3311d09065d94f4a6af357da9344ff80acac8a5",
+    "registry/document-registry/index.json": "5b7bb9da6a90e62712038b2fa47e9908c211474f0acc8f0cc3441ab1a8bceb12",
+    "docs/PRD-SDD-v1.0.md": "d62dcbbf9ee33f563628591837a022fb475485db3f67ea857cfe371fdced548b",
+    "docs/FEATURES.md": "ef5806bffbacd8a8f534de888df3b4e439227ed92a955b4c8e3857fdd17ab54d"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/line-product-facts-natural-language-20261024.approval.md": "bccb0e71385ea69d3122fc0c21b41a5985a03eb7487ce67ae4e256ef4a0964d4",
+    "docs/requirements/FR-291.md": "e6b19d78c89aaec23f396df7d8d34cd8966e4798bef977b79fb4465f62fb7808",
+    "registry/document-registry/index.json": "e7954948b853615c428ec148c329b1c8a552e468e37d99be08832418791b5a77",
+    "docs/PRD-SDD-v1.0.md": "caf63417aae8395785d57e2fdc54a0b0d849a8556aaf5f7c262917e307859ee5",
+    "docs/FEATURES.md": "ef5806bffbacd8a8f534de888df3b4e439227ed92a955b4c8e3857fdd17ab54d"
+  }
+}

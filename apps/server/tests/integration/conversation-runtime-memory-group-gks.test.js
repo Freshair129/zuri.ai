@@ -56,7 +56,7 @@ const speakers = { A: 'synthetic-w12-speaker-a', B: 'synthetic-w12-speaker-b', C
   U: 'synthetic-w12-speaker-unlinked', P: 'synthetic-w12-speaker-pending' }
 const erasureGroupId = 'synthetic-w12-erasure-group'
 const providerReply = { choices: [{ message: { content: 'รับทราบค่ะ' } }] }
-const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
+const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: null, moq: null, specification: {}, as_of: '2026-09-01T00:00:00Z' }
 const knowledgeEnv = { ZURI_LINE_KNOWLEDGE_BUDGET_MS: '2000' }
 
 let tenant, business, account, persons = {}
@@ -262,7 +262,7 @@ function event(phase, n, { audience = 'GROUP', speaker = 'A', text, group = grou
   const userId = speakers[speaker]
   const source = audience === 'GROUP' ? { type: 'group', groupId: group, userId }
     : audience === 'ROOM' ? { type: 'room', roomId, userId } : { type: 'user', userId }
-  const body = text ?? (audience === 'DIRECT' ? 'AB-1 ราคาเท่าไร' : `ซูริ AB-1 ราคาเท่าไร (${speaker})`)
+  const body = text ?? (audience === 'DIRECT' ? 'AB-1 ชื่ออะไรคะ' : `ซูริ AB-1 ชื่ออะไรคะ (${speaker})`)
   const tag = `${phase}${run}`
   return { type: 'message', webhookEventId: `${tag}-event-${n}`, replyToken: `${tag}-reply-${n}`, timestamp: Date.now(),
     source, message: { type: 'text', id: `${tag}-message-${n}`, text: body } }

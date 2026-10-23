@@ -38,8 +38,8 @@ const speakerB = 'Usynthetic-grp-speaker-b'
 const unverifiedSpeaker = 'Usynthetic-grp-speaker-u'
 const AUDIENCES = ['GROUP', 'ROOM']
 const OPEN = ['QUEUED', 'CLAIMED', 'READY']
-const evidence = { records: [{ product_code: 'A1', name: 'สินค้าทดสอบ', sell_price: 12 }] }
-const modelText = 'สินค้าทดสอบ ราคา 12 บาทค่ะ'
+const evidence = { records: [{ product_code: 'A1', name: 'สินค้าทดสอบ' }] }
+const modelText = 'ชื่อสินค้า: สินค้าทดสอบค่ะ'
 const WORK_REFUSAL = 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ'
 const schema = JSON.parse(readFileSync(new URL(
   '../../../../services/conversation-runtime/contracts/v1/operation.schema.json', import.meta.url), 'utf8'))
@@ -261,7 +261,7 @@ describe('Conversation Runtime group and room audiences', () => {
   it.each(AUDIENCES)('%s: resolve authenticates the speaker and prepare scopes the turn exactly as the legacy answer does', async audience => {
     const { ports } = buildRuntime()
     const thread = threadFor(audience)
-    const text = 'ซูริ สินค้าทดสอบ ราคาเท่าไร'
+    const text = 'ซูริ สินค้าทดสอบชื่ออะไรคะ'
     const { jobId } = await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerB, text }))
     const { claim, authority } = await claimTurn(ports, jobId)
     const speakerIdentity = await prisma.channelIdentity.findUnique({ where: identityKey(runtimeAccount, speakerB) })
@@ -304,7 +304,7 @@ describe('Conversation Runtime group and room audiences', () => {
   it.each(AUDIENCES)('%s: a full runtime turn matches the legacy SERVER worker — answer, reply token, CRM record', async audience => {
     const { ports } = buildRuntime()
     const thread = threadFor(audience)
-    const text = 'ซูริ สินค้าทดสอบ ราคาเท่าไร'
+    const text = 'ซูริ สินค้าทดสอบชื่ออะไรคะ'
     const serverEvent = eventFor({ audience, thread, speaker: speakerA, text })
     const runtimeEvent = eventFor({ audience, thread, speaker: speakerA, text })
     const serverJobId = (await admit(serverAccount, serverEvent)).jobId
@@ -339,7 +339,7 @@ describe('Conversation Runtime group and room audiences', () => {
   it.each(AUDIENCES)('%s: a delayed Push goes to the group or room id in both cohorts, never to the speaker', async audience => {
     const { ports } = buildRuntime()
     const thread = threadFor(audience)
-    const text = 'ซูริ สินค้าทดสอบ ราคาเท่าไร'
+    const text = 'ซูริ สินค้าทดสอบชื่ออะไรคะ'
     const serverJobId = (await admit(serverAccount, eventFor({ audience, thread, speaker: speakerA, text }))).jobId
     const runtimeJobId = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text }))).jobId
     // The reply token has lapsed; both accounts allow a delayed Push.
@@ -513,7 +513,7 @@ describe('Conversation Runtime group and room audiences', () => {
   it.each([['GROUP', 'groupId'], ['ROOM', 'roomId']])('%s event without its %s stays on SERVER and is answered there as before', async (audience, field) => {
     const pair = {}
     for (const [cohort, account] of [['SERVER', serverAccount], ['CONVERSATION_RUNTIME', runtimeAccount]]) {
-      const event = eventFor({ audience, thread: threadFor(audience), speaker: speakerA, text: 'ซูริ สินค้าทดสอบ ราคาเท่าไร' })
+      const event = eventFor({ audience, thread: threadFor(audience), speaker: speakerA, text: 'ซูริ สินค้าทดสอบชื่ออะไรคะ' })
       delete event.source[field]
       pair[cohort] = await jobRow((await admit(account, event)).jobId)
     }
@@ -555,7 +555,7 @@ describe('Conversation Runtime group and room audiences', () => {
     const thread = threadFor(audience)
     // Speaker A writes first, so A's Customer owns the thread's Conversation.
     const aJob = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerA, text: 'ซูริ สินค้าทดสอบ' }))).jobId
-    const bJob = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerB, text: 'ซูริ ราคาเท่าไร' }))).jobId
+    const bJob = (await admit(runtimeAccount, eventFor({ audience, thread, speaker: speakerB, text: 'ซูริ สินค้าทดสอบชื่ออะไรคะ' }))).jobId
     await first(bJob, 0)
     await first(aJob, 1)
 

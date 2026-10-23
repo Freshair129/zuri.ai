@@ -5362,14 +5362,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "83a67aa69d194d609c24615fe50f5951df294b753c6c262103171ebbb26d8ed9",
+      "statement_digest": "defea20550104d6fdbc8ff3d7ce234a09a1c92f2c815e114f81b43e6ce64d572",
       "history": [
         {
           "anchor": "customer line product facts",
           "since": "2026-10-23",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Approved TEST ONLY natural-language entry preserves the customer line product facts subject and existing owner authority; reviewed proposal v0.1.1 and independent Luna review."
     },
     "NFR-001": {
       "family": "NFR",

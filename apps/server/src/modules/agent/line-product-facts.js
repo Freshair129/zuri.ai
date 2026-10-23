@@ -5,6 +5,8 @@ import { readLineStockProjection } from '@/modules/inventory/application/line-st
 import { createCorpusKnowledgeReader } from '@/modules/knowledge/corpus-knowledge-reader'
 import { readPublishedExactPriceForLine } from '@/modules/commerce/application/line-published-price-reader'
 import { hashPayload } from '@/platform/integrations/core/idempotency'
+import { parseNaturalProductFacts } from './line-product-facts-language'
+import { naturalProductFactsScope } from './line-product-facts-profile'
 
 // @req FR-291 — one explicit, typed product-facts command enters the bounded
 // owner readers; malformed commands are deterministic and cannot fall through.
@@ -36,9 +38,9 @@ function isProductCommand(text) {
   return /^#product(?![\p{L}\p{N}_-])/u.test(commandText)
 }
 
-/** Parse only `#product <strict JSON>`; null means ordinary model-routed text. */
+/** Typed command or bounded fact intent; only non-fact text may reach a model. */
 export function parseLineProductFactsRequest(text) {
-  if (!isProductCommand(text)) return null
+  if (!isProductCommand(text)) return parseNaturalProductFacts(text)
   const commandText = text.trimStart()
   const payload = commandText.slice('#product'.length).trim()
   if (!payload.startsWith('{')) return { request: null, clarification: INVALID_COMMAND }
@@ -185,7 +187,13 @@ function resultHashShape(result) {
 }
 
 function formatResult(result) {
-  if (result.status === 'CLARIFY') return INVALID_REPLY
+  if (result.status === 'CLARIFY') {
+    if (result.clarification === 'NATURAL_PRODUCT_REQUIRED') return 'กรุณาระบุรหัสสินค้า TEST ONLY เพียงหนึ่งรายการให้ชัดเจน'
+    if (result.clarification === 'NATURAL_PRICE_QUANTITY_UNIT_REQUIRED') return 'กรุณาส่งคำถามราคาใหม่พร้อม SKU จำนวนเต็มบวกและหน่วยฐาน เช่น ราคา TEST-ONLY-… 1 EA เท่าไร ระบบจะไม่สมมติจำนวนหรือหน่วยให้'
+    if (result.clarification === 'NATURAL_STOCK_COUNT_UNSUPPORTED') return 'ระบบตอบได้เฉพาะสถานะมีหรือไม่มี ATP ไม่เปิดเผยจำนวนสต็อกหรือรับรองว่าพอตามจำนวนที่ถาม'
+    if (result.clarification === 'NATURAL_FACTS_UNSUPPORTED') return 'ยังไม่สามารถแปลคำถามนี้เป็นการตรวจสต็อกหรือราคาที่แน่นอนได้ กรุณาระบุ SKU และถามสถานะสต็อก หรือราคาพร้อมจำนวนและหน่วยให้ชัดเจน'
+    return INVALID_REPLY
+  }
   if (result.status === 'UNAVAILABLE' && !result.product) return UNAVAILABLE_REPLY
   if (!result.product) return UNAVAILABLE_REPLY
   const product = result.product
@@ -229,11 +237,12 @@ function unavailableResult({ product = null, request = null, availability = null
     facets: { ...(availability ? { availability } : {}), ...(price ? { price } : {}) } }
 }
 
-/** Resolve the fixed #product command from current source owners; recognized commands never use an LLM. */
+/** Resolve recognized fact requests from current source owners, without an LLM. */
 export async function resolveLineProductFacts(job, { db = prisma, now,
   priceReader = readPublishedExactPriceForLine,
   stockReader = readLineStockProjection,
   knowledgeReaderFactory = createCorpusKnowledgeReader,
+  env = process.env,
 } = {}) {
   const parsed = parseLineProductFactsRequest(job?.inbound?.body)
   if (parsed === null) throw Object.assign(new Error('LINE_PRODUCT_FACTS_COMMAND_REQUIRED'), { status: 400, code: 'LINE_PRODUCT_FACTS_COMMAND_REQUIRED' })
@@ -245,15 +254,23 @@ export async function resolveLineProductFacts(job, { db = prisma, now,
   let stockObservationDigest = null
   let publicationDigest = null
   try {
+    let naturalProducts = null
+    if (parsed.inputKind === 'NATURAL_LANGUAGE') {
+      // Job scope here is only a preliminary rejection. The persisted, source-
+      // verified scope below is checked again before either owner is consulted.
+      naturalProducts = await naturalProductFactsScope({ env, db, job })
+    }
     authority = await loadJobAuthority(job, db, { requireStockAuthority: Boolean(parsed.request?.facets.includes('availability')) })
+    if (naturalProducts) naturalProducts = await naturalProductFactsScope({ env, db, job: authority.current })
     if (!authority.baseAuthorized) {
       result = unavailableResult()
     } else if (parsed.request === null) {
-      result = { schema: 'line-product-facts.v1', status: 'CLARIFY', clarification: 'INVALID_REQUEST', facets: {} }
+      result = { schema: 'line-product-facts.v1', status: 'CLARIFY', clarification: parsed.clarification?.code ?? 'INVALID_REQUEST', facets: {} }
     } else {
       const request = parsed.request
       const product = await resolveProduct(authority.current, request, db)
-      if (!product || product.productMaster?.status !== 'ACTIVE') {
+      if (!product || product.productMaster?.status !== 'ACTIVE'
+        || (naturalProducts && !naturalProducts.some(candidate => candidate.productId === product.id && candidate.sku === product.code))) {
         result = unavailableResult()
       } else {
         productRefDigest = digest({ tenantId: product.tenantId, businessId: product.businessId,
@@ -342,11 +359,11 @@ export async function resolveLineProductFacts(job, { db = prisma, now,
 
 /** Re-resolve at the final send fence. Read timestamps are intentionally excluded from the binding. */
 export async function revalidateLineProductFacts(job, binding, {
-  db = prisma, now, knowledgeReaderFactory = createCorpusKnowledgeReader,
+  db = prisma, now, knowledgeReaderFactory = createCorpusKnowledgeReader, env = process.env,
 } = {}) {
   try {
     if (!binding || typeof binding !== 'object' || Array.isArray(binding)) return false
-    const current = await resolveLineProductFacts(job, { db, now, knowledgeReaderFactory })
+    const current = await resolveLineProductFacts(job, { db, now, knowledgeReaderFactory, env })
     return digest(current.binding) === digest(binding)
   } catch {
     return false
