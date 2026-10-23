@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest'
+import { describe, it, expect, beforeAll, vi } from 'vitest'
 import { makeViewer, ownsElsewhere, makeDevViewer } from '../factories/viewer'
 import {
   createPortfolio,
@@ -198,5 +198,76 @@ describe('FR-072 workspace mutation authorization', () => {
       const unchanged = await prisma.workspace.findUnique({ where: { id: portfolioWorkspace.id } })
       expect(unchanged.status).toBe('ACTIVE')
     })
+  })
+
+  it('rejects stale update and archive versions without mutating or auditing', async () => {
+    const staleUpdateTarget = await createWorkspace({
+      name: 'Versioned Update WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WSAUTHZ-VERS-UPDATE',
+    })
+    await prisma.workspace.update({ where: { id: staleUpdateTarget.id }, data: { version: { increment: 1 } } })
+    const updateAuditCount = await prisma.auditEvent.count({ where: { entityType: 'WORKSPACE', entityId: staleUpdateTarget.id } })
+
+    const staleUpdate = await refusalFrom(() => updateWorkspace(
+      staleUpdateTarget.id,
+      { name: 'Must Not Apply' },
+      { viewer: owner, expectedVersion: staleUpdateTarget.version },
+    ))
+    expect(staleUpdate).toMatchObject({ status: 409, message: 'WORKSPACE_VERSION_CONFLICT' })
+
+    const invalidVersion = await refusalFrom(() => updateWorkspace(
+      staleUpdateTarget.id,
+      { name: 'Invalid Version' },
+      { viewer: owner, expectedVersion: 0 },
+    ))
+    expect(invalidVersion).toMatchObject({ status: 400, message: 'WORKSPACE_VERSION_INVALID' })
+    expect(await prisma.workspace.findUnique({ where: { id: staleUpdateTarget.id } }))
+      .toMatchObject({ name: staleUpdateTarget.name, version: staleUpdateTarget.version + 1 })
+    expect(await prisma.auditEvent.count({ where: { entityType: 'WORKSPACE', entityId: staleUpdateTarget.id } })).toBe(updateAuditCount)
+
+    const staleArchiveTarget = await createWorkspace({
+      name: 'Versioned Archive WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WSAUTHZ-VERS-ARCHIVE',
+    })
+    await prisma.workspace.update({ where: { id: staleArchiveTarget.id }, data: { version: { increment: 1 } } })
+    const archiveAuditCount = await prisma.auditEvent.count({ where: { entityType: 'WORKSPACE', entityId: staleArchiveTarget.id } })
+
+    const staleArchive = await refusalFrom(() => archiveWorkspace(
+      staleArchiveTarget.id,
+      { viewer: owner, expectedVersion: staleArchiveTarget.version },
+    ))
+    expect(staleArchive).toMatchObject({ status: 409, message: 'WORKSPACE_VERSION_CONFLICT' })
+    expect(await prisma.workspace.findUnique({ where: { id: staleArchiveTarget.id } }))
+      .toMatchObject({ status: 'ACTIVE', version: staleArchiveTarget.version + 1 })
+    expect(await prisma.auditEvent.count({ where: { entityType: 'WORKSPACE', entityId: staleArchiveTarget.id } })).toBe(archiveAuditCount)
+  })
+
+  it('conditions an update on the fetched Workspace version and emits no audit after a concurrent write', async () => {
+    const target = await createWorkspace({
+      name: 'CAS Workspace', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-WSAUTHZ-CAS',
+    })
+    const updateMany = vi.fn(async ({ where }) => {
+      expect(where).toEqual({ id: target.id, version: target.version })
+      await prisma.workspace.update({ where: { id: target.id }, data: { version: { increment: 1 } } })
+      return { count: 0 }
+    })
+    const auditCreate = vi.fn()
+    const tx = {
+      workspace: {
+        findUnique: vi.fn().mockResolvedValue(target),
+        updateMany,
+      },
+      auditEvent: { create: auditCreate },
+    }
+    const transaction = vi.spyOn(prisma, '$transaction').mockImplementation(async (work) => work(tx))
+
+    try {
+      const conflict = await refusalFrom(() => updateWorkspace(target.id, { name: 'Lost Update' }, { viewer: owner }))
+      expect(conflict).toMatchObject({ status: 409, message: 'WORKSPACE_VERSION_CONFLICT' })
+      expect(updateMany).toHaveBeenCalledTimes(1)
+      expect(auditCreate).not.toHaveBeenCalled()
+    } finally {
+      transaction.mockRestore()
+    }
+    expect(await prisma.workspace.findUnique({ where: { id: target.id } }))
+      .toMatchObject({ name: target.name, version: target.version + 1 })
   })
 })

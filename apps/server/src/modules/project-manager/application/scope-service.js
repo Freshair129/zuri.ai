@@ -9,6 +9,11 @@ import {
   zBusinessInGroupInput,
   zBranchInput,
   zWorkspaceInput,
+  zPortfolioUpdate,
+  zTenantUpdate,
+  zLegalEntityUpdate,
+  zBusinessUpdate,
+  zBranchUpdate,
 } from '@/lib/validation/entities'
 import { grantBusinessMembership } from '@/modules/identity/membership-grant-service'
 import { provisionBusinessAgentConfig } from '@/modules/agent/business-agent-factory'
@@ -36,6 +41,7 @@ import { ownsBusiness, ownsTenant, isInstallationOperator } from '@/modules/iden
 // @tested tests/integration/scope-and-isolation.test.js
 // @tested tests/integration/fr072-workspace-mutation-authorization.test.js
 // @tested tests/integration/fr074-scope-creation-authorization.test.js
+// @tested tests/integration/fr001-scope-crud.test.js
 // Scope model: Portfolio → Tenant → Business → Workspace.
 // tenant_id = isolation boundary; business_id = operating business; branch_id = location.
 // A branch is NEVER modeled as a tenant.
@@ -427,40 +433,254 @@ export async function createWorkspace(input, { viewer } = {}) {
   return workspace
 }
 
-export async function updateWorkspace(id, patch, { viewer } = {}) {
-  const existing = await prisma.workspace.findUnique({ where: { id } })
-  if (!existing) throw new Error('Workspace not found')
-  await assertWorkspaceWritable(viewer, existing)
-  const workspace = await prisma.workspace.update({
-    where: { id },
-    data: {
-      name: patch.name ?? existing.name,
-      status: patch.status ?? existing.status,
-      version: { increment: 1 },
-    },
-  })
-  await recordAudit(prisma, { entityType: 'WORKSPACE', entityId: id, action: 'UPDATED', payload: patch })
-  return workspace
+const MUTABLE_SCOPE_ENTITIES = {
+  portfolio: {
+    model: 'portfolio',
+    entityType: 'PORTFOLIO',
+    label: 'Portfolio',
+    updateSchema: zPortfolioUpdate,
+    authority: 'operator',
+  },
+  tenant: {
+    model: 'tenant',
+    entityType: 'TENANT',
+    label: 'Tenant',
+    updateSchema: zTenantUpdate,
+    authority: 'operator',
+  },
+  legalEntity: {
+    model: 'legalEntity',
+    entityType: 'LEGAL_ENTITY',
+    label: 'LegalEntity',
+    updateSchema: zLegalEntityUpdate,
+    authority: 'operator',
+  },
+  business: {
+    model: 'business',
+    entityType: 'BUSINESS',
+    label: 'Business',
+    updateSchema: zBusinessUpdate,
+    authority: 'tenant',
+  },
+  branch: {
+    model: 'branch',
+    entityType: 'BRANCH',
+    label: 'Branch',
+    updateSchema: zBranchUpdate,
+    authority: 'business',
+  },
 }
 
-export async function archiveWorkspace(id, { viewer } = {}) {
-  const existing = await prisma.workspace.findUnique({ where: { id } })
-  if (!existing) {
-    // Today a missing id reaches prisma.update() and crashes on P2025 —
-    // effectively a 500. Loading first and failing closed here is the fix;
-    // explicit status matches the not-found-refusal shape used for a
-    // resolved-but-unauthorized target below.
-    const error = new Error('Workspace not found')
-    error.status = 404
-    throw error
+function scopeAuditState(entity, record) {
+  switch (entity) {
+    case 'portfolio':
+      return { code: record.code, name: record.name, status: record.status, version: record.version }
+    case 'tenant':
+      return {
+        code: record.code,
+        name: record.name,
+        status: record.status,
+        portfolioId: record.portfolioId,
+        version: record.version,
+      }
+    case 'legalEntity':
+      return {
+        code: record.code,
+        legalName: record.legalName,
+        legalAddress: record.legalAddress,
+        status: record.status,
+        tenantId: record.tenantId,
+        version: record.version,
+      }
+    case 'business':
+      return {
+        code: record.code,
+        name: record.name,
+        status: record.status,
+        tenantId: record.tenantId,
+        legalEntityId: record.legalEntityId,
+        version: record.version,
+      }
+    case 'branch':
+      return {
+        code: record.code,
+        name: record.name,
+        address: record.address,
+        kind: record.kind,
+        status: record.status,
+        tenantId: record.tenantId,
+        businessId: record.businessId,
+        version: record.version,
+      }
+    default:
+      throw new Error(`Unknown scope entity: ${entity}`)
   }
-  await assertWorkspaceWritable(viewer, existing)
-  const workspace = await prisma.workspace.update({
-    where: { id },
-    data: { status: 'ARCHIVED', version: { increment: 1 } },
+}
+
+function scopeAuditColumns(entity, record) {
+  switch (entity) {
+    case 'tenant':
+      return { tenantId: record.id }
+    case 'legalEntity':
+      return { tenantId: record.tenantId }
+    case 'business':
+      return { tenantId: record.tenantId, businessId: record.id }
+    case 'branch':
+      return { tenantId: record.tenantId, businessId: record.businessId }
+    default:
+      return {}
+  }
+}
+
+async function assertScopeMutationAuthority(entity, record, viewer, db) {
+  const config = MUTABLE_SCOPE_ENTITIES[entity]
+  if (config.authority === 'operator') return
+
+  requireViewer(viewer, `change${config.label}`)
+  if (config.authority === 'tenant') {
+    if (!ownsTenant(viewer, record.tenantId)) throw refusal(404, `${config.label} not found`)
+    return
+  }
+
+  if (config.authority === 'business') {
+    const business = await db.business.findUnique({
+      where: { id: record.businessId },
+      select: { id: true, tenantId: true },
+    })
+    if (!business || business.tenantId !== record.tenantId || !ownsBusiness(viewer, business.id)) {
+      throw refusal(404, `${config.label} not found`)
+    }
+    return
+  }
+
+  throw refusal(403, `${config.label} has no declared mutation authority`)
+}
+
+async function mutateScopeEntity(entity, id, patch, { viewer, expectedVersion } = {}, action) {
+  const config = MUTABLE_SCOPE_ENTITIES[entity]
+  if (!config) throw refusal(400, `Unknown scope entity: ${entity}`)
+  if (config.authority === 'operator') {
+    // Check before looking up the id so non-operators cannot use 403/404 to
+    // discover whether an installation-wide scope row exists.
+    assertOperator(viewer, `Changing a ${config.label}`)
+  } else {
+    requireViewer(viewer, `${action}${config.label}`)
+  }
+  if (expectedVersion !== undefined && (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1)) {
+    throw refusal(400, 'SCOPE_VERSION_INVALID')
+  }
+  const changes = action === 'archive' ? { status: 'ARCHIVED' } : config.updateSchema.parse(patch)
+
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx[config.model].findUnique({ where: { id } })
+    if (!existing) throw refusal(404, `${config.label} not found`)
+    await assertScopeMutationAuthority(entity, existing, viewer, tx)
+    const versionConflict = () => refusal(409, `${config.entityType}_VERSION_CONFLICT`)
+    if (expectedVersion !== undefined && existing.version !== expectedVersion) throw versionConflict()
+
+    if (changes.code !== undefined && changes.code !== existing.code) {
+      const conflicting = await tx[config.model].findUnique({ where: { code: changes.code }, select: { id: true } })
+      if (conflicting && conflicting.id !== id) throw refusal(409, `${config.label} code already exists`)
+    }
+
+    if (entity === 'business' && changes.legalEntityId) {
+      const legalEntity = await tx.legalEntity.findUnique({
+        where: { id: changes.legalEntityId },
+        select: { tenantId: true },
+      })
+      if (!legalEntity || legalEntity.tenantId !== existing.tenantId) {
+        throw refusal(422, 'LEGAL_ENTITY_TENANT_MISMATCH')
+      }
+    }
+
+    const before = scopeAuditState(entity, existing)
+    const write = await tx[config.model].updateMany({
+      where: { id, version: existing.version },
+      data: { ...changes, version: { increment: 1 } },
+    })
+    if (write.count !== 1) throw versionConflict()
+    const updated = await tx[config.model].findUnique({ where: { id } })
+    await recordAudit(tx, {
+      entityType: config.entityType,
+      entityId: id,
+      action: action === 'archive' ? 'ARCHIVED' : 'UPDATED',
+      payload: changes,
+      actorId: viewer.principal.id,
+      ...scopeAuditColumns(entity, existing),
+      beforeJson: before,
+      afterJson: scopeAuditState(entity, updated),
+    })
+    return updated
   })
-  await recordAudit(prisma, { entityType: 'WORKSPACE', entityId: id, action: 'ARCHIVED' })
-  return workspace
+}
+
+// @req FR-001 — update and archive the remaining scope entities without
+// changing their tenant/business ancestry or deleting dependent records.
+// @req FR-074 — Business changes require Tenant ownership; Branch changes
+// require ownership of the Business they belong to.
+// @req FR-075 — Portfolio, Tenant and LegalEntity changes retain their
+// existing installation-operator authority.
+export const updatePortfolio = (id, patch, options) => mutateScopeEntity('portfolio', id, patch, options, 'update')
+export const archivePortfolio = (id, options) => mutateScopeEntity('portfolio', id, null, options, 'archive')
+export const updateTenant = (id, patch, options) => mutateScopeEntity('tenant', id, patch, options, 'update')
+export const archiveTenant = (id, options) => mutateScopeEntity('tenant', id, null, options, 'archive')
+export const updateLegalEntity = (id, patch, options) => mutateScopeEntity('legalEntity', id, patch, options, 'update')
+export const archiveLegalEntity = (id, options) => mutateScopeEntity('legalEntity', id, null, options, 'archive')
+export const updateBusiness = (id, patch, options) => mutateScopeEntity('business', id, patch, options, 'update')
+export const archiveBusiness = (id, options) => mutateScopeEntity('business', id, null, options, 'archive')
+export const updateBranch = (id, patch, options) => mutateScopeEntity('branch', id, patch, options, 'update')
+export const archiveBranch = (id, options) => mutateScopeEntity('branch', id, null, options, 'archive')
+
+function validateWorkspaceExpectedVersion(expectedVersion) {
+  if (expectedVersion !== undefined && (!Number.isSafeInteger(expectedVersion) || expectedVersion < 1)) {
+    throw refusal(400, 'WORKSPACE_VERSION_INVALID')
+  }
+}
+
+function workspaceVersionConflict() {
+  return refusal(409, 'WORKSPACE_VERSION_CONFLICT')
+}
+
+export async function updateWorkspace(id, patch, { viewer, expectedVersion } = {}) {
+  validateWorkspaceExpectedVersion(expectedVersion)
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.workspace.findUnique({ where: { id } })
+    if (!existing) throw refusal(404, 'Workspace not found')
+    await assertWorkspaceWritable(viewer, existing)
+    if (expectedVersion !== undefined && existing.version !== expectedVersion) throw workspaceVersionConflict()
+
+    const write = await tx.workspace.updateMany({
+      where: { id, version: existing.version },
+      data: {
+        name: patch.name ?? existing.name,
+        status: patch.status ?? existing.status,
+        version: { increment: 1 },
+      },
+    })
+    if (write.count !== 1) throw workspaceVersionConflict()
+    const workspace = await tx.workspace.findUnique({ where: { id } })
+    await recordAudit(tx, { entityType: 'WORKSPACE', entityId: id, action: 'UPDATED', payload: patch })
+    return workspace
+  })
+}
+
+export async function archiveWorkspace(id, { viewer, expectedVersion } = {}) {
+  validateWorkspaceExpectedVersion(expectedVersion)
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.workspace.findUnique({ where: { id } })
+    if (!existing) throw refusal(404, 'Workspace not found')
+    await assertWorkspaceWritable(viewer, existing)
+    if (expectedVersion !== undefined && existing.version !== expectedVersion) throw workspaceVersionConflict()
+
+    const write = await tx.workspace.updateMany({
+      where: { id, version: existing.version },
+      data: { status: 'ARCHIVED', version: { increment: 1 } },
+    })
+    if (write.count !== 1) throw workspaceVersionConflict()
+    const workspace = await tx.workspace.findUnique({ where: { id } })
+    await recordAudit(tx, { entityType: 'WORKSPACE', entityId: id, action: 'ARCHIVED' })
+    return workspace
+  })
 }
 
 /**

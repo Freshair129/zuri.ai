@@ -12,7 +12,7 @@ const now = () => new Date('2026-09-24T00:00:00.000Z')
 const claim = { jobId: 'job-1', executionId: 'exec-1', claimantId: 'cr-1', tenantId: 'tenant-1', businessId: 'business-1',
   accountId: 'account-1', version: 2, leaseExpiresAt: '2026-09-24T00:05:00.000Z', deadlineAt: '2026-09-24T00:04:00.000Z' }
 const turn = { question: 'ราคาเท่าไร', evidence: { records: [{ product_code: 'A1', name: 'สินค้า A1', sell_price: 10, currency: 'THB', unit: 'ชิ้น', moq: null, as_of: '2026-09-01T00:00:00.000Z' }] }, authorized: true, slices: [],
-  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null, memorySync: true }
+  audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 4000, workCommand: null, memorySync: true }
 const packet = { contextId: 'context_1', injectionId: 'injection_1', policyDecision: 'ALLOW', thread: { threadId: 'thread-1' },
   memory: { recentExchanges: [{ exchangeId: 'exchange-1' }] } }
 const sha = text => createHash('sha256').update(text, 'utf8').digest('hex')

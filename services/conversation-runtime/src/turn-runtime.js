@@ -42,7 +42,7 @@ function injectionReceiptUnknown(cause) {
 function threadMemorySlices(packet) {
   const threadId = packet?.thread?.threadId ?? null
   const memory = packet?.memory ?? {}
-  const slice = (id, value, extra = {}) => ({ id, source: 'MSP', threadId,
+  const slice = (id, value, extra = {}) => ({ id, source: 'MSP', threadId, value,
     text: typeof value === 'string' ? value : JSON.stringify(value), ...extra })
   const list = key => Array.isArray(memory[key]) ? memory[key] : []
   return [
@@ -52,6 +52,65 @@ function threadMemorySlices(packet) {
     ...list('summaries').map((item, index) => slice(`summary:${item?.summaryId ?? index}`, item)),
     ...list('episodic').map((item, index) => slice(`episodic:${item?.id ?? item?.reference?.memoryId ?? index}`, item, { scope: 'CROSS_THREAD' })),
   ]
+}
+
+function rebuildThreadMemoryPacket(packet, slices, dropped) {
+  const included = slices.filter(item => item.source === 'MSP')
+  const byPrefix = prefix => included.filter(item => item.id.startsWith(prefix)).map(item => item.value)
+  const participants = byPrefix('participant:')
+  const protectedMemory = byPrefix('protected:')
+  const recentExchanges = byPrefix('exchange:').reverse()
+  const summaries = byPrefix('summary:')
+  const episodic = byPrefix('episodic:')
+  if (!participants.length && !protectedMemory.length && !recentExchanges.length && !summaries.length && !episodic.length) return null
+
+  const prefixes = ['participant:', 'protected:', 'exchange:', 'summary:', 'episodic:']
+  const omittedRanges = [...(packet.manifest?.omittedRanges ?? [])]
+  for (const item of dropped.filter(entry => entry.source === 'MSP')) {
+    const prefix = prefixes.find(value => item.id.startsWith(value))
+    const id = prefix ? item.id.slice(prefix.length) : item.id
+    const field = prefix === 'exchange:' ? 'exchangeId'
+      : prefix === 'summary:' ? 'summaryId'
+        : prefix === 'protected:' ? 'protectedRecordId'
+          : prefix === 'participant:' ? 'participantId' : 'episodicMemoryId'
+    omittedRanges.push({ [field]: id, reason: item.reason })
+  }
+  const truncated = dropped.some(item => item.source === 'MSP')
+  return {
+    ...packet,
+    knowledge: null,
+    memory: { participants, recentExchanges, summaries, protectedMemory, episodic },
+    manifest: packet.manifest ? {
+      ...packet.manifest,
+      effectiveRecentExchangeCount: recentExchanges.length,
+      summaryCount: summaries.length,
+      protectedRecordCount: protectedMemory.length,
+      omittedRanges,
+      coverageGap: Boolean(packet.manifest.coverageGap) || truncated,
+      budget: packet.manifest.budget
+        ? { ...packet.manifest.budget, truncated: Boolean(packet.manifest.budget.truncated) || truncated }
+        : packet.manifest.budget,
+    } : packet.manifest,
+  }
+}
+
+function flatMemoryPacket(slices) {
+  const included = slices.filter(item => item.source === 'MSP')
+  if (!included.length) return null
+  let startByte = 0
+  const sourceSegments = []
+  for (let index = 0; index < included.length; index += 1) {
+    const item = included[index]
+    if (index > 0) startByte += Buffer.byteLength('\n', 'utf8')
+    const byteLength = Buffer.byteLength(item.text, 'utf8')
+    sourceSegments.push({ id: item.id, startByte, byteLength })
+    startByte += byteLength
+  }
+  const packet = { policyDecision: 'ALLOW', text: included.map(item => item.text).join('\n'), sourceSegments }
+  if (Buffer.byteLength(JSON.stringify(packet), 'utf8') > 32 * 1024) {
+    throw Object.assign(new Error('MEMORY_CONTEXT_TOO_LARGE'), { code: 'MEMORY_CONTEXT_TOO_LARGE' })
+  }
+  return packet
 }
 
 function episodicTurnSlices(slices) {
@@ -165,9 +224,11 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         throw Object.assign(new Error('MEMORY_PORT_UNAVAILABLE'), { code: 'MEMORY_PORT_UNAVAILABLE' })
       }
     }
-    const recordInjection = async state => {
+    const recordInjection = async (state, binding = null) => {
       try {
-        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', { state }, { signal }))
+        const recorded = await exclusive(() => ports.memory.receipt(claim, 'injection', {
+          state, ...(binding ?? {}),
+        }, { signal }))
         return recorded?.status === 'COMPLETED' ? { ok: true } : { ok: false, error: new Error('MEMORY_RECEIPT_RESPONSE_INVALID') }
       } catch (error) { return { ok: false, error } }
     }
@@ -175,26 +236,26 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
     // state at a time: RESOLVED and SUBMITTED before the provider starts, then
     // COMPLETED or FAILED. A receipt that cannot be established after the
     // provider may have run is UNKNOWN, never a retryable failure.
-    const invokeWithInjectionReceipt = async generate => {
-      const resolved = await recordInjection('RESOLVED')
+    const invokeWithInjectionReceipt = async (generate, binding) => {
+      const resolved = await recordInjection('RESOLVED', binding)
       // Nothing has run yet: a typed Core fence refusal is an ordinary failure, as
       // the legacy worker's pre-model fence is; only an unestablished MSP write is UNKNOWN.
       // Marked so the evidence fallback (W8) never mistakes it for a provider failure.
       if (!resolved.ok) {
         throw Object.assign(resolved.error?.retryable === false ? resolved.error : injectionReceiptUnknown(resolved.error), { beforeProvider: true })
       }
-      const submitted = await recordInjection('SUBMITTED')
+      const submitted = await recordInjection('SUBMITTED', binding)
       if (!submitted.ok) {
         throw Object.assign(injectionReceiptUnknown(submitted.error), { beforeProvider: true })
       }
       let result
       try { result = { value: await generate() } } catch (error) { result = { error } }
       if (result.error) {
-        const failed = await recordInjection('FAILED')
+        const failed = await recordInjection('FAILED', binding)
         if (!failed.ok) throw injectionReceiptUnknown(failed.error)
         throw result.error
       }
-      const terminal = await recordInjection('COMPLETED')
+      const terminal = await recordInjection('COMPLETED', binding)
       if (!terminal.ok) throw injectionReceiptUnknown(terminal.error)
       return result.value
     }
@@ -290,6 +351,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
         // Core before anything is answered, as the legacy worker does even when the
         // evidence is empty and no model will run.
         let memoryPacket = null
+        let contextReceiptId
         // @req FR-235 — under a corpus grounding mode Core composes this turn's
         // knowledge with the thread in `memory read`; that composed evidence is the
         // turn's evidence, exactly as the legacy worker hands it to its provider.
@@ -303,33 +365,39 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
             throw Object.assign(new Error('MEMORY_READ_RESPONSE_INVALID'), { code: 'MEMORY_READ_RESPONSE_INVALID' })
           }
           memoryPacket = memory.result.contextPacket ?? null
+          contextReceiptId = typeof memory.result.receipt?.contextReceiptId === 'string'
+            ? memory.result.receipt.contextReceiptId : undefined
           if (memory.result.evidence !== undefined) evidence = memory.result.evidence
         }
         if (evidenceRecords(evidence).length === 0) {
           text = NO_EVIDENCE_REPLY
         } else {
           const episodicSlices = episodicTurnSlices(turn.slices)
-          const threadSlices = memoryPacket && episodicSlices.length ? threadMemorySlices(memoryPacket) : []
+          const threadSlices = memoryPacket?.policyDecision === 'ALLOW' ? threadMemorySlices(memoryPacket) : []
           const knowledgeRecordById = new Map()
-          const knowledgeSlices = episodicSlices.length ? evidenceRecords(evidence).map((record, index) => {
+          const knowledgeSlices = evidenceRecords(evidence).map((record, index) => {
             const id = `knowledge:${index}`
             knowledgeRecordById.set(id, record)
             return { id, source: 'KNOWLEDGE', citationId: record?.citationId ?? null,
-              text: typeof record?.text === 'string' ? record.text : JSON.stringify(record) }
-          }) : []
+              text: JSON.stringify(record) }
+          })
           composed = composeTurnContext({ authorized: turn.authorized,
-            slices: [...threadSlices, ...knowledgeSlices, ...turn.slices],
-            threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars })
-          if (episodicSlices.length) {
+            slices: [...threadSlices, ...knowledgeSlices, ...turn.slices.filter(slice => slice.source !== 'KNOWLEDGE')],
+            threadId: turn.threadId, audienceKind: turn.audienceKind, maxBudgetChars: turn.maxBudgetChars, receiptId: contextReceiptId })
+          {
             const includedKnowledge = composed.slices.filter(slice => slice.source === 'KNOWLEDGE')
               .map(slice => knowledgeRecordById.get(slice.id)).filter(record => record !== undefined)
             evidence = Array.isArray(evidence) ? includedKnowledge : { ...(evidence ?? {}), records: includedKnowledge }
           }
-          const composedMemoryPacket = memoryPacket && episodicSlices.length
-            ? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null)
-            : memoryPacket
-          const shouldRecordInjection = Boolean(memoryPacket)
-          if (episodicSlices.length && evidenceRecords(evidence).length === 0) {
+          const composedMspSlices = composed.slices.filter(slice => slice.source === 'MSP')
+          const composedRecordFacts = composed.slices.filter(slice => slice.source === 'RECORD').map(slice => slice.text)
+          const composedMemoryPacket = memoryPacket?.policyDecision === 'ALLOW'
+            ? (episodicSlices.length
+              ? flatMemoryPacket(composedMspSlices)
+              : rebuildThreadMemoryPacket(memoryPacket, composedMspSlices, composed.dropped))
+            : flatMemoryPacket(composedMspSlices)
+          const shouldRecordInjection = Boolean(memoryPacket && composedMemoryPacket)
+          if (evidenceRecords(evidence).length === 0) {
             text = NO_EVIDENCE_REPLY
           } else {
             await ensureLease()
@@ -364,15 +432,29 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
                 await ensureLease()
                 const currentAuthority = await ports.authority.resolve(claim, { signal })
                 assertAuthority(currentAuthority, claim, authority)
-                return ports.model.generate({ question: turn.question, evidence,
-                  contextPacket: composedMemoryPacket ?? (composed.text ? { policyDecision: 'ALLOW', text: composed.text, receipt: composed.receipt } : null),
+                return ports.model.generate({ question: turn.question, evidence, recordFacts: composedRecordFacts,
+                  contextPacket: composedMemoryPacket,
                   contextReceipt: composed.receipt, credential,
                   deadlineAt: claim.deadlineAt, correlationId: claim.correlationId, signal })
               }
               let generated
               let answer = null
               try {
-                generated = shouldRecordInjection ? await invokeWithInjectionReceipt(generate) : await generate()
+                const contextBinding = {
+                  contextReceiptId: composed.receipt.receiptId,
+                  contextReceiptHash: composed.receipt.hash,
+                  contextPacket: composedMemoryPacket,
+                }
+                // Core validates the durable canonical receipt before it records
+                // RESOLVED/SUBMITTED with MSP. The sibling trace binding also covers
+                // API-010-only slices when there is no API-011 read packet; null binds
+                // a receipt that contains no included MSP context.
+                try {
+                  await ports.trace.append(claim, { kind: 'CONTEXT_RECEIPT', payload: composed.receipt, contextBinding }, { signal })
+                } catch (error) {
+                  throw Object.assign(error, { beforeProvider: true })
+                }
+                generated = shouldRecordInjection ? await invokeWithInjectionReceipt(generate, contextBinding) : await generate()
               } catch (error) {
                 if (!answersFromEvidence(error, signal)) throw error
                 answer = { text: deterministicFallback(checkedEvidence), status: 'fallback', code: safeCode(error) }
@@ -394,7 +476,6 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
                 else throw Object.assign(new Error('MODEL_RESULT_UNCERTAIN'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
               }
             }
-            await ports.trace.append(claim, { kind: 'CONTEXT_COMMITTED', payload: composed.receipt }, { signal })
           }
         }
         if (turn.memorySync === true) {

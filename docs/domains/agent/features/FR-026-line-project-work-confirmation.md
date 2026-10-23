@@ -3,13 +3,13 @@ domain: agent
 feature: FR-026
 module: agent
 source: v2-native
-version: "0.1.1b"
+version: "0.1.2b"
 status: beta
 ---
 
 # LINE Project / Work confirmation tools
 
-Approved by the owner through [the Local LLM/CIN execution plan](../../../plans/LINE-OA-LOCAL-LLM-CIN-EXECUTION.md), P4. This slice reuses FR-026's action gate, FR-072's canonical Project Manager ownership authority, and FR-150's Server-owned LINE / Edge compute boundary.
+Approved by the owner through [the historical Local LLM/CIN execution plan](https://github.com/Freshair129/zuri.ai/blob/e3474ef3c16b5cc5b6e797c63e69d6dc202c191f/docs/plans/LINE-OA-LOCAL-LLM-CIN-EXECUTION.md), P4. This slice reuses FR-026's action gate, FR-072's canonical Project Manager ownership authority, and FR-150's Server-owned LINE / Edge compute boundary. The plan link preserves approval provenance; current runtime placement is controlled by the applicable accepted ADRs, including ADR-110.
 
 ## Decision and scope
 
@@ -46,3 +46,6 @@ On 2026-09-17 the scoped Server run passed 25 tests (16 LINE Project/Work and 9 
 No feature note -> v0.1.0b: documented approved confirmation protocol, canonical writer reuse, bounded remote tool transport and local evidence boundaries.
 
 v0.1.0b -> v0.1.1b: documented current-fact enforcement and transaction-end authorization refresh, with targeted regression evidence.
+
+v0.1.1b -> v0.1.2b (2026-10-23): pins the removed execution plan's approval
+history and distinguishes it from the current accepted runtime decisions.

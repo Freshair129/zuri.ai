@@ -5,7 +5,7 @@ import { makeViewer, ownsElsewhere } from '../factories/viewer'
 // through the caller's own Business, held without a database.
 // @spec SDD-053, BR-001, SEC-005
 
-const calls = { businessFind: 0, customerFind: 0, update: 0, audit: 0, transaction: 0 }
+const calls = { businessFind: 0, customerFind: 0, update: 0, audit: 0, transaction: 0, memoryErase: [] }
 let businessRow = null
 let customerRow = null
 
@@ -33,13 +33,23 @@ vi.mock('@/lib/db', () => ({
           },
         },
         customer: {
+          findFirst: async () => customerRow,
+          findUnique: async () => customerRow,
           update: async ({ data }) => {
             calls.update += 1
-            return { id: customerRow.id, code: customerRow.code, displayName: customerRow.displayName, ...data }
+            customerRow = { ...customerRow, ...data }
+            return customerRow
           },
         },
       })
     },
+  },
+}))
+
+vi.mock('@/modules/identity/customer-memory-erasure', () => ({
+  eraseCustomerMemoryInTransaction: async (_tx, input) => {
+    calls.memoryErase.push(input)
+    return { resealFile: null }
   },
 }))
 
@@ -60,8 +70,9 @@ beforeEach(() => {
   calls.update = 0
   calls.audit = 0
   calls.transaction = 0
+  calls.memoryErase = []
   businessRow = { id: 'b-1', tenantId: 't-1' }
-  customerRow = { id: 'cust-1', code: 'CUST-1', displayName: 'คุณสมชาย', consentStatus: 'PENDING' }
+  customerRow = { id: 'cust-1', personId: 'person-1', version: 1, code: 'CUST-1', displayName: 'คุณสมชาย', consentStatus: 'PENDING' }
 })
 
 describe('consent attestation contract', () => {
@@ -149,6 +160,8 @@ describe('recordCustomerConsent write', () => {
     expect(result.auditEventId).toBe('audit-1')
     expect(calls.audit).toBe(1)
     expect(calls.update).toBe(1)
+    expect(calls.memoryErase).toHaveLength(1)
+    expect(calls.memoryErase[0]).toMatchObject({ tenantId: 't-1', personId: 'person-1', reason: 'CONSENT_DECLINED', preserveCustomerHolds: true })
   })
 
   it('never trusts a caller-supplied tenantId — scope comes only from the resolved Business', async () => {

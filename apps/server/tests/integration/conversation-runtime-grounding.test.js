@@ -7,6 +7,7 @@ import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/l
 import { admitLineConversation, claimRuntimeConversationJob } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
 import { createConversationRuntimeCore } from '@/modules/line-oa-studio/application/conversation-runtime-core'
+import { DEFAULT_CONTEXT_BUDGET_CHARS } from '@/modules/agent/context-composer'
 import { CONVERSATION_RUNTIME_GROUNDING_MODES, conversationRuntimeServesGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import { createCoreClient } from '../../../../services/conversation-runtime/src/core-client.js'
 import { createCorePorts } from '../../../../services/conversation-runtime/src/core-ports.js'
@@ -191,7 +192,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
       const turn = await ports.context.prepare(claim, authority)
 
       expect(turn).toEqual({ question: 'AB-1 ราคาเท่าไร', evidence: { records: testCase.expected }, slices: [], authorized: true,
-        audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null })
+        audienceKind: 'DIRECT', threadId: null, maxBudgetChars: DEFAULT_CONTEXT_BUDGET_CHARS, workCommand: null })
       expect(queryKnowledgeCorpusMock).toHaveBeenCalledTimes(testCase.corpusCalls)
       if (testCase.corpusCalls) {
         expect(queryKnowledgeCorpusMock.mock.calls[0][0]).toEqual({ businessId: business.id, query: 'AB-1', topK: 5 })

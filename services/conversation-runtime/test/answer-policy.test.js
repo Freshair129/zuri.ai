@@ -22,7 +22,7 @@ function harness({ records = [product], generate, prior = { status: 'NOT_FOUND' 
     authority: { resolve: async () => ({ authorized: true, version: 1, scope: { tenantId: claim.tenantId,
       businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
     context: { prepare: async () => ({ question: 'USB-001 ราคาเท่าไร', evidence: { records }, slices: [], authorized: true,
-      audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null }) },
+      audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 4000, workCommand: null }) },
     workTool: { execute: async () => assert.fail('no Work command'), status: async () => ({ status: 'NOT_FOUND' }) },
     model: { credential: async () => ({ provider: 'openrouter', model: 'm', apiKey: 'synthetic' }),
       generate: async (...args) => { seen.modelCalls += 1; return generate(...args) } },

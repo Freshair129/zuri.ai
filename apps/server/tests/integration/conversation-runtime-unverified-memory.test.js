@@ -325,6 +325,26 @@ describe('unverified memory-sync turns: byte parity with the legacy tick', () =>
     const receipt = await prisma.agentTraceEvent.findFirst({ where: { turnId: result.runtimeJob.id,
       idempotencyKey: memoryReceiptKey(result.runtimeJob.id, 'read') } })
     expect(JSON.parse(receipt.payloadJson)).toMatchObject({ identityAssurance: 'PENDING', privateMemoryAllowed: false, contextPacketJson: null })
+    expect(result.runtime.inputs).toHaveLength(1)
+    expect(result.runtime.inputs[0].contextPacket).toBeNull()
+    const contextReceipts = await prisma.agentTraceEvent.findMany({ where: { turnId: result.runtimeJob.id, kind: 'CONTEXT_RECEIPT' },
+      select: { executionId: true, payloadJson: true } })
+    expect(contextReceipts).toHaveLength(1)
+    const contextReceipt = JSON.parse(contextReceipts[0].payloadJson)
+    expect(contextReceipt.refs.msp).toEqual([])
+    expect(Object.keys(contextReceipt).sort()).toEqual(['budget', 'dropped', 'hash', 'receiptId', 'refs'])
+    expect(contextReceipts[0].executionId).toBe(result.runtimeJob.executionId)
+    const bindingKey = `${result.runtimeJob.id}:core-memory:runtime-context-binding:${result.runtimeJob.executionId}:MEMORY_THREAD_READ`
+    const bindingRow = await prisma.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+      tenantId: result.runtimeJob.tenantId, businessId: result.runtimeJob.businessId, idempotencyKey: bindingKey } } })
+    expect(bindingRow.executionId).toBe(result.runtimeJob.executionId)
+    expect(JSON.parse(bindingRow.payloadJson)).toEqual({ source: 'CONTEXT_RECEIPT_BINDING',
+      executionId: result.runtimeJob.executionId, receiptId: contextReceipt.receiptId, receiptHash: contextReceipt.hash,
+      packetHash: null, mspRefs: [] })
+    const traceRequest = result.wire.find(call => call.operation === 'trace' && call.payload.kind === 'CONTEXT_RECEIPT')
+    expect(traceRequest.payload.payload).toEqual(contextReceipt)
+    expect(traceRequest.payload.contextBinding).toEqual({ contextReceiptId: contextReceipt.receiptId,
+      contextReceiptHash: contextReceipt.hash, contextPacket: null })
     expect(result.wire.filter(call => call.operation === 'memory').map(call => `${call.payload.operation} ${call.payload.operationId.split(':').pop()}`))
       .toEqual(['read memory-read', 'receipt memory-append', 'append memory-append'])
     // `resolve` named no person.

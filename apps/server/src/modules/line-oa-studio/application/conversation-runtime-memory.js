@@ -1,15 +1,16 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
 import { resolveAgentAuthorization } from '@/modules/agent/auth-context'
 import { assembleAgentContext } from '@/modules/agent/context'
 import { conversationRuntimeServesGroundingMode, resolveLineKnowledgeGroundingMode } from '@/modules/agent/line-knowledge-grounding'
 import {
-  appendLineMemoryAnswer, assertMemoryJobLive, composedKnowledgeRecords, composeLineMemoryPacket, lineKnowledgeSliceInputs,
-  lineMemoryHandle, memoryRoute, memoryServerScope, prepareLineMemoryContext,
+  appendLineMemoryAnswer, assertLineEpisodicMemoryJobLive, assertMemoryJobLive, lineMemoryHandle, memoryRoute,
+  memoryServerScope, mspPacketSlices,
+  prepareLineMemoryContext,
 } from '@/modules/agent/server-line-answer'
 import { createServerLineThreadMemory } from './server-line-runtime'
 import { recordMemoryProjectionReceipt } from './line-memory-projection'
-import { runtimeOutOfHoursReply } from './line-conversation-jobs'
+import { assertRuntimeTraceEvent, runtimeOutOfHoursReply } from './line-conversation-jobs'
 import {
   coreMemoryKey, isMemoryTurn, loadMemoryReceipt, MEMORY_RECEIPT_KINDS, memoryOperationIds, memoryReceiptKey, memoryTextSha256,
 } from './runtime-memory-receipts'
@@ -37,10 +38,248 @@ export const MAX_MEMORY_PACKET_BYTES = 32 * 1024
 export const MAX_MEMORY_EVIDENCE_BYTES = 32 * 1024
 // Evidence plus packet, leaving room under the 60 KiB `memory` result bound for the envelope.
 const MAX_MEMORY_RESULT_BYTES = 56 * 1024
+const MAX_RUNTIME_SOURCE_SLICES = 64
 
 export { memoryOperationIds }
 
 const error = (code, status = 400) => Object.assign(new Error(code), { code, status })
+
+const runtimeSourcesKey = job => coreMemoryKey(job.id, `runtime-context-sources:${job.executionId}`, 'MEMORY_THREAD_READ')
+const runtimeContextBindingKey = job => coreMemoryKey(job.id, `runtime-context-binding:${job.executionId}`, 'MEMORY_THREAD_READ')
+const sha256Text = value => createHash('sha256').update(value, 'utf8').digest('hex')
+const sourceText = value => typeof value === 'string' ? value : JSON.stringify(value)
+
+function sourceSlicesFromPacket(packet) {
+  const memory = packet?.memory ?? {}
+  const list = key => Array.isArray(memory[key]) ? memory[key] : []
+  const slice = (id, value) => ({ id, text: sourceText(value), source: 'API-011' })
+  return [
+    ...list('participants').map((item, index) => slice(`participant:${item?.principalId ?? item?.id ?? index}`, item)),
+    ...list('protectedMemory').map((item, index) => slice(`protected:${item?.recordId ?? index}`, item)),
+    ...[...list('recentExchanges')].reverse().map((item, index) => slice(`exchange:${item?.exchangeId ?? index}`, item)),
+    ...list('summaries').map((item, index) => slice(`summary:${item?.summaryId ?? index}`, item)),
+    ...list('episodic').map((item, index) => slice(`episodic:${item?.id ?? item?.reference?.memoryId ?? index}`, item)),
+  ]
+}
+
+function validateSourceManifest(payload, job) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).sort().join(',') !== 'executionId,slices,source'
+    || payload.source !== 'API-010' || payload.executionId !== job.executionId
+    || !Array.isArray(payload.slices) || payload.slices.length > MAX_RUNTIME_SOURCE_SLICES) {
+    throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  }
+  const sources = new Map()
+  let totalBytes = 0
+  for (const item of payload.slices) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)
+      || Object.keys(item).sort().join(',') !== 'byteLength,hash,id'
+      || typeof item.id !== 'string' || !item.id.trim() || item.id.length > 128
+      || !Number.isInteger(item.byteLength) || item.byteLength < 0 || item.byteLength > MAX_MEMORY_PACKET_BYTES
+      || typeof item.hash !== 'string' || !/^[0-9a-f]{64}$/.test(item.hash) || sources.has(item.id)) {
+      throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    }
+    totalBytes += item.byteLength
+    if (totalBytes > MAX_MEMORY_PACKET_BYTES) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    sources.set(item.id, { byteLength: item.byteLength, hash: item.hash, source: 'API-010' })
+  }
+  return sources
+}
+
+async function loadRuntimeSourceManifest(db, job) {
+  if (typeof job.executionId !== 'string' || !job.executionId) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  const rows = await db.agentTraceEvent.findMany({ where: { tenantId: job.tenantId, businessId: job.businessId,
+    turnId: job.id, executionId: job.executionId, kind: 'MEMORY_THREAD_READ', idempotencyKey: runtimeSourcesKey(job) },
+  select: { payloadJson: true } })
+  if (rows.length !== 1) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  let payload
+  try { payload = JSON.parse(rows[0].payloadJson) } catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+  return validateSourceManifest(payload, job)
+}
+
+function contextBindingPayload(job, receipt, packet) {
+  return { source: 'CONTEXT_RECEIPT_BINDING', executionId: job.executionId, receiptId: receipt.receiptId,
+    receiptHash: receipt.hash, packetHash: packet === null ? null : createHash('sha256').update(JSON.stringify(packet)).digest('hex'),
+    mspRefs: [...receipt.refs.msp] }
+}
+
+function validateContextBindingPayload(payload, job) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).sort().join(',') !== 'executionId,mspRefs,packetHash,receiptHash,receiptId,source'
+    || payload.source !== 'CONTEXT_RECEIPT_BINDING' || payload.executionId !== job.executionId
+    || typeof payload.receiptId !== 'string' || !/^ctxrcpt_[0-9a-f-]{36}$/.test(payload.receiptId)
+    || typeof payload.receiptHash !== 'string' || !/^[0-9a-f]{64}$/.test(payload.receiptHash)
+    || (payload.packetHash !== null && (typeof payload.packetHash !== 'string' || !/^[0-9a-f]{64}$/.test(payload.packetHash)))
+    || !Array.isArray(payload.mspRefs) || payload.mspRefs.length > MAX_RUNTIME_SOURCE_SLICES
+    || payload.mspRefs.some(id => typeof id !== 'string' || !id.trim() || id.length > 128)
+    || new Set(payload.mspRefs).size !== payload.mspRefs.length
+    || (payload.packetHash === null) !== (payload.mspRefs.length === 0)) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  return payload
+}
+
+async function loadContextBinding(db, job) {
+  if (typeof job.executionId !== 'string' || !job.executionId) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  const rows = await db.agentTraceEvent.findMany({ where: { tenantId: job.tenantId, businessId: job.businessId,
+    turnId: job.id, executionId: job.executionId, kind: 'MEMORY_THREAD_READ', idempotencyKey: runtimeContextBindingKey(job) },
+  select: { payloadJson: true } })
+  if (rows.length !== 1) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  let payload
+  try { payload = JSON.parse(rows[0].payloadJson) } catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+  return validateContextBindingPayload(payload, job)
+}
+
+async function loadCanonicalContextReceipt(db, job, stored, contextReceiptId, contextReceiptHash) {
+  if (contextReceiptId !== stored.contextReceiptId || typeof contextReceiptHash !== 'string'
+    || !/^[0-9a-f]{64}$/.test(contextReceiptHash) || typeof job.executionId !== 'string' || !job.executionId) {
+    throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  }
+  const rows = await db.agentTraceEvent.findMany({ where: { tenantId: job.tenantId, businessId: job.businessId,
+    turnId: job.id, executionId: job.executionId, kind: 'CONTEXT_RECEIPT' }, select: { payloadJson: true } })
+  if (rows.length !== 1) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  let receipt
+  try { receipt = JSON.parse(rows[0].payloadJson) } catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+  try { assertRuntimeTraceEvent({ jobId: job.id, executionId: job.executionId }, { kind: 'CONTEXT_RECEIPT', payload: receipt }) }
+  catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+  if (receipt.receiptId !== stored.contextReceiptId || receipt.receiptId !== contextReceiptId
+    || receipt.hash !== contextReceiptHash) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  return receipt
+}
+
+function sameJson(left, right) {
+  if (Array.isArray(left) || Array.isArray(right)) {
+    return Array.isArray(left) && Array.isArray(right) && left.length === right.length
+      && left.every((item, index) => sameJson(item, right[index]))
+  }
+  if (left && typeof left === 'object' || right && typeof right === 'object') {
+    if (!left || !right || typeof left !== 'object' || typeof right !== 'object') return false
+    const leftKeys = Object.keys(left).sort()
+    const rightKeys = Object.keys(right).sort()
+    return leftKeys.length === rightKeys.length && leftKeys.every((key, index) => key === rightKeys[index]
+      && sameJson(left[key], right[key]))
+  }
+  return Object.is(left, right)
+}
+
+function expectedThreadPacket(packet, receipt) {
+  const sources = sourceSlicesFromPacket(packet)
+  const included = receipt.refs.msp
+  const includedSet = new Set(included)
+  const expectedIds = sources.filter(item => includedSet.has(item.id)).map(item => item.id)
+  if (!sameJson(expectedIds, included)) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  const byPrefix = prefix => sources.filter(item => includedSet.has(item.id) && item.id.startsWith(prefix)).map(item => {
+    const key = item.id.slice(prefix.length)
+    const collection = prefix === 'participant:' ? 'participants'
+      : prefix === 'protected:' ? 'protectedMemory'
+        : prefix === 'exchange:' ? 'recentExchanges'
+          : prefix === 'summary:' ? 'summaries' : 'episodic'
+    const values = Array.isArray(packet?.memory?.[collection]) ? packet.memory[collection] : []
+    return values.find((value, index) => {
+      const id = prefix === 'participant:' ? value?.principalId ?? value?.id ?? index
+        : prefix === 'protected:' ? value?.recordId ?? index
+          : prefix === 'exchange:' ? value?.exchangeId ?? index
+            : prefix === 'summary:' ? value?.summaryId ?? index
+              : value?.id ?? value?.reference?.memoryId ?? index
+      return String(id) === key
+    })
+  })
+  const participants = byPrefix('participant:')
+  const protectedMemory = byPrefix('protected:')
+  const recentExchanges = byPrefix('exchange:').reverse()
+  const summaries = byPrefix('summary:')
+  const episodic = byPrefix('episodic:')
+  const omittedRanges = [...(packet.manifest?.omittedRanges ?? [])]
+  const droppedMsp = receipt.dropped.filter(item => item.source === 'MSP')
+  for (const item of droppedMsp) {
+    const prefix = ['participant:', 'protected:', 'exchange:', 'summary:', 'episodic:'].find(value => item.id.startsWith(value))
+    const id = prefix ? item.id.slice(prefix.length) : item.id
+    const field = prefix === 'exchange:' ? 'exchangeId'
+      : prefix === 'summary:' ? 'summaryId'
+        : prefix === 'protected:' ? 'protectedRecordId'
+          : prefix === 'participant:' ? 'participantId' : 'episodicMemoryId'
+    omittedRanges.push({ [field]: id, reason: item.reason })
+  }
+  const truncated = droppedMsp.length > 0
+  const expected = { ...packet, knowledge: null,
+    memory: { ...packet.memory, participants, recentExchanges, summaries, protectedMemory,
+      episodic },
+  }
+  if (packet.manifest) expected.manifest = {
+      ...packet.manifest,
+      effectiveRecentExchangeCount: recentExchanges.length,
+      summaryCount: summaries.length,
+      protectedRecordCount: protectedMemory.length,
+      omittedRanges,
+      coverageGap: Boolean(packet.manifest.coverageGap) || truncated,
+      budget: packet.manifest.budget
+        ? { ...packet.manifest.budget, truncated: Boolean(packet.manifest.budget.truncated) || truncated }
+        : packet.manifest.budget,
+    }
+  return expected
+}
+
+async function validateInjectionPacket(db, job, stored, receipt, packet) {
+  if (packet === null) {
+    if (receipt.refs.msp.length !== 0) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  } else if (!packet || typeof packet !== 'object' || Array.isArray(packet) || packet.policyDecision !== 'ALLOW'
+    || Buffer.byteLength(JSON.stringify(packet), 'utf8') > MAX_MEMORY_PACKET_BYTES || receipt.refs.msp.length === 0) {
+    throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  }
+  const api010 = await loadRuntimeSourceManifest(db, job)
+  const api011Packet = typeof stored?.contextPacketJson === 'string' ? JSON.parse(stored.contextPacketJson) : null
+  const api011 = sourceSlicesFromPacket(api011Packet)
+  const sources = new Map(api010)
+  for (const item of api011) {
+    if (sources.has(item.id)) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    const byteLength = Buffer.byteLength(item.text, 'utf8')
+    if (byteLength > MAX_MEMORY_PACKET_BYTES) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    sources.set(item.id, { byteLength, hash: sha256Text(item.text), source: 'API-011' })
+  }
+  const mspDropped = receipt.dropped.filter(item => item.source === 'MSP').map(item => item.id)
+  const allReferenced = [...receipt.refs.msp, ...mspDropped]
+  if (new Set(allReferenced).size !== allReferenced.length || allReferenced.length !== sources.size
+    || [...sources.keys()].some(id => !allReferenced.includes(id))) {
+    throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  }
+
+  if (packet === null) return
+
+  if (Object.keys(packet).sort().join(',') === 'policyDecision,sourceSegments,text') {
+    if (typeof packet.text !== 'string' || !Array.isArray(packet.sourceSegments)
+      || packet.sourceSegments.length !== receipt.refs.msp.length
+      || !sameJson(packet.sourceSegments.map(item => item?.id), receipt.refs.msp)) {
+      throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    }
+    const bytes = Buffer.from(packet.text, 'utf8')
+    let cursor = 0
+    for (let index = 0; index < packet.sourceSegments.length; index += 1) {
+      const segment = packet.sourceSegments[index]
+      if (!segment || typeof segment !== 'object' || Array.isArray(segment)
+        || Object.keys(segment).sort().join(',') !== 'byteLength,id,startByte'
+        || !Number.isInteger(segment.startByte) || !Number.isInteger(segment.byteLength)
+        || segment.startByte !== cursor || segment.byteLength < 0) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+      const end = segment.startByte + segment.byteLength
+      const source = sources.get(segment.id)
+      if (!source || end > bytes.byteLength) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+      const span = bytes.subarray(segment.startByte, end)
+      const spanText = span.toString('utf8')
+      if (span.byteLength !== source.byteLength || sha256Text(spanText) !== source.hash
+        || !Buffer.from(spanText, 'utf8').equals(span)) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+      cursor = end
+      if (index < packet.sourceSegments.length - 1) {
+        if (bytes[cursor] !== 0x0a) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+        cursor += 1
+      }
+    }
+    if (cursor !== bytes.byteLength) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    return
+  }
+
+  if (!api011Packet) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  const expectedPacket = JSON.parse(JSON.stringify(expectedThreadPacket(api011Packet, receipt)))
+  if (!sameJson(packet, expectedPacket)) {
+    throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+  }
+}
 
 // Failures that already carry a stable, non-sensitive code keep it; anything else
 // from the MSP adapter (tool text, transport detail) becomes one generic code, the
@@ -101,7 +340,7 @@ export async function traceEvidenceTrimmed(db, job, { phase, recordsBefore, reco
 
 export function createConversationRuntimeMemory({ db, env, now = () => new Date(), ownedClaim, modelResolver, groundingQuery,
   threadMemoryFactory = null, contextAssembler = assembleAgentContext,
-  authorizationResolver = resolveAgentAuthorization } = {}) {
+  authorizationResolver = resolveAgentAuthorization, episodicMemoryStateReader = null } = {}) {
   if (typeof ownedClaim !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_CLAIM_REQUIRED')
   if (typeof modelResolver !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_MODEL_REQUIRED')
   if (typeof groundingQuery !== 'function') throw new Error('CONVERSATION_RUNTIME_MEMORY_GROUNDING_REQUIRED')
@@ -215,12 +454,13 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     return memoryRoute(job)
   }
 
-  async function assertPolicyStillAllows(job, route, stored) {
-    const current = await currentAuthorization(job, route)
+  async function assertPolicyStillAllows(job, route, stored, authorization = null) {
+    const current = authorization ?? await currentAuthorization(job, route)
     samePrincipal(current, stored)
     if (!current?.policy?.privateMemoryAllowed || current.policy?.mspAuthorization?.read !== true) {
       throw error('LINE_MEMORY_POLICY_REVOKED', 409)
     }
+    return current
   }
 
   function readResult(receipt) {
@@ -262,33 +502,32 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     // call under ONE budget. The read is Core's `prepare` read, with W2's budget
     // clamp counting the time this operation has already spent.
     const groundingMode = resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
-    let knowledgeSliceInputs = []
-    let knowledgeRecordById = new Map()
+    let knowledgeRecords = null
+    let recordsBefore = 0
     if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
       const evidence = await groundingQuery(job, { deadlineAt, startedAt })
-      ;({ knowledgeSliceInputs, knowledgeRecordById } = lineKnowledgeSliceInputs(evidence?.records))
+      const records = Array.isArray(evidence?.records) ? evidence.records : []
+      recordsBefore = records.length
+      knowledgeRecords = records.slice(0, 64)
     }
-    const { composed, injectedPacket } = composeLineMemoryPacket({ memoryContext, route, authorizedForMemory,
-      groundingMode, knowledgeSliceInputs })
-    const knowledgeRecords = groundingMode === 'BUSINESS_KNOWLEDGE' ? null : composedKnowledgeRecords(composed, knowledgeRecordById)
-    // The composer budgets characters, not bytes (Thai is three bytes a character),
-    // so composed evidence can outgrow the evidence bound or, with the packet, the
-    // response cap. As `prepare` does (fitPreparedTurn), the lowest-ranked records
-    // are dropped until it fits, so the runtime answers where the legacy path does.
+    // Core returns the authorized API-011 packet and bounded evidence. Runtime
+    // composes them once, with API-010 slices, immediately before the provider;
+    // that one receipt therefore names exactly the bytes the model receives.
+    // The graph-relation `knowledge` field has no composer citation contract and
+    // is intentionally removed just as the Server path does.
+    const sourcePacket = authorizedForMemory && memoryContext.threadMemory?.policyDecision === 'ALLOW'
+      ? { ...memoryContext.threadMemory, knowledge: null } : null
+    const injectedPacket = sourcePacket && mspPacketSlices(sourcePacket).length > 0 ? sourcePacket : null
     const packetBytes = injectedPacket ? Buffer.byteLength(JSON.stringify(injectedPacket), 'utf8') : 0
     const fits = records => {
       const bytes = Buffer.byteLength(JSON.stringify({ records }), 'utf8')
       return bytes <= MAX_MEMORY_EVIDENCE_BYTES && bytes + packetBytes <= MAX_MEMORY_RESULT_BYTES
     }
-    const composedCount = knowledgeRecords?.length ?? 0
     while (knowledgeRecords && knowledgeRecords.length && !fits(knowledgeRecords)) knowledgeRecords.pop()
     const evidenceJson = knowledgeRecords ? JSON.stringify({ records: knowledgeRecords }) : null
-    // One ContextReceipt per model invocation and none when no model will run:
-    // under a corpus mode that is exactly when composed knowledge survived.
-    const recordsContextReceipt = !knowledgeRecords || knowledgeRecords.length > 0
-    // Trace payloads are stored as canonical JSON. The packet is kept as the exact
-    // string the legacy path would hand the model, so the prompt and the MSP
-    // injection receipt's packet hash are byte-identical on every replay.
+    // The receipt identity is reserved with the durable read so a reclaim reuses
+    // the same ContextReceipt id. It is not a ContextReceipt event: the Runtime
+    // writes the one canonical receipt only immediately before a provider attempt.
     const contextPacketJson = injectedPacket ? JSON.stringify(injectedPacket) : null
     if (contextPacketJson && Buffer.byteLength(contextPacketJson, 'utf8') > MAX_MEMORY_PACKET_BYTES) {
       throw error('MEMORY_CONTEXT_TOO_LARGE', 413)
@@ -300,16 +539,14 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       || memoryContext.identity?.verified !== false)) throw error('LINE_MEMORY_SCOPE_MISMATCH', 409)
     const receipt = { operationId, routeKey: routeKey(route), ...handle,
       policyDecision: memoryContext.threadMemory.policyDecision,
-      contextReceiptId: recordsContextReceipt ? composed.receipt?.receiptId ?? null : null, contextPacketJson,
+      contextReceiptId: `ctxrcpt_${randomUUID()}`, contextPacketJson,
       ...(evidenceJson ? { evidenceJson } : {}),
       ...(pendingMode(job) ? { identityAssurance: 'PENDING' } : {}) }
     await assertMemoryJobLive(job, memoryStateReader, env)
     await saveReceipt(job, 'read', receipt)
-    // The legacy worker records the composer's ContextReceipt (references, hash,
-    // budget; never content) for every BUSINESS_KNOWLEDGE memory turn.
-    if (recordsContextReceipt && composed.receipt?.receiptId) await traceNote(job, 'CONTEXT_RECEIPT', operationId, composed.receipt)
     if (knowledgeRecords) {
-      await traceEvidenceTrimmed(db, job, { phase: 'memory-read', recordsBefore: composedCount, recordsKept: knowledgeRecords.length, now })
+      await traceEvidenceTrimmed(db, job, { phase: 'memory-read', recordsBefore,
+        recordsKept: knowledgeRecords.length, now })
     }
     return readResult(receipt)
   }
@@ -351,7 +588,39 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
       : appendResult(stored, true)
   }
 
-  async function injection(ref, { state }) {
+  async function bindContextReceipt(ref, { receipt, contextBinding } = {}) {
+    const { job, identityState } = await ownedClaim(ref)
+    if (typeof job.executionId !== 'string' || !job.executionId) throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    try { assertRuntimeTraceEvent({ jobId: job.id, executionId: job.executionId }, { kind: 'CONTEXT_RECEIPT', payload: receipt }) }
+    catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+    if (!contextBinding || typeof contextBinding !== 'object' || Array.isArray(contextBinding)
+      || Object.keys(contextBinding).sort().join(',') !== 'contextPacket,contextReceiptHash,contextReceiptId'
+      || contextBinding.contextReceiptId !== receipt.receiptId || contextBinding.contextReceiptHash !== receipt.hash
+      || (contextBinding.contextPacket !== null && (!contextBinding.contextPacket || typeof contextBinding.contextPacket !== 'object'
+        || Array.isArray(contextBinding.contextPacket) || Buffer.byteLength(JSON.stringify(contextBinding.contextPacket), 'utf8') > MAX_MEMORY_PACKET_BYTES))) {
+      throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    }
+    const api010 = await loadRuntimeSourceManifest(db, job)
+    const route = job.memorySyncOptIn === true ? memoryRoute(job) : null
+    const stored = route ? await storedRead(job, route) : null
+    if (stored?.contextReceiptId && receipt.receiptId !== stored.contextReceiptId) {
+      throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    }
+    await validateInjectionPacket(db, job, stored, receipt, contextBinding.contextPacket)
+    if (api010.size > 0) {
+      try {
+        await assertLineEpisodicMemoryJobLive({ job, identityState, env,
+          memoryStateReader: episodicMemoryStateReader ?? memoryStateReader, authorizationResolver })
+      } catch { throw error('LINE_MEMORY_POLICY_REVOKED', 409) }
+    }
+    const payload = contextBindingPayload(job, receipt, contextBinding.contextPacket)
+    await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id,
+      executionId: job.executionId, kind: 'MEMORY_THREAD_READ', idempotencyKey: runtimeContextBindingKey(job), payload,
+      occurredAt: new Date(now().getTime()) })
+    return payload
+  }
+
+  async function injection(ref, { state, contextReceiptId, contextReceiptHash, contextPacket } = {}) {
     // RESOLVED is recorded before the model starts, so it carries every fence the
     // legacy worker applies before its model call. The later states describe a
     // call that has already happened: like the legacy wrapper they are recorded
@@ -363,21 +632,53 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     else if (job.errorCode === 'PDPA_ERASURE') throw error('LINE_MEMORY_JOB_ERASED', 409)
     const stored = await storedRead(job, route)
     if (!stored?.contextPacketJson) throw error('MEMORY_INJECTION_NOT_APPLICABLE', 409)
+    // The MSP boundary only accepts an injection after Runtime has durably
+    // recorded this execution's exact SDD-100 receipt. Old state-only callers
+    // fail closed: a Core read receipt alone cannot bind a provider packet.
+    const receipt = await loadCanonicalContextReceipt(db, job, stored, contextReceiptId, contextReceiptHash)
+    await validateInjectionPacket(db, job, stored, receipt, contextPacket)
+    const binding = await loadContextBinding(db, job)
+    const packetHash = createHash('sha256').update(JSON.stringify(contextPacket)).digest('hex')
+    if (binding.receiptId !== contextReceiptId || binding.receiptHash !== contextReceiptHash
+      || binding.packetHash !== packetHash || !sameJson(binding.mspRefs, receipt.refs.msp)) {
+      throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+    }
+    const hasBinding = true
+    const injectionPacket = contextPacket
+    if (hasBinding) {
+      const priorRows = await db.agentTraceEvent.findMany({ where: { tenantId: job.tenantId, businessId: job.businessId,
+        turnId: job.id, kind: 'MEMORY_INJECTION_RECORDED' }, select: { payloadJson: true } })
+      for (const row of priorRows) {
+        let prior
+        try { prior = JSON.parse(row.payloadJson) } catch { throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409) }
+        // Old state-only receipts remain readable. Once a turn has used a bound
+        // receipt, every later MSP state must name the identical receipt and packet.
+        if (prior.contextReceiptId !== undefined && (prior.contextReceiptId !== contextReceiptId
+          || prior.contextReceiptHash !== contextReceiptHash || prior.packetHash !== packetHash)) {
+          throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+        }
+      }
+    }
     // The principal and the grant come from Core's own authorization for this job,
     // with no private write; the model reference from the claim-bound credential.
-    const current = await currentAuthorization(job, route)
-    samePrincipal(current, stored)
+    let current = await currentAuthorization(job, route)
+    if (state === 'RESOLVED' && stored.privateMemoryAllowed) {
+      current = await assertPolicyStillAllows(job, route, stored, current)
+    } else {
+      samePrincipal(current, stored)
+    }
     const model = await modelResolver(job)
     const port = threadMemory()
     port.bindTrustedRoute(stored.threadId, route)
-    const recorder = port.injectionReceipt({ model, contextPacket: JSON.parse(stored.contextPacketJson),
+    const recorder = port.injectionReceipt({ model, contextPacket: injectionPacket,
       threadId: stored.threadId, exchangeId: stored.exchangeId,
       authorization: { authContext: durableAuthContext(current.authContext) },
-      requesterId: current.authContext.actor.principalId, contextReceiptId: stored.contextReceiptId ?? null })
+      requesterId: current.authContext.actor.principalId, contextReceiptId: hasBinding ? contextReceiptId : stored.contextReceiptId ?? null })
     const outcome = await recorder.recordWithRetry(state)
     if (!outcome.ok) throw error('MSP_INJECTION_RECEIPT_UNKNOWN', 503)
     const operationId = memoryOperationIds(job.id).injection
-    await traceNote(job, 'MEMORY_INJECTION_RECORDED', `${operationId}:${state}`, { operationId, state })
+    await traceNote(job, 'MEMORY_INJECTION_RECORDED', `${operationId}:${state}`, { operationId, state,
+      ...(hasBinding ? { contextReceiptId, contextReceiptHash, packetHash } : {}) })
     return { status: 'COMPLETED', operationId, result: { receipt: { state } } }
   }
 
@@ -409,5 +710,5 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     }
   }
 
-  return Object.freeze({ operate })
+  return Object.freeze({ operate, bindContextReceipt })
 }

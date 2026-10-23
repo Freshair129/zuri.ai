@@ -303,9 +303,10 @@ describe('OpenAPI document', () => {
       // FR-285 adds one path and five operations, including three refusals.
       // FR-026 adds the authenticated Agent approval queue and decision paths.
       // Baseline plus current routes after retiring Mission Control and worker
-      // observability: 350 paths / 459 operations.
+      // observability: 350 paths / 459 operations. FR-001 adds PATCH and DELETE
+      // to /api/scope without adding another path: 459 + 2 = 461 operations.
       pathCount: 350,
-      operationCount: 459,
+      operationCount: 461,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get

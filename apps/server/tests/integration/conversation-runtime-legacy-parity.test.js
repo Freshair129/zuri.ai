@@ -38,11 +38,32 @@ const lineUser = 'synthetic-parity-line-user'
 const utf8 = value => Buffer.byteLength(JSON.stringify(value), 'utf8')
 // Thai text is three UTF-8 bytes per UTF-16 unit, so a full-length message also exercises the byte bounds.
 const message = length => 'ขอราคาชุดของขวัญพรีเมียมสำหรับลูกค้าองค์กร '.repeat(Math.ceil(length / 40)).slice(0, length)
-// 64 records (the prepare record cap) of Thai text, just under the 32 KiB evidence bound.
+const contextBudgetPrefix = (records, budget = 4_000) => {
+  let used = 0
+  let count = 0
+  for (const record of records) {
+    const serializedLength = JSON.stringify(record).length
+    if (used + serializedLength > budget) break
+    used += serializedLength
+    count += 1
+  }
+  return records.slice(0, count)
+}
+// 64 records (the prepare record cap), evenly padded so every individual slice
+// fits the 4,000-character context budget while the complete result nears 32 KiB.
 const nearLimitEvidence = () => {
   const records = Array.from({ length: 64 }, (_, index) => ({ product: `synthetic-parity-product-${String(index).padStart(2, '0')}`,
     answer: 'ข้อมูลสินค้าในชุดทดสอบ'.repeat(6) }))
-  while (utf8({ records }) < 32 * 1024 - 64) records[records.length - 1].answer += 'ก'
+  const targetBytes = 32 * 1024 - 64
+  const initialBytes = utf8({ records })
+  const paddingPerRecord = Math.floor((targetBytes - initialBytes) / (3 * records.length))
+  for (const record of records) record.answer += 'ก'.repeat(paddingPerRecord)
+  let remainderBytes = targetBytes - utf8({ records })
+  for (const record of records) {
+    if (remainderBytes < 3) break
+    record.answer += 'ก'
+    remainderBytes -= 3
+  }
   return { records }
 }
 const evidenceLine = prompt => JSON.parse(prompt.slice(prompt.indexOf('\nEVIDENCE: ') + '\nEVIDENCE: '.length).split('\n')[0])
@@ -110,6 +131,7 @@ function linePorts({ deliveries, contendOnce = false }) {
 
 async function runtimeTurns(jobId, { contendOnce = false, coreOverrides = {}, turns = 8 } = {}) {
   const modelPrompts = []
+  const prepareResponses = []
   const deliveries = []
   const outcomes = []
   const coreErrors = []
@@ -126,7 +148,9 @@ async function runtimeTurns(jobId, { contendOnce = false, coreOverrides = {}, tu
       const envelope = JSON.parse(init.body)
       if (operation === 'status' && envelope.payload.operationId.endsWith(':delivery')) deliveryStatusReads.push(envelope.payload.operationId)
       const response = await handlers.POST(new Request(url, init), { params: { operation } })
-      const body = await response.clone().json()
+      const responseText = await response.clone().text()
+      const body = JSON.parse(responseText)
+      if (operation === 'prepare') prepareResponses.push({ body, byteLength: Buffer.byteLength(responseText, 'utf8') })
       if (operation === 'send') sendResponses.push({ status: response.status, body })
       if (response.status >= 400) coreErrors.push(`${operation} ${response.status} ${body.error?.code}`)
       return response
@@ -144,7 +168,7 @@ async function runtimeTurns(jobId, { contendOnce = false, coreOverrides = {}, tu
     job = await prisma.lineConversationJob.findUnique({ where: { id: jobId } })
     if (outcome.status === 'IDLE' || ['RECORDED', 'FAILED', 'UNKNOWN', 'CANCELLED'].includes(job.status)) break
   }
-  return { status: job.status, errorCode: job.errorCode, coreErrors, modelPrompts, deliveries, outcomes, sendResponses, deliveryStatusReads }
+  return { status: job.status, errorCode: job.errorCode, coreErrors, modelPrompts, prepareResponses, deliveries, outcomes, sendResponses, deliveryStatusReads }
 }
 
 describe('Conversation Runtime question length parity with the legacy Server answer path', () => {
@@ -172,16 +196,21 @@ describe('Conversation Runtime question length parity with the legacy Server ans
     expect(runtime.deliveries).toEqual([[{ type: 'text', text: legacy.reply }]])
   })
 
-  it('answers a 10,000-character Thai question with near-limit evidence, all of it reaching the model', async () => {
+  it('preserves a 10,000-character Thai question and sends only the context-budgeted evidence', async () => {
     evidence = nearLimitEvidence()
     expect(utf8(evidence)).toBeGreaterThan(32 * 1024 - 128)
     expect(utf8(evidence)).toBeLessThanOrEqual(32 * 1024)
+    expect(evidence.records.every(record => JSON.stringify(record).length <= 4_000)).toBe(true)
+    const retainedByContextBudget = contextBudgetPrefix(evidence.records)
+    expect(retainedByContextBudget.length).toBeGreaterThan(0)
+    expect(retainedByContextBudget.length).toBeLessThan(evidence.records.length)
     const text = message(LINE_TEXT_MAX_CHARS)
     // The prepared turn alone is far over the 32 KiB whole-result cap Core once applied.
     expect(utf8({ question: text, evidence })).toBeGreaterThan(60 * 1024)
 
     const legacy = await legacyAnswer(text)
-    expect(legacy).toEqual({ accepted: true, reply: answerText, model: { question: text, evidence } })
+    expect(legacy).toEqual({ accepted: true, reply: answerText,
+      model: { question: text, evidence: { records: retainedByContextBudget } } })
 
     const { jobId } = await admit(runtimeAccount, 'synthetic-parity-near-limit-evidence', text)
     const runtime = await runtimeTurns(jobId)
@@ -189,7 +218,11 @@ describe('Conversation Runtime question length parity with the legacy Server ans
     expect(runtime).toMatchObject({ status: 'RECORDED', errorCode: null })
     expect(runtime.modelPrompts).toHaveLength(1)
     expect(runtime.modelPrompts[0]).toContain(`QUESTION: ${text}\n`)
-    expect(evidenceLine(runtime.modelPrompts[0])).toEqual(evidence)
+    expect(evidenceLine(runtime.modelPrompts[0])).toEqual({ records: retainedByContextBudget })
+    expect(runtime.prepareResponses).toHaveLength(1)
+    expect(runtime.prepareResponses[0].byteLength).toBeLessThanOrEqual(MAX_RESPONSE_BYTES)
+    expect(runtime.prepareResponses[0].body.data.question).toBe(text)
+    expect(runtime.prepareResponses[0].body.data.evidence).toEqual(evidence)
     expect(runtime.deliveries).toEqual([[{ type: 'text', text: legacy.reply }]])
   })
 
@@ -200,7 +233,9 @@ describe('Conversation Runtime question length parity with the legacy Server ans
     expect(utf8({ question: text, evidence })).toBeGreaterThan(MAX_RESPONSE_BYTES)
 
     const legacy = await legacyAnswer(text)
-    expect(legacy).toEqual({ accepted: true, reply: answerText, model: { question: text, evidence } })
+    const retainedByContextBudget = contextBudgetPrefix(evidence.records)
+    expect(legacy).toEqual({ accepted: true, reply: answerText,
+      model: { question: text, evidence: { records: retainedByContextBudget } } })
 
     const { jobId } = await admit(runtimeAccount, 'synthetic-parity-escape-heavy', text)
     const runtime = await runtimeTurns(jobId)
@@ -208,11 +243,18 @@ describe('Conversation Runtime question length parity with the legacy Server ans
     expect(runtime).toMatchObject({ status: 'RECORDED', errorCode: null })
     expect(runtime.modelPrompts).toHaveLength(1)
     expect(runtime.modelPrompts[0]).toContain(`QUESTION: ${text}\n`)
+    const prepared = runtime.prepareResponses[0]
+    expect(prepared.byteLength).toBeLessThanOrEqual(MAX_RESPONSE_BYTES)
+    expect(prepared.body.data.question).toBe(text)
+    const preparedRecords = prepared.body.data.evidence.records
+    expect(preparedRecords.length).toBeLessThan(evidence.records.length)
+    expect(preparedRecords).toEqual(evidence.records.slice(0, preparedRecords.length))
     const kept = evidenceLine(runtime.modelPrompts[0]).records
     // The highest-ranked records survive, in order; only the tail is dropped.
     expect(kept.length).toBeGreaterThan(0)
-    expect(kept.length).toBeLessThan(evidence.records.length)
-    expect(kept).toEqual(evidence.records.slice(0, kept.length))
+    expect(kept.length).toBeLessThanOrEqual(preparedRecords.length)
+    expect(kept).toEqual(preparedRecords.slice(0, kept.length))
+    expect(kept.reduce((total, record) => total + JSON.stringify(record).length, 0)).toBeLessThanOrEqual(4_000)
     expect(runtime.deliveries).toEqual([[{ type: 'text', text: legacy.reply }]])
     // The drop is traced, with counts only: no record, citation or question text.
     const trimmed = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'EVIDENCE_TRIMMED' } })

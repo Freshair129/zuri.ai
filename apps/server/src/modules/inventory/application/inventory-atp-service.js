@@ -89,23 +89,29 @@ async function reservationsFor(db, businessId, productIds, now) {
  * zero — it has no ledger to subtract from, and a zero would read as
  * "measured and empty".
  */
-export async function availableToPromiseFor({ businessId, productIds, viewer, db = prisma, now = new Date() } = {}) {
-  const business = await loadBusiness(db, viewer, businessId)
-  const products = await db.product.findMany({
-    where: { businessId: business.id, ...(productIds?.length ? { id: { in: productIds } } : {}), status: { not: 'ARCHIVED' } },
-    select: PRODUCT_SELECT,
-    orderBy: [{ code: 'asc' }],
+export async function availableToPromiseFor({ businessId, productIds, viewer, db = prisma, now } = {}) {
+  return inTx(db, async (tx) => {
+    const business = await loadBusiness(tx, viewer, businessId)
+    // Movement and reservation mutations share this per-Business fence; hold
+    // it through both source reads so ATP cannot combine opposite-side values.
+    await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+    const observedAt = now ?? new Date()
+    const products = await tx.product.findMany({
+      where: { businessId: business.id, ...(productIds?.length ? { id: { in: productIds } } : {}), status: { not: 'ARCHIVED' } },
+      select: PRODUCT_SELECT,
+      orderBy: [{ code: 'asc' }],
+    })
+    const ids = products.map((p) => p.id)
+    const [onHand, reservations] = await Promise.all([onHandFor(tx, ids), reservationsFor(tx, business.id, ids, observedAt)])
+    const rows = products.map((product) => {
+      if (product.stockPolicy !== 'TRACKED') {
+        return { productId: product.id, code: product.code, unit: product.unit, itemKind: product.itemKind, stockPolicy: product.stockPolicy, onHand: null, committed: 0, reservedForQuotes: 0, available: null, overCommitted: 0 }
+      }
+      const atp = availableToPromise({ onHand: onHand[product.id] ?? 0, reservations: reservations[product.id] ?? [], now: observedAt })
+      return { productId: product.id, code: product.code, unit: product.unit, itemKind: product.itemKind, stockPolicy: product.stockPolicy, ...atp }
+    })
+    return { businessId: business.id, products: rows, byProductId: Object.fromEntries(rows.map((r) => [r.productId, r.available])) }
   })
-  const ids = products.map((p) => p.id)
-  const [onHand, reservations] = await Promise.all([onHandFor(db, ids), reservationsFor(db, business.id, ids, now)])
-  const rows = products.map((product) => {
-    if (product.stockPolicy !== 'TRACKED') {
-      return { productId: product.id, code: product.code, unit: product.unit, itemKind: product.itemKind, stockPolicy: product.stockPolicy, onHand: null, committed: 0, reservedForQuotes: 0, available: null, overCommitted: 0 }
-    }
-    const atp = availableToPromise({ onHand: onHand[product.id] ?? 0, reservations: reservations[product.id] ?? [], now })
-    return { productId: product.id, code: product.code, unit: product.unit, itemKind: product.itemKind, stockPolicy: product.stockPolicy, ...atp }
-  })
-  return { businessId: business.id, products: rows, byProductId: Object.fromEntries(rows.map((r) => [r.productId, r.available])) }
 }
 
 /**
@@ -114,7 +120,7 @@ export async function availableToPromiseFor({ businessId, productIds, viewer, db
  * promise the same tumblers. Returns the per-component picture as well as the
  * count, because "why only 120" is the next question every time.
  */
-export async function maxBuildableSets({ businessId, recipeId, quantity, viewer, db = prisma, now = new Date() } = {}) {
+export async function maxBuildableSets({ businessId, recipeId, quantity, viewer, db = prisma, now } = {}) {
   const business = await loadBusiness(db, viewer, businessId)
   const recipe = await db.productRecipe.findUnique({
     where: { id: typeof recipeId === 'string' ? recipeId.trim() : '' },
@@ -227,10 +233,15 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
   if (!reservationId) throw notFound()
   const data = zReservationAction.parse(input)
   return inTx(db, async (tx) => {
-    const row = await tx.stockReservation.findUnique({ where: { id: reservationId }, select: RESERVATION_SELECT })
-    if (!row) throw notFound()
+    const observed = await tx.stockReservation.findUnique({ where: { id: reservationId }, select: RESERVATION_SELECT })
+    if (!observed) throw notFound()
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
-    if (row.businessId !== business.id) throw notFound()
+    if (observed.businessId !== business.id) throw notFound()
+    await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+    // The observed row is only for scope checking; version and status must be
+    // re-read after the fence before the compare-and-swap.
+    const row = await tx.stockReservation.findUnique({ where: { id: reservationId }, select: RESERVATION_SELECT })
+    if (!row || row.businessId !== business.id) throw notFound()
     if (row.version !== data.version) throw failure(409, 'STOCK_RESERVATION_VERSION_CONFLICT')
     if (row.status !== 'ACTIVE') throw failure(409, 'STOCK_RESERVATION_NOT_ACTIVE')
 
@@ -293,14 +304,15 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
  * changes no ATP figure — which is exactly why it is safe to run, or not run,
  * on any schedule at all.
  */
-export async function expireDueReservations({ businessId, viewer, db = prisma, now = new Date() } = {}) {
-  const business = await loadBusiness(db, viewer, businessId, { write: true })
-  const due = await db.stockReservation.findMany({
-    where: { businessId: business.id, status: 'ACTIVE', expiresAt: { not: null, lte: now } },
-    select: { id: true, code: true, quantity: true, productId: true },
-  })
-  if (!due.length) return { businessId: business.id, expired: 0, codes: [] }
-  const expired = await inTx(db, async (tx) => {
+export async function expireDueReservations({ businessId, viewer, db = prisma, now } = {}) {
+  return inTx(db, async (tx) => {
+    const business = await loadBusiness(tx, viewer, businessId, { write: true })
+    await acquireLedgerFence(tx, { tenantId: business.tenantId, businessId: business.id })
+    const observedAt = now ?? new Date()
+    const due = await tx.stockReservation.findMany({
+      where: { businessId: business.id, status: 'ACTIVE', expiresAt: { not: null, lte: observedAt } },
+      select: { id: true, code: true, quantity: true, productId: true },
+    })
     const changed = []
     for (const row of due) {
       // Conditional on ACTIVE: a hold released or converted since the read
@@ -313,7 +325,6 @@ export async function expireDueReservations({ businessId, viewer, db = prisma, n
       })
       changed.push(row)
     }
-    return changed
+    return { businessId: business.id, expired: changed.length, codes: changed.map((r) => r.code) }
   })
-  return { businessId: business.id, expired: expired.length, codes: expired.map((r) => r.code) }
 }

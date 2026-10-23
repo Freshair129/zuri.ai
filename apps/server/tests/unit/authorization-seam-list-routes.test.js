@@ -36,6 +36,18 @@ vi.mock('@/modules/project-manager/application/scope-service', () => ({
   createLegalEntity: vi.fn(),
   createTaxRegistrationBranch: vi.fn(),
   createBranch: vi.fn(),
+  updatePortfolio: vi.fn(),
+  archivePortfolio: vi.fn(),
+  updateTenant: vi.fn(),
+  archiveTenant: vi.fn(),
+  updateBusiness: vi.fn(),
+  archiveBusiness: vi.fn(),
+  updateLegalEntity: vi.fn(),
+  archiveLegalEntity: vi.fn(),
+  updateBranch: vi.fn(),
+  archiveBranch: vi.fn(),
+  updateWorkspace: vi.fn(),
+  archiveWorkspace: vi.fn(),
 }))
 vi.mock('@/modules/project-manager/application/project-service', () => ({
   listProjects: mocks.listProjects,

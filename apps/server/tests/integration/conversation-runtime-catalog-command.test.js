@@ -66,7 +66,7 @@ function buildRuntime() {
     // An ordinary turn in this suite is grounded on one synthetic record and answered
     // by the stand-in model, the same stand-in the legacy answer port wraps.
     prepareTurn: async job => ({ question: job.inbound.body, evidence: { records: [{ product: 'synthetic-product' }] },
-      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
+      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 4000, workCommand: null }),
     credentialResolver: async () => ({ provider: 'prp', model: 'controlled-model', apiKey: 'synthetic-provider-key' }),
     linePorts: () => transport(deliveries) })
   const client = createCoreClient({ baseUrl: 'http://core.invalid', token: serviceToken,
@@ -135,7 +135,7 @@ function guardCore() {
   return createConversationRuntimeCore({ db: prisma, env: { CONVERSATION_RUNTIME_TOKEN: serviceToken },
     catalogCommand: (job, deps) => { commandRuns += 1; return lineCatalogCommandReply(job, deps) },
     prepareTurn: async job => ({ question: job.inbound.body, evidence: { records: [{ product: 'synthetic-product' }] },
-      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
+      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 4000, workCommand: null }),
     credentialResolver: async () => ({ provider: 'prp', model: 'controlled-model', apiKey: 'synthetic-provider-key' }) })
 }
 async function claimFor(core, jobId, claimantId) {

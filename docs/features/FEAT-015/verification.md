@@ -158,6 +158,7 @@ status: generated
 - [apps/server/src/modules/asset-management/application/asset-lifecycle-service.js](../../../apps/server/src/modules/asset-management/application/asset-lifecycle-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-lookup-service.js](../../../apps/server/src/modules/asset-management/application/asset-lookup-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-maintenance-service.js](../../../apps/server/src/modules/asset-management/application/asset-maintenance-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/asset-management/application/asset-person-scope.js](../../../apps/server/src/modules/asset-management/application/asset-person-scope.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-register-service.js](../../../apps/server/src/modules/asset-management/application/asset-register-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-request-scope.js](../../../apps/server/src/modules/asset-management/application/asset-request-scope.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx) — `implements` (`annotation`)
@@ -167,9 +168,11 @@ status: generated
 - [apps/server/src/modules/asset-management/domain/asset-intake.js](../../../apps/server/src/modules/asset-management/domain/asset-intake.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/index.js](../../../apps/server/src/modules/asset-management/index.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/project-inventory-read-model.js](../../../apps/server/src/modules/project-manager/application/project-inventory-read-model.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/integration/asset-disposal-audit.test.js](../../../apps/server/tests/integration/asset-disposal-audit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -179,6 +182,8 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/project-inventory-stall.test.js](../../../apps/server/tests/integration/project-inventory-stall.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/project-inventory.test.js](../../../apps/server/tests/integration/project-inventory.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-depreciation.test.js](../../../apps/server/tests/unit/asset-depreciation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-disposal-routes.test.js](../../../apps/server/tests/unit/asset-disposal-routes.test.js) — `verifies` (`test-reference`)
@@ -204,6 +209,7 @@ status: generated
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/project-inventory-read-model.test.js](../../../apps/server/tests/unit/project-inventory-read-model.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-136](requirements/FR-136.md)
 

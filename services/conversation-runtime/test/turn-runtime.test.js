@@ -10,6 +10,155 @@ const turn = { question: 'What is this?', evidence: [{ product_code: 'SKU1', pri
   slices: [{ source: 'KNOWLEDGE', id: 'k1', citationId: 'cite-1', text: 'approved fact' }],
   audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 1000, workCommand: null }
 
+function assertCanonicalReceipt(receipt) {
+  assert.match(receipt.receiptId, /^ctxrcpt_[0-9a-f-]{36}$/)
+  assert.deepEqual(Object.keys(receipt.refs), ['msp', 'citations', 'records'])
+  const facts = { refs: receipt.refs, budget: receipt.budget, dropped: receipt.dropped }
+  assert.equal(receipt.hash, createHash('sha256').update(JSON.stringify(facts)).digest('hex'))
+  assert.equal(receipt.budget.trimmed, receipt.dropped.filter(item => item.reason === 'BUDGET_TRIMMED').length)
+  assert.ok(receipt.budget.used <= receipt.budget.max)
+}
+
+function makeBasicPorts({ preparedTurn, memory, events, order, onGenerate = () => {} }) {
+  const ports = {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => ({ status: 'READY', ...result }), status: async () => ({ status: 'CLAIMED' }),
+      fail: async () => {} },
+    authority: { resolve: async () => ({ authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId,
+        identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => preparedTurn },
+    workTool: { execute: async () => assert.fail('normal turn should not call WorkToolPort'), status: async () => ({ status: 'NOT_FOUND' }) },
+    model: { credential: async () => ({ provider: 'fake' }), generate: async input => {
+      order.push('provider')
+      onGenerate(input)
+      return 'supported answer'
+    } },
+    delivery: { send: async () => ({ status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => { events.push(event); order.push(event.kind) }, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+  if (memory) ports.memory = memory
+  return ports
+}
+
+test('non-memory evidence is budgeted and receipted even with no episodic slices', async () => {
+  for (const maxBudgetChars of [100, 0]) {
+    const generated = []
+    const events = []
+    const order = []
+    const records = [{ citationId: 'kept', text: 'approved' }, { citationId: 'oversized', text: 'x'.repeat(1000) }]
+    const ports = {
+      job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+        complete: async (_claim, result) => ({ status: 'READY', ...result }), status: async () => ({ status: 'CLAIMED' }),
+        fail: async (_claim, result) => assert.fail(JSON.stringify(result)) },
+      authority: { resolve: async () => ({ authorized: true, version: 1, scope: { tenantId: claim.tenantId,
+        businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+      context: { prepare: async () => ({ ...turn, evidence: { records }, slices: [], maxBudgetChars }) },
+      workTool: { execute: async () => assert.fail('no Work'), status: async () => ({ status: 'NOT_FOUND' }) },
+      model: { credential: async () => ({ provider: 'fake' }), generate: async input => {
+        order.push('provider')
+        generated.push(input)
+        return 'supported'
+      } },
+      delivery: { send: async () => ({ status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+      trace: { append: async (_claim, event) => { events.push(event); order.push(event.kind) }, status: async () => ({ status: 'NOT_FOUND' }) },
+    }
+    assert.equal((await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()).status, 'RECORDED')
+    assert.equal(generated.length, maxBudgetChars ? 1 : 0)
+    const receipts = events.filter(event => event.kind === 'CONTEXT_RECEIPT')
+    assert.equal(receipts.length, generated.length)
+    assert.equal(events.filter(event => event.kind === 'CONTEXT_COMMITTED').length, 0)
+    if (maxBudgetChars) {
+      assert.deepEqual(generated[0].evidence.records, records.slice(0, 1))
+      assertCanonicalReceipt(receipts[0].payload)
+      assert.deepEqual(generated[0].contextReceipt, receipts[0].payload)
+      assert.deepEqual(receipts[0].payload.refs.citations, ['kept'])
+      assert.deepEqual(receipts[0].payload.refs.msp, [])
+      assert.deepEqual(receipts[0].payload.refs.records, [])
+      assert.equal(receipts[0].payload.budget.used, JSON.stringify(records[0]).length)
+      assert.doesNotMatch(JSON.stringify(receipts[0]), /approved|xxxx/)
+      assert.ok(order.indexOf('CONTEXT_RECEIPT') < order.indexOf('provider'))
+    } else {
+      assert.deepEqual(receipts, [])
+    }
+  }
+})
+
+test('passes retained RECORD slices separately from the MSP packet and receipt binding', async () => {
+  const events = []
+  const order = []
+  let providerInput
+  const preparedTurn = { ...turn, slices: [
+    { id: 'crm-record-1', source: 'RECORD', text: 'Core-authorized CRM context for the turn' },
+    { id: 'msp-slice-1', source: 'MSP', text: 'private thread context' },
+  ] }
+  const ports = makeBasicPorts({ preparedTurn, events, order, onGenerate: input => { providerInput = input } })
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(providerInput.recordFacts, ['Core-authorized CRM context for the turn'])
+  const receiptEvent = events.find(event => event.kind === 'CONTEXT_RECEIPT')
+  assert.deepEqual(receiptEvent.payload.refs.records, ['crm-record-1'])
+  assert.deepEqual(receiptEvent.payload.refs.msp, ['msp-slice-1'])
+  assert.equal(receiptEvent.payload.records, undefined)
+  assert.doesNotMatch(JSON.stringify(receiptEvent.payload), /Core-authorized CRM context|private thread context/)
+  assert.match(providerInput.contextPacket.text, /private thread context/)
+  assert.doesNotMatch(providerInput.contextPacket.text, /Core-authorized CRM context/)
+  assert.deepEqual(receiptEvent.contextBinding.contextPacket, providerInput.contextPacket)
+})
+
+test('does not pass a RECORD slice trimmed by the composer to the model', async () => {
+  const events = []
+  const order = []
+  let providerInput
+  const preparedTurn = { ...turn, evidence: [{ name: 'kept evidence' }], maxBudgetChars: 40,
+    slices: [{ id: 'oversized-record', source: 'RECORD', text: 'x'.repeat(41) }] }
+  const ports = makeBasicPorts({ preparedTurn, events, order, onGenerate: input => { providerInput = input } })
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(providerInput.recordFacts, [])
+  const receipt = events.find(event => event.kind === 'CONTEXT_RECEIPT').payload
+  assert.deepEqual(receipt.refs.records, [])
+  assert.ok(receipt.dropped.some(item => item.id === 'oversized-record' && item.reason === 'BUDGET_TRIMMED'))
+})
+
+test('records the canonical context receipt before a provider attempt with unknown outcome', async () => {
+  const events = []
+  const order = []
+  let providerInput
+  let failure
+  const ports = {
+    job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async () => assert.fail('unknown provider outcome must not complete'), status: async () => ({ status: 'CLAIMED' }),
+      fail: async (_claim, value) => { failure = value } },
+    authority: { resolve: async () => ({ authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => ({ ...turn, evidence: { records: [{ citationId: 'c-1', text: 'grounded fact' }] }, slices: [], maxBudgetChars: 100 }) },
+    workTool: { execute: async () => assert.fail('no Work'), status: async () => ({ status: 'NOT_FOUND' }) },
+    model: { credential: async () => ({ provider: 'fake' }), generate: async input => {
+      providerInput = input
+      order.push('provider')
+      throw Object.assign(new Error('provider result unknown'), { code: 'MODEL_OUTCOME_UNKNOWN', outcome: 'UNKNOWN' })
+    } },
+    delivery: { send: async () => assert.fail('unknown provider outcome must not deliver'), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => { events.push(event); order.push(event.kind) }, status: async () => ({ status: 'NOT_FOUND' }) },
+  }
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(result.status, 'UNKNOWN')
+  assert.equal(failure.outcome, 'UNKNOWN')
+  assertCanonicalReceipt(providerInput.contextReceipt)
+  const receipts = events.filter(event => event.kind === 'CONTEXT_RECEIPT')
+  assert.equal(receipts.length, 1)
+  assert.deepEqual(receipts[0].payload, providerInput.contextReceipt)
+  assert.ok(order.indexOf('CONTEXT_RECEIPT') < order.indexOf('provider'))
+  assert.equal(events.filter(event => event.kind === 'CONTEXT_COMMITTED').length, 0)
+})
+
 test('context composer prioritizes approved records, drops cross-thread memory and denies unauthorized packets', () => {
   const composed = composeTurnContext({ authorized: true, threadId: 'thread-1', audienceKind: 'GROUP', maxBudgetChars: 20,
     slices: [
@@ -30,8 +179,23 @@ test('context composer prioritizes approved records, drops cross-thread memory a
   assert.ok(group.dropped.some(item => item.reason === 'AUDIENCE_SCOPE_DENIED'))
 })
 
+test('context composition drops memory superseded by a record and keeps exchange trimming contiguous', () => {
+  const result = composeTurnContext({ authorized: true, threadId: 'thread-1', audienceKind: 'DIRECT', maxBudgetChars: 9,
+    slices: [
+      { id: 'record', source: 'RECORD', text: 'fact', subjectKey: 'price' },
+      { id: 'stale', source: 'MSP', threadId: 'thread-1', text: 'old', subjectKey: 'price' },
+      { id: 'newest', source: 'MSP', threadId: 'thread-1', text: 'new', sequence: 'exchanges' },
+      { id: 'too-large', source: 'MSP', threadId: 'thread-1', text: 'large', sequence: 'exchanges' },
+      { id: 'older', source: 'MSP', threadId: 'thread-1', text: 'x', sequence: 'exchanges' },
+    ] })
+  assert.deepEqual(result.slices.map(item => item.id), ['record', 'newest'])
+  assert.ok(result.dropped.some(item => item.id === 'stale' && item.reason === 'SUPERSEDED_BY_RECORD'))
+  assert.ok(result.dropped.some(item => item.id === 'older' && item.reason === 'BUDGET_TRIMMED'))
+})
+
 test('real turn runner claims, checks authority, composes, invokes the model and coordinates delivery through ports', async () => {
   const order = []
+  let contextReceiptEvent
   const ports = {
     job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
       complete: async (_claim, result) => (order.push('complete'), { status: 'READY', ...result }),
@@ -42,26 +206,95 @@ test('real turn runner claims, checks authority, composes, invokes the model and
     context: { prepare: async () => (order.push('context'), turn) },
     workTool: { execute: async () => assert.fail('normal turn should not call WorkToolPort'), status: async () => ({ status: 'NOT_FOUND' }) },
     model: { credential: async () => (order.push('credential'), { provider: 'fake' }),
-      generate: async input => (order.push('model'), assert.equal(input.contextPacket.text, 'approved fact'), 'supported answer') },
+      generate: async input => (order.push('model'), assert.deepEqual(input.evidence, turn.evidence), assert.equal(input.contextPacket, null), 'supported answer') },
     delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
-    trace: { append: async (_claim, event) => order.push(event.kind), status: async () => ({ status: 'NOT_FOUND' }) },
+    trace: { append: async (_claim, event) => {
+      order.push(event.kind)
+      if (event.kind === 'CONTEXT_RECEIPT') contextReceiptEvent = event
+    }, status: async () => ({ status: 'NOT_FOUND' }) },
   }
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
-  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'authority', 'model', 'MODEL_COMPLETED', 'CONTEXT_COMMITTED', 'complete', 'delivery'])
+  assert.deepEqual(order, ['claim', 'authority', 'context', 'MODEL_STARTED', 'credential', 'CONTEXT_RECEIPT',
+    'authority', 'model', 'MODEL_COMPLETED', 'complete', 'delivery'])
+  assert.deepEqual(contextReceiptEvent.contextBinding, {
+    contextReceiptId: contextReceiptEvent.payload.receiptId,
+    contextReceiptHash: contextReceiptEvent.payload.hash,
+    contextPacket: null,
+  })
+})
+
+test('binds API-010-only memory to the context receipt before provider entry without an API-011 read', async () => {
+  const events = []
+  const order = []
+  let providerInput
+  const preparedTurn = { ...turn, slices: [{ id: 'api010-only-1', source: 'MSP', text: 'private API-010 fact' }] }
+  const ports = makeBasicPorts({ preparedTurn, events, order, onGenerate: input => { providerInput = input } })
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(result.status, 'RECORDED')
+  const receiptEvent = events.find(event => event.kind === 'CONTEXT_RECEIPT')
+  assertCanonicalReceipt(receiptEvent.payload)
+  assert.deepEqual(receiptEvent.payload.refs.msp, ['api010-only-1'])
+  assert.deepEqual(receiptEvent.contextBinding, {
+    contextReceiptId: receiptEvent.payload.receiptId,
+    contextReceiptHash: receiptEvent.payload.hash,
+    contextPacket: providerInput.contextPacket,
+  })
+  assert.equal(providerInput.contextPacket.policyDecision, 'ALLOW')
+  assert.match(providerInput.contextPacket.text, /private API-010 fact/)
+  assert.ok(order.indexOf('CONTEXT_RECEIPT') < order.indexOf('provider'))
+})
+
+test('binds API-010-only memory when API-011 read is opted in but returns no packet', async () => {
+  const events = []
+  const order = []
+  const receiptOperations = []
+  let providerInput
+  const contextReceiptId = 'ctxrcpt_00000000-0000-4000-8000-000000000012'
+  const preparedTurn = { ...turn, memorySync: true, threadId: 'thread-1',
+    slices: [{ id: 'api010-null-read-1', source: 'MSP', threadId: 'thread-1', text: 'private API-010 fact' }] }
+  const memory = {
+    read: async () => ({ status: 'COMPLETED', result: { contextPacket: null, receipt: { contextReceiptId } } }),
+    receipt: async (_claim, operation) => {
+      receiptOperations.push(operation)
+      return operation === 'append' ? { status: 'NOT_FOUND' } : assert.fail(`unexpected API-011 ${operation} receipt`)
+    },
+    append: async (_claim, answer) => ({ status: 'COMPLETED', result: { receipt: {
+      textSha256: createHash('sha256').update(answer, 'utf8').digest('hex'),
+    } } }),
+  }
+  const ports = makeBasicPorts({ preparedTurn, memory, events, order, onGenerate: input => { providerInput = input } })
+
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+
+  assert.equal(result.status, 'RECORDED')
+  const receiptEvent = events.find(event => event.kind === 'CONTEXT_RECEIPT')
+  assert.equal(receiptEvent.payload.receiptId, contextReceiptId)
+  assert.deepEqual(receiptEvent.payload.refs.msp, ['api010-null-read-1'])
+  assert.deepEqual(receiptEvent.contextBinding, {
+    contextReceiptId: receiptEvent.payload.receiptId,
+    contextReceiptHash: receiptEvent.payload.hash,
+    contextPacket: providerInput.contextPacket,
+  })
+  assert.deepEqual(receiptOperations, ['append'])
+  assert.ok(order.indexOf('CONTEXT_RECEIPT') < order.indexOf('provider'))
 })
 
 test('records API-011 injection states when a mixed API-010/API-011 packet is only partly retained', async () => {
+  const reservedContextReceiptId = 'ctxrcpt_00000000-0000-4000-8000-000000000001'
   const injectionStates = []
   let appended = false
-  let providerContext = null
-  const packet = { thread: { threadId: 'thread-1' }, memory: {
+  let providerInput = null
+  let boundContext = null
+  const packet = { policyDecision: 'ALLOW', thread: { threadId: 'thread-1' }, memory: {
     participants: [{ principalId: 'person-1' }], protectedMemory: [],
     recentExchanges: [{ exchangeId: 'long-exchange', messages: [{ text: 'x'.repeat(120) }] }], summaries: [],
   } }
   const mixedTurn = { ...turn, evidence: [{ citationId: 'gks-1', text: 'GKS' }],
     slices: [{ id: 'episodic:api010-1', source: 'MSP', scope: 'CROSS_THREAD', text: 'episodic fact' }],
-    audienceKind: 'DIRECT', threadId: 'thread-1', maxBudgetChars: 50, memorySync: true }
+    audienceKind: 'DIRECT', threadId: 'thread-1', maxBudgetChars: 80, memorySync: true }
   const ports = {
     job: { claim: async () => claim, renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
       complete: async (_claim, result) => ({ status: 'READY', ...result }), status: async () => ({ status: 'CLAIMED' }), fail: async () => {} },
@@ -71,9 +304,14 @@ test('records API-011 injection states when a mixed API-010/API-011 packet is on
     context: { prepare: async () => mixedTurn },
     workTool: { execute: async () => assert.fail('normal turn should not call WorkToolPort'), status: async () => ({ status: 'NOT_FOUND' }) },
     memory: {
-      read: async () => ({ status: 'COMPLETED', result: { contextPacket: packet } }),
+      read: async () => ({ status: 'COMPLETED', result: { contextPacket: packet,
+        receipt: { contextReceiptId: reservedContextReceiptId } } }),
       receipt: async (_claim, kind, input) => {
-        if (kind === 'injection') injectionStates.push(input.state)
+        if (kind === 'injection') {
+          injectionStates.push(input.state)
+          if (input.state === 'RESOLVED') boundContext = { contextReceiptId: input.contextReceiptId,
+            contextReceiptHash: input.contextReceiptHash, contextPacket: input.contextPacket }
+        }
         if (kind === 'append') return appended ? { status: 'COMPLETED', result: { receipt: {
           textSha256: createHash('sha256').update('supported answer', 'utf8').digest('hex') } } } : { status: 'NOT_FOUND' }
         return { status: 'COMPLETED' }
@@ -85,7 +323,7 @@ test('records API-011 injection states when a mixed API-010/API-011 packet is on
       },
     },
     model: { credential: async () => ({ provider: 'fake' }), generate: async input => {
-      providerContext = input.contextPacket.text
+      providerInput = input
       return 'supported answer'
     } },
     delivery: { send: async () => ({ status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
@@ -94,9 +332,25 @@ test('records API-011 injection states when a mixed API-010/API-011 packet is on
   const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
   assert.equal(result.status, 'RECORDED')
   assert.deepEqual(injectionStates, ['RESOLVED', 'SUBMITTED', 'COMPLETED'])
-  assert.match(providerContext, /person-1/)
-  assert.match(providerContext, /episodic fact/)
-  assert.doesNotMatch(providerContext, /long-exchange/)
+  assertCanonicalReceipt(providerInput.contextReceipt)
+  assert.equal(providerInput.contextReceipt.receiptId, reservedContextReceiptId)
+  assert.equal(boundContext.contextReceiptId, providerInput.contextReceipt.receiptId)
+  assert.equal(boundContext.contextReceiptHash, providerInput.contextReceipt.hash)
+  assert.deepEqual(boundContext.contextPacket, providerInput.contextPacket)
+  assert.deepEqual(providerInput.contextReceipt.refs.msp, ['participant:person-1', 'episodic:api010-1'])
+  assert.deepEqual(providerInput.contextReceipt.refs.citations, ['gks-1'])
+  assert.deepEqual(providerInput.contextPacket.sourceSegments.map(item => item.id), providerInput.contextReceipt.refs.msp)
+  assert.match(providerInput.contextPacket.text, /person-1/)
+  assert.match(providerInput.contextPacket.text, /episodic fact/)
+  assert.doesNotMatch(providerInput.contextPacket.text, /long-exchange/)
+  const spans = new Map([['participant:person-1', JSON.stringify({ principalId: 'person-1' })],
+    ['episodic:api010-1', 'episodic fact']])
+  const packetBytes = Buffer.from(providerInput.contextPacket.text, 'utf8')
+  for (const segment of providerInput.contextPacket.sourceSegments) {
+    const text = packetBytes.subarray(segment.startByte, segment.startByte + segment.byteLength).toString('utf8')
+    assert.equal(text, spans.get(segment.id))
+  }
+  assert.equal(injectionStates[0], 'RESOLVED')
 })
 
 test('revalidates API-010 authority after pre-provider injection receipt writes', async () => {
@@ -105,7 +359,7 @@ test('revalidates API-010 authority after pre-provider injection receipt writes'
   let authorityCalls = 0
   let providerCalls = 0
   let failed
-  const packet = { thread: { threadId: 'thread-1' }, memory: {
+  const packet = { policyDecision: 'ALLOW', thread: { threadId: 'thread-1' }, memory: {
     participants: [{ principalId: 'person-1' }], protectedMemory: [],
     recentExchanges: [{ exchangeId: 'exchange-1', messages: [{ text: 'private API-011 text' }] }], summaries: [],
   } }

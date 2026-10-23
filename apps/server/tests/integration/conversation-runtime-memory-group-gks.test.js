@@ -566,21 +566,24 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     const msp = createFakeMsp()
     // Tiny `text` (what the composer counts), large other fields: the composer keeps
     // all three, but together they exceed the 32 KiB evidence bound in bytes.
-    const records = ['r1', 'r2', 'r3'].map((id, index) => ({ kind: 'CORPUS_CHUNK', citationId: `cit-${id}`, text: `AB-1 ${id}`,
-      detail: 'ข'.repeat(index === 2 ? 10 : 7_000) }))
+    const records = ['r1', 'r2', 'r3', 'r4'].map(id => ({ kind: 'CORPUS_CHUNK', citationId: `cit-${id}`, text: `AB-1 ${id}`,
+      // Each record stays within the composer's character budget, but its UTF-8
+      // evidence bytes make all four exceed Core's 32 KiB memory-read bound.
+      detail: 'ข'.repeat(3_000) }))
     const corpusReaderFactory = () => ({ query: async () => ({ records: records.map(record => ({ ...record })) }) })
     const job = await admit('runtime', 0, { audience: 'DIRECT', speaker: 'A' })
     const built = buildRuntime({ msp, corpusReaderFactory })
     expect((await runRuntime(built)).map(outcome => outcome.status)).toEqual(['RECORDED'])
     const prompt = JSON.parse(built.providerCalls[0].body).messages[0].content
-    // r1 + r2 alone are ~42 KB: the lowest-ranked go first (r3, then r2).
+    // Core's byte cap keeps r1-r3; the character budget then includes only r1.
     expect(prompt).toContain('cit-r1')
     expect(prompt).not.toContain('cit-r2')
     expect(prompt).not.toContain('cit-r3')
+    expect(prompt).not.toContain('cit-r4')
     // The drop is traced once, with counts only (no citation, record or text).
     const trimmed = await prisma.agentTraceEvent.findMany({ where: { turnId: job.id, kind: 'EVIDENCE_TRIMMED' } })
     expect(trimmed.map(row => JSON.parse(row.payloadJson)))
-      .toEqual([{ phase: 'memory-read', recordsBefore: 3, recordsKept: 1, recordsDropped: 2 }])
+      .toEqual([{ phase: 'memory-read', recordsBefore: 4, recordsKept: 3, recordsDropped: 1 }])
     expect(trimmed[0].payloadJson).not.toMatch(/cit-|AB-1/)
   })
 

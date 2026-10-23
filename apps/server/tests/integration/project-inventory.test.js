@@ -1,4 +1,4 @@
-// @req FR-077 — Project Inventory composes an authorized Project read model without cross-scope leakage.
+// @req FR-077, FR-135 — Project Inventory composes an authorized Project read model without cross-scope leakage.
 // @spec SDD-045, ADR-034, ADR-012, ADR-014, ADR-016, ADR-017
 // @tested tests/integration/project-inventory.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
@@ -15,12 +15,14 @@ import { createContainer, createItem } from '@/modules/project-manager/applicati
 import { createGate, createMilestone } from '@/modules/project-manager/application/milestone-gate-service'
 import { createProjectFile } from '@/modules/project-manager/application/project-file-service'
 import { createRepository, linkRepository } from '@/modules/project-manager/application/repository-service'
+import { allocateAssetToProject } from '@/modules/asset-management/application/asset-lifecycle-service'
 import { getProjectInventory } from '@/modules/project-manager/application/project-inventory-read-model'
 
 let projectA
 let projectB
 let sharedProject
 let itemA
+let inventoryAssetCode
 let viewerA
 let viewerB
 
@@ -140,6 +142,60 @@ describe('FR-077 Project Inventory', () => {
         status: 'ACTIVE',
       },
     })
+    const assetA = await prisma.registeredAsset.create({
+      data: {
+        tenantId: tenantA.id,
+        businessId: businessA.id,
+        assetCode: `AST-INV-${suffix}`,
+        name: 'Project Inventory laptop',
+        categoryCode: 'IT_EQUIPMENT',
+      },
+    })
+    inventoryAssetCode = assetA.assetCode
+    await allocateAssetToProject({
+      businessId: businessA.id,
+      registeredAssetId: assetA.id,
+      projectId: projectA.id,
+      workstreamId: workstreamA.id,
+      purpose: 'Project Inventory integration fixture',
+      viewer: viewerA,
+    })
+    // A legacy/corrupt allocation can have an in-scope Project and asset but a
+    // Workstream owned by another Business. Project Inventory must not leak
+    // that foreign Workstream ID into its read-only DTO.
+    await prisma.assetProjectAllocation.create({
+      data: {
+        tenantId: tenantA.id,
+        businessId: businessA.id,
+        registeredAssetId: assetA.id,
+        projectId: projectA.id,
+        workstreamId: workstreamB.id,
+        status: 'ACTIVE',
+        effectiveFrom: new Date(),
+      },
+    })
+    const assetB = await prisma.registeredAsset.create({
+      data: {
+        tenantId: tenantB.id,
+        businessId: businessB.id,
+        assetCode: `AST-INV-B-${suffix}`,
+        name: 'Cross-Business asset that must stay hidden',
+        categoryCode: 'IT_EQUIPMENT',
+      },
+    })
+    // The schema keeps the allocation's scope columns separate from its two
+    // foreign keys. A corrupt cross-Business row must still be excluded by the
+    // read projection's explicit Business filters.
+    await prisma.assetProjectAllocation.create({
+      data: {
+        tenantId: tenantB.id,
+        businessId: businessB.id,
+        registeredAssetId: assetB.id,
+        projectId: projectA.id,
+        status: 'ACTIVE',
+        effectiveFrom: new Date(),
+      },
+    })
     const person = await prisma.person.create({ data: { code: `PER-INV-${suffix}`, displayName: 'Inventory Person', email: 'inventory@example.test' } })
     await prisma.membership.create({ data: { personId: person.id, tenantId: tenantA.id, businessId: businessA.id, role: 'MEMBER' } })
     await prisma.dependency.create({
@@ -171,6 +227,12 @@ describe('FR-077 Project Inventory', () => {
     expect(result.sections.dependencies.items).toHaveLength(1)
     expect(result.sections.dependencies.items[0].source.id).toContain(itemA.id)
     expect(result.sections.files.items.map((file) => file.name)).toEqual(expect.arrayContaining(['legacy-plan.pdf', 'managed-plan.pdf']))
+    expect(result.sections.assets.items).toHaveLength(1)
+    expect(result.sections.work.workstreams.items.map((workstream) => workstream.id)).toContain(result.sections.assets.items[0].workstreamId)
+    expect(result.sections.assets.items[0]).toEqual(expect.objectContaining({
+      assetCode: inventoryAssetCode,
+      name: 'Project Inventory laptop',
+    }))
     expect(result.sections.repositories.items[0].repo.fullName).toContain('org/inventory-')
     expect(result.sections.team.items[0].person.displayName).toBe('Inventory Person')
     expect(result.sections.activity.items[0]).not.toHaveProperty('payload')
@@ -207,5 +269,6 @@ describe('FR-077 Project Inventory', () => {
     expect(result.project.business).toBeNull()
     expect(result.meta.readScope).toBe('TENANT_SHARED')
     expect(result.sections.team.status).toBe('READY')
+    expect(result.sections.assets.status).toBe('EMPTY')
   })
 })

@@ -488,7 +488,7 @@ describe('server answer memory composition', () => {
     expect(result).toContain('AB-1')
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
-    expect(receipt).toMatchObject({ refs: { msp: [], citations: [], records: [] } })
+    expect(receipt).toMatchObject({ refs: { msp: [], citations: ['knowledge:0'], records: [] } })
     expect(receipt.budget).toMatchObject({ trimmed: 0 })
     expect(typeof receipt.hash).toBe('string')
     expect(receipt.dropped).toEqual([])
@@ -514,7 +514,7 @@ describe('server answer memory composition', () => {
     expect(result).toContain('AB-1')
     expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
-    expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+    expect(receipt.refs).toEqual({ msp: [], citations: ['knowledge:0'], records: [] })
   })
 
   // @req FR-234 — what a model actually receives must be derived from the
@@ -589,7 +589,7 @@ describe('server answer memory composition', () => {
       // receipt would hash: reference-equal to what the model actually saw.
       expect(withInjectionReceipt.mock.calls[0][0].contextPacket).toBe(modelPacket)
 
-      expect(receipt.refs).toEqual({ msp: ['exchange:ex-3'], citations: [], records: [] })
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-3'], citations: ['knowledge:0'], records: [] })
       expect(receipt.budget).toMatchObject({ trimmed: 2 })
       expect(receipt.dropped).toEqual([
         { id: 'exchange:ex-2', source: 'MSP', reason: 'BUDGET_TRIMMED' },
@@ -617,7 +617,7 @@ describe('server answer memory composition', () => {
       // Rebuilt for the model in chronological order (oldest-first)...
       expect(modelPacket.memory.recentExchanges).toEqual(exchanges)
       // ...but the receipt reports the composer's own newest-first inclusion order.
-      expect(receipt.refs).toEqual({ msp: ['exchange:ex-2', 'exchange:ex-1'], citations: [], records: [] })
+      expect(receipt.refs).toEqual({ msp: ['exchange:ex-2', 'exchange:ex-1'], citations: ['knowledge:0'], records: [] })
       expect(receipt.budget.trimmed).toBe(0)
       expect(receipt.dropped).toEqual([])
     })
@@ -629,7 +629,7 @@ describe('server answer memory composition', () => {
       const { modelPacket, withInjectionReceipt, receipt } = await runBudget({ recentExchanges: exchanges })
       expect(modelPacket).toBeNull()
       expect(withInjectionReceipt.mock.calls[0][0].contextPacket).toBeNull()
-      expect(receipt.refs).toEqual({ msp: [], citations: [], records: [] })
+      expect(receipt.refs).toEqual({ msp: [], citations: ['knowledge:0'], records: [] })
       expect(receipt.budget.trimmed).toBe(2)
     })
 
@@ -663,9 +663,9 @@ describe('server answer memory composition', () => {
       expect(modelPacket.memory.participants).toEqual(participants)
       expect(receipt.refs.msp).toEqual(['participant:person-a', 'participant:person-b'])
       // Nothing of packet.knowledge ever entered the composer, so the receipt
-      // correctly shows no citation for it — there is nothing to cite because
-      // the model received nothing from that field.
-      expect(receipt.refs.citations).toEqual([])
+      // names only the independently authorized Business query evidence;
+      // no citation comes from the stripped packet.knowledge field.
+      expect(receipt.refs.citations).toEqual(['knowledge:0'])
     })
 
     it('includes every participant within budget, going through the same composer path as exchanges', async () => {

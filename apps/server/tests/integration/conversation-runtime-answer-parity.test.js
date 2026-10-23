@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { createModelProviderPort } from '@/modules/agent/model-provider'
+import { DEFAULT_CONTEXT_BUDGET_CHARS } from '@/modules/agent/context-composer'
 import { createConversationRuntime } from '../../../../services/conversation-runtime/src/turn-runtime.js'
 import { createModelPort } from '../../../../services/conversation-runtime/src/model-port.js'
 
@@ -93,9 +94,10 @@ async function runtimeReply(evidence, fetchFn) {
     authority: { resolve: async () => ({ authorized: true, version: 1, scope: { tenantId, businessId,
       accountId: claim.accountId, identityId: 'identity-parity', identityVersion: 1 } }) },
     // Exactly the prepared turn Core's `prepare` returns for a Business-knowledge
-    // question: the evidence crosses the wire as JSON.
+    // question: the evidence crosses the wire as JSON and the budget matches
+    // Core's default normal-turn budget.
     context: { prepare: async () => ({ question, evidence: clone(evidence), slices: [], authorized: true,
-      audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null }) },
+      audienceKind: 'DIRECT', threadId: null, maxBudgetChars: DEFAULT_CONTEXT_BUDGET_CHARS, workCommand: null }) },
     workTool: { execute: async () => { throw new Error('WORK_TOOL_NOT_EXPECTED') }, status: async () => ({ status: 'NOT_FOUND' }) },
     model: { credential: async () => ({ provider: 'openrouter', model: 'parity-model', apiKey }),
       generate: createModelPort({ timeoutMs: 1000, fetchFn }).generate },

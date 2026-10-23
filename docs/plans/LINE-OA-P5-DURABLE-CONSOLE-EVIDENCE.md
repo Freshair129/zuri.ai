@@ -1,15 +1,20 @@
 ---
 id: ZAI:LINE-OA-P5-DURABLE-CONSOLE-EVIDENCE
-version: "0.1.0b"
+version: "0.1.1b"
 status: beta
+last_update: "2026-10-23T00:00:00+07:00,Codex, navigation only"
 relations:
   - type: relates_to
-    target: ZAI:LINE-OA-LOCAL-LLM-CIN-EXECUTION
+    target: ZAI:ADR-061
 ---
 
 # P5 local console durability evidence
 
-Implements the approved execution plan section 8. C-3 / HIGH because diagnostics
+Navigation amendment 0.1.0b → 0.1.1b (2026-10-23): pins the removed plan's
+approval history and links the originating Edge execution decision. Original
+evidence is historical; no test or runtime claim is refreshed.
+
+Implements [the historical approved execution plan](https://github.com/Freshair129/zuri.ai/blob/e3474ef3c16b5cc5b6e797c63e69d6dc202c191f/docs/plans/LINE-OA-LOCAL-LLM-CIN-EXECUTION.md) section 8. C-3 / HIGH because diagnostics
 must preserve privacy and never block the LINE reply path.
 
 The previous native console stored only 200 in-memory lines. Native Desktop now

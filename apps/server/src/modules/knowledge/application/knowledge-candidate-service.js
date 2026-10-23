@@ -12,8 +12,8 @@ import { hashGenesisRag17Json } from '../genesisrag17-contract'
 import { assertCandidateProseZeroPii, composeCandidateContent } from '../knowledge-candidate-zero-pii'
 import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-service'
 
-// @req FR-236 — the knowledge domain's one writer of KnowledgeCandidate: a
-//   consent-gated extractor that drafts a locator-only Q/A from an existing
+// @req FR-236 — the knowledge domain's draft/edit/review writer for
+//   KnowledgeCandidate: a consent-gated extractor that drafts a locator-only Q/A from an existing
 //   CRM read projection (`conversation-read-model.js` — crm gains no writer,
 //   ADR-090 Consequences), a Business OWNER or LINE_OA_PUBLISHER who edits it,
 //   and the audited APPROVE/REJECT decision that, on APPROVE only, admits it
@@ -36,8 +36,9 @@ import { admitKnowledge as defaultAdmitKnowledge } from '../knowledge-admission-
 //   turned on per Business only on the owner's instruction), checked in
 //   `draftKnowledgeCandidate` before any authority check — never in
 //   update/decide, which stay reachable for a candidate already drafted even
-//   if the Business's flag is later turned off. Written only by
-//   `business-knowledge-candidates-service.js`.
+//   if the Business's flag is later turned off. The flag is written only by
+//   `business-knowledge-candidates-service.js`; the separate FR-232
+//   Knowledge-owned erasure port is the only writer of TOMBSTONED.
 // @spec ADR-090 D6, D8; ADR-072; SEC-032; BR-002; SEC-001
 // @tested tests/integration/fr236-knowledge-candidate.test.js, tests/unit/knowledge-candidate-migration.test.js, tests/unit/conversation-consent-reader.test.js, tests/integration/fr236-stage5-zero-pii-agreement.test.js, tests/integration/fr236-knowledge-candidates-business-toggle.test.js, tests/unit/business-knowledge-candidates.test.js
 
@@ -248,12 +249,10 @@ export async function updateKnowledgeCandidate(id, input, { viewer, db = prisma 
  * service — the only write path into the corpus — as one immutable
  * LINE_FAQ_CANDIDATE TEXT source; REJECT never calls it. Both are audited.
  *
- * Idempotency has two independent layers: the `status !== PENDING_REVIEW`
- * check below refuses a second decision on the fast path, and even a narrow
- * race that lets two calls past it cannot admit twice — `admitKnowledge`'s
- * own idempotency key (namespaced from this candidate's id) makes the second
- * admission call `unchanged: true`, and the compare-and-set update afterwards
- * lets only one of the two callers actually flip the row's status.
+ * The candidate row and its source/ingestion are committed together by the
+ * ADR-072 admission transaction. That transaction's candidate CAS is also the
+ * serialization fence shared with FR-232 erasure: whichever transaction wins
+ * first leaves the other with either no admission or a complete source link.
  */
 export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma, now = new Date(), admit = defaultAdmitKnowledge } = {}) {
   const data = zDecideKnowledgeCandidate.parse(input)
@@ -311,14 +310,10 @@ export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma,
     })
   }
 
-  // APPROVE — admit first (idempotent on its own key), then flip the row.
-  // This is deliberately not one Prisma transaction spanning both services:
-  // admitKnowledge already commits its own durable, resumable state, exactly
-  // like every other admission caller (knowledge-runtime.js never wraps it in
-  // a caller transaction either). A crash between the two steps leaves a
-  // recoverable state — the source is admitted and the next `decideKnowledge
-  // Candidate` retry with the same input reaches the identical `unchanged:
-  // true` admission and completes the row flip.
+  // APPROVE — the admission service owns one transaction that fences this
+  // exact review version, admits the source/ingestion, and links/audits the
+  // candidate before commit. This internal context is never derived from HTTP
+  // input; direct LINE_FAQ_CANDIDATE admission without it refuses.
   const admission = await admit({
     businessId: row.businessId,
     idempotencyKey: `knowledge-candidate:${row.id}`,
@@ -336,22 +331,24 @@ export async function decideKnowledgeCandidate(id, input, { viewer, db = prisma,
     // knowledge-write authorization (owner-only) would otherwise refuse a
     // LINE_OA_PUBLISHER who is not the Business owner.
     authorization: async () => ({ authorized: true }),
+    candidateApproval: {
+      candidateId: row.id,
+      tenantId: row.tenantId,
+      businessId: row.businessId,
+      expectedVersion: row.version,
+      actorId: actor,
+      decidedAt,
+      reason: data.reason ?? null,
+    },
   })
 
-  return db.$transaction(async (tx) => {
-    const result = await tx.knowledgeCandidate.updateMany({
-      where: { id: row.id, version: row.version, status: 'PENDING_REVIEW' },
-      data: {
-        status: 'APPROVED', decidedByPersonId: actor, decidedAt, decisionReason: data.reason ?? null,
-        admittedSourceId: admission.source?.id ?? null, admittedIngestionId: admission.id ?? admission.admissionId ?? null,
-        version: { increment: 1 },
-      },
-    })
-    if (result.count !== 1) throw failure(409, 'Candidate was already decided', 'KNOWLEDGE_CANDIDATE_ALREADY_DECIDED')
-    await recordAudit(tx, {
-      entityType: ENTITY, entityId: row.id, action: 'KNOWLEDGE_CANDIDATE_APPROVED', actorId: actor,
-      payload: { businessId: row.businessId, admittedSourceId: admission.source?.id ?? null, admittedIngestionId: admission.id ?? admission.admissionId ?? null },
-    })
-    return toDto(await tx.knowledgeCandidate.findUnique({ where: { id: row.id }, select: SELECT }))
-  })
+  const committed = await db.knowledgeCandidate.findUnique({ where: { id: row.id }, select: SELECT })
+  if (
+    committed?.status !== 'APPROVED'
+    || committed.admittedSourceId !== (admission.source?.id ?? null)
+    || committed.admittedIngestionId !== (admission.id ?? admission.admissionId ?? null)
+  ) {
+    throw failure(409, 'Knowledge candidate admission did not commit its approval link', 'KNOWLEDGE_CANDIDATE_ADMISSION_CONFLICT')
+  }
+  return toDto(committed)
 }

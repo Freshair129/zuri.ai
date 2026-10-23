@@ -58,7 +58,7 @@ function fakeTrace() {
 }
 
 describe('FR-235 — LINE knowledge grounding modes', () => {
-  it('BUSINESS_KNOWLEDGE (default, no account field): byte-identical trace — one BUSINESS_QUERY hop, no corpus call, no ContextReceipt', async () => {
+  it('BUSINESS_KNOWLEDGE (default, no account field): one BUSINESS_QUERY hop, no corpus call and one context receipt', async () => {
     queryKnowledgeCorpusMock.mockClear()
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
     const trace = fakeTrace()
@@ -71,7 +71,8 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     const [, evidence, meta] = trace.recordEvidence.mock.calls[0]
     expect(evidence).toEqual(businessKnowledgeEvidence())
     expect(meta).toBeUndefined() // the pre-FR-235 call shape: (query, evidence) only
-    expect(trace.recordContextReceipt).not.toHaveBeenCalled()
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    expect(trace.recordContextReceipt.mock.calls[0][0].refs.citations).toEqual(['knowledge:0'])
   })
 
   it('BUSINESS_KNOWLEDGE (explicit): same byte-identical behaviour as an account with no grounding field', async () => {
@@ -92,7 +93,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
   })
 
-  it('GKS_CORPUS (not memory-opt-in): reads the published corpus, traces one GKS_CORPUS hop tagged with the mode, answers from the chunk, and records no ContextReceipt', async () => {
+  it('GKS_CORPUS (not memory-opt-in): reads the published corpus, traces one GKS_CORPUS hop tagged with the mode, answers from the chunk, and records one ContextReceipt', async () => {
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const knowledge = { query: vi.fn() } // must never be read in GKS_CORPUS mode
@@ -112,11 +113,9 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     expect(meta.retrievalRefs).toEqual([{ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 4, manifestHash: 'h'.repeat(64) }])
     expect(typeof meta.budgetMs).toBe('number')
 
-    // @req FR-234/SDD-100 — no MSP packet exists on a non-memory-opt-in turn
-    // to compose this evidence with, so no ContextReceipt is recorded here;
-    // that composition and receipt are owned entirely by the memory-opt-in
-    // path (see the "memory-opt-in" describe block below), never duplicated.
-    expect(trace.recordContextReceipt).not.toHaveBeenCalled()
+    // FR-234 applies to public evidence even when private memory is not enabled.
+    expect(trace.recordContextReceipt).toHaveBeenCalledOnce()
+    expect(trace.recordContextReceipt.mock.calls[0][0].refs.citations).toEqual(['cit-1'])
   })
 
   it('GKS_CORPUS: no evidence yields the deterministic reply and zero model calls, with no fallback reader touched', async () => {
@@ -305,7 +304,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     expect(receipt.refs.citations).toEqual(['cit-1'])
   })
 
-  it('BUSINESS_KNOWLEDGE mode composes only MSP, exactly as before FR-235 (byte-identical)', async () => {
+  it('BUSINESS_KNOWLEDGE mode composes public evidence with MSP under one budget', async () => {
     queryKnowledgeCorpusMock.mockClear()
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }) })
@@ -313,7 +312,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
     expect(queryKnowledgeCorpusMock).not.toHaveBeenCalled()
     expect(trace.recordContextReceipt).toHaveBeenCalledTimes(1)
     const receipt = trace.recordContextReceipt.mock.calls[0][0]
-    expect(receipt.refs.citations).toEqual([])
+    expect(receipt.refs.citations).toEqual(['knowledge:0'])
   })
 })
 

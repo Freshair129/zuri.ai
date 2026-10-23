@@ -47,7 +47,7 @@ export function createDeterministicBusinessModel() {
   })
 }
 
-export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model, trace, contextPacket = null }) {
+export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model, trace, contextPacket = null, contextReceipt = null }) {
   if (!businessId) throw new Error('BUSINESS_ID_REQUIRED')
   if (!question?.trim()) throw new Error('QUESTION_REQUIRED')
   const selected = selectRegisteredQuery(question)
@@ -64,7 +64,8 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
   }
 
   try {
-    const generated = await model.generate({ question, evidence, contextPacket, ...(trace ? { trace } : {}) })
+    const generated = await model.generate({ question, evidence, contextPacket,
+      ...(contextReceipt ? { contextReceipt } : {}), ...(trace ? { trace } : {}) })
     const checked = checkModelAnswer(question, evidence, generated.text)
     if (checked.status === 'ok') {
       return { text: generated.text, grounded: true, evidence, provider: generated, verification: checked.verification }

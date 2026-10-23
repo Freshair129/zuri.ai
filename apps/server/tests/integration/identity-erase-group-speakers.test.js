@@ -1,12 +1,17 @@
 import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
+import { makeViewer } from '../factories/viewer'
+import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
 import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVIDER_CODE } from '@/platform/integrations/core/integration-registry'
 import { admitLineConversation, runtimeSenderAuthority } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { redactLineConversationJobs } from '@/modules/line-oa-studio/application/line-job-erasure'
 import { appendOutbound } from '@/modules/crm/reply-record-service'
+import { recordCustomerConsent } from '@/modules/crm/customer-consent-service'
 import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
+import { memoryErasureTurnId } from '@/modules/line-oa-studio/application/line-memory-erasure'
 
 // @req FR-022 — PDPA erasure follows the speaker in a shared LINE group or room thread.
 // A group Conversation belongs to the Customer of its FIRST speaker (A). Erasing any other
@@ -52,6 +57,16 @@ async function rawRecord(externalId, text) {
 async function personOf(subject) {
   const identity = await prisma.channelIdentity.findFirst({ where: { tenantId: tenant.id, providerSubject: subject } })
   return identity.personId
+}
+
+async function consentOwner() {
+  const person = await prisma.person.create({
+    data: { id: randomUUID(), code: `PER-ERASE-GRP-OWNER-${randomUUID().slice(0, 8)}`, displayName: 'Synthetic consent owner' },
+  })
+  return makeViewer({
+    principal: { id: person.id, code: person.code, displayName: person.displayName },
+    ownedBusinessIds: [business.id], visibleBusinessIds: [business.id], visibleDomains: [...VIEWER_DOMAINS],
+  })
 }
 
 /**
@@ -196,6 +211,80 @@ describe('PDPA erasure in a shared LINE group or room thread (FR-022)', () => {
     expect(await payloadOf(s.raw.b.id)).toContain('B private group line')
     expect((await prisma.conversation.findUnique({ where: { id: s.groupConversationId } })).lastMessagePreview)
       .toContain('B-1')
+  })
+
+  it('consent decline erases memory projections but preserves Customer identity and retention purpose', async () => {
+    const s = await scene('group')
+    const viewer = await consentOwner()
+    const customer = await prisma.customer.findFirst({ where: { tenantId: tenant.id, personId: s.personB } })
+    const channelIdentityBefore = await prisma.channelIdentity.findFirst({ where: { tenantId: tenant.id, personId: s.personB } })
+    const externalIdentityBefore = await prisma.externalIdentity.findFirst({ where: { tenantId: tenant.id, personId: s.personB } })
+    await prisma.customer.update({ where: { id: customer.id }, data: { consentStatus: 'GRANTED' } })
+    await prisma.lineConversationJob.updateMany({
+      where: { id: { in: [s.bAsk.jobId, s.bDirect.jobId] } },
+      data: { memorySyncOptIn: true, memoryDeliveryState: 'NONE' },
+    })
+    const attachment = await prisma.messageAttachment.create({ data: {
+      messageId: s.bLine.inboundMessageId, kind: 'IMAGE', providerContentId: `synthetic-image-${randomUUID()}`, fetchState: 'PENDING',
+    } })
+    await prisma.conversationAnalysis.create({ data: { conversationId: s.groupConversationId,
+      analyzedDate: new Date(), contactType: 'CUSTOMER', state: 'OPEN', tags: '[]', summary: 'mixed-speaker analysis' } })
+    const analysesBefore = await prisma.conversationAnalysis.findMany({ where: { conversationId: s.groupConversationId }, orderBy: { id: 'asc' } })
+
+    const retentionConsent = await prisma.customerRetentionConsent.create({ data: {
+      tenantId: tenant.id, customerId: customer.id, businessId: business.id,
+      recordedByPersonId: viewer.principal.id, note: 'separate retention purpose',
+    } })
+    const legalHold = await prisma.customerLegalHold.create({ data: {
+      tenantId: tenant.id, customerId: customer.id, reason: 'separate dispute hold',
+      endDate: new Date(Date.now() + 86_400_000), recordedByPersonId: viewer.principal.id,
+    } })
+    const archiveKey = await prisma.customerArchiveKey.create({ data: {
+      tenantId: tenant.id, customerId: customer.id, kekId: 'test-key', wrappedDek: 'synthetic-wrapped-key',
+    } })
+    const firstSpeakerJobBefore = await job(s.aAsk.jobId)
+    const customerDisplayName = customer.displayName
+
+    const result = await recordCustomerConsent(customer.id, { businessId: business.id, status: 'DECLINED' }, { viewer })
+
+    expect(result).toMatchObject({ consentStatus: 'DECLINED', memoryErasureStatus: 'PENDING_MSP' })
+    expect(await body(s.bLine.inboundMessageId)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await body(s.bAsk.inboundMessageId)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await body(s.bReply)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await body(s.bDirect.inboundMessageId)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await body(s.bDirectReply)).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+    expect(await body(s.aLine.inboundMessageId)).toBe('A private group line')
+    expect(await body(s.aAsk.inboundMessageId)).toContain('A asks about order A-1')
+    await expectJobErased(s.bAsk.jobId)
+    await expectJobErased(s.bDirect.jobId)
+    expect(await job(s.aAsk.jobId)).toEqual(firstSpeakerJobBefore)
+    expect(await payloadOf(s.raw.b.id)).toContain('"redacted":true')
+    expect(await prisma.messageAttachment.findUnique({ where: { id: attachment.id } }))
+      .toMatchObject({ fetchState: 'ERASED', providerContentId: null })
+    // FR-127 retains audited CRM analyses on memory-consent decline. Principal
+    // erasure's separate tests still require deleting those derived records.
+    expect(await prisma.conversationAnalysis.findMany({ where: { conversationId: s.groupConversationId }, orderBy: { id: 'asc' } })).toEqual(analysesBefore)
+    expect((await prisma.conversation.findUnique({ where: { id: s.directConversationId } })).lastMessagePreview)
+      .toBe(CUSTOMER_ERASURE_TOMBSTONE)
+
+    const erasureTurnId = memoryErasureTurnId({ tenantId: tenant.id, principalId: s.personB, jobIds: [s.bAsk.jobId, s.bDirect.jobId] })
+    expect(await prisma.agentTraceEvent.findFirst({ where: { tenantId: tenant.id, turnId: erasureTurnId, kind: 'MEMORY_THREAD_ERASURE_PENDING' } }))
+      .toBeTruthy()
+    expect(await prisma.agentTraceEvent.findFirst({ where: { tenantId: tenant.id, turnId: erasureTurnId, kind: 'MEMORY_THREAD_ERASURE_ACKNOWLEDGED' } }))
+      .toBeNull()
+
+    const customerAfter = await prisma.customer.findUnique({ where: { id: customer.id } })
+    expect(customerAfter).toMatchObject({ consentStatus: 'DECLINED', memoryErasureStatus: 'PENDING_MSP', deletedAt: null, displayName: customerDisplayName })
+    expect((await prisma.person.findUnique({ where: { id: s.personB } })).displayName).not.toBe('[erased]')
+    expect((await prisma.person.findUnique({ where: { id: s.personB } })).accessDisabledAt).toBeNull()
+    expect(await prisma.channelIdentity.findFirst({ where: { tenantId: tenant.id, personId: s.personB } }))
+      .toEqual(channelIdentityBefore)
+    expect(await prisma.externalIdentity.findFirst({ where: { tenantId: tenant.id, personId: s.personB } }))
+      .toEqual(externalIdentityBefore)
+    expect(await prisma.customerRetentionConsent.findUnique({ where: { id: retentionConsent.id } }))
+      .toMatchObject({ revokedAt: null, note: 'separate retention purpose' })
+    expect(await prisma.customerLegalHold.findUnique({ where: { id: legalHold.id } })).toBeTruthy()
+    expect(await prisma.customerArchiveKey.findUnique({ where: { id: archiveKey.id } })).toBeTruthy()
   })
 
   it('keeps the direct-chat reference behaviour: the whole thread, both directions, and its jobs', async () => {

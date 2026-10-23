@@ -28,7 +28,7 @@ import { CONTEXT_SLICE_SOURCES, CONTEXT_DENIAL_REASONS } from '@/lib/validation/
 // It never calls MSP, GKS, CRM/ERP or a model — callers pass already-fetched
 // slices through the ports those lanes own. FR-231 (CRM/ERP fact records) is
 // still a separate, later phase; `records` stays empty on every caller today.
-// FR-235 (GKS grounding): on a memory-opt-in turn, `server-line-answer.js`
+// FR-235 (GKS grounding): on every model turn, `server-line-answer.js`
 // composes a Business's already-budgeted corpus evidence into
 // `knowledgeEvidence` slices IN THE SAME CALL as the turn's MSP slices, under
 // one shared budget — never a second, independent composition (that would be
@@ -37,12 +37,9 @@ import { CONTEXT_SLICE_SOURCES, CONTEXT_DENIAL_REASONS } from '@/lib/validation/
 // (`knowledge/corpus-knowledge-reader.js`) never calls this module — it
 // returns evidence only.
 //
-// KNOWN COVERAGE GAP (left open by review, see the calling module's own
-// annotation): only server-line-answer.js's MSP-opt-in branch calls this
-// composer today. The LOCAL_ONLY / non-opt-in path's business-evidence model
-// invocation (grounded-business-answer.js) does not yet run through it, so
-// that invocation records no ContextReceipt. FR-234 declares "every model
-// invocation of a LINE turn"; today's coverage is partial, not complete.
+// The Server caller composes public evidence even without memory opt-in and
+// records a receipt only at provider entry. CRM/ERP fact providers remain a
+// separate integration; this pure module never invents or fetches such facts.
 
 export const DEFAULT_CONTEXT_BUDGET_CHARS = 4000
 

@@ -73,8 +73,10 @@ it('CLI reproduces generated files and rejects stale state, backlinks and missin
     const bundleRows = originalFeatures.split('\n').filter(line => /^\| FEAT-/.test(line))
     const firstFr = bundleRows[0].match(/FR-\d{3}/)[0]
     const next = bundleRows[1].split('|')
+    // Keep the unissued corruption token out of the source-reference scanner.
+    const unknownFixtureId = ['FR', '998'].join('-')
     const malformedProjection = originalFeatures
-      .replace(bundleRows[0], bundleRows[0].replace(firstFr, `${firstFr}, FR-998, ${firstFr}`))
+      .replace(bundleRows[0], bundleRows[0].replace(firstFr, `${firstFr}, ${unknownFixtureId}, ${firstFr}`))
       .replace(bundleRows[1], [next[0], next[1], next[2], ` ${firstFr}, ${next[3].trim()}`, ...next.slice(4)].join('|'))
     const canonicalSemantics = data => ({
       nodes: data.nodes.filter(node => ['feature', 'requirement'].includes(node.type)),

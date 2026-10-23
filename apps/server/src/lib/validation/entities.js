@@ -24,11 +24,21 @@ import {
 const zDate = z.coerce.date()
 const zOptionalDate = z.coerce.date().nullish()
 const zJsonObject = z.record(z.any())
+const zNonEmptyPatch = (schema) => schema.strict().refine(
+  (patch) => Object.keys(patch).length > 0,
+  { message: 'At least one field must be provided' },
+)
 
 export const zPortfolioInput = z.object({
   code: z.string().min(1).optional(),
   name: z.string().min(1),
 })
+
+export const zPortfolioUpdate = zNonEmptyPatch(z.object({
+  code: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  status: z.string().min(1).optional(),
+}))
 
 export const zTenantInput = z.object({
   code: z.string().min(1).optional(),
@@ -36,6 +46,12 @@ export const zTenantInput = z.object({
   name: z.string().min(1),
   status: z.string().optional(),
 })
+
+export const zTenantUpdate = zNonEmptyPatch(z.object({
+  code: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  status: z.string().min(1).optional(),
+}))
 
 // @req FR-194 — LegalEntity sits under Tenant, not Portfolio (ADR-078 D1): a
 // Business may only reference a LegalEntity in its own Tenant.
@@ -54,6 +70,13 @@ export const zLegalEntityInput = z.object({
     .optional(),
 })
 
+export const zLegalEntityUpdate = zNonEmptyPatch(z.object({
+  code: z.string().min(1).optional(),
+  legalName: z.string().min(1).optional(),
+  legalAddress: z.string().nullish(),
+  status: z.string().min(1).optional(),
+}))
+
 // @req FR-194 — one of the legal entity's own VAT branch registrations
 // (ประมวลรัษฎากร ม.86, ภ.พ.20). `00000` is head office.
 export const zTaxRegistrationBranchInput = z.object({
@@ -70,6 +93,13 @@ export const zBusinessInput = z.object({
   name: z.string().min(1),
   status: z.string().optional(),
 })
+
+export const zBusinessUpdate = zNonEmptyPatch(z.object({
+  code: z.string().min(1).optional(),
+  legalEntityId: z.string().min(1).nullish(),
+  name: z.string().min(1).optional(),
+  status: z.string().min(1).optional(),
+}))
 
 // FR-020 — add a business to the group: tenant + starter workspace are implied.
 export const zBusinessInGroupInput = z.object({
@@ -285,6 +315,14 @@ export const zBranchInput = z.object({
   // predates this column keeps creating exactly what it created before.
   kind: zBranchKind.optional(),
 })
+
+export const zBranchUpdate = zNonEmptyPatch(z.object({
+  code: z.string().min(1).optional(),
+  name: z.string().min(1).optional(),
+  address: z.string().nullish(),
+  kind: zBranchKind.optional(),
+  status: z.string().min(1).optional(),
+}))
 
 // @req FR-193 — Employment is an HR assignment, never an access grant
 // (ADR-078 D1); nothing here resembles a role or a domain key.

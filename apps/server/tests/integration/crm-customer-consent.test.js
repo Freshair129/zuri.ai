@@ -9,6 +9,7 @@ import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-id
 import { getConversationThread } from '@/modules/crm/conversation-read-model'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
 import { VIEWER_DOMAINS } from '@/modules/identity/viewer-domains'
+import { CUSTOMER_ERASURE_TOMBSTONE } from '@/modules/crm/conversation-redaction-service'
 
 // @req FR-103 — SEC-005 consent attestation, proved against a Customer the real
 // FR-023 ingest seam wrote, not a hand-inserted fixture.
@@ -145,6 +146,77 @@ describe('Customer PDPA consent attestation (FR-103)', () => {
       { viewer: await ownerOf(busA2.id) },
     )
     expect(result.consentStatus).toBe('DECLINED')
+  })
+
+  it('declines and erases the current principal when identity linking commits before the consent transaction', async () => {
+    const lineUserId = `U-consent-relink-${randomUUID()}`
+    const ingest = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId,
+      threadId: lineUserId, text: 'Private memory before consent withdrawal',
+      externalMessageId: `M-consent-relink-${randomUUID()}`,
+    })
+    const canonical = await prisma.person.create({
+      data: { code: `PER-CONSENT-RELINK-${randomUUID()}`, displayName: 'Canonical customer' },
+    })
+    const token = await issueLinkToken({ tenantId: tenantA.id, personId: canonical.id })
+    let linked = false
+    const db = {
+      business: prisma.business,
+      customer: prisma.customer,
+      $transaction: async (callback, options) => {
+        if (!linked) {
+          linked = true
+          await redeemLinkToken({ tenantId: tenantA.id, token: token.token, lineUserId, merge: true })
+        }
+        return prisma.$transaction(callback, options)
+      },
+    }
+
+    const result = await recordCustomerConsent(ingest.customerId,
+      { businessId: busA1.id, status: 'DECLINED' }, { viewer: await ownerOf(busA1.id), db })
+    expect(result.consentStatus).toBe('DECLINED')
+    expect((await prisma.customer.findUnique({ where: { id: ingest.customerId } })).personId).toBe(canonical.id)
+    const messages = await prisma.message.findMany({ where: { conversation: { customerId: ingest.customerId } } })
+    expect(messages).toHaveLength(1)
+    expect(messages[0].body).toBe(CUSTOMER_ERASURE_TOMBSTONE)
+  })
+
+  it('rolls back the consent and memory changes when the identity/version claim becomes stale', async () => {
+    const lineUserId = `U-consent-conflict-${randomUUID()}`
+    const ingest = await ingestLineMessage({
+      tenantId: tenantA.id, businessId: busA1.id, lineUserId, threadId: lineUserId,
+      text: 'Preserve memory when the consent transaction aborts',
+    })
+    const before = await prisma.customer.findUnique({ where: { id: ingest.customerId } })
+    const canonical = await prisma.person.create({
+      data: { code: `PER-CONSENT-CONFLICT-${randomUUID()}`, displayName: 'Conflicting customer' },
+    })
+    const db = {
+      business: prisma.business,
+      customer: prisma.customer,
+      $transaction: (callback, options) => prisma.$transaction(async tx => {
+        const customer = new Proxy(tx.customer, {
+          get(target, key) {
+            if (key !== 'update') return target[key]
+            return async args => {
+              // A real row/version change after the authoritative read proves
+              // the guarded write refuses stale identity and rolls back all work.
+              await target.update({ where: { id: ingest.customerId },
+                data: { personId: canonical.id, version: { increment: 1 } } })
+              return target.update(args)
+            }
+          },
+        })
+        return callback(new Proxy(tx, { get: (target, key) => key === 'customer' ? customer : target[key] }))
+      }, options),
+    }
+    await expect(recordCustomerConsent(ingest.customerId,
+      { businessId: busA1.id, status: 'DECLINED' }, { viewer: await ownerOf(busA1.id), db }))
+      .rejects.toMatchObject({ code: 'P2025' })
+    expect(await prisma.customer.findUnique({ where: { id: ingest.customerId } })).toEqual(before)
+    expect((await prisma.message.findFirst({ where: { conversation: { customerId: ingest.customerId } } })).body)
+      .toBe('Preserve memory when the consent transaction aborts')
+    expect(await prisma.auditEvent.count({ where: { entityType: 'CUSTOMER', entityId: ingest.customerId, action: 'CUSTOMER_CONSENT_DECLINED' } })).toBe(0)
   })
 
   it('an owner of a Business in a different tenant cannot reach this Customer at all', async () => {

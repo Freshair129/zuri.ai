@@ -88,6 +88,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D8, BR-031) — `StockReservation` + migration, `application/inventory-atp-service.js`; `tests/integration/fr180-atp-reservations.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [LINE agent: stock availability and published sell-price facts](../../change-requests/integration/line-agent-stock-price-facts-20261023.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-181 canonical record](requirements/FR-181.md)

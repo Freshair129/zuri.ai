@@ -3,7 +3,7 @@ doc_type: intake-note
 title: Governed authored-record migration for the Marketing report receiver
 status: approved
 superseded_by: null
-version: "0.3.0"
+version: "0.3.1"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
@@ -53,9 +53,23 @@ No application auth/routes/Prisma schema, database migrations, live provisioning
 
 The owner approved this additive authored-record support on 2026-10-05, separately from the receiver contract. The integrator may implement/test the bounded writer and prepare the receiver's four-record manifest at fresh main. No IDs are allocated by this approval; actual issuance remains subject to the independent review and acceptance checks above. The Doc Writer role itself does not issue IDs or change tooling; implementation and sanctioned writes are serialized integrator work under this approval.
 
+## Evidence availability amendment — 2026-10-23
+
+The later [reconciled tooling verification](ZURI-GO-RECONCILED-TOOLING-VERIFICATION.md)
+and [applied reconciliation receipt](../../migrations/document-reintegration/record-migrations/marketing-report-receiver-reconciled-20261005.receipt.json)
+are available for the distinct `marketing-report-receiver-reconciled-20261005`
+migration. Its published records are ZAI:FR-281, ZAI:FR-282, ZAI:FR-283 and
+ZAI:SDD-112. These successor sources do not retrospectively verify `90b9df7d`
+or replace the unavailable original verification record. Their recorded tests,
+provenance and remaining runtime limits retain their own revisions and scope.
+No current requirement, receipt, ID or approval is changed by this amendment.
+
 ## Version diff
 
-0.2.0 → 0.3.0: additive tooling is implemented at `90b9df7d`; independently reviewed manifest issued the four planned subjects through the sanctioned writer. [Verification](../../migrations/document-reintegration/AUTHORED-VERIFICATION.md) records preservation, executed tests and remaining composed/physical/application gates. No receiver/sender or database implementation is claimed.
+0.3.0 → 0.3.1: records the unavailable original verification locator and links
+the distinct reconciled evidence without substituting it for historical proof.
+
+0.2.0 → 0.3.0: additive tooling is implemented at `90b9df7d`; independently reviewed manifest issued the four planned subjects through the sanctioned writer. The historical text cites `docs/migrations/document-reintegration/AUTHORED-VERIFICATION.md` for preservation, executed tests and remaining composed/physical/application gates. That target is absent from the enumerated checkout on 2026-10-23, and `90b9df7d` is not locally resolvable; those original verification claims remain locally unverified. No receiver/sender or database implementation is claimed.
 
 0.1.0 → 0.2.0: records the owner's explicit tooling-scope approval. Tooling tests, independent implementation review and actual record issuance remain pending; no runtime operation is authorized by this metadata change.
 

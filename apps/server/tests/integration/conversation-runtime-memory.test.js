@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto'
+import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { tmpdir } from 'node:os'
@@ -64,6 +64,61 @@ let eventSequence = 0
 const transportError = () => Object.assign(new Error('MSP request timed out: tools/call'), { code: 'MSP_TRANSPORT_UNAVAILABLE', status: 503 })
 const killed = () => Object.assign(new Error('RUNTIME_KILLED'), { code: 'RUNTIME_KILLED' })
 const sha256 = value => createHash('sha256').update(value).digest('hex')
+
+function contextPacketSources(packet) {
+  const memory = packet?.memory ?? {}
+  const slice = (id, value) => ({ id, text: typeof value === 'string' ? value : JSON.stringify(value) })
+  const list = key => Array.isArray(memory[key]) ? memory[key] : []
+  return [
+    ...list('participants').map((item, index) => slice(`participant:${item?.principalId ?? item?.id ?? index}`, item)),
+    ...list('protectedMemory').map((item, index) => slice(`protected:${item?.recordId ?? index}`, item)),
+    ...[...list('recentExchanges')].reverse().map((item, index) => slice(`exchange:${item?.exchangeId ?? index}`, item)),
+    ...list('summaries').map((item, index) => slice(`summary:${item?.summaryId ?? index}`, item)),
+    ...list('episodic').map((item, index) => slice(`episodic:${item?.id ?? item?.reference?.memoryId ?? index}`, item)),
+  ]
+}
+
+function contextReceiptForPacket(packet, receiptId) {
+  const slices = contextPacketSources(packet)
+  const refs = { msp: slices.map(item => item.id), citations: [], records: [] }
+  const budget = { max: 32_000, used: slices.reduce((sum, item) => sum + item.text.length, 0), trimmed: 0 }
+  const dropped = []
+  const facts = { refs, budget, dropped }
+  return { receiptId, ...facts, hash: sha256(JSON.stringify(facts)) }
+}
+
+async function appendContextReceipt(ports, claim, packet, receipt) {
+  return ports.trace.append(claim, { kind: 'CONTEXT_RECEIPT', payload: receipt,
+    contextBinding: { contextReceiptId: receipt.receiptId, contextReceiptHash: receipt.hash, contextPacket: packet } })
+}
+
+function flatContextPacket(slices) {
+  let startByte = 0
+  const sourceSegments = slices.map((slice, index) => {
+    if (index > 0) startByte += Buffer.byteLength('\n', 'utf8')
+    const byteLength = Buffer.byteLength(slice.text, 'utf8')
+    const segment = { id: slice.id, startByte, byteLength }
+    startByte += byteLength
+    return segment
+  })
+  return { policyDecision: 'ALLOW', text: slices.map(slice => slice.text).join('\n'), sourceSegments }
+}
+
+function runtimeThreadPacket(packet) {
+  if (!packet) return null
+  const memory = packet.memory ?? {}
+  const list = key => Array.isArray(memory[key]) ? memory[key] : []
+  return { ...packet, knowledge: null, memory: { ...memory, participants: list('participants'),
+    protectedMemory: list('protectedMemory'), recentExchanges: list('recentExchanges'), summaries: list('summaries'), episodic: list('episodic') } }
+}
+
+function contextReceiptForSlices(slices, receiptId) {
+  const refs = { msp: slices.map(slice => slice.id), citations: [], records: [] }
+  const budget = { max: 4_000, used: slices.reduce((sum, slice) => sum + slice.text.length, 0), trimmed: 0 }
+  const dropped = []
+  const facts = { refs, budget, dropped }
+  return { receiptId, ...facts, hash: sha256(JSON.stringify(facts)) }
+}
 
 /** API-010 stand-in: stable threads per route, source-event-id deduplication, exchanges, receipts. */
 function createFakeMsp() {
@@ -167,13 +222,14 @@ function captureFetch(calls) {
   }
 }
 
-function inProcessFetch(handlers) {
+function inProcessFetch(handlers, beforeOperation) {
   return async (url, init = {}) => {
     const target = new URL(url)
     const operation = target.pathname.split('/').pop()
     if (init.body) {
       const envelope = JSON.parse(init.body)
       wire.push({ operation: envelope.operation, payload: envelope.payload, idempotencyKey: envelope.idempotencyKey })
+      await beforeOperation?.(envelope.operation, envelope.payload)
     }
     const request = new Request(target, init)
     return operation === 'health'
@@ -182,25 +238,58 @@ function inProcessFetch(handlers) {
   }
 }
 
-function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory, coreOptions = {} } = {}) {
+function build({ msp, env = {}, records = evidenceRecords, threadMemoryFactory, coreOptions = {}, onModelGenerate,
+  beforeOperation } = {}) {
   const core = createConversationRuntimeCore({ db: prisma,
     env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
       ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ...env },
     credentialResolver: async () => ({ provider: 'openrouter', model: 'test-model', apiKey: providerKey }),
     prepareTurn: async job => ({ question: job.inbound.body, evidence: { records }, slices: [], authorized: true,
-      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }),
+      audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 4_000, workCommand: null }),
     threadMemoryFactory: threadMemoryFactory ?? (msp ? () => mspPort(msp) : null),
     linePorts: () => ({ resolveAccount: async id => prisma.lineOaAccount.findUnique({ where: { id } }),
       replyTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-memory-reply' } } },
       pushTransport: { send: async ({ messages }) => { deliveries.push(messages); return { status: 'ACCEPTED_BY_LINE', requestId: 'synthetic-memory-push' } } } }),
     ...coreOptions })
   const client = createCoreClient({ baseUrl: 'http://core.invalid', token: serviceToken,
-    fetchFn: inProcessFetch(createConversationRuntimeRouteHandlers(core)) })
+    fetchFn: inProcessFetch(createConversationRuntimeRouteHandlers(core), beforeOperation) })
   const providerCalls = []
   const modelInputs = []
   const provider = createModelPort({ timeoutMs: 1000, fetchFn: captureFetch(providerCalls) })
-  const ports = createCorePorts({ client, model: { generate: input => { modelInputs.push(input); return provider.generate(input) } } })
+  const ports = createCorePorts({ client, model: { generate: async input => {
+    modelInputs.push(input)
+    await onModelGenerate?.(input)
+    return provider.generate(input)
+  } } })
   return { core, ports, providerCalls, modelInputs }
+}
+
+async function expectPersistedContextBinding(jobId, receipt, packet) {
+  const job = await prisma.lineConversationJob.findUnique({ where: { id: jobId }, select: { executionId: true } })
+  const receiptRows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' },
+    select: { executionId: true, payloadJson: true } })
+  expect(receiptRows).toHaveLength(1)
+  expect(receiptRows[0].executionId).toBe(job.executionId)
+  expect(JSON.parse(receiptRows[0].payloadJson)).toEqual(receipt)
+  expect(Object.keys(JSON.parse(receiptRows[0].payloadJson)).sort())
+    .toEqual(['budget', 'dropped', 'hash', 'receiptId', 'refs'])
+
+  const bindingKey = `${jobId}:core-memory:runtime-context-binding:${job.executionId}:MEMORY_THREAD_READ`
+  const bindingRows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_THREAD_READ',
+    idempotencyKey: bindingKey }, select: { executionId: true, payloadJson: true } })
+  expect(bindingRows).toHaveLength(1)
+  expect(bindingRows[0].executionId).toBe(job.executionId)
+  const binding = JSON.parse(bindingRows[0].payloadJson)
+  expect(binding).toEqual({ source: 'CONTEXT_RECEIPT_BINDING', executionId: job.executionId,
+    receiptId: receipt.receiptId, receiptHash: receipt.hash,
+    packetHash: packet === null ? null : sha256(JSON.stringify(packet)), mspRefs: receipt.refs.msp })
+  expect(JSON.stringify(binding)).not.toContain('authorized episodic fact')
+  return binding
+}
+
+async function prepareMemoryTurn(ports, claim) {
+  const authority = await ports.authority.resolve(claim)
+  await ports.context.prepare(claim, authority)
 }
 
 /** Every port function throws once `dies` says the process died; nothing after that reaches Core. */
@@ -429,7 +518,10 @@ describe('Conversation Runtime memory-sync turns', () => {
           recorded_at: '2026-10-04T00:00:00.000Z' }] } : {}
       },
     })
-    const built = build({ coreOptions: {
+    let bindingAtProvider = null
+    const built = build({ onModelGenerate: async input => {
+      bindingAtProvider = await expectPersistedContextBinding(jobId, input.contextReceipt, input.contextPacket)
+    }, coreOptions: {
       env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
         ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
       businessPorts: async () => ({ episodicMemory }),
@@ -440,8 +532,92 @@ describe('Conversation Runtime memory-sync turns', () => {
 
     expect(outcome).toMatchObject({ jobId, status: 'RECORDED' })
     expect(episodicCalls.map(call => call.name)).toEqual(['msp_memory_list'])
+    expect(built.modelInputs).toHaveLength(1)
+    expect(built.providerCalls).toHaveLength(1)
     expect(JSON.stringify(built.modelInputs[0].contextPacket)).toContain('authorized episodic fact')
+    expect(built.modelInputs[0].contextReceipt.refs.msp).toEqual(built.modelInputs[0].contextPacket.sourceSegments.map(segment => segment.id))
+    expect(bindingAtProvider).toMatchObject({ source: 'CONTEXT_RECEIPT_BINDING',
+      mspRefs: built.modelInputs[0].contextReceipt.refs.msp, packetHash: sha256(JSON.stringify(built.modelInputs[0].contextPacket)) })
     expect(memoryWire()).toEqual([])
+  })
+
+  it('revalidates API-010 authorization on the final Core resolve after binding and before provider entry', async () => {
+    const jobId = await admit()
+    let episodicAllowed = true
+    let revokedAfterBinding = false
+    const episodicMemory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        expect(authorization.policy.episodicMemoryAllowed).toBe(true)
+        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
+      } },
+      transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-1', vault_id: 'api010-private-vault',
+        current_version: 1, body_json: { fact: 'authorized episodic fact' }, source_hash: 'e'.repeat(64),
+        recorded_at: '2026-10-04T00:00:00.000Z' }] } : {},
+    })
+    const built = build({ beforeOperation: async (operation, payload) => {
+      if (operation !== 'resolve' || revokedAfterBinding) return
+      const bindingKey = `${jobId}:core-memory:runtime-context-binding:${payload.claim.executionId}:MEMORY_THREAD_READ`
+      const binding = await prisma.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+        tenantId: tenant.id, businessId: business.id, idempotencyKey: bindingKey } } })
+      if (binding) { episodicAllowed = false; revokedAfterBinding = true }
+    }, coreOptions: {
+      env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+        ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
+      businessPorts: async () => ({ episodicMemory }),
+      memoryAuthorizationResolver: async input => {
+        const resolved = await resolveAgentAuthorization(input)
+        if (episodicAllowed) return resolved
+        const policy = { ...resolved.policy, episodicMemoryAllowed: false }
+        return { ...resolved, policy,
+          authContext: { ...resolved.authContext, policy: { ...resolved.authContext.policy, episodicMemoryAllowed: false } } }
+      },
+      threadMemoryFactory: () => { throw new Error('API_011_MUST_STAY_DISABLED') },
+    } })
+
+    const outcome = await createConversationRuntime({ ports: built.ports, claimantId: 'runtime-api010-policy-revoked' }).runOne()
+
+    expect(revokedAfterBinding).toBe(true)
+    expect(outcome).toMatchObject({ jobId, status: 'FAILED' })
+    expect(built.modelInputs).toEqual([])
+    expect(built.providerCalls).toEqual([])
+    expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' } })).toHaveLength(1)
+    expect(memoryWire()).toEqual([])
+  })
+
+  it('Core refuses an API-010 packet whose source bytes differ from its prepared manifest', async () => {
+    const jobId = await admit()
+    const episodicMemory = createMspMemoryPort({
+      vaultSetResolver: { resolve: async authorization => {
+        expect(authorization.policy.episodicMemoryAllowed).toBe(true)
+        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
+      } },
+      transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-1', vault_id: 'api010-private-vault',
+        current_version: 1, body_json: { fact: 'authorized episodic fact' }, source_hash: 'e'.repeat(64),
+        recorded_at: '2026-10-04T00:00:00.000Z' }] } : {},
+    })
+    const built = build({ coreOptions: {
+      env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey,
+        ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_MEMORY_ENABLED: 'false' },
+      businessPorts: async () => ({ episodicMemory }),
+      threadMemoryFactory: () => { throw new Error('API_011_MUST_STAY_DISABLED') },
+    } })
+    const claim = await built.ports.job.claim({ claimantId: 'runtime-api010-altered-binding' })
+    const authority = await built.ports.authority.resolve(claim)
+    const turn = await built.ports.context.prepare(claim, authority)
+    const slices = turn.slices.filter(slice => slice.source === 'MSP')
+    expect(slices.map(slice => slice.id)).toContain('episodic:0')
+    const receipt = contextReceiptForSlices(slices, `ctxrcpt_${randomUUID()}`)
+    const altered = flatContextPacket(slices)
+    altered.text += ' forged'
+
+    await expect(appendContextReceipt(built.ports, claim, altered, receipt))
+      .rejects.toMatchObject({ code: 'MEMORY_CONTEXT_RECEIPT_MISMATCH' })
+    expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' } })).toHaveLength(0)
+    const bindingRows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_THREAD_READ' },
+      select: { payloadJson: true } })
+    expect(bindingRows.map(row => JSON.parse(row.payloadJson)).some(payload => payload.source === 'CONTEXT_RECEIPT_BINDING')).toBe(false)
   })
 
   it('does not send API-010 context to the model when erasure commits during recall', async () => {
@@ -521,9 +697,10 @@ describe('Conversation Runtime memory-sync turns', () => {
       expect(memoryWire()).toEqual([])
       expect(built.modelInputs).toHaveLength(1)
       expect(built.modelInputs[0].evidence.records).toEqual(corpusRecords)
-      expect(built.modelInputs[0].contextPacket.text).toContain('published GKS product fact')
+      expect(built.modelInputs[0].contextPacket.text).not.toContain('published GKS product fact')
       expect(built.modelInputs[0].contextPacket.text).toContain('authorized episodic fact beside corpus evidence')
-      expect(built.modelInputs[0].contextReceipt.refs.map(ref => ref.source)).toEqual(['KNOWLEDGE', 'MSP'])
+      expect(built.modelInputs[0].contextReceipt.refs.citations).toEqual(['gks-citation-1'])
+      expect(built.modelInputs[0].contextReceipt.refs.msp.some(id => id.startsWith('episodic:'))).toBe(true)
 
       const noEvidenceJobId = await admit()
       corpusRecords[0] = { ...corpusRecords[0], text: 'oversized corpus record '.repeat(250) }
@@ -539,6 +716,120 @@ describe('Conversation Runtime memory-sync turns', () => {
     }
   })
 
+  it('records one canonical pre-provider receipt and binds API-010/API-011 injection to the exact bounded packet', async () => {
+    await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'GKS_CORPUS' } })
+    try {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const episodicMemory = createMspMemoryPort({
+        vaultSetResolver: { resolve: async () => ({ workspacePrivateVaultId: 'api010-receipt-vault',
+          globalPrivateVaultIds: [], sharedVaultIds: [],
+          permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.RECEIPT' } }) },
+        transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-receipt',
+          vault_id: 'api010-receipt-vault', current_version: 1,
+          body_json: { fact: 'authorized API-010 fact for receipt binding' }, source_hash: 'e'.repeat(64),
+          recorded_at: '2026-10-04T00:00:00.000Z' }] } : {},
+      })
+      const corpusRecords = Array.from({ length: 12 }, (_, index) => ({
+        citationId: `gks-receipt-${index + 1}`, text: `published GKS fact ${index + 1} ${'x'.repeat(2_800)}`,
+      }))
+      msp.hooks.after = (name, _input, result) => {
+        if (name === 'msp_thread_context') result.threadSummaries = [{ summaryId: 'large-summary', text: 'S'.repeat(28_500) }]
+      }
+      const built = build({ msp, env: { ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' }, coreOptions: {
+        prepareTurn: undefined,
+        corpusReaderFactory: () => ({ query: async () => ({ records: corpusRecords }) }),
+        threadMemoryFactory: () => createMspThreadMemoryPort({ transport: msp.transport, serviceKey: mspServiceKey,
+          workspaceId: 'w5-workspace', maxContextBytes: 30_000 }),
+        businessPorts: async () => ({ businessKnowledge: { query: async () => ({ records: [] }) }, episodicMemory }),
+      } })
+
+      const outcome = await createConversationRuntime({ ports: built.ports,
+        claimantId: 'runtime-memory-canonical-receipt' }).runOne()
+
+      expect(outcome, JSON.stringify({ outcome, memoryWire: memoryWire(), msp: mspNames(msp) })).toMatchObject({ jobId, status: 'RECORDED' })
+      expect(built.providerCalls).toHaveLength(1)
+      expect(built.modelInputs).toHaveLength(1)
+      const modelInput = built.modelInputs[0]
+      const receipt = modelInput.contextReceipt
+      const readReceipt = JSON.parse((await prisma.agentTraceEvent.findFirst({ where: { turnId: jobId,
+        idempotencyKey: memoryReceiptKey(jobId, 'read') }, select: { payloadJson: true } })).payloadJson)
+      expect(readReceipt.contextReceiptId).toBe(receipt.receiptId)
+      const executionId = (await prisma.lineConversationJob.findUnique({ where: { id: jobId }, select: { executionId: true } })).executionId
+      const sourceManifest = JSON.parse((await prisma.agentTraceEvent.findFirst({ where: { turnId: jobId,
+        idempotencyKey: `${jobId}:core-memory:runtime-context-sources:${executionId}:MEMORY_THREAD_READ` },
+      select: { payloadJson: true } })).payloadJson)
+      expect(Object.keys(receipt).sort()).toEqual(['budget', 'dropped', 'hash', 'receiptId', 'refs'])
+      expect(receipt.receiptId).toMatch(/^ctxrcpt_[0-9a-f-]{36}$/)
+      expect(Object.keys(receipt.refs).sort()).toEqual(['citations', 'msp', 'records'])
+      expect(receipt.refs.citations).toEqual(modelInput.evidence.records.map(record => record.citationId))
+      expect(receipt.refs.msp.some(id => id.startsWith('exchange:'))).toBe(true)
+      expect(receipt.refs.msp.some(id => id.startsWith('episodic:'))).toBe(true)
+      expect(modelInput.evidence.records.length).toBeLessThan(corpusRecords.length)
+      expect(modelInput.evidence.records.every(record => corpusRecords.some(source =>
+        JSON.stringify(source) === JSON.stringify(record)))).toBe(true)
+      expect(JSON.stringify(modelInput.contextPacket)).toContain('authorized API-010 fact for receipt binding')
+      expect(JSON.stringify(modelInput.contextPacket)).toContain('สวัสดีค่ะ')
+      expect(modelInput.contextPacket.sourceSegments.map(segment => segment.id)).toEqual(receipt.refs.msp)
+      const packetBytes = Buffer.from(modelInput.contextPacket.text, 'utf8')
+      const sourceTexts = new Map(sourceManifest.slices.map(source => [source.id, source]))
+      for (const slice of contextPacketSources(JSON.parse(readReceipt.contextPacketJson))) {
+        sourceTexts.set(slice.id, { id: slice.id, byteLength: Buffer.byteLength(slice.text, 'utf8'),
+          hash: sha256(slice.text), text: slice.text })
+      }
+      for (const segment of modelInput.contextPacket.sourceSegments) {
+        const source = sourceTexts.get(segment.id)
+        const spanText = packetBytes.subarray(segment.startByte, segment.startByte + segment.byteLength).toString('utf8')
+        expect(segment.byteLength).toBe(source.byteLength)
+        expect(sha256(spanText)).toBe(source.hash)
+        if (source.text !== undefined) expect(spanText).toBe(source.text)
+      }
+      expect(JSON.stringify(receipt)).not.toContain('authorized API-010 fact for receipt binding')
+      expect(JSON.stringify(receipt)).not.toContain('published GKS fact for receipt binding')
+      const receiptFacts = { refs: receipt.refs, budget: receipt.budget, dropped: receipt.dropped }
+      expect(receipt.hash).toBe(sha256(JSON.stringify(receiptFacts)))
+      expect(receipt.budget.used).toBeLessThanOrEqual(receipt.budget.max)
+      expect(receipt.budget.trimmed).toBe(receipt.dropped.filter(item => item.reason === 'BUDGET_TRIMMED').length)
+
+      const traceReceipts = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' },
+        select: { payloadJson: true } })
+      expect(traceReceipts).toHaveLength(1)
+      expect(JSON.parse(traceReceipts[0].payloadJson)).toEqual(receipt)
+      const injectionTrace = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_INJECTION_RECORDED' },
+        select: { payloadJson: true }, orderBy: { occurredAt: 'asc' } })
+      expect(injectionTrace.map(row => JSON.parse(row.payloadJson))).toEqual(['RESOLVED', 'SUBMITTED', 'COMPLETED'].map(state => ({
+        operationId: `${jobId}:memory-injection`, state, contextReceiptId: receipt.receiptId,
+        contextReceiptHash: receipt.hash, packetHash: sha256(JSON.stringify(modelInput.contextPacket)),
+      })))
+
+      const injections = msp.injections.filter(item => item.state !== 'FAILED')
+      expect(injections.map(item => item.state)).toEqual(['RESOLVED', 'SUBMITTED', 'COMPLETED'])
+      expect(injections.every(item => item.injectionId === receipt.receiptId)).toBe(true)
+      const packetHash = sha256(JSON.stringify(modelInput.contextPacket))
+      expect(injections.every(item => item.packetHash === packetHash)).toBe(true)
+      const injectionRequests = wire.filter(call => call.operation === 'memory'
+        && call.payload.operation === 'receipt' && call.payload.input.state)
+      expect(injectionRequests).toHaveLength(3)
+      expect(injectionRequests.map(call => call.payload.input.contextReceiptId))
+        .toEqual(Array(3).fill(receipt.receiptId))
+      expect(injectionRequests.every(call => JSON.stringify(call.payload.input.contextPacket)
+        === JSON.stringify(modelInput.contextPacket))).toBe(true)
+      const receiptWireIndex = wire.findIndex(call => call.operation === 'trace' && call.payload.kind === 'CONTEXT_RECEIPT')
+      const resolvedWireIndex = wire.findIndex(call => call.operation === 'memory' && call.payload.operation === 'receipt'
+        && call.payload.input.state === 'RESOLVED')
+      expect(receiptWireIndex).toBeGreaterThanOrEqual(0)
+      expect(receiptWireIndex).toBeLessThan(resolvedWireIndex)
+      expect(built.providerCalls[0].body).not.toContain('sourceSegments')
+      expect(Buffer.byteLength(JSON.stringify(modelInput.evidence), 'utf8')).toBeLessThanOrEqual(32 * 1024)
+      expect(Buffer.byteLength(JSON.stringify(modelInput.contextPacket), 'utf8')).toBeLessThanOrEqual(32 * 1024)
+      const evidenceTrim = await prisma.agentTraceEvent.findFirst({ where: { turnId: jobId, kind: 'EVIDENCE_TRIMMED' },
+        select: { payloadJson: true } })
+      expect(JSON.parse(evidenceTrim.payloadJson)).toMatchObject({ phase: 'memory-read', recordsBefore: 12 })
+    } finally {
+      await prisma.lineOaAccount.update({ where: { id: account.id }, data: { knowledgeGrounding: 'BUSINESS_KNOWLEDGE' } })
+    }
+  })
+
   it('makes the legacy MSP calls, signed claims and provider request, then records the turn and its delivery receipt', async () => {
     const jobId = await admit()
     const legacyMsp = createFakeMsp()
@@ -548,7 +839,7 @@ describe('Conversation Runtime memory-sync turns', () => {
     const runtimeMsp = createFakeMsp()
     const { ports, providerCalls, modelInputs } = build({ msp: runtimeMsp })
     const outcome = await createConversationRuntime({ ports, claimantId: 'runtime-memory-parity' }).runOne()
-    expect(outcome, JSON.stringify(outcome)).toMatchObject({ jobId, status: 'RECORDED' })
+    expect(outcome, JSON.stringify({ outcome, memoryWire: memoryWire(), msp: mspNames(runtimeMsp) })).toMatchObject({ jobId, status: 'RECORDED' })
 
     // Same MSP calls in the same order with the same inputs and signed claims.
     expect(mspNames(runtimeMsp)).toEqual(['resolve', 'append INBOUND', 'resolve', 'context',
@@ -629,11 +920,18 @@ describe('Conversation Runtime memory-sync turns', () => {
   it('makes no memory call and no MSP call for a turn admitted without memory sync', async () => {
     const jobId = await admit({ memory: false })
     const msp = createFakeMsp()
-    const { ports } = build({ msp })
+    let bindingAtProvider = null
+    const { ports, modelInputs } = build({ msp, onModelGenerate: async input => {
+      bindingAtProvider = await expectPersistedContextBinding(jobId, input.contextReceipt, input.contextPacket ?? null)
+    } })
     const outcome = await createConversationRuntime({ ports, claimantId: 'runtime-memory-off' }).runOne()
     expect(outcome).toMatchObject({ jobId, status: 'RECORDED' })
     expect(memoryWire()).toEqual([])
     expect(msp.calls).toEqual([])
+    expect(modelInputs).toHaveLength(1)
+    expect(modelInputs[0].contextPacket).toBeNull()
+    expect(modelInputs[0].contextReceipt.refs.msp).toEqual([])
+    expect(bindingAtProvider).toMatchObject({ packetHash: null, mspRefs: [] })
     expect(await prisma.lineConversationJob.findUnique({ where: { id: jobId } })).toMatchObject({ answerText: 'คำตอบจากโมเดล' })
   })
 
@@ -794,6 +1092,50 @@ describe('Conversation Runtime memory-sync turns', () => {
         .toMatchObject({ status: 'FAILED', errorCode: 'LINE_MEMORY_POLICY_REVOKED', answerText: null })
     })
 
+    it.each([
+      ['privateMemoryAllowed', { privateMemoryAllowed: false }],
+      ['mspAuthorization.read', { mspAuthorization: { read: false } }],
+    ])('rechecks API-011 private-memory permission before RESOLVED when %s is withdrawn after binding', async (_dimension, withdrawal) => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      let revoke = false
+      let revokedAfterBinding = false
+      const built = build({ msp, beforeOperation: async (operation, payload) => {
+        if (operation !== 'memory' || payload.operation !== 'receipt' || payload.input.state !== 'RESOLVED'
+          || revokedAfterBinding) return
+        const bindingKey = `${jobId}:core-memory:runtime-context-binding:${payload.claim.executionId}:MEMORY_THREAD_READ`
+        const binding = await prisma.agentTraceEvent.findUnique({ where: { tenantId_businessId_idempotencyKey: {
+          tenantId: tenant.id, businessId: business.id, idempotencyKey: bindingKey } } })
+        expect(binding, 'the canonical context binding must be durable before the policy changes').not.toBeNull()
+        revoke = true
+        revokedAfterBinding = true
+      }, coreOptions: { memoryAuthorizationResolver: async input => {
+        const resolved = await resolveAgentAuthorization(input)
+        if (!revoke) return resolved
+        const policy = { ...resolved.policy, ...withdrawal,
+          ...(withdrawal.mspAuthorization ? { mspAuthorization: { ...resolved.policy.mspAuthorization,
+            ...withdrawal.mspAuthorization } } : {}) }
+        const authPolicy = { ...resolved.authContext.policy, ...withdrawal,
+          ...(withdrawal.mspAuthorization ? { mspAuthorization: { ...resolved.authContext.policy.mspAuthorization,
+            ...withdrawal.mspAuthorization } } : {}) }
+        return { ...resolved, policy, authContext: { ...resolved.authContext, policy: authPolicy } }
+      } } })
+
+      const outcome = await createConversationRuntime({ ports: built.ports,
+        claimantId: `runtime-memory-${_dimension.replace('.', '-')}-revoked-before-resolved` }).runOne()
+
+      expect(revokedAfterBinding).toBe(true)
+      expect(outcome).toMatchObject({ jobId, status: 'FAILED', code: 'LINE_MEMORY_POLICY_REVOKED' })
+      expect(built.modelInputs).toEqual([])
+      expect(built.providerCalls).toEqual([])
+      expect(msp.injections).toEqual([])
+      expect(threadMessages(msp, 'OUTBOUND')).toEqual([])
+      expect(deliveries).toEqual([])
+      expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' } })).toHaveLength(1)
+      const injectionRows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_INJECTION_RECORDED' } })
+      expect(injectionRows).toEqual([])
+    })
+
     it('honours a channel-identity revocation mid-turn: no append and nothing sent', async () => {
       const jobId = await admit()
       const msp = createFakeMsp()
@@ -917,11 +1259,11 @@ describe('Conversation Runtime memory-sync turns', () => {
     })
   })
 
-  // Review of #588: the runtime must not be able to forge any Core-owned receipt or
-  // trace kind through the generic `trace` operation, and Core must build every MSP
-  // grant from its own authorization and route.
+  // Review of #588: the runtime must not forge Core-owned memory receipts or trace
+  // kinds through `trace`; its content-free ContextReceipt is separately closed by
+  // the canonical receipt validator. Core builds every MSP grant from its own route.
   describe('Core-owned receipts cannot be forged by the runtime', () => {
-    const RUNTIME_KINDS = ['MODEL_STARTED', 'MODEL_COMPLETED', 'MODEL_FAILED', 'EXECUTION_FAILED', 'CONTEXT_COMMITTED']
+    const RUNTIME_KINDS = ['MODEL_STARTED', 'MODEL_COMPLETED', 'MODEL_FAILED', 'EXECUTION_FAILED', 'CONTEXT_COMMITTED', 'CONTEXT_RECEIPT']
     const traceRows = jobId => prisma.agentTraceEvent.findMany({ where: { turnId: jobId }, select: { kind: true, idempotencyKey: true } })
 
     it('refuses every Core-owned trace kind and every foreign operation id, and writes nothing', async () => {
@@ -933,7 +1275,7 @@ describe('Conversation Runtime memory-sync turns', () => {
       const before = await traceRows(jobId)
       const coreKinds = TRACE_EVENT_KINDS.filter(kind => !RUNTIME_KINDS.includes(kind))
       expect(coreKinds).toEqual(expect.arrayContaining(['MEMORY_THREAD_READ', 'MEMORY_THREAD_APPENDED', 'MEMORY_INJECTION_RECORDED',
-        'CONTEXT_RECEIPT', 'RETENTION_TOMBSTONE', 'EVIDENCE_SELECTED', 'MEMORY_DELIVERY_ACKNOWLEDGED', 'OUTBOUND_RECORDED',
+        'RETENTION_TOMBSTONE', 'EVIDENCE_SELECTED', 'MEMORY_DELIVERY_ACKNOWLEDGED', 'OUTBOUND_RECORDED',
         'SEND_RESULT', 'MEMORY_WRITTEN', 'ANSWER_READY']))
       for (const kind of coreKinds) {
         await expect(ports.trace.append(claim, { kind, payload: { operationId: `${jobId}:memory-append`,
@@ -991,6 +1333,83 @@ describe('Conversation Runtime memory-sync turns', () => {
       expect(msp.calls).toEqual([])
     })
 
+    it('refuses a bound MSP injection with no durable canonical ContextReceipt', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-context-trace-missing' })
+      await prepareMemoryTurn(ports, claim)
+      const read = await ports.memory.read(claim)
+      const receipt = contextReceiptForPacket(read.result.contextPacket, read.result.receipt.contextReceiptId)
+
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED',
+        contextReceiptId: receipt.receiptId, contextReceiptHash: receipt.hash,
+        contextPacket: read.result.contextPacket })).rejects.toMatchObject({ code: 'MEMORY_CONTEXT_RECEIPT_MISMATCH' })
+      expect(msp.injections).toEqual([])
+      expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' } })).toHaveLength(0)
+    })
+
+    it('rejects a syntactically valid injection hash that differs from the durable receipt', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-context-trace-hash' })
+      await prepareMemoryTurn(ports, claim)
+      const read = await ports.memory.read(claim)
+      const packet = runtimeThreadPacket(read.result.contextPacket)
+      const receipt = contextReceiptForPacket(packet, read.result.receipt.contextReceiptId)
+      await appendContextReceipt(ports, claim, packet, receipt)
+
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED',
+        contextReceiptId: receipt.receiptId, contextReceiptHash: sha256('different but well-shaped'),
+        contextPacket: packet })).rejects.toMatchObject({ code: 'MEMORY_CONTEXT_RECEIPT_MISMATCH' })
+      expect(msp.injections).toEqual([])
+      expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_INJECTION_RECORDED' } })).toHaveLength(0)
+    })
+
+    it('rejects an altered MSP packet even when its canonical receipt event is valid', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-context-packet-altered' })
+      await prepareMemoryTurn(ports, claim)
+      const read = await ports.memory.read(claim)
+      const packet = runtimeThreadPacket(read.result.contextPacket)
+      const receipt = contextReceiptForPacket(packet, read.result.receipt.contextReceiptId)
+      await appendContextReceipt(ports, claim, packet, receipt)
+      const alteredPacket = structuredClone(packet)
+      alteredPacket.memory.recentExchanges[0].messages[0].text = 'forged memory context'
+
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'RESOLVED',
+        contextReceiptId: receipt.receiptId, contextReceiptHash: receipt.hash,
+        contextPacket: alteredPacket })).rejects.toMatchObject({ code: 'MEMORY_CONTEXT_RECEIPT_MISMATCH' })
+      expect(msp.injections).toEqual([])
+      expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_INJECTION_RECORDED' } })).toHaveLength(0)
+    })
+
+    it('rejects a changed runtime receiptId when Core reserved the canonical id during read', async () => {
+      const jobId = await admit()
+      const msp = createFakeMsp()
+      const { ports } = build({ msp })
+      const claim = await ports.job.claim({ claimantId: 'runtime-memory-context-id-mismatch' })
+      await prepareMemoryTurn(ports, claim)
+      const read = await ports.memory.read(claim)
+      const packet = runtimeThreadPacket(read.result.contextPacket)
+      const receipt = contextReceiptForPacket(packet, `ctxrcpt_${randomUUID()}`)
+      expect(receipt.receiptId).not.toBe(read.result.receipt.contextReceiptId)
+      // receiptId is intentionally outside the SDD-100 canonical hash. The binding
+      // therefore must be compared with Core's reserved read id independently.
+      expect(receipt.hash).toBe(contextReceiptForPacket(packet, read.result.receipt.contextReceiptId).hash)
+
+      await expect(appendContextReceipt(ports, claim, packet, receipt))
+        .rejects.toMatchObject({ code: 'MEMORY_CONTEXT_RECEIPT_MISMATCH' })
+      expect(await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'CONTEXT_RECEIPT' } })).toHaveLength(0)
+      const bindingRows = await prisma.agentTraceEvent.findMany({ where: { turnId: jobId, kind: 'MEMORY_THREAD_READ' },
+        select: { payloadJson: true } })
+      expect(bindingRows.map(row => JSON.parse(row.payloadJson)).some(payload => payload.source === 'CONTEXT_RECEIPT_BINDING')).toBe(false)
+      expect(msp.injections).toEqual([])
+    })
+
     it('takes the principal from Core authorization, never from a stored receipt, and never grants a private write', async () => {
       const jobId = await admit()
       const msp = createFakeMsp()
@@ -1002,8 +1421,14 @@ describe('Conversation Runtime memory-sync turns', () => {
       }
       const { ports } = build({ msp, coreOptions: { memoryAuthorizationResolver } })
       const claim = await ports.job.claim({ claimantId: 'runtime-memory-grant' })
-      await ports.memory.read(claim)
-      await ports.memory.receipt(claim, 'injection', { state: 'RESOLVED' })
+      await prepareMemoryTurn(ports, claim)
+      const read = await ports.memory.read(claim)
+      const packet = runtimeThreadPacket(read.result.contextPacket)
+      const contextReceipt = contextReceiptForPacket(packet, read.result.receipt.contextReceiptId)
+      await appendContextReceipt(ports, claim, packet, contextReceipt)
+      const injectionBinding = { contextReceiptId: contextReceipt.receiptId, contextReceiptHash: contextReceipt.hash,
+        contextPacket: packet }
+      await ports.memory.receipt(claim, 'injection', { state: 'RESOLVED', ...injectionBinding })
       const grant = msp.calls.find(call => call.name === 'msp_thread_injection_record').input.access.grant
       expect(grant).toMatchObject({ principalId: actor.id, writePrivate: false, readPrivate: true })
       expect(msp.injections[0].modelRef).toBe('openrouter:test-model')
@@ -1013,7 +1438,8 @@ describe('Conversation Runtime memory-sync turns', () => {
       const row = await prisma.agentTraceEvent.findFirst({ where: { turnId: jobId, idempotencyKey: memoryReceiptKey(jobId, 'read') } })
       await prisma.agentTraceEvent.update({ where: { id: row.id }, data: { payloadJson: JSON.stringify({ ...JSON.parse(row.payloadJson), principalId: 'someone-else' }) } })
       const calls = msp.calls.length
-      await expect(ports.memory.receipt(claim, 'injection', { state: 'SUBMITTED' })).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
+      await expect(ports.memory.receipt(claim, 'injection', { state: 'SUBMITTED', ...injectionBinding }))
+        .rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
       await expect(ports.memory.append(claim, 'answer')).rejects.toMatchObject({ code: 'LINE_MEMORY_SCOPE_MISMATCH' })
       expect(msp.calls.length).toBe(calls)
       expect(job.id).toBe(jobId)
@@ -1027,6 +1453,11 @@ describe('Conversation Runtime memory-sync turns', () => {
       const facts = { refs: [{ id: 'k1', source: 'KNOWLEDGE', citationId: null }], budget: { max: 100, used: 5, trimmed: 1 },
         dropped: [{ id: 'm1', source: 'MSP', reason: 'BUDGET_EXCEEDED' }] }
       const context = { ...facts, hash: sha256(JSON.stringify(facts)) }
+      const receiptFacts = { refs: { msp: [], citations: ['c1'], records: [] },
+        budget: { max: 100, used: 5, trimmed: 1 },
+        dropped: [{ id: 'trimmed', source: 'KNOWLEDGE', reason: 'BUDGET_TRIMMED' }] }
+      const contextReceipt = { receiptId: 'ctxrcpt_00000000-0000-4000-8000-000000000002', ...receiptFacts,
+        hash: sha256(JSON.stringify(receiptFacts)) }
       const valid = [
         ['MODEL_STARTED', { operationId: `${jobId}:runtime-model` }],
         ['MODEL_COMPLETED', { operationId: `${jobId}:runtime-model`, text: 'answer' }],
@@ -1045,9 +1476,14 @@ describe('Conversation Runtime memory-sync turns', () => {
         ['CONTEXT_COMMITTED', { ...context, text: 'content' }],
         ['CONTEXT_COMMITTED', { ...context, budget: { ...context.budget, trimmed: 0 } }],
         ['CONTEXT_COMMITTED', { ...context, refs: [{ id: 'k1', source: 'CRM', citationId: null }] }],
+        ['CONTEXT_RECEIPT', { ...contextReceipt, hash: sha256('another') }],
+        ['CONTEXT_RECEIPT', { ...contextReceipt, text: 'content' }],
+        ['CONTEXT_RECEIPT', { ...contextReceipt, budget: { ...contextReceipt.budget, trimmed: 0 } }],
+        ['CONTEXT_RECEIPT', { ...contextReceipt, refs: [{ id: 'k1', source: 'KNOWLEDGE', citationId: 'c1' }] }],
       ]
       for (const [kind, payload] of invalid) {
-        await expect(ports.trace.append(claim, { kind, payload }), `${kind} ${JSON.stringify(payload)}`).rejects.toMatchObject({ code: 'TRACE_PAYLOAD_INVALID' })
+        await expect(ports.trace.append(claim, { kind, payload }), `${kind} ${JSON.stringify(payload)}`).rejects.toMatchObject({
+          code: kind === 'CONTEXT_RECEIPT' ? 'TRACE_CONTEXT_BINDING_INVALID' : 'TRACE_PAYLOAD_INVALID' })
       }
       // Once READY, a runtime ANSWER_READY with any text is still refused; Core's settled one is the only one.
       await ports.memory.read(claim)
@@ -1153,5 +1589,28 @@ describe('Conversation Runtime memory-sync turns', () => {
       verdicts.push({ label, runtime, provider, published })
     }
     expect(verdicts).toEqual(cases.map(([label, , , , expected]) => ({ label, runtime: expected, provider: expected, published: expected })))
+  })
+
+  it('publishes ContextReceipt packet/ref correlation in the v1 schema', () => {
+    const ajv = new Ajv2020({ allErrors: true, strict: false })
+    addFormats(ajv)
+    const validateEnvelope = ajv.compile(schema)
+    const claim = { jobId: 'synthetic-context-schema-job', executionId: 'execution', claimantId: 'claimant', version: 1,
+      tenantId: 'tenant', businessId: 'business', accountId: 'account' }
+    const receiptId = `ctxrcpt_${randomUUID()}`
+    const contextTrace = (mspRefs, contextPacket) => {
+      const facts = { refs: { msp: mspRefs, citations: [], records: [] },
+        budget: { max: 4_000, used: 0, trimmed: 0 }, dropped: [] }
+      const receipt = { receiptId, ...facts, hash: sha256(JSON.stringify(facts)) }
+      return { contractVersion: 'conversation-runtime.v1', operation: 'trace', correlationId: 'context-schema',
+        idempotencyKey: 'context-schema-trace', deadlineAt: new Date(Date.now() + 30_000).toISOString(),
+        payload: { claim, kind: 'CONTEXT_RECEIPT', payload: receipt,
+          contextBinding: { contextReceiptId: receiptId, contextReceiptHash: receipt.hash, contextPacket } } }
+    }
+
+    expect(validateEnvelope(contextTrace([], null))).toBe(true)
+    expect(validateEnvelope(contextTrace(['episodic:fact'], { policyDecision: 'ALLOW' }))).toBe(true)
+    expect(validateEnvelope(contextTrace(['episodic:fact'], null))).toBe(false)
+    expect(validateEnvelope(contextTrace([], { policyDecision: 'ALLOW' }))).toBe(false)
   })
 })

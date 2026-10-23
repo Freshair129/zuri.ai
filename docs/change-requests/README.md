@@ -1,18 +1,33 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.0.0"
-updated_at: "2026-08-30"
+version: "1.2.0"
+updated_at: "2026-10-23"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.0.0
+**Version:** 1.2.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
+
+## Current contract proposals
+
+- [LINE stock availability and published sell-price facts](integration/line-agent-stock-price-facts-20261023.md)
+  (0.2.0, design approved): owner-selected first operational fact family; source
+  bindings, customer-safe fields, authorization and acceptance cases for review.
+  It grants no stock access and does not replace the existing price/quotation rules.
+
+Version 1.2.0 records design approval of this intake, separate from a canonical
+requirement migration, implemented behavior or production activation.
+
+Version 1.1.0 adds this navigation entry. The historical intake explanations
+below retain their original context; current canonical editing follows
+[the reintegration contract](../migrations/document-reintegration/CANONICAL-FORMAT.md),
+not direct editing of the generated PRD/FEATURES compatibility exports.
 
 ## `CR-` is not `FR-`, and it is not `ZV2-CR-`
 

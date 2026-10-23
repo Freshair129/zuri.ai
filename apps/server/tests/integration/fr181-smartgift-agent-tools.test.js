@@ -17,6 +17,7 @@ import { createLot, recordMovement } from '@/modules/inventory/application/inven
 import { createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
 import { landedUnitCostSatang } from '@/modules/inventory'
+import { applyReservationAction, createReservation } from '@/modules/inventory/application/inventory-atp-service'
 import {
   smartgiftReadTools,
   smartgiftToolDefinitions,
@@ -31,6 +32,42 @@ let business, manager, member, master
 let tumbler, powerbank, box, foam, giftSet, recipe, rawLoc, wipLoc, asmLoc, fgLoc
 const b = () => business.id
 const ctx = (viewer) => ({ viewer, businessId: b(), db: prisma, now: () => NOW })
+
+function deferred() {
+  let resolve
+  const promise = new Promise((done) => { resolve = done })
+  return { promise, resolve }
+}
+
+function gateLedgerFence(db, hooks) {
+  const wrap = (client) => new Proxy(client, {
+    get(target, property) {
+      if (property === '$transaction') {
+        const transaction = Reflect.get(target, property, target)
+        return (callback, ...args) => transaction.call(target, (tx) => callback(wrap(tx)), ...args)
+      }
+      if (property === 'inventoryLedgerFence') {
+        const delegate = Reflect.get(target, property, target)
+        return new Proxy(delegate, {
+          get(delegateTarget, operation) {
+            const method = Reflect.get(delegateTarget, operation, delegateTarget)
+            if (operation === 'upsert' && typeof method === 'function') {
+              return async (...args) => {
+                hooks.beforeFenceAttempt?.()
+                await hooks.beforeFenceAcquire?.()
+                return method.apply(delegateTarget, args)
+              }
+            }
+            return typeof method === 'function' ? method.bind(delegateTarget) : method
+          },
+        })
+      }
+      const value = Reflect.get(target, property, target)
+      return typeof value === 'function' ? value.bind(target) : value
+    },
+  })
+  return wrap(db)
+}
 
 describe('FR-181 SmartGift agent tools', () => {
   beforeAll(async () => {
@@ -284,5 +321,42 @@ describe('FR-181 SmartGift agent tools', () => {
     await expect(otherWrite.get('create_quote_stock_reservation').execute({
       tx: prisma, target: { businessId: 'some-other-business' }, payload: { skuCode: 'COMP-TUMBLER-SUS304-500ML', quantity: 1 },
     })).rejects.toMatchObject({ status: 404 })
+  })
+
+  it('uses the post-fence clock through the registered ATP tool and preserves an explicit time', async () => {
+    const explicitNow = new Date()
+    const baseline = await smartgiftReadTools({ viewer: member, businessId: b(), db: prisma, now: () => explicitNow })
+      .get('check_inventory_atp').handler({ skuCode: tumbler.code })
+    const expiresAt = new Date(explicitNow.getTime() + 1500)
+    const hold = await createReservation({ businessId: b(), productId: tumbler.id, quantity: 1, expiresAt }, { viewer: manager, now: explicitNow })
+    const releaseFence = deferred()
+    const fenceAttempt = deferred()
+    let resultPromise
+    try {
+      resultPromise = smartgiftReadTools({
+        viewer: member, businessId: b(),
+        db: gateLedgerFence(prisma, {
+          beforeFenceAttempt: () => fenceAttempt.resolve(),
+          beforeFenceAcquire: () => releaseFence.promise,
+        }),
+      }).get('check_inventory_atp').handler({ skuCode: tumbler.code })
+      const reachedFence = await Promise.race([
+        fenceAttempt.promise.then(() => true),
+        resultPromise.then(() => false, () => false),
+      ])
+      expect(reachedFence).toBe(true)
+      await new Promise((resolve) => setTimeout(resolve, Math.max(0, expiresAt.getTime() + 75 - Date.now())))
+      releaseFence.resolve()
+
+      const afterExpiry = await resultPromise
+      expect(afterExpiry.available).toBe(baseline.available)
+      const explicitEarlierTime = await smartgiftReadTools({ viewer: member, businessId: b(), db: prisma, now: () => explicitNow })
+        .get('check_inventory_atp').handler({ skuCode: tumbler.code })
+      expect(explicitEarlierTime.available).toBe(baseline.available - 1)
+    } finally {
+      releaseFence.resolve()
+      await Promise.allSettled([resultPromise].filter(Boolean))
+      await applyReservationAction(hold.id, { businessId: b(), action: 'RELEASE', version: hold.version }, { viewer: manager, now: new Date() }).catch(() => {})
+    }
   })
 })

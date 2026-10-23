@@ -21,7 +21,7 @@ import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
 import { createConversationRuntimeMemory, MEMORY_INJECTION_STATES, MEMORY_OPERATIONS, MAX_MEMORY_PACKET_BYTES, traceEvidenceTrimmed } from './conversation-runtime-memory'
-import { isMemoryTurn } from './runtime-memory-receipts'
+import { coreMemoryKey, isMemoryTurn } from './runtime-memory-receipts'
 import { isValidWorkToolResult, WORK_TOOL_TEXT_MAX } from '../domain/work-tool-receipt'
 import {
   appendRuntimeConversationTrace, claimRuntimeConversationJob, completeRuntimeConversationJob,
@@ -75,13 +75,21 @@ const envelopeSchema = z.object({
 const fields = Object.freeze({ claim: ['claimantId'], renew: ['claim'], resolve: ['claim'], prepare: ['claim', 'authorityVersion'],
   'work-tool': ['claim', 'operation', 'operationId', 'input'], credential: ['claim'],
   complete: ['claim', 'text', 'operationId'], fail: ['claim', 'code', 'outcome'], send: ['claim', 'operationId'],
-  trace: ['claim', 'kind', 'payload'], status: ['claim', 'operationId'],
+  trace: ['claim', 'kind', 'payload', 'contextBinding'], status: ['claim', 'operationId'],
   memory: ['claim', 'operation', 'operationId', 'input'] })
 const memoryInputSchemas = Object.freeze({
   read: z.object({}).strict(),
   append: z.object({ text: z.string().max(5000).refine(value => value.trim().length > 0) }).strict(),
   // The model reference is Core's own, from the claim-bound credential.
-  receipt: z.object({ state: z.enum(MEMORY_INJECTION_STATES).optional() }).strict(),
+  receipt: z.object({ state: z.enum(MEMORY_INJECTION_STATES).optional(),
+    contextReceiptId: z.string().regex(/^ctxrcpt_[0-9a-f-]{36}$/).optional(),
+    contextReceiptHash: z.string().regex(/^[0-9a-f]{64}$/).optional(),
+    contextPacket: z.record(z.unknown()).optional() }).strict().refine(value => {
+    const bindingFields = ['contextReceiptId', 'contextReceiptHash', 'contextPacket']
+    const count = bindingFields.filter(field => value[field] !== undefined).length
+    return count === 0 || (count === bindingFields.length && value.state !== undefined
+      && value.contextPacket.policyDecision === 'ALLOW' && boundedJsonWithin(value.contextPacket, MAX_MEMORY_PACKET_BYTES))
+  }),
 })
 // The legacy handler's fixed reply when a Work command is refused (handleLineProjectWorkCommand).
 const WORK_AUDIENCE_REFUSAL_TEXT = 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ'
@@ -153,8 +161,9 @@ async function readBoundedJson(request) {
 
 function exactPayload(payload, operation) {
   const allowed = fields[operation]
+  const optional = operation === 'trace' ? new Set(['contextBinding']) : new Set()
   if (!allowed || Object.keys(payload).some(key => !allowed.includes(key))
-    || allowed.some(key => !Object.hasOwn(payload, key))) throw error('CONTRACT_PAYLOAD_INVALID')
+    || allowed.some(key => !optional.has(key) && !Object.hasOwn(payload, key))) throw error('CONTRACT_PAYLOAD_INVALID')
   if (operation === 'claim') {
     if (!present(payload.claimantId)) throw error('CLAIMANT_ID_INVALID')
     return
@@ -184,14 +193,33 @@ function exactPayload(payload, operation) {
   if (operation === 'memory') {
     if (!MEMORY_OPERATIONS.includes(payload.operation) || !present(payload.operationId, 200)
       || !/^[A-Za-z0-9._:-]+$/.test(payload.operationId)
-      || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)
-      || !boundedJsonWithin(payload.input, 16 * 1024)) throw error('MEMORY_REQUEST_INVALID')
+      || !payload.input || typeof payload.input !== 'object' || Array.isArray(payload.input)) throw error('MEMORY_REQUEST_INVALID')
+    const injectionBinding = payload.operation === 'receipt' && payload.input.state !== undefined
+      && ['contextReceiptId', 'contextReceiptHash', 'contextPacket'].some(field => payload.input[field] !== undefined)
+    if (!boundedJsonWithin(payload.input, injectionBinding ? 40 * 1024 : 16 * 1024)) throw error('MEMORY_REQUEST_INVALID')
     const parsedInput = memoryInputSchemas[payload.operation].safeParse(payload.input)
     if (!parsedInput.success) throw error('MEMORY_INPUT_INVALID')
     payload.input = parsedInput.data
   }
-  if (operation === 'trace' && (!present(payload.kind, 80) || !payload.payload || typeof payload.payload !== 'object'
-    || Array.isArray(payload.payload) || !boundedJsonWithin(payload.payload, 8 * 1024))) throw error('TRACE_PAYLOAD_INVALID')
+  if (operation === 'trace') {
+    if (!present(payload.kind, 80) || !payload.payload || typeof payload.payload !== 'object' || Array.isArray(payload.payload)
+      || !boundedJsonWithin(payload.payload, 8 * 1024)) throw error('TRACE_PAYLOAD_INVALID')
+    if (payload.kind === 'CONTEXT_RECEIPT') {
+      const binding = payload.contextBinding
+      if (!binding || typeof binding !== 'object' || Array.isArray(binding)
+        || Object.keys(binding).sort().join(',') !== 'contextPacket,contextReceiptHash,contextReceiptId'
+        || !/^ctxrcpt_[0-9a-f-]{36}$/.test(binding.contextReceiptId ?? '')
+        || !/^[0-9a-f]{64}$/.test(binding.contextReceiptHash ?? '')
+        || binding.contextReceiptId !== payload.payload.receiptId || binding.contextReceiptHash !== payload.payload.hash
+        || (binding.contextPacket !== null && (!binding.contextPacket || typeof binding.contextPacket !== 'object'
+          || Array.isArray(binding.contextPacket) || !boundedJsonWithin(binding.contextPacket, MAX_MEMORY_PACKET_BYTES)))
+        || !boundedJsonWithin({ kind: payload.kind, payload: payload.payload, contextBinding: binding }, 40 * 1024)) {
+        throw error('MEMORY_CONTEXT_RECEIPT_MISMATCH', 409)
+      }
+    } else if (payload.contextBinding !== undefined || !boundedJsonWithin({ kind: payload.kind, payload: payload.payload }, 8 * 1024)) {
+      throw error('TRACE_PAYLOAD_INVALID')
+    }
+  }
 }
 
 function safeResponse(data) {
@@ -215,6 +243,29 @@ function fitPreparedTurn(result) {
   while (keptSlices.length && bytes() > MAX_RESPONSE_BYTES) keptSlices.pop()
   return keptRecords.length === records?.length && keptSlices.length === result?.slices?.length ? result
     : { ...result, evidence: { ...result.evidence, records: keptRecords }, slices: keptSlices }
+}
+
+async function recordRuntimeMspSources(db, job, turn, now) {
+  if (typeof job.executionId !== 'string' || !job.executionId) throw error('CONVERSATION_JOB_LEASE_CONFLICT', 409)
+  const slices = (Array.isArray(turn?.slices) ? turn.slices : []).filter(slice => slice?.source === 'MSP')
+  if (slices.length > 64) throw error('TURN_SLICES_TOO_LARGE', 413)
+  const seen = new Set()
+  let sourceBytes = 0
+  const sources = slices.map(slice => {
+    if (typeof slice.id !== 'string' || !slice.id.trim() || slice.id.length > 128
+      || typeof slice.text !== 'string' || seen.has(slice.id)) throw error('TURN_SLICES_INVALID', 422)
+    seen.add(slice.id)
+    const byteLength = Buffer.byteLength(slice.text, 'utf8')
+    sourceBytes += byteLength
+    if (byteLength > 32 * 1024 || sourceBytes > 32 * 1024) throw error('TURN_SLICES_TOO_LARGE', 413)
+    return { id: slice.id, byteLength, hash: sha256(slice.text) }
+  })
+  const payload = { source: 'API-010', executionId: job.executionId, slices: sources }
+  if (Buffer.byteLength(JSON.stringify(payload), 'utf8') > 16 * 1024) throw error('TURN_SLICES_TOO_LARGE', 413)
+  await appendTraceEvent(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id,
+    executionId: job.executionId, kind: 'MEMORY_THREAD_READ',
+    idempotencyKey: coreMemoryKey(job.id, `runtime-context-sources:${job.executionId}`, 'MEMORY_THREAD_READ'), payload,
+    occurredAt: new Date(now().getTime()) })
 }
 
 function validateResult(operation, data, request) {
@@ -307,8 +358,16 @@ function validateResult(operation, data, request) {
     if (!['COMPLETED', 'NOT_FOUND'].includes(data?.status) || !present(data.operationId, 200)
       || !boundedJsonWithin(data, 60 * 1024)) invalid()
     if (data.status === 'NOT_FOUND' && !exact(data, ['status', 'operationId'])) invalid()
+    const receipt = data.result?.receipt
+    const validMemoryReceipt = exact(receipt, ['contextReceiptId', 'policyDecision'])
+      && ['ALLOW', 'DENY'].includes(receipt.policyDecision)
+      && (receipt.contextReceiptId === undefined || receipt.contextReceiptId === null
+        || (typeof receipt.contextReceiptId === 'string' && /^ctxrcpt_[0-9a-f-]{36}$/.test(receipt.contextReceiptId)))
+      || exact(receipt, ['state']) && MEMORY_INJECTION_STATES.includes(receipt.state)
+      || exact(receipt, ['textSha256', 'duplicate']) && /^[0-9a-f]{64}$/.test(receipt.textSha256)
+        && typeof receipt.duplicate === 'boolean'
     if (data.status === 'COMPLETED' && (!exact(data, ['status', 'operationId', 'result'])
-      || !exact(data.result, ['contextPacket', 'receipt', 'evidence']) || !data.result.receipt || typeof data.result.receipt !== 'object'
+      || !exact(data.result, ['contextPacket', 'receipt', 'evidence']) || !validMemoryReceipt
       || (data.result.evidence !== undefined && (!exact(data.result.evidence, ['records']) || !Array.isArray(data.result.evidence.records)
         || data.result.evidence.records.length > 64 || !boundedJsonWithin(data.result.evidence, 32 * 1024)))
       || Array.isArray(data.result.receipt) || Object.keys(data.result.receipt).length > 12
@@ -427,11 +486,11 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
     if (isMemoryTurn(job) && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
       && resolveLineKnowledgeGroundingMode(job.account.knowledgeGrounding) !== 'BUSINESS_KNOWLEDGE') {
       return { question, evidence: { records: [] }, slices: [], authorized: true, audienceKind: job.audienceKind,
-        threadId: null, maxBudgetChars: 0, workCommand: null }
+        threadId: null, maxBudgetChars: DEFAULT_CONTEXT_BUDGET_CHARS, workCommand: null }
     }
     const evidence = await groundingQuery(job, { deadlineAt })
     const result = { question, evidence: { records: Array.isArray(evidence?.records) ? evidence.records : [] },
-      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null }
+      slices: [], authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: DEFAULT_CONTEXT_BUDGET_CHARS, workCommand: null }
     if (Buffer.byteLength(JSON.stringify(result.evidence), 'utf8') > 32 * 1024) throw error('TURN_EVIDENCE_TOO_LARGE', 413)
     return result
   }
@@ -594,6 +653,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       : owned
   }
   const memory = createConversationRuntimeMemory({ db, env, now, ownedClaim: memoryClaim, threadMemoryFactory,
+    episodicMemoryStateReader,
     groundingQuery: (job, options) => groundingQuery(job, options),
     modelResolver: async job => {
       const credential = await resolveCredential(job)
@@ -767,8 +827,14 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
           recordsKept: turn?.evidence?.records?.length, now })
         // An opted-in turn tells the runtime to run the memory phases; a Work
         // command (or its fixed reply) never touches memory, as in the legacy worker.
-        return job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-          && turn?.workCommand == null && turn?.workReply == null ? { ...turn, memorySync: true } : turn
+        const memorySync = job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+          && turn?.workCommand == null && turn?.workReply == null
+        // Keep a Core-owned, content-free manifest for every model-eligible turn.
+        // API-010 episodic slices can be authorized independently of API-011
+        // thread memory, and the Runtime's ContextReceipt must be checked against
+        // the exact sources Core handed it even in that mode.
+        if (turn?.workCommand == null && turn?.workReply == null) await recordRuntimeMspSources(db, job, turn, now)
+        return memorySync ? { ...turn, memorySync: true } : turn
       }
       case 'credential': {
         const { job } = await ownedClaim(claimRef)
@@ -802,8 +868,11 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       }
       case 'trace': {
         assertRuntimeTraceEvent(claimRef, payload)
-        await ownedClaim(claimRef, { status: 'CLAIMED', checkLease: false })
-        return appendTrace(claimRef, payload, { db, now })
+        if (payload.kind === 'CONTEXT_RECEIPT') {
+          await ownedClaim(claimRef)
+          await memory.bindContextReceipt(claimRef, { receipt: payload.payload, contextBinding: payload.contextBinding })
+        } else await ownedClaim(claimRef, { status: 'CLAIMED', checkLease: false })
+        return appendTrace(claimRef, { kind: payload.kind, payload: payload.payload }, { db, now })
       }
       case 'status': {
         if (payload.operationId === `${claimRef.jobId}:turn-answer`) return readStatus(claimRef, { db })

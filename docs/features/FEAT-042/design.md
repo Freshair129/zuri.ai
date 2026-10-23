@@ -38,7 +38,6 @@ Feature record: [ZAI:FEAT-042 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-16 (ADR-095 D2) — `src/app/api/platform/usage-events/route.js`, `modules/platform-control/application/usage-events.js`, `UsagePageViewTracker.jsx` (mounted in `PlatformControlShell`), `/control/usage`; `tests/unit/usage-events.test.js`, `tests/unit/usage-events-tracker.test.js`, `tests/unit/usage-events-view.test.js`; not merged
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-249 canonical record](requirements/FR-249.md)
@@ -49,7 +48,6 @@ Feature record: [ZAI:FEAT-042 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-16 (ADR-095 D2) — `recordAction()` (`UsagePageViewTracker.jsx`), instrumented first on `PlatformControlShell`'s sign-out; `application/usage-events.js`, `/control/usage`; `tests/unit/usage-events.test.js`, `tests/unit/usage-events-tracker.test.js`, `tests/unit/usage-events-view.test.js`; not merged
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
-- [Release safety repair specification — restore, usage rollup and archive storage](../../plans/RELEASE-SAFETY-RESTORE-ROLLUP-ARCHIVE.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits

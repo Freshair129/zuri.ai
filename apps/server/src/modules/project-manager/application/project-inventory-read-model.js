@@ -8,12 +8,12 @@ import { projectDependencyGraph, PROJECT_DEPENDENCY_ENDPOINT_TYPES } from './pro
 import { calculateWorkstreamProgress } from '../progress/strategies'
 import { rollupProject } from '../progress/rollup'
 
-// @req FR-077 — one authorized, read-only Project Inventory DTO across the
+// @req FR-077, FR-135 — one authorized, read-only Project Inventory DTO across the
 // Project's operational entities, separate from GET /api/projects.
 // @spec SDD-045, ADR-034, ADR-012, ADR-014, ADR-016, ADR-017
 // @tested tests/unit/project-inventory-read-model.test.js, tests/integration/project-inventory.test.js, tests/integration/project-inventory-stall.test.js
 
-export const PROJECT_INVENTORY_VERSION = '1.0'
+export const PROJECT_INVENTORY_VERSION = '1.1'
 export const INVENTORY_DEFAULT_LIMIT = 100
 export const INVENTORY_MAX_LIMIT = 500
 
@@ -184,6 +184,20 @@ const zFile = z.object({
   updatedAt: nullableIsoDate,
 }).strict()
 
+const zAssetAllocation = z.object({
+  allocationId: z.string().min(1),
+  registeredAssetId: z.string().min(1),
+  assetCode: z.string().min(1),
+  name: z.string().min(1),
+  categoryCode: z.string().min(1),
+  workstreamId: z.string().nullable(),
+  quantity: z.number().positive(),
+  exclusive: z.boolean(),
+  status: z.string().min(1),
+  effectiveFrom: nullableIsoDate,
+  effectiveTo: nullableIsoDate,
+}).strict()
+
 const zRepository = z.object({
   linkId: z.string().min(1),
   projectId: z.string().min(1),
@@ -262,6 +276,7 @@ const zInventorySections = z.object({
     version: z.string().min(1),
   }).strict(),
   files: zCollection(zFile),
+  assets: zCollection(zAssetAllocation),
   repositories: zCollection(zRepository),
   team: zCollection(zTeamMember),
   progress: zProgress,
@@ -295,6 +310,7 @@ export const zProjectInventoryResponse = z.object({
       gates: z.number().int().nonnegative(),
       dependencies: z.number().int().nonnegative(),
       files: z.number().int().nonnegative(),
+      assets: z.number().int().nonnegative(),
       repositories: z.number().int().nonnegative(),
       team: z.number().int().nonnegative(),
       activity: z.number().int().nonnegative(),
@@ -437,6 +453,30 @@ function fileDto(file) {
     state: file.state || 'ACTIVE',
     createdAt: isoDate(file.createdAt),
     updatedAt: isoDate(file.updatedAt),
+  }
+}
+
+function assetAllocationDto(allocation, projectId) {
+  const workstreamId = allocation.workstreamId ?? null
+  const workstreamBelongsToProject = workstreamId == null || (
+    allocation.workstream?.id === workstreamId
+    && allocation.workstream?.projectId === projectId
+  )
+  return {
+    allocationId: allocation.id,
+    registeredAssetId: allocation.registeredAssetId,
+    assetCode: allocation.registeredAsset.assetCode,
+    name: allocation.registeredAsset.name,
+    categoryCode: allocation.registeredAsset.categoryCode,
+    // Allocation scope columns are independent from the optional Workstream
+    // foreign key, so never return that ID unless its relation proves this
+    // Workstream belongs to the authorized Project.
+    workstreamId: workstreamBelongsToProject ? workstreamId : null,
+    quantity: Number(allocation.quantity),
+    exclusive: Boolean(allocation.exclusive),
+    status: allocation.status,
+    effectiveFrom: isoDate(allocation.effectiveFrom),
+    effectiveTo: isoDate(allocation.effectiveTo),
   }
 }
 
@@ -585,6 +625,7 @@ export function buildProjectInventoryReadModel({
   gates = [],
   dependencyGraph = { version: '1.0', nodes: [], edges: [] },
   files = [],
+  assetAllocations = [],
   repositories = [],
   team = [],
   activity = [],
@@ -600,6 +641,7 @@ export function buildProjectInventoryReadModel({
   const gateRows = gates.map(gateDto)
   const dependencyRows = dependencyDto(dependencyGraph)
   const fileRows = files.map(fileDto)
+  const assetRows = assetAllocations.map((allocation) => assetAllocationDto(allocation, project.id))
   const repositoryRows = repositories.map(repositoryDto)
   const teamRows = team.map((member) => teamDto(member, project.businessId))
   const activityRows = activity.map(activityDto)
@@ -627,6 +669,7 @@ export function buildProjectInventoryReadModel({
       version: dependencyGraph.version || '1.0',
     },
     files: paginateCollection(fileRows, { page, limit }),
+    assets: paginateCollection(assetRows, { page, limit }),
     repositories: paginateCollection(repositoryRows, { page, limit }),
     team: paginateCollection(teamRows, { page, limit }),
     progress: progressFor(workstreams),
@@ -641,6 +684,7 @@ export function buildProjectInventoryReadModel({
     gates: gateRows.length,
     dependencies: dependencyRows.length,
     files: fileRows.length,
+    assets: assetRows.length,
     repositories: repositoryRows.length,
     team: teamRows.length,
     activity: activityTotal,
@@ -809,7 +853,7 @@ function activityWhere(project, workstreams, milestones, gates, files, dependenc
 }
 
 async function readInventorySources(db, project, { page, limit, tenantId }) {
-  const [workstreams, milestones, gates, legacyFiles, managedFiles, repositories, memberships] = await Promise.all([
+  const [workstreams, milestones, gates, legacyFiles, managedFiles, assetAllocations, repositories, memberships] = await Promise.all([
     db.workstream.findMany({
       where: { projectId: project.id, ...activeWorkstream() },
       orderBy: [{ code: 'asc' }, { id: 'asc' }],
@@ -830,6 +874,40 @@ async function readInventorySources(db, project, { page, limit, tenantId }) {
     }),
     db.projectFile.findMany({ where: { projectId: project.id }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }] }),
     db.fileAsset.findMany({ where: { projectId: project.id, deletedAt: null }, orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }] }),
+    project.businessId
+      ? db.assetProjectAllocation.findMany({
+        where: {
+          projectId: project.id,
+          tenantId,
+          businessId: project.businessId,
+          deletedAt: null,
+          registeredAsset: {
+            is: { tenantId, businessId: project.businessId, deletedAt: null },
+          },
+          OR: [
+            { workstreamId: null },
+            { workstream: { is: { projectId: project.id } } },
+          ],
+        },
+        orderBy: [{ effectiveFrom: 'desc' }, { id: 'asc' }],
+        include: {
+          registeredAsset: {
+            select: {
+              id: true,
+              assetCode: true,
+              name: true,
+              categoryCode: true,
+              tenantId: true,
+              businessId: true,
+              deletedAt: true,
+            },
+          },
+          workstream: {
+            select: { id: true, projectId: true },
+          },
+        },
+      })
+      : Promise.resolve([]),
     db.projectRepository.findMany({
       where: { projectId: project.id },
       orderBy: [{ role: 'asc' }, { id: 'asc' }],
@@ -883,6 +961,7 @@ async function readInventorySources(db, project, { page, limit, tenantId }) {
     gates,
     dependencyGraph: buildDependencyGraph(project, workstreams, milestones, gates, dependencies),
     files,
+    assetAllocations,
     repositories,
     team,
     activity,
