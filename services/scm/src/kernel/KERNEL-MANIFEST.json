@@ -34,8 +34,8 @@
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-catalog-projection.js",
       "kernel": "src/kernel/commerce/pricing-catalog-projection.js",
-      "sourceSha256": "462bba53f1cd0250935dcd55a751bba39dcff8a7941f33543848353394d8316d",
-      "kernelSha256": "462bba53f1cd0250935dcd55a751bba39dcff8a7941f33543848353394d8316d"
+      "sourceSha256": "cfbf368c2ddfdaa8d5368675868ef5fb3934844a0ec26ba923ec0d6cd1eea098",
+      "kernelSha256": "cfbf368c2ddfdaa8d5368675868ef5fb3934844a0ec26ba923ec0d6cd1eea098"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/commerce.js",

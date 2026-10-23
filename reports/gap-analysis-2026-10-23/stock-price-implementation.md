@@ -257,3 +257,20 @@ passed 33 Server files / 526 tests with one PostgreSQL-only skip, the full
 governance 0 critical / 0 warning and 99 document contracts. The four additional
 Server files are adopted-main Knowledge worker/runtime guards. This adds no
 product scope or live acceptance.
+
+Hosted follow-up at 1635603b exposed the required SCM mirror sync and a v1-only
+Runtime image-smoke dependency. The generator and versioned stub were corrected;
+SCM kernel/build and full SQLite/PostgreSQL suites passed (350/2 skipped and
+351/1 skipped), and Runtime passed 92 tests/build. Local Docker was unavailable;
+exact-head hosted image drain and the remaining CI jobs are separate evidence
+recorded on PR #725. No failed run is reclassified as PASS.
+
+The first full hosted Server run additionally exposed SQL snapshot placement,
+stale Phase B census and an old worker-wrapper unit fixture. Production DDL
+remains in Supabase; 0001 was regenerated and the invalid extra snapshot file
+removed. Document26 now pins 209 mappings, preserves the prior 208 exactly and
+refuses historical hashes; the excluded policy still blocks a nonempty target.
+Recovery/migration/worker/backup qualification passed 85/85, with a final 46/46
+Phase B rerun after reconstructing the exact historical 192 model mapping.
+Independent review is clear; merge requires fresh exact-head hosted CI and
+Docker smoke, as explicitly requested by the owner.

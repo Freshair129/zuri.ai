@@ -170,6 +170,7 @@ status: generated
 - [services/conversation-runtime/test/core-ports.test.js](../../../services/conversation-runtime/test/core-ports.test.js) — `verifies` (`test-reference`)
 - [services/conversation-runtime/test/health-server.test.js](../../../services/conversation-runtime/test/health-server.test.js) — `verifies` (`transitive`)
 - [services/conversation-runtime/test/memory-turn.test.js](../../../services/conversation-runtime/test/memory-turn.test.js) — `verifies` (`test-reference`)
+- [services/conversation-runtime/test/smoke-core.test.js](../../../services/conversation-runtime/test/smoke-core.test.js) — `verifies` (`test-reference`)
 - [services/conversation-runtime/test/turn-runtime.test.js](../../../services/conversation-runtime/test/turn-runtime.test.js) — `verifies` (`transitive`)
 - [services/conversation-runtime/test/unverified-authority.test.js](../../../services/conversation-runtime/test/unverified-authority.test.js) — `verifies` (`test-reference`)
 - [services/conversation-runtime/test/worker-loop.test.js](../../../services/conversation-runtime/test/worker-loop.test.js) — `verifies` (`transitive`)

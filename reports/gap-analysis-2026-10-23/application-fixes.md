@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.8.1"
+version: "0.8.3"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -463,6 +463,64 @@ product scope. Exact-head hosted results belong to PR #725 and are separate
 from these local checks. No merge, deployment or live acceptance is claimed
 for this follow-up.
 
+## Hosted integration corrections after head 1635603b
+
+The first hosted run for PR #725 passed Server build and governance but exposed
+two service qualification gaps: SCM kernel drift and the Runtime image smoke's
+v1-only fake Core. These failures are not passes or runner retries.
+
+The sanctioned SCM generator synchronized only pricing-catalog-projection and
+its kernel manifest to the already-reviewed Server source. Kernel check and
+77-source-file boundary build passed. After installing the isolated service's
+locked dependencies, its full 47-file SQLite suite passed 350 with 2 explicit
+skips; the full disposable PostgreSQL suite passed 351 with 1 platform skip.
+The initial local SCM attempt before dependency installation failed to load
+zod and is not acceptance evidence. Windows SIGTERM skips remain unproved
+locally and belong to the Linux image qualification.
+
+The Runtime smoke dependency now routes both v1/v2 with matching envelopes.
+A real HTTP regression uses the production v2 client through prepare and also
+checks legacy v1 health. Runtime tests passed 92/92 and its 11-source-file build
+passed. The smoke changes and generated SCM mirror received independent Luna
+Max review with no P1/P2. Local Docker smoke was unavailable because the Docker
+Desktop Linux engine pipe could not be reached; no Compose project was started.
+Only the new exact-head hosted drain smoke can qualify that image behavior.
+No deployment, live provider or production acceptance is implied.
+
+## Full Server CI compatibility corrections
+
+The completed first hosted run also found two Server shard failures: Phase B
+correctly refused the stale 208-table schema binding, the PostgreSQL snapshot
+directory rejected the extra 0003 file, and a unit test still mocked the answer
+composition before the product wrapper existed. The other two shards passed.
+These are retained as failed prior-head evidence.
+
+The production incremental policy DDL remains only in Supabase migrations. The
+incorrect extra file under prisma/postgres was removed; `npm run db:pg:sql`
+regenerated the full 0001 snapshot from the current schema, preserving the one
+legitimate 0002 partial-index file. No static directory guard was weakened.
+
+Phase B's current static binding advances to 209 mappings in Document 26 version
+0.3.23b. All prior 208 mappings are unchanged; only the excluded stock policy
+is added to the complete empty-target/catalog census. The exact schema hash is
+fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808,
+and the canonical target hash is
+db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633.
+Historical 208 and 192 inventories are reconstructed with exact counts and
+hashes before proving refusal. A policy row makes a target nonempty despite
+its portable snapshot exclusion; no disclosure grant is restored. No historical
+receipt, canonical requirement or loader guard was rewritten or relaxed.
+
+The worker-route unit fixture now uses callable wrappers and proves the exact
+Server answer to #sku to #product composition using only server-owned options.
+The matching-bearer regression was red at 503, then passed 3/3 after the fixture
+correction. The focused Phase B run went from collection refusal to 46/46.
+A composed 8-file recovery/migration/worker/backup group passed 85/85; after the
+last historical fixture correction, the full Phase B file passed 46/46 again.
+Independent Luna Max review found no remaining P1/P2, including exact mapping
+preservation and the corrected historical-192 proof. New exact-head CI and
+Docker smoke remain mandatory before the owner-authorized merge of PR #725.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -494,3 +552,11 @@ assessment or claiming production acceptance.
 
 0.8.0 to 0.8.1 records main synchronization and fresh composed verification for
 PR #725 after PR #724 landed, preserving source and approval identities.
+
+0.8.1 to 0.8.2 records the hosted service-qualification corrections, isolated
+SCM engine results and Runtime smoke compatibility without reclassifying a
+failed hosted run or unavailable local Docker check as PASS.
+
+0.8.2 to 0.8.3 records static SQL snapshot discipline, the reviewed 209-model
+Phase B rebind and complete recovery/worker fixture proofs without changing
+recovery authority or rewriting earlier hosted evidence.

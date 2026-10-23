@@ -42,10 +42,11 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req TASK-ZAI-010 — include Agent approval request/decision history in portable snapshots;
 // restore invalidates nonterminal requests so a recovered approval cannot execute.
 // @req TASK-ZAI-011 — include recipient-bound approval notifications in portable snapshots.
-// @req FR-001 — scope archive/version columns preserve the complete 208-table census.
-const FROZEN_SCHEMA_SHA256 = "579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8"
-const FROZEN_TARGET_SCHEMA_SHA256 = "af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683"
-const FROZEN_APPLICATION_TABLE_COUNT = 208
+// @req FR-001 — retain the archive/version schema with all 208 predecessor mappings preserved.
+// @req FR-291 — include stock disclosure policy in the complete target census while excluding it from portable snapshots.
+const FROZEN_SCHEMA_SHA256 = "fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808"
+const FROZEN_TARGET_SCHEMA_SHA256 = "db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633"
+const FROZEN_APPLICATION_TABLE_COUNT = 209
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0

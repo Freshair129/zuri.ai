@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.22b"
+version: "0.3.23b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-23,Codex Root, FR-001 scope archive/version column static binding"
+last_update: "2026-10-23,Codex Root, FR-291 excluded stock policy static census binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -618,7 +618,29 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
-### Current FR-001 scope metadata static binding
+### Current FR-291 stock policy static binding
+
+The approved [customer LINE stock/price contract](../../change-requests/integration/line-agent-stock-price-facts-20261023.md)
+adds only `LineStockDisclosurePolicy` to the complete application table census.
+All prior 208 public model/table mappings are preserved exactly; the new
+`public.LineStockDisclosurePolicy` mapping brings the census to 209. Inventory
+owns this default-OFF authority. Its presence in the empty-target/catalog census
+does not make it portable snapshot data or authorize restoring a disclosure
+grant. Existing portable recovery exclusion remains in force.
+
+- Exact canonical LF schema SHA-256: `fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808`.
+- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633`.
+
+The current loader binds these exact values and all 209 model mappings. The
+208-table FR-001 predecessor below and every earlier binding remain historical
+and must be refused at loader, adapter, export and restore boundaries. An
+existing policy row makes a target nonempty even though the policy is excluded
+from portable data. No schema validation, target visibility, privilege, custody
+or transaction gate is relaxed. This reviewed static rebind under the owner's
+implementation mandate applies no deployed migration and grants no live
+recovery, external target connection or production release authority.
+
+### Historical FR-001 scope metadata static binding
 
 The FR-001 correction adds `Portfolio.status`, `LegalEntity.version` and
 `Branch.version` to support non-destructive archive and concurrent update checks.
@@ -630,8 +652,8 @@ privilege and transactional recovery checks remain required.
 - Exact canonical LF schema SHA-256: `579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8`.
 - Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683`.
 
-The loader binds these values and the complete 208-model census. The preceding
-same-count TASK-ZAI-011 binding is now historical and is refused at the loader,
+The former loader bound these values and the complete 208-model census. This
+binding and the preceding same-count TASK-ZAI-011 binding are refused at the loader,
 adapter, export and restore boundaries. Tests verify that refusal as well as
 current schema equality. No historical evidence is rewritten. This source
 reconciliation neither applies a deployed database migration nor proves or
@@ -666,7 +688,7 @@ TASK-ZAI-011 adds `AgentApprovalNotification`.
 
 The former loader bound all 207 mappings. Its schema and target inventory hashes
 are retained for audit and are refused at loader and recovery-runner boundaries
-under the current 208-table binding. No live migration or recovery is implied.
+under its then-current 208-table successor binding. No live migration or recovery is implied.
 
 ### Historical FR-286 static binding
 
@@ -700,6 +722,7 @@ target visibility, clean-target, custody and production gates remain in force.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.23b | 2026-10-23 | beta | Add only excluded LineStockDisclosurePolicy to the complete 209-table static census; preserve all prior mappings and old binding hashes as history, and retain all external recovery, custody and production gates | working-tree | Codex Root |
 | 0.3.22b | 2026-10-23 | beta | Bind FR-001 scope archive/version columns with all 208 table mappings unchanged; refuse the same-count TASK-ZAI-011 predecessor and retain custody, recovery and production gates | working-tree | Codex Root |
 | 0.3.21b | 2026-10-18 | beta | Bind TASK-ZAI-011 AgentApprovalNotification as the 208th static snapshot table; preserve the prior 207 mappings and all external recovery, migration and production gates | working-tree | Codex Root |
 | 0.3.20b | 2026-10-15 | beta | Rebind FR-286 Business/Workspace provisioning columns with all 205 prior mappings preserved; explicitly refuse the same-count FR-285 predecessor and retain external recovery/production gates | working-tree | Codex Root |
