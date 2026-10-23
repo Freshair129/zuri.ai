@@ -268,6 +268,27 @@ describe('FR-244 out-of-hours replies in the Conversation Runtime cohort', () =>
     expect(wire.map(call => call.operation)).not.toContain('credential')
   })
 
+  it('answers a #product command out of hours only from the durable fixed-reply trace', async () => {
+    const at = bangkok('22:25:00')
+    clock = new Date(at.getTime() + 1000)
+    const { runtime } = buildRuntime()
+    const text = '#product {"sku":"SYNTH-OOH-1","facets":["availability"]}'
+    const serverJob = await admit(serverAccount, { at, text, tag: 'server-product' })
+    const runtimeJob = await admit(runtimeAccount, { at, text, tag: 'runtime-product' })
+    expect(serverJob).toMatchObject({ runtimeOwner: 'SERVER', status: 'READY', answerText: replyText, executionId: null })
+    expect(runtimeJob).toMatchObject({ runtimeOwner: 'CONVERSATION_RUNTIME', status: 'QUEUED', answerText: replyText })
+
+    await runServerWorker()
+    const outcome = await runtime('runtime-ooh-product').runOne()
+    expect(outcome).toMatchObject({ jobId: runtimeJob.id, status: 'RECORDED' })
+    expect(serverDeliveries).toEqual([{ method: 'REPLY', messages: [{ type: 'text', text: replyText }] }])
+    expect(runtimeDeliveries).toEqual(serverDeliveries)
+    expect(await prisma.agentTraceEvent.count({ where: { turnId: serverJob.id, kind: 'TOOL_RESULT' } })).toBe(0)
+    expect(await prisma.agentTraceEvent.count({ where: { turnId: runtimeJob.id, kind: 'TOOL_RESULT' } })).toBe(0)
+    expect(wire.map(call => call.operation)).not.toContain('credential')
+    expect(wire.map(call => call.operation)).not.toContain('work-tool')
+  })
+
   it('sends the admission-time reply even if the account changes it before the runtime runs, as the Server path does', async () => {
     const at = bangkok('06:30:00')
     clock = new Date(at.getTime() + 1000)

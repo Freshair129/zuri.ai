@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.169.1b"
+version: "2.170.0b"
 updated: "2026-10-23"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,8 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.170.0b (2026-10-23): records the owner-requested FR-291 implementation as a delivery trace only. No new phase, sprint, schedule, estimate or production acceptance is assigned.
 
 > Revision 2.169.0b (2026-10-22): Retire the developer-only DDC by ADR-113. Remove its task preflight, controller, supervisor, worker-observation runtime, Mission Control route, Workers tab, CLI commands and tests; retain `/control/roadmap`, `/roadmap`, documentation governance, verification selection and standard CI. Close TASK-ZAI-119 as `retired` with implementation state `RETIRED`, not `done`: FEAT-044 and FR-260..264 are superseded, the former exit criterion remains unchecked, and prior merge/CI receipts are historical provenance only. Current task states: 71 done, 15 review, 6 in-progress, 25 planned, 5 blocked and 1 retired among 123; phase/sprint progress is unchanged. No production cleanup or deployment is claimed.
 
@@ -541,6 +543,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| LINE-PRODUCT-FACTS-20261023 | — | task | FR-291 explicit customer LINE stock and exact published-price facts across Server and Runtime | — | Codex / Luna | review (bounded implementation; local verification recorded in application-fixes; exact-head hosted status belongs to the PR; not deployed) | FR-180; FR-253; FR-234 | ../requirements/FR-291.md; ../../reports/gap-analysis-2026-10-23/application-fixes.md |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Business Agent Factory v1 (FR-285): persisted standard five-role config, scoped initial owner apply and atomic Business provisioning | P1 | Codex | done (bounded local factory; hosted CI and PR665 merge verified; canonical delivery ledger below owns evidence) | TASK-ZAI-007; TASK-ZAI-008 | ../change-requests/agent-factory/AGENT-FACTORY-V1.md |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template v1 (FR-286): catalog-only snapshot and one atomic default Business Space | P0 | Codex | done (bounded FR-286; merged PR #667; hosted CI passed; E2E/Desktop skipped; canonical delivery ledger below owns evidence) | TASK-ZAI-009 | ../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md |
 | TASK-ZAI-047 | PHASE-ZAI-KNOWLEDGE | task | Knowledge console (FR-254): source versions, complete processing runs, corpus generations and exact citation artifacts | P0 | RWANG | review (isolated implementation and native acceptance; not deployed) | FR-173; FR-071; FR-110 | ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |

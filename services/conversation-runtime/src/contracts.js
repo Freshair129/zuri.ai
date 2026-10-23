@@ -2,6 +2,8 @@
 // @spec ADR-106, SDD-110 — strict fields, correlation, deadlines and idempotency.
 // @tested services/conversation-runtime/test/contracts.test.js
 export const CONTRACT_VERSION = 'conversation-runtime.v1'
+export const CONTRACT_VERSION_V2 = 'conversation-runtime.v2'
+export const SUPPORTED_CONTRACT_VERSIONS = Object.freeze([CONTRACT_VERSION, CONTRACT_VERSION_V2])
 export const CORE_OPERATIONS = Object.freeze([
   'claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory',
 ])
@@ -14,6 +16,8 @@ export const WORK_REPLY_CODES = Object.freeze(['WORK_COMMAND_USAGE', 'WORK_ACTIO
 // Turn kinds Core may hand out from `prepare`; absent means an ordinary turn.
 // OUT_OF_HOURS (FR-244): Core's admission-time out-of-hours reply.
 // CATALOG_COMMAND (FR-210): Core ran the `#sku` catalogue command and hands over its reply.
+// PRODUCT_FACTS (FR-291, v2 only): Core redacts the customer query to a fixed marker
+// and hands over its deterministic reply; no fact binding or source data crosses this port.
 export const TURN_KINDS = Object.freeze(['OUT_OF_HOURS', 'CATALOG_COMMAND'])
 // @req FR-149 — ADR-106 D2 Memory/Knowledge: `read` the thread context for this turn,
 // `append` the completed exchange, and `receipt` (look up a durable receipt, or record
@@ -69,11 +73,11 @@ function isUuid(value) {
   return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value)
 }
 
-export function validateCoreEnvelope(value, expectedOperation = null) {
+export function validateCoreEnvelope(value, { contractVersion = CONTRACT_VERSION, expectedOperation = null } = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('CONTRACT_OBJECT_REQUIRED')
   const allowed = new Set(['contractVersion', 'operation', 'correlationId', 'idempotencyKey', 'deadlineAt', 'payload'])
   if (Object.keys(value).some(key => !allowed.has(key))) throw fail('CONTRACT_UNKNOWN_FIELD')
-  if (value.contractVersion !== CONTRACT_VERSION) throw fail('CONTRACT_VERSION_UNSUPPORTED')
+  if (!SUPPORTED_CONTRACT_VERSIONS.includes(contractVersion) || value.contractVersion !== contractVersion) throw fail('CONTRACT_VERSION_UNSUPPORTED')
   if (!CORE_OPERATIONS.includes(value.operation) || (expectedOperation && value.operation !== expectedOperation)) {
     throw fail('CONTRACT_OPERATION_INVALID')
   }
@@ -238,7 +242,7 @@ export function validateMemoryRequest(value) {
   return value
 }
 
-export function validateTurnContext(value) {
+export function validateTurnContext(value, { contractVersion = CONTRACT_VERSION } = {}) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) throw fail('TURN_CONTEXT_INVALID')
   const allowed = new Set(['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
     'turnKind', 'replyText', 'memorySync'])
@@ -266,7 +270,9 @@ export function validateTurnContext(value) {
   // catalogue reply): only that bounded text and nothing to execute (no evidence,
   // context, Work command, Work reply or model).
   if (value.turnKind !== undefined) {
-    if (!TURN_KINDS.includes(value.turnKind)) throw fail('TURN_KIND_INVALID')
+    const allowedTurnKinds = contractVersion === CONTRACT_VERSION_V2 ? [...TURN_KINDS, 'PRODUCT_FACTS'] : TURN_KINDS
+    if (!SUPPORTED_CONTRACT_VERSIONS.includes(contractVersion) || !allowedTurnKinds.includes(value.turnKind)) throw fail('TURN_KIND_INVALID')
+    if (value.turnKind === 'PRODUCT_FACTS' && value.question !== 'PRODUCT_FACTS') throw fail('PRODUCT_FACTS_QUESTION_NOT_REDACTED')
     boundedText(value.replyText, 5000, 'TURN_REPLY_TEXT_INVALID')
     if (value.workCommand != null || value.workReply != null || value.memorySync !== undefined || records.length || value.slices.length) throw fail('TURN_KIND_INVALID')
   } else if (value.replyText !== undefined) throw fail('TURN_KIND_INVALID')

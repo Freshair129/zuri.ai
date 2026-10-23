@@ -1,3 +1,11 @@
+// @tested tests/integration/fr253-pricing-catalog.test.js
+// @tested tests/integration/conversation-runtime-product-facts-vertical.test.js
+// @req FR-291 — actual policy, projection, publication, paired Runtime and recovery tests on disposable PostgreSQL.
+// @tested tests/integration/line-stock-disclosure-policy.test.js
+// @tested tests/integration/line-product-facts.test.js
+// @tested tests/integration/line-published-price-reader.test.js
+// @tested tests/integration/conversation-runtime-product-facts.test.js
+// @tested tests/integration/line-stock-policy-backup.test.js
 import base from './vitest.config'
 
 // @req FR-149, FR-150 — the WorkToolPort suite on PostgreSQL, the production
@@ -33,7 +41,7 @@ export default {
   ...base,
   test: {
     ...base.test,
-    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js', 'tests/integration/crm-customer-consent.test.js'],
+    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js', 'tests/integration/line-stock-disclosure-policy.test.js', 'tests/integration/line-product-facts.test.js', 'tests/integration/line-published-price-reader.test.js', 'tests/integration/fr253-pricing-catalog.test.js', 'tests/integration/conversation-runtime-product-facts.test.js', 'tests/integration/conversation-runtime-product-facts-vertical.test.js', 'tests/integration/line-stock-policy-backup.test.js', 'tests/integration/crm-customer-consent.test.js'],
     globalSetup: ['tests/global-setup-postgres.js'],
     hookTimeout: 120000,
   },

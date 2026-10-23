@@ -305,8 +305,11 @@ describe('OpenAPI document', () => {
       // Baseline plus current routes after retiring Mission Control and worker
       // observability: 350 paths / 459 operations. FR-001 adds PATCH and DELETE
       // to /api/scope without adding another path: 459 + 2 = 461 operations.
-      pathCount: 350,
-      operationCount: 461,
+      // FR-291 adds the v2 Conversation Runtime contract path (GET + POST)
+      // and explicit owner-managed stock-disclosure grant (POST):
+      // 350 + 2 = 352 paths; 461 + 3 = 464 operations.
+      pathCount: 352,
+      operationCount: 464,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get
@@ -335,16 +338,44 @@ describe('OpenAPI document', () => {
   })
 
   it('documents the private Conversation Runtime adapter with process-only bearer auth', () => {
-    const path = doc.paths['/api/internal/conversation-runtime/v1/{operation}']
-    expect(path.get.parameters[0]).toMatchObject({ name: 'operation', required: true, schema: { type: 'string', enum: ['health'] } })
-    expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory'])
-    for (const operation of [path.get, path.post]) {
-      expect(operation.security).toEqual([{ ConversationRuntimeService: [] }])
-      expect(operation['x-zuri-contract']).toBe('conversation-runtime.v1')
+    for (const [version, path] of [
+      ['v1', doc.paths['/api/internal/conversation-runtime/v1/{operation}']],
+      ['v2', doc.paths['/api/internal/conversation-runtime/v2/{operation}']],
+    ]) {
+      expect(path.get.parameters[0]).toMatchObject({ name: 'operation', required: true, schema: { type: 'string', enum: ['health'] } })
+      expect(path.post.parameters[0].schema.enum).toEqual(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory'])
+      for (const operation of [path.get, path.post]) {
+        expect(operation.security).toEqual([{ ConversationRuntimeService: [] }])
+        expect(operation['x-zuri-contract']).toBe(`conversation-runtime.${version}`)
+        expect(operation.responses[200].content['application/json'].schema).toBeTruthy()
+      }
+      expect(path.post.requestBody.required).toBe(true)
+      expect(path.post.responses[413].description).toContain('64 KiB')
     }
-    expect(path.post.requestBody.required).toBe(true)
-    expect(path.post.responses[413].description).toContain('64 KiB')
+    expect(doc.paths['/api/internal/conversation-runtime/v2/{operation}'].post.description).toContain('PRODUCT_FACTS')
     expect(doc.components.securitySchemes.ConversationRuntimeService).toMatchObject({ type: 'http', scheme: 'bearer' })
+  })
+
+  it('documents explicit owner-only LINE stock disclosure as a strict versioned grant', () => {
+    const operation = doc.paths['/api/inventory/line-stock-disclosure'].post
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBe('line-stock-disclosure/v1')
+    expect(doc.tags).toContainEqual({ name: 'Inventory', description: 'Explicitly scoped inventory disclosure policy administration' })
+    expect(operation.description).toContain('active OWNER')
+    expect(operation.description).toContain('expectedVersion')
+    expect(operation.description).toContain('price')
+    const schema = operation.requestBody.content['application/json'].schema
+    expect(schema).toMatchObject({ type: 'object', additionalProperties: false })
+    expect([...schema.required].sort()).toEqual(['businessId', 'enabled', 'expectedVersion', 'lineOaAccountId', 'productId', 'reason'])
+    expect(Object.keys(schema.properties).sort()).toEqual(['businessId', 'enabled', 'expectedVersion', 'lineOaAccountId', 'productId', 'reason'])
+    expect(schema.properties.businessId).toMatchObject({ type: 'string', minLength: 1, maxLength: 200 })
+    expect(schema.properties.lineOaAccountId).toMatchObject({ type: 'string', minLength: 1, maxLength: 200 })
+    expect(schema.properties.productId).toMatchObject({ type: 'string', minLength: 1, maxLength: 200 })
+    expect(schema.properties.enabled).toMatchObject({ type: 'boolean' })
+    expect(schema.properties.expectedVersion).toMatchObject({ type: 'integer', minimum: 0 })
+    expect(schema.properties.reason).toMatchObject({ type: 'string', minLength: 1, maxLength: 2000 })
+    for (const status of ['400', '401', '404', '409']) expect(operation.responses).toHaveProperty(status)
+    expect(operation.responses['409'].description).toContain('expectedVersion')
   })
 
   it('retires Edge and harness routes while keeping signed LINE ingress and PRP model credentials', () => {

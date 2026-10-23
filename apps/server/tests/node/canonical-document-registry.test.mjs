@@ -5,6 +5,7 @@ import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {
+  canonicalApprovalSnapshotPaths,
   buildCanonicalGraphEntries,
   canonicalizeDeclaredIdentities,
   loadCanonicalDocumentRegistry,
@@ -266,4 +267,15 @@ test('reviewed migration approval accepts unrelated YAML list frontmatter', () =
   assert.throws(() => validateReviewedProvenance(record, () => Buffer.from(
     text.replace('## Approval', '## Review'), 'utf8'),
   ), /approval mismatch/)
+})
+
+
+test('only validated authored registry entries identify frozen approval snapshots', () => {
+  const snapshots = canonicalApprovalSnapshotPaths({ index: { records: [
+    { recordVersion: 1, manifestPath: 'docs/migrations/old.manifest.json' },
+    { recordVersion: 2, manifestPath: 'docs/migrations/one.manifest.json' },
+    { recordVersion: 2, manifestPath: 'docs/migrations/one.manifest.json' },
+  ] } })
+  assert.deepEqual([...snapshots], ['docs/migrations/one.approval.md'])
+  assert.equal(snapshots.has('docs/migrations/unregistered.approval.md'), false)
 })

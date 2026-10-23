@@ -374,6 +374,8 @@ model Business {
   // @req FR-192, FR-285 — supports composite Tenant + Business references.
   @@unique([id, tenantId])
   @@index([tenantId])
+  lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+
 }
 
 // @req FR-285 — one versioned role/tool/policy snapshot per Business.
@@ -4473,6 +4475,9 @@ model LineOaAccount {
   @@unique([tenantId, bindingCode])
   @@index([businessId, status])
   @@index([memoryProjectId])
+  lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+  @@unique([id, tenantId, businessId])
+
 }
 
 // FR-151 — a rich menu design of one LineOaAccount (ADR-060 D3): identity,
@@ -5221,6 +5226,9 @@ model Product {
   @@index([businessId, status])
   @@index([productMasterId])
   @@index([mergedIntoProductId])
+  lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+  @@unique([id, tenantId, businessId])
+
 }
 
 // @req FR-203 — a barcode, GTIN, supplier code, manufacturer part number or
@@ -6652,4 +6660,29 @@ model MarketingExternalReport {
   auditEvent AuditEvent @relation(fields: [auditEventId], references: [id], onDelete: Restrict, onUpdate: Restrict)
   @@unique([bindingId, sourceReportId])
   @@index([tenantId, businessId, initiativeId, acceptedAt])
+}
+
+// @req FR-291 — default-off customer stock disclosure, scoped to one internal LINE account and SKU.
+// @spec ADR-098, ADR-106; docs/change-requests/integration/line-agent-stock-price-facts-20261023.md
+// @tested tests/integration/line-product-facts.test.js
+model LineStockDisclosurePolicy {
+  id String @id @default(uuid())
+  tenantId String
+  businessId String
+  lineOaAccountId String
+  productId String
+  enabled Boolean @default(false)
+  version Int @default(1)
+  reason String
+  createdByPersonId String
+  updatedByPersonId String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  business Business @relation(fields: [businessId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  account LineOaAccount @relation(fields: [lineOaAccountId, tenantId, businessId], references: [id, tenantId, businessId], onDelete: Cascade)
+  product Product @relation(fields: [productId, tenantId, businessId], references: [id, tenantId, businessId], onDelete: Cascade)
+
+  @@unique([tenantId, businessId, lineOaAccountId, productId])
+  @@index([businessId, lineOaAccountId])
 }

@@ -3472,7 +3472,7 @@
       "path": "docs/features/FEAT-037/requirements/FR-234.md",
       "sourcePath": "docs/PRD-SDD-v1.0.md",
       "sourceRowSha256": "9e4f2f6657c17e7138df9703204e77b9146efea9a37bfde2e528e350874584fb",
-      "recordSha256": "b330e0c93c0641fdfce6737d08497b4d3a21614a1ff6864b99973335ea779707",
+      "recordSha256": "05f96bf64a447982684dcba13727e455b292c9ecdffa0da43e0b05693711e842",
       "statementCell": 2,
       "requirementCells": [],
       "featureId": "FEAT-037",
@@ -8651,6 +8651,31 @@
       "requirementCells": [],
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 505
+    },
+    {
+      "id": "FR-291",
+      "namespace": "ZAI",
+      "family": "FR",
+      "recordVersion": 2,
+      "status": "active",
+      "path": "docs/requirements/FR-291.md",
+      "provenance": "authored",
+      "authoredBaseRevision": "524a767024e22021fa13f48c0de2f31ec950d763",
+      "approvalRevision": "524a767024e22021fa13f48c0de2f31ec950d763",
+      "approvalPath": "docs/change-requests/integration/line-agent-stock-price-facts-20261023.md",
+      "approvalVersion": "0.3.0",
+      "approvalSha256": "68371a604da039c450731d0ac8e918896b1ed349f204f88bcfc21ac0e96eaeb4",
+      "migrationId": "line-product-facts-20261023",
+      "manifestPath": "docs/migrations/document-reintegration/record-migrations/line-product-facts-20261023.manifest.json",
+      "manifestSha256": "eba4927058df5c0a83ee8f7d5a9b62655b268a8bac9e192a8a9a946b8b7a6ee6",
+      "rowSha256": "4387609ba5705e9c9716a450546e2569ae9ded2346bcbbe6a6a1ca33b1c1e282",
+      "statementSha256": "83a67aa69d194d609c24615fe50f5951df294b753c6c262103171ebbb26d8ed9",
+      "subjectAnchor": "customer line product facts",
+      "recordSha256": "d64dc4ec63e2371e1e4f2420c3311d09065d94f4a6af357da9344ff80acac8a5",
+      "statementCell": 2,
+      "requirementCells": [],
+      "exportDocument": "docs/PRD-SDD-v1.0.md",
+      "exportOrder": 506
     }
   ]
 }

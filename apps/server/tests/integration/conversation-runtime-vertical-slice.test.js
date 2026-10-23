@@ -12,6 +12,7 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 import { createServerLineWebhookPost } from '@/app/api/line-oa/accounts/[id]/webhook/route'
 import { createConversationRuntimeRouteHandlers } from '@/app/api/internal/conversation-runtime/v1/[operation]/route'
+import { createConversationRuntimeV2RouteHandlers } from '@/app/api/internal/conversation-runtime/v2/[operation]/route'
 import { markLineAdmissionIntent, admitCapturedLineEvents, admitLineConversation, claimRuntimeConversationJob,
   completeRuntimeConversationJob, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { createLineOaEvidenceRecorder } from '@/platform/integrations/providers/line/line-oa-evidence'
@@ -80,10 +81,15 @@ async function wrapCoreRequest(incoming, outgoing, port, core) {
   }
   const headers = {}
   for (const name of ['authorization', 'content-type', 'accept']) if (incoming.headers[name]) headers[name] = incoming.headers[name]
-  const request = new Request(`http://127.0.0.1:${port}${incoming.url}`, { method: incoming.method, headers, ...(body ? { body } : {}) })
-  const health = incoming.url.endsWith('/health')
-  const operation = incoming.url.split('/').pop()
-  const handlers = createConversationRuntimeRouteHandlers(core)
+  const pathname = new URL(incoming.url, `http://127.0.0.1:${port}`).pathname
+  const request = new Request(`http://127.0.0.1:${port}${pathname}`, { method: incoming.method, headers, ...(body ? { body } : {}) })
+  const health = pathname.endsWith('/health')
+  const segments = pathname.split('/').filter(Boolean)
+  const version = segments.at(-2)
+  const operation = segments.at(-1)
+  const handlers = version === 'v2'
+    ? createConversationRuntimeV2RouteHandlers(core)
+    : createConversationRuntimeRouteHandlers(core)
   const response = health
     ? await handlers.GET(request, { params: { operation: 'health' } })
     : await handlers.POST(request, { params: { operation } })
@@ -358,8 +364,11 @@ describe('Conversation Runtime durable vertical slice', () => {
       expect(deliveryCalls).toEqual([[{ type: 'text', text: 'คำตอบทดสอบจาก provider ที่ควบคุมได้' }]])
       // The accepted send answers 200 with a body both Core's and the runtime's validators accept, so the
       // runtime never has to recover the outcome through a delivery status read.
-      expect(sendResponses).toEqual([{ status: 200, body: { contractVersion: 'conversation-runtime.v1', ok: true,
+      expect(sendResponses).toEqual([{ status: 200, body: { contractVersion: 'conversation-runtime.v2', ok: true,
         data: { id: admitted.id, status: 'RECORDED', acceptance: { provider: 'LINE', outcome: 'ACCEPTED_BY_LINE' } } } }])
+      const runtimeCoreRequests = coreRequests.filter(entry => /^(?:GET|POST) \/api\/internal\/conversation-runtime\/v[12]\//.test(entry))
+      expect(runtimeCoreRequests.length).toBeGreaterThan(0)
+      expect(runtimeCoreRequests.every(entry => entry.includes('/v2/'))).toBe(true)
       expect(coreRequests.filter(entry => entry.startsWith('STATUS ') && entry.endsWith(':delivery'))).toEqual([])
       expect(coreRequests.filter(entry => entry.startsWith('CORE_RESPONSE send'))).toEqual([])
       const trace = await prisma.agentTraceEvent.findMany({ where: { turnId: admitted.id }, orderBy: { occurredAt: 'asc' } })

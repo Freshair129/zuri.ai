@@ -1,36 +1,100 @@
 ---
 id: ZAI:LINE-PRODUCT-FACTS-PROPOSAL-20261023
-doc_type: interface-contract-proposal
+doc_type: interface-contract
 status: approved
-approval_scope: design-only
-version: "0.2.0"
+approval_scope: implementation-contract
+version: "0.3.0"
 date: "2026-10-23"
 source_revision: "0903287f75c455a5cbefeb0c1dba195df0034b97"
-relations:
-  - type: relates_to
-    target: ZAI:FR-234
-  - type: relates_to
-    target: ZAI:FR-132
-  - type: relates_to
-    target: ZAI:FR-180
-  - type: relates_to
-    target: ZAI:FR-253
-  - type: relates_to
-    target: ZAI:ADR-106
+relations: [{"type":"relates_to","target":"ZAI:FR-234"},{"type":"relates_to","target":"ZAI:FR-132"},{"type":"relates_to","target":"ZAI:FR-180"},{"type":"relates_to","target":"ZAI:FR-253"},{"type":"relates_to","target":"ZAI:ADR-106"}]
 ---
 
 # LINE agent: stock availability and published sell-price facts
 
 ## Status, audience and scope
 
-The owner selected stock availability and product prices as the first fact
-family on 2026-10-23 and approved the 0.1.0 design in the same day's review.
-**Approval covers the design**, not new caller rights, a canonical requirement
-migration, an implemented API or permission to publish operational data.
-Audience: Inventory, Commerce,
-Identity, Agent and Conversation Runtime maintainers. The inspected source
-revision is pinned above; [the application record](../../../reports/gap-analysis-2026-10-23/application-fixes.md)
-separates delivered code from these missing contracts.
+The owner approved the 0.1.0 design on 2026-10-23, then explicitly
+authorized completing the read-authorization, Core/Runtime and published-price
+contracts and implementing/testing the integration in the same day's follow-up.
+This 0.3.0 revision binds those implementation choices to that mandate. It does
+not activate disclosure in any existing Business or change FR-132 quotations.
+Audience: Inventory, Commerce, Identity, Agent and Conversation Runtime maintainers.
+The frontmatter source revision describes the inspected historical baseline;
+implementation starts at commit 5d79760b03e5e7f18d485588d0ae96715a476dbc.
+The [verification record](../../../reports/gap-analysis-2026-10-23/application-fixes.md)
+separates local/hosted evidence from live provider acceptance.
+
+## Approval and canonical migration scope
+
+The direct user instruction is: “ทำต่อให้ LINE agent อ่านสต็อกและราคาได้จริง
+เติมสัญญาสิทธิ์อ่าน Core/Runtime และหลักฐานราคาที่เผยแพร่ให้ครบตามร่างที่อนุมัติ
+แล้วเขียนโค้ดและทดสอบให้ผ่าน ใช้ Luna Max เท่านั้น”.
+It authorizes the bounded contracts and implementation below, including a new
+standalone canonical functional requirement through the sanctioned record
+migration. Existing canonical subjects, feature membership, FR-132 and FR-253
+retain their meaning. The integrator selects technical details within this
+mandate and obtains independent review; no production activation is inferred.
+
+## Bound implementation contract
+
+- **Typed trigger:** customer text starts with `#product` followed by one
+  strict JSON object. Keys are `sku`, `facets`, and `quantity`/`unit`
+  only for the price facet. Example:
+  `#product {"sku":"MUG-01","facets":["availability","price"],"quantity":10,"unit":"piece"}`.
+  No NLP intent guessing, internal scope fields or `#sku` repurposing.
+  Recognized malformed commands receive bounded deterministic clarification;
+  recognized denied/unavailable requests never fall through to a model.
+- **Persisted stock grant:** an Inventory-owned row keyed by trusted Tenant,
+  Business, LINE account and Product, absent/disabled by default. A Business
+  OWNER sets enabled state with expected-version CAS and a reason, through an
+  authenticated service/route. Validate live account and product scope. Emit
+  an AuditEvent for changes. No wildcard grant or price-specific new opt-in.
+- **Owner reads:** the customer projector derives a verified principal from the
+  durable job, not a fabricated staff Viewer. It enforces the exact
+  Business-bound Customer, explicit DIRECT source and current policy described
+  below. Inventory owns eligibility and the fenced ATP quantity boundary.
+  Commerce resolves only an exact accepted publication and producer calculation
+  matching Product, requested quantity, unit and current approved rules.
+- **Publication evidence:** a currentness guard alone is insufficient. Bind the
+  actual verified Knowledge publication/generation and its source receipt to
+  the managed PCAT FileAsset/content hash and frozen producer rows. Reject
+  NOT_VERIFIED, unpublished, revoked, stale, foreign or mismatched evidence.
+  Tests must exercise the actual producer/manifest/reader contracts; a caller
+  boolean such as `published: true` cannot establish acceptance.
+- **Shared Core API:** `resolveLineProductFacts(job,{db,now})` returns
+  `{text,binding}` for a recognized command. `binding` stays private and
+  pins request, scope/authority, policy/publication/source digests. The parser
+  returns null for non-product text. `revalidateLineProductFacts(job,binding,
+  {db,now})` runs at final release for both worker cohorts. A changed binding,
+  revoked grant/publication or changed result prevents release of old facts.
+- **Runtime version:** introduce `conversation-runtime.v2` at
+  `/api/internal/conversation-runtime/v2/<operation>`. Only v2 may receive
+  fixed `PRODUCT_FACTS` turns. Keep v1's published schema and accepted turn
+  kinds strict; an unsupported v1 product request fails closed. Pair the v2
+  Core route/schema/client with Runtime tests; no direct Runtime DB/GKS access.
+  The v2 wire carries only the fixed turn kind and bounded deterministic reply
+  text under the claimed job/authority version. It carries no private binding
+  or new grant field. Core persists a content-free decision/binding against
+  the job and execution, verifies completion text against that decision, and
+  reloads it itself at final release; Runtime cannot supply or replace it.
+  Server-owned jobs use the same resolver and release revalidation. Normal
+  Knowledge, Work, out-of-hours and staff catalog behavior remains covered.
+- **Durability and audit:** persist private fact-decision bindings with the
+  claimed job so retries, prepare/complete/send and transport restarts cannot
+  omit revalidation. An idempotent content-free AuditEvent binds execution,
+  authority, policy/publication refs and result digest; it contains no raw
+  Customer/LINE identifier, fact value, source text or model receipt.
+- **Acceptance:** real disposable DB tests cover policy CAS/authority, verified
+  principal and exact Business isolation, both execution cohorts, producer to
+  accepted publication to exact price, unavailable/partial/clarify paths,
+  revocation/result change between answer and send, retry and malformed DTOs.
+  Deterministic operational turns make zero model calls. No live service or
+  deployed database is changed merely to make local tests pass.
+
+`Proposed` and baseline-gap wording in the source analysis below describe the
+0.2.0 design and its inspected source revision; the requirements of the bound
+contract above and the unchanged acceptance matrix control this implementation.
+Delivery evidence and unresolved live acceptance are recorded separately.
 
 The candidate handles one resolved SKU/variant, one Business and one LINE
 account per request; a price request supplies one positive integer quantity
@@ -79,9 +143,9 @@ whether eligible ATP is positive or zero. Do not return quantity sufficiency,
 threshold comparisons or quantity-dependent availability errors, which would
 let repeated queries reconstruct the excluded count. Price selection alone
 uses the requested quantity and must not depend on stock sufficiency.
-No current policy store, configuration route or signer workflow is claimed.
-Enabling this projection needs a reviewed canonical addition/migration and
-owner authorization under the existing authority ladder. BusinessAgentConfig,
+The implementation supplies the persisted policy and authenticated owner route
+above through a reviewed canonical addition. Runtime service credentials do not
+change that owner authority or enable disclosure. BusinessAgentConfig,
 memory `READ`, a service credential and `prepare.authorized` are insufficient.
 Never construct a staff viewer for a Customer to reuse the current ATP reader.
 
@@ -118,7 +182,7 @@ not that stock is positive or the requested quantity is fulfillable.
 
 ## Proposed bounded result
 
-This is an internal Core DTO candidate, not a registered Runtime operation.
+This is the strict internal Core DTO for the versioned deterministic turn.
 The customer projection contains only the following allow-list. Text is bounded
 and escaped by the renderer; this first version returns at most one product.
 
@@ -224,9 +288,10 @@ through `prepare`, memory or Work tools. Any Runtime consumer needs a reviewed,
 explicitly versioned contract amendment and matching Core/Runtime qualification
 under [the service boundary](../../services/conversation-runtime/SERVICE.md).
 Returning text preserves the existing transport owner; Core does not gain a
-LINE Reply API path. This proposal changes no operation schema or deployment.
+new LINE Reply API path. Revision 0.3.0 authorizes the explicit v2 schema/consumer implementation;
+v1 remains strict and deployment/activation evidence stays separate.
 
-## Acceptance cases for a later reviewed implementation
+## Required implementation acceptance cases
 
 | Case | Required candidate outcome |
 |---|---|
@@ -248,15 +313,15 @@ LINE Reply API path. This proposal changes no operation schema or deployment.
 The proposed defaults are coarse positive/zero ATP independent of quantity, explicit DIRECT
 Business-bound stock callers, stock release OFF until separately authorized,
 read-through observation without an invented freshness SLA, exact published
-THB price and deterministic first answers. The owner's approval covers
-these design choices only; stock rights/canonical additions, publication
-acceptance, the consistent Inventory reader, audit schema and any Runtime
-amendment still need their explicit source/contract changes before activation.
+THB price and deterministic first answers. The earlier design-only approval is superseded for implementation scope by
+the explicit mandate in this revision. Stock rights, canonical additions,
+publication proof, audit and Runtime v2 are authorized deliverables; checks and
+actual production activation remain separately evidenced.
 FR-132's existing quotation authorization remains unchanged.
 
-This explanatory intake is indexed from the change-request entrypoint and
-FR-234 follow-up. No canonical row, identity, FEAT membership, domain charter,
-application code, schema, caller grant or external service is changed.
+This contract is indexed from the change-request entrypoint and FR-234
+follow-up. The reviewed canonical addition and implementation evidence are
+separate artifacts; this document does not claim their checks or activation.
 Version 0.1.0 establishes the selected family's reviewable contract; tests in
 the matrix are future acceptance criteria, not claims of executed behavior.
 
@@ -266,3 +331,8 @@ field semantics or activation authority. The
 [bounded source implementation plan](../../../reports/gap-analysis-2026-10-23/stock-price-implementation.md)
 separates the existing ATP consistency fix from missing request, authorization
 and Runtime integration contracts.
+
+Version 0.2.0 → 0.3.0 binds the explicit follow-up implementation mandate, typed
+command, persisted owner stock grant, publication proof, private durable decision,
+versioned Runtime v2 and shared final-release revalidation. Live activation and
+production publication evidence remain separate acceptance claims.

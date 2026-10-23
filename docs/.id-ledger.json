@@ -417,6 +417,7 @@
     "FR-288",
     "FR-289",
     "FR-290",
+    "FR-291",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5349,6 +5350,19 @@
         {
           "anchor": "official flowaccount mcp connector",
           "since": "2026-10-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-291": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "83a67aa69d194d609c24615fe50f5951df294b753c6c262103171ebbb26d8ed9",
+      "history": [
+        {
+          "anchor": "customer line product facts",
+          "since": "2026-10-23",
           "reason": "declared"
         }
       ]

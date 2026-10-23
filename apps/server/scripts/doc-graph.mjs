@@ -23,6 +23,7 @@ import { generateDataPipelineMap } from './data-pipeline-map.mjs'
 // Appendix D as half a sentence.
 import { collectDeclared, splitRow } from './id-anchors.mjs'
 import {
+  canonicalApprovalSnapshotPaths,
   buildCanonicalGraphEntries,
   canonicalizeDeclaredIdentities,
   loadCanonicalDocumentRegistry,
@@ -190,8 +191,12 @@ function build() {
   // them would make the graph depend on its own previous output and force two
   // runs to converge (the two-pass disease docs:check was cured of once).
   const GENERATED = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
+  // Validate sealed migration copies before excluding their duplicated original
+  // metadata from the live graph. Unregistered copies still face normal guards.
+  const canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
+  const approvalSnapshots = canonicalApprovalSnapshotPaths(canonicalRegistry)
   const docFiles = walk(workspacePath(ROOT, 'docs'), ['.md']).filter(
-    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)),
+    (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)) && !approvalSnapshots.has(rel(f)),
   )
   const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
     .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)
@@ -233,7 +238,6 @@ function build() {
 
   // Requirement and feature semantics come from the canonical records located
   // by the generated index. PRD/FEATURES remain compatibility document nodes.
-  const canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
   const canonicalGraph = buildCanonicalGraphEntries(canonicalRegistry.records)
   const reqs = canonicalGraph.nodes.filter((node) => node.type === 'requirement')
   nodes.push(...canonicalGraph.nodes)

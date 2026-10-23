@@ -8,6 +8,9 @@ export function buildPricingCatalogProjection(product, quantity, unitPriceSatang
   const catalogVersionDate = now.toISOString().slice(0, 10)
   return {
     fileName,
+    // Bind the calculation to the Product unit at freeze time. This private
+    // field is stored with producer evidence and is not sent to Knowledge.
+    baseUnit: product.unit,
     productRecord: {
       entityType: 'ProductMaster', externalId, code: externalId,
       nameTh: `${product.code} — ${product.name || product.productMaster.nameTh}`,

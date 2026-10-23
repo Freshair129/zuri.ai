@@ -2,11 +2,11 @@
 // @spec SDD-114 — versioned binary source projection and bounded parsing.
 import { randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, onTestFailed } from 'vitest'
 import prisma from '@/lib/db'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
-import { encodeKnowledgeBinary, hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION, rawKnowledgeBinaryContentType } from '@/modules/knowledge/knowledge-binary-parser'
+import { encodeKnowledgeBinary, hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION, KNOWLEDGE_BINARY_TIMEOUT_MS, rawKnowledgeBinaryContentType } from '@/modules/knowledge/knowledge-binary-parser'
 import { genesisRag17BinaryParserIdentity } from '@/modules/knowledge/genesisrag17-source'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { ingestGenesisRag17Raw, resolveGenesisRag17RawLineage } from '@/platform/integrations/core/genesisrag17-executor'
@@ -42,6 +42,12 @@ describe('binary knowledge parser lineage', () => {
   })
 
   it.each(mediaTypes)('persists exact raw bytes and resolves typed citations for %s after replay', async (file, mediaType) => {
+    const startedAt = Date.now()
+    let phase = 'reading fixture and preparing first ingestion'
+    let invocation = 'first ingestion'
+    onTestFailed(() => {
+      process.stderr.write(`[binary parser lineage] ${file} failed after ${Date.now() - startedAt}ms; latest phase: ${phase}\n`)
+    })
     const bytes = readFileSync(new URL(`../fixtures/knowledge-binary/${file}`, import.meta.url))
     const contentHash = hashKnowledgeBinaryBytes(bytes)
     const parserVersion = genesisRag17BinaryParserIdentity({ mediaType })
@@ -60,8 +66,23 @@ describe('binary knowledge parser lineage', () => {
       connectionId,
       policy: { allowEmbedding: true, allowPublication: true },
     }
-    const options = { db: prisma, viewer, now, transport, credential: 'isolated-test-source', storagePort: null, storageBinding: null }
+    const options = {
+      db: prisma,
+      viewer,
+      now,
+      transport,
+      credential: 'isolated-test-source',
+      storagePort: null,
+      storageBinding: null,
+      afterLocalStage: ({ stageNumber }) => {
+        phase = stageNumber === 1
+          ? `${invocation}: completed local stage 1; binary parser stage 2 is next`
+          : `${invocation}: completed local stage ${stageNumber}; next local stage ${stageNumber + 1} is pending`
+      },
+    }
+    phase = 'first ingestion: awaiting local stage 1 completion'
     const first = await ingestGenesisRag17Raw(input, options)
+    phase = 'validating first-ingestion result and persisted raw/canonical/parsed lineage'
     expect(first.source.rawContentHash).toBe(contentHash)
     expect(first.source.contentHash).toBe(hashGenesisRag17Text(first.source.content))
     expect(first.source.content).not.toContain('data:')
@@ -86,16 +107,20 @@ describe('binary knowledge parser lineage', () => {
 
     const firstChunk = first.chunks[0]
     const reference = { scope, sourceId: input.sourceId, documentId: input.documentId, version: input.version, rawArtifactId: raw.id, parsedArtifactId: parsed.id, chunkId: firstChunk.chunkId }
+    phase = 'resolving first typed source citation'
     const citation = await resolveGenesisRag17RawLineage(reference, { db: prisma })
     expect(citation).toMatchObject({ contentHash, locatorMappingVersion: 'source-locator-map-1' })
     expect(citation.sourceLocators.length).toBeGreaterThan(0)
     expect(parsed.content.slice(citation.startOffset, citation.endOffset)).toBe(citation.text)
 
+    invocation = 'replay ingestion'
+    phase = 'replaying ingestion and checking stable artifact identities'
     const replay = await ingestGenesisRag17Raw(input, options)
     expect(replay.source.rawArtifactId).toBe(raw.id)
     expect(replay.source.parsedArtifactId).toBe(parsed.id)
+    phase = 'resolving replay citation and checking stable source locators'
     expect(await resolveGenesisRag17RawLineage(reference, { db: prisma })).toMatchObject({ chunkId: citation.chunkId, sourceLocators: citation.sourceLocators })
-  })
+  }, KNOWLEDGE_BINARY_TIMEOUT_MS + 15_000)
 
   it('keeps raw bytes and stable Stage 2 failure evidence without creating a partial ParsedArtifact', async () => {
     const bytes = Buffer.from('%PDF-not-a-valid-document')

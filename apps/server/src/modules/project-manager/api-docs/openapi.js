@@ -114,6 +114,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/line-oa/worker', ['POST']], ['/api/line-oa/connections', ['POST']],
   // @req FR-149 — private ADR-106/SDD-110 runtime adapter; Core remains authoritative.
   ['/api/internal/conversation-runtime/v1/{operation}', ['GET', 'POST']],
+  // @req FR-291 — versioned fixed product-facts turn; v1 remains unchanged.
+  ['/api/internal/conversation-runtime/v2/{operation}', ['GET', 'POST']],
+  // @req FR-291 — explicit Business OWNER grant for per-account, per-product
+  // LINE availability disclosure; absent policy means disabled.
+  ['/api/inventory/line-stock-disclosure', ['POST']],
   // @req FR-223, FR-224 — write-only credential rotation, revocation and live
   // validation (ADR-089); nothing they answer carries material.
   ['/api/line-oa/connections/{id}/credential', ['POST']],
@@ -353,6 +358,15 @@ const zRouteInventoryResponse = z.any().openapi({
   description: 'Handler-specific response fields are intentionally not inferred here. This operation proves route coverage only; the route and Appendix A remain the detailed contract authority.',
 })
 
+const zLineStockDisclosureRequest = z.object({
+  businessId: z.string().trim().min(1).max(200),
+  lineOaAccountId: z.string().trim().min(1).max(200),
+  productId: z.string().trim().min(1).max(200),
+  enabled: z.boolean(),
+  expectedVersion: z.number().int().safe().min(0),
+  reason: z.string().trim().min(1).max(2000),
+}).strict().openapi({ description: 'Strict owner-managed LINE stock-disclosure grant request.' })
+
 const zKnowledgeStudioGraphResponse = z.object({
   dataset: z.record(z.string(), z.unknown()),
   nodeIds: z.array(z.string()),
@@ -365,24 +379,28 @@ const zKnowledgeStudioDocumentResponse = z.object({
 }).strict()
 const zKnowledgeStudioError = z.object({ error: z.string() }).strict()
 
-const CONVERSATION_RUNTIME_PATH = '/api/internal/conversation-runtime/v1/{operation}'
+const CONVERSATION_RUNTIME_PATHS = new Set([
+  '/api/internal/conversation-runtime/v1/{operation}',
+  '/api/internal/conversation-runtime/v2/{operation}',
+])
 const CONVERSATION_RUNTIME_OPERATIONS = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']
-const zConversationRuntimeEnvelope = z.object({
-  contractVersion: z.literal('conversation-runtime.v1'),
+const conversationRuntimeVersion = path => path.endsWith('/v2/{operation}') ? 'conversation-runtime.v2' : 'conversation-runtime.v1'
+const zConversationRuntimeEnvelope = contractVersion => z.object({
+  contractVersion: z.literal(contractVersion),
   operation: z.enum(CONVERSATION_RUNTIME_OPERATIONS),
   correlationId: z.string().min(1).max(128),
   idempotencyKey: z.string().min(1).max(200),
   deadlineAt: z.string().max(40),
   payload: z.record(z.string(), z.unknown()).refine(value => Object.keys(value).length <= 32),
-}).strict().openapi({ description: 'Operation-specific payload fields are defined by services/conversation-runtime/contracts/v1/operation.schema.json.' })
-const zConversationRuntimeResponse = z.object({
-  contractVersion: z.literal('conversation-runtime.v1'),
+}).strict().openapi({ description: `Operation-specific payload fields are defined by services/conversation-runtime/contracts/${contractVersion.endsWith('.v2') ? 'v2' : 'v1'}/operation.schema.json.` })
+const zConversationRuntimeResponse = contractVersion => z.object({
+  contractVersion: z.literal(contractVersion),
   ok: z.boolean(),
   data: z.unknown().optional(),
   error: z.object({ code: z.string(), retryable: z.boolean() }).strict().optional(),
 }).strict()
-const zConversationRuntimeHealth = z.object({
-  contractVersion: z.literal('conversation-runtime.v1'),
+const zConversationRuntimeHealth = contractVersion => z.object({
+  contractVersion: z.literal(contractVersion),
   status: z.enum(['READY', 'UNAVAILABLE']),
   runtimeOwner: z.literal('CONVERSATION_RUNTIME'),
 }).strict()
@@ -394,6 +412,9 @@ function pathParameters(path) {
 }
 
 function genericRequest(path, method) {
+  if (path === '/api/inventory/line-stock-disclosure' && method === 'post') {
+    return { body: { required: true, content: { 'application/json': { schema: zLineStockDisclosureRequest } } } }
+  }
   if (path === '/api/agent/approval-notifications/{id}') return undefined
   if (path === '/api/businesses/{id}/agent-template') {
     return method === 'post'
@@ -429,6 +450,13 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path === '/api/inventory/line-stock-disclosure' && method === 'post') return {
+    200: json(zRouteInventoryResponse, 'Current per-LINE-account, per-product stock-disclosure grant and version. This grant covers availability only; it does not grant price disclosure.'),
+    400: json(zError, 'The strict request body is malformed or invalid.'),
+    401: json(zError, 'Authenticated session required.'),
+    404: json(zError, 'Business, LINE account, product, or active Business OWNER authority was not found in the requested scope.'),
+    409: json(zError, 'expectedVersion does not match the current grant; no policy mutation is applied.'),
+  }
   if (path === '/api/control/knowledge-studio/graph') return {
     200: json(zKnowledgeStudioGraphResponse, 'Bounded projection of the generated Zuri document graph.'),
     401: json(zKnowledgeStudioError, 'Authentication required.'),
@@ -491,21 +519,21 @@ function genericResponses(path, method) {
   }
 }
 
-function conversationRuntimeResponses(method) {
+function conversationRuntimeResponses(method, contractVersion) {
   if (method === 'get') return {
-    200: json(zConversationRuntimeHealth, 'Authenticated operational health only; it is not a claim or ownership gate.'),
+    200: json(zConversationRuntimeHealth(contractVersion), 'Authenticated operational health only; it is not a claim or ownership gate.'),
     401: { description: 'CORE_CREDENTIAL_REQUIRED' },
-    503: json(zConversationRuntimeHealth, 'Core is unavailable or the service bearer is not configured.'),
+    503: json(zConversationRuntimeHealth(contractVersion), 'Core is unavailable or the service bearer is not configured.'),
   }
   return {
-    200: json(zConversationRuntimeResponse, 'Operation result; payload shape is validated by the operation-specific Core response contract.'),
-    400: json(zConversationRuntimeResponse, 'Malformed envelope or operation payload.'),
-    401: json(zConversationRuntimeResponse, 'CORE_CREDENTIAL_REQUIRED.'),
-    408: json(zConversationRuntimeResponse, 'CONTRACT_DEADLINE_EXPIRED.'),
-    409: json(zConversationRuntimeResponse, 'Authority, ownership, lease or operation conflict.'),
-    413: json(zConversationRuntimeResponse, 'CONTRACT_REQUEST_TOO_LARGE: request body exceeds 64 KiB.'),
-    500: json(zConversationRuntimeResponse, 'Invalid or oversized operation result; no valid success response is returned.'),
-    503: json(zConversationRuntimeResponse, 'Core operation unavailable.'),
+    200: json(zConversationRuntimeResponse(contractVersion), 'Operation result; payload shape is validated by the operation-specific Core response contract.'),
+    400: json(zConversationRuntimeResponse(contractVersion), 'Malformed envelope or operation payload.'),
+    401: json(zConversationRuntimeResponse(contractVersion), 'CORE_CREDENTIAL_REQUIRED.'),
+    408: json(zConversationRuntimeResponse(contractVersion), 'CONTRACT_DEADLINE_EXPIRED.'),
+    409: json(zConversationRuntimeResponse(contractVersion), 'Authority, ownership, lease or operation conflict.'),
+    413: json(zConversationRuntimeResponse(contractVersion), 'CONTRACT_REQUEST_TOO_LARGE: request body exceeds 64 KiB.'),
+    500: json(zConversationRuntimeResponse(contractVersion), 'Invalid or oversized operation result; no valid success response is returned.'),
+    503: json(zConversationRuntimeResponse(contractVersion), 'Core operation unavailable.'),
   }
 }
 
@@ -518,17 +546,22 @@ function registerInventoryOperations(registry) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
       const knowledgeStudio = path.startsWith('/api' + '/control/knowledge-studio' + '/')
-      const conversationRuntime = path === CONVERSATION_RUNTIME_PATH
+      const conversationRuntime = CONVERSATION_RUNTIME_PATHS.has(path)
+      const lineStockDisclosure = path === '/api/inventory/line-stock-disclosure' && methodName === 'post'
+      const runtimeContractVersion = conversationRuntime ? conversationRuntimeVersion(path) : null
       const approvalDecision = path === '/api/agent/approval-requests/{id}/decision' && methodName === 'post'
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'
       registry.registerPath({
         method: methodName,
         path,
         summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter`
+          : lineStockDisclosure ? 'Set explicit LINE stock-disclosure grant'
           : knowledgeStudio ? `Knowledge Studio ${method} read`
             : `Route inventory: ${method} ${path}`,
         description: conversationRuntime
-          ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed conversation-runtime.v1 operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state. Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/v1/operation.schema.json.`
+          ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed ${runtimeContractVersion} operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state.${runtimeContractVersion === 'conversation-runtime.v2' ? ' v2 adds only the typed PRODUCT_FACTS deterministic turn; it does not expose general inventory access.' : ''} Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/${runtimeContractVersion.endsWith('.v2') ? 'v2' : 'v1'}/operation.schema.json.`
+          : lineStockDisclosure
+            ? 'A session-authenticated active OWNER of the exact Business explicitly enables or disables stock availability disclosure for one LINE OA account and Product. The strict body is businessId, lineOaAccountId, productId, enabled, expectedVersion and reason. expectedVersion 0 creates the initial version; later writes use compare-and-swap. The default is disabled. Enabling requires an active Business, connected cloud LINE account and active Product; scope and OWNER failures are hidden as not found. This policy grants stock availability only, not price disclosure.'
           : approvalDecision
             ? 'An authenticated active direct OWNER of the exact Business submits APPROVE or REJECT. The actor is derived from the session. POST requires the session-bound X-CSRF-Token issued by GET /api/auth/csrf and an Origin matching the configured application origin; the checks run before the decision body is read.'
             : approvalNotificationRead
@@ -538,7 +571,7 @@ function registerInventoryOperations(registry) {
               ? 'Installation-operator-only, read-only projection of the generated Zuri document graph. No Business scope or database access is added; see Appendix A for bounds and unavailable states.'
               : 'Installation-operator-only, read-only exact Markdown lookup by a node ID in the generated graph. Source paths are resolved from indexed documents; see Appendix A for bounds and unavailable states.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: conversationRuntime ? ['Internal service'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
+        tags: conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
@@ -552,11 +585,13 @@ function registerInventoryOperations(registry) {
             }] : []),
           ],
         request: conversationRuntime && methodName === 'post'
-          ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope } } } }
+          ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope(runtimeContractVersion) } } } }
           : genericRequest(path, methodName),
-        responses: conversationRuntime ? conversationRuntimeResponses(methodName) : genericResponses(path, methodName),
+        responses: conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
         ...(conversationRuntime
-          ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': 'conversation-runtime.v1' }
+          ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': runtimeContractVersion }
+          : lineStockDisclosure
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
           : knowledgeStudio
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'knowledge-studio/v1' }
           : path === '/api/businesses/{id}/agent-template'
@@ -1049,6 +1084,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Feature view', description: 'Scoped explicit Project Features and verified reference reads' },
       { name: 'Feature mutations', description: 'Owner writes with live CSRF, CAS, idempotency and atomic audit' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
+      { name: 'Inventory', description: 'Explicitly scoped inventory disclosure policy administration' },
       { name: 'Platform Control', description: 'Installation-operator-only operational reads' },
       { name: 'Route inventory', description: 'Complete current route/method coverage with transparent generic boundaries' },
     ],
