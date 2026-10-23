@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.8.3"
+version: "0.8.4"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -521,6 +521,31 @@ Independent Luna Max review found no remaining P1/P2, including exact mapping
 preservation and the corrected historical-192 proof. New exact-head CI and
 Docker smoke remain mandatory before the owner-authorized merge of PR #725.
 
+## Hosted binary-lineage timeout investigation
+
+Governance run 39929409307 on d1e5f82a passed governance, build, Runtime,
+SCM and Server shards 2/4, 3/4 and 4/4. Server shard 1/4 failed three valid binary
+lineage cases at the 30-second test deadline; 2160 tests passed and 7 were
+skipped. The PDF, DOCX and HTML failures are retained as failed hosted evidence,
+not silently reclassified as successful retries. PostgreSQL did not run after
+that failed shard.
+
+The same four-case file passed in isolation on Node 24 and Node 22. A complete
+local Node 22 first-shard run subsequently passed 2163 tests with 7 skips,
+including all four binary lineage cases. That does not establish the cause of
+the hosted delay or prove a performance correction. The valid fixtures are
+under 1 KB, while the production binary parser has a bounded 60-second worker
+deadline and the previous test deadline was only 30 seconds. The follow-up
+aligns only these cases' test budget with that production deadline and adds
+stage diagnostics; parser limits and lineage assertions remain unchanged.
+Fresh exact-head hosted tests remain required.
+
+The completed Runtime job in that run did exercise a real Linux container:
+IMAGE_START_SMOKE=PASS, healthz=200, readyz_before_drain=200,
+readyz_during_drain=503, container_health=healthy, providerCalls=1,
+completeCalls=1, sendCalls=1 and shutdown_exit=0. This is disposable hosted
+image qualification, not local Docker, a deployment or live LINE acceptance.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -560,3 +585,8 @@ failed hosted run or unavailable local Docker check as PASS.
 0.8.2 to 0.8.3 records static SQL snapshot discipline, the reviewed 209-model
 Phase B rebind and complete recovery/worker fixture proofs without changing
 recovery authority or rewriting earlier hosted evidence.
+
+0.8.3 to 0.8.4 preserves the failed hosted binary-lineage evidence, its successful
+local Node 22 shard comparison, the bounded test-budget correction and the
+actual hosted container drain proof without claiming a diagnosed performance
+cause or production acceptance.
