@@ -55,6 +55,32 @@ function requiredFixturePath(env) {
   return value
 }
 
+function knowledgeConfiguration(env) {
+  const knowledgeSource = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE ?? 'TEST_ONLY_FIXTURE'
+  if (knowledgeSource === 'TEST_ONLY_FIXTURE') {
+    const testFixtureSha256 = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+    if (typeof testFixtureSha256 !== 'string' || !SHA256_PATTERN.test(testFixtureSha256)) {
+      throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+    }
+    return { knowledgeSource, testFixturePath: requiredFixturePath(env), testFixtureSha256, rag: null }
+  }
+  if (knowledgeSource !== 'GENESISRAG17_TEST_ONLY') throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+  const manifestHash = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256
+  let products
+  try { products = JSON.parse(env.ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS) } catch { /* refused below */ }
+  if (!SHA256_PATTERN.test(manifestHash ?? '') || !Array.isArray(products) || products.length < 1 || products.length > 8
+    || products.some(row => !row || typeof row !== 'object' || Array.isArray(row)
+      || Object.keys(row).sort().join(',') !== 'fileSha256,ingestionId,productId,sku,sourceId'
+      || !['productId', 'sourceId', 'ingestionId'].every(key => typeof row[key] === 'string' && UUID_PATTERN.test(row[key]))
+      || typeof row.sku !== 'string' || row.sku.length > 120 || !/^TEST-ONLY-[A-Za-z0-9][A-Za-z0-9_-]*$/.test(row.sku)
+      || typeof row.fileSha256 !== 'string' || !SHA256_PATTERN.test(row.fileSha256))
+    || ['productId', 'sku', 'sourceId', 'ingestionId'].some(key => new Set(products.map(row => row[key])).size !== products.length)) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+  }
+  return { knowledgeSource, testFixturePath: null, testFixtureSha256: null,
+    rag: Object.freeze({ manifestHash, products: Object.freeze(products.map(row => Object.freeze({ ...row }))) }) }
+}
+
 /**
  * Read the private, default-off main-dev profile. This profile is explicit and
  * identity-bound even when the Docker image keeps NODE_ENV=production.
@@ -72,18 +98,12 @@ export function readMainDevLocalOllamaProfile(env = process.env) {
   if (env.ZURI_MAIN_DEV_LOCAL_OLLAMA_BASE_URL !== MAIN_DEV_LOCAL_OLLAMA_ORIGIN) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_ORIGIN_INVALID')
   }
-  const testFixtureSha256 = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
-  if (typeof testFixtureSha256 !== 'string' || !SHA256_PATTERN.test(testFixtureSha256)) {
-    throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
-  }
-
   return Object.freeze({
     enabled: true,
     runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
     expectedDatabase,
     baseUrl: MAIN_DEV_LOCAL_OLLAMA_ORIGIN,
-    testFixturePath: requiredFixturePath(env),
-    testFixtureSha256,
+    ...knowledgeConfiguration(env),
     allowedTenantIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_TENANT_IDS'),
     allowedBusinessIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_BUSINESS_IDS'),
     allowedLineOaAccountIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_LINE_OA_ACCOUNT_IDS'),
@@ -118,7 +138,7 @@ export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
     || account.serverEnabled !== true) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_EXECUTION_DENIED')
   }
-  if (account.knowledgeGrounding !== 'BUSINESS_KNOWLEDGE'
+  if (account.knowledgeGrounding !== (profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     || account.knowledgeGroundingShadow === true
     || account.memoryPolicy !== 'OFF'
     || account.memoryProjectId != null

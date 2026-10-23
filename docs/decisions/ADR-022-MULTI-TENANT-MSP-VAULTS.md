@@ -1,7 +1,7 @@
 ---
-version: "0.3.0b"
+version: "0.4.0b"
 created_at: "2026-08-15T00:00:00+07:00,ATHER"
-last_update: "2026-10-04T09:44:57+07:00,Codex"
+last_update: "2026-10-24T04:24:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -41,8 +41,11 @@ grant itself a vault or widen a scope.
    API-010 contract with the server-derived AuthContext and current authorization
    facts. MSP returns the canonical authorized vault set and permissions. Zuri
    does not invent or accept arbitrary vault IDs from a request or model.
-5. Zuri's private-memory adapter uses only the returned
-   `workspacePrivateVaultId` for API-009 episodic reads/writes. The returned
+5. Zuri's private-memory adapter requests principal-private resolution and uses
+   only the returned `principalPrivateVaultId` for API-009 episodic reads/writes.
+   It refuses an absent principal ID or one equal to `workspacePrivateVaultId`.
+   The legacy Workspace/Project vault is shared within that scope and cannot
+   provide principal-private isolation. The returned
    Global/Shared IDs remain part of the resolved set for dedicated readers and
    governed knowledge paths; they are never silently folded into private memory.
 6. Private memory ownership is `Tenant × Principal × Agent × Workspace` (with an
@@ -100,6 +103,22 @@ The `AuthContext` contains server-derived `transport`, `actor`, `scope`,
 `conversation`, `request`, and `policy` fields. Raw `lineUserId`, inbound scope
 claims, prompt text, and model output are never authorization authorities.
 
+### Principal-private grant clarification — 2026-10-24
+
+For the principal-private path, API-010 carries both `legacy_access` and `access`
+grants, each bound to its own operation and the complete unsigned request body.
+API-009 reads and writes carry a separate operation/body-bound `access` grant for
+the authenticated Tenant × Principal × Agent × Workspace tuple, with a short
+expiry and fresh nonce. API-010 resolution alone does not authorize an unsigned
+API-009 request. Missing signing capability fails closed.
+
+This corrects Decision 5's earlier `workspacePrivateVaultId` wording to match
+[ZAI:SDD-030](../requirements/SDD-030.md) and the principal-private API-009/API-010
+contract in MSP revision `d0d48c1a8e833478525d9a6ce5ee16af2c85444d`.
+It introduces no new ownership dimension, consent rule or rollout authority.
+Existing legacy vault contents are not copied into private storage: ownership
+cannot be inferred safely from a shared legacy vault.
+
 ### Memory API boundary clarification — 2026-10-04
 
 This API-010 → API-009 contract governs private episodic-memory reads and writes.
@@ -147,5 +166,6 @@ only when explicitly enabled for a bounded migration or local test.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.4.0b | 2026-10-24 | accepted | Corrects private episodic selection to the distinct principal vault under SDD-030; records signed resolution/access and refusal of legacy fallback or implicit data copying | working-tree | Codex |
 | 0.3.0b | 2026-10-04 | accepted | Clarifies API-010 → API-009 episodic memory is distinct from API-011 session memory and records the consent, contract and activation gates | working-tree | Codex |
 | 0.2.0b | 2026-08-15 | beta | Approved API-010 canonical vault resolution and explicit compatibility boundary | working-tree | ATHER |

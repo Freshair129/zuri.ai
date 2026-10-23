@@ -113,6 +113,7 @@ export async function createPublishedPriceCatalogFixture({
   viewer,
   quantity = 100,
   quantities = [quantity],
+  publicationExternalId,
   publishImmediately = true,
   db = prisma,
   now = new Date(),
@@ -176,7 +177,10 @@ export async function createPublishedPriceCatalogFixture({
   })
   if (admission.publicationStatus !== 'NOT_VERIFIED') throw new Error('PUBLISHED_PRICE_FIXTURE_ADMISSION_STATE_INVALID')
 
-  const expectedExternalId = `commerce-price:${product.id}:${quantity}`
+  // Select which record in the same immutable PCAT file this fixture publishes.
+  // Existing callers retain the exact-price default; the TEST ONLY RAG delivery
+  // case can publish its sibling ProductMaster through this same receipt-backed path.
+  const expectedExternalId = publicationExternalId ?? `commerce-price:${product.id}:${quantity}`
   let item = null
   for (const candidateItem of admission.admission.items) {
     const candidate = await db.knowledgeIngestion.findUnique({ where: { id: candidateItem.id } })

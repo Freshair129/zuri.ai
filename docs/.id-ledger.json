@@ -2463,9 +2463,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "3d497b2f70e90ec3d94e1f563f87e617404cf677a7781eb19f3c9837bb185f61",
+      "statement_digest": "eb621c051dfc25e01851b1251a246aebcd8c54d45a60349f4ded2db5405ae865",
       "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Reviewed approved main-dev TEST ONLY Ollama runtime amendment in LINE-LOCAL-OLLAMA-MAIN-DEV-20261023 v0.3.2; same pinned subject and identity, keyed production behavior retained."
+      "statement_digest_reason": "Owner authorized real GenesisRAG17 TEST ONLY retrieval in isolated main-dev; reviewed same-ID migration preserves subject, scope and FR-291 owner facts."
     },
     "FR-080": {
       "family": "FR",

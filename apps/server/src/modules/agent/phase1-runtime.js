@@ -31,6 +31,7 @@ import {
   readMainDevLocalOllamaProfile,
 } from './main-dev-local-ollama'
 import { createMainDevPublicTestKnowledgeReader } from './main-dev-public-test-knowledge'
+import { createMainDevTestRagKnowledgeReader, mainDevTestRagProfileDigest } from './main-dev-test-rag-knowledge'
 
 // @req FR-047, FR-048, FR-052, FR-079, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
 // @req FR-266 — `resolveModel` reads the Business's own browser-provisioned model
@@ -178,6 +179,7 @@ function createMainDevLocalOllamaPorts(env, {
   fetchFn,
   integrationDb,
   connectionResolver,
+  mainDevTestRagReaderFactory = createMainDevTestRagKnowledgeReader,
 } = {}) {
   const profile = readMainDevLocalOllamaProfile(env)
   if (!profile) throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_DISABLED')
@@ -201,6 +203,17 @@ function createMainDevLocalOllamaPorts(env, {
   }))
   let authorizedScope = null
   let fixtureReader = null
+  const ragSelected = profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
+  async function revalidateKnowledge() {
+    if (!ragSelected) return null
+    const current = readMainDevLocalOllamaProfile(env)
+    if (!current || mainDevTestRagProfileDigest(current) !== mainDevTestRagProfileDigest(profile)) {
+      throw mainDevRuntimeFailure('MAIN_DEV_TEST_RAG_PROFILE_CHANGED')
+    }
+    await resolveScope(authorizedScope)
+    if (!fixtureReader) throw mainDevRuntimeFailure('MAIN_DEV_TEST_RAG_UNAVAILABLE')
+    return fixtureReader.revalidate()
+  }
 
   async function resolveModel(scope) {
     authorizedScope = null
@@ -257,12 +270,17 @@ function createMainDevLocalOllamaPorts(env, {
       businessId: scope.businessId,
       accountId: scope.accountId,
     })
-    fixtureReader = createMainDevPublicTestKnowledgeReader({ profile, ...authorizedScope })
+    fixtureReader = ragSelected
+      ? mainDevTestRagReaderFactory({ profile, ...authorizedScope, db, env })
+      : createMainDevPublicTestKnowledgeReader({ profile, ...authorizedScope })
     return Object.freeze({
       ...selectedModel,
       async generate(input) {
         await resolveScope(authorizedScope)
-        return selectedModel.generate(input)
+        if (ragSelected) await revalidateKnowledge()
+        const generated = await selectedModel.generate(input)
+        if (ragSelected) await revalidateKnowledge()
+        return generated
       },
     })
   }
@@ -283,6 +301,8 @@ function createMainDevLocalOllamaPorts(env, {
     bindingResolver: null,
     model: null,
     resolveModel,
+    revalidateKnowledge,
+    getKnowledgeBinding: () => ragSelected ? fixtureReader?.getBinding() : null,
     threadMemory: null,
     episodicMemory: null,
     close: async () => {},
@@ -291,7 +311,8 @@ function createMainDevLocalOllamaPorts(env, {
 
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
-  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, modelCredentialResolver, secretManager, mspTransport, bindingRequired = true } = {},
+  { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, modelCredentialResolver, secretManager, mspTransport,
+    mainDevTestRagReaderFactory, bindingRequired = true } = {},
 ) {
   if (bindingRequired && env.ZURI_LINE_BUSINESS_AGENT_ENABLED !== 'true') return null
 
@@ -306,6 +327,7 @@ export function createPhase1BusinessAgentPortsFromEnv(
       fetchFn,
       integrationDb,
       connectionResolver,
+      mainDevTestRagReaderFactory,
     })
   }
 

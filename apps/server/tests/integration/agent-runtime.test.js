@@ -53,7 +53,7 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
       wire.push({ name, input })
       if (name === 'msp_vault_resolve') {
         return {
-          workspacePrivateVaultId: 'vault-runtime-workspace',
+          workspacePrivateVaultId: 'vault-runtime-workspace', principalPrivateVaultId: 'vault-runtime-principal',
           globalPrivateVaultIds: [],
           sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'FR-057.v2' },
@@ -81,7 +81,7 @@ describe('createAgentPorts — agent bound to MSP + GenesisBlockDB (FR-029)', ()
     const listCall = wire.find((c) => c.name === 'msp_memory_list')
     expect(listCall).toBeTruthy()
     expect(JSON.stringify(listCall.input)).not.toContain('line:')
-    expect(ctx.memory.key).toBe('vault-runtime-workspace')
+    expect(ctx.memory.key).toBe('vault-runtime-principal')
   })
 
   it('handleAgentTurn accepts the composed ports end to end', async () => {

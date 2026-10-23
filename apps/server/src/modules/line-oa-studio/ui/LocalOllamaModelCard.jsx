@@ -36,7 +36,7 @@ export function findEligibleLocalOllamaAccount({ business, accounts = [], status
     && account.serverEnabled === true
     && account.executionMode === 'SERVER'
     && account.runtimeOwner === 'SERVER'
-    && account.knowledgeGrounding === 'BUSINESS_KNOWLEDGE'
+    && account.knowledgeGrounding === (status.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     && account.knowledgeGroundingShadow === false
     && (account.memoryPolicy ?? 'OFF') === 'OFF'
     && account.memoryProjectId == null
@@ -87,6 +87,9 @@ function LocalOllamaModelForm({ account, status, onSaved, api, busy }) {
       เลือกได้เฉพาะโมเดลที่ติดตั้งบนเซิร์ฟเวอร์ ตัวเลือกนี้ใช้กับสินค้าทดสอบและข้อมูลตัวอย่างใน main-dev เท่านั้น
       ไม่ใช้ข้อมูลราคาหรือสต็อกจริงของธุรกิจ และไม่ใช้ API key แบบคิดค่าบริการ ห้ามใช้กับข้อมูลจริงหรือการสนทนาของลูกค้าจริง
     </p>
+    {status.knowledgeSource === 'GENESISRAG17_TEST_ONLY' && <p className="text-[11px] text-[var(--text-secondary)]">
+      แหล่งข้อมูล: GenesisRAG17 เฉพาะสินค้าทดสอบที่อนุญาต กรองข้อมูลก่อนส่งให้โมเดล
+    </p>}
     <p className="rounded-lg border border-[var(--status-info)] bg-[var(--status-info-bg)] px-2 py-1.5 text-[11px] text-[var(--text-primary)]">
       การเลือกโมเดลนี้ไม่เปลี่ยนเกณฑ์ readiness สำหรับ production และไม่เปิดการใช้งาน production
     </p>

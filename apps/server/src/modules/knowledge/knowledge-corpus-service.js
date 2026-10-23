@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { isInternalId } from '@/lib/ids'
 import {
   assertGenesisRag17ScopeEqual,
   GENESIS_RAG17_SCHEMA_VERSION,
@@ -40,6 +41,7 @@ const MAX_CAS_RETRIES = 3
 // at ~100 ms per database round trip). On production a full pass over 22 snapshots took
 // 1.4 s at 4 and 0.8 s at 8 without errors; 8 keeps the process count bounded.
 const QUERY_SNAPSHOT_CONCURRENCY = 8
+const MAX_QUERY_SOURCE_IDS = 8
 // Distinct FileAssets are checked this many at a time (each check is several round trips).
 const FILE_READABLE_CONCURRENCY = 4
 // Lineage lookups (several database queries each) share one budget for the whole query, so
@@ -82,6 +84,20 @@ function parseJson(value, name) {
 function requireId(value, name) {
   if (typeof value !== 'string' || !value.trim()) throw serviceError(400, `Knowledge ${name} is required`, 'KNOWLEDGE_INPUT_INVALID')
   return value.trim()
+}
+
+// Internal callers may narrow a corpus query to exact source primary keys. This
+// selector never grants access; the normal live Business and source checks still run.
+function validateQuerySourceIds(sourceIds) {
+  if (sourceIds === undefined) return null
+  if (!Array.isArray(sourceIds) || sourceIds.length < 1 || sourceIds.length > MAX_QUERY_SOURCE_IDS || sourceIds.some((sourceId) => typeof sourceId !== 'string' || !isInternalId(sourceId))) {
+    throw serviceError(400, 'Knowledge source selector is invalid', 'KNOWLEDGE_SOURCE_FILTER_INVALID')
+  }
+  const normalized = sourceIds.map((sourceId) => sourceId.toLowerCase())
+  if (new Set(normalized).size !== normalized.length) {
+    throw serviceError(400, 'Knowledge source selector is invalid', 'KNOWLEDGE_SOURCE_FILTER_INVALID')
+  }
+  return new Set(normalized)
 }
 
 function optionalId(value) {
@@ -717,12 +733,14 @@ export async function queryKnowledgeCorpus(
     viewer,
     env = process.env,
     querySnapshot,
+    sourceIds,
     runtime,
     runtimeCapability,
     transport,
     resolveCurrentViewer,
   } = {},
 ) {
+  const requestedSourceIds = validateQuerySourceIds(sourceIds)
   const { businessId, projectId = null } = input || {}
   const { query, topK } = validateQueryInput({ businessId, query: input?.query, topK: input?.topK })
   const repository = repositoryFor(db, suppliedRepository)
@@ -735,11 +753,17 @@ export async function queryKnowledgeCorpus(
   queryFnPromise.catch(() => {})
   const [current, sources] = await settleInOrder([loadManifest(repository, corpus), listSources(repository, corpus.id)])
   const sourceById = new Map(sources.map((source) => [source.id, source]))
+  const selectedEntries = requestedSourceIds === null
+    ? current.manifest.entries
+    : current.manifest.entries.filter((entry) => requestedSourceIds.has(entry.sourceId.toLowerCase()))
+  if (requestedSourceIds !== null && selectedEntries.length !== requestedSourceIds.size) {
+    throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+  }
   const entriesBySnapshot = new Map()
   // Many sources share one FileAsset (a catalog file admits one source per record), and
   // the check is a fixed set of database round trips, so run it once per asset.
   const readableBefore = new Set()
-  for (const entry of current.manifest.entries) {
+  for (const entry of selectedEntries) {
     const source = sourceById.get(entry.sourceId)
     if (!source) throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
     assertSourceMatchesEntry({ ...source, corpusId: corpus.id }, { ...entry, corpusId: corpus.id })
@@ -773,7 +797,7 @@ export async function queryKnowledgeCorpus(
     const readableAfter = new Set()
     try {
       const afterById = new Map(afterSources.map((source) => [source.id, source]))
-      for (const entry of current.manifest.entries) {
+      for (const entry of selectedEntries) {
         const source = afterById.get(entry.sourceId)
         if (!source || source.corpusId !== corpus.id) {
           throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')

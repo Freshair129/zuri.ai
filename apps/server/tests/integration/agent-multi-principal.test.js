@@ -1,3 +1,4 @@
+import { authorizeMemoryToolFixture } from '../factories/msp-memory-authorizer'
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness, createWorkspace } from '../factories/scope'
@@ -128,10 +129,10 @@ describe('FR-057 multi-principal agent context', () => {
     const calls = []
     const resolvedScopes = []
     const memory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         const scope = authorization.authContext.scope
         resolvedScopes.push({ ...scope, principalId: authorization.authContext.actor.principalId })
-        return { workspacePrivateVaultId: `api010-${scope.businessId}`,
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: `api010-${scope.businessId}`,
           globalPrivateVaultIds: ['api010-global-fallback'], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.FR057' } }
       } },
@@ -218,7 +219,7 @@ describe('FR-057 multi-principal agent context', () => {
         calls.push({ name, input })
         return { entities: [] }
       },
-      vaultSetResolver: {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture,
         resolve: async () => ({
           workspacePrivateVaultId: 'unused',
           globalPrivateVaultIds: [],
@@ -248,7 +249,7 @@ describe('FR-057 multi-principal agent context', () => {
         calls.push({ name, input })
         return { entities: [] }
       },
-      vaultSetResolver: {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture,
         resolve: async () => ({
           workspacePrivateVaultId: 'unused',
           globalPrivateVaultIds: [],

@@ -83,7 +83,7 @@ describe('Phase 1 business-agent runtime', () => {
     const mspTransport = async (name, input) => {
       calls.push({ name, input })
       if (name === 'msp_vault_resolve') return {
-        workspacePrivateVaultId: 'opaque-workspace-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        workspacePrivateVaultId: 'opaque-workspace-vault', principalPrivateVaultId: 'opaque-principal-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
         permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'v1' },
       }
       if (name === 'msp_memory_list') return { entities: [{ body_json: { key: 'episodic-1', value: 'private fact' } }] }
@@ -105,13 +105,14 @@ describe('Phase 1 business-agent runtime', () => {
         businessId: 'business-api010', agentId: 'agent-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' }],
     }
     await expect(ports.episodicMemory.recallAuthorized(authorization)).resolves.toMatchObject({
-      entries: [{ key: 'episodic-1', value: 'private fact' }], key: 'opaque-workspace-vault',
+      entries: [{ key: 'episodic-1', value: 'private fact' }], key: 'opaque-principal-vault',
     })
     expect(calls.map(call => call.name)).toEqual(['msp_vault_resolve', 'msp_memory_list'])
     expect(calls[0].input.legacy_access.grant).toMatchObject({ operation: 'msp_vault_resolve_legacy',
       tenantId: 'tenant-api010', workspaceId: 'workspace-api010', projectId: 'project-api010' })
     expect(calls[0].input.legacy_access.signature).toMatch(/^[0-9a-f]{64}$/)
-    expect(calls[1].input).toEqual({ vault_id: 'opaque-workspace-vault' })
+    expect(calls[1].input).toMatchObject({ vault_id: 'opaque-principal-vault',
+      access: { grant: { operation: 'msp_memory_list', tenantId: 'tenant-api010', principalId: 'person-api010' } } })
   })
 
   it('accepts only the approved project-qualified Supavisor login form', () => {

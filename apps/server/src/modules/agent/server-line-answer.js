@@ -13,6 +13,8 @@ import {
 import { runLineGroundingShadowCompare } from './line-grounding-shadow-compare'
 import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/line-memory-scope'
 import { assertMainDevLocalOllamaJob } from './main-dev-local-ollama'
+import prisma from '@/lib/db'
+import { recordMainDevTestRagDecision } from './main-dev-test-rag-decision'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -559,6 +561,7 @@ export function createServerLineAnswer({
       throw failure('LINE_ANSWER_UNAVAILABLE')
     }
     const mainDevLocalOllama = Boolean(mainDevLocalOllamaProfile)
+    const mainDevTestRag = mainDevLocalOllamaProfile?.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
     const memoryOptIn = !mainDevLocalOllama && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const episodicMemoryOptIn = !mainDevLocalOllama && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
@@ -617,7 +620,7 @@ export function createServerLineAnswer({
       // `tenantId`/`businessId` above, or is absent — this reads no other
       // field from it, and the corpus reader is built from the job's own
       // verified scope, never from the account row's identity.
-      const groundingMode = mainDevLocalOllama
+      const groundingMode = mainDevTestRag ? 'GKS_CORPUS' : mainDevLocalOllama
         ? 'BUSINESS_KNOWLEDGE'
         : resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
       // @req FR-277 — kept unwrapped, before the mode-gated wrap below, so a
@@ -640,9 +643,13 @@ export function createServerLineAnswer({
 
       // Fetch once and compose every cohort, including public Business evidence.
       // Private memory authority gates only MSP slices, never public knowledge.
-      const tracedKnowledge = trace && groundingMode === 'BUSINESS_KNOWLEDGE' ? { query: async input => {
+      const tracedKnowledge = trace && (groundingMode === 'BUSINESS_KNOWLEDGE' || mainDevTestRag) ? { query: async input => {
         const evidence = await businessKnowledge.query(input)
-        await trace.recordEvidence(input, evidence)
+        await trace.recordEvidence(input, evidence, mainDevTestRag ? {
+          contentFree: true,
+          mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: evidence.meta?.reason ?? null,
+          budgetMs: evidence.meta?.budgetMs ?? null, retrievalRefs: evidence.retrievalRefs ?? [],
+        } : undefined)
         return evidence
       } } : businessKnowledge
       let memoryContext = null
@@ -732,6 +739,12 @@ export function createServerLineAnswer({
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
       const answerText = boundLineText(result.text)
+      if (mainDevTestRag) {
+        if (result.provider?.status !== 'not-called') await runtimePorts.revalidateKnowledge()
+        await recordMainDevTestRagDecision(runtimeDependencies.integrationDb ?? prisma, job, {
+          binding: runtimePorts.getKnowledgeBinding(), replyText: answerText,
+        })
+      }
       // @req FR-277 — shadow-compare (ADR-090 Phase 3, TASK-ZAI-095). Started,
       // never awaited: the customer-facing answer above is already final, and
       // the worker's own reply/push dispatch happens in the caller after this
