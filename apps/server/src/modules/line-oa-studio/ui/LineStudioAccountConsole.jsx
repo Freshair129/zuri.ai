@@ -57,7 +57,7 @@ async function api(url, method = "GET", body) {
   return result;
 }
 
-const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
+const fieldClass = "w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:ring-2 focus:ring-[var(--action-primary-active)] focus:outline-none";
 
 export default function LineStudioAccountConsole() {
   const scope = useScope();
@@ -147,23 +147,23 @@ export default function LineStudioAccountConsole() {
   }
 
   return (
-    <div className="space-y-6 font-thai">
+    <div className="space-y-6 font-thai text-[var(--text-primary)]">
       {/* Server-owned LINE execution */}
-      <div className="rounded-2xl p-6 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white shadow-md relative overflow-hidden border border-slate-800">
-        <div className="absolute right-0 top-0 w-96 h-96 bg-brand-amber/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="relative overflow-hidden rounded-2xl border border-[var(--card-border)] bg-[var(--bg-surface)] p-6 text-[var(--text-primary)] shadow-sm">
+        <div className="pointer-events-none absolute right-0 top-0 h-96 w-96 rounded-full bg-[var(--bg-subtle)] opacity-70 blur-3xl" />
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold border border-emerald-500/30 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="px-2.5 py-0.5 rounded-full bg-[var(--status-success-bg)] text-[var(--text-primary)] text-[10px] font-bold border border-[var(--status-success)] flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-[var(--status-success)] animate-pulse" />
                 SERVER-OWNED LINE RUNTIME
               </span>
-              <span className="text-xs text-slate-400">Zero Secret Exposure Architecture</span>
+              <span className="text-xs text-[var(--text-secondary)]">Zero Secret Exposure Architecture</span>
             </div>
-            <h2 className="text-lg font-bold text-white tracking-tight">
+            <h2 className="text-lg font-bold text-[var(--text-primary)] tracking-tight">
               LINE OA และ Conversation Runtime
             </h2>
-            <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+            <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl leading-relaxed">
               Zuri รับ LINE webhook และประมวลผลบทสนทนาผ่าน runtime ของเซิร์ฟเวอร์ ใช้ model provider key ของ Business ที่ตั้งค่าไว้ด้านล่าง
             </p>
           </div>
@@ -172,7 +172,7 @@ export default function LineStudioAccountConsole() {
             <button
               onClick={() => run(async () => { await refresh(); await loadModelStatus(); })}
               disabled={busy || !business}
-              className="px-3 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-semibold flex items-center gap-1.5 transition-all border border-white/10"
+              className="px-3 py-2 rounded-xl bg-[var(--button-secondary-bg)] hover:bg-[var(--bg-subtle)] text-[var(--text-primary)] text-xs font-semibold flex items-center gap-1.5 transition-all border border-[var(--button-secondary-border)]"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${busy ? "animate-spin" : ""}`} />
               <span>รีเฟรชสถานะ</span>
@@ -182,15 +182,15 @@ export default function LineStudioAccountConsole() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 flex items-center gap-2">
-          <AlertTriangle className="w-4 h-4 shrink-0" />
+        <div className="p-4 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger)] text-xs text-[var(--text-primary)] flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4 shrink-0 text-[var(--status-danger)]" />
           <span>{error}</span>
         </div>
       )}
 
       {message && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
+        <div className="p-4 rounded-xl bg-[var(--status-success-bg)] border border-[var(--status-success)] text-xs text-[var(--text-primary)] flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-[var(--status-success)]" />
           <span>{message}</span>
         </div>
       )}
@@ -198,23 +198,23 @@ export default function LineStudioAccountConsole() {
       <div className="grid grid-cols-1 gap-6">
         <div className="space-y-6">
           {/* Active LINE Accounts List */}
-          <div className="rounded-2xl p-6 bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800">
+          <div className="rounded-2xl p-6 bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
               <div>
-                <h1 className="font-bold text-sm text-slate-900 dark:text-white">
+                <h1 className="font-bold text-sm text-[var(--text-primary)]">
                   บัญชี LINE และการตอบข้อความ
                 </h1>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-[var(--text-secondary)]">
                   {business ? `Business: ${business.name}` : "กรุณาเลือก Business ก่อนจัดการ"}
                 </p>
               </div>
-              <span className="px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-xs font-bold font-mono">
+              <span className="px-2.5 py-1 rounded-xl bg-[var(--surface-mid)] text-[var(--text-primary)] text-xs font-bold font-mono">
                 {accounts.length} บัญชี
               </span>
             </div>
 
             {accounts.length === 0 ? (
-              <div className="p-8 text-center rounded-xl bg-slate-50 dark:bg-slate-850 border border-dashed border-slate-200 dark:border-slate-800 text-xs text-slate-500">
+              <div className="p-8 text-center rounded-xl bg-[var(--surface-mid)] border border-dashed border-[var(--border-default)] text-xs text-[var(--text-primary)]">
                 ยังไม่มีบัญชี LINE OA ที่ผูกกับ Business นี้ — ใช้ฟอร์มด้านล่างเพื่อสร้างการเชื่อมต่อ
               </div>
             ) : (
@@ -323,22 +323,22 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
   }
 
   return (
-    <div className="p-4 rounded-xl bg-slate-50 dark:bg-slate-850 border border-slate-200 dark:border-slate-800 space-y-3">
+    <div className="p-4 rounded-xl bg-[var(--surface-mid)] text-[var(--text-primary)] border border-[var(--border-default)] space-y-3">
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
+          <h2 className="font-bold text-sm text-[var(--text-primary)] flex items-center gap-2">
             <span>{account.displayName}</span>
-            <span className="text-xs text-slate-500 font-mono">({account.basicId || account.code})</span>
+          <span className="text-xs text-[var(--text-primary)] font-mono">({account.basicId || account.code})</span>
           </h2>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            LINE Transport: <strong className="text-slate-800 dark:text-slate-200">{account.serverEnabled ? "Zuri Server" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-emerald-600">{account.health?.connection?.status || "UNKNOWN"}</span>
+          <p className="text-[11px] text-[var(--text-primary)] mt-0.5">
+            LINE Transport: <strong className="text-[var(--text-primary)]">{account.serverEnabled ? "Zuri Server" : "Server ยังไม่เปิด"}</strong> · Connection: <span className="text-[var(--text-primary)]">{account.health?.connection?.status || "UNKNOWN"}</span>
           </p>
         </div>
         <StatusPill status={account.effectiveStatus} />
       </div>
 
-      <details className="text-[11px] text-slate-500 bg-white dark:bg-slate-900 p-2.5 rounded-xl border border-slate-200/60 dark:border-slate-800">
-        <summary className="cursor-pointer font-semibold text-slate-700 dark:text-slate-300">ข้อมูล Endpoint สำหรับ Webhook</summary>
+      <details className="text-[11px] text-[var(--text-secondary)] bg-[var(--bg-surface)] p-2.5 rounded-xl border border-[var(--border-default)]">
+        <summary className="cursor-pointer font-semibold text-[var(--text-primary)]">ข้อมูล Endpoint สำหรับ Webhook</summary>
         <div className="mt-2 grid gap-1 font-mono text-[10px] break-all">
           <p>Account ID: {account.id}</p>
           <p>Webhook URL: /api/line-oa/accounts/{account.id}/webhook</p>
@@ -357,7 +357,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
         {/* FR-265 — executionMode remains SERVER. This separate Core-owned cohort
             sends only eligible direct conversations to the independent runtime. */}
         <div>
-          <label htmlFor={`runtime-owner-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+          <label htmlFor={`runtime-owner-${account.id}`} className="text-[11px] font-semibold text-[var(--text-primary)] block mb-1">
             ตัวประมวลผลบทสนทนา
           </label>
           <select
@@ -370,23 +370,23 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             <option value="SERVER">Zuri Server (ค่าเริ่มต้น)</option>
             <option value="CONVERSATION_RUNTIME">Conversation Runtime</option>
           </select>
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-[10px] text-[var(--text-primary)] mt-1">
             เลือก cohort ที่ Core บันทึกลงในแต่ละงาน การเปลี่ยนต้องไม่มีงานค้างหรือกำลังทำงานอยู่
           </p>
         </div>
 
-        <label className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400">
+        <label className="flex items-center gap-2 text-xs text-[var(--text-primary)]">
           <input
             type="checkbox"
             checked={push}
             onChange={(e) => setPush(e.target.checked)}
-            className="rounded border-slate-300 text-brand-amber focus:ring-brand-amber"
+            className="rounded border-[var(--input-border)] accent-[var(--action-primary-active)] focus:ring-[var(--action-primary-active)]"
           />
           <span>อนุญาต Push คำตอบภายหลัง หาก reply token หมดอายุ</span>
         </label>
 
         <div>
-          <label className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+          <label className="text-[11px] font-semibold text-[var(--text-primary)] block mb-1">
             แหล่งความรู้สำหรับตอบคำถาม
           </label>
           <select
@@ -399,13 +399,13 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             <option value="GKS_CORPUS">คลังความรู้ GKS ที่เผยแพร่แล้วเท่านั้น</option>
             <option value="GKS_THEN_BUSINESS_KNOWLEDGE">คลังความรู้ GKS ก่อน แล้วสำรองด้วยฐานความรู้ธุรกิจ</option>
           </select>
-          <p className="text-[10px] text-slate-500 mt-1">
+          <p className="text-[10px] text-[var(--text-primary)] mt-1">
             เปลี่ยนแหล่งข้อมูลที่ Zuri ใช้ตอบคำถามลูกค้าทาง LINE — ไม่กระทบบัญชีอื่น
           </p>
         </div>
 
         <div>
-          <label htmlFor={`session-timeout-${account.id}`} className="text-[11px] font-semibold text-slate-700 dark:text-slate-300 block mb-1">
+          <label htmlFor={`session-timeout-${account.id}`} className="text-[11px] font-semibold text-[var(--text-primary)] block mb-1">
             เวลาเงียบก่อนเริ่ม session ใหม่ (นาที)
           </label>
           <input
@@ -420,7 +420,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             onChange={(e) => setSessionTimeout(e.target.value)}
             aria-invalid={!timeoutValid}
           />
-          <p className={`text-[10px] mt-1 ${timeoutValid ? "text-slate-500" : "text-rose-600"}`}>
+          <p className={`text-[10px] mt-1 ${timeoutValid ? "text-[var(--text-secondary)]" : "font-semibold text-[var(--text-primary)]"}`}>
             {timeoutValid
               ? "ถ้าลูกค้าเงียบนานกว่านี้ ข้อความถัดไปจะเริ่ม session ใหม่ ค่าเริ่มต้น 30 นาที"
               : "ใส่ตัวเลขเต็มระหว่าง 10 ถึง 120 นาที"}
@@ -430,7 +430,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
         <div className="flex flex-wrap gap-2 pt-1">
           <button
             type="button"
-            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold"
+            className="px-3 py-1.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-semibold"
             disabled={push === account.allowDelayedPush && runtimeOwner === (account.runtimeOwner ?? "SERVER")}
             onClick={() => onAction(account, { action: "CONFIGURE_EXECUTION", allowDelayedPush: push, runtimeOwner })}
           >
@@ -440,40 +440,40 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           <button
             type="button"
             disabled={grounding === account.knowledgeGrounding}
-            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="px-3 py-1.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => onAction(account, { action: "CONFIGURE_KNOWLEDGE_GROUNDING", knowledgeGrounding: grounding })}
           >
             บันทึกแหล่งความรู้
           </button>
 
-          <div className="grid gap-2 rounded-xl border border-slate-200 p-3 text-xs dark:border-slate-700">
+          <div className="grid gap-2 rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-xs text-[var(--text-primary)]">
             <label className="grid gap-1 font-semibold">
               Project สำหรับขอบเขตความจำส่วนตัว
               <select value={memoryProjectId} onChange={(event) => setMemoryProjectId(event.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900">
+                className="rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-2 py-1.5 text-xs text-[var(--text-primary)]">
                 <option value="">ยังไม่เลือก Project</option>
                 {(account.memoryProjectOptions ?? []).map(project => (
                   <option key={project.id} value={project.id}>{project.name} · {project.workspaceName}</option>
                 ))}
               </select>
             </label>
-            <p className="text-slate-500 dark:text-slate-400">ระบบใช้ Workspace ของ Project ที่เลือก และปฏิเสธ scope หาก Project ไม่อยู่ใน Business นี้</p>
+            <p className="text-[var(--text-secondary)]">ระบบใช้ Workspace ของ Project ที่เลือก และปฏิเสธ scope หาก Project ไม่อยู่ใน Business นี้</p>
             <button type="button" disabled={memoryProjectId === (account.memoryProjectId ?? '')}
-              className="justify-self-start rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="justify-self-start rounded-xl bg-[var(--button-primary-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--button-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               onClick={() => onAction(account, { action: "CONFIGURE_MEMORY_SCOPE", memoryProjectId: memoryProjectId || null })}>
               บันทึก Project ความจำ
             </button>
             <label className="grid gap-1 font-semibold">
               นโยบายความจำ MSP
               <select value={memoryPolicy} onChange={(event) => setMemoryPolicy(event.target.value)}
-                className="rounded-lg border border-slate-300 bg-white px-2 py-1.5 text-xs dark:border-slate-600 dark:bg-slate-900">
+                className="rounded-lg border border-[var(--input-border)] bg-[var(--input-bg)] px-2 py-1.5 text-xs text-[var(--text-primary)]">
                 <option value="OFF">ปิด (ค่าเริ่มต้น)</option>
                 <option value="ON">เปิดรับเทิร์นใหม่</option>
               </select>
             </label>
-            <p className="text-slate-500 dark:text-slate-400">การเปิดนโยบายไม่ข้าม consent, audience, scope mapping หรือ kill switch ของระบบ</p>
+            <p className="text-[var(--text-secondary)]">การเปิดนโยบายไม่ข้าม consent, audience, scope mapping หรือ kill switch ของระบบ</p>
             <button type="button" disabled={memoryPolicy === (account.memoryPolicy ?? 'OFF')}
-              className="justify-self-start rounded-xl bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="justify-self-start rounded-xl bg-[var(--button-primary-bg)] px-3 py-1.5 text-xs font-semibold text-[var(--text-primary)] hover:bg-[var(--button-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
               onClick={() => onAction(account, { action: "CONFIGURE_MEMORY_POLICY", memoryPolicy })}>
               บันทึกนโยบายความจำ
             </button>
@@ -482,7 +482,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           <button
             type="button"
             disabled={!timeoutValid || timeoutMinutes === (account.sessionIdleTimeoutMinutes ?? 30)}
-            className="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
+            className="px-3 py-1.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => onAction(account, { action: "CONFIGURE_SESSION_TIMEOUT", sessionIdleTimeoutMinutes: timeoutMinutes })}
           >
             บันทึกเวลา session
@@ -491,13 +491,13 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           {account.serverEnabled ? (
             <button
               type="button"
-              className="px-3 py-1.5 rounded-xl border border-rose-200 dark:border-rose-800 text-rose-600 dark:text-rose-400 text-xs font-semibold hover:bg-rose-50"
+              className="px-3 py-1.5 rounded-xl border border-[var(--status-danger)] text-[var(--text-primary)] text-xs font-semibold hover:bg-[var(--status-danger-bg)]"
               onClick={() => onAction(account, { action: "DISABLE_SERVER" })}
             >
               ปิด Server transport
             </button>
           ) : account.transportMode === "CLOUD" ? (
-            <div className="grid gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+            <div className="grid gap-2 rounded-xl border border-[var(--status-warning)] bg-[var(--status-warning-bg)] p-3 text-xs text-[var(--text-primary)]">
               <label className="flex items-start gap-2">
                 <input type="checkbox" checked={quiesced} onChange={(event) => setQuiesced(event.target.checked)} className="mt-0.5" />
                 <span>ยืนยันว่า transport เดิมหยุดรับ webhook แล้ว และยอมรับให้ Zuri Server เป็นเจ้าของการส่ง</span>
@@ -505,21 +505,21 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
               <button
                 type="button"
                 disabled={!quiesced}
-                className="w-fit rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm shadow-emerald-600/20 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-fit rounded-xl bg-[var(--button-primary-bg)] px-3.5 py-1.5 text-xs font-bold text-[var(--text-primary)] shadow-sm hover:bg-[var(--button-primary-hover)] disabled:cursor-not-allowed disabled:opacity-50"
                 onClick={() => onAction(account, { action: "ENABLE_SERVER", legacyQuiesced: true })}
               >
                 ⚡ เปิด Server Transport (Live)
               </button>
             </div>
           ) : (
-            <p className="rounded-xl border border-amber-200 bg-amber-50 p-2.5 text-[11px] text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+            <p className="rounded-xl border border-[var(--status-warning)] bg-[var(--status-warning-bg)] p-2.5 text-[11px] text-[var(--text-primary)]">
               บัญชีนี้ต้องตรวจสอบการตั้งค่าก่อนเปิด Server transport กรุณาติดต่อผู้ดูแลระบบ
             </p>
           )}
 
           <button
             type="button"
-            className="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 text-xs font-semibold hover:bg-white"
+            className="px-3 py-1.5 rounded-xl border border-[var(--button-secondary-border)] bg-[var(--button-secondary-bg)] text-[var(--text-primary)] text-xs font-semibold hover:bg-[var(--bg-subtle)]"
             onClick={() => loadJobs()}
           >
             ดูสถานะข้อความ
@@ -527,30 +527,30 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
         </div>
       </fieldset>
 
-      {error && <p role="alert" className="text-xs text-rose-600">{error}</p>}
+      {error && <p role="alert" className="border-l-2 border-[var(--status-danger)] pl-2 text-xs text-[var(--text-primary)]">{error}</p>}
 
       {jobs && (
-        <div className="mt-3 overflow-x-auto rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3">
-          <h5 className="font-bold text-xs text-slate-800 dark:text-slate-200 mb-2">คิวข้อความล่าสุด (Delivery Jobs)</h5>
+        <div className="mt-3 overflow-x-auto rounded-xl border border-[var(--border-default)] bg-[var(--bg-surface)] p-3 text-[var(--text-primary)]">
+          <h5 className="font-bold text-xs text-[var(--text-primary)] mb-2">คิวข้อความล่าสุด (Delivery Jobs)</h5>
           <form
             className="mb-2 flex flex-wrap items-center gap-2"
             onSubmit={(event) => { event.preventDefault(); loadJobs(sessionFilter); }}
           >
-            <label htmlFor={`session-filter-${account.id}`} className="text-[11px] text-slate-600 dark:text-slate-400">กรองตาม session</label>
+            <label htmlFor={`session-filter-${account.id}`} className="text-[11px] text-[var(--text-secondary)]">กรองตาม session</label>
             <input
               id={`session-filter-${account.id}`}
-              className="w-48 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1.5 font-mono text-[11px]"
+              className="w-48 rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] p-1.5 font-mono text-[11px] text-[var(--text-primary)]"
               placeholder="S-20260916-XXXXXX"
               value={sessionFilter}
               onChange={(e) => setSessionFilter(e.target.value)}
             />
-            <button type="submit" className="rounded-xl bg-slate-900 px-2.5 py-1 text-[11px] font-semibold text-white">กรอง</button>
+            <button type="submit" className="rounded-xl bg-[var(--button-primary-bg)] px-2.5 py-1 text-[11px] font-semibold text-[var(--text-primary)] hover:bg-[var(--button-primary-hover)]">กรอง</button>
             {filteredSession && (
-              <button type="button" className="text-[11px] text-slate-500 underline" onClick={() => { setSessionFilter(""); loadJobs(); }}>ล้างตัวกรอง</button>
+              <button type="button" className="text-[11px] text-[var(--text-secondary)] underline" onClick={() => { setSessionFilter(""); loadJobs(); }}>ล้างตัวกรอง</button>
             )}
           </form>
           {filteredSession && (
-            <p className="mb-2 text-[11px] text-slate-600 dark:text-slate-400" data-session-filter={filteredSession.code}>
+            <p className="mb-2 text-[11px] text-[var(--text-secondary)]" data-session-filter={filteredSession.code}>
               {filteredSession.missing
                 ? `ไม่พบ session ${filteredSession.code} ในบัญชีนี้`
                 : `session ${filteredSession.code} · ข้อความเข้า ${filteredSession.inboundCount} · ตอบกลับ ${filteredSession.outboundCount}`}
@@ -558,7 +558,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
           )}
           <table className="w-full text-left text-xs">
             <thead>
-              <tr className="border-b border-slate-100 dark:border-slate-800 text-slate-500">
+              <tr className="border-b border-[var(--border-subtle)] text-[var(--text-secondary)]">
                 <th className="p-1.5">เวลา</th>
                 <th className="p-1.5">งาน</th>
                 <th className="p-1.5">Session</th>
@@ -570,22 +570,22 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             <tbody>
               {Array.isArray(jobs) && jobs.map((job) => (
                 <React.Fragment key={job.id}>
-                  <tr className="border-b border-slate-100 dark:border-slate-800 font-mono text-[11px]">
+                  <tr className="border-b border-[var(--border-subtle)] font-mono text-[11px]">
                     <td className="p-1.5">{new Date(job.createdAt).toLocaleTimeString()}</td>
                     <td className="p-1.5">{job.id.slice(0, 8)}</td>
                     <td className="p-1.5">{job.sessionCode || "—"}</td>
                     <td className="p-1.5 font-bold">{job.status}</td>
                     <td className="p-1.5">{job.errorCode || job.executionMode}</td>
                     <td className="p-1.5">
-                      <button type="button" className="text-[11px] text-slate-700 underline dark:text-slate-300" onClick={() => toggleTrace(job)}>
+                      <button type="button" className="text-[11px] text-[var(--text-primary)] underline" onClick={() => toggleTrace(job)}>
                         {traces[job.id] ? "ซ่อน" : "ดู trace"}
                       </button>
                     </td>
                   </tr>
                   {traces[job.id] && (
-                    <tr className="border-b border-slate-100 dark:border-slate-800">
+                    <tr className="border-b border-[var(--border-subtle)]">
                       <td colSpan={6} className="p-1.5">
-                        <ol className="grid gap-0.5 font-mono text-[10px] text-slate-600 dark:text-slate-400" aria-label={`trace ของงาน ${job.id.slice(0, 8)}`}>
+                        <ol className="grid gap-0.5 font-mono text-[10px] text-[var(--text-secondary)]" aria-label={`trace ของงาน ${job.id.slice(0, 8)}`}>
                           {traces[job.id].length === 0 && <li>ยังไม่มี trace event</li>}
                           {traces[job.id].map((event, index) => (
                             <li key={event.id ?? `${job.id}-${index}`}>
@@ -602,7 +602,7 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
             </tbody>
           </table>
           {Array.isArray(jobs) && jobs.length === 0 && (
-            <p className="p-2 text-center text-slate-400 text-xs">{filteredSession ? "ไม่มีงานใน session นี้" : "ยังไม่มีข้อความในคิว"}</p>
+            <p className="p-2 text-center text-[var(--text-secondary)] text-xs">{filteredSession ? "ไม่มีงานใน session นี้" : "ยังไม่มีข้อความในคิว"}</p>
           )}
         </div>
       )}

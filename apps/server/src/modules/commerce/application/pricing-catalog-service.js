@@ -5,7 +5,8 @@ import { assertMayView } from '@/modules/inventory'
 import { weightedAverageUnitCostSatang } from '@/modules/inventory/domain/inventory-costing'
 import { createManagedBlobFileAsset, resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { createConfiguredAssetObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { createConfiguredKnowledgeCatalogObjectStoragePort, createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { createConfiguredKnowledgeManagedBlobPort } from '@/platform/storage/s3-object-storage'
 import { assertKnowledgeBusinessWritable } from '@/modules/knowledge/knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from '@/modules/knowledge/knowledge-runtime'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
@@ -20,7 +21,7 @@ import { priceLandedInventoryQuote } from './pricing-inventory-service'
 // managed file identity make retries stable; no calculation/publication claim
 // from the client can promote a trial input into verified source data.
 // @spec ADR-098; ADR-075; SEC-001; BR-002
-// @tested tests/integration/fr253-pricing-catalog.test.js
+// @tested tests/integration/fr253-pricing-catalog.test.js, tests/unit/fr253-pricing-catalog-storage.test.js
 
 const schema = z.object({
   businessId: z.string().trim().min(1).max(200),
@@ -37,6 +38,20 @@ const schema = z.object({
 })
 const fail = (status, message) => Object.assign(new Error(message), { status })
 const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
+const STORAGE_KEY_SEGMENT = /^[A-Za-z0-9_-]+$/
+
+function createPricingCatalogObjectStoragePort(env) {
+  return createConfiguredKnowledgeManagedBlobPort(env) || createConfiguredKnowledgeCatalogObjectStoragePort(env)
+}
+
+function privateCatalogObjectKey({ tenantId, businessId, contentHash }) {
+  for (const segment of [tenantId, businessId]) {
+    if (!STORAGE_KEY_SEGMENT.test(String(segment || ''))) {
+      throw Object.assign(fail(400, 'Catalog object key segment is invalid'), { code: 'KNOWLEDGE_STORAGE_KEY_INVALID' })
+    }
+  }
+  return `knowledge/raw/${tenantId}/${businessId}/catalog-files/${contentHash}/${randomUUID()}.json`
+}
 
 async function requireCurrentRule(businessId, snapshots, options) {
   const active = await getActivePricingRuleSet(businessId, options)
@@ -119,7 +134,8 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
     return { previewOnly: true, previewHash: plan.previewHash, businessId: data.businessId, productId: data.productId, ruleSetId: plan.active.id, ruleVersion: plan.active.version, prices: plan.quotes.map(({ quantity, quote }) => ({ quantity, currency: quote.result.currency, unitPriceSatang: quote.result.unitPriceSatang, totalPriceSatang: quote.result.totalPriceSatang })), publicationStatus: 'NOT_SUBMITTED' }
   }
   await resolveKnowledgeRuntimeBinding({ businessId: data.businessId }, { db, env })
-  const storage = objectStoragePort || createConfiguredAssetObjectStoragePort(env)
+  const storage = objectStoragePort || createPricingCatalogObjectStoragePort(env)
+  const fileAssetReader = objectStoragePort || createConfiguredManagedBlobObjectStoragePort(env)
   let frozen
   try { frozen = await freezeLedgerCalculations(data, { db, viewer, now, previewHash }) } catch (error) {
     if (error.code !== 'P2002') throw error
@@ -133,7 +149,10 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
   let asset = await db.fileAsset.findUnique({ where: { code } })
   if (asset && (asset.businessId !== data.businessId || asset.sha256 !== contentHash || asset.deletedAt || asset.status !== 'ACTIVE')) throw fail(409, 'PRICING_CATALOG_ASSET_CONFLICT')
   if (!asset) {
-    const stored = await storage.put({ key: `commerce-pricing/${data.businessId}/${randomUUID()}.json`, content, mime: 'application/json' })
+    const key = env.ZURI_KNOWLEDGE_STORAGE_ENABLED === '1'
+      ? privateCatalogObjectKey({ tenantId: active.tenantId, businessId: data.businessId, contentHash })
+      : `commerce-pricing/${data.businessId}/${randomUUID()}.json`
+    const stored = await storage.put({ key, content, mime: 'application/json' })
     try {
       asset = await createManagedBlobFileAsset({ code, businessId: data.businessId, name: projections[0].fileName, mime: 'application/json', size: content.length, sha256: contentHash, blobRef: stored.ref, uploadedBy: viewer.principal?.id ?? null }, { db, viewer })
     } catch (error) {
@@ -144,6 +163,6 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
     }
   }
   await requireCurrentRule(data.businessId, frozen.rows, { viewer, db, now })
-  const admission = await admitKnowledge({ businessId: data.businessId, idempotencyKey: `pricing-catalog:${frozen.requestKey}`, source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT } }, { viewer, db, env, now, fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort: storage }) })
+  const admission = await admitKnowledge({ businessId: data.businessId, idempotencyKey: `pricing-catalog:${frozen.requestKey}`, source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT } }, { viewer, db, env, now, fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort: fileAssetReader }) })
   return { fileAssetId: asset.id, contentHash, calculationIds: frozen.rows.map((row) => row.id), ruleSetId: frozen.rows[0].ruleSetId, status: 'ADMITTED', publicationStatus: 'NOT_VERIFIED', admission }
 }
