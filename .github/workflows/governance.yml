@@ -323,6 +323,9 @@ jobs:
         working-directory: apps/server
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historical approval snapshots follow their validated same-ID provenance.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -460,6 +463,9 @@ jobs:
         working-directory: apps/server
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historical approval snapshots follow their validated same-ID provenance.
+          fetch-depth: 0
 
       # Setup used to be ~1.5-2.7 min of every shard (PR #609's first run): two
       # setup-node restores of the npm download cache, then two `npm ci`. Both
@@ -850,6 +856,9 @@ jobs:
         working-directory: apps/server
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Historical approval snapshots follow their validated same-ID provenance.
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:

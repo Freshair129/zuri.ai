@@ -5,13 +5,47 @@ import { mkdtempSync, mkdirSync, cpSync, symlinkSync, writeFileSync, readFileSyn
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
+
+function attachIsolatedGitHistory(fixture) {
+  const sourceRoot = path.resolve(root, '../..')
+  const sourceHead = execFileSync('git', ['-C', sourceRoot, 'rev-parse', '--verify', 'HEAD'], {
+    windowsHide: true,
+    encoding: 'utf8',
+    stdio: ['ignore', 'pipe', 'pipe'],
+  }).trim()
+  const cloneParent = mkdtempSync(path.join(tmpdir(), 'zuri-doc-links-history-'))
+  const clonePath = path.join(cloneParent, 'repository')
+  try {
+    // Keep refs and the worktree metadata private to this fixture. The clone's
+    // alternate object store is read-only input for the Git queries exercised
+    // by the docs tools; no command in this fixture writes to the source repo.
+    execFileSync('git', ['clone', '--shared', '--no-checkout', sourceRoot, clonePath], {
+      windowsHide: true,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    })
+    // CI often checks out a merge SHA with detached HEAD. A local clone may
+    // otherwise choose its default branch, which need not contain that SHA.
+    execFileSync('git', ['-C', clonePath, 'update-ref', 'refs/heads/fixture-source-head', sourceHead], {
+      windowsHide: true,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    })
+    execFileSync('git', ['-C', clonePath, 'symbolic-ref', 'HEAD', 'refs/heads/fixture-source-head'], {
+      windowsHide: true,
+      stdio: ['ignore', 'ignore', 'pipe'],
+    })
+    cpSync(path.join(clonePath, '.git'), path.join(fixture, '.git'), { recursive: true })
+  } finally {
+    rmSync(cloneParent, { recursive: true, force: true })
+  }
+}
 
 it('CLI reproduces generated files and rejects stale state, backlinks and missing targets', () => {
   const fixture = mkdtempSync(path.join(tmpdir(), 'zuri-doc-links-'))
   try {
+    attachIsolatedGitHistory(fixture)
     for (const dir of ['scripts', 'contracts', 'docs', 'registry']) cpSync(workspacePath(root, dir), path.join(fixture, dir), { recursive: true })
     cpSync(workspacePath(root, 'package.json'), path.join(fixture, 'package.json'))
     cpSync(workspacePath(root, 'AGENTS.md'), path.join(fixture, 'AGENTS.md'))

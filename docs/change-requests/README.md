@@ -1,20 +1,25 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.4.0"
-updated_at: "2026-10-23"
+version: "1.5.0"
+updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.4.0
+**Version:** 1.5.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
 
 ## Current contract proposals
+
+- [TEST ONLY natural-language LINE stock and price](integration/line-product-facts-natural-language-20261024.md)
+  (0.1.0, design approved): bounded intent entry into the existing source-bound
+  fact reader, exact trusted test-product membership, and same-ID FR-291 amendment.
+  It does not activate production disclosure or let a model invent facts.
 
 - [GenesisRAG17 ownership and reliability](knowledge/genesisrag17-ownership-reliability-20261023.md)
   (0.2.0, design approved): four repositories with Knowledge capability
