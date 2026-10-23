@@ -16,6 +16,12 @@ version-controlled.
 
 ## Current contract proposals
 
+- [GenesisRAG17 ownership and reliability](knowledge/genesisrag17-ownership-reliability-20261023.md)
+  (0.2.0, design approved): four repositories with Knowledge capability
+  accountability and the user's sole product/development/operations ownership.
+  [Implementation plan](knowledge/genesisrag17-implementation-20261023.md)
+  records execution and remaining qualification boundaries.
+
 - [LINE stock availability and published sell-price facts](integration/line-agent-stock-price-facts-20261023.md)
   (0.2.0, design approved): owner-selected first operational fact family; source
   bindings, customer-safe fields, authorization and acceptance cases for review.
