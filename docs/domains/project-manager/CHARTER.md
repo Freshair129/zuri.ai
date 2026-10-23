@@ -1,5 +1,6 @@
 ---
 domain: project-manager
+domain_id: project-manager
 modules:
   - project-manager
   - business
@@ -80,6 +81,10 @@ The scope chain and everything that plans work inside it: Portfolio → Tenant �
 Business → Workspace → Project, plus workstreams, work items, milestones, gates,
 dependencies, progress roll-up, the managed local file workspace, and the audit
 trail. This is the back-office console's core.
+
+The `domain_id` repeats this charter's existing `domain: project-manager` key
+for the [linked domain SRS](SRS.md). It does not introduce a `DOM-*` or `TD-*`
+identity, rename a domain, or change any model, route or write boundary.
 
 ## Boundaries
 
@@ -224,3 +229,9 @@ gates under ADR-057. See the
 - `AuditEvent` is appended by other domains' services through the shared
   `recordAudit` helper. Ownership means this domain defines its shape and
   retention — not that others cannot append through the helper.
+
+## Documentation change history
+
+2026-10-23: expose the existing `project-manager` key as `domain_id` and link
+the proposed source-linked SRS. All ownership lists and public contracts are
+unchanged; the full-system candidate is not approved by this metadata addition.

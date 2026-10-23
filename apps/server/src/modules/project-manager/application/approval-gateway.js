@@ -2,6 +2,7 @@ import { createHash, randomBytes, randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { hasPermission } from '@/modules/identity/rbac'
+import { resolveAuthorizationContext } from '@/modules/identity/authorization-context'
 import { recordAudit } from './audit'
 import { loadAuthorizedProject, loadRun } from './project-execution-trace-service'
 import { canonicalize } from './execution-trace'
@@ -10,6 +11,7 @@ import { canonicalize } from './execution-trace'
 // Agent/Fleet steps; read-only steps do not create an approval row.
 // @spec ADR-103, PMR-013, PMT-013, SEC-001, SEC-003, SEC-008
 // @tested tests/integration/project-approval-gateway.test.js
+// @tested tests/postgres/project-approval-gateway-races.test.js
 
 export const APPROVAL_ACTION_CLASSES = Object.freeze([
   'READ_ONLY',
@@ -272,6 +274,23 @@ async function loadApproval(db, approvalRequestId) {
   return row
 }
 
+async function lockApproval(tx, approvalRequestId) {
+  // A portable no-op UPDATE obtains the row's write lock on PostgreSQL and
+  // SQLite without changing its projection/timestamps. Resolve Identity and
+  // the clock AFTER this wait, not from a pre-contention viewer snapshot.
+  await tx.$executeRaw`UPDATE "ProjectApprovalRequest" SET "id" = "id" WHERE "approvalRequestId" = ${approvalRequestId}`
+}
+
+async function hasCurrentReviewerCapability(tx, personId, row, now) {
+  const context = await resolveAuthorizationContext({
+    personId, tenantId: row.tenantId, businessId: row.businessId,
+    permission: row.eligibleReviewerCapability, action: 'PM_APPROVAL', db: tx, now,
+  })
+  return context.decision.allowed
+}
+
+const clockValue = now => typeof now === 'function' ? now() : now
+
 async function loadApprovalScope(db, row, { viewer, projectId, executionRunId } = {}) {
   if (projectId && row.projectId !== projectId) fail('APPROVAL_NOT_FOUND', 'Approval request not found', 404)
   if (executionRunId && row.executionRunId !== executionRunId) fail('APPROVAL_NOT_FOUND', 'Approval request not found', 404)
@@ -510,10 +529,15 @@ function decisionValue(value) {
 }
 
 async function decideApprovalTx(tx, input, { viewer, now }) {
+  await lockApproval(tx, input.approvalRequestId)
+  now = clockValue(now)
   const row = await loadApproval(tx, input.approvalRequestId)
   const context = await loadApprovalScope(tx, row, { viewer, projectId: input.projectId, executionRunId: input.executionRunId })
   const decision = decisionValue(input.decision)
   const reviewerId = assertReviewer(viewer, row)
+  if (!await hasCurrentReviewerCapability(tx, reviewerId, row, now)) {
+    fail('REVIEWER_NOT_ELIGIBLE', 'Current Identity reviewer capability is no longer active', 403)
+  }
   if (row.state !== 'PENDING') {
     if ((row.state === 'APPROVED' && decision === 'APPROVE') || (row.state === 'REJECTED' && decision === 'REJECT')) {
       return { approval: approvalDto(row), idempotent: true }
@@ -558,7 +582,7 @@ async function decideApprovalTx(tx, input, { viewer, now }) {
 export async function decideApproval(
   approvalRequestId,
   input,
-  { viewer, projectId, executionRunId, db = prisma, now = Date.now() } = {},
+  { viewer, projectId, executionRunId, db = prisma, now = () => Date.now() } = {},
 ) {
   const result = await runInTransaction(db, (tx) => decideApprovalTx(tx, {
     ...input,
@@ -602,6 +626,8 @@ async function revokeApprovalTx(tx, row, { actorId, actorType, reason, state = '
 }
 
 async function admitApprovedStepTx(tx, input, { now }) {
+  await lockApproval(tx, input.approvalRequestId)
+  now = clockValue(now)
   const row = await loadApproval(tx, input.approvalRequestId)
   const executorViewer = input.executor?.viewer || input.executor?.identityViewer
   const context = await loadApprovalScope(tx, row, { viewer: executorViewer })
@@ -619,7 +645,10 @@ async function admitApprovedStepTx(tx, input, { now }) {
     await expireApprovalTx(tx, row, { actorId: input.executor?.executorId || null, reason: 'Admission arrived after expiry' })
     return { error: { code: 'APPROVAL_EXPIRED', message: 'Approval request has expired', status: 409 } }
   }
-  if (!hasPermission(executorViewer, row.businessId, row.eligibleReviewerCapability)) {
+  if (!hasPermission(executorViewer, row.businessId, row.eligibleReviewerCapability)
+    || !await hasCurrentReviewerCapability(tx, row.decidedByPersonId, row, now)
+    || (actorId(executorViewer) !== row.decidedByPersonId
+      && !await hasCurrentReviewerCapability(tx, actorId(executorViewer), row, now))) {
     await revokeApprovalTx(tx, row, {
       actorId: input.executor?.executorId || null,
       actorType: 'EXECUTOR',
@@ -691,7 +720,7 @@ export async function admitApprovedStep(
   requestDigest,
   leaseEpoch,
   executor,
-  { db = prisma, now = Date.now() } = {},
+  { db = prisma, now = () => Date.now() } = {},
 ) {
   const result = await runInTransaction(db, (tx) => admitApprovedStepTx(tx, {
     approvalRequestId,

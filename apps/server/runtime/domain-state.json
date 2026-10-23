@@ -849,6 +849,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
           "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
           "apps/server/tests/integration/line-server-backup.test.js",
@@ -895,6 +896,7 @@
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
           "apps/server/tests/integration/fr270-business-wig-execution.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
           "apps/server/tests/integration/line-server-backup.test.js",
@@ -2655,7 +2657,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-061",
@@ -3034,7 +3036,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 48
+          "testCount": 49
         }
       ],
       "checks": {
@@ -6731,7 +6733,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-060",
@@ -7667,7 +7669,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-253",
@@ -7699,7 +7701,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-269",
@@ -7707,7 +7709,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 9,
-          "testCount": 23,
+          "testCount": 24,
           "evidence": [
             "apps/server/src/app/api/business/kpis/[id]/observations/route.js",
             "apps/server/src/app/api/business/kpis/[id]/route.js",
@@ -7723,6 +7725,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
             "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
@@ -7749,7 +7752,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 14,
-          "testCount": 20,
+          "testCount": 21,
           "evidence": [
             "apps/server/src/app/api/business/goals/[id]/lead-measures/route.js",
             "apps/server/src/app/api/business/goals/[id]/wig/route.js",
@@ -7770,6 +7773,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
             "apps/server/tests/integration/fr270-business-wig-execution.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
@@ -7792,8 +7796,8 @@
           "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 4
+          "codeCount": 3,
+          "testCount": 7
         },
         {
           "id": "FR-272",
@@ -7801,7 +7805,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-273",
@@ -8256,6 +8260,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
             "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
@@ -8301,6 +8306,7 @@
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
             "apps/server/tests/integration/fr270-business-wig-execution.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
@@ -8707,7 +8713,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-269",
@@ -8715,7 +8721,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 10,
-          "testCount": 23
+          "testCount": 24
         },
         {
           "id": "FR-270",
@@ -8723,15 +8729,15 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 14,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-271",
           "title": "Creating or editing a BusinessKeyResult runs a pure smartChecks() function returning the deterministic subset of SMART as booleans",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 4
+          "codeCount": 3,
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -8781,6 +8787,7 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/e2e/fr269-business-kpi-scorecard.spec.js",
         "apps/server/tests/e2e/fr270-business-wig-execution.spec.js",
+        "apps/server/tests/e2e/fr271-smart-feedback.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/backup.test.js",
@@ -16380,7 +16387,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -16397,6 +16404,7 @@
         "apps/server/src/modules/project-manager/components/StrategyEditModals.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr059-strategy-edit.spec.js",
+        "apps/server/tests/e2e/fr271-smart-feedback.spec.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr059-business-strategy-mutation.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -19310,7 +19318,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 48
+          "testCount": 49
         }
       ],
       "evidence": [
@@ -19371,6 +19379,7 @@
         "apps/server/tests/integration/project-feature-mutations.test.js",
         "apps/server/tests/integration/project-feature-read-routes.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/postgres/phase-b-runtime-role.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
@@ -19515,7 +19524,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
@@ -19525,6 +19534,7 @@
         "apps/server/src/modules/project-manager/application/approval-gateway.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/project-approval-gateway.test.js",
+        "apps/server/tests/postgres/project-approval-gateway-races.test.js",
         "apps/server/tests/unit/production-migration-reconciliation.test.js"
       ]
     },
@@ -20418,7 +20428,7 @@
       "title": "Keyboard: palette เต็มรูปแบบ, aria labels, progressbar roles",
       "status": "verified",
       "codeCount": 1,
-      "testCount": 4,
+      "testCount": 5,
       "domains": [
         "project-manager"
       ]
