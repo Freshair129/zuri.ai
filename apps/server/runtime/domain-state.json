@@ -1200,7 +1200,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-072",
@@ -4954,7 +4954,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-061",
@@ -6763,7 +6763,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-058",
@@ -16401,7 +16401,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 30
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -16442,6 +16442,7 @@
         "apps/server/tests/unit/ki17-worker-msp-launcher.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/msp-memory-evidence.test.js",
+        "apps/server/tests/unit/msp-principal-memory-boundary.test.js",
         "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/msp-vault-resolver.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
