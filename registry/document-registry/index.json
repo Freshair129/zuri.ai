@@ -1191,15 +1191,15 @@
       "status": "reviewed-migration",
       "path": "docs/features/FEAT-004/requirements/FR-079.md",
       "sourcePath": "docs/PRD-SDD-v1.0.md",
-      "sourceRowSha256": "fb9fe867338603ed3830035e31946ddcdba1946fa32713b74e4f178560d7bbeb",
-      "recordSha256": "dab332f856744f055bff0835da62bdf7784fb8b0620c4fce1fc9e1ab8660380a",
+      "sourceRowSha256": "88eca3a2e40a19136874785173b5dd9d4ff15038ae36d77f2b1982871d4cb59d",
+      "recordSha256": "236f3b4d73d4a24317c0f4cad794067480f3556e0f54615516ce8ea622ac145c",
       "statementCell": 2,
       "requirementCells": [],
       "featureId": "FEAT-004",
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 78,
-      "migrationBaseRevision": "aa82e3058e81fddf793d18795bee660b40945263",
-      "migrationDocument": "docs/change-requests/integration/line-ollama-test-only-genesisrag17-20261024.md"
+      "migrationBaseRevision": "79e36b5bce875f1d7c0b7e29a0b8db517646e4f3",
+      "migrationDocument": "docs/change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md"
     },
     {
       "id": "FR-080",

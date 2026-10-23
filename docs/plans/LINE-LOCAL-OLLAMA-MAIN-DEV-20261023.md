@@ -2,7 +2,7 @@
 doc_type: implementation-plan
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PLAN-20261023
 status: approved
-version: "0.3.2"
+version: "0.4.1"
 date: "2026-10-23"
 relations:
   - type: references
@@ -30,6 +30,53 @@ fixture helper, runtime integration, and Server answer path pass 119 focused
 tests. Independent runtime review found no remaining P1/P2. Private overlay
 configuration and live acceptance remain pending. Nothing here changes production provider
 behavior or claims deployment or a successful Ollama/LINE conversation.
+
+## Memory extension implementation plan — approved 2026-10-24
+
+The owner selected the main-dev Ollama memory extension. This section amends
+the historical no-memory baseline below; it does not widen production provider
+access, source data, model endpoints or canonical private-memory ownership.
+Version 0.4.1 reconciles the native RAG contract merged in PR #734. Both
+TEST_ONLY_FIXTURE and GENESISRAG17_TEST_ONLY retain default memory denial and
+the same explicit opt-in. Native RAG source pins, public Product projection,
+pre/post-generation revalidation and final send fencing remain required; private
+memory does not authorize Business facts or widen public knowledge sources.
+The original fixture-only exclusions below remain historical baseline context.
+
+1. [ ] Migrate only FR-079 under the approved intake amendment, preserving its
+   subject, FEAT membership and source slot. Run the sanctioned statement review
+   writer and registry generator; shared graph/views/govern run serially.
+2. [ ] In `main-dev-local-ollama.js`, add a separate default-off
+   `ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED` setting with strict boolean parsing.
+   Keep original no-memory refusal unless opted in. Keep server/account scope,
+   database, selected knowledge-source/shadow and SERVER execution guards unchanged.
+3. [ ] In `phase1-runtime.js`, reuse one MSP-port composition helper for normal
+   and opted-in local profiles. Carry `mspTransport` through the local factory;
+   use signed thread and distinct principal-private ports and fail closed on
+   missing signer/transport. Never use GKS knowledge as a local fixture fallback.
+4. [ ] In `server-line-answer.js`, permit enrolled memory only when this local
+   profile opt-in is true, then run the existing per-turn identity, consent,
+   audience, policy, context composition, injection and append receipt path.
+   No fabricated consent, guessed owner or unsigned private vault access.
+5. [ ] TDD: first prove opted-in guards and port composition fail on the old
+   code. Add standard-default denial, malformed flag, wrong scope/database,
+   missing keys/transport, no-consent/group private denial, and composed thread
+   context reaching the model only through the receipt/budget path. Keep old
+   public-fixture, no-model-fallback and production-denial regressions passing.
+6. [ ] Independent review of the exact patch, scoped regression/build/governance,
+   normal PR and exact-head CI/merge. Build the main-dev image from the clean
+   reviewed source; qualify native MSP read/write/isolation/erasure and restart.
+7. [ ] Configure the new opt-in only in protected main-dev configuration. Set
+   the existing OA memory scope/policy through canonical audited owner actions.
+   Verify real local Ollama model inference and bounded memory context with
+   synthetic records and no external LINE send; ask the user to send real chat
+   probes for end-to-end provider delivery when ready. Do not change PENDING
+   Customer consent. Production remains gated by its separate exact artifact,
+   keys/state, backup, verification and activation controls.
+
+Root owns canonical/plan/proposal files, generators and operator deployment.
+The implementer owns only the three runtime modules and focused tests; the
+independent reviewer owns no source edits. Preserve concurrent user changes.
 
 ## Goal and boundaries
 

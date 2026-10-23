@@ -6,8 +6,8 @@ import path from 'node:path'
 import { createPhase1BusinessAgentPortsFromEnv } from '@/modules/agent/phase1-runtime'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 
-// @req FR-079, FR-080 — the main-dev profile uses only a pinned TEST ONLY Product fixture and owner-selected Ollama.
-// @spec ADR-100 D9, SEC-001 — preserve production/keyed gates, verify server scope and refuse memory/corpus/shadow paths.
+// @req FR-079, FR-080 — the main-dev profile uses a pinned TEST ONLY fixture or pinned test-only RAG source and owner-selected Ollama.
+// @spec ADR-100 D9, SEC-001 — preserve production/keyed gates and server scope; memory stays default-off unless opted in, RAG stays pinned, and shadow stays denied.
 // @tested tests/unit/main-dev-local-ollama-runtime.test.js
 
 const TENANT_ID = '26d0a24b-a2ef-44dd-8e8c-c9a0d5b3ca94'
@@ -217,6 +217,119 @@ describe('main-dev keyless Ollama Phase-1 ports', () => {
     expect(dependencies.fetchFn).not.toHaveBeenCalled()
   })
 
+  it('keeps configured MSP memory flags refused until the separate main-dev extension flag is true', () => {
+    const dependencies = runtimeDependencies()
+    const env = profileEnv({
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_SERVICE_KEY: 't'.repeat(32),
+      ZURI_MSP_THREAD_WORKSPACE_ID: 'msp-memory-workspace',
+    })
+
+    expect(() => createPhase1BusinessAgentPortsFromEnv(env, {
+      bindingRequired: false,
+      integrationDb: dependencies.integrationDb,
+      modelCredentialResolver: dependencies.modelCredentialResolver,
+      fetchFn: dependencies.fetchFn,
+      mspTransport: vi.fn(),
+    })).toThrow('MAIN_DEV_LOCAL_OLLAMA_MEMORY_DISABLED')
+  })
+
+  it('composes the existing signed thread and principal-private MSP ports when memory is opted in', async () => {
+    const env = profileEnv({
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_SERVICE_KEY: 't'.repeat(32),
+      ZURI_MSP_THREAD_WORKSPACE_ID: 'msp-memory-workspace',
+      MSP_THREAD_SERVICE_KEYRING: JSON.stringify({ [TENANT_ID]: 'e'.repeat(32) }),
+    })
+    const calls = []
+    const mspTransport = vi.fn(async (name, input) => {
+      calls.push({ name, input })
+      if (name === 'msp_thread_resolve') return { thread: { threadId: 'msp-main-dev-thread' } }
+      if (name === 'msp_vault_resolve') return {
+        workspacePrivateVaultId: 'opaque-workspace-vault',
+        principalPrivateVaultId: 'opaque-principal-vault',
+        globalPrivateVaultIds: [], sharedVaultIds: [],
+        permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'v1' },
+      }
+      if (name === 'msp_memory_list') return { entities: [] }
+      throw new Error(`unexpected MSP operation: ${name}`)
+    })
+    const dependencies = runtimeDependencies()
+    const ports = createPhase1BusinessAgentPortsFromEnv(env, {
+      bindingRequired: false,
+      integrationDb: dependencies.integrationDb,
+      modelCredentialResolver: dependencies.modelCredentialResolver,
+      fetchFn: dependencies.fetchFn,
+      mspTransport,
+    })
+
+    expect(ports.threadMemory).toBeTruthy()
+    expect(ports.episodicMemory?.recallAuthorized).toBeTypeOf('function')
+    await ports.threadMemory.resolveThread({ threadKind: 'DIRECT', audienceKind: 'DIRECT', channelType: 'LINE',
+      channelAccountId: ACCOUNT_ID, externalRoomRef: 'line-thread', tenantId: TENANT_ID, businessId: BUSINESS_ID })
+    const authorization = {
+      authContext: {
+        transport: { signatureVerified: true },
+        actor: { principalId: 'person-main-dev', identityVerified: true },
+        scope: { tenantId: TENANT_ID, businessId: BUSINESS_ID,
+          workspaceId: 'workspace-main-dev', projectId: 'project-main-dev' },
+        request: { agentId: 'agent-main-dev' },
+        policy: { decision: 'ALLOW', episodicMemoryAllowed: true, version: 'v1' },
+      },
+      authorizedVaults: [{ scope: 'private', tenantId: TENANT_ID, principalId: 'person-main-dev',
+        businessId: BUSINESS_ID, agentId: 'agent-main-dev', workspaceId: 'workspace-main-dev',
+        projectId: 'project-main-dev' }],
+    }
+    await ports.episodicMemory.recallAuthorized(authorization)
+
+    expect(calls.map(call => call.name)).toEqual(['msp_thread_resolve', 'msp_vault_resolve', 'msp_memory_list'])
+    expect(calls[0].input.access).toMatchObject({
+      grant: { operation: 'msp_thread_resolve', tenantId: TENANT_ID, businessId: BUSINESS_ID },
+      signature: expect.stringMatching(/^[a-f0-9]{64}$/),
+    })
+    expect(calls[1].input.access.grant).toMatchObject({ operation: 'msp_vault_resolve',
+      tenantId: TENANT_ID, principalId: 'person-main-dev' })
+    expect(calls[2].input).toMatchObject({ vault_id: 'opaque-principal-vault',
+      access: { grant: { operation: 'msp_memory_list', tenantId: TENANT_ID, principalId: 'person-main-dev' } } })
+  })
+
+  it('fails closed on missing MSP transport or signer material for an opted-in memory profile', () => {
+    const dependencies = runtimeDependencies()
+    const noTransport = profileEnv({
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_SERVICE_KEY: 't'.repeat(32),
+      ZURI_MSP_THREAD_WORKSPACE_ID: 'msp-memory-workspace',
+    })
+    expect(() => createPhase1BusinessAgentPortsFromEnv(noTransport, {
+      bindingRequired: false, integrationDb: dependencies.integrationDb,
+      modelCredentialResolver: dependencies.modelCredentialResolver, fetchFn: dependencies.fetchFn,
+    })).toThrow('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED')
+
+    const noThreadSigner = profileEnv({
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_WORKSPACE_ID: 'msp-memory-workspace',
+    })
+    expect(() => createPhase1BusinessAgentPortsFromEnv(noThreadSigner, {
+      bindingRequired: false, integrationDb: dependencies.integrationDb,
+      modelCredentialResolver: dependencies.modelCredentialResolver, fetchFn: dependencies.fetchFn,
+      mspTransport: vi.fn(),
+    })).toThrow('MSP_THREAD_SERVICE_KEY_REQUIRED')
+
+    const noEpisodicSigner = profileEnv({
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true',
+    })
+    expect(() => createPhase1BusinessAgentPortsFromEnv(noEpisodicSigner, {
+      bindingRequired: false, integrationDb: dependencies.integrationDb,
+      modelCredentialResolver: dependencies.modelCredentialResolver, fetchFn: dependencies.fetchFn,
+      mspTransport: vi.fn(),
+    })).toThrow('MSP_THREAD_SERVICE_KEY_REQUIRED')
+  })
+
   it.each([
     ['credentialed Ollama connection', makeConnection({ credential: { secretRef: 'credential-secret-ref' } })],
     ['non-Ollama connection', makeConnection({ provider: { code: 'openai' } })],
@@ -325,5 +438,88 @@ describe('main-dev LINE answer composition', () => {
 
     await expect(answer(mainDevJob())).rejects.toThrow('LINE_ANSWER_UNAVAILABLE')
     expect(runtimeFactory).not.toHaveBeenCalled()
+  })
+
+  it('sends only composed thread context through the normal injection and projection receipt path', async () => {
+    const env = profileEnv({
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+    })
+    const job = mainDevJob({
+      memorySyncOptIn: true,
+      episodicMemoryOptIn: false,
+      audienceKind: 'DIRECT',
+      eventId: 'event-main-dev-memory',
+      sourceUserId: 'line-user-main-dev',
+      channelAccountId: ACCOUNT_ID,
+      transportEpoch: 1,
+      inbound: {
+        id: 'crm-inbound-main-dev-memory',
+        body: `What is ${PRODUCT_CODE}?`,
+        conversation: { tenantId: TENANT_ID, businessId: BUSINESS_ID, channel: 'LINE',
+          channelAccountId: ACCOUNT_ID, externalThreadId: 'line-thread-main-dev' },
+      },
+      account: { bindingCode: ACCOUNT_ID, memoryPolicy: 'ON', memoryProjectId: null },
+    })
+    const recentExchange = { exchangeId: 'previous-main-dev-exchange', messages: [
+      { sequence: 1, speakerKind: 'HUMAN', text: 'remembered bounded thread context' },
+    ] }
+    const identity = { principalId: 'person-main-dev', verified: true }
+    const thread = { threadId: 'msp-main-dev-thread', businessId: BUSINESS_ID, audienceKind: 'DIRECT' }
+    const contextAssembler = vi.fn(async (input) => ({
+      identity,
+      thread,
+      authContext: { scope: { tenantId: TENANT_ID, businessId: BUSINESS_ID } },
+      policy: { version: 'memory-policy-v1', privateMemoryAllowed: true },
+      ...(!input.deferThreadRecall ? { threadMemory: {
+        policyDecision: 'ALLOW', thread, identity,
+        memory: { participants: [], recentExchanges: [recentExchange], summaries: [], protectedMemory: [] },
+        manifest: { omittedRanges: [], coverageGap: false,
+          budget: { maxContextBytes: 24000, estimator: 'utf8-bytes-upper-bound', truncated: false } },
+      } } : {}),
+    }))
+    const appendMessage = vi.fn(async (input) => input.direction === 'INBOUND'
+      ? { message: { messageId: 'msp-inbound-main-dev', exchangeId: 'msp-exchange-main-dev' }, session: { sessionId: 'msp-session-main-dev' } }
+      : { message: { messageId: 'msp-agent-main-dev', exchangeId: 'msp-exchange-main-dev' }, session: { sessionId: 'msp-session-main-dev' } })
+    let modelInput
+    const generate = vi.fn(async (input) => {
+      modelInput = input
+      return { provider: 'ollama', model: 'mellum:latest', status: 'ok', text: `The test item is ${PRODUCT_CODE}.` }
+    })
+    let injectionPacket
+    const withInjectionReceipt = vi.fn(({ model, contextPacket }) => {
+      injectionPacket = contextPacket
+      return { ...model, generate }
+    })
+    const threadMemory = { appendMessage, withInjectionReceipt }
+    const projectionReceiptWriter = vi.fn()
+    const authorizationResolver = vi.fn(async () => ({
+      authContext: {
+        scope: { tenantId: TENANT_ID, businessId: BUSINESS_ID },
+        actor: { principalId: identity.principalId, identityVerified: true },
+        policy: { decision: 'ALLOW', privateMemoryAllowed: true, mspAuthorization: { read: true }, version: 'memory-policy-v1' },
+      },
+      policy: { privateMemoryAllowed: true, mspAuthorization: { read: true }, version: 'memory-policy-v1' },
+    }))
+    const runtimeFactory = vi.fn(async () => ({
+      businessKnowledge: { query: vi.fn(async () => ({ records: [fixtureRecord()] })) },
+      resolveModel: vi.fn(async () => ({ provider: 'ollama', model: 'mellum:latest', generate })),
+      threadMemory,
+    }))
+    const answer = createServerLineAnswer({ env, runtimeFactory, contextAssembler, authorizationResolver,
+      projectionReceiptWriter })
+
+    await expect(answer(job)).resolves.toContain(PRODUCT_CODE)
+
+    expect(runtimeFactory).toHaveBeenCalledOnce()
+    expect(withInjectionReceipt).toHaveBeenCalledOnce()
+    expect(injectionPacket.memory.recentExchanges).toEqual([recentExchange])
+    expect(modelInput.contextPacket).toEqual(injectionPacket)
+    expect(modelInput.contextPacket.memory.recentExchanges[0].exchangeId).toBe('previous-main-dev-exchange')
+    expect(appendMessage).toHaveBeenCalledTimes(2)
+    expect(appendMessage.mock.calls[0][0]).toMatchObject({ direction: 'INBOUND', messageId: 'crm-inbound-main-dev-memory' })
+    expect(appendMessage.mock.calls[1][0]).toMatchObject({ direction: 'OUTBOUND', deliveryState: 'QUEUED', replyToMessageId: 'msp-inbound-main-dev' })
+    expect(projectionReceiptWriter).toHaveBeenCalledTimes(2)
+    expect(projectionReceiptWriter.mock.calls.map(([receipt]) => receipt.direction)).toEqual(['INBOUND', 'OUTBOUND'])
   })
 })

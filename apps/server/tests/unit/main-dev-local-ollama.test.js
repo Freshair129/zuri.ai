@@ -63,6 +63,7 @@ describe('main-dev local Ollama profile', () => {
 
     expect(profile).toMatchObject({
       runtimeSource: 'MAIN_DEV_LOCAL_OLLAMA',
+      memoryEnabled: false,
       expectedDatabase: 'zuri_main_dev',
       baseUrl: 'http://host.docker.internal:11434',
       testFixturePath: path.join(os.tmpdir(), 'ollama-test-only-public.json'),
@@ -73,6 +74,24 @@ describe('main-dev local Ollama profile', () => {
     })
     expect(Object.isFrozen(profile)).toBe(true)
     expect(Object.isFrozen(profile.allowedTenantIds)).toBe(true)
+  })
+
+  it('uses a strict default-off server-side memory extension flag', async () => {
+    const api = await loadApi()
+
+    expect(api.readMainDevLocalOllamaProfile(enabledEnv()).memoryEnabled).toBe(false)
+    expect(api.readMainDevLocalOllamaProfile({
+      ...enabledEnv(), ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'false',
+    }).memoryEnabled).toBe(false)
+    expect(api.readMainDevLocalOllamaProfile({
+      ...enabledEnv(), ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+    }).memoryEnabled).toBe(true)
+
+    for (const value of ['', 'TRUE', '1', 'yes']) {
+      expect(() => api.readMainDevLocalOllamaProfile({
+        ...enabledEnv(), ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: value,
+      })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+    }
   })
 
   it.each([
@@ -128,6 +147,49 @@ describe('main-dev local Ollama profile', () => {
     expect(() => api.assertMainDevLocalOllamaJob({
       env: { ...enabledEnv(), ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' }, job: acceptedJob,
     })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+  })
+
+  it('allows standard enrolled memory only when the main-dev memory extension is opted in', async () => {
+    const api = await loadApi()
+    const memoryJob = {
+      tenantId: TENANT_ID, businessId: BUSINESS_ID, accountId: ACCOUNT_ID,
+      executionMode: 'SERVER', runtimeOwner: 'SERVER', memorySyncOptIn: true, episodicMemoryOptIn: true,
+      episodicWorkspaceId: 'workspace-allowed-by-existing-mapping',
+      episodicProjectId: 'project-allowed-by-existing-mapping',
+      account: {
+        id: ACCOUNT_ID, tenantId: TENANT_ID, businessId: BUSINESS_ID,
+        executionMode: 'SERVER', runtimeOwner: 'SERVER', serverEnabled: true,
+        knowledgeGrounding: 'BUSINESS_KNOWLEDGE', knowledgeGroundingShadow: false,
+        memoryPolicy: 'ON', memoryProjectId: 'project-allowed-by-existing-mapping',
+      },
+    }
+    const env = {
+      ...enabledEnv(),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true',
+      ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true',
+    }
+
+    expect(api.assertMainDevLocalOllamaJob({ env, job: memoryJob })).toMatchObject({ memoryEnabled: true })
+
+    const ragEnv = {
+      ...env,
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS: JSON.stringify([{
+        productId: '33019679-ea52-4e6c-95ab-241e60260edd',
+        sku: 'TEST-ONLY-RAG-001',
+        sourceId: '43019679-ea52-4e6c-95ab-241e60260edd',
+        ingestionId: '53019679-ea52-4e6c-95ab-241e60260edd',
+        fileSha256: 'c'.repeat(64),
+      }]),
+    }
+    delete ragEnv.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH
+    delete ragEnv.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+    const ragJob = { ...memoryJob, account: { ...memoryJob.account, knowledgeGrounding: 'GKS_CORPUS' } }
+    expect(api.assertMainDevLocalOllamaJob({ env: ragEnv, job: ragJob })).toMatchObject({
+      memoryEnabled: true, knowledgeSource: 'GENESISRAG17_TEST_ONLY',
+    })
   })
 
   it('checks the actual Prisma database and all three independently allowlisted IDs', async () => {
