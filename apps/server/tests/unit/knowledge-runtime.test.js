@@ -105,6 +105,50 @@ describe('knowledge snapshot query', () => {
 })
 
 describe('knowledge durable queue', () => {
+  it('backs off handled admission dependency failures in the started runtime while keeping its attempt', async () => {
+    const fixture = await durableJob()
+    const transport = vi.fn(async () => { throw new Error('dependency outage') })
+    const events = []
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, intervalMs: 1000, maxRetryIntervalMs: 4000, retryBudget: 2, random: () => 0, onError: (event) => events.push(event) })
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      runtime.start()
+      await expect(runtime.runOnce()).resolves.toMatchObject({ retryableFailures: 1 })
+      const first = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+      expect(runtime.getStatus()).toMatchObject({ consecutiveFailures: 1, lastOutcome: 'RETRY_PENDING' })
+      expect(events.find((event) => event.code === 'KNOWLEDGE_WORKER_RETRY')).toMatchObject({ retryInMs: 500 })
+      vi.advanceTimersByTime(500)
+      await expect(runtime.runOnce()).resolves.toMatchObject({ retryableFailures: 1 })
+      const retried = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+      expect(retried).toMatchObject({ executionRunId: first.executionRunId, status: 'RUNNING', failureCode: 'KNOWLEDGE_RUNTIME_RETRY', claimToken: null })
+      expect(runtime.getStatus()).toMatchObject({ consecutiveFailures: 2, retryBudgetExhausted: true })
+      expect(events.find((event) => event.code === 'KNOWLEDGE_WORKER_RETRY_BUDGET')).toMatchObject({ retryInMs: 2000 })
+      expect(transport).toHaveBeenCalledTimes(2)
+      expect(transport.mock.calls[1][1].batch.idempotencyKey).toBe(transport.mock.calls[0][1].batch.idempotencyKey)
+      expect(await prisma.pipelineRun.count({ where: { businessId: fixture.corpus.businessId } })).toBe(1)
+      expect(await prisma.knowledgeCorpusGeneration.count({ where: { corpusId: fixture.corpus.id } })).toBe(0)
+    } finally {
+      await runtime.stop()
+      vi.clearAllTimers()
+      vi.useRealTimers()
+    }
+  })
+
+  it('contains an operator observer failure without changing retry state or holding the lease', async () => {
+    const fixture = await durableJob()
+    const transport = vi.fn(async () => { throw new Error('dependency unavailable') })
+    const onError = vi.fn(() => { throw new Error('operator observer unavailable') })
+    const runtime = createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport, onError })
+    await expect(runtime.runOnce()).resolves.toMatchObject({ examined: expect.any(Number) })
+    const job = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    expect(job).toMatchObject({ status: 'RUNNING', failureCode: 'KNOWLEDGE_RUNTIME_RETRY', claimToken: null, leaseExpiresAt: null })
+    expect(job.executionRunId).toEqual(expect.any(String))
+    expect(onError).toHaveBeenCalledWith({ ingestionId: fixture.job.id, code: 'KNOWLEDGE_RUNTIME_RETRY' })
+    expect(runtime.getStatus()).toMatchObject({ active: false, running: false, lastOutcome: 'RETRY_PENDING' })
+    expect(await prisma.pipelineRun.count({ where: { businessId: fixture.corpus.businessId } })).toBe(1)
+    expect(await prisma.knowledgeCorpusGeneration.count({ where: { corpusId: fixture.corpus.id } })).toBe(0)
+  })
+
   it('decodes and verifies queued binary bytes on each pass, then binds the typed profile to one restartable run', async () => {
     const bytes = Buffer.from('<!doctype html><html><body><p>Queued static policy</p></body></html>', 'utf8')
     const contentHash = hashKnowledgeBinaryBytes(bytes)

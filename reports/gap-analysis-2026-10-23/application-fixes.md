@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.8.0"
+version: "0.8.1"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -382,7 +382,7 @@ facet-aware documentation. Graph scanning validates canonical provenance before
 excluding exact sealed approval copies from live identity declarations;
 unregistered duplicate documents remain subject to normal guards.
 
-The final composed source passed these local checks:
+The first implementation freeze passed these local checks; the subsequent main synchronization is qualified separately below:
 
 | Command / scope | Actual result |
 |---|---|
@@ -437,6 +437,32 @@ No live LINE send, provider activation, deployment, active database migration
 or stock disclosure enabling is included. F07 and the separate GenesisRAG work
 remain outside this implementation.
 
+## Main synchronization for follow-up PR 725
+
+Main advanced again to 55f9413b4961874b90a86ccedca2bd26f6f395c2 when
+PR #724 merged after PR #723. PR #725 initially reported a conflict in the
+generated runtime/domain-state.json only. The graph generator rebuilt that
+file from the composed sources; no generated JSON was concatenated. Adopted
+Knowledge sources match main, the FR-291 source slice is unchanged, and the
+553-record registry, ledger and sealed approval artifacts remain unchanged.
+Independent Luna Max review found no P1/P2 in the integration.
+
+Fresh checks after that synchronization:
+
+| Check | Actual result |
+|---|---|
+| Server group above plus unit/genesisrag17-worker, unit/knowledge-runtime-instrumentation, unit/knowledge-runtime-loop and unit/knowledge-runtime (all .test.js under tests) | 33 files; 526 passed, 1 PostgreSQL-only skip. |
+| Full disposable PostgreSQL profile | 17 files; 158/158. |
+| Runtime test/build | 91/91; 11-source-file build passed. |
+| Server build | Passed; existing lockfile inference warning remains. |
+| Registry/services/graph/views, govern and corpus freshness | Passed; 0 critical, 0 warning, 43 info; corpus fresh at 413 KB. |
+| Document migration/reader contracts | 99/99. |
+
+The four added unit paths are existing main worker/runtime guards, not new
+product scope. Exact-head hosted results belong to PR #725 and are separate
+from these local checks. No merge, deployment or live acceptance is claimed
+for this follow-up.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -465,3 +491,6 @@ and their source fingerprints are preserved.
 0.7.0 to 0.8.0 records the approved customer LINE stock/price implementation,
 review corrections and actual composed verification without rewriting the dated
 assessment or claiming production acceptance.
+
+0.8.0 to 0.8.1 records main synchronization and fresh composed verification for
+PR #725 after PR #724 landed, preserving source and approval identities.

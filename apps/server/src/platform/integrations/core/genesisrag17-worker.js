@@ -5,6 +5,7 @@ import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-tra
 import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag17ScopeEqual, zGenesisRag17QueryResponse } from '@/modules/knowledge/genesisrag17-contract'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from './genesisrag17-executor'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
+import { createKnowledgeRuntimeLoop } from './knowledge-runtime-loop.mjs'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
 // @req FR-109 — resumable source dispatch and evidence polling through MSP.
@@ -76,9 +77,7 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
 
 /** A process-owned loop; stop awaits its current pass. */
 export function createGenesisRag17SourceWorker(options) {
-  let active = false, timer = null, inFlight = null
-  const intervalMs = options.intervalMs ?? 1000
-  if (!Number.isSafeInteger(intervalMs) || intervalMs < 10) throw new Error('Invalid source worker interval')
+  let inFlight = null
   async function runOnce() {
     if (inFlight) return inFlight
     inFlight = (async () => {
@@ -119,9 +118,9 @@ export function createGenesisRag17SourceWorker(options) {
     })()
     try { return await inFlight } finally { inFlight = null }
   }
-  async function tick() {
-    try { await runOnce() } catch (error) { options.onError?.(error) }
-    if (active) timer = setTimeout(tick, intervalMs)
-  }
-  return { runOnce, start() { if (!active) { active = true; void tick() } }, async stop() { active = false; clearTimeout(timer); await inFlight } }
+  return createKnowledgeRuntimeLoop({
+    run: runOnce, intervalMs: options.intervalMs,
+    maxRetryIntervalMs: options.maxRetryIntervalMs, retryBudget: options.retryBudget,
+    random: options.random, onError: options.onError,
+  })
 }

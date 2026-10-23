@@ -344,8 +344,16 @@ async function enterBusiness(page) {
   await page.getByLabel('Email or account code').fill(E2E_USERNAME)
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  // This harness restarts Next dev against the isolated database. The Business
+  // choice now waits for a fresh, authorized /api/scope read; cold compilation
+  // of that route is setup time, not a five-second navigation SLO. Await and
+  // check the real response without bypassing Business Routing.
+  const scopeResponse = page.waitForResponse(response =>
+    response.request().method() === 'GET' && new URL(response.url()).pathname === '/api/scope',
+  { timeout: 60000 })
   await page.getByRole('button', { name: 'Open Business Business 01', exact: true }).click()
-  await playwrightExpect(page).toHaveURL(/overview/)
+  expect((await scopeResponse).status()).toBe(200)
+  await playwrightExpect(page).toHaveURL(/overview/, { timeout: 30000 })
 }
 
 async function admitFromConsole(harness, { content }) {

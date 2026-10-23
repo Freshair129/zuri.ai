@@ -7,6 +7,7 @@ import { createKnowledgeExecutionAuthority } from './knowledge-execution-authori
 import { createGenesisRag17LineageRepository } from './genesisrag17-lineage-repository'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/integrations/core/genesisrag17-executor'
 import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/integrations/core/genesisrag17-worker'
+import { createKnowledgeRuntimeLoop, notifyKnowledgeWorkerObserver } from '@/platform/integrations/core/knowledge-runtime-loop.mjs'
 import { finishKnowledgeIngestionRun, recordKnowledgeStageReport } from '@/platform/integrations/core/knowledge-ingestion-executor'
 import { KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
@@ -361,7 +362,7 @@ async function ensureAdmissionConnection(db, scope) {
   return connection.id
 }
 
-export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env, now = () => new Date(), intervalMs = 1000, leaseMs = 120000, transport, ingest = ingestGenesisRag17Raw, sourceWorkerFactory = createGenesisRag17SourceWorker, publish, onError } = {}) {
+export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env, now = () => new Date(), intervalMs = 1000, leaseMs = 120000, transport, ingest = ingestGenesisRag17Raw, sourceWorkerFactory = createGenesisRag17SourceWorker, publish, onError, maxRetryIntervalMs, retryBudget, random } = {}) {
   if (!Number.isSafeInteger(intervalMs) || intervalMs < 10 || !Number.isSafeInteger(leaseMs) || leaseMs < 1000) throw new Error('Invalid knowledge runtime interval')
   const repository = createKnowledgeRepository(db)
   // Live for this runtime instance, not per pass: a refused-close report is
@@ -370,7 +371,8 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
   // sweepOrphanedExecutionRuns above).
   const reportedOpenRunIds = new Set()
   const truncatedReported = { value: false }
-  let active = false, timer = null, inFlight = null
+  let inFlight = null
+  const reportError = (event) => notifyKnowledgeWorkerObserver(onError, event)
   async function processJob(row) {
     const token = randomUUID()
     let job = await repository.claimIngestion(row.id, { claimToken: token, now: date(now), leaseMs })
@@ -440,7 +442,7 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       if (laterVerdict) {
         if (interrupted?.executionRunId) await closeOrphanedExecutionRun({ db, now, corpus: laterCorpus, executionRunId: interrupted.executionRunId, failureCode: laterVerdict.code })
         await repository.updateIngestion(row.id, { status: laterVerdict.status, failureCode: laterVerdict.code }, { claimToken: token })
-        onError?.({ ingestionId: row.id, code: laterVerdict.code })
+        reportError({ ingestionId: row.id, code: laterVerdict.code })
         return
       }
       // Retrying a transport loss re-enters the exact immutable source request; it never creates a replay attempt.
@@ -456,7 +458,8 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
         }
       }
       await repository.updateIngestion(row.id, { ...(permanent ? { status: 'FAILED' } : {}), failureCode: permanent ? 'KNOWLEDGE_INGESTION_REJECTED' : 'KNOWLEDGE_RUNTIME_RETRY' }, { claimToken: token })
-      onError?.({ ingestionId: row.id, code: permanent ? 'KNOWLEDGE_INGESTION_REJECTED' : 'KNOWLEDGE_RUNTIME_RETRY' })
+      reportError({ ingestionId: row.id, code: permanent ? 'KNOWLEDGE_INGESTION_REJECTED' : 'KNOWLEDGE_RUNTIME_RETRY' })
+      return !permanent
     } finally {
       clearInterval(heartbeat)
       await repository.updateIngestion(row.id, { claimToken: null, leaseExpiresAt: null }, { claimToken: token })
@@ -469,18 +472,15 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       // can never again be one `listPending` would have claimed anyway
       // (SUPERSEDED/WITHDRAWN is not QUEUED/RUNNING), so the order between
       // the two never changes which jobs get processed.
-      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20, onError, reportedOpenRunIds, truncatedReported }).catch(() => { onError?.({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0, open: 0 } })
+      let retryableFailures = 0
+      const sweep = await sweepOrphanedExecutionRuns({ db, now, limit: 20, onError: reportError, reportedOpenRunIds, truncatedReported }).catch(() => { retryableFailures += 1; reportError({ code: 'KNOWLEDGE_SWEEP_FAILED' }); return { examined: 0, closed: 0, open: 0 } })
       const rows = await repository.listPending({ now: date(now), limit: 20 })
-      for (const row of rows) await processJob(row)
-      return { examined: rows.length, sweep }
+      for (const row of rows) if (await processJob(row)) retryableFailures += 1
+      return { examined: rows.length, sweep, retryableFailures }
     })()
     try { return await inFlight } finally { inFlight = null }
   }
-  async function tick() {
-    try { await runOnce() } catch { onError?.({ code: 'KNOWLEDGE_QUEUE_UNAVAILABLE' }) }
-    if (active) { timer = setTimeout(tick, intervalMs); timer.unref?.() }
-  }
-  return { runOnce, start() { if (!active) { active = true; void tick() } }, async stop() { active = false; clearTimeout(timer); await inFlight } }
+  return createKnowledgeRuntimeLoop({ run: runOnce, intervalMs, maxRetryIntervalMs, retryBudget, random, onError: reportError })
 }
 
 const runtimeKey = Symbol.for('zuri.knowledge.admission.runtime')

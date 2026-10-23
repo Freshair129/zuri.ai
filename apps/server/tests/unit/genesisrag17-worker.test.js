@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { makeOperatorViewer } from '../factories/viewer'
-import { resumeGenesisRag17Worker } from '@/platform/integrations/core/genesisrag17-worker'
+import { createGenesisRag17SourceWorker, resumeGenesisRag17Worker } from '@/platform/integrations/core/genesisrag17-worker'
 import { GENESIS_RAG17_SCHEMA_VERSION } from '@/modules/knowledge/genesisrag17-contract'
 
 // @req FR-109 — a null MSP decision remains a durable pending outbox row until
@@ -54,6 +54,29 @@ function pendingBatch() {
 }
 
 describe('GenesisRAG17 source worker submit retry', () => {
+  it('keeps background retry alive through observer failures and resends the exact durable batch', async () => {
+    vi.useFakeTimers()
+    const row = pendingBatch()
+    const prisma = db(row)
+    const transport = vi.fn(async () => { throw new Error('private dependency error') })
+    const onError = vi.fn().mockImplementationOnce(() => { throw new Error('observer') }).mockImplementation(() => Promise.reject(new Error('observer')))
+    const worker = createGenesisRag17SourceWorker({ scope, runId: row.executionRunId, db: prisma, viewer: makeOperatorViewer(), transport, credential: 'source', random: () => 0, onError })
+    try {
+      expect(typeof worker.getStatus).toBe('function')
+      worker.start()
+      await vi.advanceTimersByTimeAsync(500)
+      expect(transport).toHaveBeenCalledTimes(2)
+      expect(transport.mock.calls[0]).toEqual(transport.mock.calls[1])
+      expect(prisma.genesisRag17Batch.update).not.toHaveBeenCalled()
+      expect(worker.getStatus()).toMatchObject({ consecutiveFailures: 2, retryBudgetExhausted: false })
+      expect(JSON.stringify(onError.mock.calls)).not.toContain('private dependency error')
+    } finally {
+      await worker.stop()
+      vi.clearAllTimers()
+      vi.useRealTimers()
+    }
+  })
+
   it('keeps a null decision pending and retries the same outbox row', async () => {
     const row = pendingBatch()
     const prisma = db(row)

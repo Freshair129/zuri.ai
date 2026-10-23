@@ -249,3 +249,11 @@ corrections, document checks and exact-head hosted CI from live acceptance.
 No live LINE send, deployed migration, disclosure activation or production
 publication is claimed. This closes the bounded implementation plan, not those
 separate deployment/provider acceptance activities.
+
+After main advanced to 55f9413b through PR #724, the generated state conflict
+was rebuilt from the composed tree. Fresh qualification for follow-up PR #725
+passed 33 Server files / 526 tests with one PostgreSQL-only skip, the full
+17-file PostgreSQL profile / 158 tests, Runtime 91 tests/build, Server build,
+governance 0 critical / 0 warning and 99 document contracts. The four additional
+Server files are adopted-main Knowledge worker/runtime guards. This adds no
+product scope or live acceptance.

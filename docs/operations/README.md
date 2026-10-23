@@ -57,6 +57,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md)
 - [Asset Evidence Production Activation Runbook](../runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md)
 - [Edge-Executed Evidence Extraction Activation Runbook](../runbooks/EDGE-EXTRACTION-ACTIVATION.md)
+- [GenesisRAG17 operations and qualification](../runbooks/GENESISRAG17-OPERATIONS.md)
 - [LINE_OA provider merge runbook](../runbooks/line-oa-provider-merge.md)
 - [LINE Phase 1 canary runbook](../runbooks/LINE-PHASE1-CANARY.md)
 - [Production PostgreSQL migration reconciliation runbook](../runbooks/production-migration-reconciliation.md)

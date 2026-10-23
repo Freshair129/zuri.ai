@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.8.8b"
+version: "1.9.0"
 status: beta
-last_update: "2026-09-26T05:00:00+07:00,Claude Opus 5.5"
+last_update: "2026-10-23,Codex"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -52,6 +52,24 @@ external systems with their own repositories and are never zuri-ai domains
 (ADR-063 D3–D4); this lane holds only the Tier 1 contracts that face them.
 
 [ADR-072](../../decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) adds the authorized Text/Markdown admission queue and Tier 1 corpus read set. Each source still traverses its own 17-stage run; a corpus manifest joins independently verified snapshots without asserting cross-document native graph traversal.
+
+## End-to-end capability accountability
+
+The [approved ownership design](../../change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md)
+places accountability for Zuri's admission-to-serving outcome in Knowledge.
+This is capability accountability across the integration; the Tier 1-only data
+and execution boundary above remains in force. GKS retains canonical knowledge
+and quality decisions, MSP authentication/relay and GenesisBlock worker physical
+writes/publication. Owning the integration outcome grants no direct store access
+or authority to override another component's refusal.
+
+The user is the sole product owner, developer and operator. The role boundaries
+describe decisions one person can hold; they do not require additional teams.
+There is no declared staffed backup. The
+[operations runbook](../../runbooks/GENESISRAG17-OPERATIONS.md) owns operational
+recovery guidance and remaining installation-specific handoff evidence;
+[Server service documentation](../../services/server/SERVICE.md) explains the
+process execution boundary. Numeric SLO targets require measured workload data.
 
 ## Boundaries
 
@@ -513,6 +531,7 @@ its own terms.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.8.8b → 1.9.0 (2026-10-23) | Adopts approved Knowledge capability accountability and the user's solo product/development/operations ownership; external component decision rights retained | Local worker scheduling/diagnostic safety only; no model, migration, wire, store or quality-authority transfer |
 | 1.8.7b → 1.8.8b (2026-09-25) | Corrects the earlier sliver claims (flow 1.4.6b/1.4.8b, spec 1.4.4b/1.4.6b): two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | `genesisrag17-source.js` changed; no model, route or requirement statement touched |
 | 1.8.6b → 1.8.7b (2026-09-25) | Closes three gaps an Opus gate review found in the 2026-09-24 Thai-safe-chunker remediation: (1) the "480 characters cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned tokenizer's own NFKC normalization can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded by `text.normalize('NFKC').length <= 480`; (2) the overlap start could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier (`findOverlapStart`); (3) the forward grapheme-safety nudge used to extend a chunk without bound when no safe boundary existed at all (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected (proven byte-identical) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows; SmartGift production (parser-2 only) publishes no changed record |
 | 1.8.5b → 1.8.6b (2026-09-25) | Correction: 1.8.5b's "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 (`GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`/`_CHUNKER_CONFIG_UNSUPPORTED`) — a Stage 2 409 (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) still fired on the same resume/replay, because the legacy parse path added `maxChars: null, overlapChars: null` to `metadata` (a shape no pre-2026-09-24 row ever had), and `ensureParsedArtifact` hashes `metadata`. Fixed by omitting both keys for a legacy request instead of nulling them, restoring the pre-remediation metadata shape exactly; a `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark could re-emit a chunk fully contained in the previous one) also closed with an explicit forward-progress guard. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test (`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.4b) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows |
