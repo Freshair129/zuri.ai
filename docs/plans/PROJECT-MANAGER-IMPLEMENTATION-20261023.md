@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.6"
+version: "0.1.7"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -155,6 +155,16 @@ row has a named owning task and test cases in that subplan.
 
 ## Current execution state — 2026-10-23
 
+PR727 is merged as `5012c9bd`; exact-source post-merge Governance, Edge/Desktop
+and Docker build-only CI passed. The owner then selected [B4 isolated UAT](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b4-isolated-uat-environment-acceptance--2026-10-23)
+for migration/recovery and actual-role acceptance. A fresh, separate UAT runs the
+pinned source/image with 209 tables; source/full/protected restores reconcile 235
+rows. Deployed authenticated API/browser and reconstructed-runtime proofs passed;
+independent review accepted this exact isolated UAT artifact. These facts close no production environment
+gate and adopt no held canonical rows; C remains unselected.
+
+### Earlier increments (historical scope)
+
 A1 is accepted locally at `6888ecc629cca769866d8cc2f715cb5414746c5f`; its
 [source-linked evidence](../domains/project-manager/features/FR-272-approval-gateway-admission.md#a1-acceptance-evidence--2026-10-23)
 records PostgreSQL contention/audit proofs, related SQLite checks, build and
@@ -196,3 +206,10 @@ final composed checks, independent review and hosted runs are recorded in the PR
 against its exact head. B4 environment/release acceptance remains unexecuted;
 C and held canonical migrations remain excluded. Earlier unstarted B4 statements
 are superseded only for this preparation subscope.
+
+
+0.1.7 (2026-10-23): record PR727 merge/post-merge CI and owner-selected isolated
+B4 UAT. The qualification subplan owns exact target/image/SQL/hash/results,
+composed-run caveats and remaining production/file/provider limits. Final review
+and documentation governance results are recorded with this scoped evidence
+patch; the qualified application artifact remains pinned to `5012c9bd`.
