@@ -147,6 +147,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -208,6 +209,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -435,6 +437,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -550,6 +553,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -635,6 +639,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -1054,6 +1059,7 @@
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -1352,7 +1358,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-256",
@@ -1408,7 +1414,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/modules/agent/line-product-facts-command.js",
             "apps/server/src/modules/agent/line-product-facts.js",
@@ -1432,6 +1438,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -1648,6 +1655,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -1928,7 +1936,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-291",
@@ -1936,7 +1944,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/modules/commerce/application/line-published-price-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -1959,6 +1967,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -2109,6 +2118,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -4060,7 +4070,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/api/inventory/line-stock-disclosure/route.js",
             "apps/server/src/modules/inventory/application/line-stock-disclosure-policy-service.js",
@@ -4085,6 +4095,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -4260,6 +4271,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -4566,7 +4578,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-254",
@@ -4595,7 +4607,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -4618,6 +4630,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -4845,6 +4858,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -5176,7 +5190,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/api/line-oa/worker/route.js",
             "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
@@ -5202,6 +5216,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -5401,6 +5416,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -7675,7 +7691,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-254",
@@ -7982,7 +7998,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 26,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/api/internal/conversation-runtime/v2/[operation]/route.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -8007,6 +8023,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -8454,6 +8471,7 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/server-line-worker-routes.test.js",
@@ -19419,7 +19437,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 42
+          "testCount": 43
         }
       ],
       "evidence": [
@@ -19475,6 +19493,7 @@
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
         "apps/server/tests/unit/fr253-pricing-routes.test.js",
         "apps/server/tests/unit/governance-canonical-source.test.js",
         "apps/server/tests/unit/governance-source-verifier.test.js",
@@ -20172,7 +20191,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 15,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -20210,6 +20229,7 @@
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
         "apps/server/tests/unit/line-product-facts.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js",
