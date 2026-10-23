@@ -3,21 +3,9 @@ doc_type: intake-note
 id: ZAI:LINE-PRODUCT-FACTS-NATURAL-LANGUAGE-20261024
 status: approved
 superseded_by: null
-version: "0.1.0"
+version: "0.1.1"
 date: "2026-10-24"
-relations:
-  - type: references
-    target: ZAI:FR-291
-  - type: references
-    target: ZAI:FR-132
-  - type: references
-    target: ZAI:FR-079
-  - type: references
-    target: ZAI:FR-080
-  - type: references
-    target: line-agent-stock-price-facts-20261023.md
-  - type: references
-    target: LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md
+relations: [{"type":"references","target":"ZAI:FR-291"},{"type":"references","target":"ZAI:FR-132"},{"type":"references","target":"ZAI:FR-079"},{"type":"references","target":"ZAI:FR-080"},{"type":"references","target":"line-agent-stock-price-facts-20261023.md"},{"type":"references","target":"LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md"}]
 ---
 
 # TEST ONLY natural-language LINE stock and published price
