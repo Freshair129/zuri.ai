@@ -18,7 +18,7 @@
 #                  processes; Next.js stays on Node 22 (Prisma 5.22 does not list 24)
 #   ki17-pins    → the pin gate: every supplied build context's HEAD must equal
 #                  the selected manifest (KI17_PINS_MANIFEST, default
-#                  deploy/ki17/pins.json — the stdio production tuple), or the
+#                  deploy/ki17/pins.json — the stdio release candidate), or the
 #                  build stops here
 #   ki17         → /opt/ki17/{node,msp,gks} — MSP and GKS at their pins with
 #                  `npm ci` run INSIDE Linux, so better-sqlite3 gets a Linux binding
@@ -47,7 +47,7 @@ ARG NODE_VERSION=22
 ARG KI17_NODE_VERSION=24.18.0
 ARG KI17_PYTHON_IMAGE=python:3.12-slim-bookworm
 # Which pin manifest the ki17-pins gate verifies against. The default is the stdio
-# tuple production runs (MSP 68e6169d / GKS ecf1e4de), which carries no GKS HTTP
+# release candidate selected in pins.json, which carries no GKS HTTP
 # files. Only the opt-in private HTTP overlay (docker-compose.ki17-gks-http.yml)
 # selects deploy/ki17/pins.gks-http.json, whose GKS entrypoints include the HTTP
 # server and its secret-file entrypoint, so the pin gate itself refuses a GKS
@@ -305,12 +305,12 @@ RUN set -eu; \
 # `runner` tag", and that works because nothing else differs.
 #
 # It uses GKS over stdio only, so it asserts no GKS HTTP file: the default pin
-# manifest (the production stdio tuple, GKS ecf1e4de) carries none. The HTTP files
+# manifest (the selected stdio candidate, GKS ecf1e4de) carries none. The HTTP files
 # are asserted by the pin gate when pins.gks-http.json is selected, and again by
 # the gks-http stage below, which is the only image that runs them.
 #
-# Production releases between main merges can also be cut WITHOUT rebuilding
-# /opt/ki17: deploy/ki17/overlay/Dockerfile layers the running image's /opt/ki17
+# Web releases with unchanged runtime pins can also be cut WITHOUT rebuilding
+# /opt/ki17: deploy/ki17/overlay/Dockerfile layers a matching qualified /opt/ki17
 # onto a fresh `runner` (scripts/build-ki17-overlay-release.mjs). Both paths
 # produce the same file set this stage asserts below.
 FROM runner AS runner-ki17
