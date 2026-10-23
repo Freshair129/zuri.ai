@@ -192,7 +192,10 @@ export function createMspMemoryPort({
   }
 
   async function listVault(vault, authorization) {
-    const result = await callTool('msp_memory_list', { vault_id: vault })
+    const input = { vault_id: vault }
+    const result = vaultSetResolver
+      ? await callPrivateTool('msp_memory_list', input, authorization)
+      : await callTool('msp_memory_list', input)
     const conversation = authorization?.authContext?.conversation
     return captureMspMemoryRead(result, { vaultId: vault, callerContext: conversation ? {
       sessionId: conversation.sessionId ?? null, instanceId: conversation.instanceId ?? null,
@@ -200,13 +203,23 @@ export function createMspMemoryPort({
     } : null })
   }
 
+  async function callPrivateTool(operation, input, authorization) {
+    if (typeof vaultSetResolver?.authorizeMemoryTool !== 'function') {
+      throw new Error('MSP principal private vault access requires a signed memory authorizer')
+    }
+    return callTool(operation, await vaultSetResolver.authorizeMemoryTool(authorization, { operation, input }))
+  }
+
   async function resolveCanonical(authorization, operation) {
     assertAuthorizedContext(authorization)
     if (!vaultSetResolver) throw new Error('MSP memory port: API-010 vault resolver is not configured')
     const result = typeof vaultSetResolver === 'function'
-      ? await vaultSetResolver(authorization, { operation })
-      : await vaultSetResolver.resolve(authorization, { operation })
+      ? await vaultSetResolver(authorization, { operation, principalPrivate: true })
+      : await vaultSetResolver.resolve(authorization, { operation, principalPrivate: true })
     const vaultSet = validateVaultSet(result)
+    if (!vaultSet.principalPrivateVaultId || vaultSet.principalPrivateVaultId === vaultSet.workspacePrivateVaultId) {
+      throw new Error('MSP principal private vault is required; legacy Workspace storage cannot hold private memory')
+    }
     if (operation === 'read' && vaultSet.permissions.read !== true) {
       throw new Error('MSP memory port: API-010 denied read permission')
     }
@@ -228,8 +241,8 @@ export function createMspMemoryPort({
   async function recallAuthorized(authorization) {
     if (vaultSetResolver) {
       const vaultSet = await resolveCanonical(authorization, 'read')
-      const snapshot = await listVault(vaultSet.workspacePrivateVaultId, authorization)
-      return { key: vaultSet.workspacePrivateVaultId, ...snapshot, vaultSet }
+      const snapshot = await listVault(vaultSet.principalPrivateVaultId, authorization)
+      return { key: vaultSet.principalPrivateVaultId, ...snapshot, vaultSet }
     }
     assertAuthorizedContext(authorization)
     const snapshots = []
@@ -245,13 +258,13 @@ export function createMspMemoryPort({
       const vaultSet = await resolveCanonical(authorization, 'write')
       const body_json = entry && typeof entry === 'object' && !Array.isArray(entry) ? entry : { value: entry }
       const entityKey = (entry && (entry.key ?? entry.id)) ?? `${category}:${Date.now()}:${counter++}`
-      const result = await callTool('msp_memory_upsert', {
-        vault: { vault_id: vaultSet.workspacePrivateVaultId, vault_type: vaultType },
+      const result = await callPrivateTool('msp_memory_upsert', {
+        vault: { vault_id: vaultSet.principalPrivateVaultId, vault_type: 'principal_private' },
         category,
         key: String(entityKey),
         body_json,
-      })
-      const writeReceipt = captureMspMemoryWrite(result, { vaultId: vaultSet.workspacePrivateVaultId, expectedKey: String(entityKey), expectedCategory: category })
+      }, authorization)
+      const writeReceipt = captureMspMemoryWrite(result, { vaultId: vaultSet.principalPrivateVaultId, expectedKey: String(entityKey), expectedCategory: category })
       return recallAfterWrite(() => recallAuthorized(authorization), writeReceipt)
     }
     assertAuthorizedContext(authorization)

@@ -1,3 +1,4 @@
+import { authorizeMemoryToolFixture } from '../factories/msp-memory-authorizer'
 import { createHash, randomUUID } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
@@ -415,11 +416,11 @@ describe('Conversation Runtime memory-sync turns', () => {
     const episodicScopes = []
     const episodicCalls = []
     const episodicMemory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         const scope = authorization.authContext.scope
         episodicScopes.push({ ...scope, principalId: authorization.authContext.actor.principalId,
           episodicMemoryAllowed: authorization.authContext.policy.episodicMemoryAllowed })
-        return { workspacePrivateVaultId: `api010-${scope.businessId}`,
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: `api010-${scope.businessId}`,
           globalPrivateVaultIds: ['api010-global-fallback'], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.RUNTIME-SWITCH' } }
       } },
@@ -507,9 +508,9 @@ describe('Conversation Runtime memory-sync turns', () => {
     expect(admitted).toMatchObject({ episodicMemoryOptIn: true, episodicWorkspaceId: workspace.id, episodicProjectId: project.id })
     const episodicCalls = []
     const episodicMemory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         expect(authorization.policy.episodicMemoryAllowed).toBe(true)
-        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
       } },
       transport: async (name, input) => {
@@ -547,9 +548,9 @@ describe('Conversation Runtime memory-sync turns', () => {
     let episodicAllowed = true
     let revokedAfterBinding = false
     const episodicMemory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         expect(authorization.policy.episodicMemoryAllowed).toBe(true)
-        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
       } },
       transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-1', vault_id: 'api010-private-vault',
@@ -589,9 +590,9 @@ describe('Conversation Runtime memory-sync turns', () => {
   it('Core refuses an API-010 packet whose source bytes differ from its prepared manifest', async () => {
     const jobId = await admit()
     const episodicMemory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         expect(authorization.policy.episodicMemoryAllowed).toBe(true)
-        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
       } },
       transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-1', vault_id: 'api010-private-vault',
@@ -625,9 +626,9 @@ describe('Conversation Runtime memory-sync turns', () => {
     const jobId = await admit()
     const episodicCalls = []
     const episodicMemory = createMspMemoryPort({
-      vaultSetResolver: { resolve: async authorization => {
+      vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
         expect(authorization.policy.episodicMemoryAllowed).toBe(true)
-        return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+        return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
       } },
       transport: async (name, input) => {
@@ -668,9 +669,9 @@ describe('Conversation Runtime memory-sync turns', () => {
       const jobId = await admit()
       const episodicCalls = []
       const episodicMemory = createMspMemoryPort({
-        vaultSetResolver: { resolve: async authorization => {
+        vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async authorization => {
           expect(authorization.policy.episodicMemoryAllowed).toBe(true)
-          return { workspacePrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+          return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-private-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
             permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.fixture' } }
         } },
         transport: async (name, input) => {
@@ -723,7 +724,7 @@ describe('Conversation Runtime memory-sync turns', () => {
       const jobId = await admit()
       const msp = createFakeMsp()
       const episodicMemory = createMspMemoryPort({
-        vaultSetResolver: { resolve: async () => ({ workspacePrivateVaultId: 'api010-receipt-vault',
+        vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async () => ({ workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'api010-receipt-vault',
           globalPrivateVaultIds: [], sharedVaultIds: [],
           permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'API-010.RECEIPT' } }) },
         transport: async name => name === 'msp_memory_list' ? { entities: [{ entity_id: 'episode-receipt',
