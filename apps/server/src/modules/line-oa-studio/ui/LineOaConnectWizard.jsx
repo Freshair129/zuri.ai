@@ -16,7 +16,7 @@ import { describeLineOaConnectError } from "@/modules/line-oa-studio/domain/line
 import { suggestLineOaAccountCode } from "@/modules/line-oa-studio/domain/line-oa-account";
 import { SECRET_INPUT_PROPS, identifierInputProps } from "./credential-input-props";
 
-const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2.5 text-xs focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
+const fieldClass = "w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] p-2.5 text-xs text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:ring-2 focus:ring-[var(--action-primary-active)] focus:outline-none";
 const CHANNEL_ID_PATTERN = "[0-9]{6,20}";
 const CHANNEL_SECRET_PATTERN = "[0-9a-f]{32}";
 
@@ -236,15 +236,15 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
   }
 
   return (
-    <div className="p-6 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-4 font-thai">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-slate-100 dark:border-slate-800">
+    <div className="p-6 rounded-2xl bg-[var(--card-bg)] text-[var(--text-primary)] border border-[var(--card-border)] shadow-sm space-y-4 font-thai">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#06C755] to-emerald-600 text-white flex items-center justify-center font-bold shadow-xs">
             <span>💬</span>
           </div>
           <div>
-            <h4 className="font-bold text-sm text-slate-900 dark:text-white">เชื่อมต่อ LINE Official Account</h4>
-            <p className="text-xs text-slate-500">
+            <h4 className="font-bold text-sm text-[var(--text-primary)]">เชื่อมต่อ LINE Official Account</h4>
+            <p className="text-xs text-[var(--text-secondary)]">
               ใช้ข้อมูลจาก LINE Developers Console → Messaging API ของช่องที่ต้องการเชื่อมต่อ ระบบจะไม่แสดงค่าลับซ้ำอีกหลังบันทึก
             </p>
           </div>
@@ -252,36 +252,36 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
       </div>
 
       {notice && (phase === "form" || phase === "accountConfirm") && (
-        <p className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs text-emerald-700 dark:text-emerald-300 flex items-center gap-2">
-          <CheckCircle2 className="w-4 h-4 shrink-0" /> <span>{notice}</span>
+        <p className="p-3 rounded-xl bg-[var(--status-success-bg)] border border-[var(--status-success)] text-xs text-[var(--text-primary)] flex items-center gap-2">
+          <CheckCircle2 className="w-4 h-4 shrink-0 text-[var(--status-success)]" /> <span>{notice}</span>
         </p>
       )}
 
       {error && (
-        <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-xs text-rose-700 dark:text-rose-300 space-y-1">
-          <p className="flex items-center gap-2 font-semibold"><ShieldAlert className="w-4 h-4 shrink-0" /> {error.message}</p>
+        <div className="p-3 rounded-xl bg-[var(--status-danger-bg)] border border-[var(--status-danger)] text-xs text-[var(--text-primary)] space-y-1">
+          <p className="flex items-center gap-2 font-semibold"><ShieldAlert className="w-4 h-4 shrink-0 text-[var(--status-danger)]" /> {error.message}</p>
         </div>
       )}
 
       {phase === "form" && (
         <form onSubmit={submitConnect} className="space-y-3.5">
           <fieldset disabled={busy || !businessId} className="space-y-3.5">
-            <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-              <span>ชื่อการเชื่อมต่อ (ใช้ภายในระบบ) <span className="text-rose-500">*</span></span>
+            <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
+              <span>ชื่อการเชื่อมต่อ (ใช้ภายในระบบ) <span className="text-[var(--status-danger)]">*</span></span>
               <input value={name} onChange={(e) => setName(e.target.value)} className={fieldClass} placeholder="เช่น LINE OA หลัก" required maxLength={200} />
             </label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                <span>Channel ID (ตัวเลข ดูได้ที่แท็บ Basic settings) <span className="text-rose-500">*</span></span>
+              <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
+                <span>Channel ID (ตัวเลข ดูได้ที่แท็บ Basic settings) <span className="text-[var(--status-danger)]">*</span></span>
                 <input {...identifierInputProps("line-channel-id")} value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="1234567890" pattern={CHANNEL_ID_PATTERN} required inputMode="numeric" />
               </label>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
-                <span>Channel secret (แท็บ Basic settings) — เก็บแบบเข้ารหัส ไม่แสดงซ้ำ <span className="text-rose-500">*</span></span>
+              <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
+                <span>Channel secret (แท็บ Basic settings) — เก็บแบบเข้ารหัส ไม่แสดงซ้ำ <span className="text-[var(--status-danger)]">*</span></span>
                 <input {...SECRET_INPUT_PROPS} name="line-channel-secret" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="••••••••••••••••••••••••••••••••" pattern={CHANNEL_SECRET_PATTERN} required />
               </label>
             </div>
             <div>
-              <button type="button" onClick={() => setShowTokenField((v) => !v)} className="text-[11px] font-semibold text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 flex items-center gap-1">
+              <button type="button" onClick={() => setShowTokenField((v) => !v)} className="text-[11px] font-semibold text-[var(--text-secondary)] hover:text-[var(--text-primary)] flex items-center gap-1">
                 <KeyRound className="w-3 h-3" />
                 {showTokenField ? "ซ่อน Channel access token" : "Channel access token (ไม่จำเป็น) — โดยปกติระบบจะขอ token ชั่วคราวเองจาก Channel ID และ secret"}
               </button>
@@ -289,7 +289,7 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
                 <input {...SECRET_INPUT_PROPS} name="line-channel-access-token" value={channelAccessToken} onChange={(e) => setChannelAccessToken(e.target.value)} className={`${fieldClass} mt-1.5`} placeholder="Channel access token (long-lived, override)" />
               )}
             </div>
-            <button type="submit" disabled={busy || !businessId} className="w-full py-3 rounded-xl bg-brand-amber hover:bg-brand-hover active:scale-[0.99] text-white text-xs font-bold transition-all shadow-md shadow-brand-amber/20 flex items-center justify-center gap-2">
+            <button type="submit" disabled={busy || !businessId} className="w-full py-3 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] active:bg-[var(--button-primary-hover)] active:scale-[0.99] text-[var(--text-primary)] text-xs font-bold transition-all shadow-md flex items-center justify-center gap-2">
               {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
               <span>{busy ? "กำลังตรวจสอบกับ LINE…" : "ตรวจสอบกับ LINE และบันทึก"}</span>
             </button>
@@ -298,62 +298,62 @@ export default function LineOaConnectWizard({ businessId, onConnected }) {
       )}
 
       {phase === "mfaEnroll" && enroll && (
-        <form onSubmit={submitEnrolment} className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60">
-          <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+        <form onSubmit={submitEnrolment} className="space-y-3 p-4 rounded-xl bg-[var(--status-warning-bg)] border border-[var(--status-warning)]">
+          <p className="text-xs font-semibold text-[var(--text-primary)]">
             ยังไม่ได้ตั้งค่าการยืนยันตัวตนสองขั้นตอน — ตั้งค่าก่อนจึงจะเชื่อมต่อบัญชี LINE ได้
           </p>
-          {enroll.qrDataUrl && <img src={enroll.qrDataUrl} alt="QR สำหรับตั้งค่าแอปยืนยันตัวตน" className="w-40 h-40 rounded-lg border border-amber-200 bg-white" />}
-          <p className="text-[11px] text-slate-600 dark:text-slate-400">
+          {enroll.qrDataUrl && <img src={enroll.qrDataUrl} alt="QR สำหรับตั้งค่าแอปยืนยันตัวตน" className="w-40 h-40 rounded-lg border border-[var(--border-default)] bg-[var(--bg-surface)]" />}
+          <p className="text-[11px] text-[var(--text-secondary)]">
             สแกน QR ด้วยแอปยืนยันตัวตน (Authenticator) หรือกรอกรหัสด้วยตนเอง:
-            <code className="block mt-1 font-mono text-[11px] break-all bg-white dark:bg-slate-900 p-1.5 rounded border border-amber-200">{enroll.secret}</code>
+            <code className="block mt-1 font-mono text-[11px] break-all bg-[var(--bg-surface)] text-[var(--text-primary)] p-1.5 rounded border border-[var(--border-default)]">{enroll.secret}</code>
           </p>
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+          <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
             <span>รหัส 6 หลักจากแอปยืนยันตัวตน</span>
             <input value={enrollCode} onChange={(e) => setEnrollCode(e.target.value)} className={fieldClass} placeholder="000000" inputMode="numeric" maxLength={6} required />
           </label>
-          <button type="submit" disabled={busy} className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold disabled:opacity-50">
+          <button type="submit" disabled={busy} className="w-full py-2.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-bold disabled:opacity-50">
             {busy ? "กำลังยืนยัน…" : "ยืนยันและเปิดใช้งาน"}
           </button>
         </form>
       )}
 
       {phase === "stepUp" && (
-        <form onSubmit={submitStepUp} className="space-y-3 p-4 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60">
-          <p className="text-xs font-semibold text-amber-900 dark:text-amber-200">
+        <form onSubmit={submitStepUp} className="space-y-3 p-4 rounded-xl bg-[var(--status-warning-bg)] border border-[var(--status-warning)]">
+          <p className="text-xs font-semibold text-[var(--text-primary)]">
             ยืนยันตัวตนอีกครั้งด้วยรหัสจากแอปยืนยันตัวตน (TOTP) ก่อนบันทึกข้อมูลรับรอง
           </p>
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+          <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
             <span>รหัส 6 หลัก</span>
             <input value={stepUpCode} onChange={(e) => setStepUpCode(e.target.value)} className={fieldClass} placeholder="000000" inputMode="numeric" maxLength={6} required />
           </label>
-          <button type="submit" disabled={busy} className="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold disabled:opacity-50">
+          <button type="submit" disabled={busy} className="w-full py-2.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-bold disabled:opacity-50">
             {busy ? "กำลังยืนยัน…" : "ยืนยันตัวตน"}
           </button>
         </form>
       )}
 
       {phase === "accountConfirm" && connected && (
-        <form onSubmit={confirmAccount} className="space-y-3 p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-900/60">
-          <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300">
+        <form onSubmit={confirmAccount} className="space-y-3 p-4 rounded-xl bg-[var(--status-success-bg)] border border-[var(--status-success)]">
+          <p className="text-xs font-bold text-[var(--text-primary)]">
             เชื่อมต่อสำเร็จ: {connected.bot.displayName} ({connected.bot.basicId || "—"}) · Channel ID ••••{connected.credential.displayHint} · เก็บใน {connected.credential.secretStore === "SUPABASE_VAULT" ? "Vault" : "ที่เก็บเข้ารหัสของเซิร์ฟเวอร์"}
           </p>
-          <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block space-y-1">
+          <label className="text-xs font-semibold text-[var(--text-primary)] block space-y-1">
             <span>รหัสบัญชีในระบบ (สร้างให้จาก Basic ID; แก้ไขได้)</span>
             <input value={accountCode} onChange={(e) => setAccountCode(e.target.value)} className={fieldClass} pattern="[a-z0-9]+(-[a-z0-9]+)*" minLength={3} maxLength={64} required />
           </label>
-          {accountError && <p className="text-[11px] text-rose-600">{accountError}</p>}
-          <button type="submit" disabled={accountBusy} className="w-full py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold disabled:opacity-50">
+          {accountError && <p className="border-l-2 border-[var(--status-danger)] pl-2 text-[11px] text-[var(--text-primary)]">{accountError}</p>}
+          <button type="submit" disabled={accountBusy} className="w-full py-2.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-xs font-bold disabled:opacity-50">
             {accountBusy ? "กำลังสร้างบัญชี…" : "สร้างบัญชี LINE OA"}
           </button>
         </form>
       )}
 
       {phase === "done" && (
-        <div className="p-4 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 space-y-2">
-          <p className="text-xs font-bold text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
+        <div className="p-4 rounded-xl bg-[var(--status-success-bg)] border border-[var(--status-success)] space-y-2">
+          <p className="text-xs font-bold text-[var(--text-primary)] flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4" /> สร้างบัญชี LINE OA แล้ว (สถานะ DRAFT)
           </p>
-          <button type="button" onClick={reset} className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300 underline">
+          <button type="button" onClick={reset} className="text-[11px] font-semibold text-[var(--text-primary)] underline decoration-[var(--status-success)]">
             เชื่อมต่ออีกบัญชีหนึ่ง
           </button>
         </div>

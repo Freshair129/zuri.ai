@@ -103,9 +103,9 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-[calc(100vh-120px)] bg-transparent text-slate-900 dark:text-slate-100 font-thai">
+    <div className="flex flex-col w-full min-h-[calc(100vh-120px)] bg-transparent text-[var(--text-primary)] font-thai">
       {/* Studio Header: Identity, Context & Search (Sidebar holds the primary navigation) */}
-      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-200/80 dark:border-slate-800">
+      <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pb-4 mb-4 border-b border-[var(--border-default)]">
         {/* Left: Studio Identity & Project Context */}
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#06C755] to-emerald-600 flex items-center justify-center text-white shadow-sm shadow-[#06C755]/30">
@@ -113,14 +113,14 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="font-bold text-base text-slate-900 dark:text-white leading-none">
+              <h1 className="font-bold text-base text-[var(--text-primary)] leading-none">
                 LINE Studio
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 text-[10px] font-bold uppercase tracking-wider">
+              <span className="px-2 py-0.5 rounded-full border border-[var(--status-success)] bg-[var(--status-success-bg)] text-[var(--text-primary)] text-[10px] font-bold uppercase tracking-wider">
                 Enterprise
               </span>
             </div>
-            <div className="text-xs text-slate-500 flex items-center gap-1.5 mt-0.5">
+            <div className="text-xs text-[var(--text-secondary)] flex items-center gap-1.5 mt-0.5">
               <span>ธุรกิจ / บัญชีปัจจุบัน:</span>
               {accountsList.length > 0 ? (
                 <select
@@ -129,16 +129,16 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
                     const found = accountsList.find(account => account.id === e.target.value);
                     if (found) handleAccountChange(found);
                   }}
-                  className="font-bold text-brand-dark dark:text-brand-amber bg-transparent border-0 p-0 text-xs focus:ring-0 cursor-pointer underline decoration-dotted"
+                  className="font-bold text-[var(--text-primary)] bg-transparent border-0 p-0 text-xs focus:ring-0 cursor-pointer underline decoration-dotted decoration-[var(--action-primary)]"
                 >
                   {accountsList.map(account => (
-                    <option key={account.id} value={account.id} className="text-slate-800 dark:text-slate-200 bg-white dark:bg-slate-900">
+                    <option key={account.id} value={account.id} className="text-[var(--text-primary)] bg-[var(--bg-surface)]">
                       {account.displayName || account.name || account.code}
                     </option>
                   ))}
                 </select>
               ) : (
-                <span className="font-bold text-brand-dark dark:text-brand-amber">
+                <span className="font-bold text-[var(--text-primary)]">
                   {selectedAccount?.displayName || selectedAccount?.name || business?.name || "ยังไม่ได้เลือกบัญชี"}
                 </span>
               )}
@@ -150,25 +150,25 @@ export default function LineStudioShell({ initialTab = "dashboard" }) {
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => handleNavigate("connections")}
-            className="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 active:scale-95 text-white text-xs font-bold transition-all shadow-sm shadow-emerald-600/20 flex items-center gap-1.5 whitespace-nowrap"
+            className="px-3.5 py-1.5 rounded-xl bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] active:bg-[var(--button-primary-hover)] active:scale-95 text-[var(--text-primary)] text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 whitespace-nowrap"
           >
             <span>💬 + เชื่อมต่อ LINE OA</span>
           </button>
           <div className="relative hidden sm:block">
-            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-[var(--text-secondary)] absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="ค้นหาใน LINE Studio... ⌘K"
-              className="w-48 pl-8 pr-3 py-1.5 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-xs placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-amber/30 shadow-sm"
+              className="w-48 pl-8 pr-3 py-1.5 rounded-xl bg-[var(--input-bg)] border border-[var(--input-border)] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] text-xs focus:outline-none focus:ring-2 focus:ring-[var(--action-primary-active)] shadow-sm"
             />
           </div>
         </div>
       </div>
 
       {accountLoadError && (
-        <div role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700">
+        <div role="alert" className="mb-4 rounded-xl border border-[var(--status-danger)] bg-[var(--status-danger-bg)] px-3 py-2 text-xs text-[var(--text-primary)]">
           {accountLoadError}
         </div>
       )}

@@ -13,7 +13,7 @@ import { ShieldCheck, ArrowUpFromLine } from "lucide-react";
 import { describeLineOaConnectError } from "@/modules/line-oa-studio/domain/line-oa-connect-wizard-copy";
 import { SECRET_INPUT_PROPS, identifierInputProps } from "./credential-input-props";
 
-const fieldClass = "w-full rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-2 text-[11px] focus:ring-2 focus:ring-brand-amber/30 focus:outline-none";
+const fieldClass = "w-full rounded-xl border border-[var(--input-border)] bg-[var(--input-bg)] p-2 text-[11px] text-[var(--text-primary)] placeholder:text-[var(--text-secondary)] focus:ring-2 focus:ring-[var(--action-primary-active)] focus:outline-none";
 
 const STORE_LABEL = Object.freeze({
   SUPABASE_VAULT: "Vault",
@@ -42,8 +42,8 @@ export default function LineOaCredentialMigrationCard({ account, onMigrated }) {
 
   if (connection.secretStore !== "DEPLOYMENT_MOUNT") {
     return (
-      <p className="text-[11px] text-slate-500 flex items-center gap-1.5">
-        <ShieldCheck className="w-3.5 h-3.5 text-emerald-500" />
+      <p className="text-[11px] text-[var(--text-secondary)] flex items-center gap-1.5">
+        <ShieldCheck className="w-3.5 h-3.5 text-[var(--status-success)]" />
         ข้อมูลรับรอง: ใช้งานได้ · เวอร์ชัน {connection.credentialVersion ?? "—"} · ตรวจสอบล่าสุด {formatTime(connection.lastValidatedAt)} · เก็บใน {STORE_LABEL[connection.secretStore] ?? connection.secretStore}
       </p>
     );
@@ -76,7 +76,7 @@ export default function LineOaCredentialMigrationCard({ account, onMigrated }) {
   }
 
   return (
-    <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-xl p-3 space-y-2">
+    <div className="text-[11px] text-[var(--text-primary)] bg-[var(--status-warning-bg)] border border-[var(--status-warning)] rounded-xl p-3 space-y-2">
       <div className="flex items-center justify-between gap-2">
         <span className="flex items-center gap-1.5 font-semibold">
           <ArrowUpFromLine className="w-3.5 h-3.5" /> ข้อมูลรับรองเก็บอยู่ที่ไฟล์ของผู้ดูแลระบบ
@@ -89,8 +89,8 @@ export default function LineOaCredentialMigrationCard({ account, onMigrated }) {
         <form onSubmit={migrate} className="space-y-2">
           <input {...identifierInputProps("line-channel-id")} value={channelId} onChange={(e) => setChannelId(e.target.value)} className={fieldClass} placeholder="Channel ID" pattern="[0-9]{6,20}" required disabled={busy} />
           <input {...SECRET_INPUT_PROPS} name="line-channel-secret" value={channelSecret} onChange={(e) => setChannelSecret(e.target.value)} className={fieldClass} placeholder="Channel secret" pattern="[0-9a-f]{32}" required disabled={busy} />
-          {error && <p className="text-rose-600">{error.message}</p>}
-          <button type="submit" disabled={busy} className="w-full py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[10px] font-bold disabled:opacity-50">
+          {error && <p className="border-l-2 border-[var(--status-danger)] pl-2 text-[var(--text-primary)]">{error.message}</p>}
+          <button type="submit" disabled={busy} className="w-full py-1.5 rounded-lg bg-[var(--button-primary-bg)] hover:bg-[var(--button-primary-hover)] text-[var(--text-primary)] text-[10px] font-bold disabled:opacity-50">
             {busy ? "กำลังย้าย…" : "ยืนยันและย้ายเข้า Vault"}
           </button>
         </form>
