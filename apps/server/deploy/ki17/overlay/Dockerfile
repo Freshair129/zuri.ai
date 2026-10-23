@@ -27,7 +27,7 @@ COPY --from=ki17src --chown=node:node /opt/ki17 /opt/ki17
 COPY --chown=node:node scripts/ki17-smoke.mjs ./scripts/
 COPY --chown=node:node src/modules/agent/msp-stdio-transport.js src/modules/agent/msp-child-environment.mjs ./src/modules/agent/
 # The reference the carried tree is checked against: the stdio manifest of THIS
-# checkout, plus the checker. Both are removed again in the same layer.
+# checkout's selected release candidate, plus the checker. Both are removed again in the same layer.
 COPY deploy/ki17/pins.json /tmp/ki17-overlay-check/pins.json
 COPY deploy/ki17/overlay/check-ki17-from.mjs /tmp/ki17-overlay-check/
 RUN set -eu; \

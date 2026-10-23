@@ -27,7 +27,7 @@
 // default: an unreadable provenance is a failed build, which is the whole point.
 //
 // Two manifests exist. `pins.json` (profile "stdio") is the default for every ki17
-// target and pins the tuple production runs. `pins.gks-http.json` (profile
+// target and selects its release candidate, independently of deployment status. `pins.gks-http.json` (profile
 // "gks-http") pins the newer MSP/GKS pair the opt-in private HTTP canary needs, and
 // is selected only through the Dockerfile's KI17_PINS_MANIFEST build argument. The
 // receipt records which profile was verified, and `--profile` makes a caller's

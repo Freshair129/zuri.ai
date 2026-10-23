@@ -4,6 +4,14 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
+> **Release candidate (2026-10-24):** `pins.json` now selects MSP
+> `d0d48c1a8e833478525d9a6ce5ee16af2c85444d` for signed API-010 legacy grants.
+> GKS `ecf1e4de` and GenesisBlock `5156f412` are unchanged. This selection is
+> not a production activation record. The inspected production image still
+> embeds MSP `68e6169d`; historical acceptance below qualifies that older
+> tuple only. Rebuild the runtime and pass exact-image acceptance before
+> promotion. An overlay carrying the old tree must fail the tuple check.
+
 > **Status (2026-09-28): the overlay is deployed on the production host.** The
 > ki17 web image and the `genesis-worker` sidecar have run there since 2026-09-21.
 > Production now runs `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main
@@ -98,7 +106,7 @@ activation.
 
 | File | What it is |
 |---|---|
-| `pins.json` | **Default manifest (profile `stdio`).** The stdio tuple production runs (MSP `68e6169d`, GKS `ecf1e4de`, GenesisBlock `5156f412`), plus the Node/Python/model versions and the worker port. Every ki17 target verifies against it unless told otherwise |
+| `pins.json` | **Default candidate manifest (profile `stdio`).** Selects MSP `d0d48c1`, GKS `ecf1e4de`, GenesisBlock `5156f412`, plus Node/Python/model versions and the worker port. Every ki17 target verifies against it unless told otherwise; deployment requires separate acceptance |
 | `pins.gks-http.json` | **Opt-in manifest (profile `gks-http`)** for the private HTTP canary only: MSP `a65914de` (HTTP GKS provider), GKS `1ebcff09` (HTTP runtime). Its GKS entrypoints include `gks-http-server.mjs` and `deploy/docker/entrypoint.mjs`, so the pin gate refuses a GKS context without them. Selected by the `KI17_PINS_MANIFEST` build argument, which only `docker-compose.ki17-gks-http.yml` sets |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit. Its receipt records the manifest `profile`; `--profile <name>` fails unless the manifest declares it |
 | `overlay/Dockerfile` | The production release overlay: a fresh `runner` (`BASE`) plus the running image's `/opt/ki17` (`KI17_FROM`) and the three app files `runner-ki17` adds. Driven by `scripts/build-ki17-overlay-release.mjs` |
@@ -155,7 +163,7 @@ than attested. Prefer it.
 ### Building
 
 The pin manifest decides which tuple a build accepts. The default,
-`deploy/ki17/pins.json`, is the stdio production tuple and requires no GKS HTTP
+`deploy/ki17/pins.json`, selects the stdio release candidate and requires no GKS HTTP
 file. The HTTP canary tuple is selected with
 `--build-arg KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json`; the `gks-http`
 target refuses to build without it (`KI17_GKS_HTTP_PROFILE_REQUIRED`).
@@ -163,7 +171,7 @@ target refuses to build without it (`KI17_GKS_HTTP_PROFILE_REQUIRED`).
 ```bash
 # The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script (stdio tuple)
 docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
-  --build-context msp=<Memory-and-Soul-Passport at 68e6169dbb371dac2f0debf0bf731b553f7dc26d> \
+  --build-context msp=<Memory-and-Soul-Passport at d0d48c1a8e833478525d9a6ce5ee16af2c85444d> \
   --build-context gks=<Genesis-Knowledge-System at ecf1e4de269e949406a6a5f791f9ff8fe30c9578> \
   --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
   apps/server
@@ -215,11 +223,12 @@ KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu
 
 That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. Both
 manifests pin `genesisblock` to `5156f412da73905a23d74775a82cc14d1f6d04d0`. The
-default `pins.json` pins the stdio production tuple, MSP
-`68e6169dbb371dac2f0debf0bf731b553f7dc26d` / GKS
-`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`: the tuple G-3 and the running images
-were verified against. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`)
-lives only in `pins.gks-http.json`; G-3 does not qualify it.
+default `pins.json` selects the signed-grant stdio candidate, MSP
+`d0d48c1a8e833478525d9a6ce5ee16af2c85444d` / GKS
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`. Historical G-3 and the inspected
+running images used MSP `68e6169d`; that evidence does not qualify this new
+candidate. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`) lives
+only in `pins.gks-http.json`; historical G-3 does not qualify it either.
 `5e75c4a8` and `7c9261c4` remain historical references only.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
 `ki17-pins` stage they build on verifies every context it is given, so a build of
@@ -287,11 +296,17 @@ with example paths; this local canary has **not** been run.
 
 ### Cutting a release with the overlay
 
-Production web releases do not rebuild `/opt/ki17`. Since 2026-09-21 each release
+Web releases with unchanged runtime pins do not rebuild `/opt/ki17`. Since 2026-09-21 each release
 has been the new SHA's plain `runner` image with the running image's `/opt/ki17`
 layered on top; `release-05f3567d-ki17-overlay` (2026-09-28) is the procedure this
-section commits. The runtime tree does not change between web releases, the host's
+section records. When runtime pins are unchanged, the host's
 sibling checkouts need not sit at the pins, and no MSP/GKS `npm ci` runs.
+
+The 2026-10-24 MSP pin amendment changes that tree. First build and qualify a
+new `runner-ki17` and matching worker from the selected contexts above. The
+overlay refuses an old `KI17_FROM`; carrying forward the deployed MSP tree
+cannot implement this upgrade. Preserve its previous image and a compatible
+backup for recovery, and record the actual clean release HEAD and image digest.
 `deploy/ki17/overlay/Dockerfile` is the image; `scripts/build-ki17-overlay-release.mjs`
 drives it. From `apps/server`, on the primary checkout at merged `main`:
 
