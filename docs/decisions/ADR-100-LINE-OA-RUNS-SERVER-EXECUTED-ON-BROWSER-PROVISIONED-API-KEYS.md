@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.5.2b"
+version: "0.5.4b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -9,13 +9,13 @@ approved_by: "Owner instruction, 2026-09-21"
 integration_status: pending
 implementation_status: in-progress
 created_at: "2026-09-21"
-last_update: "2026-09-22"
+last_update: "2026-10-23"
 author: Claude Opus 5
 domain: line-oa-studio
 attributes:
   doc_type: architecture-decision
   domain: line-oa-studio
-  scope: "Retirement of EDGE execution from LINE OA Studio, withdrawal of the edge conversation-job surface, and browser provisioning of the model provider API key every server answer needs"
+  scope: "Retirement of EDGE execution from LINE OA Studio, withdrawal of the edge conversation-job surface, browser provisioning for public keyed providers, and a bounded main-dev-only keyless local Ollama test profile"
 relations:
   # The amendment itself is stated in prose below and by a pointer in ADR-061;
   # the link vocabulary here only has relates_to / references / supersedes, and
@@ -322,6 +322,10 @@ that it happened; neither prevents it.
 
 ## Consequences
 
+The consequences below continue to describe the default and production keyed
+provider paths. D9 adds only an isolated, default-off main-dev test profile; it
+does not change production provider selection or activation.
+
 An installation that has provisioned Phase-1 keeps answering through that resolver until a
 Business enters its own key, and stops depending on an operator the moment one does.
 
@@ -393,3 +397,54 @@ Whether to delete the `apps/edge` application, whether to retire ADR-059 extract
 when to retire the Phase-1 resolver. The first two were explicitly excluded by the owner's
 scoping of 2026-09-21; the third is TASK-ZAI-103's open exit criterion and needs live
 evidence this decision does not provide.
+
+### D9 — Main-dev-only keyless local Ollama test profile
+
+The user explicitly requested keyless local Ollama for the isolated main-dev
+LINE test. This amendment approves implementation of that bounded test profile
+as recorded in the [approved change proposal](../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md).
+It does not approve production provider changes or production activation.
+
+The Server may expose an explicit `MAIN_DEV_LOCAL_OLLAMA` profile only when a
+private server-side opt-in is enabled and the actual main-dev database identity,
+Tenant, Business, and internal LINE OA account ID all match their separately
+configured allowlists. `NODE_ENV=production` does not enable the profile, and
+the existing `PRODUCTION_LINE` denial of Ollama, local vaults, and raw model
+credentials remains unchanged. Production and ordinary deployment defaults are
+unchanged. The application contains no default instance or account identifiers.
+
+For the allowlisted test OA, the Server uses the existing Prisma-backed
+`PHASE1_LINE_LLM` resolver and scoped published-corpus reader in `GKS_CORPUS`
+mode; the profile does not use the Supabase-pinned `ZURI_LINE_DB_URL`, the
+production-pinned reader, or a fallback reader. Only evidence already eligible
+under the customer-public source contract may ground a customer response.
+Business visibility or corpus publication alone does not authorize customer
+disclosure. This boundary is enforced through the existing scoped application
+ports. It does not claim a least-privilege database principal or row-level
+database-role isolation; the model receives only the Server-built bounded
+evidence packet and never receives database or object-storage credentials.
+
+The endpoint is fixed server-side to the exact
+`http://host.docker.internal:11434` origin; the Server rejects
+browser- or connection-metadata-supplied URLs and does not follow redirects.
+The Business owner may list installed model IDs and select one for the exact allowlisted
+scope. The selected ID is metadata on the existing
+`PHASE1_LINE_LLM` connection; the flow creates no credential, secret reference,
+or fake API key. Current-primary compare-and-swap, uniqueness, and existing LINE
+readiness gates remain in force. The Server derives the internal OA account ID
+from its verified job/account binding and passes it to model resolution; clients
+cannot provide that scope. If a Business `MODEL_PROVIDER_KEY` exists, D5 retains
+precedence and local-Ollama acceptance is refused. Existing FR-266 keyed
+provider behavior and FR-267/PRP remain unchanged.
+
+The profile fails closed when disabled, mis-scoped, connected to the wrong
+database, or unable to reach the selected model. There is no automatic fallback
+to another provider or deterministic answer. The deterministic `#product`
+stock/published-price fact path remains separate and makes no Ollama calls;
+ordinary-chat inference acceptance requires a registered evidence-bearing
+query, a real server-side Ollama trace, and a delivered response. A greeting or
+no-evidence query is not inference evidence.
+
+Version 0.5.3b → 0.5.4b adds approved D9 for the bounded main-dev profile while
+preserving D1–D8, public provider keys, PRP, and production denials. Implementation
+and live main-dev acceptance remain pending.

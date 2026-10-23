@@ -1207,16 +1207,16 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 11
+          "codeCount": 4,
+          "testCount": 14
         },
         {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 20
+          "codeCount": 2,
+          "testCount": 21
         },
         {
           "id": "FR-093",
@@ -3380,7 +3380,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 14
         },
         {
           "id": "FR-080",
@@ -3388,7 +3388,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-081",
@@ -4950,7 +4950,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-091",
@@ -9007,16 +9007,16 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 11
+          "codeCount": 7,
+          "testCount": 14
         },
         {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 20
+          "codeCount": 13,
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -9026,6 +9026,7 @@
         "apps/server/src/app/api/platform/integrations/route.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/main-dev-local-ollama.js",
         "apps/server/src/modules/agent/model-provider-catalog.js",
         "apps/server/src/modules/agent/model-provider.js",
         "apps/server/src/modules/agent/openrouter-oauth.js",
@@ -9068,6 +9069,7 @@
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/line-registry-service.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
@@ -13567,7 +13569,7 @@
     },
     {
       "id": "FEAT-045",
-      "title": "LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-110 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema)",
+      "title": "LINE OA on API keys only — the existing public-provider and PRP paths require the Business-owned, browser-provisioned key; the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired. For those keyed provider paths, the Business owner enters the model provider API key in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-110 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema). A separate, default-off, explicitly allowlisted main-dev Ollama test profile is scoped by FR-079/FR-080 and does not change the public-provider or PRP key flows or production provider selection.",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [

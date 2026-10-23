@@ -49,6 +49,8 @@ status: generated
 
 - [apps/server/src/modules/agent/grounded-business-answer.js](../../../apps/server/src/modules/agent/grounded-business-answer.js) — `implements` (`annotation`)
 - [apps/server/src/modules/agent/index.js](../../../apps/server/src/modules/agent/index.js) — `implements` (`annotation`)
+- [apps/server/src/modules/agent/main-dev-local-ollama.js](../../../apps/server/src/modules/agent/main-dev-local-ollama.js) — `implements` (`annotation`)
+- [apps/server/src/modules/agent/model-provider.js](../../../apps/server/src/modules/agent/model-provider.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/credential-vault.js](../../../apps/server/src/platform/integrations/core/credential-vault.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/integration-registry.js](../../../apps/server/src/platform/integrations/core/integration-registry.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/secret-manager.js](../../../apps/server/src/platform/integrations/core/secret-manager.js) — `implements` (`annotation`)
@@ -65,6 +67,9 @@ status: generated
 - [apps/server/tests/unit/fr079-schema-contract.test.js](../../../apps/server/tests/unit/fr079-schema-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr079-supabase-migration.test.js](../../../apps/server/tests/unit/fr079-supabase-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/grounded-business-answer.test.js](../../../apps/server/tests/unit/grounded-business-answer.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/main-dev-local-ollama.test.js](../../../apps/server/tests/unit/main-dev-local-ollama.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/model-provider-port.test.js](../../../apps/server/tests/unit/model-provider-port.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/model-provider-trace.test.js](../../../apps/server/tests/unit/model-provider-trace.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/role-memory-partition.test.js](../../../apps/server/tests/unit/role-memory-partition.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-080](requirements/FR-080.md)
@@ -75,6 +80,7 @@ status: generated
 - [apps/server/src/app/(pm)/platform/integrations/page.jsx](../../../apps/server/src/app/%28pm%29/platform/integrations/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/platform/integrations/line-registry/route.js](../../../apps/server/src/app/api/platform/integrations/line-registry/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/platform/integrations/route.js](../../../apps/server/src/app/api/platform/integrations/route.js) — `implements` (`annotation`)
+- [apps/server/src/modules/agent/main-dev-local-ollama.js](../../../apps/server/src/modules/agent/main-dev-local-ollama.js) — `implements` (`annotation`)
 - [apps/server/src/modules/agent/phase1-runtime.js](../../../apps/server/src/modules/agent/phase1-runtime.js) — `implements` (`annotation`)
 - [apps/server/src/modules/integration/application/integration-management-service.js](../../../apps/server/src/modules/integration/application/integration-management-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/integration/application/line-registry-service.js](../../../apps/server/src/modules/integration/application/line-registry-service.js) — `implements` (`annotation`)
@@ -104,6 +110,7 @@ status: generated
 - [apps/server/tests/unit/line-binding-status.test.js](../../../apps/server/tests/unit/line-binding-status.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-oa-settings-consolidation.test.js](../../../apps/server/tests/unit/line-oa-settings-consolidation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-registry-service.test.js](../../../apps/server/tests/unit/line-registry-service.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/main-dev-local-ollama.test.js](../../../apps/server/tests/unit/main-dev-local-ollama.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/phase1-business-agent-runtime.test.js](../../../apps/server/tests/unit/phase1-business-agent-runtime.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform/connector-catalog.test.js](../../../apps/server/tests/unit/platform/connector-catalog.test.js) — `verifies` (`test-reference`)
 

@@ -48,6 +48,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Approved GenesisRAG17 implementation contract](../plans/GENESISRAG17-CONTRACT.md)
 - [GenesisRAG17 on the edge device: Phase 3 deployment design](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md)
 - [Knowledge admission contract — phases 0–4](../plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
+- [Main-dev LINE local Ollama implementation plan](../plans/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md)
 - [Design — Integration credential vault, self-serve LINE OA onboarding, and chat-history tiers](../plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md)
 - [P3 MemoryOS and CIN: local evidence](../plans/LINE-OA-P3-MEMORYOS-CIN-EVIDENCE.md)
 - [P5 local console durability evidence](../plans/LINE-OA-P5-DURABLE-CONSOLE-EVIDENCE.md)
