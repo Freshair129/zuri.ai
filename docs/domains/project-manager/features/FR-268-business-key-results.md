@@ -9,10 +9,26 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.1.0b |
-| **Status** | Declared — design only, not implemented, not deployed |
-| **Date** | 2026-09-22 |
+| **Version** | 0.2.0b |
+| **Status** | Implementation present; Phase 1 commit 02f54a52 is an ancestor of B1 source 2c13f616. Fresh adapter/browser qualification and release remain open; FR-271 shared server checks are partial. |
+| **Date** | 2026-10-23 (B1 source inspection; original design 2026-09-22) |
 | **Relates to** | FR-041, FR-059, FR-060, FEAT-002, ADR-101, SDD-107, BR-044 |
+
+## B1 source disposition
+
+Source `2c13f6166bc865dd14aadcab3904b0f3eea42197` contains the Phase 1 schema,
+[OWNER-scoped writer/check-ins](../../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js),
+[read model](../../../../apps/server/src/modules/business/application/business-strategy-service.js),
+[Key Result modal](../../../../apps/server/src/modules/project-manager/components/StrategyEditModals.jsx)
+and [integration suite](../../../../apps/server/tests/integration/fr268-business-key-result-mutation.test.js).
+Commit `02f54a5210d32b1a63dff565beac2a590fa3dda0` is an ancestor, not a pending
+local merge. The canonical delivery cell's old PR wording is held for a reviewed
+migration; B1 changes no canonical row. The [B1 findings and B3 amendment](../../../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b1-source-reconciliation--2026-10-23)
+record FR-271's missing shared server evaluation and the optional-due-date versus
+write-time SMART interpretation to resolve before coding that correction.
+This does not remove the existing FR-268 optional due date or expand OWNER-only
+check-in authority. The checks listed below exist as source; B1 ran no runtime
+or browser acceptance.
 
 ## Statement
 
@@ -50,7 +66,7 @@ A non-owner Key-Result-owner check-in grant (ADR-101 D4 — separate FR when
 built); any external/integration-fed check-in source (Phase 4, `integration`
 domain); LINE as a check-in surface (Phase 4).
 
-## Verification (when Phase 1 ships)
+## Verification inputs and remaining qualification
 
 - A Key Result's progress and status match `keyResultProgress`/`keyResultStatus`
   for known inputs (unit test).
@@ -60,3 +76,5 @@ domain); LINE as a check-in surface (Phase 4).
   exists (integration test, cites BR-044).
 - The strategy GET, the per-project roadmap GET and the marketing Strategy
   Workspace all read the same `progress` after a check-in (no drift).
+
+0.2.0b (2026-10-23): replace stale design-only status with source-bound B1 disposition; no fresh runtime/deployment acceptance or canonical migration.

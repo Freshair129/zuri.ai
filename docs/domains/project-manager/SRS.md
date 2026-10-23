@@ -5,7 +5,7 @@ doc_type: domain-srs-view
 domain: project-manager
 domain_id: project-manager
 status: approved
-version: "0.2.0"
+version: "0.2.1"
 approved_at: "2026-10-23"
 approval_scope: source-linked-domain-srs
 approved_source_commit: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -32,7 +32,8 @@ The approved input is the exact file at the commit and SHA-256 above. Approval
 covers this reading view and its stated exclusions; it does not adopt the
 separate full-system candidate or authorize production operations. The resulting
 [implementation-plan index](../../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
-is a separate proposed artifact for review before coding.
+was separately approved at `c291afcd`; A1 is locally accepted and the owner
+selected B1 source reconciliation next. B2 and later execution remain separate.
 
 ## 1. Purpose and boundary
 
@@ -260,13 +261,19 @@ hosted CI, databases, authenticated production UI and live activation are
 
 ## 6. Exclusions and unresolved conflicts
 
+B1 reconciliation (2026-10-23) is bounded to `2c13f616`; section 5 remains the
+original source-revision evidence snapshot. The [B1 source disposition and held
+canonical proposal](../../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b1-source-reconciliation--2026-10-23)
+update explanatory conflicts below without changing any of the 108 record mappings,
+canonical lifecycles, statements or membership. B1 ran no application acceptance.
+
 | Topic | Conflicting or excluded sources | Status and next authority |
 |---|---|---|
 | Full-system and Workforce adoption | [Candidate SRS](../../architecture/project-manager-system/17-SRS.md); [PMR catalog](requirements/README.md); [Workforce proposal](requirements/PMR-033-proposal-requirement.md) | PROPOSAL_ONLY beyond exact registered slices. Owner/domain authorities must adopt changed behavior through the existing reviewed workflow before implementation |
 | Historical note/index authority | [FR notes](FR-INDEX.md); [canonical format](../../migrations/document-reintegration/CANONICAL-FORMAT.md) | FR notes explain design/evidence; exact registry-selected records retain statements, lifecycle and FEAT membership. No feature-note status is promoted into canonical lifecycle |
-| Feature delivery state | [ZAI:FR-252](../../requirements/FR-252.md); [Phase B note](features/FR-252-project-feature-authority.md); [roadmap](../../roadmap/ROADMAP.md) | SOURCE_CONFLICT: canonical row/roadmap retain W3 API/UI/main-composition pending wording, while composed evidence and implementation commit are present. Delivery reconciliation remains an integrator review; production role/migration/deployment gates are not closed |
-| Business strategy and SMART status | [ZAI:FR-268](../../features/FEAT-002/requirements/FR-268.md), [ZAI:FR-269](../../features/FEAT-002/requirements/FR-269.md), [ZAI:FR-270](../../features/FEAT-002/requirements/FR-270.md), [ZAI:FR-271](../../features/FEAT-002/requirements/FR-271.md); [FR-271 design note](features/FR-271-smart-validation-contract.md); [FR-270 delivery note](features/FR-270-4dx-weekly-execution.md); [roadmap](../../roadmap/ROADMAP.md) | SOURCE_CONFLICT: canonical rows retain original phase wording; FR-271 note says design only although its calculator exists. Preserve pinned statements/lifecycle; any canonical status migration needs separate reviewed provenance |
-| Approval acceptance | [ZAI:FR-272](../../requirements/FR-272.md); [approval note](features/FR-272-approval-gateway-admission.md); [roadmap](../../roadmap/ROADMAP.md) | EVIDENCE_OPEN: merged implementation does not resolve the roadmap's unverified A-07 proofs or establish current production acceptance |
+| Feature delivery state | [ZAI:FR-252](../../requirements/FR-252.md); [Phase B note](features/FR-252-project-feature-authority.md); [roadmap](../../roadmap/ROADMAP.md) | EXPLANATORY_RECONCILED / CANONICAL_HELD: B1 verified W1/W2 and composed API/UI ancestry and updated current note/roadmap wording. The exact FR-252 delivery-cell proposal is held for reviewed migration; B2 qualification and production role/migration/deployment gates remain open |
+| Business strategy and SMART status | [ZAI:FR-268](../../features/FEAT-002/requirements/FR-268.md), [ZAI:FR-269](../../features/FEAT-002/requirements/FR-269.md), [ZAI:FR-270](../../features/FEAT-002/requirements/FR-270.md), [ZAI:FR-271](../../features/FEAT-002/requirements/FR-271.md); [FR-271 design note](features/FR-271-smart-validation-contract.md); [FR-270 delivery note](features/FR-270-4dx-weekly-execution.md); [roadmap](../../roadmap/ROADMAP.md) | EXPLANATORY_RECONCILED / PARTIAL / CANONICAL_HELD: B1 corrects stale design-only/unmerged notes, with exact delivery-cell proposals held in the plan (including FR-060). FR-271 calculator/UI exist but shared server SMART evaluation is missing; B3 must reconcile optional due-date/write-time semantics and prove the selected correction before acceptance. Pinned statements/lifecycle stay unchanged |
+| Approval acceptance | [ZAI:FR-272](../../requirements/FR-272.md); [approval note](features/FR-272-approval-gateway-admission.md); [roadmap](../../roadmap/ROADMAP.md) | LOCAL_EVIDENCE_CLOSED / RELEASE_OPEN: A1 accepted real-PG contention and atomic-audit proof at `6888ecc6`, recorded in the linked note; B1 carries that evidence forward without rerunning it. Exact-head hosted integration and current production acceptance remain separate |
 | Persistence profile | [ZAI:FR-030](../../requirements/FR-030.md); [ZAI:NFR-001](../../requirements/NFR-001.md); [ADR-112](../../decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md) | PROFILE_SPECIFIC: offline lab and PostgreSQL development/runtime evidence must retain their own configuration and acceptance scope; this reading view does not select a database or authorize a migration |
 | Team/Membership and file cohorts | [ZAI:FR-036](../../requirements/FR-036.md); [PM charter](CHARTER.md); [Identity charter](../identity/CHARTER.md); [Files charter](../file-management/CHARTER.md) | Follow accepted ownership, including [ADR-077](../../decisions/ADR-077-MEMBERSHIP-IS-A-GRANT-WITH-A-LIFECYCLE.md). Historical Team/read-slice wording does not grant Membership writes; a standalone Files service does not migrate PM compatibility rows |
 | Old status totals and developer procedures | [September status snapshot](../../architecture/project-manager-system/28-CURRENT-IMPLEMENTATION-AND-DELIVERY-STATUS.md); [candidate document 20](../../architecture/project-manager-system/20-MULTI-AGENT-DELIVERY-PLAN.md); [ADR-113](../../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md) | HISTORICAL: do not reuse old task totals as current PM completion. Retired developer DDC packets, G0 and receipts do not govern this documentation task; product approval requirements remain in force |
@@ -278,6 +285,7 @@ hosted CI, databases, authenticated production UI and live activation are
 |---|---|---|---|
 | 0.1.0 | 2026-10-23 | `6c4d001eec5f389a80e16cf2e4dcbcd34e0515e4` | Initial proposed linked view; exact canonical paths/lifecycle/membership, existing owner key, peer contracts and scoped evidence. No requirement text, acceptance criteria, FEAT membership or runtime behavior changed |
 | 0.2.0 | 2026-10-23 | approved input `e1014247b01cd42bca589e679c840d2c2c8f2857` | Record direct owner approval of the linked view and preparation of a separate implementation plan; canonical source revision and all 108 record mappings retained |
+| 0.2.1 | 2026-10-23 | B1 source `2c13f616` | Reconcile section 6 explanatory conflicts and plan-approval context, preserve canonical holds, and record FR-271 partial server evaluation; all 108 record mappings and original approved-input hash remain unchanged |
 
 Parent/peer impact: the charter exposes its existing key for the view; domain
 navigation links this document and distinguishes the older full-system proposal.

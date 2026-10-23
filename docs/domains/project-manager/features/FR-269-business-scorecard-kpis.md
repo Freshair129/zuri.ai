@@ -9,7 +9,7 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.3.2b |
+| **Version** | 0.3.3b |
 | **Status** | Implemented and merged in PR #645 as `54e7e357`; full local Vitest (7,976 passed, 56 skipped), Playwright (210 passed, 4 skipped), and production build were recorded as pre-merge evidence; all completed hosted checks passed, including SCM; Governance E2E and Edge Desktop were skipped; not production migrated, deployed, provider-activated, or verified with live data |
 | **Date** | 2026-10-12 |
 | **Source base** | zuri.ai 2912d70bf649314ec3631c49a784031ab16415c6 |
@@ -28,9 +28,11 @@ score. A KPI result never contributes to that composite.
 
 This is the scoped implementation contract for the existing FR-269 identity.
 Its source-preserved canonical FR wrapper and row remain unchanged. This
-candidate has code and migration files on the named branch. Local build and
-test results are recorded below; hosted CI, PR merge, production migration,
-deployment, provider activation, and live-data behavior are not claimed.
+implementation has code and migration files from PR #645 (`54e7e357`) in B1
+source `2c13f616` ancestry. Dated pre-merge and hosted evidence below belongs to
+its stated source; it is not a new B1 run. Current adapter/browser qualification
+remains in B3; production migration, deployment, provider activation and live-data
+behavior remain unverified by B1.
 
 ## In scope — FR-269 Phase 2
 
@@ -282,3 +284,18 @@ deployment, provider activation, and live-data claims gated.
 0.3.1b → 0.3.2b: records PR #645 merged as `54e7e357` and the completed hosted
 checks, including SCM; Governance E2E and Edge Desktop were skipped. No product
 behavior or production readiness is newly claimed.
+
+## B1 source inspection — 2026-10-23
+
+At `2c13f6166bc865dd14aadcab3904b0f3eea42197`, the existing
+[KPI writer](../../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js),
+[scorecard UI](../../../../apps/server/src/modules/project-manager/components/BusinessKpiScorecard.jsx),
+[read model](../../../../apps/server/src/modules/business/application/business-strategy-service.js)
+and [integration tests](../../../../apps/server/tests/integration/fr269-business-kpi-mutation.test.js)
+are present. Full ancestor: `54e7e35780002237cc418e5525e683b1362908d1`.
+The canonical design-only delivery cell remains unchanged pending the exact
+[B1 migration proposal](../../../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#held-canonical-delivery-cell-proposal).
+No application, browser, hosted or live check was rerun by B1.
+
+0.3.3b (2026-10-23): qualify the old unmerged-branch paragraph and add current
+source/held-migration pointers while retaining historical check counts.

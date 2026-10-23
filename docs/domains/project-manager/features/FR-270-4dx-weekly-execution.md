@@ -9,8 +9,8 @@ source: v2-native
 
 | Field | Value |
 |---|---|
-| **Version** | 0.2.2b |
-| **Status** | Phase 3 merged via PR #647 as `8a2fd498`; exact-head hosted governance, build, tests, and specialized checks pass; production migration and live-business acceptance remain separate |
+| **Version** | 0.2.3b |
+| **Status** | Phase 3 merged via PR #647 as `8a2fd498`; dated exact-head hosted governance, build, tests, and specialized checks were recorded as passing; production migration and live-business acceptance remain separate |
 | **Date** | 2026-10-12 |
 | **Relates to** | [ZAI:FR-270](../../../features/FEAT-002/requirements/FR-270.md), [FEAT-002](../../../features/FEAT-002/feature.md), [ADR-101 D1/D5/D6](../../../decisions/ADR-101-BUSINESS-GOALS-BECOME-OKR-SMART-BSC-4DX.md), [BR-043](../../../requirements/BR-043.md), [FR-268](../../../features/FEAT-002/requirements/FR-268.md), [FR-269](../../../features/FEAT-002/requirements/FR-269.md), [FR-059](../../../requirements/FR-059.md) |
 
@@ -270,3 +270,18 @@ invariants, lead-measure correction/display semantics, commitment membership
 and owner-recording semantics, Bangkok week keys, session idempotency, grace
 period, read/write boundaries, and concrete Phase 3 acceptance criteria. No
 canonical requirement row or ADR lifecycle is changed.
+
+## B1 source inspection — 2026-10-23
+
+At `2c13f6166bc865dd14aadcab3904b0f3eea42197`, the existing
+[WIG/lag writer](../../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js),
+[weekly-execution service](../../../../apps/server/src/modules/project-manager/application/business-wig-execution-service.js),
+[UI](../../../../apps/server/src/modules/project-manager/components/BusinessWigExecution.jsx)
+and [integration suite](../../../../apps/server/tests/integration/fr270-business-wig-execution.test.js)
+are present. Full ancestor: `8a2fd4984a868923291c68c0169b16a8f0716768`.
+The canonical design-only delivery cell remains held for the exact B1 proposal;
+current B3 adapter/browser qualification and B4 migration/live acceptance remain
+separate. The dated hosted results above were not refreshed by B1.
+
+0.2.3b (2026-10-23): separate current source presence from historical hosted
+results and the held canonical delivery migration; no application change.

@@ -4,10 +4,10 @@ title: Project Feature authority
 feature: FR-252
 domain: project-manager
 source: v2-native
-version: "0.6.0b"
+version: "0.7.0b"
 status: beta
 created_at: "2026-09-17T02:46:11+07:00,RWANG,approved e5ccfd7a"
-last_update: "2026-09-17T20:28:51+07:00,RWANG final integrator"
+last_update: "2026-10-23,Codex B1 source reconciliation"
 relations:
   - type: references
     target: ZAI:FR-252
@@ -20,6 +20,32 @@ relations:
 ---
 
 # FR-252 — Project Feature authority
+
+## Current source reconciliation — Track B1, 2026-10-23
+
+Inspected source `2c13f6166bc865dd14aadcab3904b0f3eea42197` contains both W1/W2
+`052821a79a5c3c9bc0f2c841068c5a07de53db36` and composed implementation
+`67ffc9061802b7079c54579a8654b4e3faf194f6` in its ancestry. Feature implementation
+is present beyond persistence: [transaction repository](../../../../apps/server/src/modules/project-manager/application/project-feature-repository.js),
+[mutation/CSRF service](../../../../apps/server/src/modules/project-manager/application/project-feature-service.js),
+[collection API](../../../../apps/server/src/app/api/projects/%5Bid%5D/features/route.js),
+[Project Feature view](../../../../apps/server/src/modules/project-manager/components/ProjectFeatureView.jsx)
+and [forms](../../../../apps/server/src/modules/project-manager/components/ProjectFeatureForms.jsx).
+Existing [mutation tests](../../../../apps/server/tests/integration/project-feature-mutations.test.js)
+and [browser tests](../../../../apps/server/tests/e2e/project-feature-mutations.spec.js)
+are proof inputs, not fresh B1 runs.
+
+The original canonical delivery cell still says W3 API/UI and main composition
+are in progress. The [B1 reconciliation](../../../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b1-source-reconciliation--2026-10-23)
+records an exact held delivery-cell proposal; it does not modify the preserved
+row, subjects or membership. Current roadmap wording now separates implementation
+presence from pending B2 role/service/recovery qualification and release. The
+175/177-model proofs and dated checks below remain historical evidence for their
+own source. B1 reran no application, browser, provider or production acceptance.
+ADR-097's effective production runtime-role proof remains open.
+
+This Track B1 is the task in the October plan; the original Phase B design-gate
+label in the following historical approval paragraph is not a new developer gate.
 
 ## Behavior and ownership
 
@@ -157,3 +183,5 @@ deployed.
 | 0.2.1b | 2026-09-17 | beta | Record 67 composed tests, optimized build and W1 independent PASS; expose the W2 snapshot-coverage blocker | bd99651f | RWANG |
 | 0.2.0b | 2026-09-17 | beta | Record merged design/entry PASS and local Identity progress; retain persistence, restore and production gates | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | beta | Register approved Feature authority and ordered cross-domain implementation slices | e5ccfd7a | RWANG |
+
+0.7.0b (2026-10-23): reconcile implementation ancestry and current source against stale delivery wording; keep historical proofs and runtime-role/release gates distinct.

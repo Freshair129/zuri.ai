@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.2"
+version: "0.1.3"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -29,7 +29,7 @@ relations:
 
 ## Global Constraints
 
-- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first. Tracks B/C remain unstarted; C0 contract adoption and external release authority remain separate.
+- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first, followed by B1 source reconciliation. A1 is locally accepted; B2/B3/B4 and C remain unstarted; C0 contract adoption and external release authority remain separate.
 - Canonical statements, explicit FEAT membership and subject anchors remain pinned. This SRS approval is not approval of a canonical-row migration or of the wider PMR candidate.
 - Execution modes remain `SOFTWARE_SPRINT`, `DATA_MIGRATION`, `B2B_SALES`, `B2C_CAMPAIGN`, `PRODUCT_LAUNCH`, `OPERATIONS`, `BUSINESS_EXPANSION`; consume their existing enum/contract source.
 - Preserve Tenant isolation, Business operation, Project ownership, strategy-weighted progress and the current neutral work model. Team and Employment never supply access grants.
@@ -77,7 +77,7 @@ from Track C because the selected FEAT's source already names them.
 | Plan | Independently reviewable deliverable | Dependencies | May start coding now? |
 |---|---|---|---|
 | [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
-| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | Not selected for this increment; external/live steps also need the selected environment's authority |
+| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 documentation selected; B2/B3 code remains unstarted and external/live steps also need the selected environment's authority |
 | [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | No; ADR-035 is still design-only |
 
 ```mermaid
@@ -159,7 +159,13 @@ A1 is accepted locally at `6888ecc629cca769866d8cc2f715cb5414746c5f`; its
 [source-linked evidence](../domains/project-manager/features/FR-272-approval-gateway-admission.md#a1-acceptance-evidence--2026-10-23)
 records PostgreSQL contention/audit proofs, related SQLite checks, build and
 independent review. It also records the reproduced stale-Identity-authority defect
-and correction. Hosted CI/merge and release remain separate. B1–B4 and C0–C4 are
-unstarted; the next planned unit is B1. No later unit was executed by A1 approval.
+and correction. Hosted CI/merge and release remain separate. The owner next
+selected B1 source reconciliation; its [current disposition](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b1-source-reconciliation--2026-10-23)
+records implementation ancestry, the 62-FR retained-scope recheck and held canonical
+status proposals. B1 found FR-271 shared server SMART evaluation partial and amended
+B3 for contract reconciliation/regressions before coding. B2–B4 and C0–C4 remain
+unstarted; B1 closes only after its documentation checks and independent review.
 
 0.1.2 (2026-10-23): record A1's local result without closing the remaining PM plan.
+
+0.1.3 (2026-10-23): record B1 selection/source reconciliation and its FR-271 finding; B2 and later execution remain unstarted. No application or canonical change.
