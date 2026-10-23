@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.4"
+version: "0.1.5"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -29,7 +29,7 @@ relations:
 
 ## Global Constraints
 
-- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first, followed by B1 source reconciliation. A1 is locally accepted; B2/B3/B4 and C remain unstarted; C0 contract adoption and external release authority remain separate.
+- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first, followed by B1 source reconciliation. A1 and B1/B2 are locally accepted; B3 local qualification is recorded below; B4 and C remain unstarted; C0 contract adoption and external release authority remain separate.
 - Canonical statements, explicit FEAT membership and subject anchors remain pinned. This SRS approval is not approval of a canonical-row migration or of the wider PMR candidate.
 - Execution modes remain `SOFTWARE_SPRINT`, `DATA_MIGRATION`, `B2B_SALES`, `B2C_CAMPAIGN`, `PRODUCT_LAUNCH`, `OPERATIONS`, `BUSINESS_EXPANSION`; consume their existing enum/contract source.
 - Preserve Tenant isolation, Business operation, Project ownership, strategy-weighted progress and the current neutral work model. Team and Employment never supply access grants.
@@ -77,7 +77,7 @@ from Track C because the selected FEAT's source already names them.
 | Plan | Independently reviewable deliverable | Dependencies | May start coding now? |
 |---|---|---|---|
 | [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
-| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 accepted at 56b6ed97; owner authorized B2 isolated role/service/recovery qualification. B3 remains unstarted and external/live steps need the selected environment's authority |
+| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 accepted at 56b6ed97; owner authorized B2 isolated role/service/recovery qualification. B3 local adapter/browser qualification is recorded below; external/live steps need the selected environment's authority |
 | [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | No; ADR-035 is still design-only |
 
 ```mermaid
@@ -166,8 +166,7 @@ status proposals. B1 found FR-271 shared server SMART evaluation partial and ame
 B3 for contract reconciliation/regressions before coding. B1 passed its checks
 and independent review at `56b6ed97`. The owner then selected
 [B2 isolated qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b2-isolated-qualification--2026-10-23)
-with real runtime-role, service/recovery tests and review. B3–B4 and C0–C4 remain
-unstarted; the actual deployment's ADR-097 role/grant proof remains a separate gate.
+with real runtime-role, service/recovery tests and review. B4 and C0–C4 remain unstarted; the actual deployment's ADR-097 role/grant proof remains a separate gate.
 The B2 evidence records local isolated acceptance (final role/service/recovery
 13/13, SQLite 98/98, generated consumers 51/51, build/governance and independent
 review). Its broader PostgreSQL profile was 124/126 then a focused 16/16 rerun;
@@ -179,3 +178,13 @@ this is explicitly composed evidence, not a single clean full-profile result.
 
 0.1.4 (2026-10-23): record B1 acceptance and B2 isolated qualification with the
 composed-check caveat; B3, production and held canonical migrations remain excluded.
+
+
+0.1.5 (2026-10-23): owner selected B3 with optional due dates and no production.
+The [B3 evidence](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b3-local-qualification--2026-10-23)
+records contract review before code, shared server SMART create/patch feedback,
+review corrections, SQLite 64 passed / 1 provider-only skip, PostgreSQL 52/52,
+related regressions 144/144, generated consumers 51/51 and browser 23/23. Build
+and governance passed; independent review covers the final composed patch.
+Hosted exact-head CI has not run and remains required before merge. B4/C and
+production remain unstarted; held canonical status migrations remain held.

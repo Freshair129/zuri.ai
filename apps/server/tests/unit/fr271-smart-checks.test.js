@@ -39,6 +39,11 @@ describe('smartChecks', () => {
   })
 
   describe('measurable', () => {
+    it('does not count blank or null numeric form fields as a measured zero', () => {
+      for (const baseline of ['', ' ', null, undefined]) expect(smartChecks({ ...base, baseline }, goal, now).measurable).toBe(false)
+      for (const target of ['', ' ', null, undefined]) expect(smartChecks({ ...base, baseline: 5, target }, goal, now).measurable).toBe(false)
+      expect(smartChecks({ ...base, baseline: '0', target: '12' }, goal, now).measurable).toBe(true)
+    })
     it('fails when metric or unit is missing', () => {
       expect(smartChecks({ ...base, metric: '' }, goal, now).measurable).toBe(false)
       expect(smartChecks({ ...base, unit: '' }, goal, now).measurable).toBe(false)
@@ -53,6 +58,11 @@ describe('smartChecks', () => {
   })
 
   describe('timeBound', () => {
+    it('uses inclusive instant boundaries and refuses invalid dates', () => {
+      expect(smartChecks({ ...base, dueAt: new Date(now) }, goal, now).timeBound).toBe(true)
+      expect(smartChecks({ ...base, dueAt: goal.targetAt }, goal, now).timeBound).toBe(true)
+      expect(smartChecks({ ...base, dueAt: 'not-a-date' }, goal, now).timeBound).toBe(false)
+    })
     it('fails with no due date', () => {
       expect(smartChecks({ ...base, dueAt: null }, goal, now).timeBound).toBe(false)
     })

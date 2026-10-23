@@ -19,6 +19,8 @@ import { PATCH as patchKeyResultRoute } from '@/app/api/business/key-results/[id
 import { POST as postCheckInRoute } from '@/app/api/business/key-results/[id]/check-ins/route'
 import { generateSessionToken } from '@/modules/identity/auth-service'
 import { makeViewer, ownsElsewhere } from '../factories/viewer'
+import { smartChecks } from '@/modules/project-manager/progress/smart-checks'
+import { failStrategyAudit } from '../helpers/strategy-audit-failure'
 
 let OWNER
 const MEMBER = makeViewer({ principal: { id: 'fr268-member' } })
@@ -238,6 +240,122 @@ describe('FR-268 Business Key Result mutation', () => {
       const checkedIn = await checkInRes.json()
       expect(checkedIn.current).toBe(6)
       expect(checkedIn.progress).toBe(40) // DOWN 8->3, at 6: (8-6)/(8-3)*100 = 40
+    })
+  })
+
+  // @req FR-271 — shared write-time SMART evaluation preserves optional dates.
+  describe('B3 SMART contract', () => {
+    const now = Date.parse('2030-01-10T00:00:00Z')
+    const goalTarget = new Date('2030-02-10T00:00:00Z')
+    const draft = over => ({ title: 'SMART measurable outcome', metric: 'Deals', unit: 'deals', baseline: 0, target: 12, ...over })
+    async function parent() {
+      const context = await prisma.businessGoal.findUnique({ where: { id: goalA.id } })
+      return createGoal({ businessId: businessA.id, roadmapId: context.roadmapId, horizonId: context.horizonId, title: 'SMART parent', targetAt: goalTarget }, { viewer: OWNER })
+    }
+    function feedback(kr, goal) {
+      expect(kr.smartChecks).toEqual(smartChecks(kr, goal, Date.parse(kr.smartCheckedAt)))
+      expect(kr.smartChecks).toMatchObject({ achievable: null, relevant: null })
+    }
+
+    it('returns shared feedback for omitted/null dates and warns on repeated Goal title', async () => {
+      const goal = await parent()
+      for (const dueAt of [undefined, null]) {
+        const result = await createKeyResult(goal.id, draft({ title: goal.title, dueAt }), { viewer: OWNER, now })
+        feedback(result, goal)
+        expect(result.smartChecks).toMatchObject({ specific: false, measurable: true, timeBound: false })
+        expect(result.dueAt).toBeNull()
+      }
+    })
+
+    it('accepts inclusive now/Goal boundaries and refuses newly invalid dates atomically', async () => {
+      const goal = await parent()
+      for (const dueAt of [new Date(now), goalTarget]) {
+        const result = await createKeyResult(goal.id, draft({ dueAt }), { viewer: OWNER, now })
+        feedback(result, goal)
+        expect(result.smartChecks.timeBound).toBe(true)
+      }
+      const before = await prisma.businessGoal.findUnique({ where: { id: goal.id }, include: { keyResults: true } })
+      const audits = await prisma.auditEvent.count()
+      for (const dueAt of [new Date(now - 1), new Date(goalTarget.getTime() + 1)]) {
+        await expect(createKeyResult(goal.id, draft({ dueAt }), { viewer: OWNER, now })).rejects.toMatchObject({ status: 400 })
+      }
+      expect(await prisma.businessGoal.findUnique({ where: { id: goal.id }, include: { keyResults: true } })).toEqual(before)
+      expect(await prisma.auditEvent.count()).toBe(audits)
+    })
+
+    it('evaluates merged patches, keeps optional clearing, and refuses invalid changed dates without effects', async () => {
+      const goal = await parent()
+      const made = await createKeyResult(goal.id, draft({ dueAt: goalTarget }), { viewer: OWNER, now })
+      const changed = await updateKeyResult(made.id, { confidence: 4 }, { viewer: OWNER, now })
+      feedback(changed, goal)
+      const before = await prisma.businessKeyResult.findUnique({ where: { id: made.id } })
+      const audits = await prisma.auditEvent.count()
+      for (const patch of [{ target: 0 }, { metric: ' ' }, { unit: ' ' }, { dueAt: new Date(now - 1) }, { dueAt: new Date(goalTarget.getTime() + 1) }]) {
+        await expect(updateKeyResult(made.id, patch, { viewer: OWNER, now })).rejects.toMatchObject({ status: 400 })
+      }
+      expect(await prisma.businessKeyResult.findUnique({ where: { id: made.id } })).toEqual(before)
+      expect(await prisma.auditEvent.count()).toBe(audits)
+      const cleared = await updateKeyResult(made.id, { dueAt: null }, { viewer: OWNER, now })
+      feedback(cleared, goal)
+      expect(cleared.smartChecks.timeBound).toBe(false)
+    })
+
+    it('allows unchanged historical dates and returns new feedback even on an empty patch', async () => {
+      const goal = await parent()
+      const made = await createKeyResult(goal.id, draft({ dueAt: new Date(now + 1000) }), { viewer: OWNER, now })
+      const afterDue = now + 2000
+      const patched = await updateKeyResult(made.id, { title: goal.title, dueAt: made.dueAt }, { viewer: OWNER, now: afterDue })
+      feedback(patched, goal)
+      expect(patched.smartChecks).toMatchObject({ specific: false, timeBound: false })
+      const before = await prisma.businessKeyResult.findUnique({ where: { id: made.id } })
+      const business = await prisma.business.findUnique({ where: { id: businessA.id } })
+      const audits = await prisma.auditEvent.count()
+      const unchanged = await updateKeyResult(made.id, {}, { viewer: OWNER, now: afterDue + 1 })
+      feedback(unchanged, goal)
+      expect(unchanged.smartCheckedAt).toBe(new Date(afterDue + 1).toISOString())
+      expect(await prisma.businessKeyResult.findUnique({ where: { id: made.id } })).toEqual(before)
+      expect(await prisma.business.findUnique({ where: { id: businessA.id } })).toEqual(business)
+      expect(await prisma.auditEvent.count()).toBe(audits)
+    })
+
+    it('registered POST/PATCH routes return shared feedback and refuse past dates', async () => {
+      const goal = await parent()
+      const response = await postKeyResultRoute(authenticatedRequest('http://local/api/business/goals/x/key-results', { method: 'POST', body: draft({ dueAt: null }) }), { params: { id: goal.id } })
+      expect(response.status).toBe(200)
+      const made = await response.json()
+      feedback(made, goal)
+      const refused = await patchKeyResultRoute(authenticatedRequest('http://local/api/business/key-results/x', { method: 'PATCH', body: { dueAt: '2000-01-01T00:00:00Z' } }), { params: { id: made.id } })
+      expect(refused.status).toBe(400)
+      const patched = await patchKeyResultRoute(authenticatedRequest('http://local/api/business/key-results/x', { method: 'PATCH', body: { title: goal.title } }), { params: { id: made.id } })
+      expect(patched.status).toBe(200)
+      feedback(await patched.json(), goal)
+    })
+
+    it('keeps an unchanged date editable after the parent Goal date changes', async () => {
+      const goal = await parent()
+      const made = await createKeyResult(goal.id, draft({ dueAt: goalTarget }), { viewer: OWNER, now })
+      const shortened = await prisma.businessGoal.update({ where: { id: goal.id }, data: { targetAt: new Date(now + 1000) } })
+      const edited = await updateKeyResult(made.id, { confidence: 2 }, { viewer: OWNER, now })
+      feedback(edited, shortened)
+      expect(edited.smartChecks.timeBound).toBe(false)
+    })
+
+    it('rolls Key Result, Goal progress and Business fence back when audit fails', async () => {
+      const goal = await parent()
+      const before = await prisma.businessGoal.findUnique({ where: { id: goal.id } })
+      const business = await prisma.business.findUnique({ where: { id: businessA.id } })
+      await expect(createKeyResult(goal.id, draft(), { viewer: OWNER, now, db: failStrategyAudit(prisma) })).rejects.toThrow('B3 injected audit failure')
+      expect(await prisma.businessKeyResult.count({ where: { goalId: goal.id } })).toBe(0)
+      expect(await prisma.businessGoal.findUnique({ where: { id: goal.id } })).toEqual(before)
+      expect(await prisma.business.findUnique({ where: { id: businessA.id } })).toEqual(business)
+    })
+
+    it('preserves the existing Business version transition for Key Result status edits', async () => {
+      const goal = await parent()
+      const made = await createKeyResult(goal.id, draft(), { viewer: OWNER, now })
+      const before = await prisma.business.findUnique({ where: { id: businessA.id } })
+      await updateKeyResult(made.id, { status: 'ARCHIVED' }, { viewer: OWNER, now })
+      expect((await prisma.business.findUnique({ where: { id: businessA.id } })).version).toBe(before.version + 1)
     })
   })
 })

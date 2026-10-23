@@ -4,6 +4,7 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { failStrategyAudit } from '../helpers/strategy-audit-failure'
 import { getBusinessStrategy } from '@/modules/business/application/business-strategy-service'
 import {
   createBusinessLeadMeasure,
@@ -199,6 +200,16 @@ describe('FR-270 4DX weekly execution', () => {
     expect(results.filter((result) => result.status === 'rejected')).toHaveLength(1)
     expect(results.find((result) => result.status === 'rejected').reason).toMatchObject({ status: 409 })
     expect(await prisma.businessGoal.count({ where: { businessId: businessB.id, isWig: true, status: { not: 'ARCHIVED' } } })).toBe(2)
+  })
+
+  it('rolls WIG designation, selected lag and Business version back with a failed audit', async () => {
+    const goal = await prisma.businessGoal.findUnique({ where: { id: goalA2.id } })
+    const lag = await prisma.businessKeyResult.findUnique({ where: { id: krA2.id } })
+    const business = await prisma.business.findUnique({ where: { id: businessA.id } })
+    await expect(setGoalWig(goalA2.id, { isWig: false }, { viewer: ownerViewer, db: failStrategyAudit(prisma) })).rejects.toThrow('B3 injected audit failure')
+    expect(await prisma.businessGoal.findUnique({ where: { id: goalA2.id } })).toEqual(goal)
+    expect(await prisma.businessKeyResult.findUnique({ where: { id: krA2.id } })).toEqual(lag)
+    expect(await prisma.business.findUnique({ where: { id: businessA.id } })).toEqual(business)
   })
 
   it('requires a live WIG for lead measures, appends corrections, and keeps only the latest value in each BKK week', async () => {

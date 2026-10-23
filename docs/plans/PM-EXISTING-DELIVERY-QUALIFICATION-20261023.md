@@ -3,7 +3,7 @@ id: ZAI:PM-EXISTING-DELIVERY-PLAN-20261023
 title: Existing PM delivery qualification plan
 doc_type: implementation-plan
 status: approved
-version: "0.3.0"
+version: "0.4.0"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -111,20 +111,21 @@ Modify their owning services/UI only for a reproduced source-contract failure.
 calculators; the current provisioning service. No parallel strategy or bootstrap
 writer is introduced. Existing test files supply their exact fixture contracts.
 
-- [ ] **B1 finding: reconcile FR-271 server SMART semantics before a correction.** At B1 source `2c13f616`, `smartChecks` exists and the UI calls it, but `createKeyResult`/`updateKeyResult` do not. The create schema allows nullable dates, and the patch path has no shared Time-bound evaluation. Resolve the write-time result/refusal contract against FR-271/ADR-101 D3 while preserving FR-268's explicitly optional due date; do not silently make due dates mandatory from the older supporting note. Document the exact agreed handling of null/past/Goal-exceeding dates, existing rows and Specific warnings before writing a fix. If this requires changing canonical meaning, hold that change for reviewed adoption; it does not block B2.
-- [ ] Then add failing service/API create and patch cases for the adopted SMART handling, including existing-row partial patches, target/baseline and date boundaries, shared client/server results, Specific handling and `null` Achievable/Relevant. Extend `tests/integration/fr268-business-key-result-mutation.test.js` and use `tests/unit/fr271-smart-checks.test.js` as calculator regressions. Exercise the actual registered POST/PATCH routes and current authorized fixtures. Repair the smallest owning writer/UI path only after the chosen invariant is reproduced; do not count calculator-only tests as server proof. Rerun the selected engines/browser cases and independent review before claiming FR-271 complete.
+- [x] **B1 finding: reconcile FR-271 server SMART semantics before a correction.** At B1 source `2c13f616`, `smartChecks` exists and the UI calls it, but `createKeyResult`/`updateKeyResult` do not. The create schema allows nullable dates, and the patch path has no shared Time-bound evaluation. Resolve the write-time result/refusal contract against FR-271/ADR-101 D3 while preserving FR-268's explicitly optional due date; do not silently make due dates mandatory from the older supporting note. Document the exact agreed handling of null/past/Goal-exceeding dates, existing rows and Specific warnings before writing a fix. If this requires changing canonical meaning, hold that change for reviewed adoption; it does not block B2.
+- [x] Then add failing service/API create and patch cases for the adopted SMART handling, including existing-row partial patches, target/baseline and date boundaries, shared client/server results, Specific handling and `null` Achievable/Relevant. Extend `tests/integration/fr268-business-key-result-mutation.test.js` and use `tests/unit/fr271-smart-checks.test.js` as calculator regressions. Exercise the actual registered POST/PATCH routes and current authorized fixtures. Repair the smallest owning writer/UI path only after the chosen invariant is reproduced; do not count calculator-only tests as server proof. Rerun the selected engines/browser cases and independent review before claiming FR-271 complete.
 
-- [ ] Extend PostgreSQL explicit selection to the three FR-268/269/270 mutation files; the two provisioning files are already included. Add parity assertions only where missing: foreign Business refusal, audit rollback, third concurrent WIG refused, selected lag invariant preserved, manual Goal progress refused when derived, and idempotent template/default-Space creation.
-- [ ] Run selected SQLite and real PostgreSQL files. The PostgreSQL global setup regenerates schema/client and creates a disposable schema; report this as adapter parity, with B2/provider migration proof kept separate.
+- [x] Extend PostgreSQL explicit selection to the three FR-268/269/270 mutation files; the two provisioning files are already included. Add parity assertions only where missing: foreign Business refusal, audit rollback, third concurrent WIG refused, selected lag invariant preserved, manual Goal progress refused when derived, and idempotent template/default-Space creation.
+- [x] Run selected SQLite and real PostgreSQL files. The PostgreSQL global setup regenerates schema/client and creates a disposable schema; report this as adapter parity, with B2/provider migration proof kept separate.
 
 ```text
 npm --prefix apps/server test -- tests/integration/fr268-business-key-result-mutation.test.js tests/integration/fr269-business-kpi-mutation.test.js tests/integration/fr270-business-wig-execution.test.js tests/integration/business-provisioning-template.test.js tests/integration/business-provisioning-backup.test.js tests/unit/fr271-smart-checks.test.js
 npm --prefix apps/server run test:postgres -- tests/integration/fr268-business-key-result-mutation.test.js tests/integration/fr269-business-kpi-mutation.test.js tests/integration/fr270-business-wig-execution.test.js tests/integration/business-provisioning-template.test.js tests/integration/business-provisioning-backup.test.js
-npm --prefix apps/server run test:e2e -- tests/e2e/fr269-business-kpi-scorecard.spec.js tests/e2e/fr270-business-wig-execution.spec.js tests/e2e/fr041-business-first.spec.js tests/e2e/project-feature-view.spec.js tests/e2e/project-feature-mutations.spec.js
+npm --prefix apps/server run test:e2e -- tests/e2e/fr269-business-kpi-scorecard.spec.js tests/e2e/fr270-business-wig-execution.spec.js tests/e2e/fr041-business-first.spec.js tests/e2e/project-feature-view.spec.js tests/e2e/project-feature-mutations.spec.js tests/e2e/fr271-smart-feedback.spec.js
 ```
 
-- [ ] Cover SMART feedback, focus preservation under delayed rendering, stale responses and refusal states; preserve 4DX's existing two-WIG and Bangkok-week contracts. Use isolated seeded browser data and the worktree's own port, never the primary dev/UAT database.
-- [ ] Run the selected related regressions/build/governance, independent review and exact-head CI. Commit qualification changes and current evidence as one scoped deliverable. An unchanged implementation may need no new product code.
+- [x] Cover SMART feedback, focus preservation under delayed rendering, stale responses and refusal states; preserve 4DX's existing two-WIG and Bangkok-week contracts. Use isolated seeded browser data and the worktree's own port, never the primary dev/UAT database.
+- [x] Run the selected related regressions/build/governance and independent review; retain local evidence below.
+- [ ] Exact-head hosted CI remains required before merge; it has not run for B3. Local qualification does not close this integration gate.
 
 **Exit:** current engine/UI behavior has fresh scoped evidence, and source notes
 state what ran. Existing production migration/live-Business gaps remain explicit.
@@ -437,3 +438,83 @@ release still require separate ADR-097/environment authority. **B3 has not start
 
 0.3.0 (2026-10-23): record owned PostgreSQL runtime-role/service/recovery
 qualification without adopting the held canonical rows or opening B3/production.
+
+
+## B3 local qualification — 2026-10-23
+
+**Base:** `45b2d72b6798bc88c90accb8a8329cb53be8ae06` on the isolated
+`codex/pm-domain-srs-20261023` branch. The owner selected B3, optional dates,
+adapter/browser tests and review, with production excluded. This section
+supersedes earlier unstarted statements only for B3; B1/B2 evidence stays historical.
+
+### Contract, reproduced failures and correction
+
+Before code, the [SMART contract](../domains/project-manager/features/FR-271-smart-validation-contract.md#b3-interpretation-before-implementation--2026-10-23)
+was reconciled against canonical FR-268/271 and ADR-101 D3 and independently
+reviewed. Optional/null/cleared dates are accepted with `timeBound: false`;
+Specific duplicates warn; Achievable/Relevant remain null. New/changed invalid,
+past or Goal-exceeding dates refuse; unchanged historical dates permit valid
+edits. No canonical statement, membership, subject anchor or held status row changed.
+
+New service/API assertions reproduced five missing SMART behaviors after fixing
+the test fixture's required parent references. The owning writer now evaluates
+the merged row using the shared calculator after the Business write fence and
+returns nonpersisted `smartChecks`/`smartCheckedAt`. Empty patches provide fresh
+feedback without durable effects; existing status edits retain Business version
+increments. The fence serializes KR/WIG writes, not concurrent Goal target-only
+edits. Rollback tests inject audit failure through a proxy while retaining real
+adapter transactions. Existing foreign-Business, concurrent two-WIG cap,
+selected-lag, derived-progress and idempotent provisioning proofs are retained.
+
+A pure-calculator RED case exposed blank/null numeric coercion; the shared
+calculator now requires actual numeric values or nonblank finite numeric input.
+A browser RED run on the previous built UI had 2 failures / 1 pass: missing
+optional/Specific guidance and a stale success callback closing a replacement
+modal. Guidance and request-epoch guards fix those failures. Delayed refusals
+preserve draft/focus. Closing a form does not cancel an already submitted write.
+Review also caught a changed Business-version side effect; a RED regression and
+restored status increment resolved it before final adapter qualification.
+
+### Commands, results and limits
+
+The exact engine/browser commands are listed in Task B3 above. Logs are ignored
+local diagnostics under `apps/server/node_modules/.cache/zuri-test-proof/b3-*.log`.
+
+| Check | Observed result |
+|---|---|
+| Selected six-file SQLite strategy/provisioning/calculator command | **64 passed / 1 skipped**; existing provider-only PostgreSQL SQL application case skipped on SQLite and covered on PostgreSQL |
+| Selected five-file PostgreSQL strategy/provisioning command | **52/52**, zero skips, disposable generated schema; adapter parity, not full configured PostgreSQL suite or deployed-role proof |
+| Related strategy validation/edit UI, week/progress/rollup and WIG UI regressions plus FR-268 writer | **144/144**, eight files |
+| Five generated projection consumer files listed in B2 | **51/51**, zero skips |
+| Six selected browser specs including new FR-271 | **23/23**, zero skips/flaky retries, isolated seeded SQLite at port 3127 |
+| `npm --prefix apps/server run build` | PASS, including lint/type validity; existing multiple-lockfile root warning |
+| `npm run docs:graph`, `npm run docs:views`, `npm run govern` | PASS, 552 canonical records / 96 views; 0 critical, 0 warning, 43 info |
+| Independent review | GPT-6 Luna Max reviewed the contract before code and the composed implementation; final tree acceptance recorded with the local commit |
+| Hosted exact-head CI / production | Not run; remain integration/release gates |
+
+Related command:
+
+```text
+npm --prefix apps/server test -- tests/integration/fr059-business-strategy-mutation.test.js tests/unit/fr059-strategy-validation.test.js tests/unit/fr059-strategy-edit-ui.test.js tests/unit/fr268-week.test.js tests/unit/fr268-key-result-progress.test.js tests/unit/fr268-goal-rollup.test.js tests/unit/fr270-business-wig-execution-ui.test.js tests/integration/fr268-business-key-result-mutation.test.js
+```
+
+The browser target was `http://localhost:3127` with worktree-owned
+`apps/server/prisma/e2e-3127.db`. Initial dev-server warm-up was stopped before
+spec execution because compilation stalled; this is not a browser pass. Final
+qualification used `E2E_SERVER_MODE=production`, the existing configuration for
+running the locally built artifact with test configuration and an isolated DB;
+no production runtime or credentials were used. The new real API/browser case
+creates an optional-date KR and reloads persisted data. Delayed refusal/success
+cases use controlled network fixtures; existing KPI/WIG/Feature synthetic UI
+proofs are not promoted to backend or production acceptance. Existing Business
+shell and persisted Feature CRUD browser journeys also passed.
+
+Tracked `apps/server/runtime/domain-state.json` and FEAT-002 verification bindings
+were regenerated; their labels describe graph evidence, not release acceptance.
+Ignored graph/maps/reports/corpus and diagnostics are not staged. No schema,
+provider migration, production grants, dev/UAT stack or held canonical migration
+changed. B3 local qualification is complete subject to final same-tree review;
+B4 and C remain unstarted. Exact-head hosted CI remains required before merge.
+
+0.4.0 (2026-10-23): record B3 contract reconciliation, test-first SMART correction,
+selected adapter/browser qualification and explicit hosted/release boundaries.
