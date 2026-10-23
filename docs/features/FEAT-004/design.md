@@ -39,6 +39,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 > 🟠 keyed runtime and main-dev Ollama implementation tested; main-dev live LINE and production evidence pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) — `references` · `metadata` · `current`
+- [TEST ONLY natural-language LINE stock and published price](../../change-requests/integration/line-product-facts-natural-language-20261024.md) — `references` · `metadata` · `current`
 - [Main-dev LINE local Ollama implementation plan](../../plans/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
@@ -51,6 +52,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 > 🟠 keyed integrations and main-dev Ollama UI/API implementation tested; live acceptance and production evidence pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) — `references` · `metadata` · `current`
+- [TEST ONLY natural-language LINE stock and published price](../../change-requests/integration/line-product-facts-natural-language-20261024.md) — `references` · `metadata` · `current`
 - [ADR-041 — Zuri Edge Device Topology and Decoupled Local Governance](../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) — `relates` · `control-block` · `current`
 - [ADR-042 — Decoupled Standalone Knowledge and GraphRAG Service: Genesis Retrieval Fabric Architecture](../../decisions/ADR-042-DECOUPLED-STANDALONE-KNOWLEDGE-AND-GRAPHRAG-SERVICE.md) — `relates` · `control-block` · `current`
 - [ADR-043 — Four-Tier Cognitive Architecture: Zuri-AI, MSP, GKS, and GenesisBlockDB](../../decisions/ADR-043-FOUR-TIER-COGNITIVE-ARCHITECTURE.md) — `relates` · `control-block` · `current`
