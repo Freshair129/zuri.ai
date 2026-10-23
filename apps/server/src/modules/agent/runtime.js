@@ -179,7 +179,8 @@ export function replayAgentContext({ recordedContext, currentContext } = {}) {
 /**
  * Compose the agent's runtime ports from whatever real backends are configured.
  * - MSP memory when an `mspTransport` is given, else the in-memory port.
- * - GenesisBlockDB knowledge when a `graphTraverse` is given, else the Prisma read.
+ * - Injected relation knowledge when `graphTraverse` is given, else the Prisma read.
+ *   Callers must bind that traversal through the service boundary in ADR-063 D2.
  * MSP and GKS stay independent — configuring one never requires the other.
  *
  * @param {Object} [backends]

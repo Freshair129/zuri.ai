@@ -1,6 +1,6 @@
 import { queryKnowledge } from './query'
 
-// @req FR-024 — GenesisBlockDB-backed knowledge READ for the agent (the read side of
+// @req FR-024 — Service-injected relation knowledge READ for the agent (the read side of
 //   the P5 seam; the sink is the write side). Same {principalId,found,relations} shape
 //   as the Prisma default, so it drops straight into assembleAgentContext.
 // @spec ADR-007 §P5 — GKS holds relations; the agent reads a principal's neighbourhood
@@ -16,7 +16,7 @@ import { queryKnowledge } from './query'
  * Build a knowledge reader that reads a principal's neighbourhood from the graph.
  * @param {Object} opts
  * @param {(args: { tenantId: string, principalId: string }) => Promise<Array<{rel,node}>>} opts.traverse
- * @param {Function} [opts.fallback]  used when traverse yields nothing/throws (default: Prisma queryKnowledge)
+ * @param {Function} [opts.fallback]  used for an empty result (default: Prisma queryKnowledge); traversal errors propagate
  * @returns {(args: { tenantId, principalId }) => Promise<{ principalId, found, relations }>}
  */
 export function createGraphKnowledgeReader({ traverse, fallback = queryKnowledge } = {}) {

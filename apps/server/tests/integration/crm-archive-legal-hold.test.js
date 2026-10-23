@@ -17,6 +17,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep } from '@/modules/crm/retention-sweep-service'
 import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 import { recordCustomerLegalHold } from '@/modules/crm/chat-evidence-legal-hold-service'
+import { recordCustomerRetentionConsent } from '@/modules/crm/customer-retention-consent-service'
 import { withLockedCustomer } from '@/modules/crm/chat-evidence-archive-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { expireChatEvidenceArchive } from '@/modules/crm/chat-evidence-archive-expiry-service'
@@ -54,6 +55,33 @@ async function backdatedMessage({ tenant, business, ageDays, threadId, text }) {
     threadId: threadId ?? `TH-CEAH-${id}`, text: text ?? `evidence ${id}`, externalMessageId: `MI-CEAH-${id}`,
   })
   await prisma.message.update({ where: { id: result.messageId }, data: { createdAt: new Date(Date.now() - ageDays * DAY_MS) } })
+  return result
+}
+
+async function archiveFileSnapshot(directory) {
+  const files = {}
+  async function visit(current) {
+    for (const entry of await fs.readdir(current, { withFileTypes: true })) {
+      const absolute = path.join(current, entry.name)
+      if (entry.isDirectory()) await visit(absolute)
+      else if (entry.isFile()) files[path.relative(directory, absolute).split(path.sep).join('/')] = await fs.readFile(absolute)
+    }
+  }
+  await visit(directory)
+  return Object.fromEntries(Object.entries(files).sort(([left], [right]) => left.localeCompare(right)))
+}
+
+async function groupMessage({ tenant, business, threadId, speaker, text, createdAt }) {
+  const result = await ingestLineMessage({
+    tenantId: tenant.id,
+    businessId: business.id,
+    channelAccountId: 'ceah-reseal-fault',
+    lineUserId: speaker,
+    threadId,
+    text,
+    externalMessageId: `MI-CEAH-${randomUUID().slice(0, 8)}`,
+  })
+  await prisma.message.update({ where: { id: result.messageId }, data: { createdAt } })
   return result
 }
 
@@ -225,6 +253,147 @@ describe('SEC-034 recordCustomerLegalHold (TASK-ZAI-113 P0)', () => {
 })
 
 describe('SEC-034 erasure and the legal hold (TASK-ZAI-113 P1)', () => {
+  it.each(['manifest-create', 'readback'])('removes a new reseal file when %s fails while preserving the prior archive, consent and hold', async (failureStage) => {
+    const { tenant, business } = await freshScope('erase-reseal-rollback')
+    const { viewer } = await ownerOf(business)
+    const suffix = randomUUID().slice(0, 8)
+    const threadId = `TH-CEAH-RESEAL-${suffix}`
+    const start = new Date(Date.now() - PAST * DAY_MS)
+    const aBeforeB = await groupMessage({
+      tenant, business, threadId, speaker: `U-CEAH-A-${suffix}`,
+      text: 'A spoke before B joined', createdAt: start,
+    })
+    const bMessage = await groupMessage({
+      tenant, business, threadId, speaker: `U-CEAH-B-${suffix}`,
+      text: 'B own line', createdAt: new Date(start.getTime() + 60_000),
+    })
+    const aAfterB = await groupMessage({
+      tenant, business, threadId, speaker: `U-CEAH-A-${suffix}`,
+      text: 'A line kept for held B', createdAt: new Date(start.getTime() + 120_000),
+    })
+    expect(aBeforeB.customerId).not.toBe(bMessage.customerId)
+    expect(aAfterB.customerId).toBe(aBeforeB.customerId)
+
+    await runRetentionSweep({ now: new Date(), baseDir })
+    const hold = await recordCustomerLegalHold(
+      bMessage.customerId,
+      { businessId: business.id, reason: 'active hold before rollback test', endDate: futureDateOnly(400) },
+      { viewer },
+    )
+    const consent = await recordCustomerRetentionConsent(
+      bMessage.customerId,
+      { businessId: business.id, note: 'active retention consent before rollback test' },
+      { viewer },
+    )
+
+    const personBefore = await prisma.person.findUnique({ where: { id: aBeforeB.personId } })
+    const customerBefore = await prisma.customer.findUnique({ where: { id: aBeforeB.customerId } })
+    const identitiesBefore = await prisma.channelIdentity.findMany({ where: { tenantId: tenant.id, personId: aBeforeB.personId }, orderBy: { id: 'asc' } })
+    const messagesBefore = await prisma.message.findMany({
+      where: { id: { in: [aBeforeB.messageId, bMessage.messageId, aAfterB.messageId] } },
+      orderBy: { id: 'asc' },
+    })
+    const retentionBefore = await prisma.customerRetentionConsent.findMany({ where: { id: consent.id } })
+    const holdBefore = await prisma.customerLegalHold.findMany({ where: { id: hold.legalHoldId } })
+    const customerKeysBefore = await prisma.customerArchiveKey.findMany({ where: { tenantId: tenant.id }, orderBy: { customerId: 'asc' } })
+    const manifestsBefore = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })
+    expect(manifestsBefore).toHaveLength(1)
+    const filesBefore = await archiveFileSnapshot(baseDir)
+    expect(Object.keys(filesBefore)).toEqual([manifestsBefore[0].filePath])
+
+    const injectedMessage = failureStage === 'readback'
+      ? 'POST_RESEAL_READBACK_INJECTED_FAILURE'
+      : 'POST_RESEAL_MANIFEST_INJECTED_FAILURE'
+    let newlyWrittenArchivePath = null
+    let archivePresentAtFailure = false
+    let injectedFailureCount = 0
+    let failingDb = prisma
+    let readFileSpy = null
+
+    if (failureStage === 'readback') {
+      const originalReadFile = fs.readFile.bind(fs)
+      readFileSpy = vi.spyOn(fs, 'readFile').mockImplementation(async (file, ...args) => {
+        const absolute = path.resolve(String(file))
+        const relative = path.relative(baseDir, absolute).split(path.sep).join('/')
+        const isInsideArchiveRoot = relative && relative !== '..' && !relative.startsWith('../') && !path.isAbsolute(relative)
+        const isNewArchiveFile = isInsideArchiveRoot && relative.endsWith('.zca') && !Object.hasOwn(filesBefore, relative)
+        if (isNewArchiveFile) {
+          injectedFailureCount += 1
+          newlyWrittenArchivePath = absolute
+          archivePresentAtFailure = (await fs.stat(absolute)).isFile()
+          throw new Error(injectedMessage)
+        }
+        return originalReadFile(file, ...args)
+      })
+    } else {
+      failingDb = prisma.$extends({
+        query: {
+          archiveManifest: {
+            async create({ args, query }) {
+              if (args.data?.tenantId === tenant.id && args.data?.runId && !manifestsBefore.some((row) => row.runId === args.data.runId)) {
+                injectedFailureCount += 1
+                const filesAtFailure = await archiveFileSnapshot(baseDir)
+                const newlyWritten = Object.keys(filesAtFailure).filter((file) => !Object.hasOwn(filesBefore, file))
+                if (newlyWritten.length === 1) {
+                  newlyWrittenArchivePath = path.resolve(baseDir, newlyWritten[0])
+                  archivePresentAtFailure = (await fs.stat(newlyWrittenArchivePath)).isFile()
+                }
+                throw new Error(injectedMessage)
+              }
+              return query(args)
+            },
+          },
+        },
+      })
+    }
+
+    let thrown
+    try {
+      await erasePrincipal(
+        { tenantId: tenant.id, personId: aBeforeB.personId, reason: 'TEST_RESEAL_ROLLBACK' },
+        { db: failingDb, archiveBaseDir: baseDir },
+      )
+    } catch (error) {
+      thrown = error
+    } finally {
+      readFileSpy?.mockRestore()
+    }
+
+    expect(thrown).toMatchObject({ message: injectedMessage })
+    expect(injectedFailureCount).toBe(1)
+    expect(archivePresentAtFailure).toBe(true)
+    expect(newlyWrittenArchivePath).toBeTruthy()
+    const relativePath = path.relative(baseDir, newlyWrittenArchivePath).split(path.sep).join('/')
+    expect(relativePath).toMatch(/\.zca$/)
+    expect(thrown.archiveFile).toEqual({
+      runId: path.basename(newlyWrittenArchivePath, '.zca'),
+      relativePath,
+      baseDir,
+    })
+
+    // For readback failure, writeArchiveFile has already renamed the file but
+    // throws before returning. Its error metadata reaches erasePrincipal, whose
+    // rollback cleanup removes that unreferenced file. The manifest-create case
+    // covers the distinct post-write database failure inside hold reseal.
+    expect(await prisma.person.findUnique({ where: { id: aBeforeB.personId } })).toEqual(personBefore)
+    expect(await prisma.customer.findUnique({ where: { id: aBeforeB.customerId } })).toEqual(customerBefore)
+    expect(await prisma.channelIdentity.findMany({ where: { tenantId: tenant.id, personId: aBeforeB.personId }, orderBy: { id: 'asc' } })).toEqual(identitiesBefore)
+    expect(await prisma.message.findMany({
+      where: { id: { in: [aBeforeB.messageId, bMessage.messageId, aAfterB.messageId] } },
+      orderBy: { id: 'asc' },
+    })).toEqual(messagesBefore)
+    expect(await prisma.customerRetentionConsent.findMany({ where: { id: consent.id } })).toEqual(retentionBefore)
+    expect(await prisma.customerLegalHold.findMany({ where: { id: hold.legalHoldId } })).toEqual(holdBefore)
+    expect(await prisma.customerArchiveKey.findMany({ where: { tenantId: tenant.id }, orderBy: { customerId: 'asc' } })).toEqual(customerKeysBefore)
+    expect(await prisma.legalHoldArchiveKey.count({ where: { tenantId: tenant.id } })).toBe(0)
+    expect(await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })).toEqual(manifestsBefore)
+    expect(await prisma.auditEvent.count({ where: { entityType: 'PRINCIPAL', entityId: aBeforeB.personId, action: 'ERASED' } })).toBe(0)
+
+    const filesAfter = await archiveFileSnapshot(baseDir)
+    expect(Object.keys(filesAfter)).toEqual(Object.keys(filesBefore))
+    expect(filesAfter).toEqual(filesBefore)
+  })
+
   it('destroys the archive key on erasure when there is no legal hold', async () => {
     const { tenant, business } = await freshScope('erase-nohold')
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })

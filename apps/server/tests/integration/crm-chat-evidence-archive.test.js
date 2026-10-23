@@ -98,6 +98,19 @@ const candidateFor = (messageId) => prisma.message.findUnique({
   },
 })
 
+async function archiveFileSnapshot(directory) {
+  const files = {}
+  async function visit(current) {
+    for (const entry of await fs.readdir(current, { withFileTypes: true })) {
+      const absolute = path.join(current, entry.name)
+      if (entry.isDirectory()) await visit(absolute)
+      else if (entry.isFile()) files[path.relative(directory, absolute).split(path.sep).join('/')] = await fs.readFile(absolute)
+    }
+  }
+  await visit(directory)
+  return Object.fromEntries(Object.entries(files).sort(([left], [right]) => left.localeCompare(right)))
+}
+
 const PAST = RETENTION_DEFAULT_WINDOW_DAYS.MESSAGE_BODY_AND_ATTACHMENTS + 1
 
 describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
@@ -209,6 +222,70 @@ describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
 
     const chain = await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })
     expect(chain).toEqual({ valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' })
+  })
+
+  it('retention caller removes the new archive after manifest failure and preserves the existing archive and candidate', async () => {
+    const { tenant, business } = await freshScope('caller-rollback')
+    const lineUserId = `U-cea-caller-${randomUUID().slice(0, 8)}`
+    const threadId = `TH-CEA-CALLER-${randomUUID().slice(0, 8)}`
+    const first = await ingestLineMessage({
+      tenantId: tenant.id, businessId: business.id, lineUserId, threadId,
+      text: 'the pre-existing archive must stay', externalMessageId: `MI-CEA-${randomUUID().slice(0, 8)}`,
+    })
+    await prisma.message.update({ where: { id: first.messageId }, data: { createdAt: new Date(Date.now() - PAST * DAY_MS) } })
+    await runRetentionSweep({ now: new Date(), baseDir })
+
+    const manifestsBefore = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })
+    expect(manifestsBefore).toHaveLength(1)
+    const filesBefore = await archiveFileSnapshot(baseDir)
+    expect(Object.keys(filesBefore)).toEqual([manifestsBefore[0].filePath])
+    const firstAfterSweep = await prisma.message.findUnique({ where: { id: first.messageId } })
+    expect(firstAfterSweep.body).toBe(RETENTION_SWEEP_TOMBSTONE)
+
+    const second = await ingestLineMessage({
+      tenantId: tenant.id, businessId: business.id, lineUserId, threadId,
+      text: 'this candidate must survive', externalMessageId: `MI-CEA-${randomUUID().slice(0, 8)}`,
+    })
+    await prisma.message.update({ where: { id: second.messageId }, data: { createdAt: new Date(Date.now() - PAST * DAY_MS) } })
+    const candidateBefore = await prisma.message.findUnique({ where: { id: second.messageId } })
+    const keysBefore = await prisma.customerArchiveKey.findMany({ where: { tenantId: tenant.id }, orderBy: { customerId: 'asc' } })
+
+    let filesAtManifestFailure = {}
+    let injectedManifestCount = 0
+    const failingDb = prisma.$extends({
+      query: {
+        archiveManifest: {
+          async create({ args, query }) {
+            if (args.data?.tenantId === tenant.id && !manifestsBefore.some((row) => row.runId === args.data.runId)) {
+              injectedManifestCount += 1
+              filesAtManifestFailure = await archiveFileSnapshot(baseDir)
+              throw new Error('POST_ARCHIVE_WRITE_MANIFEST_INJECTED_FAILURE')
+            }
+            return query(args)
+          },
+        },
+      },
+    })
+
+    const result = await runRetentionSweep({ db: failingDb, now: new Date(Date.now() + 1000), baseDir })
+    const counts = result.countsByClass.MESSAGE_BODY_AND_ATTACHMENTS
+    expect(counts.archiveFailures).toEqual(
+      expect.arrayContaining([expect.objectContaining({ tenantId: tenant.id, reason: 'POST_ARCHIVE_WRITE_MANIFEST_INJECTED_FAILURE' })]),
+    )
+    expect(injectedManifestCount).toBe(1)
+
+    const newlyWrittenAtFailure = Object.keys(filesAtManifestFailure).filter((file) => !Object.hasOwn(filesBefore, file))
+    expect(newlyWrittenAtFailure).toHaveLength(1)
+    expect(newlyWrittenAtFailure[0]).toMatch(/\.zca$/)
+
+    expect(await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })).toEqual(manifestsBefore)
+    expect(await prisma.customerArchiveKey.findMany({ where: { tenantId: tenant.id }, orderBy: { customerId: 'asc' } })).toEqual(keysBefore)
+    expect(await prisma.message.findUnique({ where: { id: first.messageId } })).toEqual(firstAfterSweep)
+    expect(await prisma.message.findUnique({ where: { id: second.messageId } })).toEqual(candidateBefore)
+    expect(await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })).toEqual({ valid: true })
+    const filesAfter = await archiveFileSnapshot(baseDir)
+    expect(Object.keys(filesAfter)).toEqual(Object.keys(filesBefore))
+    expect(filesAfter).toEqual(filesBefore)
   })
 
   it('fail-closed at the sweep level: a Tenant whose archive step fails keeps its content untouched while every other Tenant still archives', async () => {

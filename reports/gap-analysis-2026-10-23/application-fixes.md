@@ -1,8 +1,9 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.3.1"
+version: "0.4.0"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
+follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
 
 # Confirmed application gap fixes
@@ -103,9 +104,10 @@ first-run configuration prompt; standalone lint is NOT_CONFIGURED, not PASS.
   the existing answer verifier/fallback remains Knowledge-evidence-only.
 - No external MSP/GKS deletion or withdrawal is inferred from a local fake or
   durable pending state. External acknowledgement and live acceptance remain
-  distinct. Direct caller fault injection for physical archive cleanup after
-  rollback remains a coverage limit, although error metadata and cleanup paths
-  were reviewed.
+  distinct. The initial freeze left caller-level physical rollback cleanup
+  fault injection open; the bounded follow-up below now exercises retention
+  sweep and principal-erasure callers. It does not certify every filesystem
+  fault, the separate consent-decline caller, or live storage operation.
 - The three additive scope fields have SQLite and PostgreSQL migrations, but
   no deployed database migration was applied. The Phase B loader binds the new
   schema digest while preserving all 208 table mappings and refusing the former
@@ -113,9 +115,116 @@ first-run configuration prompt; standalone lint is NOT_CONFIGURED, not PASS.
 - Matching Core/Runtime revisions require the documented coordinated drain and
   rollout. Local tests do not establish old-client rolling compatibility,
   production cutover, live provider operation or deployment readiness.
-- Four existing governance warnings remain: two absent candidate receipts in
-  Document 20, the absent Marketing authored-verification record, and the
-  synthetic FR-998 fixture edge. No requirement/receipt was invented to hide them.
+- The initial application freeze reported four governance warnings: two absent
+  candidate receipts in Document 20, the absent Marketing authored-verification
+  record, and the synthetic fixture edge. Their explanatory follow-up is below;
+  the original counts remain evidence for that earlier run.
+
+## Follow-up reconciliation — 2026-10-23
+
+This follow-up starts from 175faacb. It separates supported source repairs from
+missing cross-service contracts. It does not change canonical rows, issued IDs,
+membership, caller permissions, runtime operations or deployment configuration.
+The earlier source fingerprints identify their stated freezes, not this later
+explanatory/test delta.
+
+### F07: a GKS primitive exists; the MSP traversal contract is still missing
+
+[FR-024](../../docs/requirements/FR-024.md),
+[FR-029](../../docs/requirements/FR-029.md) and
+[ADR-063 D2](../../docs/decisions/ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md)
+retain the injected relation-reader seam while prohibiting a direct substrate
+client. Current Phase-1 ports construct Postgres Business Knowledge and optional
+MSP memory. Server LINE and Core prepare use that factory; they do not bind the
+FR-024 principal-neighborhood reader. FR-235 published-corpus retrieval is a
+different contract and cannot be substituted for relation traversal.
+
+The read-only check covered both local inventory and the two accessible remote
+repositories at pinned default-branch heads:
+
+| Source | Observed contract |
+|---|---|
+| [GKS 36ae491d](https://github.com/Freshair129/Genesis-Knowledge-System/tree/36ae491d10ca6e8fe170df6ce9238d3f1eedfca1) | `gks_relations_get({ref, scope})` is registered in `packages/gks-contracts/src/tool-definitions.mjs` and implemented by `GksServicePort.getRelations`. It returns relation rows, without FR-024's node objects. Scope requires `portfolioId`; `tenantId`, Business and other scope fields are additional inputs. The port document is 0.11.0b/beta; this tool schema has no operation-level version field. |
+| [MSP 800ee64b](https://github.com/Freshair129/Memory-and-Soul-Passport/tree/800ee64bf28d8bbc36093ee74502f3844adac8ba) | Its GKS stdio/HTTP providers expose pipeline calls, promotion and evidence export, without a relation-read tool. `msp_pipeline_query` returns published corpus passages/citations; it is not FR-024 traversal. |
+
+GKS's source declares `gks-msp-auth/v1`, normalized-scope binding and explicit
+`gks_invalid_request` / `gks_scope_denied` failures. Source inspection does not
+establish a deployed relay credential, caller grant, tool availability or live
+acceptance. Neither remote repository was modified and no MSP/GKS runtime API
+was called.
+
+An implementation still needs an outward MSP relation contract, a trusted
+mapping from Zuri's `tenantId`/`principalId` to GKS `ref`/scope, relation-to-node
+materialization, bounded result/error behavior, and the consuming answer path.
+Those are not supplied by the existing GKS primitive. Do not bypass MSP, alias
+the corpus query into traversal, or invent that mapping. The local comments now
+name the approved injected service seam and accurately say that empty-result
+fallback exists while traversal errors propagate; executable behavior is unchanged.
+
+### Typed CRM/ERP facts: authority and answer semantics need a contract
+
+[FR-234](../../docs/features/FEAT-037/requirements/FR-234.md) explicitly leaves
+CRM/ERP fact ports to separate establishment. [SDD-100](../../docs/requirements/SDD-100.md)
+specifies injection and receipt shape, not allowed record fields or a caller
+grant. [ADR-091 D7](../../docs/decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
+gives source precedence and denial behavior;
+[ADR-106](../../docs/decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md)
+keeps authoritative reads in Core and prohibits Runtime database access.
+
+Core prepare currently supplies Knowledge and authorized MSP slices, without a
+typed RECORD producer. The composer/model port can preserve supplied RECORD
+slices, but both answer paths still gate and verify against Knowledge evidence.
+Record-only answering is therefore not certified. CRM's SCM reference readers
+return identifiers/scope only under their own facade authority; they are not
+answer-fact ports. Other domain readers require trusted viewer/domain authority,
+which a LINE sender or memory `READ` grant does not establish.
+
+The first fact family remains an explicit product choice: stock/price,
+the asking customer's order status, or CRM customer/history data. For the chosen
+family, settle allowed fields, subject binding, caller authorization/scope,
+selection trigger, freshness, bounded DTO/reference format, and record-only
+verification/fallback before adding a reader or runtime operation. The existing
+fail-closed Knowledge-only path is retained; no operational-data grant is inferred.
+
+### Warning repairs and evidence boundaries
+
+- The CLI fixture still generates the same deliberately malformed compatibility
+  projection. Its synthetic unissued token is assembled rather than written as
+  a bare requirement reference in test source. The graph scanner, requirement
+  registry, warnings and critical checks are not weakened.
+- Candidate Document 20 keeps both exact receipt filenames as historical
+  locators and records their unavailability in the enumerated checkout. No
+  receipt was synthesized and no candidate pin or approval was rebound.
+- The Marketing intake preserves its unavailable original verification locator
+  and locally unresolved `90b9df7d` claim. Existing reconciled tooling verification
+  and the applied reconciliation receipt are linked as distinct successor
+  evidence, without retrospectively proving the earlier claim.
+
+The CLI/agent-runtime regressions passed 5/5, including the unchanged malformed
+projection assertion. The documentation migration/reader suite passed 98/98.
+Governance and hosted qualification belong to the composed follow-up revision;
+these scoped results are not a fresh full Server-suite or live-service claim.
+
+### Physical archive cleanup regression evidence
+
+The two existing CRM archive integration files passed 31/31 tests on isolated
+SQLite with per-test temporary directories. The added caller-level cases cover:
+
+- Retention sweep: a manifest write fails after a new archive file exists.
+  The sweep reports `archiveFailed`, removes that unreferenced new file and
+  preserves the candidate, earlier archive/chain and database state.
+- Principal erasure with a legal hold: reseal manifest creation fails after the
+  new file is written but before reseal metadata returns. The error reaches
+  the erasure caller with its archive identity; rollback removes only the new
+  file and preserves prior archive bytes, database, consent and hold state.
+- The same erasure path: read-back fails after the new file is renamed but
+  before `writeArchiveFile` returns. The test observes the file at that boundary,
+  verifies propagated `error.archiveFile`, and checks the same cleanup and
+  preservation invariants.
+
+No production failure appeared in these cases and no executable archive code
+was changed. This is direct fault-injection evidence for the named local paths,
+not evidence of external erasure or unrestricted storage-failure recovery.
 
 ## Version diff
 
@@ -125,3 +234,8 @@ assessment or its matrix.
 
 0.3.0 → 0.3.1 records the two hosted-CI fixture corrections and their targeted
 verification without changing the implemented behavior or assessment snapshot.
+
+0.3.1 → 0.4.0 records pinned remote graph-contract inspection, the unresolved
+typed-fact authority/answer contract, and narrow warning repairs. It preserves
+the original assessment and historical receipts without adding requirements or
+operational permissions.
