@@ -1,4 +1,5 @@
-import { afterAll, afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { naturalProductFactsFixture } from '../factories/natural-product-facts'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
@@ -62,9 +63,10 @@ async function createLineAccount(runtimeOwner, label, { memoryPolicy = 'OFF' } =
   return result
 }
 
-async function admitProductQuestion(scope, eventSuffix) {
+async function admitProductQuestion(scope, eventSuffix, { natural = false } = {}) {
   const eventId = `line-product-facts-vertical-${eventSuffix}-${++nextId}`
-  const text = `#product ${JSON.stringify({ sku: product.code, facets: ['availability', 'price'], quantity: 100, unit: product.unit })}`
+  const text = natural ? `${product.code} มีของไหม และราคา 100 ${product.unit} เท่าไร`
+    : `#product ${JSON.stringify({ sku: product.code, facets: ['availability', 'price'], quantity: 100, unit: product.unit })}`
   const event = { type: 'message', webhookEventId: eventId, replyToken: `reply-${eventId}`, timestamp: providerNow.getTime(),
     source: { type: 'user', userId: scope.lineUserId },
     message: { type: 'text', id: `message-${eventId}`, text } }
@@ -113,8 +115,8 @@ function inProcessFetch(handlers, beforeOperation = async () => {}) {
   }
 }
 
-function runtimeFor(sink, { beforeOperation, env = {} } = {}) {
-  const core = createConversationRuntimeCore({ db: prisma,
+function runtimeFor(sink, { beforeOperation, env = {}, db = prisma } = {}) {
+  const core = createConversationRuntimeCore({ db,
     env: { CONVERSATION_RUNTIME_TOKEN: coreToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey, ...env },
     productFactsOptions: { knowledgeReaderFactory: priceFixture.knowledgeReaderFactory },
     linePorts: () => lineTransport(sink),
@@ -140,7 +142,7 @@ beforeAll(async () => {
   const master = await createProductMaster({ businessId: business.id, code: `LPFV-M-${suffix}`, categoryId: category.id,
     nameTh: 'สินค้าทดสอบ', nameEn: 'Test product' }, { viewer })
   product = await createProduct({ businessId: business.id, productMasterId: master.id,
-    code: `LPFV-SKU-${suffix}`, name: 'LINE product facts', unit: 'piece', stockPolicy: 'TRACKED', trackingMode: 'NONE' }, { viewer })
+    code: `TEST-ONLY-LPFV-${suffix}`, name: 'LINE product facts', unit: 'piece', stockPolicy: 'TRACKED', trackingMode: 'NONE' }, { viewer })
   await recordMovement({ businessId: business.id, productId: product.id, kind: 'RECEIPT', quantity: 1000,
     costSatang: 10000, occurredAt: providerNow }, { viewer, now: providerNow })
   priceFixture = await createPublishedPriceCatalogFixture({ business, product, viewer, quantity: 100,
@@ -152,6 +154,7 @@ beforeAll(async () => {
 }, 120_000)
 
 afterEach(async () => {
+  vi.unstubAllEnvs()
   if (jobIds.length) await prisma.lineConversationJob.updateMany({ where: { id: { in: [...jobIds] },
     status: { in: ['QUEUED', 'CLAIMED', 'READY', 'SENDING'] } },
   data: { status: 'CANCELLED', answerText: null, sealedReplyToken: null, claimantId: null, leaseExpiresAt: null,
@@ -168,17 +171,23 @@ afterAll(async () => {
 }, 60_000)
 
 describe('FR-291 default product-facts vertical across both execution owners', () => {
-  it('renders the same live ATP and exact verified FR-253 price through Server and Runtime without a model', async () => {
+  it.each([false, true])('renders live ATP and actual FR-253 publication through both cohorts without a model (natural=%s)', async natural => {
+    let db = prisma
+    if (natural) {
+      const pilot = await naturalProductFactsFixture({ db: prisma, business, accounts: lineAccounts.map(scope => scope.account), product })
+      for (const [key, value] of Object.entries(pilot.env)) vi.stubEnv(key, value)
+      db = pilot.db
+    }
     const expected = factsText(product, priceFixture.expectedUnitAmountMinor)
     const serverScope = lineAccounts[0]
-    const serverJob = await admitProductQuestion(serverScope, 'server')
+    const serverJob = await admitProductQuestion(serverScope, 'server', { natural })
     let fallbackCalls = 0
     const answer = withLineProductFactsCommand(async () => {
       fallbackCalls += 1
       throw new Error('PRODUCT_FACTS_MUST_NOT_FALL_THROUGH_TO_SERVER_ANSWER')
-    }, { db: prisma, productFactsOptions: { knowledgeReaderFactory: priceFixture.knowledgeReaderFactory } })
+    }, { db, productFactsOptions: { knowledgeReaderFactory: priceFixture.knowledgeReaderFactory } })
     const serverSink = []
-    const serverOutcome = await runLineConversationWorker({ db: prisma,
+    const serverOutcome = await runLineConversationWorker({ db,
       env: { ZURI_LINE_REPLY_SEAL_KEY: sealKey }, workerId: `line-product-facts-vertical-server-${nextId}`,
       answer, productFactsOptions: { knowledgeReaderFactory: priceFixture.knowledgeReaderFactory },
       ...lineTransport(serverSink) })
@@ -194,14 +203,29 @@ describe('FR-291 default product-facts vertical across both execution owners', (
       publicationDigest: expect.stringMatching(/^[a-f0-9]{64}$/),
     })
 
-    const runtimeJob = await admitProductQuestion(lineAccounts[1], 'runtime')
+    const runtimeJob = await admitProductQuestion(lineAccounts[1], 'runtime', { natural })
     const runtimeSink = []
-    const { runtime, client } = runtimeFor(runtimeSink)
+    const { runtime, client } = runtimeFor(runtimeSink, { db })
     expect(client.contractVersion).toBe('conversation-runtime.v2')
     const runtimeOutcome = await runtime(`line-product-facts-vertical-runtime-${nextId}`).runOne()
     expect(runtimeOutcome).toMatchObject({ jobId: runtimeJob.id, status: 'RECORDED' })
     expect(runtimeSink).toEqual(serverSink)
     expect(fallbackCalls).toBe(0)
+  }, 120_000)
+
+  it('suppresses a prepared natural reply when the profile is disabled before Runtime send', async () => {
+    const pilot = await naturalProductFactsFixture({ db: prisma, business, accounts: lineAccounts.map(scope => scope.account), product })
+    for (const [key, value] of Object.entries(pilot.env)) vi.stubEnv(key, value)
+    const job = await admitProductQuestion(lineAccounts[1], 'natural-disabled', { natural: true })
+    const sink = []
+    let disabled = false
+    const { runtime } = runtimeFor(sink, { db: pilot.db, beforeOperation: async operation => {
+      if (operation === 'send') { vi.stubEnv('ZURI_LINE_NATURAL_PRODUCT_FACTS_ENABLED', 'false'); disabled = true }
+    } })
+    const result = await runtime(`line-natural-profile-revoked-${nextId}`).runOne()
+    expect(disabled).toBe(true)
+    expect(result).toMatchObject({ jobId: job.id, status: 'CANCELLED' })
+    expect(sink).toEqual([])
   }, 120_000)
 
   it('uses the actual owner policy again inside the shared send gate and stops a revoked Runtime reply', async () => {

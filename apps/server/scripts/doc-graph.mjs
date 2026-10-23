@@ -194,7 +194,7 @@ function build() {
   // Validate sealed migration copies before excluding their duplicated original
   // metadata from the live graph. Unregistered copies still face normal guards.
   const canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
-  const approvalSnapshots = canonicalApprovalSnapshotPaths(canonicalRegistry)
+  const approvalSnapshots = canonicalApprovalSnapshotPaths(canonicalRegistry, workspaceRoot(ROOT))
   const docFiles = walk(workspacePath(ROOT, 'docs'), ['.md']).filter(
     (f) => !f.startsWith(V1_DIR) && !f.startsWith(ARCHIVE_DIR) && !GENERATED.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)) && !approvalSnapshots.has(rel(f)),
   )
