@@ -1,7 +1,7 @@
 ---
 domain: project-manager
 doc_type: domain-document-spine
-version: "0.2.0b"
+version: "0.3.0b"
 created_at: "2026-09-18T20:42:13+07:00,RWANG"
 last_update: "2026-10-23,Codex"
 superseded_by: null
@@ -17,11 +17,16 @@ attributes:
 
 This is the repository entry point for Project Manager domain documentation.
 
-Start with the [ownership charter](CHARTER.md) and the proposed
+Start with the [ownership charter](CHARTER.md) and the approved
 [source-linked domain SRS](SRS.md). The latter indexes exact canonical records,
 their lifecycle, peer contracts and evidence limits. The full-system design
 below remains a candidate proposal; its separate [candidate SRS](../../architecture/project-manager-system/17-SRS.md)
 is not an approved replacement for canonical requirements.
+
+For remaining delivery work, read the proposed [implementation-plan index](../../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md).
+It distinguishes existing-code qualification, approval-race evidence and the
+still design-gated Pipeline Builder. Owner approval of the SRS does not approve
+the plans or start their code changes.
 
 The public GPT design Site supplies the information architecture and reading order. GitHub stores the canonical Markdown, contracts, registries and evidence. The Site is rebuilt/exported from this tree and is never edited as a second source.
 
@@ -99,3 +104,7 @@ After changing this spine or any source document, run npm run govern, inspect th
 older feature-note authority wording with the canonical-record cutover. Retain
 the candidate package, PMR keys and historical supplements without promoting
 their approval, implementation or production status.
+
+0.2.0b → 0.3.0b (2026-10-23): record the linked SRS's owner-approved lifecycle
+and link the proposed implementation-plan package. The Site-derived design
+spine remains candidate.

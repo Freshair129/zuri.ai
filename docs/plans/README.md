@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.2.0"
+version: "0.3.0"
 checked_at: "2026-10-23"
 checked_base_revision: "e3474ef3c16b5cc5b6e797c63e69d6dc202c191f"
 ---
@@ -9,7 +9,7 @@ checked_base_revision: "e3474ef3c16b5cc5b6e797c63e69d6dc202c191f"
 # Plans location and retained sources
 
 The 2026-10-23 cleanup removes eleven execution plans, candidate proposals and
-retired DDC plans from this directory. No replacement development plan is created.
+retired DDC plans from this directory. That cleanup created no replacement plan.
 Their original text remains in the
 [Git snapshot before cleanup](https://github.com/Freshair129/zuri.ai/tree/e3474ef3c16b5cc5b6e797c63e69d6dc202c191f/docs/plans).
 
@@ -19,6 +19,22 @@ location does not make them disposable plans, current delivery state, or proof
 of production acceptance. In particular, canonical NFR-020 and FR-254 link to
 the GenesisRAG17 and Knowledge Console specifications. This cleanup does not
 rewrite those pinned rows or move their consumed paths.
+
+## Current implementation plans
+
+The owner approved the linked PM SRS and explicitly requested the following
+plans on 2026-10-23. The plans remain proposed for review before coding; they are
+ordinary implementation documents, separate from retired DDC procedures.
+
+| Plan | Scope |
+|---|---|
+| [Project Manager plan index](PROJECT-MANAGER-IMPLEMENTATION-20261023.md) | Approved SRS baseline, remaining-work disposition, dependencies and execution/release limits. |
+| [PM approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | FR-272 real PostgreSQL concurrency and audit-rollback evidence. |
+| [Existing PM delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Source reconciliation, Feature role/recovery proof, strategy/bootstrap qualification and selected release. |
+| [Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Contract adoption before the four design-gated FR-082–085 implementation slices. |
+
+Enumeration for this plan addition: fourteen direct files, no child directories
+(the nine retained sources below, this README, and four new proposed plans).
 
 ## Retained files
 
@@ -58,3 +74,7 @@ pinned-reference changes in one reviewed patch.
 0.1.0 → 0.2.0 (2026-10-23): removes eleven plans/proposals, enumerates the nine
 retained non-plan sources, preserves approval history by exact Git revision and
 links the dated gap assessment. No requirement, ID, ownership or task status changes.
+
+0.2.0 → 0.3.0 (2026-10-23): add the explicitly requested proposed PM plan package
+after owner approval of the linked SRS. Preserve cleanup history and retained
+contracts; no application work or production activation is recorded as done.

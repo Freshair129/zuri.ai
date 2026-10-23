@@ -73,9 +73,12 @@ reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md
 
 - [Domain index](domains/README.md) lists confirmed charters and observed
   coverage.
-- [Project Manager linked SRS](domains/project-manager/SRS.md) is a proposed
+- [Project Manager linked SRS](domains/project-manager/SRS.md) is an approved
   reading view over canonical records, peer contracts and evidence limits;
   the wider PM system design retains its separate candidate status.
+- [Project Manager implementation plans](plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
+  propose the remaining source reconciliation, verification, qualification and
+  gated Pipeline Builder work for review before coding.
 - [Service documentation](services/README.md) explains Core, Conversation Runtime,
   Market Intelligence and SCM execution boundaries and verification responsibilities.
 - [Model-source evidence rules](GOVERNANCE-MODEL-SOURCES.md) define how domain

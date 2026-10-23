@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.2.0"
+version: "0.3.0"
 checked_at: "2026-10-22"
 checked_base_revision: "1f1e5a0a7591f4e42646ebc33e78654a4e3477be"
 ---
@@ -24,7 +24,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 | [`governance/`](../governance/README.md) | 1 / 0 | [Documentation entrypoint](../README.md) and [generated governance navigation](../governance/README.md) | The main documentation index links the new profile and filesystem registers; the generated view remains unchanged in this no-generator pass. |
 | [`migrations/`](../migrations/) | 0 / 4 | [Operations index](../operations/README.md) | Generated operations view lists migration documents; each migration lane keeps its own authority and evidence. |
 | [`operations/`](../operations/README.md) | 1 / 0 | `README.md` | Generated operations navigation includes deployment, migrations, plans, and runbooks. |
-| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. The 2026-10-23 cleanup removes eleven plans/proposals; current enumeration has nine retained contracts/designs/evidence files plus README. Legacy source-path exceptions are explicit in that index. |
+| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. After the 2026-10-23 cleanup and explicitly requested PM planning, current enumeration has nine retained sources, four proposed PM plans and README (14 files). Legacy source-path exceptions are explicit in that index. |
 | [`product/`](../product/README.md) | 1 / 0 | `README.md` | Generated product navigation. |
 | [`prompts/`](../prompts/README.md) | 1 / 0 | `README.md` | Added an index marking the only prompt as historical and non-authorizing. |
 | [`requirements/`](../requirements/) | 345 / 0 | [Canonical document registry](../../registry/document-registry/index.json) | Registry owns requirement paths; no second ID list. |
@@ -43,6 +43,10 @@ This register records all 20 tracked directories directly under `docs/` at the r
 - Do not add directories or files solely to make this inventory symmetrical. A missing local README is acceptable when an exact canonical index already covers the contents.
 
 ## Version diff
+
+0.2.0 → 0.3.0 (2026-10-23): record four explicitly requested proposed PM plans
+after SRS approval; fourteen current direct plan-folder files. The historical
+reviewed-base counts and retained-source classifications remain unchanged.
 
 0.1.1 → 0.2.0 (2026-10-23): records the plan cleanup and current ten-file
 enumeration while preserving the table's original reviewed-base counts. The

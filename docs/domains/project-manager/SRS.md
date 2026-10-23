@@ -4,8 +4,12 @@ title: Project Manager linked domain SRS
 doc_type: domain-srs-view
 domain: project-manager
 domain_id: project-manager
-status: proposed
-version: "0.1.0"
+status: approved
+version: "0.2.0"
+approved_at: "2026-10-23"
+approval_scope: source-linked-domain-srs
+approved_source_commit: "e1014247b01cd42bca589e679c840d2c2c8f2857"
+approved_source_sha256: "f3e852a158912d262b31bf5dd5f616195c334ea9c8a06afffc1124012d32f8ac"
 source_revision: "6c4d001eec5f389a80e16cf2e4dcbcd34e0515e4"
 relations:
   - type: references
@@ -18,9 +22,17 @@ relations:
 
 # SRS — Project Manager
 
-> Proposed source-linked reading view. Requirement statements, acceptance criteria,
+> Approved source-linked reading view. Requirement statements, acceptance criteria,
 > lifecycle and explicit feature membership remain in the canonical records.
 > This document adds no product requirement or delivery approval.
+
+The owner approved this SRS on 2026-10-23 with the instruction
+“อนุมัติ SRS นี้ ทำ implementation plan สำหรับงาน Project Manager ที่ยังค้างต่อ ก่อนลงโค้ด”.
+The approved input is the exact file at the commit and SHA-256 above. Approval
+covers this reading view and its stated exclusions; it does not adopt the
+separate full-system candidate or authorize production operations. The resulting
+[implementation-plan index](../../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
+is a separate proposed artifact for review before coding.
 
 ## 1. Purpose and boundary
 
@@ -265,6 +277,7 @@ hosted CI, databases, authenticated production UI and live activation are
 | Version | Date | Source revision | Change |
 |---|---|---|---|
 | 0.1.0 | 2026-10-23 | `6c4d001eec5f389a80e16cf2e4dcbcd34e0515e4` | Initial proposed linked view; exact canonical paths/lifecycle/membership, existing owner key, peer contracts and scoped evidence. No requirement text, acceptance criteria, FEAT membership or runtime behavior changed |
+| 0.2.0 | 2026-10-23 | approved input `e1014247b01cd42bca589e679c840d2c2c8f2857` | Record direct owner approval of the linked view and preparation of a separate implementation plan; canonical source revision and all 108 record mappings retained |
 
 Parent/peer impact: the charter exposes its existing key for the view; domain
 navigation links this document and distinguishes the older full-system proposal.

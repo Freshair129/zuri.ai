@@ -1,7 +1,7 @@
 ---
 domain: project-manager
 doc_type: fr-note-index
-version: "0.2.0b"
+version: "0.2.1b"
 created_at: "2026-09-18T20:42:13+07:00,RWANG"
 last_update: "2026-10-23,Codex"
 superseded_by: null
@@ -14,7 +14,7 @@ attributes:
 
 # Project Manager FR index
 
-This is a link-only index of supporting FR notes. Canonical statements, lifecycle and FEAT membership live in the registry-selected per-ID records, indexed by the proposed [domain SRS](SRS.md). A note explains rationale or evidence and may retain historical status wording; it is not a second requirement authority.
+This is a link-only index of supporting FR notes. Canonical statements, lifecycle and FEAT membership live in the registry-selected per-ID records, indexed by the approved [domain SRS](SRS.md). A note explains rationale or evidence and may retain historical status wording; it is not a second requirement authority.
 
 ## Supporting FR notes in this domain
 
@@ -108,3 +108,6 @@ The Site spine also contains PMR proposal keys. Their extracted bodies are in [r
 records, link the proposed domain SRS, include the existing FR-268–271 notes,
 and remove copied note-status cells. PMR trace keys and registration states
 are preserved.
+
+0.2.0b → 0.2.1b (2026-10-23): reflect the linked SRS's explicit owner approval;
+supporting-note and canonical-record authority remain unchanged.
