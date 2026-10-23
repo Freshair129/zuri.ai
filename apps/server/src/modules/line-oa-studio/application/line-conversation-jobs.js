@@ -21,6 +21,7 @@ import { zContextSliceSource } from '@/lib/validation/enums'
 import { assertMemoryAnswerAppended, loadMemoryReceipt } from './runtime-memory-receipts'
 import { parseLineProductFactsRequest, revalidateLineProductFacts } from '@/modules/agent/line-product-facts'
 import { normalizeLineProductFactsReply, readLineProductFactsDecision } from './line-product-facts-decision'
+import { checkMainDevTestRagSend } from '@/modules/agent/main-dev-test-rag-decision'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -1068,6 +1069,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
   revalidateProductFacts = revalidateLineProductFacts,
   productFactsOptions = {},
+  testRagOptions = {},
   threadMemory = null,
   memoryDeliveryBatch,
   memoryDeliveryLeaseMs,
@@ -1119,7 +1121,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   let sent = 0
   for (const job of ready) {
     last = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
-      requiredRuntimeOwner: owner.runtimeOwner, revalidateProductFacts, productFactsOptions })
+      requiredRuntimeOwner: owner.runtimeOwner, revalidateProductFacts, productFactsOptions, testRagOptions })
     sent += 1
   }
   await scanMemory()
@@ -1129,7 +1131,12 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
 /** Send one READY job and record the outcome. Split out of the tick when it became a batch. */
 async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
   requiredExecutionMode = 'SERVER', requiredRuntimeOwner = 'SERVER', expectedExecutionId = job.executionId,
-  revalidateProductFacts = revalidateLineProductFacts, productFactsOptions = {} }) {
+  revalidateProductFacts = revalidateLineProductFacts, productFactsOptions = {}, testRagOptions = {} }) {
+  if (!testRagOptions || typeof testRagOptions !== 'object' || Array.isArray(testRagOptions)
+    || Object.keys(testRagOptions).some(key => key !== 'snapshotReader')
+    || (testRagOptions.snapshotReader !== undefined && typeof testRagOptions.snapshotReader !== 'function')) {
+    throw new Error('MAIN_DEV_TEST_RAG_OPTIONS_INVALID')
+  }
   productFactsOptions = validateProductFactsOptions(productFactsOptions)
   if (job.executionMode !== 'SERVER' || job.runtimeOwner !== requiredRuntimeOwner
     || (expectedExecutionId && job.executionId !== expectedExecutionId)) {
@@ -1210,7 +1217,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     try { isProductFacts = parseLineProductFactsRequest(current.inbound?.body) !== null }
     catch { isProductFacts = typeof current.inbound?.body === 'string' && current.inbound.body.trim().startsWith('#product') }
     let fixedOutOfHoursReply = false
-    if (isProductFacts && current.answerText) {
+    if ((isProductFacts || env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE === 'GENESISRAG17_TEST_ONLY') && current.answerText) {
       try {
         const events = await readExecutionTrace(tx, { scope: { tenantId: current.tenantId, businessId: current.businessId }, turnId: current.id })
         fixedOutOfHoursReply = events.some(event => event.kind === 'ANSWER_READY'
@@ -1241,6 +1248,17 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
         return { count: 0, productFactsRejected: cancelled.count > 0 }
       }
     }
+    if (requiredRuntimeOwner === 'SERVER' && !isProductFacts && !fixedOutOfHoursReply
+      && !isLineProjectWorkCommand(current.inbound?.body)) {
+      const decision = await checkMainDevTestRagSend(tx, current, { ...testRagOptions, env })
+      if (decision.required && !decision.allowed) {
+        const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id,
+          runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
+        data: { status: 'CANCELLED', answerText: null, errorCode: 'MAIN_DEV_TEST_RAG_AUTHORITY_REVOKED',
+          sealedReplyToken: null, version: { increment: 1 } } })
+        return { count: 0, testRagRejected: cancelled.count > 0 }
+      }
+    }
     const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode, runtimeOwner: requiredRuntimeOwner,
       executionId: expectedExecutionId, version: job.version, status: 'READY' },
       data: { status: 'SENDING', sendMethod: method, firstSendAt: job.firstSendAt ?? at,
@@ -1251,7 +1269,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     }, at)
     return result
   })
-  if (claimed.productFactsRejected) return { id: job.id, status: 'CANCELLED' }
+  if (claimed.productFactsRejected || claimed.testRagRejected) return { id: job.id, status: 'CANCELLED' }
   if (!claimed.count) return { status: 'CONTENDED' }
   let result
   let receivedProviderResponse = true

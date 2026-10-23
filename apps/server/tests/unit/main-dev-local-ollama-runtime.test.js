@@ -118,6 +118,30 @@ function runtimeDependencies({ databaseName = 'zuri_main_dev', connection = make
 }
 
 describe('main-dev keyless Ollama Phase-1 ports', () => {
+  it('uses the restricted RAG reader and revalidates on both sides of generation, never the fixture', async () => {
+    const env = profileEnv({ ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS: JSON.stringify([{ productId: OTHER_ACCOUNT_ID, sku: PRODUCT_CODE,
+        sourceId: TENANT_ID, ingestionId: BUSINESS_ID, fileSha256: 'c'.repeat(64) }]) })
+    delete env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH
+    delete env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+    const dependencies = runtimeDependencies()
+    const query = vi.fn(async () => ({ records: [{ name: 'TEST ONLY', product_code: PRODUCT_CODE }] }))
+    const revalidate = vi.fn(async () => ({ schema: 'test-binding' }))
+    const mainDevTestRagReaderFactory = vi.fn(() => ({ query, revalidate, getBinding: () => ({ schema: 'test-binding' }) }))
+    const ports = createPhase1BusinessAgentPortsFromEnv(env, { bindingRequired: false, ...dependencies, mainDevTestRagReaderFactory })
+    const model = await ports.resolveModel({ tenantId: TENANT_ID, businessId: BUSINESS_ID, accountId: ACCOUNT_ID })
+    expect(await ports.businessKnowledge.query({ tenantId: TENANT_ID, businessId: BUSINESS_ID,
+      queryId: 'product_detail', params: { productCode: PRODUCT_CODE }, limit: 1 })).toMatchObject({ records: [{ name: 'TEST ONLY' }] })
+    await model.generate({ question: PRODUCT_CODE, evidence: { records: [{ name: 'TEST ONLY' }] } })
+    expect(mainDevTestRagReaderFactory).toHaveBeenCalledOnce()
+    expect(query).toHaveBeenCalledOnce()
+    expect(revalidate).toHaveBeenCalledTimes(2)
+    expect(dependencies.fetchFn).toHaveBeenCalledOnce()
+    env.ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256 = 'd'.repeat(64)
+    await expect(model.generate({ question: PRODUCT_CODE, evidence: { records: [] } })).rejects.toThrow()
+    expect(dependencies.fetchFn).toHaveBeenCalledOnce()
+  })
   it('builds only the pinned fixture reader and Ollama port without legacy SQL/model settings', async () => {
     const env = profileEnv({ ZURI_LINE_DB_URL: 'postgresql://ignored.example/main-dev-profile-must-not-read-this' })
     const dependencies = runtimeDependencies()

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import { hashGenesisRag17Json, hashGenesisRag17Text, GENESIS_RAG17_SCHEMA_VERSION, stageIdForNumber } from '@/modules/knowledge/genesisrag17-contract'
 import { KNOWLEDGE_INGESTION_CONTRACT_ID, KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import {
@@ -956,5 +957,140 @@ describe('corpus query over many single-record snapshots', () => {
     expect(new Set(caches.slice(0, COUNT)).size).toBe(1)
     expect(new Set(caches.slice(COUNT)).size).toBe(1)
     expect(caches[COUNT]).not.toBe(caches[0])
+  })
+})
+
+describe('internal source-restricted corpus queries', () => {
+  async function seedUuidSources({ sharedSnapshot = false } = {}) {
+    const firstSource = source({ id: randomUUID() })
+    const secondSource = source({ id: randomUUID() })
+    const firstIngestion = ingestionFor(firstSource, {
+      id: 'ingestion-1', content: 'alpha product', snapshotId: 'snapshot-1', snapshotGeneration: 'native-1', rawArtifactId: 'raw-1', parsedArtifactId: 'parsed-1',
+    })
+    const secondIngestion = ingestionFor(secondSource, {
+      id: 'ingestion-2', content: 'beta product', snapshotId: sharedSnapshot ? 'snapshot-1' : 'snapshot-2',
+      snapshotGeneration: sharedSnapshot ? 'native-1' : 'native-2', rawArtifactId: 'raw-2', parsedArtifactId: 'parsed-2',
+    })
+    const repo = new MemoryKnowledgeRepository({
+      corpora: [['corpus-1', corpus()]],
+      sources: [[firstSource.id, firstSource], [secondSource.id, secondSource]],
+      ingestions: [[firstIngestion.id, firstIngestion], [secondIngestion.id, secondIngestion]],
+      chunks: [
+        [`chunk-${firstIngestion.id}`, chunkFor(firstIngestion, { id: `chunk-${firstIngestion.id}`, text: 'alpha product' })],
+        [`chunk-${secondIngestion.id}`, chunkFor(secondIngestion, { id: `chunk-${secondIngestion.id}`, text: 'beta product' })],
+      ],
+    })
+    addPublicationEvidence(repo, firstIngestion, firstSource)
+    addPublicationEvidence(repo, secondIngestion, secondSource)
+    const db = makeDb()
+    await publish(repo, db, firstIngestion)
+    await publish(repo, db, secondIngestion)
+    return { repo, db, sourceIds: [firstSource.id, secondSource.id], ingestions: [firstIngestion, secondIngestion] }
+  }
+
+  function snapshotStub(repo, ingestions) {
+    return vi.fn(async ({ snapshotId }) => {
+      const matching = ingestions.filter((ingestion) => ingestion.snapshotId === snapshotId)
+      return {
+        schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+        scope,
+        snapshotId,
+        generation: matching[0].snapshotGeneration,
+        results: matching.map((ingestion) => {
+          const chunk = repo.chunks.get(`chunk-${ingestion.id}`)
+          return { id: `hit-${ingestion.id}`, score: 0.8, text: chunk.text, citation: {
+            sourceId: ingestion.sourceId,
+            rawArtifactId: ingestion.rawArtifactId,
+            parsedArtifactId: ingestion.parsedArtifactId,
+            chunkId: chunk.id,
+            contentHash: chunk.contentHash,
+          } }
+        }),
+      }
+    })
+  }
+
+  const input = { businessId: scope.businessId, projectId: 'project-1', query: 'product', topK: 5 }
+
+  it('queries and returns only the selected source while retaining the current manifest identity', async () => {
+    const fixture = await seedUuidSources()
+    const [firstId, selectedId] = fixture.sourceIds
+    const querySnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+
+    const result = await queryKnowledgeCorpus(input, {
+      repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot, sourceIds: [selectedId],
+    })
+
+    expect(querySnapshot.mock.calls.map(([request]) => request.snapshotId)).toEqual(['snapshot-2'])
+    expect(result.results.map((row) => row.sourceId)).toEqual([selectedId])
+    expect(result.results.map((row) => row.sourceId)).not.toContain(firstId)
+    expect(result.corpusGeneration).toBe(2)
+    expect(result.manifestHash).toBe(fixture.repo.generations.get('corpus-1:2').manifestHash)
+  })
+
+  it('rejects empty, malformed, duplicate and oversized source selectors before querying a snapshot', async () => {
+    const fixture = await seedUuidSources()
+    const [selectedId] = fixture.sourceIds
+    const invalidSelectors = [
+      [],
+      ['not-a-uuid'],
+      [selectedId, selectedId],
+      Array.from({ length: 9 }, () => randomUUID()),
+    ]
+    const querySnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+
+    for (const sourceIds of invalidSelectors) {
+      await expect(queryKnowledgeCorpus(input, {
+        repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot, sourceIds,
+      })).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_FILTER_INVALID' })
+    }
+    expect(querySnapshot).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when a valid requested source is absent from the current manifest', async () => {
+    const fixture = await seedUuidSources()
+    const querySnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+
+    await expect(queryKnowledgeCorpus(input, {
+      repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot, sourceIds: [randomUUID()],
+    })).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_REVOKED' })
+    expect(querySnapshot).not.toHaveBeenCalled()
+  })
+
+  it('rejects a snapshot response containing an unselected source sharing the selected snapshot', async () => {
+    const fixture = await seedUuidSources({ sharedSnapshot: true })
+    const [, selectedId] = fixture.sourceIds
+    const querySnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+
+    await expect(queryKnowledgeCorpus(input, {
+      repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot, sourceIds: [selectedId],
+    })).rejects.toMatchObject({ code: 'KNOWLEDGE_SNAPSHOT_MISMATCH' })
+  })
+
+  it('does not disclose a selected source revoked while its snapshot is being queried', async () => {
+    const fixture = await seedUuidSources()
+    const [, selectedId] = fixture.sourceIds
+    const baseSnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+    const querySnapshot = vi.fn(async (request) => {
+      const response = await baseSnapshot(request)
+      fixture.repo.sources.get(selectedId).revokedAt = new Date()
+      return response
+    })
+
+    await expect(queryKnowledgeCorpus(input, {
+      repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot, sourceIds: [selectedId],
+    })).rejects.toMatchObject({ code: 'KNOWLEDGE_SOURCE_REVOKED' })
+  })
+
+  it('keeps the existing all-manifest query behavior when no source selector is supplied', async () => {
+    const fixture = await seedUuidSources()
+    const querySnapshot = snapshotStub(fixture.repo, fixture.ingestions)
+
+    const result = await queryKnowledgeCorpus(input, {
+      repository: fixture.repo, db: fixture.db, viewer: reader, querySnapshot,
+    })
+
+    expect(querySnapshot).toHaveBeenCalledTimes(2)
+    expect(result.results.map((row) => row.sourceId).sort()).toEqual([...fixture.sourceIds].sort())
   })
 })
