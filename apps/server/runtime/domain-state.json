@@ -3556,7 +3556,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-188",
@@ -4482,7 +4482,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-188",
@@ -7451,7 +7451,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-191",
@@ -11760,7 +11760,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-188",
@@ -11818,6 +11818,7 @@
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/ki17-build-stage.test.js",
+        "apps/server/tests/unit/ki17-msp-only-release.test.js",
         "apps/server/tests/unit/ki17-overlay-release.test.js",
         "apps/server/tests/unit/ki17-real-corpus.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",

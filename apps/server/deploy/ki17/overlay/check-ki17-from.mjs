@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Runs inside the overlay build (deploy/ki17/overlay/Dockerfile). The overlay carries
-// KI17_FROM's /opt/ki17 forward verbatim, so it must be the stdio production tuple
+// KI17_FROM's /opt/ki17 forward verbatim, so it must match the stdio release candidate
 // that deploy/ki17/pins.json pins — not merely "not labelled gks-http". A receipt
 // written before manifests carried a `profile` has no label at all, so the check is
 // by commit: every repository the manifest verifies in the build must appear in the
@@ -40,8 +40,8 @@ if (invokedDirectly) {
     failures = [`cannot read ${manifestFile} / ${receiptFile}: ${error.message}`]
   }
   if (failures.length) {
-    process.stderr.write(`KI17_OVERLAY_TUPLE_MISMATCH: KI17_FROM's /opt/ki17 is not the stdio production tuple\n  ${failures.join('\n  ')}\n`)
+    process.stderr.write(`KI17_OVERLAY_TUPLE_MISMATCH: KI17_FROM's /opt/ki17 is not the selected stdio tuple\n  ${failures.join('\n  ')}\n`)
     process.exit(1)
   }
-  process.stdout.write('ki17 overlay: KI17_FROM carries the stdio production tuple\n')
+  process.stdout.write('ki17 overlay: KI17_FROM carries the selected stdio tuple\n')
 }
