@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.3"
+version: "0.1.4"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -186,7 +186,7 @@ documentary/governance and exact-head hosted results are PR gates; no deployment
 
 This is implementation evidence for the selected increment, not a requirement
 source. The approved C0 examples and historical Phase B schema inventory remain
-unchanged. The C1 PM application/contracts/Prisma patch source was frozen at `e41240f17ad617b1672d232de4d0ca597d312723`;
+unchanged. The initial reviewed C1 PM application/contracts/Prisma checkpoint is `e41240f17ad617b1672d232de4d0ca597d312723`;
 reviewed test-only follow-ups end at `30120d04ea7de61e317f51674d67f4d79f91346a`.
 Git comparison confirms no C1 PM application, contract or Prisma differences between
 those revisions. The final main synchronization at `75e20709` retains upstream
@@ -212,6 +212,30 @@ database; restoring its original bytes in `finally` allowed all 324 selected
 tests, including the affected recovery files, to pass together. Neither recovery
 validation nor verification time budgets were relaxed. Exact-head hosted full
 Server checks remain required; scoped reruns do not replace them.
+
+#### Hosted-CI correction round
+
+The first final-head run caught SCM kernel mirror drift; the sanctioned
+`kernel:sync` updated only the shared enum mirror and its manifest at `7eb5854e`.
+Its exact-head hosted governance/build and all three services passed, but full
+Server shards found further retained-consumer failures. That red run is not
+acceptance. The follow-up retains explicit Serializable transaction options on
+SQLite as well as PostgreSQL, and forwards version-specific PlanEnvelope error
+paths through a preprocessor around the original OpenAPI-capable union.
+Snapshot fixtures now supply explicit empty Dependency arrays, Pricing mocks
+supply the writer reservation/schema probe, and the Marketing execution reader
+fixture uses actual Person/Membership rows. Existing recovery refusal and
+Serializable race assertions remain unchanged.
+
+The initial focused eight-file run passed 98 tests before the OpenAPI-compatible
+preprocess correction; it does not qualify that corrected representation. The composed follow-up
+passed **49 files / 422 tests** together, including all original 324 C1 tests,
+OpenAPI schema mirrors and all seven newly failing hosted files. The diagnostic
+regression covers every supported full-plan version (1.0/1.1/1.2). GPT-6 Luna Max
+reviewed this seven-file application/fixture correction and found no remaining
+source blocker after the OpenAPI representation was corrected. Record fresh
+PostgreSQL, build, governance and final-head hosted results in the PR before
+acceptance; the earlier source checkpoint does not prove this correction.
 
 C2 canvas gestures, C3 structure editing, C4 Board/CRUD release enforcement,
 production migration, deployment and merge remain outside this increment.

@@ -11,14 +11,15 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 
 const rules = defaultPricingRules()
 const rule = (id, sourceRuleSetId = null) => ({ id, tenantId: 'tenant-a', businessId: 'business-a', name: id, sourceRuleSetId, status: 'APPROVED', version: 1, rulesJson: JSON.stringify(rules), rulesHash: pricingHash(rules), approvedAt: '2026-09-17T00:00:00Z', effectiveFrom: '2026-09-17T00:00:00Z', approvalReason: 'test' })
-const snapshot = () => ({ schemaVersion: '1.0', tables: { tenant: [{ id: 'tenant-a' }], business: [{ id: 'business-a', tenantId: 'tenant-a' }], pricingRuleSet: [rule('child', 'root'), rule('root')], pricingCalculation: [] } })
+const snapshot = () => ({ schemaVersion: '1.0', tables: { dependency: [], tenant: [{ id: 'tenant-a' }], business: [{ id: 'business-a', tenantId: 'tenant-a' }], pricingRuleSet: [rule('child', 'root'), rule('root')], pricingCalculation: [] } })
 function mockDb(counts = {}, liveRows = []) {
   const models = new Map(), deletes = [], created = []
   const db = new Proxy({}, { get: (_, name) => {
     if (name === '_activeProvider') return 'sqlite'
     if (name === '$transaction') return async (work) => work(db)
+    if (name === '$executeRawUnsafe') return vi.fn(async () => 0)
     if (!models.has(name)) models.set(name, {
-      count: vi.fn(async () => counts[name] || 0), findMany: vi.fn(async () => name === 'pricingRuleSet' ? liveRows : []),
+      count: vi.fn(async () => counts[name] || 0), findFirst: vi.fn(async () => null), findMany: vi.fn(async () => name === 'pricingRuleSet' ? liveRows : []),
       deleteMany: vi.fn(async () => { deletes.push(name) }), delete: vi.fn(async ({ where }) => { deletes.push(`${name}:${where.id}`) }),
       create: vi.fn(async ({ data }) => { created.push([name, data]); return data }),
     })

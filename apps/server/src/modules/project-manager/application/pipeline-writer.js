@@ -3,7 +3,7 @@
 // @tested tests/postgres/pipeline-handoff-races.test.js
 import { PIPELINE_GRAPH_LOCK } from './pipeline-lock'
 export { PIPELINE_GRAPH_LOCK }
-export const PIPELINE_TRANSACTION_OPTIONS = Object.freeze({maxWait:4000,timeout:120000})
+export const PIPELINE_TRANSACTION_OPTIONS = Object.freeze({maxWait:4000,timeout:120000,isolationLevel:'Serializable'})
 const contexts = new WeakMap()
 export const isPipelineTransaction = db => contexts.get(db)?.write === true
 export function pipelineTransactionFacade(tx) {

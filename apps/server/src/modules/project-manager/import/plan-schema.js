@@ -457,4 +457,11 @@ export function validatePlanSemantics(plan) {
 }
 
 // FR-084: additive delta; legacy full envelopes remain independently readable.
-export const zPlanEnvelope = z.union([zFullPlanEnvelope, zPlanDelta])
+// Select the version before parsing so a rejected full-plan field keeps its
+// precise issue path instead of becoming an opaque root invalid_union error.
+export const zPlanEnvelope = z.preprocess((input, context) => {
+  const schema = input?.schemaVersion === '1.3' ? zPlanDelta : zFullPlanEnvelope
+  const parsed = schema.safeParse(input)
+  if (!parsed.success) for (const issue of parsed.error.issues) context.addIssue(issue)
+  return input
+}, z.union([zFullPlanEnvelope, zPlanDelta]))
