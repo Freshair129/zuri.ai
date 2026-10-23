@@ -37,8 +37,14 @@ describe('C1 contract and atomic persistence',()=>{
   expect(row.contractJson).toBe(null)
   const plan=pipelinePlan(f,{op:'dependency.contract',id:row.id,expectedDependencyHash:dependencyHash(row),contract:handoff()})
   const dry=await dryRunPlan(plan,opts());expect(dry.valid).toBe(true)
-  await prisma.dependency.update({where:{id:row.id},data:{contractJson:'{}'}})
-  const result=await commitPlan({...plan,expectedPreviewHash:dry.previewHash},opts());expect(result.committed).toBe(false);expect(result.errors[0].code).toBe('STALE_ENTITY')
+  try {
+   await prisma.dependency.update({where:{id:row.id},data:{contractJson:'{}'}})
+   const result=await commitPlan({...plan,expectedPreviewHash:dry.previewHash},opts());expect(result.committed).toBe(false);expect(result.errors[0].code).toBe('STALE_ENTITY')
+  } finally {
+   // Keep intentional corruption local to this negative case; later recovery
+   // qualification must receive an actual supported installation snapshot.
+   await prisma.dependency.update({where:{id:row.id},data:{contractJson:row.contractJson}})
+  }
  })
  it('injected audit failure rolls back edge, execution trace and idempotency key',async()=>{
   const plan=pipelinePlan(f,edgeCommand(f.items[1],f.items[2],'RELATES_TO'));const dry=await dryRunPlan(plan,opts());expect(dry.valid).toBe(true)
