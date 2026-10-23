@@ -137,9 +137,9 @@ editing or Board holding.
 
 ### C1 execution boundary (2026-10-24)
 
-C0 v0.1.5 D1–D6 is implemented in the candidate branch. Local qualification
-and independent source review are complete as recorded below. Exact-head hosted
-CI remains the PR gate; no deployment or merge is inferred.
+C0 v0.1.5 D1–D6 is implemented in the candidate branch. Local C1 PM application qualification
+and independent source review are complete as recorded below. Final composed
+documentary/governance and exact-head hosted results are PR gates; no deployment or merge is inferred.
 
 - Nullable `Dependency.contractJson` preserves existing SQL NULL rows without
   backfill. The issued SQLite and PostgreSQL migrations add only nullable TEXT.
@@ -186,10 +186,12 @@ CI remains the PR gate; no deployment or merge is inferred.
 
 This is implementation evidence for the selected increment, not a requirement
 source. The approved C0 examples and historical Phase B schema inventory remain
-unchanged. Application source was frozen at `e41240f17ad617b1672d232de4d0ca597d312723`;
+unchanged. The C1 PM application/contracts/Prisma patch source was frozen at `e41240f17ad617b1672d232de4d0ca597d312723`;
 reviewed test-only follow-ups end at `30120d04ea7de61e317f51674d67f4d79f91346a`.
-Git comparison confirms no application, contract or Prisma differences between
-those revisions. Hosted checks must evaluate the final PR head independently.
+Git comparison confirms no C1 PM application, contract or Prisma differences between
+those revisions. The final main synchronization at `75e20709` retains upstream
+PR #734/#735 changes outside that PM tree and preserves both PostgreSQL test
+selections. Hosted checks must evaluate the final PR head independently.
 
 | Check | Observed result and boundary |
 | --- | --- |
@@ -197,10 +199,10 @@ those revisions. Hosted checks must evaluate the final PR head independently.
 | Changed consumer reruns | 7 files, 102 tests passed: CRM legal hold, canonical source verifier, FR-072 refusal disclosure, stocktake backup, full plan import, Marketing Campaign and FileAsset service |
 | PostgreSQL C1 | `test:postgres -- tests/postgres/pipeline-handoff-races.test.js`: 13 tests passed on the final application source with actual isolated runtime login roles; includes observed lock contention, opposing cycles, unique receipt race, revocation/CAS, recovery process and wrong-schema/corruption refusal |
 | PostgreSQL retained Phase B | Earlier composed run: 2 files, 26 tests passed, including the 13 actual-role Phase B/recovery CLI tests; the final C1-only PostgreSQL rerun above qualifies the later phase-display fix |
-| Production build and browser | Build passed, including lint/type and 94 static pages. The owned isolated production-build browser journey passed in one attempt with the fail-on-flaky guard: preview/cancel without writes, create/reload, edit, stale CAS and removal |
-| Canonical migration/readers | `npm run docs:migration:test`: 146 tests passed after updating the exact approved-migration and planned-status assertions; identities and implementation evidence remain distinct |
+| Production build and browser | The merged-source `75e20709` build passed, including lint/type and 94 static pages. Its owned isolated production-build browser journey passed in one attempt with the fail-on-flaky guard: preview/cancel without writes, create/reload, edit, stale CAS and removal |
+| Canonical migration/readers | Pre-main-sync `npm run docs:migration:test`: 146 tests passed after updating the exact approved-migration and planned-status assertions; identities and implementation evidence remain distinct. The composed post-merge reader rerun and final hosted result must be recorded in the PR |
 | Independent source review | GPT-6 Luna Max approved application patch `e41240f1` against main `7d6a80e0`; subsequent fixture-only changes were separately reviewed and their reported issue corrected |
-| Governance / hosted CI | Regenerate and validate this composed documentary tree serially; record final exact-head hosted jobs and their result in the PR before acceptance |
+| Governance / hosted CI | Registry, graph, views and govern passed on the merged `75e20709` tree. This qualification-wording follow-up requires its own final govern pass; record that result, the composed reader rerun and exact-head hosted jobs in the PR before acceptance |
 
 The broad local Server run was interrupted after observing seven failed files
 and changing their fixtures; it is **not** a clean full-suite or final-patch PASS.
