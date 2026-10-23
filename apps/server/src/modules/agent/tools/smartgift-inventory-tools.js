@@ -120,7 +120,7 @@ export const zCheckInventoryAtp = z.object({
  * the buildable count from its bill of materials against ATP — never on-hand,
  * so two quotes cannot promise the same components (BR-031).
  */
-export async function checkInventoryAtp(input, { viewer, businessId, db = prisma, now = new Date() } = {}) {
+export async function checkInventoryAtp(input, { viewer, businessId, db = prisma, now } = {}) {
   const data = zCheckInventoryAtp.parse(input)
   const product = await resolveSku(db, businessId, data.skuCode)
   const target = data.targetQuantity ?? null
@@ -415,9 +415,9 @@ export async function dispatchKittingWorkOrder(input, { viewer, businessId, db =
  * registration, not taken from tool arguments: a model that could name its own
  * Business would be choosing its own scope.
  */
-export function smartgiftReadTools({ viewer, businessId, db = prisma, now = () => new Date() } = {}) {
+export function smartgiftReadTools({ viewer, businessId, db = prisma, now } = {}) {
   const registry = createToolRegistry()
-  const ctx = () => ({ viewer, businessId, db, now: now() })
+  const ctx = () => ({ viewer, businessId, db, now: now === undefined ? undefined : now() })
 
   registry.register({
     name: 'check_inventory_atp',

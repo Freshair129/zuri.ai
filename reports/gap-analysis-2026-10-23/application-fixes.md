@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.5.0"
+version: "0.6.0"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -183,13 +183,18 @@ The owner selected stock availability and published product prices on 2026-10-23
 The [proposed fact contract](../../docs/change-requests/integration/line-agent-stock-price-facts-20261023.md)
 now records bounded fields, exact SKU/quantity/unit binding, separate stock and
 price authority, read-through limitations and deterministic answer acceptance.
-It is a review candidate, not a runtime reader, stock permission or a change to
-FR-132's existing quotation rules. The current ATP reader lacks a consistent
-observation boundary and lot-expiry filtering; published price verification and
-the future typed consumer are not established. Record-only model verification
+It records design approval, not a runtime reader, stock permission or a change
+to FR-132's existing quotation rules. At e444eb46 the ATP reader lacked a
+consistent quantity boundary; the bounded source correction below addresses
+that defect. Customer eligibility, lot-expiry filtering, published price
+verification and the future typed consumer are not established. Record-only model verification
 and a versioned Runtime operation remain open. The existing fail-closed path
 is retained; no operational-data grant is inferred. F07 relation traversal is
-separate from this selected fact family.
+separate from this selected fact family. The owner approved the 0.1.0 design
+with quantity-independent positive/zero ATP. The
+[bounded implementation plan](stock-price-implementation.md) targets the real
+existing ATP consistency defect first and records the distinct caller/Runtime/
+published-price prerequisites; design approval grants no customer stock access.
 
 ### Warning repairs and evidence boundaries
 
@@ -231,6 +236,69 @@ No production failure appeared in these cases and no executable archive code
 was changed. This is direct fault-injection evidence for the named local paths,
 not evidence of external erasure or unrestricted storage-failure recovery.
 
+### ATP source consistency after design approval
+
+The owner approved the stock/price design with positive/zero ATP rather than
+exact customer counts. The [implementation plan](stock-price-implementation.md)
+then narrowed executable work to the existing FR-180 staff/source API. A new
+customer fact port would have no approved caller or Runtime reply kind today;
+no unused port, intent matcher, customer grant or v1 payload was added.
+
+`availableToPromiseFor` now authorizes, acquires the existing Business ledger
+fence and reads quantities through the same transaction. Reservation actions
+re-read their authoritative row before CAS under that fence; expiry selects and
+stamps due rows inside it. The reader and expiry selector choose an implicit
+clock after the fence. `maxBuildableSets`, `checkInventoryAtp` and the registered
+SmartGift tool preserve an omitted clock through to that boundary, while a
+caller-supplied Date or factory clock callback remains authoritative. The API
+shape, staff authority and existing transaction support remain unchanged.
+
+Real disposable SQLite regressions first observed:
+
+- Torn quantity: ATP returned 10 where the complete before/after states were 7/8.
+- Expiry while waiting: the direct reader returned 7 with a hold of 3 instead
+  of post-expiry ATP 10 with no live hold.
+- The implicit buildable-set caller returned 499 instead of 500 after expiry.
+- The registered SmartGift tool returned 1199 instead of 1200 after expiry.
+
+The final tests preserve explicit-time behavior, response keys, denied-read
+no-fence behavior and existing transaction use. The PostgreSQL race waits for
+both independent writers to reach the row-fence attempt before releasing the
+reader; SQLite uses transaction-start gates because BEGIN can block first.
+The independent Luna Max reviewer required the wrapper and PostgreSQL proof
+corrections, then approved the frozen five-file source/test/config delta.
+
+| Corrected check | Actual result |
+|---|---|
+| Worker: `npm test -- tests/integration/fr180-atp-reservations.test.js` | 11/11 on disposable SQLite. |
+| Worker: `npm test -- tests/integration/fr181-smartgift-agent-tools.test.js` | 19/19 on disposable SQLite, including the registered tool and explicit callback clock. |
+| Root: exact FR-177, FR-178 and FR-184 caller files via `npm test --` | 19/19 on disposable SQLite after the wrapper corrections. |
+| Root: `npm run test:postgres` | 9 files / 101 tests passed on a new disposable embedded cluster, including the same FR-180/181 suites. |
+| Root: `npm run build` | Corrected Server source build passed. |
+
+These are separate scoped runs, not a fresh full local Server suite. An earlier
+mistaken `test:integration` invocation selected the broad integration directory
+and was interrupted; it is not acceptance evidence. Its single orphaned
+disposable SQLite file was removed after verifying no matching test process;
+subsequent runs used normal teardown. No live database was a test target.
+
+Source base: e444eb461f9fec8ab95e6c09b19b4476261964d5. The frozen five-file
+delta's SHA-256 is
+`d856c1553ff790ea1fef3334c3688ab7a0d390b3b2798c4929db64b70a392e8b`:
+hash the bytes from `git diff --binary <base> --` followed by the two changed
+source paths, the FR-180/181 test paths and `vitest.postgres.config.js`, in that
+order. Document navigation/evidence edits are outside that source fingerprint.
+
+The guarantee is quantity consistency with participating fenced Inventory
+writers. It is not immutable product-catalog metadata, one snapshot across
+separate compound tool reads, lot/shelf-life eligibility or customer fulfillment.
+The fence can upsert internal lock metadata; a read creates no stock movement
+or reservation. Customer stock rights, request/intent selection, published-price
+proof, deterministic LINE replies and a versioned Runtime amendment remain the
+distinct integration prerequisites recorded in the plan. F07 is unchanged.
+Final document checks and exact-head hosted CI remain required for this composed
+patch; their actual results belong in the PR. Merge and deployment remain separate.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -247,3 +315,7 @@ operational permissions.
 
 0.4.0 → 0.5.0 records the owner's first-family selection and links its proposed
 interface contract. No canonical row, runtime operation or access grant changes.
+
+0.5.0 → 0.6.0 records design approval, the bounded ATP source/clock correction,
+its real-database red/green evidence and the implementation plan. It does not
+certify customer stock/price integration or alter canonical rows and grants.

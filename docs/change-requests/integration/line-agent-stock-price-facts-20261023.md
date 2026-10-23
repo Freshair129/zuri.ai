@@ -1,8 +1,9 @@
 ---
 id: ZAI:LINE-PRODUCT-FACTS-PROPOSAL-20261023
 doc_type: interface-contract-proposal
-status: proposed
-version: "0.1.0"
+status: approved
+approval_scope: design-only
+version: "0.2.0"
 date: "2026-10-23"
 source_revision: "0903287f75c455a5cbefeb0c1dba195df0034b97"
 relations:
@@ -23,9 +24,10 @@ relations:
 ## Status, audience and scope
 
 The owner selected stock availability and product prices as the first fact
-family on 2026-10-23. This is a **proposed contract for review**, not approval
-of new caller rights, a canonical requirement migration, an implemented API,
-or permission to publish operational data. Audience: Inventory, Commerce,
+family on 2026-10-23 and approved the 0.1.0 design in the same day's review.
+**Approval covers the design**, not new caller rights, a canonical requirement
+migration, an implemented API or permission to publish operational data.
+Audience: Inventory, Commerce,
 Identity, Agent and Conversation Runtime maintainers. The inspected source
 revision is pinned above; [the application record](../../../reports/gap-analysis-2026-10-23/application-fixes.md)
 separates delivered code from these missing contracts.
@@ -153,8 +155,9 @@ ignores expired/inactive reservations and clamps negative ATP to zero.
 Tracked quantities are integers; untracked/service quantities are null, not zero.
 Neither the breakdown nor exact ATP counts enter this customer projection.
 
-The current reader totals the Business and reads ledger and reservations in
-parallel. It supplies no coherent snapshot guarantee, observation timestamp,
+At the inspected source revision, the reader totals the Business and reads
+ledger and reservations in parallel without a coherent quantity boundary.
+It supplies no observation timestamp,
 location-specific ATP or lot-expiry filtering. Lot issue has separate expiry
 rules; ATP alone cannot mean "ready to ship". The first candidate therefore
 allows a positive/zero ATP status only for ACTIVE, TRACKED products with
@@ -245,8 +248,8 @@ LINE Reply API path. This proposal changes no operation schema or deployment.
 The proposed defaults are coarse positive/zero ATP independent of quantity, explicit DIRECT
 Business-bound stock callers, stock release OFF until separately authorized,
 read-through observation without an invented freshness SLA, exact published
-THB price and deterministic first answers. Approval of this document would
-approve the design choices only; stock rights/canonical additions, publication
+THB price and deterministic first answers. The owner's approval covers
+these design choices only; stock rights/canonical additions, publication
 acceptance, the consistent Inventory reader, audit schema and any Runtime
 amendment still need their explicit source/contract changes before activation.
 FR-132's existing quotation authorization remains unchanged.
@@ -256,3 +259,10 @@ FR-234 follow-up. No canonical row, identity, FEAT membership, domain charter,
 application code, schema, caller grant or external service is changed.
 Version 0.1.0 establishes the selected family's reviewable contract; tests in
 the matrix are future acceptance criteria, not claims of executed behavior.
+
+Version 0.1.0 → 0.2.0 records the owner's explicit choice to approve the design
+with positive/zero ATP rather than exposing exact stock counts. It changes no
+field semantics or activation authority. The
+[bounded source implementation plan](../../../reports/gap-analysis-2026-10-23/stock-price-implementation.md)
+separates the existing ATP consistency fix from missing request, authorization
+and Runtime integration contracts.
