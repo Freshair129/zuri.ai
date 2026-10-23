@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.2"
+version: "0.1.3"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -121,7 +121,7 @@ only after authorization.
 - [x] Write failing tests for new edge without contract, invalid/foreign Gate, forged manual provenance, identical retry, changed-payload retry, audit rollback, legacy null round-trip and two opposing concurrent edges. Assert no partial writes or second cycle implementation. Add authorized stale inverse/undo refusal and exact receipt linkage assertions from C0.
 - [x] Implement the pure schema/state functions, additive migration and transaction-aware domain/import branch. Serialize graph-changing writes on the adopted common scope locks; acquire multiple scope locks in deterministic order. Repeat authority, self/cycle and CAS checks at commit, not only in preview.
 - [x] Wire the existing global register's mandatory contract form and preview/error states before enabling any new canvas writer. Update API/full-import/bundle edge writers under C0's compatibility policy. Legacy stored rows stay null; do not backfill satisfaction or actor evidence.
-- [ ] Verify migrations and backup/recovery against both adapters; run the new suites plus existing plan import, import authorization, dependency authorization, core and bundle regressions. Run production build and the global register browser journey, with zero required skips/flaky results.
+- [x] Verify migrations and backup/recovery against both adapters; run the new suites plus existing plan import, import authorization, dependency authorization, core and bundle regressions. Run production build and the global register browser journey, with zero required skips/flaky results.
 
 ```text
 npm --prefix apps/server test -- tests/unit/handoff-contract.test.js tests/integration/plan-delta.test.js tests/integration/dependency-handoff.test.js tests/integration/plan-import.test.js tests/integration/import-target-authorization.test.js tests/integration/fr072-dependency-authorization.test.js tests/integration/project-core.test.js
@@ -137,9 +137,9 @@ editing or Board holding.
 
 ### C1 execution boundary (2026-10-24)
 
-C0 v0.1.5 D1–D6 is implemented in the candidate branch. Final acceptance still
-requires the composed checks, browser qualification, independent exact-patch
-review and hosted CI listed above; no deployment or merge is inferred.
+C0 v0.1.5 D1–D6 is implemented in the candidate branch. Local qualification
+and independent source review are complete as recorded below. Exact-head hosted
+CI remains the PR gate; no deployment or merge is inferred.
 
 - Nullable `Dependency.contractJson` preserves existing SQL NULL rows without
   backfill. The issued SQLite and PostgreSQL migrations add only nullable TEXT.
@@ -180,6 +180,39 @@ review and hosted CI listed above; no deployment or merge is inferred.
 - Canonical FR identities, membership and subject anchors are retained. The
   sanctioned ID-ledger writer records owner-approved same-subject statement
   reviews for FR-084 and FR-085. C2–C4 remain unselected and production untouched.
+
+
+### C1 qualification record (2026-10-24)
+
+This is implementation evidence for the selected increment, not a requirement
+source. The approved C0 examples and historical Phase B schema inventory remain
+unchanged. Application source was frozen at `e41240f17ad617b1672d232de4d0ca597d312723`;
+reviewed test-only follow-ups end at `30120d04ea7de61e317f51674d67f4d79f91346a`.
+Git comparison confirms no application, contract or Prisma differences between
+those revisions. Hosted checks must evaluate the final PR head independently.
+
+| Check | Observed result and boundary |
+| --- | --- |
+| SQLite C1 and retained consumers | 41 files, 324 tests passed together after fixture cleanup; includes endpoint/type matrix, Delta/Register/Bundle, authorization, shared writer, CAS/undo, raw-body bounds, receipt races, migration mirrors and actual snapshot round trip |
+| Changed consumer reruns | 7 files, 102 tests passed: CRM legal hold, canonical source verifier, FR-072 refusal disclosure, stocktake backup, full plan import, Marketing Campaign and FileAsset service |
+| PostgreSQL C1 | `test:postgres -- tests/postgres/pipeline-handoff-races.test.js`: 13 tests passed on the final application source with actual isolated runtime login roles; includes observed lock contention, opposing cycles, unique receipt race, revocation/CAS, recovery process and wrong-schema/corruption refusal |
+| PostgreSQL retained Phase B | Earlier composed run: 2 files, 26 tests passed, including the 13 actual-role Phase B/recovery CLI tests; the final C1-only PostgreSQL rerun above qualifies the later phase-display fix |
+| Production build and browser | Build passed, including lint/type and 94 static pages. The owned isolated production-build browser journey passed in one attempt with the fail-on-flaky guard: preview/cancel without writes, create/reload, edit, stale CAS and removal |
+| Canonical migration/readers | `npm run docs:migration:test`: 146 tests passed after updating the exact approved-migration and planned-status assertions; identities and implementation evidence remain distinct |
+| Independent source review | GPT-6 Luna Max approved application patch `e41240f1` against main `7d6a80e0`; subsequent fixture-only changes were separately reviewed and their reported issue corrected |
+| Governance / hosted CI | Regenerate and validate this composed documentary tree serially; record final exact-head hosted jobs and their result in the PR before acceptance |
+
+The broad local Server run was interrupted after observing seven failed files
+and changing their fixtures; it is **not** a clean full-suite or final-patch PASS.
+The 102-test rerun covers every observed failed file. A subsequent composed
+C1 run exposed one CAS test leaving deliberately corrupt JSON in the shared test
+database; restoring its original bytes in `finally` allowed all 324 selected
+tests, including the affected recovery files, to pass together. Neither recovery
+validation nor verification time budgets were relaxed. Exact-head hosted full
+Server checks remain required; scoped reruns do not replace them.
+
+C2 canvas gestures, C3 structure editing, C4 Board/CRUD release enforcement,
+production migration, deployment and merge remain outside this increment.
 
 ## Task C2: Accessible edge creation on the Project canvas (FR-083)
 
@@ -247,3 +280,9 @@ them or implement the wider PM candidate.
 
 0.1.2 (2026-10-23): owner selected C; prepare source-qualified C0 supplement and
 examples before application code. No implicit adoption of new release semantics.
+
+
+0.1.3 (2026-10-24): owner adopted C0 v0.1.5 D1–D6 at `1b76049a` and
+selected C1. Canonical sources were reconciled through the reviewed migration;
+C1 implementation, isolated SQLite/PostgreSQL qualification and independent
+source review are recorded above. Hosted exact-head acceptance remains a PR gate.
