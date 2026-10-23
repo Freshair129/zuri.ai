@@ -83,6 +83,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 
 > ✅ merged #405 2026-09-14 (main 22767b64; not deployed; TASK-ZAI-092, ADR-091 D7, FEAT-037) — `src/modules/agent/context-composer.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [LINE agent: stock availability and published sell-price facts](../../change-requests/integration/line-agent-stock-price-facts-20261023.md) — `relates` · `metadata` · `current`
 - [Data pipeline map — ข้อมูลเข้าจากไหน รวมที่ไหน และส่งให้ใคร](../../DATA-PIPELINE-MAP.md) — `relates` · `metadata` · `current`
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`

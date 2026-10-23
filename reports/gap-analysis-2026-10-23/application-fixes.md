@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.4.0"
+version: "0.5.0"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -179,12 +179,17 @@ return identifiers/scope only under their own facade authority; they are not
 answer-fact ports. Other domain readers require trusted viewer/domain authority,
 which a LINE sender or memory `READ` grant does not establish.
 
-The first fact family remains an explicit product choice: stock/price,
-the asking customer's order status, or CRM customer/history data. For the chosen
-family, settle allowed fields, subject binding, caller authorization/scope,
-selection trigger, freshness, bounded DTO/reference format, and record-only
-verification/fallback before adding a reader or runtime operation. The existing
-fail-closed Knowledge-only path is retained; no operational-data grant is inferred.
+The owner selected stock availability and published product prices on 2026-10-23.
+The [proposed fact contract](../../docs/change-requests/integration/line-agent-stock-price-facts-20261023.md)
+now records bounded fields, exact SKU/quantity/unit binding, separate stock and
+price authority, read-through limitations and deterministic answer acceptance.
+It is a review candidate, not a runtime reader, stock permission or a change to
+FR-132's existing quotation rules. The current ATP reader lacks a consistent
+observation boundary and lot-expiry filtering; published price verification and
+the future typed consumer are not established. Record-only model verification
+and a versioned Runtime operation remain open. The existing fail-closed path
+is retained; no operational-data grant is inferred. F07 relation traversal is
+separate from this selected fact family.
 
 ### Warning repairs and evidence boundaries
 
@@ -239,3 +244,6 @@ verification without changing the implemented behavior or assessment snapshot.
 typed-fact authority/answer contract, and narrow warning repairs. It preserves
 the original assessment and historical receipts without adding requirements or
 operational permissions.
+
+0.4.0 → 0.5.0 records the owner's first-family selection and links its proposed
+interface contract. No canonical row, runtime operation or access grant changes.

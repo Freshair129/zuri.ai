@@ -38,6 +38,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [CR-020 — Observability gaps: error tracking and feature usage](../change-requests/CR-020-OBSERVABILITY-ERROR-TRACKING-AND-FEATURE-USAGE.md)
 - [Retire Developer Delivery Control](../change-requests/engineering/RETIRE-DEVELOPER-DELIVERY-CONTROL-20261022.md)
 - [Platform Control login and forbidden response](../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md)
+- [LINE agent: stock availability and published sell-price facts](../change-requests/integration/line-agent-stock-price-facts-20261023.md)
 - [TASK-ZAI-017 — FlowAccount additive FR-290 reassessment](../change-requests/integration/TASK017-FLOWACCOUNT-MCP-FR290-REASSESSMENT-20261022.md)
 - [Managed binary knowledge parsing and immutable source locations](../change-requests/knowledge/binary-document-parsing-20261018.md)
 - [Local Zuri documentation graph studio](../change-requests/knowledge/knowledge-studio-20261019.md)
