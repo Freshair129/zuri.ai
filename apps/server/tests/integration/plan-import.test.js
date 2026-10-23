@@ -249,7 +249,9 @@ describe('plan envelope import', () => {
     expect(project.repositories.length).toBe(1)
     expect(project.goalLinks.map((link) => link.goal.code)).toEqual(['GOAL-IMP'])
     expect(project.businessId).toBe(workspace.businessId)
-    const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO' } })
+    const importedItems=await prisma.workItem.findMany({where:{workstreamId:{in:project.workstreams.map(row=>row.id)}},select:{id:true}})
+    expect(importedItems).toHaveLength(2)
+    const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO',sourceType:'WORK_ITEM',targetType:'WORK_ITEM', sourceId:{in:importedItems.map(row=>row.id)},targetId:{in:importedItems.map(row=>row.id)} } })
     expect(dep).toBeNull()
     const audit = await prisma.auditEvent.findFirst({
       where: { action: 'PLAN_IMPORTED', entityId: project.id },

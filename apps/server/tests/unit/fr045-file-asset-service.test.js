@@ -83,6 +83,7 @@ describe('FR-045 FileAsset service', () => {
       },
       fileLink: { create: vi.fn().mockResolvedValue({}) },
       auditEvent: { create: vi.fn().mockResolvedValue({}) },
+      $executeRawUnsafe: vi.fn().mockResolvedValue(0),
       $transaction: vi.fn(async (callback) => callback(db)),
     }
     const asset = await createManagedFileAsset({
@@ -110,6 +111,7 @@ describe('FR-045 FileAsset service', () => {
       },
       fileLink: { create: vi.fn().mockResolvedValue({}) },
       auditEvent: { create: vi.fn().mockResolvedValue({}) },
+      $executeRawUnsafe: vi.fn().mockResolvedValue(0),
       $transaction: vi.fn(async (callback) => callback(db)),
     }
     const crossDevice = Object.assign(new Error('cross-device rename'), { code: 'EXDEV' })
