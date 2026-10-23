@@ -66,3 +66,23 @@ it('reauthorizes the caller before reading a matching winner in the fresh transa
  const db=receiptRaceDb(prisma,async()=>{expect((await commitPlan(plan,{viewer:f.viewer})).committed).toBe(true);await prisma.membership.update({where:{id:f.membership.id},data:{status:'REVOKED'}})})
  expect((await commitPlan(plan,{viewer:f.viewer,db})).errors[0].code).toBe('SCOPE_UNAVAILABLE')
 })
+
+it('pre-C1 legacy receipts replay with current scope and their historical actor evidence',async()=>{
+ for(const transport of ['PLAN12','BUNDLE10']) {
+  const f=await pipelineFixture(prisma),trace={correlationId:randomUUID(),idempotencyKey:randomUUID()},suffix=randomUUID().slice(0,8)
+  const full={schemaVersion:transport==='PLAN12'?'1.2':'1.0',scope:{workspaceCode:f.workspace.code},project:{code:'OLD-'+suffix,name:'Historical receipt'},workstreams:[],...(transport==='PLAN12'?{trace,domainBinding:{primaryDomainId:'DOM-DEVELOPMENT',supportingDomainIds:[],technicalOwnerDomainId:'TD-PROJECT-MANAGER'},identityRefs:{}}:{})}
+  const input=transport==='PLAN12'?full:{schemaVersion:'1.0',kind:'EXECUTION_PLAN_BUNDLE',scope:{businessCode:f.business.code,defaultWorkspaceCode:f.workspace.code},manifest:{code:'OLD-B-'+suffix,title:'Historical receipt'},projects:[{bundleProjectRef:'A',plan:full}],dependencies:[],trace},commit=transport==='PLAN12'?commitPlan:commitBundle
+  const saved=await commit(input,{viewer:f.viewer});expect(saved.committed).toBe(true)
+  const receipt=await prisma.planImportReceipt.findUnique({where:{idempotencyKey:trace.idempotencyKey}})
+  const event=transport==='PLAN12'?await prisma.auditEvent.findFirst({where:{entityId:receipt.projectId,action:'PLAN_IMPORTED'}}):await prisma.auditEvent.findUnique({where:{id:receipt.auditEventId}})
+  const payload=JSON.parse(event.payloadJson);delete payload.receiptActor
+  await prisma.auditEvent.update({where:{id:event.id},data:{payloadJson:JSON.stringify(payload),...(transport==='BUNDLE10'?{actorId:null,businessId:null,tenantId:null}:{})}})
+  const replay=await commit(input,{viewer:f.viewer});expect(replay.committed,JSON.stringify(replay.errors)).toBe(true);expect(replay.replay).toBe(true)
+  if(transport==='PLAN12') {
+   await prisma.auditEvent.update({where:{id:event.id},data:{actorId:randomUUID()}})
+   await expect(commit(input,{viewer:f.viewer})).rejects.toMatchObject({code:'IDEMPOTENCY_CONFLICT'})
+  }
+  await prisma.membership.update({where:{id:f.membership.id},data:{status:'REVOKED'}})
+  await expect(commit(input,{viewer:f.viewer})).rejects.toMatchObject({code:'SCOPE_UNAVAILABLE'})
+ }
+})

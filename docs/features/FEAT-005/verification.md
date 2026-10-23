@@ -28,6 +28,7 @@ status: generated
 
 - [apps/server/tests/e2e/fr077-project-inventory.spec.js](../../../apps/server/tests/e2e/fr077-project-inventory.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/project-domain-view.spec.js](../../../apps/server/tests/e2e/project-domain-view.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-inventory-stall.test.js](../../../apps/server/tests/integration/project-inventory-stall.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/project-inventory.test.js](../../../apps/server/tests/integration/project-inventory.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/project-roadmap-stall.test.js](../../../apps/server/tests/integration/project-roadmap-stall.test.js) — `verifies` (`test-reference`)

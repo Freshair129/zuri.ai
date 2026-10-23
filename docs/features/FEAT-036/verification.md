@@ -113,6 +113,7 @@ status: generated
 - [apps/server/tests/integration/fr266-model-provider-credential.test.js](../../../apps/server/tests/integration/fr266-model-provider-credential.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-channel-credential-routes.test.js](../../../apps/server/tests/integration/line-channel-credential-routes.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js](../../../apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-connect-wizard-render.test.js](../../../apps/server/tests/unit/line-oa-connect-wizard-render.test.js) — `verifies` (`transitive`)

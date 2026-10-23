@@ -66,7 +66,10 @@ export async function findBundleReplay(tx, { idempotencyKey, payloadHash, actor,
     const auditEvent = await tx.auditEvent.findUnique({ where: { id: existing.auditEventId } })
     try {
       const payload = JSON.parse(auditEvent?.payloadJson ?? 'null')
-      if(payload?.receiptActor !== actor || payload?.businessId !== businessId) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
+      // Historical Bundle1.0 recorded no actor. Its freshly authorized Business,
+      // exact payload and original audit/receipt lineage remain the replay fence.
+      const actorMatches=payload && (Object.hasOwn(payload,'receiptActor') ? payload.receiptActor === actor : existing.schemaVersion === '1.0' && payload.schemaVersion === '1.0')
+      if(!actorMatches || payload?.businessId !== businessId || payload?.payloadHash !== payloadHash || payload?.idempotencyKey !== idempotencyKey || auditEvent?.action !== BUNDLE_AUDIT_ACTION || auditEvent?.entityType !== 'EXECUTION_PLAN_BUNDLE' || auditEvent?.entityId !== existing.executionRunId || payload?.receipt?.bundleRunId !== existing.executionRunId) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
       receipt = payload?.receipt ?? null
     } catch {
       receipt = null

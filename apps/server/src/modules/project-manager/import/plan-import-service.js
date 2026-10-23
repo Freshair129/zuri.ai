@@ -535,7 +535,12 @@ export async function commitPlan(rawPlan, {
         const originalAudit = auditEvents
           .map((event) => ({ event, payload: readAuditPayload(event.payloadJson) }))
           .find(({ payload }) => payload?.idempotencyKey === idempotencyKey && payload?.executionRunId === existingReceipt.executionRunId)
-        if(!originalAudit || originalAudit.payload.receiptActor !== pipelineReceiptActor(viewer) || existingReceipt.project?.workspaceId !== workspace.id || existingReceipt.stepKey !== 'plan.import.commit' || existingReceipt.schemaVersion !== '1.2') throw pipelineError('IDEMPOTENCY_CONFLICT',409)
+        // Pre-C1 human audits already bind the actor; keep that authorized
+        // replay without manufacturing a new receiptActor in historical rows.
+        const actorMatches=originalAudit && (Object.hasOwn(originalAudit.payload,'receiptActor')
+          ? originalAudit.payload.receiptActor === pipelineReceiptActor(viewer)
+          : viewer.isApiAccess !== true && originalAudit.event.actorId === viewer.principal?.id)
+        if(!actorMatches || existingReceipt.project?.workspaceId !== workspace.id || existingReceipt.stepKey !== 'plan.import.commit' || existingReceipt.schemaVersion !== plan.schemaVersion) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
 
 
         return {

@@ -201,12 +201,16 @@
           "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
           "apps/server/tests/integration/pipeline-contract-regressions.test.js",
           "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+          "apps/server/tests/integration/pipeline-private-evidence.test.js",
+          "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+          "apps/server/tests/integration/pipeline-request-bounds.test.js",
           "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
           "apps/server/tests/integration/pipeline-sqlite-races.test.js",
           "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+          "apps/server/tests/unit/api-error-mapping.test.js",
           "apps/server/tests/unit/asset-lifecycle-service.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -217,6 +221,7 @@
           "apps/server/tests/unit/pipeline-finite-progress.test.js",
           "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
           "apps/server/tests/unit/pipeline-http-response.test.js",
+          "apps/server/tests/unit/pipeline-validation-paths.test.js",
           "apps/server/tests/unit/pipeline-writer-census.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/project-feature-repository.test.js",
@@ -928,12 +933,16 @@
           "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
           "apps/server/tests/integration/pipeline-contract-regressions.test.js",
           "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+          "apps/server/tests/integration/pipeline-private-evidence.test.js",
+          "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+          "apps/server/tests/integration/pipeline-request-bounds.test.js",
           "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
           "apps/server/tests/integration/pipeline-sqlite-races.test.js",
           "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+          "apps/server/tests/unit/api-error-mapping.test.js",
           "apps/server/tests/unit/asset-lifecycle-service.test.js",
           "apps/server/tests/unit/context-composer.test.js",
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -944,6 +953,7 @@
           "apps/server/tests/unit/pipeline-finite-progress.test.js",
           "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
           "apps/server/tests/unit/pipeline-http-response.test.js",
+          "apps/server/tests/unit/pipeline-validation-paths.test.js",
           "apps/server/tests/unit/pipeline-writer-census.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/project-feature-repository.test.js",
@@ -1400,7 +1410,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-150",
@@ -1834,7 +1844,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 29,
+          "testCount": 34,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -1846,12 +1856,16 @@
             "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
             "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/pipeline-private-evidence.test.js",
+            "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -1862,6 +1876,7 @@
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
+            "apps/server/tests/unit/pipeline-validation-paths.test.js",
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
@@ -2062,12 +2077,16 @@
             "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
             "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/pipeline-private-evidence.test.js",
+            "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -2078,6 +2097,7 @@
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
+            "apps/server/tests/unit/pipeline-validation-paths.test.js",
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
@@ -2482,7 +2502,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-152",
@@ -3243,7 +3263,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-232",
@@ -3746,7 +3766,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-152",
@@ -3794,7 +3814,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-225",
@@ -5224,7 +5244,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-150",
@@ -5240,7 +5260,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-152",
@@ -5296,7 +5316,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-225",
@@ -7065,7 +7085,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-070",
@@ -7073,7 +7093,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-071",
@@ -7121,7 +7141,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-078",
@@ -7169,7 +7189,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 19,
-          "testCount": 29,
+          "testCount": 34,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -7199,12 +7219,16 @@
             "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
             "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/pipeline-private-evidence.test.js",
+            "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -7215,6 +7239,7 @@
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
+            "apps/server/tests/unit/pipeline-validation-paths.test.js",
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
@@ -7483,7 +7508,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-150",
@@ -7499,7 +7524,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-152",
@@ -7875,7 +7900,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-226",
@@ -8612,12 +8637,16 @@
             "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
             "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/pipeline-private-evidence.test.js",
+            "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -8628,6 +8657,7 @@
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
+            "apps/server/tests/unit/pipeline-validation-paths.test.js",
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
@@ -9282,7 +9312,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-070",
@@ -9290,7 +9320,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -9323,6 +9353,7 @@
         "apps/server/tests/integration/external-ref-import.test.js",
         "apps/server/tests/integration/import-target-authorization.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/pipeline-legacy-failure-trace.test.js",
         "apps/server/tests/integration/plan-import.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
         "apps/server/tests/integration/project-domain-view.test.js",
@@ -9501,7 +9532,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -9512,6 +9543,7 @@
         "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
         "apps/server/tests/e2e/project-domain-view.spec.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
         "apps/server/tests/integration/project-roadmap-stall.test.js",
@@ -9646,8 +9678,8 @@
           "title": "Handoff Contract on a dependency edge",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 21,
-          "testCount": 29
+          "codeCount": 22,
+          "testCount": 34
         },
         {
           "id": "FR-085",
@@ -9659,6 +9691,7 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/_helpers.js",
         "apps/server/src/app/api/resolve/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
@@ -9689,12 +9722,16 @@
         "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+        "apps/server/tests/integration/pipeline-private-evidence.test.js",
+        "apps/server/tests/integration/pipeline-receipt-conflicts.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
         "apps/server/tests/integration/pipeline-sqlite-races.test.js",
         "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
         "apps/server/tests/integration/plan-delta.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+        "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -9705,6 +9742,7 @@
         "apps/server/tests/unit/pipeline-finite-progress.test.js",
         "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
         "apps/server/tests/unit/pipeline-http-response.test.js",
+        "apps/server/tests/unit/pipeline-validation-paths.test.js",
         "apps/server/tests/unit/pipeline-writer-census.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/project-feature-repository.test.js",
@@ -10905,7 +10943,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-152",
@@ -11003,6 +11041,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
@@ -11077,7 +11116,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 49,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-150",
@@ -11191,6 +11230,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-webhook.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
@@ -13122,7 +13162,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 12
+          "testCount": 13
         },
         {
           "id": "FR-225",
@@ -13223,6 +13263,7 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",

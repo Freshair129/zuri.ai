@@ -97,6 +97,21 @@ export async function readPipelineEvidence(tx, state, plan, projectIds, tenantId
     const projects=await tx.project.findMany({where:{id:{in:readableProjectIds}},select:{businessId:true,workspace:{select:{businessId:true}}}})
     const businessIds=[...new Set(projects.map(project=>project.businessId||project.workspace?.businessId).filter(Boolean))]
     rows=await tx.auditEvent.findMany({where:{id:{in:[...ids]},tenantId,businessId:{in:businessIds}},orderBy:{id:'asc'}})
+    const inverseEvidence=new Set()
+    for (const command of plan.commands.filter(command=>command.op==='undo')) {
+      const original=rows.find(row=>row.id===command.originalAuditEventId)
+      let payload
+      try {payload=JSON.parse(original?.payloadJson||'null')} catch {continue}
+      if (!Array.isArray(payload?.stateImages)) continue
+      for (const image of payload.stateImages) if (image?.type==='DEPENDENCY' && image.before) {
+        const row=image.before,acceptance=readStoredHandoff(row.contractJson)?.acceptance
+        try {
+          if (![pipelineProjectId(state,{type:row.sourceType,id:row.sourceId}),pipelineProjectId(state,{type:row.targetType,id:row.targetId})].every(id=>projectIds.includes(id))) continue
+          if (acceptance?.kind==='MANUAL') inverseEvidence.add(acceptance.decisionAuditEventId)
+        } catch { /* compiler rejects unavailable inverse endpoints */ }
+      }
+    }
+    if (inverseEvidence.size) rows.push(...await tx.auditEvent.findMany({where:{id:{in:[...inverseEvidence]},tenantId,businessId:{in:businessIds}},orderBy:{id:'asc'}}))
   }
   return [...new Map([...locators,...rows].map(row=>[row.id,row])).values()].sort((a,b)=>a.id.localeCompare(b.id))
 }

@@ -183,6 +183,13 @@ export async function compilePlanDelta(plan, { tx, state: before, projectIds, re
           const restored = clonePipelineValue(image.before)
           if (image.type === 'DEPENDENCY') {
             scopeReference({ type: restored.sourceType, id: restored.sourceId }); scopeReference({ type: restored.targetType, id: restored.targetId })
+            if ([...state.values()].some(entry => entry.type === 'DEPENDENCY' && entry.id !== restored.id && ['sourceType','sourceId','targetType','targetId','dependencyType'].every(key => entry.row[key] === restored[key]))) throw pipelineError('UNDO_CONFLICT',409)
+            if (restored.contractJson !== null) {
+              const contract=readStoredHandoff(restored.contractJson)
+              if (!contract) throw pipelineError('UNDO_CONFLICT',409)
+              const acceptance=contract.acceptance.kind==='MANUAL' ? {kind:'MANUAL',satisfied:contract.acceptance.satisfied} : contract.acceptance
+              validatePipelineHandoff({...contract,acceptance},restored,state,projectIds)
+            }
           }
           edit(image.type, restored)
         } else if (['WORK_ITEM', 'WORKSTREAM'].includes(image.type)) {
