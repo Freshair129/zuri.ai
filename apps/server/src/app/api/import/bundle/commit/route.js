@@ -23,6 +23,6 @@ export async function POST(request) {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     const body = await request.json()
     const result = await commitBundle(body.bundle, { viewer })
-    return body.bundle?.schemaVersion === '1.1' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
+    return (body.bundle?.schemaVersion === '1.1' || pipelineResponseStatus(result) === 409) ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

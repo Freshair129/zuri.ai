@@ -20,6 +20,6 @@ export async function POST(request) {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     const body = await request.json()
     const result = await commitPlan(body.plan, { workspaceId: await resolveImportWorkspaceId(body), viewer })
-    return body.plan?.schemaVersion === '1.3' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
+    return (body.plan?.schemaVersion === '1.3' || pipelineResponseStatus(result) === 409) ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

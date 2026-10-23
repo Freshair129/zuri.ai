@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import { readFileSync } from 'fs'
 import path from 'path'
@@ -47,10 +48,10 @@ describe('ExecutionPlanBundle import (FR-108)', () => {
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-FR108-OTHER' })
     otherWorkspace = await createWorkspace({ name: 'Other WS', scopeType: 'BUSINESS', businessId: otherBusiness.id, code: 'WS-FR108-OTHER' })
 
-    viewer = makeViewer({
+    viewer = await persistImportViewer(makeViewer({
       visibleBusinessIds: [business.id, otherBusiness.id],
       ownedBusinessIds: [business.id, otherBusiness.id],
-    })
+    }))
     // OWNER somewhere else, only sees the target — the attacker shape.
     nonOwnerViewer = ownsElsewhere({ owns: otherBusiness.id, sees: business.id })
   })

@@ -36,6 +36,7 @@ status: generated
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/workspace-collaboration-roster.test.js](../../../apps/server/tests/integration/workspace-collaboration-roster.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/workspace-onboarding-flow.test.js](../../../apps/server/tests/integration/workspace-onboarding-flow.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)

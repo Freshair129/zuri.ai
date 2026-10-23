@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-005, FR-017 — the Create Task modal's envelope travels the real
 // pipeline: a standalone task creates the Business inbox Project and its
 // workstream through the same dry run → commit the first time and only adds an
@@ -46,10 +47,10 @@ describe('Create Task modal → canonical import pipeline', () => {
     otherBusiness = await createBusiness({ tenantId: tenant.id, name: 'Other Business', code: 'BUS-OTHERBOX' })
     workspace = await createWorkspace({ name: 'Taskbox WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-TASKBOX' })
     otherWorkspace = await createWorkspace({ name: 'Other WS', scopeType: 'BUSINESS', businessId: otherBusiness.id, code: 'WS-OTHERBOX' })
-    viewer = makeViewer({
+    viewer = await persistImportViewer(makeViewer({
       visibleBusinessIds: [business.id, otherBusiness.id],
       ownedBusinessIds: [business.id, otherBusiness.id],
-    })
+    }))
   })
 
   it('a standalone task, first time: the inbox Project and workstream are created through the pipeline', async () => {

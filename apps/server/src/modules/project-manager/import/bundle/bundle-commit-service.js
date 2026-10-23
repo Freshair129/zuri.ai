@@ -1,6 +1,7 @@
+import { isPipelineReceiptConflict, pipelineReceiptActor } from '../../application/pipeline-writer'
 import { authorizeDependencyRead, dependencyEvidenceState } from '../../application/handoff-evidence'
 import { commitHandoffBundle, writeBundleHandoffEdge, bundleHandoffReceipt } from './bundle-handoff-service'
-import { withPipelineTransaction, pipelineError, pipelineTransactionFacade, isPipelineTransaction } from '../../application/pipeline-transaction'
+import { withPipelineTransaction, pipelineError, pipelineTransactionFacade, isPipelineTransaction, resolvePipelineImportViewer } from '../../application/pipeline-transaction'
 import { dependencyHash, handoffContractState } from '../../application/handoff-contract'
 import prisma from '@/lib/db'
 import {
@@ -10,6 +11,7 @@ import {
   updateRoadmap,
 } from '../../application/business-strategy-mutation-service'
 import { commitPlan, PLAN_COMMIT_TRANSACTION_OPTIONS } from '../plan-import-service'
+import { resolveBundleScope } from './bundle-resolver'
 import { dryRunLegacyBundle } from './bundle-dry-run'
 import { findBundleReplay, normalizedBundleHash, recordBundleReceipt } from './bundle-receipt'
 import {
@@ -157,13 +159,24 @@ async function applyStrategy(bundle, { strategy, business, viewer, db }) {
  * per-Project commit. Re-runs the bundle dry-run first and refuses on any
  * conflict — one decision point, not a stored preview that could go stale.
  */
-export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, handoffContext = null } = {}) {
+export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, handoffContext = null, onTransactionFailure = null, receiptOnly = false } = {}) {
   if (!isPipelineTransaction(db)) {
-    try { return await withPipelineTransaction(db, async tx => {
-      const result = await commitLegacyBundle(rawBundle, { viewer, db: pipelineTransactionFacade(tx), handoffContext })
+    let failure = null
+    try { return await withPipelineTransaction(db, async (tx, settings) => {
+      const scope = await resolveBundleScope(rawBundle,{viewer,db:tx})
+      if(scope.error) return {committed:false,errors:[scope.error],preview:null}
+      const currentViewer=await resolvePipelineImportViewer(tx,{businessId:scope.business.id},viewer,{...settings,write:true})
+      const result = await commitLegacyBundle(rawBundle, { viewer:currentViewer, db: pipelineTransactionFacade(tx), handoffContext, receiptOnly, onTransactionFailure: (context, error, failedStepKey) => { failure = { context, error, failedStepKey } } })
       if (!result.committed) throw Object.assign(new Error('IMPORT_REFUSED'), { pipelineResult: result })
       return result
-    }) } catch (error) { if (error.pipelineResult) return error.pipelineResult; throw error }
+    }) } catch (error) {
+      if(!receiptOnly && isPipelineReceiptConflict(error)) return commitLegacyBundle(rawBundle,{viewer,db,handoffContext,receiptOnly:true})
+      if (failure && db === prisma && db.projectExecutionRun) {
+        try { await recordFailedExecutionTrace(db, failure.context, failure.error, { failedStepKey: failure.failedStepKey }) } catch { /* keep original failure */ }
+      }
+      if (error.pipelineResult) return error.pipelineResult
+      throw error
+    }
   }
   const dry = handoffContext?.base || await dryRunLegacyBundle(rawBundle, { viewer, db })
   if (!dry.valid) {
@@ -196,11 +209,12 @@ export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, hando
       const db = asTransactionDb(tx)
 
       if (idempotencyKey) {
-        const prior = await findBundleReplay(tx, { idempotencyKey, payloadHash })
+        const prior = await findBundleReplay(tx, { idempotencyKey, payloadHash, actor: pipelineReceiptActor(viewer),businessId:business.id })
         if (prior?.conflict) return { idempotencyConflict: true, errors: prior.errors }
         if (prior?.replay) return { replay: true, receipt: prior.receipt }
       }
 
+      if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
       await createExecutionTraceRows(tx, traceContext, {
         stepStatuses: {
           'bundle.strategy': 'RUNNING',
@@ -306,7 +320,7 @@ export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, hando
         dependencies,
         ...(handoffContext ? { auditEventId: handoffContext.auditEventId, handoffReceipt: await bundleHandoffReceipt(tx, handoffContext) } : {}),
       }
-      const auditEvent = await recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId:handoffContext?.auditEventId, actorPersonId:handoffContext?.actorPersonId, tenantId:handoffContext?.tenantId })
+      const auditEvent = await recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId:handoffContext?.auditEventId, actorPersonId:handoffContext?.actorPersonId, tenantId:handoffContext?.tenantId, receiptActor:pipelineReceiptActor(viewer) })
       const dependencyStep = traceContext.steps.find((step) => step.stepKey === 'bundle.dependencies')
       await finishExecutionStep(tx, dependencyStep.executionStepId, {
         status: 'SUCCEEDED',
@@ -324,6 +338,7 @@ export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, hando
       return { receipt: { ...receipt, auditEventId: auditEvent.id } }
     })
   } catch (error) {
+    if (onTransactionFailure) onTransactionFailure(traceContext, error, failedStepKey)
     if (db === prisma && db.projectExecutionRun) {
       try {
         await recordFailedExecutionTrace(db, traceContext, error, { failedStepKey })

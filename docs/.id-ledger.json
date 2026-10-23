@@ -2532,7 +2532,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "7c615467cdecf9bb12372b5b3fb1ff8f03bc138331df9143ad083f4e6c780611"
+      "statement_digest": "bb5ae0f5c4feb56a97f6853e1f7f5cd09b7acc6985a635ba545ae83830ae09e4",
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Owner approved C0 v0.1.5 D1-D6 at 1b76049a; reviewed same-subject handoff contract clarification."
     },
     "FR-085": {
       "family": "FR",
@@ -2545,7 +2547,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "4b2af6a799d5102e9508622ebb014ef7d6c4bbdeb7c8792354a5563f5fb4d554"
+      "statement_digest": "2c43e1f473d7f322c7fce91ebd198e83d20ccfb12b42a17edd4cdf67b3c49606",
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Owner approved C0 v0.1.5 D1-D6 at 1b76049a; reviewed same-subject release semantics clarification."
     },
     "FR-086": {
       "family": "FR",

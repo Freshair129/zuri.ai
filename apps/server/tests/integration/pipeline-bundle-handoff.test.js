@@ -1,10 +1,14 @@
 // @req FR-084 — Bundle1.1 reuses the full-plan writer and handoff transaction.
 // @spec ADR-035, SDD-046, BR-017
+import {mintApiAccessKey,resolveApiAccessViewer} from '@/modules/identity/api-access-auth'
+import {makeOperatorViewer} from '../factories/viewer'
 import {beforeAll,describe,it,expect} from 'vitest'
 import {randomUUID} from 'node:crypto'
 import prisma from '@/lib/db'
 import {dryRunBundle} from '@/modules/project-manager/import/bundle/bundle-dry-run'
 import {commitBundle} from '@/modules/project-manager/import/bundle/bundle-commit-service'
+import {pipelineResponseStatus} from '@/modules/project-manager/import/plan-delta-service'
+import {validatePlanSemantics} from '@/modules/project-manager/import/plan-schema'
 import {pipelineFixture,handoff} from '../helpers/pipeline-handoff-fixture'
 let f
 beforeAll(async()=>{f=await pipelineFixture(prisma)})
@@ -47,4 +51,47 @@ describe('Bundle1.1',()=>{
   const result=await commitBundle({...input,expectedPreviewHash:dry.previewHash},{viewer:f.viewer});expect(result.committed,JSON.stringify(result.errors)).toBe(true);expect(result.receipt.projects[0].projectId).toBe(f.project.id);expect((await prisma.project.findUnique({where:{id:f.project.id}})).code).toBe(f.project.code)
  })
 
+})
+
+it('refuses overlapping root/nested receipt keys before any Bundle mutation',async()=>{
+ for(const nestedCollision of [false,true]) {
+  const input=bundle(),key=nestedCollision?randomUUID():input.trace.idempotencyKey
+  for(const entry of input.projects){entry.plan.schemaVersion='1.2';entry.plan.trace={correlationId:randomUUID(),idempotencyKey:key};entry.plan.domainBinding={primaryDomainId:'DOM-DEVELOPMENT',supportingDomainIds:[],technicalOwnerDomainId:'TD-PROJECT-MANAGER'};entry.plan.identityRefs={};expect(validatePlanSemantics(entry.plan)).toEqual([])}
+  const before=await Promise.all([prisma.project.count(),prisma.auditEvent.count(),prisma.planImportReceipt.count(),prisma.projectExecutionRun.count()])
+  const dry=await dryRunBundle(input,{viewer:f.viewer});expect(dry.valid).toBe(false);expect(dry.errors[0].code).toBe('IDEMPOTENCY_CONFLICT')
+  const result=await commitBundle({...input,expectedPreviewHash:'a'.repeat(64)},{viewer:f.viewer});expect(result.committed).toBe(false);expect(pipelineResponseStatus(result)).toBe(409);expect(result.errors[0].code).toBe('IDEMPOTENCY_CONFLICT')
+  expect(await Promise.all([prisma.project.count(),prisma.auditEvent.count(),prisma.planImportReceipt.count(),prisma.projectExecutionRun.count()])).toEqual(before)
+ }
+})
+
+it('supports distinct nested full-plan 1.2 keys in Bundle1.1',async()=>{
+ const input=bundle()
+ for(const entry of input.projects){entry.plan.schemaVersion='1.2';entry.plan.trace={correlationId:randomUUID(),idempotencyKey:randomUUID()};entry.plan.domainBinding={primaryDomainId:'DOM-DEVELOPMENT',supportingDomainIds:[],technicalOwnerDomainId:'TD-PROJECT-MANAGER'};entry.plan.identityRefs={}}
+ const dry=await dryRunBundle(input,{viewer:f.viewer});expect(dry.valid,JSON.stringify(dry.errors)).toBe(true)
+ const result=await commitBundle({...input,expectedPreviewHash:dry.previewHash},{viewer:f.viewer});expect(result.committed,JSON.stringify(result.errors)).toBe(true)
+ expect(await prisma.planImportReceipt.count({where:{idempotencyKey:{in:[input.trace.idempotencyKey,...input.projects.map(entry=>entry.plan.trace.idempotencyKey)]}}})).toBe(3)
+})
+
+it('keeps Bundle validation paths after scope authority and hides malformed foreign payloads',async()=>{
+ const input=bundle();input.projects=[]
+ const dry=await dryRunBundle(input,{viewer:f.viewer})
+ expect(dry.errors).toContainEqual({code:'INVALID_ENVELOPE',path:'/projects',message:'INVALID_ENVELOPE'})
+ const other=await pipelineFixture(prisma)
+ for(const padding of ['', 'x'.repeat(1024*1024)]) {
+  const bad={...input,scope:{businessCode:other.business.code},metadata:{padding}}
+  expect((await dryRunBundle(bad,{viewer:f.viewer})).errors[0].code).toBe('SCOPE_UNAVAILABLE')
+  expect((await commitBundle({...bad,expectedPreviewHash:'a'.repeat(64)},{viewer:f.viewer})).errors[0].code).toBe('SCOPE_UNAVAILABLE')
+ }
+})
+
+it('retains authenticated service keys on legacy Bundle1.0 while new actor frames require a Person',async()=>{
+ const minted=await mintApiAccessKey({tenantId:f.tenant.id,label:'C1 isolated compatibility',viewer:makeOperatorViewer({visibleBusinessIds:[],ownedBusinessIds:[]})})
+ const viewer=await resolveApiAccessViewer(new Request('http://localhost',{headers:{Authorization:'Bearer '+minted.key}}))
+ const input=bundle();input.dependencies=[]
+ expect((await dryRunBundle(input,{viewer})).errors[0].code).toBe('UNAUTHENTICATED')
+ const legacy={...input,schemaVersion:'1.0'};delete legacy.expectedPreviewHash
+ expect((await commitBundle(legacy,{viewer})).committed).toBe(true)
+ await prisma.apiAccessKey.update({where:{id:minted.id},data:{status:'REVOKED'}})
+ const changed=structuredClone(legacy);changed.trace={correlationId:randomUUID(),idempotencyKey:randomUUID()}
+ await expect(commitBundle(changed,{viewer})).rejects.toMatchObject({code:'SCOPE_UNAVAILABLE'})
 })

@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-012, FR-017 — the Plan Mode Customizer's envelope is accepted by the
 // canonical pipeline end to end: the dry run is valid and previews inserts
 // only, writing nothing; the commit lands transactionally; and the work items
@@ -37,7 +38,7 @@ describe('Plan Mode Customizer → canonical import pipeline', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Plan Mode Tenant', code: 'TNT-PLANMODE' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Plan Mode Business', code: 'BUS-PLANMODE' })
     workspace = await createWorkspace({ name: 'Plan Mode WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-PLANMODE' })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
   })
 
   it('dry run: valid, previews inserts only, and writes nothing', async () => {

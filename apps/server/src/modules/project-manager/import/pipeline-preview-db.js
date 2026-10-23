@@ -84,6 +84,10 @@ export function createPipelinePreviewDb(db, state) {
   proxy = new Proxy({}, { get(_, delegate) {
     if (delegate === '$transaction') return async callback => callback(proxy)
     if (delegate === '_engineConfig') return { activeProvider: 'sqlite' }
+    if (delegate === '$queryRawUnsafe') return async (sql,...values) => {
+      if (!sql.startsWith('SELECT a."id" FROM "AuditEvent" a WHERE ')) throw pipelineError('UPGRADE_REQUIRED',409)
+      return db.$queryRawUnsafe(sql,...values)
+    }
     if (delegate === '$executeRawUnsafe') return async sql => {
       if (sql === 'UPDATE "Dependency" SET "id" = "id" WHERE 0 = 1') return 0
       throw pipelineError('UPGRADE_REQUIRED', 409)

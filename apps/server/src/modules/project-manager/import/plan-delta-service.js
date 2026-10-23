@@ -1,3 +1,4 @@
+import { isPipelineReceiptConflict } from '../application/pipeline-writer'
 import { bindPostgresScope } from '../application/project-feature-repository'
 import { readablePipelineProjects } from '../application/handoff-evidence'
 // @req FR-084 — shared read-only preview and atomic, hash-fenced intake commit.
@@ -16,11 +17,11 @@ import { createExecutionTraceContext, createExecutionTraceRows, finishExecutionR
 
 export function pipelineFailure(error, dry = false) {
   const code = error?.name === 'PipelineError' || error?.name === 'ProgressNumericError' ? error.code : 'GRAPH_BUSY'
-  const base = { errors: [{ code, path: '', message: code }], conflicts: error?.name === 'PipelineError' ? error.conflicts : [] }
+  const base = { errors: error?.name === 'PipelineError' && error.validationIssues?.length ? error.validationIssues : [{ code, path: '', message: code }], conflicts: error?.name === 'PipelineError' ? error.conflicts : [] }
   return dry ? { valid: false, ...base, preview: null, previewHash: null, projectId: null } : { committed: false, ...base }
 }
 export function pipelineResponseStatus(result) {
-  const code = result.errors?.[0]?.code
+  const code = typeof result.errors?.[0] === 'string' && result.errors[0].startsWith('IDEMPOTENCY_CONFLICT') ? 'IDEMPOTENCY_CONFLICT' : result.errors?.[0]?.code
   if (!code) return 200
   if (code === 'UNAUTHENTICATED') return 401
   if (code === 'SCOPE_UNAVAILABLE') return 404
@@ -29,16 +30,26 @@ export function pipelineResponseStatus(result) {
   if (code === 'GRAPH_BUSY') return 503
   return ['STALE_PREVIEW', 'STALE_ENTITY', 'UNDO_CONFLICT', 'IDEMPOTENCY_CONFLICT', 'RELEASE_HELD', 'UPGRADE_REQUIRED', 'CONTRACT_CONFLICT'].includes(code) ? 409 : 422
 }
+export function invalidPipelineEnvelope(zodError) {
+  const paths = new Set()
+  const visit = issue => {
+    if (issue.code === 'invalid_union') { for (const error of issue.unionErrors) for (const nested of error.issues) visit(nested); return }
+    const inputs = issue.code === 'unrecognized_keys' ? issue.keys.map(key => [...issue.path, key]) : [issue.path]
+    for (const input of inputs) paths.add(input.map(part => '/' + String(part).replaceAll('~', '~0').replaceAll('/', '~1')).join(''))
+  }
+  for (const issue of zodError.issues) visit(issue)
+  return Object.assign(pipelineError('INVALID_ENVELOPE', 400), { validationIssues: [...paths].sort().slice(0, 50).map(path => ({ code: 'INVALID_ENVELOPE', path, message: 'INVALID_ENVELOPE' })) })
+}
 function parse(raw, register) {
   if (Buffer.byteLength(JSON.stringify(raw) || '') > 1024 * 1024) throw pipelineError('PAYLOAD_LIMIT', 413)
   const result = (register ? zRegisterDelta : zPlanDelta).safeParse(raw)
-  if (!result.success) throw pipelineError('INVALID_ENVELOPE', 400)
+  if (!result.success) throw invalidPipelineEnvelope(result.error)
   return result.data
 }
 function payloadHash(plan, actorPersonId, projectIds) {
   return handoffHash('pm-delta-payload:v1', { schemaVersion: plan.schemaVersion, kind: plan.kind, projectId: projectIds[0], ...(plan.kind === 'DEPENDENCY_REGISTER' ? { projectIds } : {}), actorPersonId, trace: plan.trace, commands: plan.commands })
 }
-async function readEvidence(tx, state, plan, projectIds, businessIds) {
+export async function readPipelineEvidence(tx, state, plan, projectIds, tenantId) {
   const ids = new Set(plan.commands.filter(command => command.op === 'undo').map(command => command.originalAuditEventId)), locators = []
   for (const entry of state.values()) if (entry.type === 'DEPENDENCY' && entry.row.contractJson !== null) {
     const acceptance = readStoredHandoff(entry.row.contractJson)?.acceptance
@@ -49,12 +60,12 @@ async function readEvidence(tx, state, plan, projectIds, businessIds) {
       // Only a dangling successor needs its historical scope locator. Bound the
       // result per edge at the DB; never load every Tenant's lifetime of audits.
       const postgres = isPostgres(tx), bind = n => postgres ? '$'+n : '?'
-      const scopeSlots=businessIds.map((_,index)=>bind(index+1)).join(',')
-      const scoped=`a."businessId" IN (${scopeSlots}) AND a."action" IN ('PLAN_DELTA_COMMITTED','BUNDLE_IMPORTED')`
+      const projectSlots=projectIds.map((_,index)=>bind(index+3)).join(',')
+      const scoped=`a."tenantId"=${bind(1)} AND a."action" IN ('PLAN_DELTA_COMMITTED','BUNDLE_IMPORTED')`
       const locator = postgres
-        ? `EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(a."payloadJson"::jsonb->'releaseScopes')='array' THEN a."payloadJson"::jsonb->'releaseScopes' ELSE '[]'::jsonb END) x WHERE x->>'dependencyId'=${bind(businessIds.length+1)})`
-        : `EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(a."payloadJson") THEN a."payloadJson" ELSE '{}' END, '$.releaseScopes') x WHERE json_extract(x.value,'$.dependencyId')=${bind(businessIds.length+1)})`
-      const found=await tx.$queryRawUnsafe(`SELECT a."id" FROM "AuditEvent" a WHERE ${scoped} AND ${locator} ORDER BY a."occurredAt" DESC,a."id" DESC LIMIT 1`,...businessIds,entry.id)
+        ? `EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(a."payloadJson"::jsonb->'releaseScopes')='array' THEN a."payloadJson"::jsonb->'releaseScopes' ELSE '[]'::jsonb END) x WHERE x->>'dependencyId'=${bind(2)} AND x->>'successorProjectId' IN (${projectSlots}))`
+        : `EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(a."payloadJson") THEN a."payloadJson" ELSE '{}' END, '$.releaseScopes') x WHERE json_extract(x.value,'$.dependencyId')=${bind(2)} AND json_extract(x.value,'$.successorProjectId') IN (${projectSlots}))`
+      const found=await tx.$queryRawUnsafe(`SELECT a."id" FROM "AuditEvent" a WHERE ${scoped} AND ${locator} ORDER BY a."occurredAt" DESC,a."id" DESC LIMIT 1`,tenantId,entry.id,...projectIds)
       const event=found[0] && await tx.auditEvent.findUnique({where:{id:found[0].id}})
       if (event) locators.push(event)
     }
@@ -64,7 +75,7 @@ async function readEvidence(tx, state, plan, projectIds, businessIds) {
 }
 
 async function prepare(tx, plan, authority, projectIds) {
-  const before = await readPipelineState(tx), audits = await readEvidence(tx, before, plan, projectIds, authority.scopes.map(scope => scope.business.id))
+  const before = await readPipelineState(tx), audits = await readPipelineEvidence(tx, before, plan, projectIds, authority.scopes[0].tenant.id)
   const readProjects = new Set(projectIds)
   for (const entry of before.values()) {
     if (entry.type !== 'DEPENDENCY' || entry.row.contractJson === null) continue
@@ -141,7 +152,7 @@ async function applyCompiled(tx, prepared, provenance) {
   return actual
 }
 
-async function run(raw, { workspaceId, viewer, db = prisma, register = false } = {}, commit) {
+async function run(raw, { workspaceId, viewer, db = prisma, register = false } = {}, commit, receiptOnly = false) {
   try {
     const plan = parse(raw, register), projectIds = register ? plan.projectIds : [plan.projectId]
     if (commit && !plan.expectedPreviewHash) throw pipelineError('INVALID_ENVELOPE', 400)
@@ -161,6 +172,7 @@ async function run(raw, { workspaceId, viewer, db = prisma, register = false } =
           return { ...response, replay: true }
         }
       }
+      if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
       const prepared = await prepare(tx, plan, authority, projectIds)
       if (!commit) return { valid: true, errors: [], conflicts: [], preview: prepared.preview, previewHash: prepared.previewHash, projectId: projectIds[0] }
       requirePipelineHash(plan.expectedPreviewHash, prepared.previewHash, 'STALE_PREVIEW')
@@ -180,7 +192,10 @@ async function run(raw, { workspaceId, viewer, db = prisma, register = false } =
       await tx.planImportReceipt.create({ data: { idempotencyKey: plan.trace.idempotencyKey, payloadHash: prepared.payloadHash, executionRunId: trace.executionRunId, executionStepId: step.executionStepId, attemptId: step.attemptId, stepKey: 'plan.import.commit', status: 'SUCCEEDED', correlationId: plan.trace.correlationId, schemaVersion: '1.3', projectId: projectIds[0], auditEventId } })
       return response
     }, { write: commit })
-  } catch (error) { return pipelineFailure(error, !commit) }
+  } catch (error) {
+    if(commit && !receiptOnly && isPipelineReceiptConflict(error)) return run(raw,{workspaceId,viewer,db,register},true,true)
+    return pipelineFailure(error, !commit)
+  }
 }
 export const dryRunPlanDelta = (raw, options) => run(raw, options, false)
 export const commitPlanDelta = (raw, options) => run(raw, options, true)

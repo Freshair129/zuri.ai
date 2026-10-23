@@ -1,3 +1,4 @@
+import { isPipelineReceiptConflict } from '../../application/pipeline-writer'
 import { PIPELINE_PROTECTED_WORK_STATUSES } from '@/lib/validation/enums'
 import { resolveEntityIdentity } from '../external-ref'
 // @req FR-084 — Bundle1.1 preserves the existing bundle receipt and full-plan lane.
@@ -11,7 +12,7 @@ import { commitLegacyBundle } from './bundle-commit-service'
 import { commitPlan } from '../plan-import-service'
 import { createPipelinePreviewDb } from '../pipeline-preview-db'
 import { catalogue, checkCatalogue, pipelineChanges, pipelineAggregateHash, validatePipelineHandoff, requirePipelineHash } from '../plan-delta-operations'
-import { pipelineFailure } from '../plan-delta-service'
+import { pipelineFailure, invalidPipelineEnvelope } from '../plan-delta-service'
 import { withPipelineTransaction, resolvePipelineBusinessAuthority, resolvePipelineAuthority, pipelineError, pipelineTransactionFacade } from '../../application/pipeline-transaction'
 import { canonicalJSON, handoffHash, readStoredHandoff, entityHash, persistHandoffContract } from '../../application/handoff-contract'
 import { readPipelineState, pipelineReadRows, pipelineReleaseState, pipelineKey, pipelineUUID, clonePipelineValue, validatePipelineGraph, assertPipelineProgress } from '../../application/pipeline-state'
@@ -22,7 +23,7 @@ const clientShape = contract => contract?.acceptance.kind === 'MANUAL' ? { ...co
 function parse(raw) {
   if (Buffer.byteLength(JSON.stringify(raw) || '') > 1024 * 1024) throw pipelineError('PAYLOAD_LIMIT', 413)
   const parsed = zHandoffExecutionPlanBundle.safeParse(raw)
-  if (!parsed.success) throw pipelineError('INVALID_ENVELOPE', 400)
+  if (!parsed.success) throw invalidPipelineEnvelope(parsed.error)
   return parsed.data
 }
 function bundlePayloadHash(bundle, actorPersonId) {
@@ -30,11 +31,16 @@ function bundlePayloadHash(bundle, actorPersonId) {
   return handoffHash('pm-bundle-payload:v1', { actorPersonId, bundle: normalized })
 }
 async function authorize(tx, bundle, viewer, settings) {
-  const business = await tx.business.findUnique({ where: { code: bundle.scope.businessCode } })
+  const code = bundle?.scope?.businessCode
+  if (typeof code !== 'string' || !code) throw pipelineError('SCOPE_UNAVAILABLE', 404)
+  const business = await tx.business.findUnique({ where: { code } })
   if (!business) throw pipelineError('SCOPE_UNAVAILABLE', 404)
   return resolvePipelineBusinessAuthority(tx, business.id, viewer, settings)
 }
 async function prepare(tx, bundle, authority) {
+  // Every nested 1.2 plan claims the same global receipt namespace as its root.
+  const keys = [bundle.trace.idempotencyKey, ...bundle.projects.filter(entry => entry.plan.schemaVersion === '1.2').map(entry => entry.plan.trace?.idempotencyKey).filter(Boolean)]
+  if (new Set(keys).size !== keys.length) throw pipelineError('IDEMPOTENCY_CONFLICT', 409)
   checkCatalogue()
   const base = await dryRunLegacyBundle(bundle, { db: tx, viewer: authority.viewer })
   if (!base.valid) throw pipelineError(base.errors.some(error => String(error).includes('CONTRACT_REQUIRED')) ? 'CONTRACT_REQUIRED' : 'INVALID_ENVELOPE')
@@ -112,20 +118,21 @@ async function prepare(tx, bundle, authority) {
 }
 export async function dryRunHandoffBundle(raw, { viewer, db = prisma } = {}) {
   try {
-    const bundle = parse(raw)
-    if (bundle.expectedPreviewHash !== null) throw pipelineError('INVALID_ENVELOPE', 400)
     return await withPipelineTransaction(db, async (tx, settings) => {
-      const authority = await authorize(tx, bundle, viewer, settings), prepared = await prepare(tx, bundle, authority)
+      const authority = await authorize(tx, raw, viewer, settings)
+      const bundle = parse(raw)
+      if (bundle.expectedPreviewHash !== null) throw pipelineError('INVALID_ENVELOPE', 400)
+      const prepared = await prepare(tx, bundle, authority)
       return { ...prepared.base, previewHash: prepared.previewHash }
     }, { write: false })
   } catch (error) { return pipelineFailure(error, true) }
 }
-export async function commitHandoffBundle(raw, { viewer, db = prisma } = {}) {
+export async function commitHandoffBundle(raw, { viewer, db = prisma } = {}, receiptOnly = false) {
   try {
-    const bundle = parse(raw)
-    if (!bundle.expectedPreviewHash) throw pipelineError('INVALID_ENVELOPE', 400)
     return await withPipelineTransaction(db, async (tx, settings) => {
-      const authority = await authorize(tx, bundle, viewer, { ...settings, write: true })
+      const authority = await authorize(tx, raw, viewer, { ...settings, write: true })
+      const bundle = parse(raw)
+      if (!bundle.expectedPreviewHash) throw pipelineError('INVALID_ENVELOPE', 400)
       const payloadHash = bundlePayloadHash(bundle, authority.viewer.principal.id)
       const existing = await tx.planImportReceipt.findUnique({ where: { idempotencyKey: bundle.trace.idempotencyKey } })
       if (existing) {
@@ -137,6 +144,7 @@ export async function commitHandoffBundle(raw, { viewer, db = prisma } = {}) {
         await resolvePipelineAuthority(tx, receipt.projects.map(project => project.projectId), authority.viewer, { ...settings, write: true })
         return { committed: true, replay: true, executionRunId: receipt.bundleRunId, receipt, preview: null }
       }
+      if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
       const prepared = await prepare(tx, bundle, authority)
       requirePipelineHash(bundle.expectedPreviewHash, prepared.previewHash, 'STALE_PREVIEW')
       const context = { ...prepared, actorPersonId: authority.viewer.principal.id, tenantId: authority.tenant.id, auditEventId: randomUUID(), decisionAt: new Date().toISOString() }
@@ -145,7 +153,10 @@ export async function commitHandoffBundle(raw, { viewer, db = prisma } = {}) {
       if (!result.committed) throw pipelineError('INVALID_ENVELOPE', 400)
       return result
     })
-  } catch (error) { return pipelineFailure(error) }
+  } catch (error) {
+    if(!receiptOnly && isPipelineReceiptConflict(error)) return commitHandoffBundle(raw,{viewer,db},true)
+    return pipelineFailure(error)
+  }
 }
 
 export async function writeBundleHandoffEdge(tx, dependency, context) {

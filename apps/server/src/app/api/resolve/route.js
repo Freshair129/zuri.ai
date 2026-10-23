@@ -5,6 +5,9 @@
 // answers exactly as a record that does not exist.
 // @spec BR-002, SDD-003 — support both customer core-id mapping (system/value) and human-code lookup (type/code)
 // @spec SEC-001, SEC-006
+// @req FR-084 — opt-in authorized endpoint Project scope for RegisterDelta editing.
+// @tested tests/integration/pipeline-contract-regressions.test.js
+import { dependencyEndpointScope } from '@/modules/project-manager/application/handoff-evidence'
 import { handle, httpError, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { lookupExternalRef, listExternalRefs } from '@/modules/project-manager/import/external-ref'
@@ -127,7 +130,7 @@ async function assertResolvedVisible(type, record, viewer, notFoundMessage) {
 // Resolve to an internal id, either by our human code (`type` + `code`) or by
 // the customer's own core id (`system` + `value`) — FR-019.
 export async function GET(request) {
-  const { type, code, system, value } = queryParams(request)
+  const { type, code, system, value, includeProjectScope } = queryParams(request)
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     if (system || value) {
@@ -164,6 +167,7 @@ export async function GET(request) {
       id: record.id,
       code: record.code,
       type,
+      ...(includeProjectScope === 'true' && PROJECT_ENTITY_TYPES.has(type) ? { projectId: (await dependencyEndpointScope(prisma, type, record.id))?.project.id || null } : {}),
       externalRefs: await listExternalRefs({ entityType: type, entityId: record.id }),
     }
   })

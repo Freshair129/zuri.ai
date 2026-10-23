@@ -52,32 +52,28 @@ export function normalizedBundleHash(bundle) {
  *                                           event the first run wrote. Replay
  *                                           never mutates historical records.
  */
-export async function findBundleReplay(tx, { idempotencyKey, payloadHash }) {
+export async function findBundleReplay(tx, { idempotencyKey, payloadHash, actor, businessId }) {
   const existing = await tx.planImportReceipt.findUnique({ where: { idempotencyKey } })
   if (!existing) return null
   if (existing.payloadHash !== payloadHash || existing.stepKey !== BUNDLE_STEP_KEY) {
     return {
       conflict: true,
-      errors: [`Idempotency key "${idempotencyKey}" was already used with a different payload`],
+      errors: ['IDEMPOTENCY_CONFLICT: already used with a different payload'],
     }
   }
   let receipt = null
   if (existing.auditEventId) {
     const auditEvent = await tx.auditEvent.findUnique({ where: { id: existing.auditEventId } })
     try {
-      receipt = JSON.parse(auditEvent?.payloadJson ?? 'null')?.receipt ?? null
+      const payload = JSON.parse(auditEvent?.payloadJson ?? 'null')
+      if(payload?.receiptActor !== actor || payload?.businessId !== businessId) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
+      receipt = payload?.receipt ?? null
     } catch {
       receipt = null
     }
   }
-  return {
-    replay: true,
-    receipt: receipt ?? {
-      bundleRunId: existing.executionRunId,
-      idempotencyKey: existing.idempotencyKey,
-      status: existing.status,
-    },
-  }
+  if(!receipt) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
+  return {replay:true,receipt}
 }
 
 /**
@@ -87,7 +83,7 @@ export async function findBundleReplay(tx, { idempotencyKey, payloadHash }) {
  * makes replay and hash-conflict detection possible. Must run inside the
  * commit transaction so a failed bundle leaves neither.
  */
-export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId = null, actorPersonId = null, tenantId = null }) {
+export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId = null, actorPersonId = null, tenantId = null, receiptActor = null }) {
   const idempotencyKey = bundle.trace?.idempotencyKey ?? null
   const correlationId = bundle.trace?.correlationId ?? null
 
@@ -98,6 +94,7 @@ export async function recordBundleReceipt(tx, { bundle, business, payloadHash, r
     action: BUNDLE_AUDIT_ACTION,
     actorType: 'AGENT_PLAN',
     payload: {
+      receiptActor,
       manifestCode: bundle.manifest.code,
       businessId: business.id,
       businessCode: business.code,

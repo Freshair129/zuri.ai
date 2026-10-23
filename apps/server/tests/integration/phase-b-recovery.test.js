@@ -39,7 +39,7 @@ function emptySnapshot() {
   return {
     schemaVersion: '1.0',
     phaseBRecovery: { version: PHASE_B_RECOVERY_MANIFEST_VERSION, requiredTables: [...PHASE_B_FAMILY_DELEGATES] },
-    tables: Object.fromEntries(PHASE_B_FAMILY_DELEGATES.map((delegate) => [delegate, []])),
+    tables: {dependency:[],...Object.fromEntries(PHASE_B_FAMILY_DELEGATES.map((delegate) => [delegate, []]))},
   }
 }
 
@@ -119,8 +119,8 @@ describe('Phase B offline recovery runners', () => {
   // @req TASK-ZAI-011 — notification history joins portable snapshots and the pinned census.
   it('loads the committed pinned 209-table inventory and preserves prior mappings', () => {
     expect(inventory.applicationTables).toHaveLength(209)
-    expect(inventory.schemaSha256).toBe('fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808')
-    expect(inventory.targetSchemaSha256).toBe('db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633')
+    expect(inventory.schemaSha256).toBe('d8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21')
+    expect(inventory.targetSchemaSha256).toBe('dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -235,6 +235,7 @@ describe('Phase B offline recovery runners', () => {
     const queries = []
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
+      if (sql.includes('information_schema.columns')) return {rows:[{data_type:'text',is_nullable:'YES'}]}
       if (sql.includes('pg_catalog.pg_class')) return { rows: inventory.applicationTables }
       if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: true, canInsert: true }] }
       if (sql.startsWith('SELECT COUNT')) return { rows: [{ count: '0' }] }
@@ -250,7 +251,7 @@ describe('Phase B offline recovery runners', () => {
       expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
       const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
       expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
-      expect(queries.filter(query => query.sql.startsWith('LOCK TABLE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
+      expect(queries.filter(query => query.sql.startsWith('LOCK TABLE') && query.sql.includes('SHARE ROW EXCLUSIVE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
       expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(209)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }

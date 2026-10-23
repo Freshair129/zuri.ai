@@ -3,6 +3,7 @@
 // @tested tests/postgres/pipeline-handoff-races.test.js
 import { PIPELINE_GRAPH_LOCK } from './pipeline-lock'
 export { PIPELINE_GRAPH_LOCK }
+export const PIPELINE_TRANSACTION_OPTIONS = Object.freeze({maxWait:4000,timeout:120000})
 const contexts = new WeakMap()
 export const isPipelineTransaction = db => contexts.get(db)?.write === true
 export function pipelineTransactionFacade(tx) {
@@ -54,7 +55,7 @@ export async function withPipelineTransaction(db, callback, { write = true } = {
         const settings = { postgres, write }
         contexts.set(tx, settings)
         return callback(tx, settings)
-      }, { maxWait: 4000, timeout: 120000, ...(postgres ? { isolationLevel: 'Serializable' } : {}) })
+      }, postgres ? {...PIPELINE_TRANSACTION_OPTIONS,isolationLevel:'Serializable'} : PIPELINE_TRANSACTION_OPTIONS)
     } catch (error) {
       const retry = error?.code === 'P2034' || /serialization|could not serialize|deadlock|SQLITE_BUSY|SQLITE_LOCKED|database is locked|lock timeout/i.test(error?.message || '')
       if (!retry) throw error
@@ -64,3 +65,10 @@ export async function withPipelineTransaction(db, callback, { write = true } = {
   }
   throw pipelineError('GRAPH_BUSY', 503)
 }
+
+export function isPipelineReceiptConflict(error) {
+  if(error?.code!=='P2002') return false
+  const target=error.meta?.target
+  return (error.meta?.modelName==='PlanImportReceipt' && (Array.isArray(target)?target.includes('idempotencyKey'):target==='PlanImportReceipt_pkey')) || target==='PlanImportReceipt_idempotencyKey_key'
+}
+export const pipelineReceiptActor = viewer => viewer?.isApiAccess === true ? 'api-access:'+viewer.serviceAccountId : 'person:'+viewer?.principal?.id

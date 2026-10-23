@@ -60,6 +60,7 @@ status: generated
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-published-price-reader.test.js](../../../apps/server/tests/integration/line-published-price-reader.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-worker-memory.test.js](../../../apps/server/tests/integration/line-worker-memory.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-trace.test.js](../../../apps/server/tests/integration/server-line-trace.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)

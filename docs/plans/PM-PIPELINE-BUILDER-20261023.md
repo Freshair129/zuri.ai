@@ -118,9 +118,9 @@ transaction-aware domain implementation from both register and import. All
 affected endpoints must authorize both governing scopes; Gate facts are read
 only after authorization.
 
-- [ ] Write failing tests for new edge without contract, invalid/foreign Gate, forged manual provenance, identical retry, changed-payload retry, audit rollback, legacy null round-trip and two opposing concurrent edges. Assert no partial writes or second cycle implementation. Add authorized stale inverse/undo refusal and exact receipt linkage assertions from C0.
-- [ ] Implement the pure schema/state functions, additive migration and transaction-aware domain/import branch. Serialize graph-changing writes on the adopted common scope locks; acquire multiple scope locks in deterministic order. Repeat authority, self/cycle and CAS checks at commit, not only in preview.
-- [ ] Wire the existing global register's mandatory contract form and preview/error states before enabling any new canvas writer. Update API/full-import/bundle edge writers under C0's compatibility policy. Legacy stored rows stay null; do not backfill satisfaction or actor evidence.
+- [x] Write failing tests for new edge without contract, invalid/foreign Gate, forged manual provenance, identical retry, changed-payload retry, audit rollback, legacy null round-trip and two opposing concurrent edges. Assert no partial writes or second cycle implementation. Add authorized stale inverse/undo refusal and exact receipt linkage assertions from C0.
+- [x] Implement the pure schema/state functions, additive migration and transaction-aware domain/import branch. Serialize graph-changing writes on the adopted common scope locks; acquire multiple scope locks in deterministic order. Repeat authority, self/cycle and CAS checks at commit, not only in preview.
+- [x] Wire the existing global register's mandatory contract form and preview/error states before enabling any new canvas writer. Update API/full-import/bundle edge writers under C0's compatibility policy. Legacy stored rows stay null; do not backfill satisfaction or actor evidence.
 - [ ] Verify migrations and backup/recovery against both adapters; run the new suites plus existing plan import, import authorization, dependency authorization, core and bundle regressions. Run production build and the global register browser journey, with zero required skips/flaky results.
 
 ```text
@@ -134,6 +134,42 @@ npm --prefix apps/server run test:e2e -- tests/e2e/dependency-handoff.spec.js
 **Exit:** the existing register and shared import lane enforce the adopted new-edge
 contract, with legacy read/recovery compatibility. C1 alone does not claim canvas
 editing or Board holding.
+
+### C1 execution boundary (2026-10-24)
+
+C0 v0.1.5 D1–D6 is implemented in the candidate branch. Final acceptance still
+requires the composed checks, browser qualification, independent exact-patch
+review and hosted CI listed above; no deployment or merge is inferred.
+
+- Nullable `Dependency.contractJson` preserves existing SQL NULL rows without
+  backfill. The issued SQLite and PostgreSQL migrations add only nullable TEXT.
+  Recovery uses the new `pipeline-target-schema.inventory.json`; the historical
+  Phase B inventory and approved C0 examples remain unchanged.
+- The shared writer covers ProjectDelta1.3, RegisterDelta and Bundle1.1, with
+  strict schemas, server-owned manual provenance, CAS, receipt linkage and undo.
+  Full Plan1.0–1.2 and Bundle1.0 retain imports without new bare edge writes;
+  legacy XLSX new bare edges receive `CONTRACT_REQUIRED` through that same lane.
+- New actor/hash/UUID frames require a current Person. Existing Enterprise API
+  service keys remain supported by legacy full envelopes and Bundle1.0, with
+  their actual key row rechecked inside the commit fence. No service-actor
+  identity is inferred for the new protocols.
+- Existing register GET adds only state/hash after both endpoint scopes. Editing
+  an existing edge resolves both endpoint Projects through an authorized opt-in
+  scope response from the existing resolver; it never prefills private evidence.
+  RegisterDelta still contains exactly one command. Atomic identity replacement
+  uses the adopted ProjectDelta command batch where applicable; this increment
+  does not add a multi-command global register or an identity-edit UI.
+- PostgreSQL takes a utility table lock before its first MVCC SELECT, then the
+  adopted advisory key, under Serializable isolation. SQLite acquires its writer
+  reservation before graph facts. Receipt-key conflicts roll back before a fresh
+  authorization and winning-receipt lookup; unrelated unique failures do not replay.
+- The new import protocols and retained full-import consumer guard their own
+  initially protected work changes. Existing CRUD joins the serializer and
+  endpoint-retention checks. FR-085-wide CRUD/Board holds and explanation remain
+  Task C4; C1 does not claim that later capability.
+- Canonical FR identities, membership and subject anchors are retained. The
+  sanctioned ID-ledger writer records owner-approved same-subject statement
+  reviews for FR-084 and FR-085. C2–C4 remain unselected and production untouched.
 
 ## Task C2: Accessible edge creation on the Project canvas (FR-083)
 

@@ -38,6 +38,8 @@ No current binding of this type is present in the frozen graph.
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/resolve/route.js](../../../apps/server/src/app/api/resolve/route.js) — `implements` (`annotation`)
+- [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-lifecycle-service.js](../../../apps/server/src/modules/asset-management/application/asset-lifecycle-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/pipeline-contract.js](../../../apps/server/src/modules/project-manager/api-docs/pipeline-contract.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/file-asset-service.js](../../../apps/server/src/modules/project-manager/application/file-asset-service.js) — `implements` (`annotation`)
@@ -73,8 +75,11 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/integration/pipeline-sqlite-races.test.js](../../../apps/server/tests/integration/pipeline-sqlite-races.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-sqlite-recovery.test.js](../../../apps/server/tests/integration/pipeline-sqlite-recovery.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/postgres/pipeline-handoff-races.test.js](../../../apps/server/tests/postgres/pipeline-handoff-races.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-lifecycle-service.test.js](../../../apps/server/tests/unit/asset-lifecycle-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/dependency-handoff-form.test.js](../../../apps/server/tests/unit/dependency-handoff-form.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-file-asset-service.test.js](../../../apps/server/tests/unit/fr045-file-asset-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/handoff-contract.test.js](../../../apps/server/tests/unit/handoff-contract.test.js) — `verifies` (`test-reference`)
@@ -82,6 +87,8 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/unit/pipeline-finite-progress.test.js](../../../apps/server/tests/unit/pipeline-finite-progress.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-handoff-recovery.test.js](../../../apps/server/tests/unit/pipeline-handoff-recovery.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-http-response.test.js](../../../apps/server/tests/unit/pipeline-http-response.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/pipeline-writer-census.test.js](../../../apps/server/tests/unit/pipeline-writer-census.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-feature-repository.test.js](../../../apps/server/tests/unit/project-feature-repository.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-file-service.test.js](../../../apps/server/tests/unit/project-file-service.test.js) — `verifies` (`transitive`)
 
@@ -89,11 +96,15 @@ No current binding of this type is present in the frozen graph.
 
 ### Code paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 
 ## Limits
 

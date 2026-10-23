@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-043 - Project has a direct Business owner and a secondary Space context.
 // @spec ADR-014, SDD-021, BR-001, SEC-001
 // @tested tests/integration/project-business-binding.test.js
@@ -35,10 +36,10 @@ describe('Project Business ownership and Space context', () => {
     // Owns both fixture Businesses so the pre-existing business-mismatch and
     // null-owner assertions below still exercise the rule they were written
     // for, rather than tripping the new FR-072 guard instead.
-    owner = makeViewer({
+    owner = await persistImportViewer(makeViewer({
       visibleBusinessIds: [businessA.id, businessB.id],
       ownedBusinessIds: [businessA.id, businessB.id],
-    })
+    }))
   })
 
   const asOwner = (fn) => (...args) => fn(...args, { viewer: owner })

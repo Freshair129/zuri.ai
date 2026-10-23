@@ -1,7 +1,10 @@
-import { checkCatalogue } from './plan-delta-operations'
-import { readPipelineState, assertPipelineProgress } from '../application/pipeline-state'
-import { withPipelineTransaction, pipelineError, isPipelineTransaction, pipelineTransactionFacade } from '../application/pipeline-transaction'
-import { dryRunPlanDelta, commitPlanDelta } from './plan-delta-service'
+import { PIPELINE_TRANSACTION_OPTIONS, isPipelineReceiptConflict, pipelineReceiptActor } from '../application/pipeline-writer'
+import { checkCatalogue, pipelineChanges } from './plan-delta-operations'
+import { PIPELINE_PROTECTED_WORK_STATUSES } from '@/lib/validation/enums'
+import { readablePipelineProjects } from '../application/handoff-evidence'
+import { readPipelineState, assertPipelineProgress, validatePipelineGraph, pipelineReleaseState, pipelineOrdering, pipelineProjectId, pipelineKey } from '../application/pipeline-state'
+import { withPipelineTransaction, pipelineError, isPipelineTransaction, pipelineTransactionFacade, resolvePipelineImportViewer } from '../application/pipeline-transaction'
+import { dryRunPlanDelta, commitPlanDelta, readPipelineEvidence } from './plan-delta-service'
 import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { normalizePlanEnvelope, zFullPlanEnvelope, validatePlanSemantics } from './plan-schema'
@@ -52,11 +55,11 @@ const KIND_TO_ENDPOINT = {
 // server has already closed a transaction the client is still writing to.
 // `bundle-commit-service.js` sized the same shape of problem for a
 // multi-Project bundle as `BUNDLE_TRANSACTION_OPTIONS`; this is that same
-// constant, exported once so neither file re-invents the numbers. See also
+// timeout, now shared with the C0 graph writer (4s acquisition, 120s execution). See also
 // `line-conversation-jobs.js`'s `atomic()` and
 // `.brain/rca/2026-09-08-line-webhook-*.md` for the same P2028 class of
 // failure on this database.
-export const PLAN_COMMIT_TRANSACTION_OPTIONS = { maxWait: 10_000, timeout: 120_000 }
+export const PLAN_COMMIT_TRANSACTION_OPTIONS = PIPELINE_TRANSACTION_OPTIONS
 
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize)
@@ -455,14 +458,28 @@ export async function commitPlan(rawPlan, {
   replayOfExecutionStepIds = null,
   traceStepKeys = PLAN_EXECUTION_STEP_KEYS,
   allocatedEntityIds = null,
+  onTransactionFailure = null,
+  receiptOnly = false,
 } = {}) {
   if (rawPlan?.schemaVersion === '1.3') return commitPlanDelta(rawPlan, { workspaceId, viewer, db })
   if (!isPipelineTransaction(db)) {
-    try { return await withPipelineTransaction(db, async tx => {
-      const result = await commitPlan(rawPlan, { workspaceId, viewer, db: pipelineTransactionFacade(tx), traceSourceKind, replayOfExecutionStepIds, traceStepKeys, allocatedEntityIds })
+    let failure = null
+    try { return await withPipelineTransaction(db, async (tx, settings) => {
+      const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db:tx })
+      if (target.error) return { committed:false,errors:[target.error],preview:null }
+      const currentViewer = await resolvePipelineImportViewer(tx, target.workspace, viewer, { ...settings, write:true })
+      const result = await commitPlan(rawPlan, { workspaceId, viewer:currentViewer, db: pipelineTransactionFacade(tx), traceSourceKind, replayOfExecutionStepIds, traceStepKeys, allocatedEntityIds, receiptOnly, onTransactionFailure: (context, error) => { failure = { context, error } } })
       if (!result.committed) throw Object.assign(new Error('IMPORT_REFUSED'), { pipelineResult: result })
       return result
-    }) } catch (error) { if (error.pipelineResult) return error.pipelineResult; throw error }
+    }) } catch (error) {
+      if(!receiptOnly && isPipelineReceiptConflict(error)) return commitPlan(rawPlan,{workspaceId,viewer,db,traceSourceKind,replayOfExecutionStepIds,traceStepKeys,allocatedEntityIds,receiptOnly:true})
+      // The common outer transaction has rolled back before legacy evidence is written.
+      if (failure && db === prisma && db.projectExecutionRun) {
+        try { await recordFailedExecutionTrace(db, failure.context, failure.error) } catch { /* keep original failure */ }
+      }
+      if (error.pipelineResult) return error.pipelineResult
+      throw error
+    }
   }
   const dry = await dryRunPlan(rawPlan, { workspaceId, viewer, db })
   if (!dry.valid) {
@@ -506,7 +523,7 @@ export async function commitPlan(rawPlan, {
         if (existingReceipt.payloadHash !== payloadHash) {
           return {
             idempotencyConflict: true,
-            errors: [`Idempotency key "${idempotencyKey}" was already used with a different payload`],
+            errors: ['IDEMPOTENCY_CONFLICT: already used with a different payload'],
           }
         }
 
@@ -517,6 +534,8 @@ export async function commitPlan(rawPlan, {
         const originalAudit = auditEvents
           .map((event) => ({ event, payload: readAuditPayload(event.payloadJson) }))
           .find(({ payload }) => payload?.idempotencyKey === idempotencyKey && payload?.executionRunId === existingReceipt.executionRunId)
+        if(!originalAudit || originalAudit.payload.receiptActor !== pipelineReceiptActor(viewer) || existingReceipt.project?.workspaceId !== workspace.id || existingReceipt.stepKey !== 'plan.import.commit' || existingReceipt.schemaVersion !== '1.2') throw pipelineError('IDEMPOTENCY_CONFLICT',409)
+
 
         return {
           replay: true,
@@ -535,7 +554,9 @@ export async function commitPlan(rawPlan, {
       }
     }
 
+    if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
     const replayStepKeys = plan.trace?.replayStepKeys || null
+    const pipelineBefore = await readPipelineState(tx)
     await createExecutionTraceRows(tx, traceContext, {
       stepStatuses: Object.fromEntries(traceContext.steps.map((step) => [
         step.stepKey,
@@ -791,14 +812,37 @@ export async function commitPlan(rawPlan, {
       if (!existing) throw pipelineError('CONTRACT_REQUIRED')
     }
 
-    assertPipelineProgress(await readPipelineState(tx), [project.id])
+    const pipelineAfter = await readPipelineState(tx), changed = pipelineChanges(pipelineBefore,pipelineAfter)
+    assertPipelineProgress(pipelineAfter, [project.id])
+    await validatePipelineGraph(pipelineBefore,pipelineAfter,changed)
+    const protectedChanges = changed.filter(change=>{
+      if(change.type!=='WORK_ITEM') return false
+      const row=pipelineAfter.get(pipelineKey(change.type,change.id))?.row,old=pipelineBefore.get(pipelineKey(change.type,change.id))?.row
+      return row && !row.deletedAt && PIPELINE_PROTECTED_WORK_STATUSES.includes(row.status) && (!old || old.status!==row.status || old.workstreamId!==row.workstreamId || old.containerId!==row.containerId)
+    })
+    if(protectedChanges.length) {
+      const business=await tx.business.findUnique({where:{id:workspace.businessId}}), readProjects=new Set([project.id])
+      for(const entry of pipelineAfter.values()) if(entry.type==='DEPENDENCY') {
+        const direction=pipelineOrdering(entry.row)
+        try { if(direction && pipelineProjectId(pipelineAfter,direction.successor)===project.id) readProjects.add(pipelineProjectId(pipelineAfter,direction.predecessor)) } catch { /* retained locator stays opaque */ }
+      }
+      const audits=await readPipelineEvidence(tx,pipelineAfter,{commands:[]},[project.id],business.tenantId)
+      const allowedProjectIds=await readablePipelineProjects(tx,[...readProjects],viewer)
+      for(const change of protectedChanges) {
+        const row=pipelineAfter.get(pipelineKey(change.type,change.id)).row
+        const release=await pipelineReleaseState(pipelineAfter,row.id,{tx,allowedProjectIds,audits,protectedStatus:row.status})
+        if(release.held) throw pipelineError('RELEASE_HELD',409)
+      }
+    }
     const auditEvent = await recordAudit(tx, {
       entityType: 'PROJECT',
       entityId: project.id,
       action: 'PLAN_IMPORTED',
+      actorId: viewer.principal?.id || null,
       actorType: 'AGENT_PLAN',
       payload: {
         projectCode: plan.project.code,
+        receiptActor: pipelineReceiptActor(viewer),
         generatedBy: plan.generatedBy || null,
         schemaVersion: plan.schemaVersion,
         correlationId,
@@ -888,6 +932,7 @@ export async function commitPlan(rawPlan, {
     // A bundle's outer transaction owns rollback and must not persist a nested
     // failure. The root PlanEnvelope path records the failed trace after its
     // business transaction has rolled back.
+    if (onTransactionFailure) onTransactionFailure(traceContext, error)
     if (db === prisma && db.projectExecutionRun) {
       try {
         await recordFailedExecutionTrace(db, traceContext, error)

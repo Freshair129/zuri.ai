@@ -1,3 +1,5 @@
+import {dryRunBundle} from '@/modules/project-manager/import/bundle/bundle-dry-run'
+import {commitBundle} from '@/modules/project-manager/import/bundle/bundle-commit-service'
 import {DEPENDENCY_ENDPOINT_TYPES,DEPENDENCY_TYPES} from '@/lib/validation/enums'
 import {dryRunPlanDelta,commitPlanDelta} from '@/modules/project-manager/import/plan-delta-service'
 import {createProjectFeature,replaceProjectFeatureWorkLinks} from '@/modules/project-manager/application/project-feature-service'
@@ -112,6 +114,45 @@ describe('C1 real PostgreSQL runtime role',()=>{
   const f=await pipelineFixture(target.admin),plan=await preview(f,pipelinePlan(f,edgeCommand(f.items[0],f.items[1])))
   const results=await race(db=>commitPlan(plan,options(f,db)),db=>commitPlan(plan,options(f,db)));expect(results.every(r=>r.committed)).toBe(true);expect(results.filter(r=>r.replay)).toHaveLength(1);expect(results[0].auditEventId).toBe(results[1].auditEventId)
  })
+ it('legacy import rechecks current IAM and refuses initially protected held work using the actual runtime role',async()=>{
+  const f=await pipelineFixture(target.admin)
+  const edge=await preview(f,pipelinePlan(f,edgeCommand(f.items[0],f.items[1])));expect((await commitPlan(edge,options(f))).committed).toBe(true)
+  const full={schemaVersion:'1.0',scope:{workspaceCode:f.workspace.code},project:{code:f.project.code,name:f.project.name},workstreams:[{code:f.ws.code,name:f.ws.name,executionMode:'SOFTWARE_SPRINT',progressStrategy:'TASK_WEIGHT',items:[{code:f.items[1].code,title:f.items[1].title,subtype:'TASK',status:'DONE'}]}]}
+  await expect(commitPlan(full,options(f))).rejects.toMatchObject({code:'RELEASE_HELD'})
+  expect((await target.runtime.workItem.findUnique({where:{id:f.items[1].id}})).status).toBe('PLANNED')
+  await target.admin.membership.update({where:{id:f.membership.id},data:{status:'REVOKED'}})
+  await expect(commitPlan({...full,workstreams:[]},options(f))).rejects.toMatchObject({code:'SCOPE_UNAVAILABLE'})
+ })
+ it('Bundle1.1 commits distinct nested 1.2 receipts with a runtime role and refuses root/nested key reuse atomically',async()=>{
+  const f=await pipelineFixture(target.admin),suffix=randomUUID().slice(0,8)
+  const input={schemaVersion:'1.1',kind:'EXECUTION_PLAN_BUNDLE',manifest:{code:'PG-'+suffix,title:'Runtime bundle'},scope:{businessCode:f.business.code,defaultWorkspaceCode:f.workspace.code},trace:{correlationId:randomUUID(),idempotencyKey:randomUUID()},expectedPreviewHash:null,projects:['A','B'].map(ref=>({bundleProjectRef:ref,plan:{schemaVersion:'1.2',scope:{workspaceCode:f.workspace.code},project:{code:'PG-'+ref+'-'+suffix,name:ref},workstreams:[],trace:{correlationId:randomUUID(),idempotencyKey:randomUUID()},domainBinding:{primaryDomainId:'DOM-DEVELOPMENT',supportingDomainIds:[],technicalOwnerDomainId:'TD-PROJECT-MANAGER'},identityRefs:{}}})),dependencies:[]}
+  const collision=structuredClone(input);collision.projects[0].plan.trace.idempotencyKey=collision.trace.idempotencyKey
+  expect((await dryRunBundle(collision,options(f))).errors[0].code).toBe('IDEMPOTENCY_CONFLICT')
+  expect((await commitBundle({...collision,expectedPreviewHash:'a'.repeat(64)},options(f))).errors[0].code).toBe('IDEMPOTENCY_CONFLICT')
+  const dry=await dryRunBundle(input,options(f));expect(dry.valid,JSON.stringify(dry.errors)).toBe(true)
+  const saved=await commitBundle({...input,expectedPreviewHash:dry.previewHash},options(f));expect(saved.committed,JSON.stringify(saved.errors)).toBe(true)
+  expect(await target.runtime.planImportReceipt.count({where:{idempotencyKey:{in:[input.trace.idempotencyKey,...input.projects.map(entry=>entry.plan.trace.idempotencyKey)]}}})).toBe(3)
+ })
+
+ it('a real receipt unique violation rolls back all losing graph/audit/trace writes before a fresh lookup',async()=>{
+  const f=await pipelineFixture(target.admin),plan=await preview(f,pipelinePlan(f,edgeCommand(f.items[0],f.items[1])))
+  let injected=false
+  const db=new Proxy(target.runtime,{get(base,key){
+   if(key==='$transaction')return (fn,settings)=>base.$transaction(tx=>fn(new Proxy(tx,{get(t,field){
+    if(field==='planImportReceipt')return new Proxy(t.planImportReceipt,{get(d,method){
+     if(method==='create'&&!injected)return async args=>{injected=true;await target.admin.planImportReceipt.create({data:{...args.data,payloadHash:'f'.repeat(64),auditEventId:null}});return d.create(args)}
+     return typeof d[method]==='function'?d[method].bind(d):d[method]
+    }})
+    return typeof t[field]==='function'?t[field].bind(t):t[field]
+   }})),settings)
+   return typeof base[key]==='function'?base[key].bind(base):base[key]
+  }})
+  const result=await commitPlan(plan,options(f,db));expect(injected).toBe(true);expect(result.committed).toBe(false);expect(result.errors[0].code).toBe('IDEMPOTENCY_CONFLICT')
+  expect(await target.runtime.dependency.count({where:{sourceId:f.items[0].id,targetId:f.items[1].id}})).toBe(0)
+  expect(await target.runtime.auditEvent.count({where:{entityId:f.project.id,action:'PLAN_DELTA_COMMITTED'}})).toBe(0)
+  expect(await target.runtime.projectExecutionRun.count({where:{correlationId:plan.trace.correlationId}})).toBe(0)
+ })
+
 })
 
 const execute=promisify(execFile)

@@ -22,6 +22,18 @@ async function pipelineRequest(plan, { removeId } = {}) {
   }
   return result
 }
+export async function dependencyRegisterProjects({ dependency, projectId, form, resolve }) {
+  if (dependency) {
+    const records = await Promise.all([dependency.source, dependency.target].map(async endpoint => {
+      const record = await resolve(endpoint.type, endpoint.code, true)
+      if (record.id !== endpoint.id || !record.projectId) throw new Error('Reload this dependency before editing.')
+      return record
+    }))
+    return [...new Set(records.map(record => record.projectId))].sort()
+  }
+  if (projectId) return [projectId]
+  return [...new Set(await Promise.all([resolve('PROJECT', form.sourceProjectCode), resolve('PROJECT', form.targetProjectCode)]))].sort()
+}
 export function NewDependencyModal({ open, onClose, onSaved, projectId, dependency = null, remove = false }) {
   const initial = null // The authorized GET exposes only state/hash, never persisted provenance.
   const [form, setForm] = useState({ sourceType: 'GATE', sourceCode: '', targetType: 'WORKSTREAM', targetCode: '', sourceProjectCode: '', targetProjectCode: '', dependencyType: 'BLOCKS', deliverable: initial?.deliverable || '', acceptance: initial?.acceptance.kind || 'MANUAL', satisfied: initial?.acceptance.satisfied === true, gateCode: '', gateId: initial?.acceptance.gateId || null })
@@ -30,13 +42,13 @@ export function NewDependencyModal({ open, onClose, onSaved, projectId, dependen
   useEffect(() => { alive.current = true; return () => { alive.current = false; generation.current++ } }, [])
   const set = (key, value) => { generation.current++; setPreview(null); setError(null); setForm(old => ({ ...old, [key]: value, ...(key === 'gateCode' ? { gateId: null } : {}) })) }
   const close = () => { if (!confirming) { generation.current++; onClose() } }
-  const resolve = async (type, code) => (await api(`/api/resolve?type=${type}&code=${encodeURIComponent(code)}`)).id
+  const resolve = async (type, code, scope = false) => { const record = await api(`/api/resolve?type=${type}&code=${encodeURIComponent(code)}${scope ? '&includeProjectScope=true' : ''}`); return scope ? record : record.id }
   const previewHandoff = async event => {
     event.preventDefault()
     const ticket = ++generation.current
     setBusy(true); setError(null)
     try {
-      const projectIds = projectId ? [projectId] : [...new Set(await Promise.all([resolve('PROJECT', form.sourceProjectCode), resolve('PROJECT', form.targetProjectCode)]))].sort()
+      const projectIds = await dependencyRegisterProjects({ dependency, projectId, form, resolve })
       let command
       if (remove) command = { op: 'dependency.remove', id: dependency.id, expectedDependencyHash: dependency.expectedDependencyHash }
       else {
@@ -72,7 +84,7 @@ export function NewDependencyModal({ open, onClose, onSaved, projectId, dependen
             </div>
             <Field label="Relation"><select aria-label="Relation" className="input" value={form.dependencyType} onChange={e => set('dependencyType', e.target.value)}>{DEPENDENCY_TYPES.map(type => <option key={type} value={type}>{type.replace(/_/g, ' ')}</option>)}</select></Field>
           </>}
-          {!projectId && <div className="grid grid-cols-2 gap-3"><Field label="Source Project code"><input aria-label="Source Project code" className="input" value={form.sourceProjectCode} onChange={e => set('sourceProjectCode', e.target.value)} required disabled={confirming} /></Field><Field label="Target Project code"><input aria-label="Target Project code" className="input" value={form.targetProjectCode} onChange={e => set('targetProjectCode', e.target.value)} required disabled={confirming} /></Field></div>}
+          {!projectId && !dependency && <div className="grid grid-cols-2 gap-3"><Field label="Source Project code"><input aria-label="Source Project code" className="input" value={form.sourceProjectCode} onChange={e => set('sourceProjectCode', e.target.value)} required disabled={confirming} /></Field><Field label="Target Project code"><input aria-label="Target Project code" className="input" value={form.targetProjectCode} onChange={e => set('targetProjectCode', e.target.value)} required disabled={confirming} /></Field></div>}
           {dependency && <p className="mb-3 text-xs">{dependency.source.code} → {dependency.target.code} · {dependency.dependencyType.replace(/_/g, ' ')}</p>}
           {remove ? <p className="mb-3 text-xs">Review removal of this obligation before confirming.</p> : <>
             <Field label="Deliverable"><textarea aria-label="Deliverable" className="input" value={form.deliverable} onChange={e => set('deliverable', e.target.value)} required maxLength={2000} /></Field>

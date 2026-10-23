@@ -69,3 +69,17 @@ export async function resolvePipelineAuthority(tx, projectIds, suppliedViewer, {
   const unique = new Map(rows.map(row => [row.model + ':' + row.id, row]))
   return { viewer, scopes, rows: [...unique.values()].sort((a, b) => a.model.localeCompare(b.model) || a.id.localeCompare(b.id)) }
 }
+
+// Legacy full envelopes retain Enterprise API service-account authority. Re-read
+// its actual credential row under the same fence instead of trusting a cached DTO.
+export async function resolvePipelineImportViewer(tx, workspace, suppliedViewer, settings = {}) {
+  if (suppliedViewer?.isApiAccess !== true) return (await resolvePipelineBusinessAuthority(tx, workspace.businessId, suppliedViewer, settings)).viewer
+  const rows = await currentRows(tx, 'ApiAccessKey', 'apiAccessKey', { id: suppliedViewer.serviceAccountId || '' }, settings.postgres, true)
+  const key = rows[0]?.row
+  const business = await tx.business.findUnique({ where: { id: workspace.businessId || '' } })
+  const tenant = business && await tx.tenant.findUnique({ where: { id: business.tenantId } })
+  if (!key || key.status !== 'ACTIVE' || !business || !tenant || key.tenantId !== tenant.id || key.tenantId !== suppliedViewer.tenantId || [business,tenant].some(row=>['DELETED','ARCHIVED','SUSPENDED'].includes(row.status))) throw pipelineError('SCOPE_UNAVAILABLE',404)
+  for (const [model,delegate,id] of [['Business','business',business.id],['Tenant','tenant',tenant.id]]) await currentRows(tx,model,delegate,{id},settings.postgres,true)
+  await currentRows(tx,'Workspace','workspace',workspace.id ? {id:workspace.id} : {businessId:business.id},settings.postgres,true)
+  return { isApiAccess:true,tenantId:key.tenantId,serviceAccountId:key.id }
+}

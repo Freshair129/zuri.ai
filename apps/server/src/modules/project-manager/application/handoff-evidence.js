@@ -1,6 +1,7 @@
 // @req FR-084 — both endpoint read scopes precede any acceptance evidence read.
 // @spec SEC-001, SEC-008, ADR-035
 // @tested tests/integration/dependency-handoff.test.js
+import { isApiAccessFor } from '@/modules/identity/viewer-authority'
 import { assertProjectReadable } from './project-inventory-read-model'
 import { handoffContractState, readStoredHandoff } from './handoff-contract'
 
@@ -44,7 +45,7 @@ export async function readablePipelineProjects(db, projectIds, viewer) {
   for (const id of new Set(projectIds)) {
     const scope=await dependencyEndpointScope(db,'PROJECT',id)
     if (!scope) continue
-    try { await assertProjectReadable(viewer,scope.project,{db}); result.push(id) } catch { /* opaque predecessor */ }
+    try { if(!isApiAccessFor(viewer,scope.project.business?.tenantId || scope.project.workspace?.tenantId)) await assertProjectReadable(viewer,scope.project,{db}); result.push(id) } catch { /* opaque predecessor */ }
   }
   return result
 }

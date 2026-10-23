@@ -6,12 +6,13 @@ import prisma from '@/lib/db'
 import { resolveViewer } from '@/modules/identity/resolve-viewer'
 import { makeViewer } from '../factories/viewer'
 import { dryRunPlan, commitPlan } from '@/modules/project-manager/import/plan-import-service'
-import { dryRunPlanDelta, commitPlanDelta } from '@/modules/project-manager/import/plan-delta-service'
+import { dryRunPlanDelta, commitPlanDelta, readPipelineEvidence } from '@/modules/project-manager/import/plan-delta-service'
 import { listDependencies } from '@/modules/project-manager/application/dependency-service'
 import { pipelineReleaseState,readPipelineState } from '@/modules/project-manager/application/pipeline-state'
 import { pipelineFixture, pipelinePlan, edgeCommand } from '../helpers/pipeline-handoff-fixture'
 vi.mock('@/modules/identity/request-viewer',()=>({resolveRequestViewer:async request=>request.__viewer}))
 const {GET}=await import('@/app/api/dependencies/route')
+const {GET:resolveGET}=await import('@/app/api/resolve/route')
 async function save(plan,viewer,register=false) { const options={viewer,register};const dry=await dryRunPlanDelta(plan,options);expect(dry.valid,JSON.stringify(dry.errors)).toBe(true);const result=await commitPlanDelta({...plan,expectedPreviewHash:dry.previewHash},options);expect(result.committed,JSON.stringify(result.errors)).toBe(true);return result }
 const create = (f,fields={}) => pipelinePlan(f,{op:'node.create',type:'WORK_ITEM',clientRef:'item',parent:{type:'WORKSTREAM',id:f.ws.id},fields:{code:'WI-'+randomUUID().slice(0,8),title:'New',subtype:'TASK',...fields}})
 it('an unrelated disconnected Project edit does not invalidate an authorized preview',async()=>{
@@ -83,4 +84,55 @@ it('dangling declared aggregate successors retain their last accepted item scope
  await prisma.auditEvent.create({data:{entityType:'PROJECT',entityId:f.project.id,action:'PLAN_DELTA_COMMITTED',businessId:f.business.id,tenantId:f.tenant.id,payloadJson:JSON.stringify({commands:[{deliverable:saved.deltaReceipt.changes[0].id}]})}})
  const safe=pipelinePlan(f,{op:'node.create',type:'WORK_ITEM',clientRef:'safe',parent:{type:'WORKSTREAM',id:other.id},fields:{code:'SAFE-'+randomUUID().slice(0,8),title:'Safe',subtype:'TASK'}})
  expect((await dryRunPlan(safe,{viewer:f.viewer})).valid).toBe(true)
+})
+
+it('GET refuses a persisted foreign Gate independently of its status',async()=>{
+ const f=await pipelineFixture(prisma),foreign=await pipelineFixture(prisma)
+ const gate=await prisma.gate.create({data:{code:randomUUID(),title:'Foreign acceptance',projectId:foreign.project.id,status:'PASSED'}})
+ const edge=await prisma.dependency.create({data:{sourceType:'WORK_ITEM',sourceId:f.items[0].id,targetType:'WORK_ITEM',targetId:f.items[1].id,dependencyType:'BLOCKS',contractJson:JSON.stringify({version:1,deliverable:'Invalid foreign evidence',acceptance:{kind:'GATE',gateId:gate.id}})}})
+ for(const status of ['PASSED','OPEN']) {
+  await prisma.gate.update({where:{id:gate.id},data:{status}})
+  expect((await listDependencies({projectId:f.project.id},{viewer:f.viewer})).find(row=>row.id===edge.id).contractState).toBe('INVALID')
+ }
+})
+
+it('opt-in resolver Project scope is authorized and default DTO stays unchanged',async()=>{
+ const f=await pipelineFixture(prisma),other=await pipelineFixture(prisma)
+ for(const include of ['', '&includeProjectScope=true']) {
+  const req=new Request('http://localhost/api/resolve?type=WORK_ITEM&code='+f.items[0].code+include);req.__viewer=f.viewer
+  const res=await resolveGET(req),body=await res.json();expect(res.status).toBe(200)
+  if(include) expect(body.projectId).toBe(f.project.id);else expect(body).not.toHaveProperty('projectId')
+ }
+ const req=new Request('http://localhost/api/resolve?type=WORK_ITEM&code='+other.items[0].code+'&includeProjectScope=true');req.__viewer=f.viewer
+ expect((await resolveGET(req)).status).toBe(404)
+})
+
+it('retains a cross-Business successor locator when its container is lost after acceptance',async()=>{
+ const f=await pipelineFixture(prisma),other=await pipelineFixture(prisma,{tenant:f.tenant,person:f.person})
+ const [a,b]=[f,other].sort((a,b)=>a.project.id.localeCompare(b.project.id))
+ const box=await prisma.workContainer.create({data:{code:randomUUID(),title:'Prior aggregate',subtype:'SPRINT',workstreamId:b.ws.id}})
+ await prisma.workItem.update({where:{id:b.items[0].id},data:{containerId:box.id}})
+ const command={...edgeCommand(a.items[0],b.items[0]),target:{type:'WORK_CONTAINER',id:box.id}}
+ const {projectId,...base}=pipelinePlan(a,command),register={...base,kind:'DEPENDENCY_REGISTER',projectIds:[a.project.id,b.project.id]}
+ const saved=await save(register,other.viewer,true)
+ expect((await prisma.auditEvent.findUnique({where:{id:saved.auditEventId}})).businessId).toBe(a.business.id)
+ await prisma.workItem.update({where:{id:b.items[0].id},data:{containerId:null}})
+ await prisma.workContainer.delete({where:{id:box.id}})
+ const state=await readPipelineState(prisma),proposal=create(b)
+ const audits=await readPipelineEvidence(prisma,state,proposal,[b.project.id],b.tenant.id)
+ expect(audits.some(event=>event.id===saved.auditEventId)).toBe(true)
+ expect(await pipelineReleaseState(state,b.items[0].id,{tx:prisma,allowedProjectIds:[b.project.id],audits})).toEqual({held:true,blockers:[],truncated:false,restricted:true})
+})
+
+it('legacy full-plan commit refreshes a revoked owner before any business writes',async()=>{
+ const f=await pipelineFixture(prisma),plan={schemaVersion:'1.0',scope:{workspaceCode:f.workspace.code},project:{code:f.project.code,name:'Must not change'},workstreams:[]}
+ await prisma.membership.update({where:{id:f.membership.id},data:{status:'REVOKED'}})
+ await expect(commitPlan(plan,{viewer:f.viewer})).rejects.toMatchObject({code:'SCOPE_UNAVAILABLE'})
+ expect((await prisma.project.findUnique({where:{id:f.project.id}})).name).toBe(f.project.name)
+})
+it('legacy full-plan cannot activate work behind an unsatisfied declared handoff',async()=>{
+ const f=await pipelineFixture(prisma);await save(pipelinePlan(f,edgeCommand(f.items[0],f.items[1])),f.viewer)
+ const plan={schemaVersion:'1.0',scope:{workspaceCode:f.workspace.code},project:{code:f.project.code,name:f.project.name},workstreams:[{code:f.ws.code,name:f.ws.name,executionMode:'SOFTWARE_SPRINT',progressStrategy:'TASK_WEIGHT',items:[{code:f.items[1].code,title:f.items[1].title,subtype:'TASK',status:'DONE'}]}]}
+ await expect(commitPlan(plan,{viewer:f.viewer})).rejects.toMatchObject({code:'RELEASE_HELD'})
+ expect((await prisma.workItem.findUnique({where:{id:f.items[1].id}})).status).toBe('PLANNED')
 })
