@@ -17,7 +17,7 @@ version-controlled.
 ## Current contract proposals
 
 - [LINE stock availability and published sell-price facts](integration/line-agent-stock-price-facts-20261023.md)
-  (0.2.0, design approved): owner-selected first operational fact family; source
+  (0.3.0, implementation contract approved): owner-selected first operational fact family; source
   bindings, customer-safe fields, authorization and acceptance cases for review.
   It grants no stock access and does not replace the existing price/quotation rules.
 

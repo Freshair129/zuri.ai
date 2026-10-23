@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto'
 import { isValidWorkToolResult } from './work-tool-receipt.js'
-import { CONTRACT_VERSION, CORE_OPERATIONS, MAX_MEMORY_PACKET_BYTES, MAX_REQUEST_BYTES, MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
+import { CONTRACT_VERSION, CONTRACT_VERSION_V2, SUPPORTED_CONTRACT_VERSIONS, CORE_OPERATIONS, MAX_MEMORY_PACKET_BYTES, MAX_REQUEST_BYTES,
+  MAX_RESPONSE_BYTES, validateCoreEnvelope, validateClaim, validateTurnContext } from './contracts.js'
 
 // @req FR-149 — private core adapter for the independently running runtime.
 // @spec ADR-106 D2-D4, SDD-110 — bearer-authenticated bounded operations.
@@ -60,17 +61,19 @@ function boundedJsonWithin(value, maxBytes) {
   } catch { return false }
 }
 
-export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 10_000, now = () => new Date() } = {}) {
+export function createCoreClient({ baseUrl, token, contractVersion = CONTRACT_VERSION, fetchFn = fetch,
+  timeoutMs = 10_000, now = () => new Date() } = {}) {
   if (typeof baseUrl !== 'string' || typeof token !== 'string' || token.length < 32) throw new Error('CORE_CLIENT_CONFIG_REQUIRED')
+  if (!SUPPORTED_CONTRACT_VERSIONS.includes(contractVersion)) throw new Error('CORE_CLIENT_CONTRACT_VERSION_INVALID')
   const root = new URL(baseUrl)
   if (!['http:', 'https:'].includes(root.protocol) || root.username || root.password || root.search || root.hash) {
     throw new Error('CORE_CLIENT_URL_INVALID')
   }
   async function call(operation, payload, { correlationId = randomUUID(), idempotencyKey = `${operation}:${randomUUID()}`, deadlineAt = new Date(now().getTime() + timeoutMs).toISOString(), signal } = {}) {
     if (!CORE_OPERATIONS.includes(operation)) throw new Error('CORE_OPERATION_INVALID')
-    const envelope = validateCoreEnvelope({ contractVersion: CONTRACT_VERSION, operation,
+    const envelope = validateCoreEnvelope({ contractVersion, operation,
       correlationId: text(correlationId, 128, 'CORE_CORRELATION_ID_INVALID'),
-      idempotencyKey: text(idempotencyKey, 200, 'CORE_IDEMPOTENCY_KEY_INVALID'), deadlineAt, payload })
+      idempotencyKey: text(idempotencyKey, 200, 'CORE_IDEMPOTENCY_KEY_INVALID'), deadlineAt, payload }, { contractVersion })
     let body
     try { body = JSON.stringify(envelope) } catch { throw Object.assign(new Error('CORE_REQUEST_INVALID'), { code: 'CORE_REQUEST_INVALID' }) }
     if (Buffer.byteLength(body, 'utf8') > MAX_REQUEST_BYTES) throw Object.assign(new Error('CORE_REQUEST_TOO_LARGE'), { code: 'CORE_REQUEST_TOO_LARGE' })
@@ -79,12 +82,13 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
     const abort = () => controller.abort(signal.reason)
     signal?.addEventListener('abort', abort, { once: true })
     try {
-      const url = new URL(`/api/internal/conversation-runtime/v1/${operation}`, root)
+      const routeVersion = contractVersion === CONTRACT_VERSION ? 'v1' : 'v2'
+      const url = new URL(`/api/internal/conversation-runtime/${routeVersion}/${operation}`, root)
       const response = await fetchFn(url, { method: 'POST', redirect: 'error', signal: controller.signal,
         headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json', accept: 'application/json' }, body })
       const result = await boundedJson(response, MAX_RESPONSE_BYTES)
       if (!result || Object.keys(result).some(key => !['contractVersion', 'ok', 'data', 'error'].includes(key))
-        || result.contractVersion !== CONTRACT_VERSION || typeof result.ok !== 'boolean') throw new Error('CORE_RESPONSE_INVALID')
+        || result.contractVersion !== contractVersion || typeof result.ok !== 'boolean') throw new Error('CORE_RESPONSE_INVALID')
       if (!response.ok || !result.ok) {
         if (result.ok !== false || !result.error || Object.keys(result.error).some(key => !['code', 'retryable'].includes(key))
           || typeof result.error.code !== 'string' || !/^[A-Z0-9_:-]{1,80}$/.test(result.error.code)
@@ -93,7 +97,7 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
       }
       if (Object.hasOwn(result, 'error')) throw new Error('CORE_RESPONSE_INVALID')
       if (!Object.hasOwn(result, 'data')) throw new Error('CORE_RESPONSE_INVALID')
-      validateOperationResult(operation, result.data, envelope.payload)
+      validateOperationResult(operation, result.data, envelope.payload, contractVersion)
       return result.data
     } catch (error) {
       if (error?.name === 'AbortError') throw Object.assign(new Error('CORE_OPERATION_TIMEOUT'), { code: 'CORE_OPERATION_TIMEOUT', retryable: true })
@@ -109,14 +113,15 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
     const abort = () => controller.abort(signal.reason)
     signal?.addEventListener('abort', abort, { once: true })
     try {
-      const response = await fetchFn(new URL('/api/internal/conversation-runtime/v1/health', root), {
+      const routeVersion = contractVersion === CONTRACT_VERSION ? 'v1' : 'v2'
+      const response = await fetchFn(new URL(`/api/internal/conversation-runtime/${routeVersion}/health`, root), {
         method: 'GET', redirect: 'error', signal: controller.signal,
         headers: { authorization: `Bearer ${token}`, accept: 'application/json' },
       })
       if (!response.ok) throw Object.assign(new Error(`CORE_HTTP_${response.status}`), { code: `CORE_HTTP_${response.status}` })
       const value = await boundedJson(response, 4 * 1024)
       if (Object.keys(value ?? {}).some(key => !['contractVersion', 'status', 'runtimeOwner'].includes(key))
-        || value?.contractVersion !== CONTRACT_VERSION || value?.status !== 'READY'
+        || value?.contractVersion !== contractVersion || value?.status !== 'READY'
         || value?.runtimeOwner !== 'CONVERSATION_RUNTIME') {
         throw Object.assign(new Error('CORE_RUNTIME_OWNER_MISMATCH'), { code: 'CORE_RUNTIME_OWNER_MISMATCH' })
       }
@@ -129,10 +134,16 @@ export function createCoreClient({ baseUrl, token, fetchFn = fetch, timeoutMs = 
       signal?.removeEventListener('abort', abort)
     }
   }
-  return Object.freeze({ call, health })
+  return Object.freeze({ call, health, contractVersion })
 }
 
-function validateOperationResult(operation, data, payload) {
+// Production owns a deliberately selected v2 client; the generic factory keeps
+// its historical v1 default for existing callers and integrations.
+export function createProductionCoreClient(options = {}) {
+  return createCoreClient({ ...options, contractVersion: CONTRACT_VERSION_V2 })
+}
+
+function validateOperationResult(operation, data, payload, contractVersion = CONTRACT_VERSION) {
   const invalid = () => { throw Object.assign(new Error('CORE_RESPONSE_INVALID'), { code: 'CORE_RESPONSE_INVALID' }) }
   const exact = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value)
     && !Object.keys(value).some(key => !allowed.includes(key))
@@ -159,7 +170,7 @@ function validateOperationResult(operation, data, payload) {
   } else if (operation === 'prepare') {
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
       'turnKind', 'replyText', 'memorySync'])) invalid()
-    try { validateTurnContext(data) } catch { invalid() }
+    try { validateTurnContext(data, { contractVersion }) } catch { invalid() }
   } else if (operation === 'credential') {
     if (!data || typeof data.provider !== 'string' || !data.provider.trim() || data.provider.length > 32
       || typeof data.model !== 'string' || !data.model.trim() || data.model.length > 200

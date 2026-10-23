@@ -19,6 +19,8 @@ import { isLineProjectWorkCommand, handleLineProjectWorkCommand, parseLineProjec
 import { zEdgeContextReceipt } from '@/modules/agent/edge-context-receipt'
 import { zContextSliceSource } from '@/lib/validation/enums'
 import { assertMemoryAnswerAppended, loadMemoryReceipt } from './runtime-memory-receipts'
+import { parseLineProductFactsRequest, revalidateLineProductFacts } from '@/modules/agent/line-product-facts'
+import { normalizeLineProductFactsReply, readLineProductFactsDecision } from './line-product-facts-decision'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -865,9 +867,15 @@ async function settleExecution(id, { version, text, code, executionId, contextRe
       const memoryRead = await loadMemoryReceipt(tx, job, 'read')
       if (!code && (runtimeOutOfHoursReply(job) === null || memoryRead)
         && !(job.status === 'READY' && job.executionId === executionId && job.answerText === text)) {
+        // @req FR-291 — Core's durable, execution-bound product decision proves
+        // this deterministic turn never ran thread memory, so an admission-time
+        // opt-in alone does not require an MSP append. A real read receipt still
+        // takes the normal append path below.
+        const productFactsDecision = job.memorySyncOptIn && threadMemoryEnabled && !memoryRead
+          ? await readLineProductFactsDecision(tx, job) : null
         const inbound = job.memorySyncOptIn && threadMemoryEnabled
           ? await tx.message.findUnique({ where: { id: job.inboundMessageId }, select: { body: true } }) : null
-        if (memoryRead || (job.memorySyncOptIn && threadMemoryEnabled)) {
+        if (memoryRead || (job.memorySyncOptIn && threadMemoryEnabled && !productFactsDecision)) {
           await assertMemoryAnswerAppended(tx, { ...job, memorySyncOptIn: job.memorySyncOptIn && threadMemoryEnabled, inbound }, text)
         }
       }
@@ -1047,13 +1055,25 @@ async function executeClaimed({ db, answer, execution, claimantId, now }) {
  * `executed`/`sent` counts added. A tick that found nothing still returns exactly `{ status: 'IDLE' }`,
  * because that is the signal the ticker backs off on.
  */
+function validateProductFactsOptions(options) {
+  if (!options || typeof options !== 'object' || Array.isArray(options)
+    || Object.keys(options).some(key => key !== 'knowledgeReaderFactory')
+    || (options.knowledgeReaderFactory !== undefined && typeof options.knowledgeReaderFactory !== 'function')) {
+    throw new Error('LINE_PRODUCT_FACTS_OPTIONS_INVALID')
+  }
+  return Object.freeze({ ...options })
+}
+
 export async function runLineConversationWorker({ db = prisma, answer, resolveAccount, replyTransport, pushTransport,
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
+  revalidateProductFacts = revalidateLineProductFacts,
+  productFactsOptions = {},
   threadMemory = null,
   memoryDeliveryBatch,
   memoryDeliveryLeaseMs,
   executionConcurrency = boundedCount(env.ZURI_LINE_WORKER_EXECUTION_CONCURRENCY, EXECUTION_CONCURRENCY),
   sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
+  productFactsOptions = validateProductFactsOptions(productFactsOptions)
   const owner = { executionMode: 'SERVER', runtimeOwner: 'SERVER' }
   await maintenance(db, now(), owner)
   // @req FR-022 — the same Core tick also carries pending MSP principal erasures
@@ -1099,7 +1119,7 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   let sent = 0
   for (const job of ready) {
     last = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
-      requiredRuntimeOwner: owner.runtimeOwner })
+      requiredRuntimeOwner: owner.runtimeOwner, revalidateProductFacts, productFactsOptions })
     sent += 1
   }
   await scanMemory()
@@ -1108,7 +1128,9 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
 
 /** Send one READY job and record the outcome. Split out of the tick when it became a batch. */
 async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
-  requiredExecutionMode = 'SERVER', requiredRuntimeOwner = 'SERVER', expectedExecutionId = job.executionId }) {
+  requiredExecutionMode = 'SERVER', requiredRuntimeOwner = 'SERVER', expectedExecutionId = job.executionId,
+  revalidateProductFacts = revalidateLineProductFacts, productFactsOptions = {} }) {
+  productFactsOptions = validateProductFactsOptions(productFactsOptions)
   if (job.executionMode !== 'SERVER' || job.runtimeOwner !== requiredRuntimeOwner
     || (expectedExecutionId && job.executionId !== expectedExecutionId)) {
     return { id: job.id, status: 'FENCED' }
@@ -1166,10 +1188,11 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
   const sendAttemptId = randomUUID()
   const claimed = await atomic(db, async tx => {
     const current = await tx.lineConversationJob.findUnique({ where: { id: job.id },
-      include: requiredRuntimeOwner === 'CONVERSATION_RUNTIME' ? { account: true, inbound: { include: { conversation: true } } } : { account: true } })
+      include: { account: true, inbound: { include: { conversation: true } } } })
     if (!current || current.executionMode !== 'SERVER' || current.runtimeOwner !== requiredRuntimeOwner
       || current.executionId !== expectedExecutionId
-      || current.version !== job.version || current.status !== 'READY' || !activeAccount(current.account, current)) return { count: 0 }
+      || current.version !== job.version || current.status !== 'READY' || current.answerText !== job.answerText
+      || !activeAccount(current.account, current)) return { count: 0 }
     if (requiredRuntimeOwner === 'CONVERSATION_RUNTIME') {
       const sender = await runtimeSenderAuthority(tx, current)
       if (current.account.runtimeOwner !== requiredRuntimeOwner || current.errorCode === 'PDPA_ERASURE' || !sender.authorized
@@ -1183,6 +1206,41 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
       version: account.version, serverEnabled: true, transportMode: 'CLOUD', status: 'CONNECTED', transportEpoch: job.transportEpoch },
       data: { version: { increment: 1 } } })
     if (!fence.count) return { count: 0 }
+    let isProductFacts = false
+    try { isProductFacts = parseLineProductFactsRequest(current.inbound?.body) !== null }
+    catch { isProductFacts = typeof current.inbound?.body === 'string' && current.inbound.body.trim().startsWith('#product') }
+    let fixedOutOfHoursReply = false
+    if (isProductFacts && current.answerText) {
+      try {
+        const events = await readExecutionTrace(tx, { scope: { tenantId: current.tenantId, businessId: current.businessId }, turnId: current.id })
+        fixedOutOfHoursReply = events.some(event => event.kind === 'ANSWER_READY'
+          && event.executionId === (current.executionId ?? null)
+          && event.payload?.executionEvidence === 'OUT_OF_HOURS_RULE'
+          && event.payload?.text === current.answerText)
+      } catch { /* an absent or unreadable Core-owned proof fails closed */ }
+    }
+    if (isProductFacts && !fixedOutOfHoursReply) {
+      let allowed = false
+      try {
+        const decision = await readLineProductFactsDecision(tx, current)
+        // Facet-specific audience and identity rules belong to the owner reader's
+        // live revalidation (stock requires its explicit direct-customer grant;
+        // price follows the published-price authority). The common send gate only
+        // enforces this job's persisted decision, account scope and current answer.
+        allowed = Boolean(decision
+          && current.account.tenantId === current.tenantId && current.account.businessId === current.businessId
+          && (current.account.bindingCode || current.account.id) === current.channelAccountId
+          && sha256(normalizeLineProductFactsReply(current.answerText)) === decision.replySha256
+          && await revalidateProductFacts(current, decision.binding, { ...productFactsOptions, db: tx, now }))
+      } catch { allowed = false }
+      if (!allowed) {
+        const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id, executionMode: 'SERVER',
+          runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
+        data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_PRODUCT_FACTS_AUTHORITY_REVOKED',
+          sealedReplyToken: null, version: { increment: 1 } } })
+        return { count: 0, productFactsRejected: cancelled.count > 0 }
+      }
+    }
     const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode, runtimeOwner: requiredRuntimeOwner,
       executionId: expectedExecutionId, version: job.version, status: 'READY' },
       data: { status: 'SENDING', sendMethod: method, firstSendAt: job.firstSendAt ?? at,
@@ -1193,6 +1251,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     }, at)
     return result
   })
+  if (claimed.productFactsRejected) return { id: job.id, status: 'CANCELLED' }
   if (!claimed.count) return { status: 'CONTENDED' }
   let result
   let receivedProviderResponse = true
@@ -1251,7 +1310,9 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
 
 /** Core-owned sender used only for an exact CR-owned job and its last execution id. */
 export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAccount, replyTransport, pushTransport,
-  env = process.env, now = () => new Date() } = {}) {
+  env = process.env, now = () => new Date(), revalidateProductFacts = revalidateLineProductFacts,
+  productFactsOptions = {} } = {}) {
+  productFactsOptions = validateProductFactsOptions(productFactsOptions)
   const job = await db.lineConversationJob.findUnique({ where: { id: claim.jobId },
     include: { account: true, inbound: { include: { conversation: true } } } })
   if (!job || job.executionMode !== 'SERVER' || job.runtimeOwner !== 'CONVERSATION_RUNTIME'
@@ -1277,7 +1338,7 @@ export async function sendRuntimeConversationJob(claim, { db = prisma, resolveAc
   }
   const sent = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env,
     workerId: claim.claimantId, now, requiredExecutionMode: 'SERVER', requiredRuntimeOwner: 'CONVERSATION_RUNTIME',
-    expectedExecutionId: claim.executionId })
+    expectedExecutionId: claim.executionId, revalidateProductFacts, productFactsOptions })
   // The v1 `send` answer always names its job and carries `acceptance` as a bounded object: Core's response
   // validator and the runtime's core client both require that. The shared sender's id-less CONTENDED and its
   // bare acceptance string stay the legacy worker's own result. CONTENDED and MISSING are reported, not

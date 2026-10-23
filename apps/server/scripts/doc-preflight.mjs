@@ -166,7 +166,11 @@ for (const file of allDocs.filter(candidate => path.basename(candidate).toLowerC
 // Read source files even when the persisted graph is stale or missing a new doc.
 {
   const generated = new Set(['FEATURE-MAP.md', 'DOMAIN-MAP.md', 'TRACE.md', 'D-traceability.md', 'DOCUMENT-LINKS.md'])
-  const sources = allDocs.filter(f => !generated.has(path.basename(f)) && !isGeneratedDocumentView(rel(f)))
+  // Sealed, registry-validated approval copies retain their original metadata
+  // as provenance. They do not redeclare live IDs; ordinary cross-reference
+  // checks below still validate their links in the original approval context.
+  const sources = allDocs.filter(f => !generated.has(path.basename(f))
+    && !isGeneratedDocumentView(rel(f)) && !approvalContexts.has(rel(f)))
   try {
     const orientationDocs = ['README.md', 'CLAUDE.md', 'AGENTS.md', 'llms.txt']
       .map(name => path.join(workspaceRoot(ROOT), name)).filter(existsSync)

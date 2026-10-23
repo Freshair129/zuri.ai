@@ -990,3 +990,32 @@ test('a CATALOG_COMMAND turn completes with Core\'s reply, bounded as the Server
   assert.equal(result.status, 'RECORDED')
   assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText.trim()}`, 'delivery'])
 })
+
+// @req FR-291 — only a v2 fixed PRODUCT_FACTS turn may be delivered, with no model or Work path.
+test('a v2 PRODUCT_FACTS turn completes with Core\'s deterministic reply and never touches Work, memory, credential or model', async () => {
+  const order = []
+  const replyText = 'MUG-01: มีสินค้า และราคา 125.00 บาทต่อชิ้น'
+  const ports = {
+    contractVersion: 'conversation-runtime.v2',
+    job: { claim: async () => (order.push('claim'), claim), renew: async () => ({ version: claim.version, leaseExpiresAt: claim.leaseExpiresAt }),
+      complete: async (_claim, result) => (order.push(`complete:${result.text}`), { status: 'READY', operationId: result.operationId }),
+      status: async (_claim, operationId) => ({ status: 'CLAIMED', operationId }), fail: async () => order.push('fail') },
+    authority: { resolve: async () => (order.push('authority'), { authorized: true, version: 1,
+      scope: { tenantId: claim.tenantId, businessId: claim.businessId, accountId: claim.accountId, identityId: 'identity-1', identityVersion: 1 } }) },
+    context: { prepare: async () => (order.push('context'), { question: 'PRODUCT_FACTS', evidence: { records: [] }, slices: [],
+      authorized: true, audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+      turnKind: 'PRODUCT_FACTS', replyText }) },
+    workTool: { execute: async () => assert.fail('PRODUCT_FACTS must not call WorkToolPort'),
+      status: async () => assert.fail('PRODUCT_FACTS must not read a Work receipt') },
+    memory: { read: async () => assert.fail('PRODUCT_FACTS must not read memory'),
+      append: async () => assert.fail('PRODUCT_FACTS must not append memory'), receipt: async () => assert.fail('PRODUCT_FACTS has no memory receipt') },
+    model: { credential: async () => assert.fail('PRODUCT_FACTS must not resolve a model credential'),
+      generate: async () => assert.fail('PRODUCT_FACTS must not call the model') },
+    delivery: { send: async () => (order.push('delivery'), { status: 'RECORDED' }), status: async () => ({ status: 'READY' }) },
+    trace: { append: async (_claim, event) => order.push(event.kind),
+      status: async () => assert.fail('PRODUCT_FACTS has no model operation to reconcile') },
+  }
+  const result = await createConversationRuntime({ ports, now: () => new Date('2026-09-24T00:00:00.000Z') }).runOne()
+  assert.equal(result.status, 'RECORDED')
+  assert.deepEqual(order, ['claim', 'authority', 'context', `complete:${replyText}`, 'delivery'])
+})

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import { validateCoreEnvelope, validateClaim, validateWorkToolRequest, validateTurnContext } from '../src/contracts.js'
+import * as coreClientExports from '../src/core-client.js'
 import { createCoreClient } from '../src/core-client.js'
 
 const envelope = (operation, payload = { claimantId: 'cr-1' }) => ({ contractVersion: 'conversation-runtime.v1', operation, correlationId: 'corr-1',
@@ -15,6 +16,48 @@ test('core envelopes reject unknown fields, wrong versions and unsupported opera
   assert.throws(() => validateCoreEnvelope(envelope('execute-anything')), /CONTRACT_OPERATION_INVALID/)
   assert.throws(() => validateCoreEnvelope({ ...envelope('claim'), correlationId: 'has space' }), /CONTRACT_CORRELATION_ID_INVALID/)
   assert.throws(() => validateCoreEnvelope({ ...envelope('claim'), deadlineAt: '2026-09-24' }), /CONTRACT_DEADLINE_INVALID/)
+})
+
+test('PRODUCT_FACTS is an explicitly versioned fixed turn and remains rejected by v1', () => {
+  const productTurn = { question: 'PRODUCT_FACTS', evidence: { records: [] }, slices: [], authorized: true,
+    audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+    turnKind: 'PRODUCT_FACTS', replyText: 'MUG-01: มีสินค้า' }
+  assert.throws(() => validateTurnContext(productTurn), /TURN_KIND_INVALID/)
+  assert.doesNotThrow(() => validateTurnContext(productTurn, { contractVersion: 'conversation-runtime.v2' }))
+  assert.throws(() => validateTurnContext(productTurn, { contractVersion: 'conversation-runtime.v1' }), /TURN_KIND_INVALID/)
+  assert.throws(() => validateTurnContext({ ...productTurn, question: '#product {"sku":"MUG-01"}' },
+    { contractVersion: 'conversation-runtime.v2' }), /PRODUCT_FACTS_QUESTION_NOT_REDACTED/)
+  const v2Envelope = { ...envelope('claim'), contractVersion: 'conversation-runtime.v2' }
+  assert.throws(() => validateCoreEnvelope(v2Envelope), /CONTRACT_VERSION_UNSUPPORTED/)
+  assert.doesNotThrow(() => validateCoreEnvelope(v2Envelope, { contractVersion: 'conversation-runtime.v2' }))
+})
+
+test('Core clients keep generic v1 default, while the production factory selects v2', () => {
+  const options = { baseUrl: 'http://core:3000', token: 't'.repeat(40), fetchFn: async () =>
+    new Response(JSON.stringify({ contractVersion: 'conversation-runtime.v1', ok: true, data: null }),
+      { status: 200, headers: { 'content-type': 'application/json' } }) }
+  assert.equal(createCoreClient(options).contractVersion, 'conversation-runtime.v1')
+  assert.equal(typeof coreClientExports.createProductionCoreClient, 'function')
+  assert.equal(coreClientExports.createProductionCoreClient(options).contractVersion, 'conversation-runtime.v2')
+})
+
+test('Core clients bind both the URL and prepare reply validator to the selected contract version', async () => {
+  const claim = { jobId: 'job-1', executionId: 'exec-1', claimantId: 'worker-1', version: 1,
+    tenantId: 'tenant-1', businessId: 'business-1', accountId: 'account-1' }
+  const productTurn = { question: 'PRODUCT_FACTS', evidence: { records: [] }, slices: [], authorized: true,
+    audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 0, workCommand: null,
+    turnKind: 'PRODUCT_FACTS', replyText: 'MUG-01: มีสินค้า' }
+  const seen = []
+  const makeClient = version => createCoreClient({ baseUrl: 'http://core:3000', token: 't'.repeat(40), contractVersion: version,
+    fetchFn: async url => {
+      seen.push(url.pathname)
+      return new Response(JSON.stringify({ contractVersion: version, ok: true, data: productTurn }),
+        { status: 200, headers: { 'content-type': 'application/json' } })
+    } })
+  const request = { claim, authorityVersion: 1 }
+  await assert.rejects(makeClient('conversation-runtime.v1').call('prepare', request), /CORE_RESPONSE_INVALID/)
+  assert.deepEqual(await makeClient('conversation-runtime.v2').call('prepare', request), productTurn)
+  assert.deepEqual(seen, ['/api/internal/conversation-runtime/v1/prepare', '/api/internal/conversation-runtime/v2/prepare'])
 })
 
 test('claim, turn context and work tool payloads enforce scope and bounds', () => {
@@ -119,6 +162,15 @@ test('published operation schema closes nested WorkTool fields and uses bounded 
   assert.match(schema.$defs.contextBinding.$comment, /40 KiB/)
   assert.ok(schema.$defs.trace.allOf.some(rule => rule.if?.properties?.kind?.const === 'CONTEXT_RECEIPT'
     && rule.then?.required?.includes('contextBinding') && rule.else?.not?.required?.includes('contextBinding')))
+})
+
+test('published v2 operation schema names its version without widening operation payloads', async () => {
+  const schemaPath = fileURLToPath(new URL('../contracts/v2/operation.schema.json', import.meta.url))
+  const schema = JSON.parse(await readFile(schemaPath, 'utf8'))
+  assert.equal(schema.$id, 'https://zuri.ai/contracts/conversation-runtime.v2/operation.schema.json')
+  assert.equal(schema.properties.contractVersion.const, 'conversation-runtime.v2')
+  assert.deepEqual(schema.properties.operation, { enum: ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential',
+    'complete', 'fail', 'send', 'trace', 'status', 'memory'] })
 })
 
 test('core client sends a strict bearer request and maps lost responses to typed timeouts', async () => {

@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.70.0b to 1.71.0b (2026-10-23): adds FR-291 LineStockDisclosurePolicy with default-OFF stock disclosure and composite scope foreign keys. Source migrations are authored and isolated SQLite/PostgreSQL verification is separate from any deployed database apply.
+
 Version diff 1.69.0b → 1.70.0b (2026-10-18): add `AgentApprovalNotification` for TASK-ZAI-011, with Tenant, Business, Person, approval-request and decision foreign keys; unique decision/recipient delivery; and recipient/read plus scope indexes. The schema declares 208 models, including the two TASK-ZAI-010 approval request/decision models. SQLite and Supabase migration source and portable-backup handling are local only; no external migration application or deployment is claimed.
 
 Version diff 1.68.0b → 1.69.0b (2026-10-15): FR-286 adds four nullable all-or-none Business provisioning marker/snapshot fields and nullable Workspace.provisioningKey, unique per Business/key. The standard key identifies one default Business Space with persisted ancestry; other Workspaces remain unkeyed. Catalog snapshots are historical definitions and grant no access. The model census remains 205. Source migration authorship and isolated verification do not imply production/Supabase application.
@@ -78,9 +80,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.70.0b |
+| **Version** | 1.71.0b |
 | **Status** | Candidate |
-| **Last Updated** | 2026-10-18 |
+| **Last Updated** | 2026-10-23 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -747,3 +749,16 @@ Version diff 1.51.0b → 1.52.0b (2026-09-16): no model or migration changes —
 Version diff 1.52.0b → 1.53.0b (2026-09-17): two additive Commerce models; SQLite and Postgres migration 20260917030000_commerce_pricing_rules authored, production NOT_APPLIED. Existing ErrorEvent, UsageEvent and UsageEventRollup remain their established platform models; this change does not alter them.
 
 Version diff 1.52.0b → 1.53.0b (2026-09-16): TASK-ZAI-113 (SEC-034, ADR-093 D6) — new model `CustomerLegalHold` (crm; included in the backup snapshot, unlike its two siblings above), the legal hold that defers archive-key destruction, plus the shared `destroyCustomerArchiveKey`/`findActiveLegalHold` helpers both the PDPA-erasure and 10-year-expiry paths call. `schema.prisma` declares 168 models today; this entry accounts for 166 of them — `ErrorEvent` and `UsageEvent` (ADR-095, 1.80.0b-era) reached the schema without a matching entry here and remain an open gap this change does not close. Migration `20260916160000_crm_customer_legal_hold` written, not applied.
+
+
+## Customer LINE stock disclosure (FR-291)
+
+| Model | Fields | Boundary |
+|---|---|---|
+| LineStockDisclosurePolicy | UUID id; tenantId, businessId, lineOaAccountId, productId; enabled default false; version; reason; createdByPersonId, updatedByPersonId; createdAt, updatedAt | Unique Tenant/Business/internal account/Product key. Composite Business, account and Product foreign keys enforce scope. Inventory owns the policy; only a persisted Business OWNER may CAS update it with audit. Excluded from portable recovery authority; parent replacement clears grants and restored disclosure starts OFF. |
+
+Core retains private execution-bound trace decisions and content-free AuditEvent
+records in the existing models. Commerce freezes baseUnit in existing private
+calculation projection metadata; no new public Product/PriceListEntry field or
+price permission is introduced. SQLite and Supabase SQL are source artifacts,
+not authorization to migrate a deployed database.

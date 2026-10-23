@@ -33,9 +33,12 @@ vi.mock('@/lib/db', () => ({
           },
         },
         customer: {
+          findFirst: async () => customerRow,
+          findUnique: async () => customerRow,
           update: async ({ data }) => {
             calls.update += 1
-            return { id: customerRow.id, code: customerRow.code, displayName: customerRow.displayName, ...data }
+            customerRow = { ...customerRow, ...data }
+            return customerRow
           },
         },
       })
@@ -69,7 +72,7 @@ beforeEach(() => {
   calls.transaction = 0
   calls.memoryErase = []
   businessRow = { id: 'b-1', tenantId: 't-1' }
-  customerRow = { id: 'cust-1', personId: 'person-1', code: 'CUST-1', displayName: 'คุณสมชาย', consentStatus: 'PENDING' }
+  customerRow = { id: 'cust-1', personId: 'person-1', version: 1, code: 'CUST-1', displayName: 'คุณสมชาย', consentStatus: 'PENDING' }
 })
 
 describe('consent attestation contract', () => {

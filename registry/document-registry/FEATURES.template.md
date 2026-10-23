@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.73.0b"
+version: "1.74.0b"
 status: active
-last_update: "2026-10-22,Codex Root"
+last_update: "2026-10-23,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.73.0b to 1.74.0b (2026-10-23): adds standalone FR-291 readiness navigation under the Agent orchestration surface. Inventory, Commerce and Knowledge retain their separate authority; this presentation entry grants no ownership or production activation.
 
 Version diff 1.72.0b → 1.73.0b (2026-10-22): retire FEAT-044 and its FR-260..FR-264 bundle by ADR-113; remove the developer-only DDC UI/API and keep the issued IDs and FR membership burned as history. Product PM approvals, roadmap, document governance and standard CI remain active.
 
@@ -1065,6 +1067,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-290",
     "primaryDomain": "integration",
     "useCase": "Owner reviews the planned fixed-endpoint, provider-verified FlowAccount MCP connector and its read-only safeguards; live access and payload persistence remain disabled pending separate provider and data-lifecycle acceptance."
+  },
+  {
+    "id": "FR-291",
+    "primaryDomain": "agent",
+    "useCase": "Customer requests explicit LINE product facts with #product; show only authorized coarse availability and an exact verified published price, with deterministic replies and live checks before send."
   }
 ]
 ```

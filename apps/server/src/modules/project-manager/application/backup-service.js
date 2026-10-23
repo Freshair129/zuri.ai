@@ -486,6 +486,13 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  // @req FR-291 — disclosure is security authority, not portable business data.
+  // @tested tests/integration/line-stock-policy-backup.test.js
+  lineStockDisclosurePolicy:
+    'Customer stock disclosure authority is never exported or replayed by legacy JSON recovery. ' +
+    'The full restore deletes/recreates its Business/account/Product parents, cascading these grants; ' +
+    'the restored installation starts OFF until a Business OWNER explicitly enables a new policy.',
+
   marketingReportPolicy:
     'FR-281 machine policy is retained custody. Legacy JSON export/import refuses when any report policy, binding or evidence exists; use a separately authorized consistent whole-database backup.',
   marketingReportBinding:

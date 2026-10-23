@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.6.0"
+version: "0.8.0"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -11,8 +11,8 @@ follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 The owner authorized application fixes after committing and pushing the
 [assessment](README.md). This record separates implemented behavior, local
 verification and remaining external acceptance. It issues no new requirements,
-product roadmap or delivery dates. Canonical IDs and source-preserved rows are
-unchanged; the assessment remains a snapshot of application revision e3474ef3.
+product roadmap or delivery dates. Existing canonical IDs and source-preserved rows are
+unchanged; the approved follow-up below adds standalone FR-291; the assessment remains a snapshot of application revision e3474ef3.
 
 ## Implemented scope
 
@@ -299,6 +299,144 @@ distinct integration prerequisites recorded in the plan. F07 is unchanged.
 Final document checks and exact-head hosted CI remain required for this composed
 patch; their actual results belong in the PR. Merge and deployment remain separate.
 
+### Consent identity snapshot correction after final review
+
+The final merge-readiness review found that consent decline selected the
+Customer's mutable `personId` before the transaction. A real LINE account merge
+could commit in that gap, leaving `DECLINED` recorded while erasure selected the
+previous Person and missed the Customer's current memory lineage. A disposable
+SQLite regression reproduced that outcome: the consent changed but the private
+message retained its original body.
+
+The existing owner/domain gates and early tenant-scoped admission lookup remain.
+Inside the Serializable transaction, the service now re-reads the tenant-scoped
+Customer and claims its exact Person/version before erasing memory. The claim,
+erasure and audit commit or roll back together. The claim precedes erasure's
+existing `PENDING_MSP` writer, which can itself increment the Customer version;
+the returned summary re-reads that final state. No identity, retention-purpose,
+schema or external-erasure authority changes.
+
+Verification of the correction:
+
+- The actual identity-link interleave first failed because the original message
+  survived; it passes after the transaction-scoped selection and claim.
+- A second real-database test injects a row/Person/version change between the
+  authoritative read and claim, verifies rejection and complete rollback of
+  Customer/message/audit state. This is deterministic claim fault injection,
+  not a claim of two independent concurrent database writers.
+- Five selected SQLite files passed **64/64**: consent unit/integration,
+  Knowledge candidate erasure, shared-speaker erasure and identity linking.
+- The same consent integration file passed **10/10** on a fresh disposable
+  PostgreSQL cluster via `npm run test:postgres --
+  tests/integration/crm-customer-consent.test.js`. It is now included in the
+  existing PostgreSQL profile. No ambient or deployed database was used.
+
+These results qualify the added correction, not a fresh full local application
+suite. The earlier source fingerprints remain historical. Final independent
+re-review and exact-head hosted checks are recorded in PR #723; #724 must carry
+this corrected parent before its own final readiness audit.
+
+## Customer LINE stock and published-price implementation
+
+The owner authorized implementation of the approved
+[stock/price contract](../../docs/change-requests/integration/line-agent-stock-price-facts-20261023.md).
+The sanctioned authored-record migration adds
+[FR-291](../../docs/requirements/FR-291.md) without changing existing identities,
+statements or FEAT membership. Its approval copy, manifest and receipt remain
+frozen. Readiness presentation is maintained in the FEATURES template and
+regenerated; Agent is the orchestration navigation, not exclusive data ownership.
+
+Customers use an explicit strict command, for example:
+
+```text
+#product {"sku":"MUG-01","facets":["availability","price"],"quantity":100,"unit":"piece"}
+```
+
+Stock requires the original signed DIRECT source, live verified identity, an
+exact non-erased Customer-to-Business binding and an owner-enabled account/SKU
+policy. That policy defaults OFF, uses version CAS and audited changes, and is
+excluded from portable recovery authority. Inventory returns only positive/zero
+ATP or not-measured, never counts, sufficiency or delivery promises.
+
+Price-only keeps existing published Knowledge authority without stock-specific
+identity or policy gates. Commerce verifies current receipt-backed publication,
+exact PCAT bytes/hash, frozen calculation and effective rule lineage, exact
+SKU/quantity/base-unit and safe THB minor units; tax remains UNKNOWN. The
+producer now freezes baseUnit privately. Legacy calculations without that proof
+and records whose current unit differs return unavailable rather than being
+relabeled or backfilled.
+
+Both Server and Runtime use the same deterministic resolver and final live
+revalidation gate. Strict v1 is unchanged; the production client explicitly uses
+v2 PRODUCT_FACTS. The private execution-bound decision stays in Core, with a
+content-free idempotent AuditEvent and immutable trace. Recognized malformed,
+denied or unavailable commands never fall through to a model. Stock-policy or
+identity denial suppresses a combined request; an authorized technical failure
+in one source preserves the other as PARTIAL. Product turns do not read memory;
+a real memory-read receipt still requires its matching append receipt.
+
+Review corrections include opted-in memory completion, facet-local failure
+handling, the frozen published unit, policy first-create concurrency mapping,
+real Knowledge owner withdrawal coverage, literal AuditEvent persistence and
+facet-aware documentation. Graph scanning validates canonical provenance before
+excluding exact sealed approval copies from live identity declarations;
+unregistered duplicate documents remain subject to normal guards.
+
+The final composed source passed these local checks:
+
+| Command / scope | Actual result |
+|---|---|
+| Server `npm test --` all 16 `tests/integration/conversation-runtime-*.test.js` files plus the 13 files listed below | 29 files; 475 passed, 1 PostgreSQL-only race skipped on SQLite. |
+| Server `npm run test:postgres` | Full configured profile: 17 files; 158/158 passed on a new disposable embedded cluster, including that race and retained CRM consent coverage. |
+| Runtime `npm test` / `npm run build` | 91/91; boundary build passed for 11 source files. |
+| Server `npm run build` | Passed compilation and type checks. Existing multiple-lockfile root-inference warning remains; standalone lint is not configured. |
+| SQLite and PostgreSQL baseline plus incremental policy DDL | Passed in isolated databases; PostgreSQL proves three scoped foreign keys and default-OFF policy. Supabase migration source is byte-identical to the tested PostgreSQL incremental DDL. No deployed migration applied. |
+| `npm run docs:migration:test` | 99/99 registry, migration, reader, query and view contracts. |
+| Registry/services/graph/views, `npm run govern`, `npm run docs:llms` and `npm run docs:llms:check` | Passed on the final composed tree; strict preflight 0 critical, 0 warning, 43 information. Corpus fresh (411 KB). |
+
+The 13 additional Server files are `tests/unit/line-product-facts.test.js`,
+`tests/unit/corpus-knowledge-reader.test.js`,
+`tests/unit/line-job-answer-text-marker.test.js`,
+`tests/unit/customer-consent-service.test.js`,
+`tests/integration/line-product-facts.test.js`,
+`tests/integration/line-stock-disclosure-policy.test.js`,
+`tests/integration/line-published-price-reader.test.js`,
+`tests/integration/fr253-pricing-catalog.test.js`,
+`tests/integration/openapi-docs.test.js`,
+`tests/integration/line-stock-policy-backup.test.js`,
+`tests/integration/fr075-restore-authorization.test.js`,
+`tests/integration/line-server-backup.test.js` and
+`tests/integration/crm-customer-consent.test.js`. Commands run from apps/server;
+Runtime commands run from services/conversation-runtime. Select the 16 Runtime
+integration paths with `rg --files tests/integration` filtered by
+`conversation-runtime-.*\.test\.js$`, then pass those exact paths plus the 13
+additional paths to `npm test --`; this avoids selecting the whole directory.
+
+Earlier failing composed runs are not passes: the 16-file PostgreSQL attempt
+had one IDLE failure because the owner-reader fixture left its own expired
+CLAIMED jobs in the shared test database. Cleanup now cancels only the tracked
+fixture job IDs. The first broad Server run had eight vertical failures after
+the HTTP harness sent the new production v2 client to v1 handlers, plus one
+writer-inventory assertion. The corrected harness dispatches by the real path,
+asserts v2 traffic and preserves v1 tests; the writer guard explicitly includes
+the reviewed cancellation clear. The final complete reruns above passed after
+those corrections, without test retries or widening a baseline.
+
+Independent Luna Max review covered author-separated source slices and the
+final audit race, fixture dispatch/cleanup, marker invariant and governance
+reader fixes. No P1/P2 remained in those reviewed deltas. Registry, services,
+graph, views, strict governance and corpus freshness are separate final checks;
+the pull request records their output and exact-head hosted CI. Local results
+are scoped, not a fresh full Server suite or live/provider acceptance.
+
+PR #723 merged independently as fbe6485e1ee037e55b6eea1cd078ee5d5cdc28b0
+while this follow-up was being verified. Its tree matches the incorporated
+c49fbdf consent patch; all three CRM source/test files were preserved exactly.
+This stock/price change is delivered on a separate follow-up branch and PR.
+No live LINE send, provider activation, deployment, active database migration
+or stock disclosure enabling is included. F07 and the separate GenesisRAG work
+remain outside this implementation.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -319,3 +457,11 @@ interface contract. No canonical row, runtime operation or access grant changes.
 0.5.0 → 0.6.0 records design approval, the bounded ATP source/clock correction,
 its real-database red/green evidence and the implementation plan. It does not
 certify customer stock/price integration or alter canonical rows and grants.
+
+0.6.0 → 0.7.0 records the final review's consent/identity race correction and
+its SQLite/PostgreSQL claim and rollback proof. Earlier verification records
+and their source fingerprints are preserved.
+
+0.7.0 to 0.8.0 records the approved customer LINE stock/price implementation,
+review corrections and actual composed verification without rewriting the dated
+assessment or claiming production acceptance.

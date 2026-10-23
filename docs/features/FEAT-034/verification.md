@@ -67,6 +67,7 @@ status: generated
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/line-stock-policy-backup.test.js](../../../apps/server/tests/integration/line-stock-policy-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)

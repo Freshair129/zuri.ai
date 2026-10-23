@@ -1,4 +1,4 @@
-import { createCoreClient } from './core-client.js'
+import { createProductionCoreClient } from './core-client.js'
 import { createCorePorts } from './core-ports.js'
 import { createHealthServer } from './health-server.js'
 import { createModelPort } from './model-port.js'
@@ -25,7 +25,7 @@ async function start() {
     healthServer.listen(portNumber, '0.0.0.0', resolve)
   })
   if (process.env.CONVERSATION_RUNTIME_CORE_URL && process.env.CONVERSATION_RUNTIME_TOKEN?.length >= 32) {
-    core = createCoreClient({ baseUrl: process.env.CONVERSATION_RUNTIME_CORE_URL, token: process.env.CONVERSATION_RUNTIME_TOKEN })
+    core = createProductionCoreClient({ baseUrl: process.env.CONVERSATION_RUNTIME_CORE_URL, token: process.env.CONVERSATION_RUNTIME_TOKEN })
     runtime = createConversationRuntime({ ports: createCorePorts({ client: core, model: createModelPort(),
       isCoreReady: () => coreReady, signal: abort.signal }) })
     worker = createWorkerLoop({ runtime, logger: entry => process.stdout.write(`${JSON.stringify(entry)}\n`) })

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.111.0b to 1.112.0b (2026-10-23): FR-291 adds the paired Runtime v2 Core operation route and authenticated stock disclosure policy route. Inventory: 351 route handlers. No deployment or live activation is claimed.
+
 Version diff 1.110.0b → 1.111.0b (2026-10-22): retire the developer-only worker-observability endpoint with ADR-113. Inventory: 349 route handlers, 350 OpenAPI paths and 459 operations. This removes local DDC observation only; normal application APIs and hosted CI remain separate.
 
 Version diff 1.109.0b → 1.110.0b (2026-10-19): add FR-289's installation-operator-only document graph and exact-source Markdown GET routes. Inventory: 350 route handlers, 351 OpenAPI paths and 465 operations. The viewer is read-only and has no Business scope or production-hosted captured component.
@@ -92,9 +94,9 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.110.0b |
+| **Version** | 1.112.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
-| **Last Updated** | 2026-10-19 |
+| **Last Updated** | 2026-10-23 |
 
 ### Knowledge Studio document reads (FR-289)
 
@@ -155,7 +157,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=349 -->
+<!-- api-spec-counts: route_handlers=351 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1495,3 +1497,14 @@ Version diff 1.78.0b → 1.79.0b (2026-09-21): FR-265/FR-266 under ADR-100 — w
 Version diff 1.79.0b → 1.80.0b (2026-09-21): FR-266 under ADR-100 D4 — the model provider handlers now prove the key *and the model* in one call by reading that model from the provider, adding 422 `MODEL_NOT_FOUND` (key works, model not available to it) and 400 `MODEL_ID_INVALID`; the key is trimmed before its pattern check; the status read gains `lastValidationCode`, and the rows now also state `model` in the POST body and `model`/`suggestedModels` in the GET response, which the 1.79.0b rows omitted. No handler added or removed; count stays 325.
 
 Version diff 1.80.0b → 1.81.0b (2026-09-21): FR-267 under ADR-100 D7 — provider `prp`, the operator's Private Runtime Platform, on the same three model-provider handlers. Its address is server configuration (`ZURI_PRIVATE_RUNTIME_BASE_URL`), never a request field; it is proved against PRP's granted-alias list; the status read offers it only where configured; 503 `PRIVATE_RUNTIME_NOT_CONFIGURED`. No handler added or removed; count stays 325.
+
+
+### Customer LINE product facts (FR-291)
+
+| Method | Path | Contract |
+|---|---|---|
+| GET, POST | `/api/internal/conversation-runtime/v2/[operation]` | Service bearer and bounded v2 envelope. GET health; POST fixed Core operations including deterministic PRODUCT_FACTS preparation. No private fact binding or disclosure grant on the wire. Strict v1 remains separately supported. |
+| POST | `/api/inventory/line-stock-disclosure` | Session-authenticated Business OWNER controls default-OFF account/Product policy with expectedVersion CAS, enabled and reason. Scope and actor are resolved server-side; audited mutation. A grant never permits exact count or fulfillment disclosure. |
+
+The [approved contract](../change-requests/integration/line-agent-stock-price-facts-20261023.md)
+owns stock-versus-price authority, exact published-price proof and final release.

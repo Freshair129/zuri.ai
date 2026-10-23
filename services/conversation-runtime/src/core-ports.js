@@ -1,4 +1,4 @@
-// @req FR-149 — the runtime's side of every conversation-runtime.v1 port.
+// @req FR-149, FR-291 — the runtime's side of the selected versioned Core port.
 // @spec ADR-106 D2-D4, SDD-110 — each port maps to one authenticated Core operation
 // with a stable idempotency key; the runtime never talks to a store directly.
 // @tested services/conversation-runtime/test/core-ports.test.js
@@ -24,6 +24,7 @@ export function createCorePorts({ client, model, isCoreReady = () => true, signa
   const memoryIds = claim => ({ read: `${claim.jobId}:memory-read`, append: `${claim.jobId}:memory-append`,
     injection: `${claim.jobId}:memory-injection` })
   return {
+    contractVersion: client.contractVersion ?? 'conversation-runtime.v1',
     job: {
       claim: ({ claimantId }) => call('claim', { claimantId }, `claim:${claimantId}:${randomNonce()}`),
       renew: claim => call('renew', { claim: ref(claim) }, `renew:${claim.jobId}:${claim.executionId}:${Date.now()}`, claim),

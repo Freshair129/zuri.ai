@@ -5,7 +5,7 @@ version: "0.2.0"
 source_revision: "e444eb461f9fec8ab95e6c09b19b4476261964d5"
 ---
 
-# Stock/price source consistency implementation plan
+# LINE stock/price integration and source consistency implementation plan
 
 > **For agentic workers:** Use superpowers:subagent-driven-development or
 > superpowers:executing-plans for the assigned implementation. Checkboxes track
@@ -13,6 +13,10 @@ source_revision: "e444eb461f9fec8ab95e6c09b19b4476261964d5"
 
 **Goal:** Make the existing FR-180 staff/source ATP read consistent with fenced
 ledger and reservation mutations, a prerequisite for the approved stock design.
+
+Tasks 1–3 and their constraints below record the completed ATP prerequisite.
+Phase 2 is the subsequent owner-authorized LINE integration; its policy, typed
+request and Runtime v2 are not prohibited by the earlier phase's narrower scope.
 
 **Architecture:** Reuse Inventory's existing transaction helper and Business
 ledger fence. Preserve the current reader and reservation APIs, authorization
@@ -25,7 +29,7 @@ separate source/consumer contracts; do not add unused ports to simulate them.
 [FR-180](../../docs/features/FEAT-025/requirements/FR-180.md) and
 [verification policy](../../docs/architecture/VERIFICATION-POLICY.md).
 
-## Global constraints
+## Phase 1 constraints (ATP prerequisite only)
 
 - Preserve `{ businessId, products, byProductId }` and all existing ATP row fields.
 - Reuse `inTx` and `acquireLedgerFence`; support an existing transaction client.
@@ -37,7 +41,7 @@ separate source/consumer contracts; do not add unused ports to simulate them.
 - Test only isolated disposable databases; no active development/UAT/production DB.
 - Root integrates and runs generators serially. Delegated work uses Luna Max.
 
-## Review focus
+## Phase 1 review focus
 
 - Concurrent movement plus hold changes must not produce a torn ATP aggregate.
 - Release, conversion and expiry must participate in the same fence protocol.
@@ -115,10 +119,11 @@ retain separate authority, and an E2E/Desktop skip is not a pass. See
 [the verification record](application-fixes.md#atp-source-consistency-after-design-approval)
 for the executed checks and source fingerprint.
 
-## Customer stock/price integration remains a separate gated deliverable
+## Phase 1 assessment: customer integration prerequisites
 
-The owner approved the design, including quantity-independent positive/zero
-ATP. The code assessment found three unresolved integration boundaries:
+At the Phase 1 source baseline, the owner had approved design only, including
+quantity-independent positive/zero ATP. That assessment found these integration
+boundaries, which the later Phase 2 mandate below explicitly authorizes filling:
 
 1. **Request and caller:** no approved typed product-fact trigger enters current
    LINE turns. `#sku` is staff catalog authorization; FR-132 remains declared
@@ -133,7 +138,7 @@ ATP. The code assessment found three unresolved integration boundaries:
    explicit canonical policy/authority contract. No policy signer/store or
    publication acceptance is inferred from this design approval.
 
-These are source/contract prerequisites, not completed features or permission
+These were Phase 1 source/contract prerequisites, not completed features or permission
 to add default-deny scaffolding with no consumer. The useful source fix above
 does not certify customer access, lot eligibility, exact-price answers or live
 LINE/Runtime integration. This plan lives beside its dated assessment rather
@@ -159,14 +164,18 @@ and feature memberships. Independent reviewer checks the exact contract before
 source implementation. Canonical source, migration manifest/receipt and exports
 must be generated through existing sanctioned tooling, not hand-maintained.
 
-- [ ] Review the v0.3.0 contract and register the new source requirement.
-- [ ] Reconcile intake index, FR-234 follow-up and service contract references.
+- [x] Review the v0.3.0 contract and register the new source requirement.
+- [x] Reconcile intake index, FR-234 follow-up and service contract references.
 
 ### Task 5: Implement safe owner projections and typed request
 
 Worker assess_business owns new line-stock-policy-service and its authenticated
 route, Inventory stock projection, Commerce published-price reader, a narrow
 Knowledge exact-record publication read and modules/agent/line-product-facts.js.
+The independent Knowledge/Commerce published-price slice and its tests are
+delegated to review_application_patch; assess_business retains the shared
+resolver/principal, policy, stock and formatting. Review assignments later exclude
+each author's own files and bind to the same composed patch.
 Root alone owns Prisma schema, migration and client generation. No fake Viewer,
 new price opt-in, direct substrate call or model fallback.
 
@@ -175,19 +184,28 @@ otherwise a parsed request or deterministic clarification.
 resolveLineProductFacts(job,{db,now}) returns {text,binding}.
 revalidateLineProductFacts(job,binding,{db,now}) returns a boolean.
 The principal is reconstructed from the persisted job and original signed raw
-LINE source, live account, active identity and exact Business-bound Customer.
+LINE source with the live account/Tenant/Business binding. Availability requests
+additionally require an active verified identity, an exact Business-bound Customer
+and the original DIRECT user audience. Price-only requests retain the existing
+Business-scoped published Knowledge authority; stock-specific gates do not apply.
 Policy grants key trusted Tenant + Business + internal LINE account + Product IDs, default OFF, owner-only CAS.
 Knowledge validates the verified generation/manifest/source receipt; Commerce
 matches PCAT asset hash, exact producer record, Product/quantity/unit, THB safe
-minor units and current rules. Final release reconstructs the live account/Tenant/Business binding, active verified ChannelIdentity, exact non-erased Customer-to-Business binding, original DIRECT user audience and applicable owner authorization, then compares result/source/policy
-bindings so changed facts never release the older reply.
+minor units and current rules. Final release rechecks the persisted signed job,
+live account/Tenant/Business binding and applicable source authority for every
+request. Availability and combined requests also recheck the verified identity,
+exact non-erased Customer-to-Business binding, DIRECT audience and disclosure
+policy. Price-only requests use the existing published Knowledge authorization
+without inheriting stock-specific identity, Customer or policy requirements.
+Result/source/policy bindings are compared so changed facts never release an
+older reply.
 
-- [ ] Write and execute failing cases before source code.
-- [ ] Implement policy authorization/CAS/audit and actual authenticated route.
-- [ ] Implement source-bound stock/price reads and bounded formatter.
-- [ ] Prove positive/zero/untracked, exact price including zero, source denial,
+- [x] Write and execute failing cases before source code.
+- [x] Implement policy authorization/CAS/audit and actual authenticated route.
+- [x] Implement source-bound stock/price reads and bounded formatter.
+- [x] Prove positive/zero/untracked, exact price including zero, source denial,
   partial/unavailable, malicious/unknown fields, revoked publications and scopes.
-- [ ] Execute real disposable DB integration tests, not mock-only reader tests.
+- [x] Execute real disposable DB integration tests, not mock-only reader tests.
 
 ### Task 6: Wire both LINE cohorts and Runtime v2
 
@@ -196,11 +214,11 @@ worker composition, durable content-free AgentTraceEvent fact bindings and
 common pre-send gate, plus matching tests. Shared parser/resolver module belongs
 to assess_business; coordinate exact imports, no duplicate parser.
 
-- [ ] Write and run failing route/version and fixed-turn tests.
-- [ ] Add versioned v2 PRODUCT_FACTS turns, preserve strict v1 and staff #sku.
-- [ ] Persist per-job/execution private binding and verify deterministic reply.
-- [ ] Revalidate on the shared send path before SENDING for both execution owners.
-- [ ] Prove end-to-end webhook/job/prepare/complete/send parity, zero model calls,
+- [x] Write and run failing route/version and fixed-turn tests.
+- [x] Add versioned v2 PRODUCT_FACTS turns, preserve strict v1 and staff #sku.
+- [x] Persist per-job/execution private binding and verify deterministic reply.
+- [x] Revalidate on the shared send path before SENDING for both execution owners.
+- [x] Prove end-to-end webhook/job/prepare/complete/send parity, zero model calls,
   absent/stale bindings, account/identity/customer revocation or rebind and audience changes between answer and send, policy/publication revocation, retries and old v1 refusal. Applicable consent/erasure is rechecked under its existing owner contract; memory READ/consent is neither an ERP grant nor a new price gate.
 
 ### Task 7: Compose, review and verify
@@ -210,10 +228,24 @@ Runtime's independent Node test suite may run separately. All workers use Luna
 Max; preserve other sessions' changes. Integrate actual tests, schema migration,
 backup scope and API inventory where applicable.
 
-- [ ] Independent Luna Max review of exact composed patch and contract meaning.
-- [ ] Server targeted DB and cross-service contracts, Runtime tests/build,
+- [x] Independent Luna Max review of exact composed patch and contract meaning.
+- [x] Server targeted DB and cross-service contracts, Runtime tests/build,
   PostgreSQL policy/projection verification and Server build.
-- [ ] Canonical registry/services/graph/views, governance, readers and corpus.
-- [ ] Record exact commands/results and remaining live acceptance separately.
+- [x] Canonical registry/services/graph/views, governance, readers and corpus.
+- [x] Record exact commands/results and remaining live acceptance separately.
   No live LINE send, deployment, active DB migration or disclosure activation
   is implied by local fixture acceptance.
+
+
+## Phase 2 verification closeout
+
+Implementation and independent author-separated Luna Max reviews are complete.
+Final composed Server acceptance passed 29 files / 475 tests with one
+PostgreSQL-only race skipped on SQLite; the full disposable PostgreSQL profile
+passed 17 files / 158 tests. Runtime passed 91 tests and its 11-source-file
+build; Server build and 99 document migration/reader contracts passed.
+The [verification record](application-fixes.md) distinguishes earlier failures,
+corrections, document checks and exact-head hosted CI from live acceptance.
+No live LINE send, deployed migration, disclosure activation or production
+publication is claimed. This closes the bounded implementation plan, not those
+separate deployment/provider acceptance activities.
