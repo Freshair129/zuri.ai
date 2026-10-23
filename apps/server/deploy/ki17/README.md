@@ -388,6 +388,14 @@ helper above builds current source and is not the procedure for this case.
    approved baseline requires its explicit full SHA. The recipe validates all
    original pins using that previous MSP value before replacing anything, then
    validates the selected tuple after copying only MSP and pin metadata.
+   Image/source identity is operator-attested at G-4, not established by the
+   recipe's tuple checks or by a 40-character label. Verify clean Git HEAD and
+   context file hashes on the host. If the builder cannot resolve a daemon-only
+   digest reference, create task-owned aliases from the recorded full image IDs
+   (for example `zuri-msp-base:sha256-<full-image-id>`). Verify those aliases
+   against the recorded IDs before and after building; verify the result's
+   rootfs layer prefix equals the selected base and the copied MSP file/symlink
+   inventory equals the donor. Retain these checks with the build metadata.
 3. Verify the inherited `org.opencontainers.image.revision` remains the actual
    app SHA; `org.zuri.ki17.configuration-revision` must equal the clean recipe
    checkout. Record both base/donor/result digests and receipts. GKS, worker

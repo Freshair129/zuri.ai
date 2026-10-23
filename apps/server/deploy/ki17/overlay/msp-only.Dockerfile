@@ -2,8 +2,9 @@
 # @req FR-187 — update a pinned knowledge runtime on a frozen application image.
 # @spec ADR-075
 # @tested tests/unit/ki17-msp-only-release.test.js
-# BASE and MSP_FROM must be immutable local image digest references. Keep BASE's
-# app revision label; CONFIG_REVISION identifies this recipe/manifest separately.
+# The operator verifies BASE/MSP_FROM identity and clean context SHA on the host
+# (G-4); this recipe checks runtime tuple compatibility, not source provenance.
+# Keep BASE's app revision label; CONFIG_REVISION is a host-attested label.
 ARG BASE
 ARG MSP_FROM
 FROM ${MSP_FROM} AS signed_msp
