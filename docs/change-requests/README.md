@@ -1,14 +1,14 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.7.0"
+version: "1.8.0"
 updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.7.0
+**Version:** 1.8.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
@@ -17,7 +17,7 @@ version-controlled.
 ## Current contract proposals
 
 - [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
-  (0.1.0, proposed design): per-product/per-field owner preview and approval,
+  (0.2.0, design and bounded implementation approved): per-product/per-field owner preview and approval,
   verified public projection, strict model fact selection and unchanged stock/price
   authority. No real product is authorized by the proposal.
 

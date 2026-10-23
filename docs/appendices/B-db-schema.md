@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.71.0b to 1.72.0b (2026-10-24): FR-235 adds default-OFF LineProductDisclosurePolicy. The schema declares 210 models; source migrations and verification do not apply any deployed migration.
+
 Version diff 1.70.0b to 1.71.0b (2026-10-23): adds FR-291 LineStockDisclosurePolicy with default-OFF stock disclosure and composite scope foreign keys. Source migrations are authored and isolated SQLite/PostgreSQL verification is separate from any deployed database apply.
 
 Version diff 1.69.0b → 1.70.0b (2026-10-18): add `AgentApprovalNotification` for TASK-ZAI-011, with Tenant, Business, Person, approval-request and decision foreign keys; unique decision/recipient delivery; and recipient/read plus scope indexes. The schema declares 208 models, including the two TASK-ZAI-010 approval request/decision models. SQLite and Supabase migration source and portable-backup handling are local only; no external migration application or deployment is claimed.
@@ -762,3 +764,9 @@ records in the existing models. Commerce freezes baseUnit in existing private
 calculation projection metadata; no new public Product/PriceListEntry field or
 price permission is introduced. SQLite and Supabase SQL are source artifacts,
 not authorization to migrate a deployed database.
+
+## Customer LINE product fields (FR-235)
+
+| Model | Fields | Boundary |
+|---|---|---|
+| LineProductDisclosurePolicy | UUID id; tenantId, businessId, lineOaAccountId, productId, sourceId; fieldsJson; sourceBindingJson; projectionSha256; nullable selected SKU/name lookup hashes; approvedByPersonId, approvedAt, reason; enabled default false; version and timestamps | Knowledge owns owner-approved per-product/per-field public disclosure. Composite Business/account/Product scope foreign keys; unique scoped account/Product. Preview-bound CAS and atomic audit; source deletion does not prevent withdrawal. Private RLS-protected table. Excluded from portable recovery; parent replacement clears grants. No ATP or price authority. |

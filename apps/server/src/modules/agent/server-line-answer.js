@@ -15,6 +15,8 @@ import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/l
 import { assertMainDevLocalOllamaJob } from './main-dev-local-ollama'
 import prisma from '@/lib/db'
 import { recordMainDevTestRagDecision } from './main-dev-test-rag-decision'
+import { createLineCustomerProductReader, selectCustomerProductReply } from './line-customer-product-knowledge'
+import { recordLineCustomerProductDecision } from './line-customer-product-decision'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -537,6 +539,8 @@ export async function appendLineMemoryAnswer({ job, route, threadMemory, memory,
 export function createServerLineAnswer({
   env = process.env,
   queryFn,
+  customerProductReaderFactory = createLineCustomerProductReader,
+  customerProductDecisionWriter = recordLineCustomerProductDecision,
   runtimeFactory = createPhase1BusinessAgentPortsFromEnv,
   threadMemory = null,
   contextAssembler = assembleAgentContext,
@@ -563,6 +567,7 @@ export function createServerLineAnswer({
     }
     const mainDevLocalOllama = Boolean(mainDevLocalOllamaProfile)
     const mainDevTestRag = mainDevLocalOllamaProfile?.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
+    const customerProducts = mainDevLocalOllamaProfile?.knowledgeSource === 'GENESISRAG17_CUSTOMER_PRODUCTS'
     const memoryAllowed = !mainDevLocalOllama || mainDevLocalOllamaProfile.memoryEnabled === true
     const memoryOptIn = memoryAllowed && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const episodicMemoryOptIn = memoryAllowed && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
@@ -605,6 +610,21 @@ export function createServerLineAnswer({
         })
         if (memoryOptIn && !selectedThreadMemory) selectedThreadMemory = ports.threadMemory
         if (episodicMemoryOptIn) selectedEpisodicMemory = ports.episodicMemory ?? null
+      }
+
+      if (customerProducts) {
+        const db=runtimeDependencies.integrationDb ?? prisma
+        const reader=customerProductReaderFactory({job,env,db})
+        const evidence=await reader.query({question})
+        await trace?.recordEvidence?.({queryId:'customer_product_fields'}, {records:evidence.facts}, {
+          contentFree:true,mode:'GKS_CORPUS',source:'GKS_CORPUS',reason:evidence.meta?.reason ?? null,
+          budgetMs:evidence.meta?.budgetMs ?? null,retrievalRefs:evidence.retrievalRefs ?? [],
+        })
+        const answerText=await selectCustomerProductReply({question,facts:evidence.facts},
+          {model,trace,revalidate:()=>reader.revalidate()})
+        trace?.assertHealthy()
+        await customerProductDecisionWriter(db,job,{binding:reader.getBinding(),replyText:answerText})
+        return answerText
       }
 
       let episodicMemoryEntries = []

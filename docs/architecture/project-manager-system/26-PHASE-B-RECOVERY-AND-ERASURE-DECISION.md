@@ -1,7 +1,7 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.23b"
+version: "0.3.24b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
 last_update: "2026-10-23,Codex Root, FR-291 excluded stock policy static census binding"
@@ -618,7 +618,26 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
-### Current FR-291 stock policy static binding
+| 0.3.24b | 2026-10-24 | beta | Add excluded product-field disclosure authority to the complete 210-table census; preserve every predecessor mapping and historical binding refusal | working-tree | Codex Root |
+
+### Current FR-235 product disclosure static binding
+
+The owner-approved [LINE customer product contract](../../change-requests/integration/line-customer-product-disclosure-20261024.md)
+adds only `LineProductDisclosurePolicy` to the complete census, preserving all
+209 predecessor mappings. Knowledge owns this default-OFF disclosure authority.
+It is excluded from portable snapshots; restoring its Business/account/Product
+parents clears the grant, requiring a fresh owner preview and approval.
+
+- Exact canonical LF schema SHA-256: `291c8a43acdeb62e1839e262d663371a6c009c92a46fe60f3296c045c550e86e`.
+- Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `3848d6a69c33dec8f6e49ece409bcc73854bb7493b7eb5d78e154e9b6c4814c1`.
+
+The current loader binds these hashes and all 210 mappings. A nonempty policy
+table still makes a recovery target nonempty. The 209-table predecessor and all
+earlier bindings remain historical and are refused at loader, adapter, export and
+restore boundaries. This static schema maintenance does not relax recovery,
+privilege, custody or production gates and applies no deployed migration.
+
+### Historical FR-291 stock policy static binding
 
 The approved [customer LINE stock/price contract](../../change-requests/integration/line-agent-stock-price-facts-20261023.md)
 adds only `LineStockDisclosurePolicy` to the complete application table census.

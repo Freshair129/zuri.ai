@@ -368,6 +368,7 @@ model Business {
   @@unique([id, tenantId])
   @@index([tenantId])
   lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+  lineProductDisclosurePolicies LineProductDisclosurePolicy[]
 
 }
 
@@ -4469,6 +4470,7 @@ model LineOaAccount {
   @@index([businessId, status])
   @@index([memoryProjectId])
   lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+  lineProductDisclosurePolicies LineProductDisclosurePolicy[]
   @@unique([id, tenantId, businessId])
 
 }
@@ -5220,6 +5222,7 @@ model Product {
   @@index([productMasterId])
   @@index([mergedIntoProductId])
   lineStockDisclosurePolicies LineStockDisclosurePolicy[]
+  lineProductDisclosurePolicies LineProductDisclosurePolicy[]
   @@unique([id, tenantId, businessId])
 
 }
@@ -6678,4 +6681,41 @@ model LineStockDisclosurePolicy {
 
   @@unique([tenantId, businessId, lineOaAccountId, productId])
   @@index([businessId, lineOaAccountId])
+}
+
+// @req FR-235 — Business Owners explicitly approve a bounded ProductMaster
+//   projection for one LINE OA account and Product. Lookup hashes publish only
+//   selected public aliases; the source binding and approval remain revocable.
+// @spec ADR-098, ADR-106; docs/change-requests/integration/line-customer-product-disclosure-20261024.md
+// @tested tests/integration/line-product-disclosure-policy.test.js
+model LineProductDisclosurePolicy {
+  id                     String   @id @default(uuid())
+  tenantId               String
+  businessId             String
+  lineOaAccountId         String
+  productId              String
+  sourceId               String
+  fieldsJson             String
+  sourceBindingJson      String
+  projectionSha256       String
+  skuLookupSha256        String?
+  nameThLookupSha256     String?
+  nameEnLookupSha256     String?
+  approvedByPersonId     String
+  approvedAt             DateTime
+  reason                 String
+  enabled                Boolean  @default(false)
+  version                Int      @default(1)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+
+  business Business      @relation(fields: [businessId, tenantId], references: [id, tenantId], onDelete: Cascade)
+  account  LineOaAccount @relation(fields: [lineOaAccountId, tenantId, businessId], references: [id, tenantId, businessId], onDelete: Cascade)
+  product  Product       @relation(fields: [productId, tenantId, businessId], references: [id, tenantId, businessId], onDelete: Cascade)
+
+  @@unique([tenantId, businessId, lineOaAccountId, productId], map: "LineProductDisclosurePolicy_scope_product_key")
+  @@index([businessId, lineOaAccountId], map: "LineProductDisclosurePolicy_scope_account_idx")
+  @@index([tenantId, businessId, lineOaAccountId, skuLookupSha256], map: "LineProductDisclosurePolicy_sku_lookup_idx")
+  @@index([tenantId, businessId, lineOaAccountId, nameThLookupSha256], map: "LineProductDisclosurePolicy_name_th_lookup_idx")
+  @@index([tenantId, businessId, lineOaAccountId, nameEnLookupSha256], map: "LineProductDisclosurePolicy_name_en_lookup_idx")
 }

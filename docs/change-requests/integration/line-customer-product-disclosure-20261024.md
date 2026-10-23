@@ -1,10 +1,12 @@
 ---
 id: ZAI:LINE-CUSTOMER-PRODUCT-DISCLOSURE-PROPOSAL-20261024
 doc_type: interface-contract
-status: proposed
-version: "0.1.0"
+status: approved
+approval_scope: design-and-implementation
+version: "0.2.0"
 date: "2026-10-24"
 source_revision: "79e36b5bce875f1d7c0b7e29a0b8db517646e4f3"
+migration_base_revision: 8a3eb253bc7ccf750a05d5df317ca7c34695fa45
 relations: [{"type":"relates_to","target":"ZAI:FR-079"},{"type":"relates_to","target":"ZAI:FR-049"},{"type":"relates_to","target":"ZAI:FR-235"},{"type":"relates_to","target":"ZAI:FR-291"},{"type":"relates_to","target":"ZAI:SDD-099"},{"type":"relates_to","target":"ZAI:SEC-032"}]
 ---
 
@@ -13,14 +15,15 @@ relations: [{"type":"relates_to","target":"ZAI:FR-079"},{"type":"relates_to","ta
 ## Status, intent and authority
 
 Audience: Knowledge, Commerce, Inventory, Identity, Agent, LINE OA Studio and
-Conversation Runtime maintainers. This is a proposed design, not an approved
-canonical migration, implementation receipt or disclosure grant.
+Conversation Runtime maintainers. The user approved this design and instructed
+implementation on 2026-10-24. Approval is not a canonical migration receipt,
+implementation receipt or disclosure grant.
 
 The user requested real product information through GenesisRAG17, explicit
 selection of what customers may receive, unchanged authorization/stock/price
 guards, no model-invented facts, and GPT-6 Luna Max for delegated work. The user
 selected per-product and per-field approval with a preview in LINE OA Studio.
-The remaining choices below are the integrator's proposal for design approval.
+The remaining choices below were included in the approved concrete design.
 No actual product or source is authorized by this document.
 
 ## Inspected baseline and gaps
@@ -179,7 +182,7 @@ the pin in this increment; no automatic transfer to a new generation.
    digest in the existing content-free TOOL_RESULT decision. Revalidate before
    and after generation and at the final send fence, including paused/archived
    account, owner authority, revocation, Product scope and source withdrawal.
-   Pending retries cannot replay a reply bound to an old grant. Use the existing
+   The durable SENDING claim is the send-authorization cutoff. Policy changes take the same account-row fence and return 409 without mutation while any attempt is SENDING; an already claimed network attempt cannot be recalled. After settlement/recovery the owner retries withdrawal, including when the source is unavailable. Pending retries cannot replay a reply bound to an old grant. Use the existing
    cancellation/answer clearing semantics; fail closed on unavailable checks.
 8. Preserve filtered-prompt tracing and content-free retrieval metadata under
    current retention/erasure. No secrets or unapproved source content in logs.
@@ -227,7 +230,7 @@ and requalify if it lands before this implementation.
   source strings cannot issue actions; fabricated facts/prose/IDs/numbers cannot
   enter server-rendered replies. Zero evidence makes zero model calls.
 - Server and Runtime parity for supported modes; stale proof or authority changes
-  after generation and during send/retry suppress old disclosure.
+  after generation and before a send/retry claim suppress old disclosure. A concurrent policy change during SENDING returns a retryable conflict without recording a successful withdrawal.
 - Regression tests preserve Customer link and stock policy, exact published-price
   checks and unchanged real-SKU eligibility, zero model calls for stock/price,
   TEST ONLY behavior and provider/memory
@@ -252,11 +255,167 @@ workflow if required, never choose an unreserved next number.
 
 The implementation plan must pin the composed base and list schema/reader/UI/
 Core/Runtime work, tests, migrations, rollback and actual live acceptance. No
-product code, grant or schema is changed by this proposed document. The user
-still needs to approve this concrete design before implementation.
+product code, grant or schema is changed by this design document itself.
+
+## Implementation plan
+
+For agentic workers: use subagent-driven-development with GPT-6 Luna Max only.
+The approved design above is the spec; this section pins implementation
+interfaces and verification. Base is 8a3eb253bc7ccf750a05d5df317ca7c34695fa45 (the indexed prior state for these reviewed same-ID migrations).
+Use the existing Next/React, Prisma SQLite/PostgreSQL and Node Runtime stack.
+The integrator owns shared generators, canonical amendments and final merge.
+
+### Global constraints and review focus
+
+- Preserve TEST ONLY modes, FR-291 commercial eligibility and default-off real
+  source selection; no automatic disclosure grant or production activation.
+- Revoke during generation or before the durable SENDING claim: suppress the old answer. After SENDING, refuse policy mutation with a retryable conflict until the authorized attempt settles; never report a successful withdrawal while that attempt remains in flight.
+- Two owners editing one preview: CAS permits one winner, with atomic audit.
+- Multi-record PCAT: the bound record alone supplies selected values.
+- Unselected SKU/name: never become public aliases, even through error messages.
+- Model prose, unexpected facts, empty selection and hostile source strings:
+  only the fixed renderer and approved fact values may reach LINE.
+
+### Task 1: shared source/projection contract and verified source reader
+
+Owner: Knowledge reader worker. Create
+`apps/server/src/modules/knowledge/line-product-disclosure-contract.js` and
+`line-product-disclosure-source.js`; unit tests use matching names.
+Export `DISCLOSURE_FIELDS` (ordered keys: sku, nameTh, nameEn, unit, category,
+productFamily, dimensionsCm, unitWeightKg), `projectDisclosureFacts(values)`
+(opaque IDs, fixed labels), and `renderDisclosureFacts(facts, factIds)`.
+Export `resolveLineProductDisclosureSource(input, options)` where input is
+`{tenantId,businessId,accountId,productId,sourceId,fields}` and options include
+`db`, `env`, optional `readManifest`/`fileContentResolver`. Return
+`{values:[{field,value}], binding, projectionSha256, retrievalRef}`. Binding pins
+all approved record/source/Product identities; retrievalRef is internal only.
+
+- [ ] Write/run failing tests for private field exclusion, exact immutable record
+  binding, wrong source/Product/asset, changed manifest and model fact selection.
+- [ ] Implement using the existing manifest, adapter and managed-file readers;
+  no raw-store access or raw-text evidence fallback.
+- [ ] Run targeted Vitest tests with the repository nonzero-test wrapper.
+
+### Task 2: policy persistence, owner service and API
+
+Owner: policy worker. Create `LineProductDisclosurePolicy` with scoped unique
+key, source/field binding JSON, projection hash, approver, reason, enabled flag,
+timestamps and monotonically increasing version. Add a migration and export
+PostgreSQL equivalents through existing schema tooling; do not hand-maintain a
+second authority. Source verification consumes Task 1.
+Create `apps/server/src/modules/knowledge/line-product-disclosure-service.js`:
+
+- `listLineProductDisclosure({businessId,accountId,q?,sourceQuery?,sourceCursor?},
+  {viewer,db,env})` returns bounded
+  `{products:[{id,code,name}], sources:[{id,title}], sourcesNextCursor, policies, fields}`.
+  Product `q` filters the scoped product list. Source search is a
+  case-insensitive title substring; keyset pages scan at most 200 authorized
+  manifest-listed rows and return at most 100 eligible candidates. The cursor
+  advances after the scanned page, including a page with no title matches.
+  Policy summaries carry productId, sourceId, fields, enabled, version and stale
+  status; no raw source contents in list responses.
+- `previewLineProductDisclosure({businessId,accountId,productId,sourceId,fields},
+  {viewer,db,env})` returns `{previewHash,expectedVersion,values,exampleText}`;
+  verify source and authority before returning exact selected values.
+- `setLineProductDisclosure({businessId,accountId,productId,sourceId,fields,
+  expectedVersion,previewHash,reason}, options)` approves the exact preview.
+- `withdrawLineProductDisclosure({businessId,accountId,productId,expectedVersion,
+  reason}, options)` disables the row, retaining version/audit and no source
+  availability prerequisite for revocation.
+
+Expose GET/POST at
+`apps/server/src/app/api/line-oa/accounts/[id]/product-disclosure/route.js`.
+POST uses `action: PREVIEW | APPROVE | WITHDRAW`; derive accountId from params,
+viewer from existing request resolver; return service DTOs with existing helpers.
+
+- [ ] First fail owner/publisher/isolation, preview-CAS, atomic audit, stale-source
+  and withdrawal tests using existing viewer factories.
+- [ ] Implement transactional persistence and current authority validation.
+- [ ] Run SQLite integration tests and actual disposable PostgreSQL qualification.
+
+### Task 3: owner UI
+
+Owner: UI worker. Create `LineProductDisclosureCard.jsx`, mount it within
+`LineStudioAccountConsole.jsx` for the selected active account, and add focused
+render/interaction tests. Consume Task 2 GET/POST DTOs; never infer a grant from
+the preview or from stock policy. Account/business changes reset stale previews.
+
+- [ ] First fail tests for all fields initially off, preview-only not approved,
+  stale request suppression, version conflict and successful withdrawal.
+- [ ] Implement searchable scoped product/source selection, exact selected-value
+  preview, explicit reason/approve/withdraw, independent stock/price explanation,
+  busy/error handling and design-token colors/accessibility.
+- [ ] Run component tests and review browser behavior against the real API.
+
+### Task 4: runtime reader, strict selection and durable send fence
+
+Owner: integrator. Create `line-customer-product-knowledge.js` and
+`line-customer-product-decision.js` in `modules/agent`, and selection tests.
+Resolve exact public aliases from enabled current policy rows, one Product per
+turn; use Task 1 to revalidate and constrain corpus queries before retrieval.
+Add a distinct main-dev `GENESISRAG17_CUSTOMER_PRODUCTS` source mode in
+`main-dev-local-ollama.js` / `phase1-runtime.js`, keeping exact database/scope/
+origin/primary-provider guards and no shadow or memory context in this path.
+In `server-line-answer.js`, call the existing selected model with a typed
+fact-selection packet; validate `factIds` and render exact values. Keep commercial
+intent handling outside this branch. Persist an execution-bound content-free
+decision and validate it at the existing worker send fence. Runtime admission
+must reject this source mode until its shared contract is qualified.
+
+- [ ] First fail tests for unapproved source, wrong aliases, injected/raw fields,
+  malformed/empty model output and stale proof before generation/after generation/
+  final send, including retries and profile/account mismatch.
+- [ ] Implement guarded source selection and shared strict renderer; no widening
+  of existing generic corpus readers or commercial parser.
+- [ ] Run focused Server, existing RAG/facts/Runtime regression tests and builds.
+
+### Task 5: canonical migration, composed verification and delivery
+
+Owner: integrator; independent Luna Max reviewer checks the final composed patch.
+Use sanctioned reviewed amendments for FR-079/FR-049/FR-235, leaving original
+subjects/membership and FR-291 unchanged. Reconcile any newly required owner
+writer requirement through the existing identity workflow, never invent an ID.
+
+- [ ] Regenerate registry, graph and views serially; run govern and inspect output.
+- [ ] Run approved scoped tests/build/checks and actual PostgreSQL. Fix independent
+  review findings against the same patch; record exact commands/results.
+- [ ] Commit/push/PR and required exact-head CI through existing controls. A green
+  local test is not a hosted CI or live acceptance receipt.
+- [ ] Deploy qualified image only to isolated main-dev after checking actual
+  runtime revision/configuration; do not overwrite unrelated memory work.
+- [ ] Let the owner choose actual real-product fields through the UI. Verify
+  filtered model input, positive LINE receipt, excluded field refusal, revocation
+  and unchanged commercial behavior. No hidden selection of production data.
+
+Rollback: disable the new source mode/account setting and withdraw policies;
+retain audit/history and previous TEST ONLY source configuration. Schema remains
+additive; do not drop data or repoint databases as rollback.
 
 ## Version diff
 
-0.1.0 proposes owner-selected product/field disclosure, strict fact selection and
-rendering, separate commercial facts authority and a bounded main-dev rollout.
-It preserves the previously accepted TEST ONLY contract as a separate mode.
+0.1.0 proposed owner-selected product/field disclosure, strict fact selection and rendering, separate commercial facts authority and a bounded main-dev rollout.
+0.2.0 records the approved implementation mandate and same-ID FR-079/FR-049/FR-235 candidates; it preserves existing TEST ONLY, memory and FR-291 boundaries.
+
+## Approval
+
+The user mandate was: “ทำต่อให้ LINE ใช้ข้อมูลสินค้าจริงจาก GenesisRAG17 ได้ โดยเลือกได้ว่าข้อมูลไหนอนุญาตให้ตอบลูกค้า คงการตรวจสิทธิ์ ราคาและสต็อกเดิม ไม่ให้โมเดลเดา ใช้ Luna Max เท่านั้น” The selected control was per product and per field with a preview: “รายสินค้า + รายฟิลด์ พร้อมตัวอย่าง (แนะนำ)”. The user explicitly approved the draft and implementation: “อนุมัติร่างและเริ่มพัฒนา”. This authorizes the approved design and implementation work only. It does not grant any product disclosure, approve production activation, or constitute test, deployment or live LINE acceptance.
+
+The following same-ID canonical row candidates preserve each record's source path, subject and membership. FR-079 retains its TEST ONLY modes, FR-057 memory opt-in and FR-291 commercial guard.
+
+### `ZAI:FR-079`
+
+```text
+| FR-079 | Phase 1 LINE runtime connection cut-over: after the server-owned LINE binding resolves the trusted Tenant/Business scope, the runtime keeps the existing Business-key-first behavior and selects exactly one ACTIVE PRIMARY PHASE1_LINE_LLM IntegrationConnection under that scope when no Business model key applies. The existing credentialed connection path resolves its opaque secretRef through the configured provider-neutral SecretManagerPort before the ModelProviderPort call. The default-off MAIN_DEV_LOCAL_OLLAMA profile may instead use a Business-owner-selected installed Ollama model without a secretRef or credential only when the Server verifies the actual main-dev database identity through its Prisma-backed connection and verifies the resolved Tenant, Business, and internal LINE OA account ID against separate server-side allowlists. It uses the existing Prisma-backed resolvePhase1PrimaryConnection. The legacy TEST_ONLY_FIXTURE remains the default local-profile knowledge source. A separately enabled GENESISRAG17_TEST_ONLY knowledge source may replace that fixture only under the same verified main-dev profile, scope, exact server-configured origin and model guards, and only when the Business MODEL_PROVIDER_KEY does not apply under unchanged ADR-100 D5 precedence. This source mode requires both the persisted LineOaAccount.knowledgeGrounding value GKS_CORPUS and the matching private server profile GENESISRAG17_TEST_ONLY; it rejects GKS_THEN_BUSINESS_KNOWLEDGE, BUSINESS_KNOWLEDGE, any profile/account mismatch and grounding shadow. Both TEST_ONLY_FIXTURE and GENESISRAG17_TEST_ONLY refuse memory unless the separate server-side ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED=true opt-in is set. With this opt-in, the same allowlisted main-dev OA may use existing MSP thread and principal-private episodic memory through the standard account policy, authenticated identity, per-turn authorization, consent, audience, signed-grant, receipt, retention and erasure gates of FR-057 and ADR-091. This grants no additional memory authority and never falls back to shared legacy Workspace storage. Authorized memory slices remain separate from public Product evidence and cannot authorize Business facts, widen source selection or bypass RAG revalidation. Missing memory transport or signer fails closed before inference. Execution remains SERVER and no caller may select source IDs, products, scope or origins. It calls queryKnowledgeCorpus in process through the existing knowledge.query reader and scoped runtime knowledge capability, passing a server-selected allowlist of 1–8 source UUIDs in internal options.sourceIds before corpus snapshot/native queries. Each allowed binding pins one internal Product UUID and exact Product code/SKU to one sourceId, ingestionId, accepted PCAT FileAsset SHA-256 and current corpus manifest SHA-256. Before model composition, the Server verifies current published-generation membership, manifest and source-receipt/PCAT bytes, structured ProductMaster lineage and the live Product identity under the trusted Tenant and Business. It rejects CUSTOM_COMPONENT and dedicated Customer or SalesOrder records. Thai combining marks remain valid in permitted public Product strings. Names require a TEST ONLY prefix and a trimmed bounded label without control/invisible characters or known instruction phrases; unit is one bounded token. These syntax checks supplement exact immutable source pins, not a universal instruction classifier. Verify the existing producer shape code/externalId commerce-sku:<Product UUID> and nameTh <SKU> — <Product.name>, then project the exact bound Product.name. The accepted ProductMaster/PCAT source is validated against its existing strict schema and lineage inside the reader, then a separate bounded public prompt projection (not the full FR-047 record) contains only product_code, name, unit from the exact live Product row, sell_price null, currency null, moq null, specification empty and one bounded citationId navigation reference; do not invent approval timestamps or as-of fields absent from this projection. ProductMaster does not supply unit. Only citationId may navigate to the accepted source; sourceId, ingestionId, snapshot and manifest IDs stay outside serialized model records. Raw source text/files, costs, other source/provenance references and unapproved sources never reach Ollama. Retrieval retains FR-235/SDD-099's 2 500 ms, five-result and 8 KiB answer budget and records content-free EVIDENCE_SELECTED retrieval references and digests without query or projected values. FR-171 CONTEXT_COMMITTED retains the exact sanitized model request under existing retention and erasure; raw PCAT/corpus passages never enter any trace. Empty, invalid or failed reader evidence yields only the fixed NO_EVIDENCE text, records a content-free denied binding in the existing TOOL_RESULT journal and makes no model call; there is no fixture or broad-corpus fallback. The persisted account mode, private profile, source allowlist, current manifest, accepted source lineage and Product are revalidated before model generation and after generation; the existing TOOL_RESULT journal and final send-fence revalidation bind delivery without a new schema. A revocation, change or failed revalidation after generation suppresses the stale answer at the existing send fence. FR-291's deterministic stock/price intent guard and owner reads remain outside the model and unchanged. The fixture path, exact configured http://host.docker.internal:11434 origin, Prisma-backed primary resolver, one-active-primary CAS/uniqueness gate, trusted OA account binding, SERVER execution, provider behavior and production rejection of local credentials/Ollama remain unchanged. Any invalid database/scope/profile, missing or extra source, source/manifest/lineage/Product mismatch, disabled guard, Ollama failure or invalid response fails closed without automatic fallback. A separate GENESISRAG17_CUSTOMER_PRODUCTS mode is default-off and descriptive-only; it requires per-account Business OWNER preview and explicit per-product/per-field approval, current authorized manifest/receipt/PCAT lineage, an exact ProductMaster-to-live-Product binding, and the verified main-dev database, Tenant/Business/account, origin, installed model and existing no-Business-key guards. It is not an automatic grant. The selected projection contains only approved public values and opaque fact IDs; Ollama returns strict JSON factIds from that packet, the Server rejects unknown, duplicate or extra values and renders exact approved values with fixed Thai labels, with no model-authored reply text. No approved fields, ambiguous identity, stale source/projection/owner proof or invalid selection produces a model call or corpus/fixture/business-knowledge fallback. Resolve only an exact approved SKU or unique approved name, so unselected values do not become lookup aliases. Revalidate owner policy, source and Product before and after generation and at the final send fence; withdrawal remains possible after source removal. This path grants neither stock nor price permission, does not widen FR-291 TEST ONLY commercial eligibility and never uses memory; the separate FR-057 memory opt-in behavior above remains unchanged for the existing TEST ONLY modes. | 🟠 approved design; implementation, tests, main-dev actual-RAG and LINE-send evidence pending; the separate customer-product mode is approved design only, with implementation, tests, parity, main-dev RAG and LINE-send evidence pending |
+```
+
+### `ZAI:FR-049`
+
+```text
+| FR-049 | Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. On the separate default-off GENESISRAG17_CUSTOMER_PRODUCTS path only, after one exact Product and current owner-approved selected-field projection are established, the configured model may return strict JSON containing only supplied opaque factIds. The Server rejects unknown or duplicate IDs, extra keys, free prose and invalid output, then renders selected facts with fixed Thai labels and exact approved values; missing evidence skips inference, while an empty/invalid model selection is rejected to the deterministic Thai fallback. This scoped renderer does not rewrite provider-wide answer verification, admit generic corpus prose, or change commercial authority. | Phase 1 active - owner-approved 2026-08-14; the customer-product fact-selection extension is approved design only; implementation and acceptance are pending |
+```
+
+### `ZAI:FR-235`
+
+```text
+| FR-235 | LINE answer grounding from the published knowledge corpus: a LINE OA account carries a publisher-set `knowledgeGrounding` mode — `BUSINESS_KNOWLEDGE` (default, today's behaviour), `GKS_CORPUS` or `GKS_THEN_BUSINESS_KNOWLEDGE`. In a corpus mode a server-owned LINE job's answer reads the Business's published corpus generation through an in-process reader that implements the existing `knowledge.query` port over `queryKnowledgeCorpus` under the scoped runtime knowledge capability, within a configurable budget (2 500 ms, five results, an evidence packet of at most 8 KiB). A timeout or error is `GKS_UNAVAILABLE` and an empty result `NO_EVIDENCE`; either falls back to business knowledge only in `GKS_THEN_BUSINESS_KNOWLEDGE`, and every hop is traced as `EVIDENCE_SELECTED` with its source, reason, budget and retrieval references (citation, source, snapshot and corpus generation). No evidence from any allowed source means the deterministic reply and no model call. The first Business switched is SmartGift, after ADR-075 Phase 3 is deployed. A separate default-off GENESISRAG17_CUSTOMER_PRODUCTS descriptive path reads only enabled owner-approved per-Product/per-field policies for the current LINE OA account and constrains retrieval to their source IDs before querying. It resolves one Product from an exact approved public SKU or unique approved name, then verifies current owner authority, manifest/receipt/PCAT lineage, the exact ProductMaster record-to-live-Product binding and projection hash. Its packet contains only selected values and opaque fact IDs; model output is strict JSON factIds, unknown/duplicate/extra values and prose are rejected, and a fixed Thai renderer emits exact approved facts. Missing approval, ambiguity or stale proof prevents inference. Invalid model selection yields the deterministic no-evidence reply; neither case allows fixture, broad-corpus or business-knowledge fallback. It does not use memory, grant stock/price access or widen FR-291; owner policy, source and Product are revalidated before and after generation and at the durable SENDING authorization claim. Policy changes serialize with that claim and return a retryable conflict without mutation while an attempt is SENDING; after settlement/recovery withdrawal remains possible even when the source is unavailable. An already claimed network attempt cannot be recalled. Existing GKS_CORPUS and GKS_THEN_BUSINESS_KNOWLEDGE behavior is unchanged. | ✅ merged #407 2026-09-14 (main af3f7822; not deployed; TASK-ZAI-093, ADR-090 D1–D5, FEAT-038) — `LineOaAccount.knowledgeGrounding`, the in-process `knowledge.query` reader and the traced mode-gated fallback; the SmartGift switch itself is TASK-ZAI-095, blocked on ADR-075 Phase 3; the separate customer-product path is approved design only; implementation, tests, parity, main-dev and LINE acceptance remain pending |
+```

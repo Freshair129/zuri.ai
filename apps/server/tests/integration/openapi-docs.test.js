@@ -342,8 +342,9 @@ describe('OpenAPI document', () => {
       // FR-079/FR-080 add the default-off local Ollama model inventory and
       // selection routes: two paths and two operations.
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
-      pathCount: 354,
-      operationCount: 466,
+      // FR-235 adds owner-only product disclosure GET/POST on one path.
+      pathCount: 355,
+      operationCount: 468,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get

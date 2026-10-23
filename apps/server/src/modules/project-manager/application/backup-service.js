@@ -486,6 +486,12 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  // @req FR-235 — owner-approved public product fields are security authority.
+  // @tested tests/integration/line-stock-policy-backup.test.js
+  lineProductDisclosurePolicy:
+    'Customer product-field disclosure authority is never exported or replayed by portable recovery. ' +
+    'Restoring Business/account/Product parents cascades these grants; the installation starts OFF ' +
+    'until a current Business OWNER previews and approves a new source-bound policy.',
   // @req FR-291 — disclosure is security authority, not portable business data.
   // @tested tests/integration/line-stock-policy-backup.test.js
   lineStockDisclosurePolicy:
