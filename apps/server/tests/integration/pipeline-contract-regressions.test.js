@@ -195,3 +195,15 @@ it('undo restores manual acceptance with its original decision in the preview re
  const stale=await commitPlan({...undo,expectedPreviewHash:dry.previewHash},{viewer:f.viewer})
  expect(stale.committed).toBe(false);expect(stale.errors[0].code).toBe('STALE_PREVIEW')
 })
+
+it('undo retains invalid manual evidence as held without manufacturing a decision',async()=>{
+ const f=await pipelineFixture(prisma),command=edgeCommand(f.items[0],f.items[1]);command.contract.acceptance.satisfied=true
+ const created=await save(pipelinePlan(f,command),f.viewer),id=created.deltaReceipt.changes[0].id,row=(await listDependencies({projectId:f.project.id},{viewer:f.viewer})).find(row=>row.id===id)
+ const originalEdge=await prisma.dependency.findUnique({where:{id}}),removed=await save(pipelinePlan(f,{op:'dependency.remove',id,expectedDependencyHash:row.expectedDependencyHash}),f.viewer)
+ await prisma.auditEvent.update({where:{id:created.auditEventId},data:{payloadJson:'{}'}})
+ const undo=pipelinePlan(f,{op:'undo',originalAuditEventId:removed.auditEventId,expectedAfterHash:removed.deltaReceipt.afterHash}),dry=await dryRunPlan(undo,{viewer:f.viewer})
+ expect(dry.valid,JSON.stringify(dry.errors)).toBe(true);expect(dry.preview.releaseEffects.find(effect=>effect.workItemId===f.items[1].id).after.held).toBe(true)
+ await save(undo,f.viewer)
+ expect((await prisma.dependency.findUnique({where:{id}})).contractJson).toBe(originalEdge.contractJson)
+ expect((await listDependencies({projectId:f.project.id},{viewer:f.viewer})).find(row=>row.id===id).contractState).toBe('INVALID')
+})
