@@ -22,9 +22,10 @@ import { recordMainDevTestRagDecision } from './main-dev-test-rag-decision'
 // @req FR-234, FR-235 — every model attempt receives only the evidence and MSP
 // slices selected under one composer budget. A content-free receipt is recorded
 // immediately before the provider entry; empty/fully-trimmed evidence calls no model.
-// @req FR-079, FR-080 — the opted-in main-dev Ollama turn requires a trusted OA,
-// the pinned TEST ONLY reader, and no corpus grounding, shadow or memory path.
-// The private-memory opt-in gates MSP recall independently of public knowledge.
+// @req FR-079, FR-080 — the main-dev Ollama turn requires a trusted OA and either
+// the pinned TEST ONLY fixture or pinned GENESISRAG17_TEST_ONLY RAG reader; shadow
+// stays denied. MSP memory is default-off and needs its separate profile opt-in,
+// then uses the existing identity, policy, consent and bounded receipt path.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
@@ -562,8 +563,9 @@ export function createServerLineAnswer({
     }
     const mainDevLocalOllama = Boolean(mainDevLocalOllamaProfile)
     const mainDevTestRag = mainDevLocalOllamaProfile?.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
-    const memoryOptIn = !mainDevLocalOllama && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-    const episodicMemoryOptIn = !mainDevLocalOllama && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
+    const memoryAllowed = !mainDevLocalOllama || mainDevLocalOllamaProfile.memoryEnabled === true
+    const memoryOptIn = memoryAllowed && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const episodicMemoryOptIn = memoryAllowed && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
     let selectedEpisodicMemory = null

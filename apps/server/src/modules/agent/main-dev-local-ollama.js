@@ -14,6 +14,7 @@ const MAX_ALLOWLIST_ENTRIES = 32
 const MAX_TAGS_RESPONSE_BYTES = 64 * 1024
 const MAX_INSTALLED_MODELS = 256
 const TAGS_TIMEOUT_MS = 5000
+const MAIN_DEV_MEMORY_ENABLED_ENV = 'ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED'
 
 function fail(code) {
   const error = new Error(code)
@@ -91,6 +92,11 @@ export function readMainDevLocalOllamaProfile(env = process.env) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_PROFILE_MISMATCH')
   }
 
+  const memoryEnabledValue = env[MAIN_DEV_MEMORY_ENABLED_ENV]
+  if (memoryEnabledValue !== undefined && memoryEnabledValue !== 'true' && memoryEnabledValue !== 'false') {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+  }
+
   const expectedDatabase = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_EXPECTED_DATABASE
   if (typeof expectedDatabase !== 'string' || !DATABASE_NAME_PATTERN.test(expectedDatabase)) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
@@ -100,6 +106,7 @@ export function readMainDevLocalOllamaProfile(env = process.env) {
   }
   return Object.freeze({
     enabled: true,
+    memoryEnabled: memoryEnabledValue === 'true',
     runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
     expectedDatabase,
     baseUrl: MAIN_DEV_LOCAL_OLLAMA_ORIGIN,
@@ -116,7 +123,7 @@ export function isMainDevLocalOllamaRequested(env = process.env) {
     || env.ZURI_MAIN_DEV_LOCAL_OLLAMA_ENABLED === 'true'
 }
 
-/** Refuse memory, corpus, shadow, or non-Server jobs before composing the test turn. */
+/** Refuse unapproved memory, corpus, shadow, or non-Server jobs before composing the test turn. */
 export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
   if (!isMainDevLocalOllamaRequested(env)) return null
   const profile = readMainDevLocalOllamaProfile(env)
@@ -139,13 +146,15 @@ export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_EXECUTION_DENIED')
   }
   if (account.knowledgeGrounding !== (profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
-    || account.knowledgeGroundingShadow === true
-    || account.memoryPolicy !== 'OFF'
+    || account.knowledgeGroundingShadow === true) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_JOB_SETTINGS_DENIED')
+  }
+  if (!profile.memoryEnabled && (account.memoryPolicy !== 'OFF'
     || account.memoryProjectId != null
     || env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     || env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
     || job.memorySyncOptIn === true
-    || job.episodicMemoryOptIn === true) {
+    || job.episodicMemoryOptIn === true)) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_JOB_SETTINGS_DENIED')
   }
   return profile
