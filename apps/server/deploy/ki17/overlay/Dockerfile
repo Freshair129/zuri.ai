@@ -1,9 +1,9 @@
-# ki17 release overlay — ship a new main SHA with the /opt/ki17 tree production
-# already runs, without rebuilding MSP/GKS/GenesisBlock from sibling checkouts.
+# ki17 release overlay — ship a new main SHA with an already-qualified /opt/ki17
+# tree whose receipt matches this checkout's selected runtime pins.
 #
 #   BASE      the plain `runner` image built from the checked-out SHA
 #             (docker build --target runner -t zuri-ai-web:main-<sha8> apps/server)
-#   KI17_FROM the runner-ki17 / overlay image production currently runs; its
+#   KI17_FROM a qualified runner-ki17 / overlay image matching pins.json; its
 #             /opt/ki17 (Node 24, MSP, GKS, pins receipt) is copied verbatim
 #
 # Build context: apps/server at the SAME checkout as BASE, so the three app files
@@ -12,11 +12,11 @@
 # by hand; it refuses a dirty tree, a missing base and a missing KI17_FROM, and names
 # the tag release-<sha8>-ki17-overlay.
 #
-# Why this exists: the stdio tuple production runs (MSP 68e6169d / GKS ecf1e4de)
-# is the one deploy/ki17/pins.json pins, but a host whose sibling checkouts have
-# moved cannot rebuild it, and rebuilding /opt/ki17 for every web release costs a
-# full npm ci of MSP and GKS. The runtime tree does not change between web releases,
-# so it is carried forward from the image that is already proven in production.
+# Why this exists: rebuilding /opt/ki17 for every web-only release costs a full
+# npm ci of MSP and GKS and requires sibling contexts at the selected pins.
+# When those pins are unchanged, carry the qualified tree forward. A pin change
+# requires a fresh runtime build and acceptance first; an old receipt fails the
+# tuple check below even when that image is currently running in production.
 ARG BASE
 ARG KI17_FROM
 FROM ${KI17_FROM} AS ki17src
@@ -26,8 +26,8 @@ USER root
 COPY --from=ki17src --chown=node:node /opt/ki17 /opt/ki17
 COPY --chown=node:node scripts/ki17-smoke.mjs ./scripts/
 COPY --chown=node:node src/modules/agent/msp-stdio-transport.js src/modules/agent/msp-child-environment.mjs ./src/modules/agent/
-# The reference the carried tree is checked against: the stdio manifest of THIS
-# checkout, plus the checker. Both are removed again in the same layer.
+# The reference the carried tree is checked against: this checkout's selected
+# stdio manifest, plus the checker. Both are removed again in the same layer.
 COPY deploy/ki17/pins.json /tmp/ki17-overlay-check/pins.json
 COPY deploy/ki17/overlay/check-ki17-from.mjs /tmp/ki17-overlay-check/
 RUN set -eu; \

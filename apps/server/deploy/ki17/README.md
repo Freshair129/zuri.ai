@@ -4,6 +4,14 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
+> **Release candidate (2026-10-24):** `pins.json` now selects MSP
+> `d0d48c1a8e833478525d9a6ce5ee16af2c85444d` for signed API-010 legacy grants.
+> GKS `ecf1e4de` and GenesisBlock `5156f412` are unchanged. This selection is
+> not a production activation record. The inspected production image still
+> embeds MSP `68e6169d`; historical acceptance below qualifies that older
+> tuple only. Rebuild the runtime and pass exact-image acceptance before
+> promotion. An overlay carrying the old tree must fail the tuple check.
+
 > **Status (2026-09-28): the overlay is deployed on the production host.** The
 > ki17 web image and the `genesis-worker` sidecar have run there since 2026-09-21.
 > Production now runs `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main
@@ -98,11 +106,12 @@ activation.
 
 | File | What it is |
 |---|---|
-| `pins.json` | **Default manifest (profile `stdio`).** The stdio tuple production runs (MSP `68e6169d`, GKS `ecf1e4de`, GenesisBlock `5156f412`), plus the Node/Python/model versions and the worker port. Every ki17 target verifies against it unless told otherwise |
+| `pins.json` | **Default candidate manifest (profile `stdio`).** Selects MSP `d0d48c1`, GKS `ecf1e4de`, GenesisBlock `5156f412`, plus Node/Python/model versions and the worker port. Every ki17 target verifies against it unless told otherwise; deployment requires separate acceptance |
 | `pins.gks-http.json` | **Opt-in manifest (profile `gks-http`)** for the private HTTP canary only: MSP `a65914de` (HTTP GKS provider), GKS `1ebcff09` (HTTP runtime). Its GKS entrypoints include `gks-http-server.mjs` and `deploy/docker/entrypoint.mjs`, so the pin gate refuses a GKS context without them. Selected by the `KI17_PINS_MANIFEST` build argument, which only `docker-compose.ki17-gks-http.yml` sets |
 | `verify-ki17-pins.mjs` | The pin gate. Runs inside the build; refuses a context whose HEAD is not the pinned commit. Its receipt records the manifest `profile`; `--profile <name>` fails unless the manifest declares it |
-| `overlay/Dockerfile` | The production release overlay: a fresh `runner` (`BASE`) plus the running image's `/opt/ki17` (`KI17_FROM`) and the three app files `runner-ki17` adds. Driven by `scripts/build-ki17-overlay-release.mjs` |
+| `overlay/Dockerfile` | The release overlay: a plain `runner` (`BASE`) plus a qualified image's matching `/opt/ki17` (`KI17_FROM`) and the three app files `runner-ki17` adds. Pin changes require a freshly built and accepted runtime source. Driven by `scripts/build-ki17-overlay-release.mjs` |
 | `overlay/check-ki17-from.mjs` | Runs inside the overlay build: every repository `pins.json` verifies must appear in `KI17_FROM`'s `/opt/ki17/pins/resolved.json` at exactly the pinned commit, or the build fails (`KI17_OVERLAY_TUPLE_MISMATCH`). Covers receipts written before manifests carried a `profile` |
+| `overlay/msp-only.Dockerfile` | Replaces MSP and pin metadata on a frozen image, validates the old and new tuples, and preserves the inherited app revision with a separate configuration-revision label |
 | `docker-compose.ki17-gks-http.yml` | Opt-in private MSP-to-GKS HTTP overlay; the default transport remains stdio |
 | `docker-compose.ki17-gks-http-canary.yml` | Local-canary-only overlay that disables the ngrok profile |
 | `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
@@ -155,7 +164,7 @@ than attested. Prefer it.
 ### Building
 
 The pin manifest decides which tuple a build accepts. The default,
-`deploy/ki17/pins.json`, is the stdio production tuple and requires no GKS HTTP
+`deploy/ki17/pins.json`, selects the stdio release candidate and requires no GKS HTTP
 file. The HTTP canary tuple is selected with
 `--build-arg KI17_PINS_MANIFEST=deploy/ki17/pins.gks-http.json`; the `gks-http`
 target refuses to build without it (`KI17_GKS_HTTP_PROFILE_REQUIRED`).
@@ -163,7 +172,7 @@ target refuses to build without it (`KI17_GKS_HTTP_PROFILE_REQUIRED`).
 ```bash
 # The web image: runner + /opt/ki17/{node,msp,gks} + the P-5 smoke script (stdio tuple)
 docker buildx build --target runner-ki17 -t zuri-ai-web-ki17:<tag> \
-  --build-context msp=<Memory-and-Soul-Passport at 68e6169dbb371dac2f0debf0bf731b553f7dc26d> \
+  --build-context msp=<Memory-and-Soul-Passport at d0d48c1a8e833478525d9a6ce5ee16af2c85444d> \
   --build-context gks=<Genesis-Knowledge-System at ecf1e4de269e949406a6a5f791f9ff8fe30c9578> \
   --build-context genesisblock=<GenesisBlock at 5156f412da73905a23d74775a82cc14d1f6d04d0> \
   apps/server
@@ -215,11 +224,12 @@ KI17_GENESISBLOCK_LINUX_ADDON_MISSING: .../npm/linux-x64-gnu/index.linux-x64-gnu
 
 That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. Both
 manifests pin `genesisblock` to `5156f412da73905a23d74775a82cc14d1f6d04d0`. The
-default `pins.json` pins the stdio production tuple, MSP
-`68e6169dbb371dac2f0debf0bf731b553f7dc26d` / GKS
-`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`: the tuple G-3 and the running images
-were verified against. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`)
-lives only in `pins.gks-http.json`; G-3 does not qualify it.
+default `pins.json` selects the signed-grant stdio candidate, MSP
+`d0d48c1a8e833478525d9a6ce5ee16af2c85444d` / GKS
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`. Historical G-3 and the inspected
+running images used MSP `68e6169d`; that evidence does not qualify this new
+candidate. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`) lives
+only in `pins.gks-http.json`; historical G-3 does not qualify it either.
 `5e75c4a8` and `7c9261c4` remain historical references only.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
 `ki17-pins` stage they build on verifies every context it is given, so a build of
@@ -285,13 +295,22 @@ enable that profile or `line-server`. After startup, inspect `docker compose ps`
 confirm ngrok is not running. The render-only Compose configuration check passed
 with example paths; this local canary has **not** been run.
 
-### Cutting a release with the overlay
+### Cutting a web release with unchanged runtime pins
 
-Production web releases do not rebuild `/opt/ki17`. Since 2026-09-21 each release
+Web releases with unchanged runtime pins do not rebuild `/opt/ki17`. Since 2026-09-21 each release
 has been the new SHA's plain `runner` image with the running image's `/opt/ki17`
 layered on top; `release-05f3567d-ki17-overlay` (2026-09-28) is the procedure this
-section commits. The runtime tree does not change between web releases, the host's
+section records. When runtime pins are unchanged, the host's
 sibling checkouts need not sit at the pins, and no MSP/GKS `npm ci` runs.
+
+The 2026-10-24 MSP pin amendment changes that tree. First build and qualify a
+new `runner-ki17` and matching worker from the selected contexts above. The
+overlay refuses an old `KI17_FROM`; carrying forward the deployed MSP tree
+cannot implement this upgrade. Preserve its previous image and a compatible
+backup for recovery, and record the actual clean release HEAD and image digest.
+This helper builds the app from the checked-out SHA; it does not preserve an
+older application image. For an MSP-only upgrade of a frozen app, use the
+separate procedure below.
 `deploy/ki17/overlay/Dockerfile` is the image; `scripts/build-ki17-overlay-release.mjs`
 drives it. From `apps/server`, on the primary checkout at merged `main`:
 
@@ -340,6 +359,53 @@ previous tag on the host until the next release is verified.
 Changing `/opt/ki17` itself (a new MSP, GKS or Node pin) is a `runner-ki17` build
 against `pins.json` as above, plus an acceptance re-run; the overlay then carries the
 new tree forward from the release that ships it.
+
+### MSP-only upgrade of a frozen application
+
+Use this path when the release scope preserves the deployed app, such as the
+`bf48f2ff` application with the signed MSP `d0d48c1` upgrade. The web-only
+helper above builds current source and is not the procedure for this case.
+
+1. Record the clean configuration checkout's full SHA, immutable image digest
+   references for the frozen web/worker/acceptance bases, and the qualified
+   runtime donor. Validate the donor's receipt with `check-ki17-from.mjs` and
+   this checkout's `pins.json`. Source/donor acceptance alone is insufficient:
+   the resulting composed images must pass acceptance too.
+2. From `apps/server`, build with immutable references, never a tag silently
+   repointed to a different app revision:
+
+   ```bash
+   docker build -f deploy/ki17/overlay/msp-only.Dockerfile \
+     --build-arg BASE=<frozen-web-repository@sha256:digest> \
+     --build-arg MSP_FROM=<qualified-runtime-repository@sha256:digest> \
+     --build-arg CONFIG_REVISION=<full-clean-configuration-commit> \
+     -t zuri-ai-web-ki17:<explicit-app-and-msp-release-tag> .
+   ```
+
+   Repeat with the matching frozen worker base. Build a disposable acceptance
+   image from its matching frozen acceptance base with `--build-arg FINAL_USER=root`.
+   `PREVIOUS_MSP_COMMIT` defaults to the inspected old `68e6169d` pin; a different
+   approved baseline requires its explicit full SHA. The recipe validates all
+   original pins using that previous MSP value before replacing anything, then
+   validates the selected tuple after copying only MSP and pin metadata.
+   Image/source identity is operator-attested at G-4, not established by the
+   recipe's tuple checks or by a 40-character label. Verify clean Git HEAD and
+   context file hashes on the host. If the builder cannot resolve a daemon-only
+   digest reference, create task-owned aliases from the recorded full image IDs
+   (for example `zuri-msp-base:sha256-<full-image-id>`). Verify those aliases
+   against the recorded IDs before and after building; verify the result's
+   rootfs layer prefix equals the selected base and the copied MSP file/symlink
+   inventory equals the donor. Retain these checks with the build metadata.
+3. Verify the inherited `org.opencontainers.image.revision` remains the actual
+   app SHA; `org.zuri.ki17.configuration-revision` must equal the clean recipe
+   checkout. Record both base/donor/result digests and receipts. GKS, worker
+   source, Node, Python environment, app files and production volumes are not
+   copied from the donor. Do not label this composition as a new main app build.
+4. Run the exact composed acceptance image with the pinned model and test
+   prerequisites, then an isolated restore/canary using the composed web and
+   worker pair. Require signed API-010 positive/refusal cases, both relay hops,
+   ingest/publication/query, scope denial and restart persistence. Complete
+   backup/restore and release gates before switching production image references.
 
 ### Running the acceptance inside the images (gate G-3)
 

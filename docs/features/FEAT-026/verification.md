@@ -42,6 +42,7 @@ status: generated
 - [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/genesisrag17-parser-2.test.js](../../../apps/server/tests/unit/genesisrag17-parser-2.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/ki17-build-stage.test.js](../../../apps/server/tests/unit/ki17-build-stage.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/ki17-msp-only-release.test.js](../../../apps/server/tests/unit/ki17-msp-only-release.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-overlay-release.test.js](../../../apps/server/tests/unit/ki17-overlay-release.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-real-corpus.test.js](../../../apps/server/tests/unit/ki17-real-corpus.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-admission-mcp.test.js](../../../apps/server/tests/unit/knowledge-admission-mcp.test.js) — `verifies` (`transitive`)

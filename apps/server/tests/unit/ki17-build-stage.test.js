@@ -51,18 +51,18 @@ describe('the pin manifest', () => {
 })
 
 describe('the two pin manifests (stdio default, gks-http opt-in)', () => {
-  const PROVEN_STDIO = {
-    msp: '68e6169dbb371dac2f0debf0bf731b553f7dc26d',
+  const SELECTED_STDIO = {
+    msp: 'd0d48c1a8e833478525d9a6ce5ee16af2c85444d',
     gks: 'ecf1e4de269e949406a6a5f791f9ff8fe30c9578',
     genesisblock: '5156f412da73905a23d74775a82cc14d1f6d04d0',
   }
   const HTTP_FILES = ['apps/gks-server/bin/gks-http-server.mjs', 'deploy/docker/entrypoint.mjs']
 
-  it('pins the default manifest to the stdio tuple production runs', () => {
+  it('pins the stdio release candidate independently of the opt-in HTTP tuple', () => {
     // 2026-09-28: pins.json had moved to the HTTP canary tuple, so the default
     // runner-ki17 build could not be reproduced on the production host.
     expect(pins.profile).toBe('stdio')
-    for (const [name, commit] of Object.entries(PROVEN_STDIO)) expect(pins.repositories[name].commit, name).toBe(commit)
+    for (const [name, commit] of Object.entries(SELECTED_STDIO)) expect(pins.repositories[name].commit, name).toBe(commit)
     for (const file of HTTP_FILES) expect(pins.repositories.gks.entrypoints).not.toContain(file)
   })
 
