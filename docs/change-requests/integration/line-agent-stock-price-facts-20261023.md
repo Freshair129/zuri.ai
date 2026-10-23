@@ -6,17 +6,7 @@ approval_scope: implementation-contract
 version: "0.3.0"
 date: "2026-10-23"
 source_revision: "0903287f75c455a5cbefeb0c1dba195df0034b97"
-relations:
-  - type: relates_to
-    target: ZAI:FR-234
-  - type: relates_to
-    target: ZAI:FR-132
-  - type: relates_to
-    target: ZAI:FR-180
-  - type: relates_to
-    target: ZAI:FR-253
-  - type: relates_to
-    target: ZAI:ADR-106
+relations: [{"type":"relates_to","target":"ZAI:FR-234"},{"type":"relates_to","target":"ZAI:FR-132"},{"type":"relates_to","target":"ZAI:FR-180"},{"type":"relates_to","target":"ZAI:FR-253"},{"type":"relates_to","target":"ZAI:ADR-106"}]
 ---
 
 # LINE agent: stock availability and published sell-price facts
