@@ -1,5 +1,5 @@
 ---
-version: "0.3.0"
+version: "0.3.1"
 status: approved
 ---
 
@@ -128,6 +128,16 @@ cannot label newly authored rows as if they existed in the historical revision.
 Version diff 0.1.1 → 0.2.0: adds a provenance-safe, reviewed workflow for new standalone FR records while preserving the initial source snapshot. Adds a writer-owned projection slot and export-order update; initial row content, hashes, paths and subject anchors remain unchanged.
 
 Version diff 0.3.0 (2026-10-22): permits an approved reviewed-migration wrapper to bind a change to an existing FEAT/FR source row while preserving its issued identity, explicit membership and subject anchor. New record registration remains standalone-FR-only; this is used to record approved retirement without deleting IDs or hand-editing generated exports.
+
+Version diff 0.3.1 (2026-10-23): an additional revision of an already reviewed v1 record uses the same writer,
+without editing its index by hand. Before `--write` projects it, its declared
+ancestor base must contain the exact prior wrapper and index entry, including
+their matching digests and approved provenance. Identity, source path, explicit
+membership, subject anchor, and projection slot remain unchanged. The approved
+migration document must name `migration_base_revision` in frontmatter and contain
+the exact new row. The writer validates the complete candidate set before
+writing projections. `--check` and all readers retain strict wrapper/index
+equality and refuse an unprojected revision; they never reconcile it themselves.
 
 ## Acceptance
 

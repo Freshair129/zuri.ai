@@ -2463,7 +2463,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "5bdfc5fced264ef3994d66268036dbdae9c3098b7ccf129ace82b9ebad18960e"
+      "statement_digest": "3d497b2f70e90ec3d94e1f563f87e617404cf677a7781eb19f3c9837bb185f61",
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Reviewed approved main-dev TEST ONLY Ollama runtime amendment in LINE-LOCAL-OLLAMA-MAIN-DEV-20261023 v0.3.2; same pinned subject and identity, keyed production behavior retained."
     },
     "FR-080": {
       "family": "FR",
@@ -2476,7 +2478,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "8cb43bfd531b56053d7da38c963891f81c90584e03b0cf6f4909f25c9109151a"
+      "statement_digest": "85848df611043f288ea5e8d25925575c93a582dc398ee14f7a07279837c18e97",
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Reviewed approved scoped owner Ollama selection UI amendment in LINE-LOCAL-OLLAMA-MAIN-DEV-20261023 v0.3.2; same pinned subject and identity, public provider credential gates retained."
     },
     "FR-081": {
       "family": "FR",
@@ -8313,7 +8317,7 @@
       "family": "FEAT",
       "source": "docs/FEATURES.md",
       "status": "current",
-      "statement_digest": "ccb35591f0c11ef62a99adc82291653015dff0f41695062174eb01e4f22e9aec",
+      "statement_digest": "4a974186a90fc4dff2b6c016aad4b0df10d14538cd9415efbde597e23d7e33d5",
       "history": [
         {
           "anchor": "line oa on api keys only",
@@ -8321,8 +8325,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-09-26",
-      "statement_digest_reason": "Renumber the in-statement references to ADR-110 and SDD-110 after main assigned ADR-109 and SDD-108/109 to Notion; the subject and meaning are unchanged."
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Reviewed approved bounded main-dev Ollama exception in LINE-LOCAL-OLLAMA-MAIN-DEV-20261023 v0.3.2; same pinned subject, identity and FR membership, public provider and PRP key flows retained."
     },
     "FEAT-046": {
       "family": "FEAT",

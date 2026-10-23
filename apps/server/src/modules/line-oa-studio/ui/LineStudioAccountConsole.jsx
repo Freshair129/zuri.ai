@@ -46,6 +46,7 @@ import LineOaCredentialMigrationCard from "./LineOaCredentialMigrationCard";
 import { lineTraceSummary } from "../domain/line-trace-summary";
 import LineOaReadinessJourney from "./LineOaReadinessJourney";
 import LineOaModelKeyCard from "./LineOaModelKeyCard";
+import LocalOllamaModelCard, { findEligibleLocalOllamaAccount } from "./LocalOllamaModelCard";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -71,6 +72,7 @@ export default function LineStudioAccountConsole() {
   // @req FR-266 — the Business's model provider key status (ADR-100 D4). Status
   // only: provider, model id and validation time, never material.
   const [modelStatus, setModelStatus] = useState(null);
+  const [localOllamaStatus, setLocalOllamaStatus] = useState(null);
 
   const loadModelStatus = useCallback(async () => {
     if (!business?.id) {
@@ -87,6 +89,29 @@ export default function LineStudioAccountConsole() {
     }
   }, [business?.id]);
 
+  const localOllamaRequestId = useRef(0);
+  const activeBusinessIdRef = useRef(business?.id);
+  activeBusinessIdRef.current = business?.id;
+  const loadLocalOllamaStatus = useCallback(async () => {
+    if (!business?.id) {
+      localOllamaRequestId.current += 1;
+      setLocalOllamaStatus(null);
+      return;
+    }
+    if (activeBusinessIdRef.current !== business.id) return;
+    const requestId = ++localOllamaRequestId.current;
+    try {
+      const result = await api('/api/integration/local-ollama/models');
+      if (requestId !== localOllamaRequestId.current || activeBusinessIdRef.current !== business.id) return;
+      setLocalOllamaStatus(result.businessId === business.id && result.accountId ? result : null);
+    } catch {
+      if (requestId === localOllamaRequestId.current && activeBusinessIdRef.current === business.id) {
+        // A disabled profile or ineligible account intentionally looks absent.
+        setLocalOllamaStatus(null);
+      }
+    }
+  }, [business?.id]);
+
   // `refresh` runs both on mount and after every account action; the mount
   // call and an action's call can be in flight together (e.g. React 18's dev
   // double-invoke, or a slow first call overlapping a fast one right after a
@@ -98,20 +123,28 @@ export default function LineStudioAccountConsole() {
   const refresh = useCallback(async () => {
     const requestId = ++refreshRequestId.current;
     if (!business?.id) {
-      if (requestId === refreshRequestId.current) setAccounts([]);
+      if (requestId === refreshRequestId.current) {
+        setAccounts([]);
+        setLocalOllamaStatus(null);
+      }
       return;
     }
     try {
       const result = await api(`/api/line-oa/accounts?businessId=${encodeURIComponent(business.id)}`);
       if (requestId !== refreshRequestId.current) return;
       setAccounts(result.accounts || []);
+      await loadLocalOllamaStatus();
     } catch (err) {
-      if (requestId === refreshRequestId.current) setError(err.message);
+      if (requestId === refreshRequestId.current) {
+        setLocalOllamaStatus(null);
+        setError(err.message);
+      }
     }
-  }, [business?.id]);
+  }, [business?.id, loadLocalOllamaStatus]);
 
   useEffect(() => {
     setAccounts([]);
+    setLocalOllamaStatus(null);
     setMessage("");
     setError("");
     refresh().catch((err) => setError(err.message));
@@ -120,6 +153,12 @@ export default function LineStudioAccountConsole() {
     // and the card reads that as "no key yet", which is the honest rendering.
     loadModelStatus();
   }, [refresh, loadModelStatus]);
+
+  const localOllamaAccount = findEligibleLocalOllamaAccount({
+    business,
+    accounts,
+    status: localOllamaStatus,
+  });
 
   async function run(task) {
     setBusy(true);
@@ -164,7 +203,12 @@ export default function LineStudioAccountConsole() {
               LINE OA และ Conversation Runtime
             </h2>
             <p className="text-xs text-[var(--text-secondary)] mt-1 max-w-2xl leading-relaxed">
-              Zuri รับ LINE webhook และประมวลผลบทสนทนาผ่าน runtime ของเซิร์ฟเวอร์ ใช้ model provider key ของ Business ที่ตั้งค่าไว้ด้านล่าง
+              Zuri รับ LINE webhook และประมวลผลบทสนทนาผ่าน runtime ของเซิร์ฟเวอร์
+              {localOllamaAccount
+                ? localOllamaStatus?.selectedModelId
+                  ? ' ขณะนี้เลือก Ollama สำหรับ TEST ONLY ใน main-dev แล้ว ใช้กับสินค้าตัวอย่างเท่านั้น ไม่ใช้ข้อมูลราคาหรือสต็อกจริง ไม่ใช้ API key แบบคิดค่าบริการ และไม่เปลี่ยน readiness สำหรับ production'
+                  : ' มีตัวเลือก Ollama สำหรับ TEST ONLY ใน main-dev ด้านล่าง ใช้กับสินค้าตัวอย่างเท่านั้น ไม่ใช้ข้อมูลราคาหรือสต็อกจริง ไม่ใช้ API key แบบคิดค่าบริการ และไม่เปลี่ยน readiness สำหรับ production'
+                : ' การตอบด้วยโมเดลของ Business ต้องใช้ model provider key ที่ตั้งค่าด้านล่าง'}
             </p>
           </div>
 
@@ -240,6 +284,11 @@ export default function LineStudioAccountConsole() {
             <LineOaModelKeyCard businessId={business?.id} status={modelStatus} api={api}
               busy={busy} onSaved={loadModelStatus} />
           </div>
+
+          {localOllamaAccount && <div id="line-oa-local-ollama">
+            <LocalOllamaModelCard account={localOllamaAccount} status={localOllamaStatus} api={api}
+              busy={busy} onSaved={refresh} />
+          </div>}
 
           {/* FR-225: the Thai self-serve connect wizard replaces the old
               deployment-secret-only form. */}

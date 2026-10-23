@@ -1,14 +1,14 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.2.0"
+version: "1.4.0"
 updated_at: "2026-10-23"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.2.0
+**Version:** 1.4.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
@@ -27,8 +27,17 @@ version-controlled.
   bindings, customer-safe fields, authorization and acceptance cases for review.
   It grants no stock access and does not replace the existing price/quotation rules.
 
+- [Main-dev keyless Ollama for LINE](integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md)
+  (0.2.0, bounded main-dev implementation approved): isolated model
+  discovery/selection and same-ID FR-079/FR-080/FEAT-045 migration; no production
+  provider change, implementation evidence, or production activation.
+
 Version 1.2.0 records design approval of this intake, separate from a canonical
 requirement migration, implemented behavior or production activation.
+Version 1.3.0 added the main-dev local Ollama proposal. Version 1.4.0 records
+approval for its bounded main-dev implementation, the reviewed same-ID source-row
+migration, and ADR-100 D9. The change-request remains intake documentation, not a
+standalone product requirement or production activation record.
 
 Version 1.1.0 adds this navigation entry. The historical intake explanations
 below retain their original context; current canonical editing follows

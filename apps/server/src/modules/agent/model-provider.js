@@ -1,16 +1,20 @@
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
+import { MAIN_DEV_LOCAL_OLLAMA_ORIGIN, MAIN_DEV_LOCAL_OLLAMA_SOURCE } from './main-dev-local-ollama'
 
 export { LOCAL_EVAL_PROVIDERS, PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
 
 // @req FR-048 — one normalized provider port for approved public LINE credential modes.
 // @req FR-171 — record exact model-call inputs and truthful nullable provider usage.
+// @req FR-079 — the private main-dev runtime source is keyless Ollama only.
 // @spec SDD-025, SEC-009, ADR-070 — credentials stay server-side and never enter trace results/errors.
 // @tested tests/unit/model-provider-port.test.js
 // @tested tests/unit/model-provider-trace.test.js
 
 const LOCAL_RUNTIME_SOURCES = new Set(['LOCAL_DEV', 'TEST', 'EVAL'])
+const MAIN_DEV_OLLAMA_REQUEST_MAX_BYTES = 1024 * 1024
+const MAIN_DEV_OLLAMA_RESPONSE_MAX_BYTES = 1024 * 1024
 
 // The private runtime provider (ADR-100 D7) — cited in prose, not by requirement
 // id, because this is the shared port for every provider and an id here would make
@@ -261,7 +265,9 @@ function requestFor(config, prompt) {
     return {
       url: `${config.baseUrl}/api/generate`,
       headers: {},
-      body: { model: config.model, prompt, stream: false },
+      body: { model: config.model, prompt, stream: false,
+        ...(config.mainDevLocalOllama ? { think: false, options: { num_predict: 256 } } : {}),
+      },
     }
   }
   if (config.provider === 'anthropic') {
@@ -329,31 +335,88 @@ function textFrom(provider, json) {
   return json.choices?.[0]?.message?.content
 }
 
+async function boundedModelProviderJson(response, maxBytes) {
+  const contentLength = response.headers?.get?.('content-length')
+  if (/^\d+$/.test(contentLength ?? '') && Number(contentLength) > maxBytes) {
+    try { await response.body?.cancel?.() } catch {}
+    const error = new Error('MODEL_PROVIDER_RESPONSE_TOO_LARGE')
+    error.code = 'MODEL_PROVIDER_RESPONSE_TOO_LARGE'
+    throw error
+  }
+  if (!response.body || typeof response.body.getReader !== 'function') {
+    throw new Error('MODEL_PROVIDER_INVALID_JSON')
+  }
+
+  const reader = response.body.getReader()
+  const chunks = []
+  let totalBytes = 0
+  try {
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      totalBytes += value.byteLength
+      if (totalBytes > maxBytes) {
+        void reader.cancel().catch(() => {})
+        const error = new Error('MODEL_PROVIDER_RESPONSE_TOO_LARGE')
+        error.code = 'MODEL_PROVIDER_RESPONSE_TOO_LARGE'
+        throw error
+      }
+      chunks.push(value)
+    }
+  } finally {
+    reader.releaseLock()
+  }
+
+  const bytes = new Uint8Array(totalBytes)
+  let offset = 0
+  for (const chunk of chunks) {
+    bytes.set(chunk, offset)
+    offset += chunk.byteLength
+  }
+  try {
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes))
+  } catch {
+    throw new Error('MODEL_PROVIDER_INVALID_JSON')
+  }
+}
+
 export function createModelProviderPort(inputConfig) {
   const runtimeSource = inputConfig.runtimeSource ?? 'PRODUCTION_LINE'
+  if (runtimeSource === MAIN_DEV_LOCAL_OLLAMA_SOURCE && inputConfig.provider !== 'ollama') {
+    throw new Error('MAIN_DEV_LOCAL_OLLAMA_OLLAMA_ONLY')
+  }
   let config
   if (inputConfig.provider === 'ollama') {
-    if (!LOCAL_RUNTIME_SOURCES.has(runtimeSource)) {
+    const isMainDevLocalOllama = runtimeSource === MAIN_DEV_LOCAL_OLLAMA_SOURCE
+    if (!isMainDevLocalOllama && !LOCAL_RUNTIME_SOURCES.has(runtimeSource)) {
       throw new Error('MODEL_PROVIDER_NOT_ALLOWED_FOR_PRODUCTION_LINE: ollama')
     }
     if (inputConfig.credential) throw new Error('OLLAMA_CREDENTIAL_FORBIDDEN')
     let url
     try {
       url = new URL(inputConfig.baseUrl ?? '')
-      if (
-        url.protocol !== 'http:'
-        || url.hostname !== '127.0.0.1'
-        || !url.port
-        || url.username
-        || url.password
-        || url.search
-        || url.hash
-        || (url.pathname !== '' && url.pathname !== '/')
-      ) throw new Error('unsafe loopback URL')
-      const port = Number(url.port)
-      if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('unsafe loopback port')
+      if (isMainDevLocalOllama) {
+        if (inputConfig.baseUrl !== MAIN_DEV_LOCAL_OLLAMA_ORIGIN || url.origin !== MAIN_DEV_LOCAL_OLLAMA_ORIGIN) {
+          throw new Error('unsafe main-dev Ollama URL')
+        }
+      } else {
+        if (
+          url.protocol !== 'http:'
+          || url.hostname !== '127.0.0.1'
+          || !url.port
+          || url.username
+          || url.password
+          || url.search
+          || url.hash
+          || (url.pathname !== '' && url.pathname !== '/')
+        ) throw new Error('unsafe loopback URL')
+        const port = Number(url.port)
+        if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('unsafe loopback port')
+      }
     } catch {
-      throw new Error('OLLAMA_LOOPBACK_URL_REQUIRED')
+      throw new Error(runtimeSource === MAIN_DEV_LOCAL_OLLAMA_SOURCE
+        ? 'OLLAMA_MAIN_DEV_ORIGIN_REQUIRED'
+        : 'OLLAMA_LOOPBACK_URL_REQUIRED')
     }
     config = {
       provider: 'ollama',
@@ -361,6 +424,11 @@ export function createModelProviderPort(inputConfig) {
       credential: null,
       timeoutMs: z.number().int().min(100).max(25000).default(10000).parse(inputConfig.timeoutMs),
       baseUrl: new URL(inputConfig.baseUrl).toString().replace(/\/$/, ''),
+      ...(isMainDevLocalOllama ? {
+        mainDevLocalOllama: true,
+        requestMaxBytes: MAIN_DEV_OLLAMA_REQUEST_MAX_BYTES,
+        responseMaxBytes: MAIN_DEV_OLLAMA_RESPONSE_MAX_BYTES,
+      } : {}),
     }
   } else {
     try {
@@ -383,6 +451,12 @@ export function createModelProviderPort(inputConfig) {
     async generate(input) {
       const prompt = promptFor(input)
       const request = requestFor(config, prompt)
+      const serializedRequestBody = JSON.stringify(request.body)
+      if (config.requestMaxBytes && Buffer.byteLength(serializedRequestBody, 'utf8') > config.requestMaxBytes) {
+        const error = new Error('MODEL_PROVIDER_REQUEST_TOO_LARGE')
+        error.code = 'MODEL_PROVIDER_REQUEST_TOO_LARGE'
+        throw error
+      }
       const trace = input?.trace
       const beforeModelCall = typeof trace?.beforeModelCall === 'function' ? trace.beforeModelCall : null
       const afterModelCall = typeof trace?.afterModelCall === 'function' ? trace.afterModelCall : null
@@ -427,7 +501,7 @@ export function createModelProviderPort(inputConfig) {
             fetchFn(request.url, {
               method: 'POST',
               headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...request.headers },
-              body: JSON.stringify(request.body),
+              body: serializedRequestBody,
               signal: controller.signal,
               redirect: 'error',
             }),
@@ -443,10 +517,15 @@ export function createModelProviderPort(inputConfig) {
 
         if (errorCode === null) {
           try {
-            json = await Promise.race([response.json(), timeoutPromise])
+            const readJson = config.responseMaxBytes
+              ? boundedModelProviderJson(response, config.responseMaxBytes)
+              : response.json()
+            json = await Promise.race([readJson, timeoutPromise])
           } catch (error) {
             if (timedOut || error?.name === 'AbortError' || error?.code === 'MODEL_PROVIDER_TIMEOUT') {
               errorCode = 'MODEL_PROVIDER_TIMEOUT'
+            } else if (error?.code === 'MODEL_PROVIDER_RESPONSE_TOO_LARGE') {
+              errorCode = 'MODEL_PROVIDER_RESPONSE_TOO_LARGE'
             } else {
               errorCode = response?.ok ? 'MODEL_PROVIDER_INVALID_JSON' : `MODEL_PROVIDER_HTTP_${response?.status}`
             }
@@ -464,6 +543,9 @@ export function createModelProviderPort(inputConfig) {
         }
 
         if (errorCode === null && !response.ok) errorCode = `MODEL_PROVIDER_HTTP_${response.status}`
+        if (errorCode === null && config.mainDevLocalOllama && json?.done_reason === 'length') {
+          errorCode = 'MODEL_PROVIDER_TRUNCATED_RESPONSE'
+        }
 
         if (errorCode === null) {
           const rawText = textFrom(config.provider, json)

@@ -1207,16 +1207,16 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 11
+          "codeCount": 7,
+          "testCount": 24
         },
         {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 20
+          "codeCount": 3,
+          "testCount": 27
         },
         {
           "id": "FR-093",
@@ -1392,7 +1392,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-277",
@@ -1466,7 +1466,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -2002,7 +2002,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -3090,7 +3090,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 1
           }
         },
@@ -3379,16 +3379,16 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 11
+          "codeCount": 4,
+          "testCount": 24
         },
         {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 20
+          "codeCount": 9,
+          "testCount": 27
         },
         {
           "id": "FR-081",
@@ -3628,7 +3628,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-267",
@@ -3678,7 +3678,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -4139,7 +4139,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -4945,12 +4945,20 @@
           "testCount": 52
         },
         {
+          "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 24
+        },
+        {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 20
+          "codeCount": 4,
+          "testCount": 27
         },
         {
           "id": "FR-091",
@@ -5168,7 +5176,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-267",
@@ -5251,7 +5259,7 @@
           "details": {
             "routes": 15,
             "inventoried": 15,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -5488,7 +5496,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -5729,7 +5737,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -6106,7 +6114,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -6331,7 +6339,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 352,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -6886,6 +6894,22 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 29
+        },
+        {
+          "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 24
+        },
+        {
+          "id": "FR-080",
+          "title": "Platform Integrations UI",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 27
         },
         {
           "id": "FR-081",
@@ -7709,7 +7733,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-268",
@@ -8068,9 +8092,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 182,
-            "inventoried": 182,
-            "openApiPaths": 352,
+            "routes": 184,
+            "inventoried": 184,
+            "openApiPaths": 354,
             "missingFromOpenApi": 0
           }
         },
@@ -8135,9 +8159,9 @@
             }
           ],
           "details": {
-            "mutations": 140,
-            "guardedMutations": 139,
-            "reads": 83,
+            "mutations": 141,
+            "guardedMutations": 140,
+            "reads": 84,
             "unguardedReads": 11
           }
         },
@@ -8488,8 +8512,8 @@
         }
       ],
       "details": {
-        "routes": 230,
-        "apiRoutes": 182,
+        "routes": 232,
+        "apiRoutes": 184,
         "pageRoutes": 48,
         "ownedModels": 48,
         "featureNotes": 45
@@ -8984,7 +9008,8 @@
       "contributorDomains": [
         "agent",
         "integration",
-        "line-oa-studio"
+        "line-oa-studio",
+        "project-manager"
       ],
       "useCase": "Owner เลือก LINE model provider และ Vault reference ของ Business โดยไม่เปิดเผย secret ใน browser",
       "progressPercent": 100,
@@ -9007,33 +9032,41 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 11
+          "codeCount": 15,
+          "testCount": 24
         },
         {
           "id": "FR-080",
           "title": "Platform Integrations UI",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 12,
-          "testCount": 20
+          "codeCount": 19,
+          "testCount": 27
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/line-oa/integrations/page.jsx",
         "apps/server/src/app/(pm)/platform/integrations/page.jsx",
+        "apps/server/src/app/api/integration/local-ollama/models/route.js",
+        "apps/server/src/app/api/integration/local-ollama/selection/route.js",
         "apps/server/src/app/api/platform/integrations/line-registry/route.js",
         "apps/server/src/app/api/platform/integrations/route.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/main-dev-local-ollama.js",
+        "apps/server/src/modules/agent/main-dev-public-test-knowledge.js",
         "apps/server/src/modules/agent/model-provider-catalog.js",
         "apps/server/src/modules/agent/model-provider.js",
         "apps/server/src/modules/agent/openrouter-oauth.js",
         "apps/server/src/modules/agent/phase1-runtime.js",
+        "apps/server/src/modules/agent/server-line-answer.js",
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-registry-service.js",
+        "apps/server/src/modules/integration/application/local-ollama-selection-service.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LocalOllamaModelCard.jsx",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/platform/integrations/core/connection-health.js",
         "apps/server/src/platform/integrations/core/connector-catalog.js",
         "apps/server/src/platform/integrations/core/credential-vault.js",
@@ -9050,9 +9083,10 @@
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
+        "apps/server/tests/integration/line-worker-memory.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/agent-role-registry.test.js",
-        "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/fr048-provider-catalog.test.js",
         "apps/server/tests/unit/fr079-credential-vault.test.js",
@@ -9068,12 +9102,19 @@
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/line-registry-service.test.js",
+        "apps/server/tests/unit/local-ollama-model-card-render.test.js",
+        "apps/server/tests/unit/local-ollama-owner-routes.test.js",
+        "apps/server/tests/unit/local-ollama-selection-service.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama.test.js",
+        "apps/server/tests/unit/main-dev-public-test-knowledge.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
         "apps/server/tests/unit/model-provider-trace.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/connector-catalog.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js",
+        "apps/server/tests/unit/server-line-answer.test.js",
         "services/conversation-runtime/src/model-port.js",
         "services/conversation-runtime/test/model-port.test.js"
       ]
@@ -10549,7 +10590,6 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
-        "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
@@ -10573,6 +10613,7 @@
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/line-studio-account-console-render.test.js",
         "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/server-line-rich-menu-transport.test.js",
@@ -10738,7 +10779,6 @@
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-webhook.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
-        "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/conversation-channel-account-migration.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
         "apps/server/tests/unit/conversation-session-ui.test.js",
@@ -10757,6 +10797,7 @@
         "apps/server/tests/unit/line-studio-account-console-render.test.js",
         "apps/server/tests/unit/line-studio-job-failures.test.js",
         "apps/server/tests/unit/line-trace-summary.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/platform/server-line-transport.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
@@ -13567,7 +13608,7 @@
     },
     {
       "id": "FEAT-045",
-      "title": "LINE OA on API keys only — the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired, and the model provider API key every server answer needs is entered by the Business owner in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-110 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema)",
+      "title": "LINE OA on API keys only — the existing public-provider and PRP paths require the Business-owned, browser-provisioned key; the Studio's EDGE execution mode, its edge conversation-job claim surface and the LOCAL_ONLY deterministic-answer branch are retired. For those keyed provider paths, the Business owner enters the model provider API key in the browser, write-only, through the same credential vault that already holds the LINE channel secret (ADR-100, amending ADR-061 D2/D3 for LINE OA; ADR-110 D1 retires Zuri-owned pairing and Edge extraction surfaces, while D3 preserves existing records and schema). A separate, default-off, explicitly allowlisted main-dev Ollama test profile is scoped by FR-079/FR-080 and does not change the public-provider or PRP key flows or production provider selection.",
       "kind": "bundle",
       "registryStatus": "building",
       "requirementIds": [
@@ -13605,7 +13646,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-267",
@@ -13665,6 +13706,7 @@
         "apps/server/tests/unit/line-oa-model-key-card-render.test.js",
         "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
@@ -15969,8 +16011,8 @@
         "apps/server/src/modules/knowledge/business-contract.js",
         "apps/server/src/modules/knowledge/supabase-business-knowledge.js",
         "apps/server/tests/unit/business-knowledge-contract.test.js",
-        "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/supabase-business-knowledge.test.js"
       ]
@@ -16126,11 +16168,11 @@
         "apps/server/src/platform/integrations/providers/line/line-oa-webhook.js",
         "apps/server/tests/integration/conversation-runtime-vertical-slice.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
-        "apps/server/tests/unit/business-model-credential-resolution.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
         "apps/server/tests/unit/line-webhook-scope-fail-closed.test.js",
+        "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/phase1-runtime-login-probe.test.js",
         "apps/server/tests/unit/platform/line-oa-webhook.test.js",

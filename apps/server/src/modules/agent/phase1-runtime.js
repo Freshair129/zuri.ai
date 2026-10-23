@@ -23,13 +23,22 @@ import { createMspTransportFromEnvironment } from './msp-stdio-transport'
 import { createMspThreadMemoryPort } from './msp-thread-memory-port'
 import { createMspMemoryPort } from './msp-memory-port'
 import { createMspVaultResolver } from './msp-vault-resolver'
+import { MODEL_ID_PATTERN, MODEL_PROVIDER_PURPOSE } from '@/lib/validation/enums'
+import {
+  assertMainDevLocalOllamaScope,
+  isMainDevLocalOllamaRequested,
+  MAIN_DEV_LOCAL_OLLAMA_SOURCE,
+  readMainDevLocalOllamaProfile,
+} from './main-dev-local-ollama'
+import { createMainDevPublicTestKnowledgeReader } from './main-dev-public-test-knowledge'
 
-// @req FR-047, FR-048, FR-052, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
+// @req FR-047, FR-048, FR-052, FR-079, FR-080 — compose Phase 1 ports only from server-owned scope and configuration.
 // @req FR-266 — `resolveModel` reads the Business's own browser-provisioned model
 //   key first and uses the Phase-1 connection only when that Business has none.
 // @spec SDD-025, SDD-026, SDD-044, SEC-009, SEC-010, SEC-016 — disabled by default; partial configuration fails closed.
 // @spec SDD-106, ADR-100 D5 — resolution order, fallback on absence only, fail closed on a broken credential.
-// @tested tests/unit/phase1-business-agent-runtime.test.js, tests/unit/business-model-credential-resolution.test.js
+// @tested tests/unit/phase1-business-agent-runtime.test.js, tests/unit/main-dev-local-ollama-runtime.test.js,
+//   tests/unit/business-model-credential-resolution.test.js
 
 function assertRuntimeDatabaseUrl(value) {
   parseDedicatedRuntimeDatabaseUrl(value)
@@ -117,6 +126,12 @@ export function createLineReadQueryFromEnv(env = process.env, { serverOwned = fa
 }
 
 function runtimeSourceFor(env) {
+  if (isMainDevLocalOllamaRequested(env)) {
+    const profile = readMainDevLocalOllamaProfile(env)
+    if (!profile) throw new Error('MAIN_DEV_LOCAL_OLLAMA_DISABLED')
+    return MAIN_DEV_LOCAL_OLLAMA_SOURCE
+  }
+
   const source = env.ZURI_PHASE1_RUNTIME_SOURCE
     ?? (env.NODE_ENV === 'production' ? null : env.NODE_ENV === 'test' ? 'TEST' : 'LOCAL_DEV')
   if (!source) throw new Error('PHASE1_RUNTIME_SOURCE_REQUIRED')
@@ -138,6 +153,142 @@ function parseConnectionMetadata(connection) {
   }
 }
 
+function mainDevRuntimeFailure(code) {
+  const error = new Error(code)
+  error.code = code
+  return error
+}
+
+async function assertNoBusinessModelProviderKey(db, { tenantId, businessId }) {
+  let rows
+  try {
+    rows = await db.integrationConnection.findMany({
+      where: { tenantId, businessId, purpose: MODEL_PROVIDER_PURPOSE },
+      select: { id: true, credential: { select: { id: true } } },
+    })
+  } catch {
+    throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_BUSINESS_CREDENTIAL_CHECK_FAILED')
+  }
+  if (rows.some((row) => row.credential)) {
+    throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_BUSINESS_KEY_PRESENT')
+  }
+}
+
+function createMainDevLocalOllamaPorts(env, {
+  fetchFn,
+  integrationDb,
+  connectionResolver,
+} = {}) {
+  const profile = readMainDevLocalOllamaProfile(env)
+  if (!profile) throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_DISABLED')
+  if (env.ZURI_MODEL_PROVIDER || env.ZURI_MODEL_NAME || env.ZURI_MODEL_CREDENTIAL || env.ZURI_OLLAMA_BASE_URL) {
+    throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_LEGACY_MODEL_CONFIG_FORBIDDEN')
+  }
+
+  const db = integrationDb ?? prisma
+  const resolveScope = async (scope) => assertMainDevLocalOllamaScope({
+    profile,
+    db,
+    tenantId: scope?.tenantId,
+    businessId: scope?.businessId,
+    accountId: scope?.accountId,
+  })
+  const resolveConnection = connectionResolver ?? ((scope) => resolvePhase1PrimaryConnection({
+    db,
+    tenantId: scope.tenantId,
+    businessId: scope.businessId,
+    purpose: PHASE1_LINE_LLM_PURPOSE,
+  }))
+  let authorizedScope = null
+  let fixtureReader = null
+
+  async function resolveModel(scope) {
+    authorizedScope = null
+    fixtureReader = null
+    await resolveScope(scope)
+
+    // Check only credential-row presence (like the owner selection route). Do not
+    // resolve or decrypt a Business key just to refuse this keyless profile.
+    await assertNoBusinessModelProviderKey(db, {
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+    })
+
+    let connection
+    try {
+      connection = await resolveConnection({
+        tenantId: scope.tenantId,
+        businessId: scope.businessId,
+        accountId: scope.accountId,
+        purpose: PHASE1_LINE_LLM_PURPOSE,
+      })
+    } catch {
+      throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_CONNECTION_UNAVAILABLE')
+    }
+    if (!connection
+      || connection.tenantId !== scope.tenantId
+      || connection.businessId !== scope.businessId
+      || connection.purpose !== PHASE1_LINE_LLM_PURPOSE
+      || connection.status !== 'ACTIVE'
+      || connection.role !== 'PRIMARY'
+      || connection.credential != null
+      || connection.provider?.status !== 'ACTIVE'
+      || String(connection.provider?.code ?? '').trim().toLowerCase() !== 'ollama') {
+      throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_CONNECTION_INVALID')
+    }
+
+    const metadata = parseConnectionMetadata(connection)
+    if (Object.keys(metadata).length !== 1
+      || typeof metadata.model !== 'string'
+      || !MODEL_ID_PATTERN.test(metadata.model.trim())) {
+      throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_CONNECTION_MODEL_INVALID')
+    }
+
+    const selectedModel = createModelProviderPort({
+      runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
+      provider: 'ollama',
+      model: metadata.model.trim(),
+      baseUrl: profile.baseUrl,
+      timeoutMs: Number(env.ZURI_MODEL_TIMEOUT_MS ?? 10000),
+      fetchFn,
+    })
+    authorizedScope = Object.freeze({
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+      accountId: scope.accountId,
+    })
+    fixtureReader = createMainDevPublicTestKnowledgeReader({ profile, ...authorizedScope })
+    return Object.freeze({
+      ...selectedModel,
+      async generate(input) {
+        await resolveScope(authorizedScope)
+        return selectedModel.generate(input)
+      },
+    })
+  }
+
+  return {
+    runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
+    businessKnowledge: Object.freeze({
+      async query(input) {
+        if (!authorizedScope || !fixtureReader
+          || input?.tenantId !== authorizedScope.tenantId
+          || input?.businessId !== authorizedScope.businessId) {
+          throw mainDevRuntimeFailure('MAIN_DEV_LOCAL_OLLAMA_SCOPE_DENIED')
+        }
+        await resolveScope(authorizedScope)
+        return fixtureReader.query(input)
+      },
+    }),
+    bindingResolver: null,
+    model: null,
+    resolveModel,
+    threadMemory: null,
+    episodicMemory: null,
+    close: async () => {},
+  }
+}
+
 export function createPhase1BusinessAgentPortsFromEnv(
   env = process.env,
   { fetchFn, queryFn, secretQueryFn, integrationDb, connectionResolver, modelCredentialResolver, secretManager, mspTransport, bindingRequired = true } = {},
@@ -148,6 +299,14 @@ export function createPhase1BusinessAgentPortsFromEnv(
 
   if (env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY) {
     throw new Error('PHASE1_SUPABASE_SECRET_FORBIDDEN: secret/service credentials bypass RLS')
+  }
+
+  if (runtimeSource === MAIN_DEV_LOCAL_OLLAMA_SOURCE) {
+    return createMainDevLocalOllamaPorts(env, {
+      fetchFn,
+      integrationDb,
+      connectionResolver,
+    })
   }
 
   const required = {
