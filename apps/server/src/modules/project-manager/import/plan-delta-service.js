@@ -6,6 +6,7 @@ import { readablePipelineProjects } from '../application/handoff-evidence'
 // @tested tests/integration/plan-delta.test.js
 // @tested tests/integration/dependency-handoff.test.js
 import { randomUUID } from 'node:crypto'
+import { PIPELINE_PROTECTED_WORK_STATUSES } from '@/lib/validation/enums'
 import prisma from '@/lib/db'
 import { zPlanDelta, zRegisterDelta } from './plan-delta-schema'
 import { catalogue, compilePlanDelta, pipelineChanges, pipelineAggregateHash, requirePipelineHash } from './plan-delta-operations'
@@ -148,8 +149,10 @@ async function prepare(tx, plan, authority, projectIds) {
     try { projectId = pipelineProjectId(compiled.state, entry) } catch { continue }
     if (!projectIds.includes(projectId)) continue
     const options = { tx, allowedProjectIds: readableProjectIds, audits }
-    const old = before.has(pipelineKey(entry.type, entry.id)) ? await pipelineReleaseState(before, entry.id, options) : null
-    const after = await pipelineReleaseState(compiled.state, entry.id, { ...options, proposedContracts: compiled.proposedContracts })
+    const oldRow=before.get(pipelineKey(entry.type,entry.id))?.row
+    const phase=status=>PIPELINE_PROTECTED_WORK_STATUSES.includes(status)?status:undefined
+    const old = oldRow ? await pipelineReleaseState(before, entry.id, {...options,protectedStatus:phase(oldRow.status)}) : null
+    const after = await pipelineReleaseState(compiled.state, entry.id, { ...options, protectedStatus:phase(entry.row.status), proposedContracts: compiled.proposedContracts })
     if ((!old || canonicalJSON(old) !== canonicalJSON(after)) && after.restricted) throw pipelineError('SCOPE_UNAVAILABLE',404)
     if (!old || canonicalJSON(old) !== canonicalJSON(after)) releaseEffects.push({ workItemId: entry.id, before: old, after })
   }

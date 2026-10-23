@@ -207,3 +207,13 @@ it('undo retains invalid manual evidence as held without manufacturing a decisio
  expect((await prisma.dependency.findUnique({where:{id}})).contractJson).toBe(originalEdge.contractJson)
  expect((await listDependencies({projectId:f.project.id},{viewer:f.viewer})).find(row=>row.id===id).contractState).toBe('INVALID')
 })
+
+it('FINISH_BEFORE preview holds DONE but permits active start phases',async()=>{
+ for(const status of ['IN_PROGRESS','REVIEW','DONE']) {
+  const f=await pipelineFixture(prisma);await prisma.workItem.update({where:{id:f.items[1].id},data:{status}})
+  const dry=await dryRunPlan(pipelinePlan(f,edgeCommand(f.items[0],f.items[1],'FINISH_BEFORE')),{viewer:f.viewer})
+  expect(dry.valid,JSON.stringify(dry.errors)).toBe(true)
+  const effect=dry.preview.releaseEffects.find(effect=>effect.workItemId===f.items[1].id)
+  expect(effect?.after.held??false).toBe(status==='DONE')
+ }
+})
