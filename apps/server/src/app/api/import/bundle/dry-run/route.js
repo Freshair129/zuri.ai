@@ -12,7 +12,7 @@ import { pipelineResponseStatus } from '@/modules/project-manager/import/plan-de
 // seam (FR-106), exactly as the per-Project import routes do — and every
 // decision lives in the bundle orchestrator, which refuses before parsing
 // anything beyond the scope selector.
-import { handle } from '../../../_helpers'
+import { handle, readPipelineBody } from '../../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { resolveApiAccessViewer } from '@/modules/identity/api-access-auth'
 import { dryRunBundle } from '@/modules/project-manager/import/bundle/bundle-dry-run'
@@ -22,8 +22,8 @@ export const dynamic = 'force-dynamic'
 export async function POST(request) {
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
-    const body = await request.json()
-    const result = await dryRunBundle(body.bundle, { viewer })
+    const {body,requestBodyBytes} = await readPipelineBody(request)
+    const result = await dryRunBundle(body.bundle, { viewer,requestBodyBytes })
     return body.bundle?.schemaVersion === '1.1' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

@@ -34,19 +34,17 @@ function matches(row, where = {}) {
  * preview without executing a transaction to be rolled back as a "dry run".
  */
 export function createPipelinePreviewDb(db, state) {
-  const overlay = new Map(), loaded = new Set()
+  const overlay = new Map()
   const model = delegate => Prisma.dmmf.datamodel.models.find(model => model.name[0].toLowerCase() + model.name.slice(1) === delegate)
-  async function rows(delegate) {
+  async function rows(delegate,where) {
     if (graphTypes[delegate]) return [...state.values()].filter(entry => entry.type === graphTypes[delegate]).map(entry => entry.row)
-    if (!loaded.has(delegate)) {
-      overlay.set(delegate, new Map((await db[delegate].findMany()).map(row => [primary(row), clonePipelineValue(row)])))
-      loaded.add(delegate)
-    }
+    if(!overlay.has(delegate)) overlay.set(delegate,new Map())
+    for(const row of await db[delegate].findMany({where:where && Object.fromEntries(Object.entries(where).flatMap(([key,value])=>!model(delegate).fields.some(field=>field.name===key) && !['AND','OR','NOT'].includes(key) && value && typeof value==='object' ? Object.entries(value) : [[key,value]]))})) if(!overlay.get(delegate).has(primary(row))) overlay.get(delegate).set(primary(row),clonePipelineValue(row))
     return [...overlay.get(delegate).values()]
   }
   function store(delegate, row) {
     if (graphTypes[delegate]) state.set(pipelineKey(graphTypes[delegate], row.id), { type: graphTypes[delegate], id: row.id, row })
-    else overlay.get(delegate).set(primary(row), row)
+    else {if(!overlay.has(delegate))overlay.set(delegate,new Map());overlay.get(delegate).set(primary(row), row)}
     return clonePipelineValue(row)
   }
   function defaults(delegate, data) {
@@ -85,7 +83,7 @@ export function createPipelinePreviewDb(db, state) {
     if (delegate === '$transaction') return async callback => callback(proxy)
     if (delegate === '_engineConfig') return { activeProvider: 'sqlite' }
     if (delegate === '$queryRawUnsafe') return async (sql,...values) => {
-      if (!sql.startsWith('SELECT a."id" FROM "AuditEvent" a WHERE ')) throw pipelineError('UPGRADE_REQUIRED',409)
+      if (!sql.startsWith('SELECT a."id",a."occurredAt",')) throw pipelineError('UPGRADE_REQUIRED',409)
       return db.$queryRawUnsafe(sql,...values)
     }
     if (delegate === '$executeRawUnsafe') return async sql => {
@@ -99,7 +97,7 @@ export function createPipelinePreviewDb(db, state) {
       return real[method].bind(real)
     } })
     return new Proxy({}, { get(_, method) { return async (args = {}) => {
-      const current = await rows(delegate)
+      const current = ['create','createMany'].includes(method) ? [] : await rows(delegate,args.where)
       if (method === 'findMany') return Promise.all(current.filter(row => matches(row, args.where)).map(row => projection(row, args)))
       const existing = current.find(row => matches(row, args.where))
       if (method === 'findUnique' || method === 'findFirst') return projection(existing, args)

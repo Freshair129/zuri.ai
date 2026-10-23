@@ -136,3 +136,39 @@ it('legacy full-plan cannot activate work behind an unsatisfied declared handoff
  await expect(commitPlan(plan,{viewer:f.viewer})).rejects.toMatchObject({code:'RELEASE_HELD'})
  expect((await prisma.workItem.findUnique({where:{id:f.items[1].id}})).status).toBe('PLANNED')
 })
+
+it('manual acceptance with a mismatched audit Tenant is INVALID in both GET and release policy',async()=>{
+ const f=await pipelineFixture(prisma),other=await pipelineFixture(prisma)
+ const command=edgeCommand(f.items[0],f.items[1]);command.contract.acceptance.satisfied=true
+ const saved=await save(pipelinePlan(f,command),f.viewer),edgeId=saved.deltaReceipt.changes[0].id
+ await prisma.auditEvent.update({where:{id:saved.auditEventId},data:{tenantId:other.tenant.id}})
+ const audit=await prisma.auditEvent.findUnique({where:{id:saved.auditEventId}}),state=await readPipelineState(prisma)
+ expect((await listDependencies({projectId:f.project.id},{viewer:f.viewer})).find(edge=>edge.id===edgeId).contractState).toBe('INVALID')
+ expect((await pipelineReleaseState(state,f.items[1].id,{tx:prisma,allowedProjectIds:[f.project.id],audits:[audit]})).held).toBe(true)
+})
+
+it('Project-local undo cannot remove a two-Project register edge after secondary access is revoked',async()=>{
+ const f=await pipelineFixture(prisma),other=await pipelineFixture(prisma,{tenant:f.tenant,person:f.person}),[a,b]=[f,other].sort((a,b)=>a.project.id.localeCompare(b.project.id))
+ const {projectId,...base}=pipelinePlan(a,edgeCommand(a.items[0],b.items[0])),saved=await save({...base,kind:'DEPENDENCY_REGISTER',projectIds:[a.project.id,b.project.id]},other.viewer,true)
+ await prisma.membership.update({where:{id:b.membership.id},data:{status:'REVOKED'}})
+ const undo=pipelinePlan(a,{op:'undo',originalAuditEventId:saved.auditEventId,expectedAfterHash:saved.deltaReceipt.afterHash}),dry=await dryRunPlan(undo,{viewer:other.viewer})
+ expect(dry.valid).toBe(false);expect(dry.errors[0].code).toBe('SCOPE_UNAVAILABLE')
+ expect(await prisma.dependency.findUnique({where:{id:saved.deltaReceipt.changes[0].id}})).not.toBe(null)
+})
+it('successor membership changes refresh the cross-Project locator through delta, full import and CRUD',async()=>{
+ const f=await pipelineFixture(prisma),other=await pipelineFixture(prisma,{tenant:f.tenant,person:f.person}),box=await prisma.workContainer.create({data:{code:randomUUID(),title:'Target aggregate',subtype:'SPRINT',workstreamId:other.ws.id}})
+ await prisma.workItem.update({where:{id:other.items[0].id},data:{containerId:box.id}})
+ const command={...edgeCommand(f.items[0],other.items[0]),target:{type:'WORK_CONTAINER',id:box.id}}, {projectId,...base}=pipelinePlan(f,command)
+ const edge=await save({...base,kind:'DEPENDENCY_REGISTER',projectIds:[f.project.id,other.project.id].sort()},other.viewer,true),edgeId=edge.deltaReceipt.changes[0].id
+ const added=await save(pipelinePlan(other,{op:'node.create',type:'WORK_ITEM',clientRef:'new',parent:{type:'WORK_CONTAINER',id:box.id},fields:{code:'D-'+randomUUID().slice(0,8),title:'Delta child',subtype:'TASK'}}),other.viewer)
+ const deltaItem=added.deltaReceipt.changes.find(change=>change.type==='WORK_ITEM').id
+ expect(JSON.parse((await prisma.auditEvent.findUnique({where:{id:added.auditEventId}})).payloadJson).releaseScopes.find(scope=>scope.dependencyId===edgeId).successorItemIds).toContain(deltaItem)
+ const code='F-'+randomUUID().slice(0,8),full={schemaVersion:'1.0',scope:{workspaceCode:other.workspace.code},project:{code:other.project.code,name:other.project.name},workstreams:[{code:other.ws.code,name:other.ws.name,executionMode:'SOFTWARE_SPRINT',progressStrategy:'TASK_WEIGHT',containers:[{code:box.code,title:box.title,subtype:'SPRINT'}],items:[{code,title:'Full child',subtype:'TASK',containerCode:box.code}]}]}
+ const imported=await commitPlan(full,{viewer:other.viewer});expect(imported.committed).toBe(true)
+ const fullItem=await prisma.workItem.findUnique({where:{code}})
+ expect(JSON.parse((await prisma.auditEvent.findUnique({where:{id:imported.auditEventId}})).payloadJson).releaseScopes.find(scope=>scope.dependencyId===edgeId).successorItemIds).toContain(fullItem.id)
+ const {createItem}=await import('@/modules/project-manager/application/work-service'),crud=await createItem({workstreamId:other.ws.id,containerId:box.id,title:'CRUD child',subtype:'TASK'},{viewer:other.viewer})
+ await prisma.workItem.updateMany({where:{containerId:box.id},data:{containerId:null}});await prisma.workContainer.delete({where:{id:box.id}})
+ const state=await readPipelineState(prisma),audits=await readPipelineEvidence(prisma,state,{commands:[]},[other.project.id],other.tenant.id,[f.project.id,other.project.id])
+ for(const id of [deltaItem,fullItem.id,crud.id]) expect((await pipelineReleaseState(state,id,{tx:prisma,allowedProjectIds:[other.project.id],audits})).held).toBe(true)
+})

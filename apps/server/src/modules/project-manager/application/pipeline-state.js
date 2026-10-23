@@ -53,12 +53,17 @@ export function pipelineProposedRow(type, data) {
   }
   return row
 }
-export async function readPipelineState(tx) {
+export async function readPipelineState(tx, {gateProjectIds=[]} = {}) {
   const result = new Map()
   for (const [type, delegate] of Object.entries(PIPELINE_MODELS)) {
-    for (const row of await tx[delegate].findMany({ orderBy: { id: 'asc' } })) result.set(pipelineKey(type, row.id), { type, id: row.id, row: clonePipelineValue(row) })
+    for (const row of await tx[delegate].findMany({ orderBy: { id: 'asc' },...(type==='GATE'?{select:{id:true,projectId:true,workstreamId:true}}:{}) })) result.set(pipelineKey(type, row.id), { type, id: row.id, row: clonePipelineValue(row) })
   }
+  await hydratePipelineGates(tx,result,gateProjectIds)
   return result
+}
+export async function hydratePipelineGates(tx,state,projectIds) {
+  if(!projectIds.length) return
+  for(const row of await tx.gate.findMany({where:{projectId:{in:[...new Set(projectIds)]}},orderBy:{id:"asc"}})) state.set(pipelineKey("GATE",row.id),{type:"GATE",id:row.id,row:clonePipelineValue(row)})
 }
 export function pipelineRecord(state, reference) {
   const record = reference && state.get(pipelineKey(reference.type, reference.id))
@@ -139,9 +144,9 @@ export function pipelineReleaseScopes(state, projectIds) {
     const direction = pipelineOrdering(entry.row)
     if (!direction) continue
     try {
-      const predecessorProjectId = pipelineProjectId(state, direction.predecessor), successorProjectId = pipelineProjectId(state, direction.successor)
-      if (!projectIds.includes(predecessorProjectId) || !projectIds.includes(successorProjectId)) continue
-      scopes.push({ dependencyId: entry.id, predecessorProjectId, successorProjectId, predecessor: direction.predecessor, successor: direction.successor, successorItemIds: pipelineItems(state, direction.successor).map(row => row.id).sort() })
+      const successorProjectId = pipelineProjectId(state, direction.successor)
+      if (!projectIds.includes(successorProjectId)) continue
+      scopes.push({ dependencyId: entry.id, successorProjectId, successor: direction.successor, successorItemIds: pipelineItems(state, direction.successor).map(row => row.id).sort() })
     } catch { /* preserve the last accepted locator; never replace it with an empty one */ }
   }
   return scopes.sort((a, b) => a.dependencyId.localeCompare(b.dependencyId))
@@ -232,11 +237,24 @@ export async function pipelineReleaseState(state, itemId, { tx, allowedProjectId
     if (audit) {
       let validBusiness = false
       const endpointProjects=[pipelineProjectId(state,{type:edge.sourceType,id:edge.sourceId}),pipelineProjectId(state,{type:edge.targetType,id:edge.targetId})]
-      for (const id of endpointProjects) { const project=state.get(pipelineKey('PROJECT',id))?.row; const businessId=project?.businessId || (project?.workspaceId && (await tx.workspace.findUnique({where:{id:project.workspaceId}}))?.businessId); if (businessId === audit.businessId) validBusiness=true }
+      for (const id of endpointProjects) { const project=state.get(pipelineKey('PROJECT',id))?.row; const businessId=project?.businessId || (project?.workspaceId && (await tx.workspace.findUnique({where:{id:project.workspaceId}}))?.businessId); if (businessId === audit.businessId) { const business=await tx.business.findUnique({where:{id:businessId}}); if(business?.tenantId === audit.tenantId) validBusiness=true } }
       if (!validBusiness) status='INVALID'
     }
     if (status === 'DECLARED' || status === 'INVALID') blockers.push({ dependencyId: edge.id, predecessor: { ...direction.predecessor, label: predecessor.title || predecessor.name || predecessor.code, href: '/projects/' + pipelineProjectId(state, direction.predecessor) + '/board' }, state: status, reason: status === 'INVALID' ? 'EVIDENCE_UNAVAILABLE' : 'UNSATISFIED' })
   }
   blockers.sort((a, b) => a.dependencyId.localeCompare(b.dependencyId))
   return { held: blockers.length > 0, blockers: blockers.slice(0, 100), truncated: blockers.length > 100, restricted: false }
+}
+
+// Extend the writer's existing immutable audit with the current authorized target
+// membership; no extra receipt, event, or predecessor evidence is introduced.
+export async function pipelineScopeAudit(tx,reference,input) {
+  if(!await tx.dependency.findFirst({where:{contractJson:{not:null}},select:{id:true}})) return input
+  const state=await readPipelineState(tx),projectId=typeof reference==='string'?reference:pipelineProjectId(state,reference)
+  const project=state.get(pipelineKey('PROJECT',projectId))?.row
+  if(!project) throw pipelineError('SCOPE_UNAVAILABLE',404)
+  const businessId=project.businessId || (await tx.workspace.findUnique({where:{id:project.workspaceId}}))?.businessId
+  const business=businessId && await tx.business.findUnique({where:{id:businessId}})
+  if(!business) throw pipelineError('SCOPE_UNAVAILABLE',404)
+  return {...input,tenantId:business.tenantId,businessId:business.id,payload:{...(input.payload||{}),releaseScopes:pipelineReleaseScopes(state,[projectId])}}
 }

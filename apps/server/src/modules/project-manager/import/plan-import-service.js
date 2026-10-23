@@ -2,9 +2,9 @@ import { PIPELINE_TRANSACTION_OPTIONS, isPipelineReceiptConflict, pipelineReceip
 import { checkCatalogue, pipelineChanges } from './plan-delta-operations'
 import { PIPELINE_PROTECTED_WORK_STATUSES } from '@/lib/validation/enums'
 import { readablePipelineProjects } from '../application/handoff-evidence'
-import { readPipelineState, assertPipelineProgress, validatePipelineGraph, pipelineReleaseState, pipelineOrdering, pipelineProjectId, pipelineKey } from '../application/pipeline-state'
+import { readPipelineState, assertPipelineProgress, validatePipelineGraph, pipelineReleaseState, pipelineOrdering, pipelineProjectId, pipelineKey, hydratePipelineGates, pipelineScopeAudit } from '../application/pipeline-state'
 import { withPipelineTransaction, pipelineError, isPipelineTransaction, pipelineTransactionFacade, resolvePipelineImportViewer } from '../application/pipeline-transaction'
-import { dryRunPlanDelta, commitPlanDelta, readPipelineEvidence } from './plan-delta-service'
+import { dryRunPlanDelta, commitPlanDelta, readPipelineEvidence, pipelineReadableProjects } from './plan-delta-service'
 import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { normalizePlanEnvelope, zFullPlanEnvelope, validatePlanSemantics } from './plan-schema'
@@ -168,8 +168,8 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db = pris
  * pipeline inside its own single transaction. It defaults to the shared client,
  * so every existing caller is byte-for-byte unchanged.
  */
-export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } = {}) {
-  if (rawPlan?.schemaVersion === '1.3') return dryRunPlanDelta(rawPlan, { workspaceId, viewer, db })
+export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma,requestBodyBytes = null } = {}) {
+  if (rawPlan?.schemaVersion === '1.3') return dryRunPlanDelta(rawPlan, { workspaceId, viewer, db,requestBodyBytes })
   // Authorize the target BEFORE parsing the plan.
   const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db })
   if (target.error) return { valid: false, errors: [target.error], preview: null }
@@ -460,8 +460,9 @@ export async function commitPlan(rawPlan, {
   allocatedEntityIds = null,
   onTransactionFailure = null,
   receiptOnly = false,
+  requestBodyBytes = null,
 } = {}) {
-  if (rawPlan?.schemaVersion === '1.3') return commitPlanDelta(rawPlan, { workspaceId, viewer, db })
+  if (rawPlan?.schemaVersion === '1.3') return commitPlanDelta(rawPlan, { workspaceId, viewer, db,requestBodyBytes })
   if (!isPipelineTransaction(db)) {
     let failure = null
     try { return await withPipelineTransaction(db, async (tx, settings) => {
@@ -556,7 +557,7 @@ export async function commitPlan(rawPlan, {
 
     if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
     const replayStepKeys = plan.trace?.replayStepKeys || null
-    const pipelineBefore = await readPipelineState(tx)
+    const pipelineBefore = await readPipelineState(tx,{gateProjectIds:dry.existingProjectId?[dry.existingProjectId]:[]})
     await createExecutionTraceRows(tx, traceContext, {
       stepStatuses: Object.fromEntries(traceContext.steps.map((step) => [
         step.stepKey,
@@ -812,7 +813,7 @@ export async function commitPlan(rawPlan, {
       if (!existing) throw pipelineError('CONTRACT_REQUIRED')
     }
 
-    const pipelineAfter = await readPipelineState(tx), changed = pipelineChanges(pipelineBefore,pipelineAfter)
+    const pipelineAfter = await readPipelineState(tx,{gateProjectIds:[project.id]}), changed = pipelineChanges(pipelineBefore,pipelineAfter)
     assertPipelineProgress(pipelineAfter, [project.id])
     await validatePipelineGraph(pipelineBefore,pipelineAfter,changed)
     const protectedChanges = changed.filter(change=>{
@@ -821,20 +822,18 @@ export async function commitPlan(rawPlan, {
       return row && !row.deletedAt && PIPELINE_PROTECTED_WORK_STATUSES.includes(row.status) && (!old || old.status!==row.status || old.workstreamId!==row.workstreamId || old.containerId!==row.containerId)
     })
     if(protectedChanges.length) {
-      const business=await tx.business.findUnique({where:{id:workspace.businessId}}), readProjects=new Set([project.id])
-      for(const entry of pipelineAfter.values()) if(entry.type==='DEPENDENCY') {
-        const direction=pipelineOrdering(entry.row)
-        try { if(direction && pipelineProjectId(pipelineAfter,direction.successor)===project.id) readProjects.add(pipelineProjectId(pipelineAfter,direction.predecessor)) } catch { /* retained locator stays opaque */ }
-      }
-      const audits=await readPipelineEvidence(tx,pipelineAfter,{commands:[]},[project.id],business.tenantId)
-      const allowedProjectIds=await readablePipelineProjects(tx,[...readProjects],viewer)
+      const business=await tx.business.findUnique({where:{id:workspace.businessId}})
+      const allowedProjectIds=await pipelineReadableProjects(tx,pipelineAfter,[project.id],viewer)
+      await hydratePipelineGates(tx,pipelineAfter,allowedProjectIds)
+      const audits=await readPipelineEvidence(tx,pipelineAfter,{commands:[]},[project.id],business.tenantId,allowedProjectIds,viewer)
       for(const change of protectedChanges) {
         const row=pipelineAfter.get(pipelineKey(change.type,change.id)).row
         const release=await pipelineReleaseState(pipelineAfter,row.id,{tx,allowedProjectIds,audits,protectedStatus:row.status})
+        if(release.restricted) throw pipelineError('SCOPE_UNAVAILABLE',404)
         if(release.held) throw pipelineError('RELEASE_HELD',409)
       }
     }
-    const auditEvent = await recordAudit(tx, {
+    const auditEvent = await recordAudit(tx, await pipelineScopeAudit(tx,project.id,{
       entityType: 'PROJECT',
       entityId: project.id,
       action: 'PLAN_IMPORTED',
@@ -862,7 +861,7 @@ export async function commitPlan(rawPlan, {
         matchedByExternalId: dry.preview.matchedByExternalId,
         resultPreview: dry.preview,
       },
-    })
+    }))
 
     const previewHash = normalizedPayloadHash(dry.preview)
     for (const step of traceContext.steps.filter((candidate) => candidate.stepKey !== 'plan.commit')) {

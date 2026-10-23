@@ -1,5 +1,5 @@
 import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
-import { assertPipelineEndpointRetained } from './pipeline-state'
+import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import {
@@ -292,7 +292,7 @@ export async function archiveWorkstream(id, { viewer, db = prisma } = {}) {
     where: { id },
     data: { status: 'ARCHIVED', deletedAt: new Date(), version: { increment: 1 } },
   })
-  await recordAudit(db, { entityType: 'WORKSTREAM', entityId: id, action: 'ARCHIVED' })
+  await recordAudit(db, await pipelineScopeAudit(db,workstream.projectId,{ entityType: 'WORKSTREAM', entityId: id, action: 'ARCHIVED' }))
   return workstream
 }
 

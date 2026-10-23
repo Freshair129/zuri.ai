@@ -11,7 +11,7 @@ import { zPlanDelta, zRegisterDelta } from './plan-delta-schema'
 import { catalogue, compilePlanDelta, pipelineChanges, pipelineAggregateHash, requirePipelineHash } from './plan-delta-operations'
 import { canonicalJSON, entityHash, handoffHash, persistHandoffContract, readStoredHandoff } from '../application/handoff-contract'
 import { withPipelineTransaction, resolvePipelineAuthority, pipelineError, isPostgres } from '../application/pipeline-transaction'
-import { PIPELINE_MODELS, pipelineKey, readPipelineState, pipelineProjectId, pipelineRecord, pipelineReleaseState, clonePipelineValue, pipelineReadRows, pipelineReleaseScopes, pipelineOrdering } from '../application/pipeline-state'
+import { PIPELINE_MODELS, pipelineKey, readPipelineState, pipelineProjectId, pipelineRecord, pipelineReleaseState, clonePipelineValue, pipelineReadRows, pipelineReleaseScopes, pipelineOrdering, hydratePipelineGates } from '../application/pipeline-state'
 import { recordAudit } from '../application/audit'
 import { createExecutionTraceContext, createExecutionTraceRows, finishExecutionRun, finishExecutionStep } from '../application/execution-trace'
 
@@ -40,8 +40,8 @@ export function invalidPipelineEnvelope(zodError) {
   for (const issue of zodError.issues) visit(issue)
   return Object.assign(pipelineError('INVALID_ENVELOPE', 400), { validationIssues: [...paths].sort().slice(0, 50).map(path => ({ code: 'INVALID_ENVELOPE', path, message: 'INVALID_ENVELOPE' })) })
 }
-function parse(raw, register) {
-  if (Buffer.byteLength(JSON.stringify(raw) || '') > 1024 * 1024) throw pipelineError('PAYLOAD_LIMIT', 413)
+function parse(raw, register,requestBodyBytes) {
+  if (Math.max(requestBodyBytes||0,Buffer.byteLength(JSON.stringify(raw) || '')) > 1024 * 1024) throw pipelineError('PAYLOAD_LIMIT', 413)
   const result = (register ? zRegisterDelta : zPlanDelta).safeParse(raw)
   if (!result.success) throw invalidPipelineEnvelope(result.error)
   return result.data
@@ -49,41 +49,72 @@ function parse(raw, register) {
 function payloadHash(plan, actorPersonId, projectIds) {
   return handoffHash('pm-delta-payload:v1', { schemaVersion: plan.schemaVersion, kind: plan.kind, projectId: projectIds[0], ...(plan.kind === 'DEPENDENCY_REGISTER' ? { projectIds } : {}), actorPersonId, trace: plan.trace, commands: plan.commands })
 }
-export async function readPipelineEvidence(tx, state, plan, projectIds, tenantId) {
-  const ids = new Set(plan.commands.filter(command => command.op === 'undo').map(command => command.originalAuditEventId)), locators = []
+export async function readPipelineEvidence(tx, state, plan, projectIds, tenantId,readableProjectIds=projectIds,viewer=null) {
+  const ids=new Set(),locators=[]
+  for(const command of plan.commands.filter(command=>command.op==='undo')) {
+    const postgres=isPostgres(tx),bind=n=>postgres?'$'+n:'?',slots=projectIds.map((_,index)=>bind(index+3)).join(',')
+    const projection=postgres?`a."payloadJson"::jsonb->'projectIds'`:`json_extract(CASE WHEN json_valid(a."payloadJson") THEN a."payloadJson" ELSE '{}' END,'$.projectIds')`
+    const rows=await tx.$queryRawUnsafe(`SELECT a."id",${projection} AS projects FROM "AuditEvent" a WHERE a."id"=${bind(1)} AND a."tenantId"=${bind(2)} AND a."entityType"='PROJECT' AND a."entityId" IN (${slots})`,command.originalAuditEventId,tenantId,...projectIds)
+    let projects=rows[0]?.projects
+    if(typeof projects==='string') {try{projects=JSON.parse(projects)}catch{projects=null}}
+    if(!Array.isArray(projects) || canonicalJSON(projects)!==canonicalJSON(projectIds)) throw pipelineError('SCOPE_UNAVAILABLE',404)
+    ids.add(command.originalAuditEventId)
+  }
   for (const entry of state.values()) if (entry.type === 'DEPENDENCY' && entry.row.contractJson !== null) {
     const acceptance = readStoredHandoff(entry.row.contractJson)?.acceptance
     try {
       const successor = {type: entry.row.dependencyType === 'REQUIRES' ? entry.row.sourceType : entry.row.targetType, id: entry.row.dependencyType === 'REQUIRES' ? entry.row.sourceId : entry.row.targetId}
-      if (acceptance?.kind === 'MANUAL' && projectIds.includes(pipelineProjectId(state, successor))) ids.add(acceptance.decisionAuditEventId)
+      if (acceptance?.kind === 'MANUAL' && projectIds.includes(pipelineProjectId(state, successor)) && [pipelineProjectId(state,{type:entry.row.sourceType,id:entry.row.sourceId}),pipelineProjectId(state,{type:entry.row.targetType,id:entry.row.targetId})].every(id=>readableProjectIds.includes(id))) ids.add(acceptance.decisionAuditEventId)
     } catch {
       // Only a dangling successor needs its historical scope locator. Bound the
       // result per edge at the DB; never load every Tenant's lifetime of audits.
       const postgres = isPostgres(tx), bind = n => postgres ? '$'+n : '?'
       const projectSlots=projectIds.map((_,index)=>bind(index+3)).join(',')
-      const scoped=`a."tenantId"=${bind(1)} AND a."action" IN ('PLAN_DELTA_COMMITTED','BUNDLE_IMPORTED')`
-      const locator = postgres
-        ? `EXISTS (SELECT 1 FROM jsonb_array_elements(CASE WHEN jsonb_typeof(a."payloadJson"::jsonb->'releaseScopes')='array' THEN a."payloadJson"::jsonb->'releaseScopes' ELSE '[]'::jsonb END) x WHERE x->>'dependencyId'=${bind(2)} AND x->>'successorProjectId' IN (${projectSlots}))`
-        : `EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(a."payloadJson") THEN a."payloadJson" ELSE '{}' END, '$.releaseScopes') x WHERE json_extract(x.value,'$.dependencyId')=${bind(2)} AND json_extract(x.value,'$.successorProjectId') IN (${projectSlots}))`
-      const found=await tx.$queryRawUnsafe(`SELECT a."id" FROM "AuditEvent" a WHERE ${scoped} AND ${locator} ORDER BY a."occurredAt" DESC,a."id" DESC LIMIT 1`,tenantId,entry.id,...projectIds)
-      const event=found[0] && await tx.auditEvent.findUnique({where:{id:found[0].id}})
-      if (event) locators.push(event)
+      const scoped=`a."tenantId"=${bind(1)} AND a."action" IN ('PLAN_DELTA_COMMITTED','BUNDLE_IMPORTED','PLAN_IMPORTED','CREATED','UPDATED','DELETED','ARCHIVED')`
+      const match=postgres ? `x->>'dependencyId'=${bind(2)} AND x->>'successorProjectId' IN (${projectSlots})` : `json_extract(x.value,'$.dependencyId')=${bind(2)} AND json_extract(x.value,'$.successorProjectId') IN (${projectSlots})`
+      const source=postgres
+        ? `"AuditEvent" a CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN jsonb_typeof(a."payloadJson"::jsonb->'releaseScopes')='array' THEN a."payloadJson"::jsonb->'releaseScopes' ELSE '[]'::jsonb END) x`
+        : `"AuditEvent" a, json_each(CASE WHEN json_valid(a."payloadJson") THEN a."payloadJson" ELSE '{}' END, '$.releaseScopes') x`
+      const found=await tx.$queryRawUnsafe(`SELECT a."id",a."occurredAt",a."businessId",a."tenantId",${postgres?'x':'x.value'} AS locator FROM ${source} WHERE ${scoped} AND ${match} ORDER BY a."occurredAt" DESC,a."id" DESC LIMIT 1`,tenantId,entry.id,...projectIds)
+      if(found[0]) {
+        const row=found[0],locator=typeof row.locator==='string'?JSON.parse(row.locator):row.locator
+        let readable=false
+        try {
+          const direction=pipelineOrdering(entry.row),predecessorId=pipelineProjectId(state,direction.predecessor)
+          const scopes=await readablePipelineProjects(tx,[predecessorId,locator.successorProjectId],viewer)
+          if(scopes.includes(predecessorId) && scopes.includes(locator.successorProjectId)) {
+            const projects=await tx.project.findMany({where:{id:{in:scopes}},select:{businessId:true,workspace:{select:{businessId:true}}}})
+            readable=projects.some(project=>(project.businessId||project.workspace?.businessId)===row.businessId) && row.tenantId===tenantId
+          }
+        } catch { /* an opaque locator is structural proof only */ }
+        const full=readable && await tx.auditEvent.findUnique({where:{id:row.id}})
+        locators.push(full || {id:row.id,occurredAt:row.occurredAt,locatorOnly:true,payloadJson:canonicalJSON({releaseScopes:[locator]})})
+      }
     }
   }
-  const rows = await tx.auditEvent.findMany({ where:{id:{in:[...ids]}},orderBy:{id:'asc'} })
-  return [...new Map([...rows,...locators].map(row=>[row.id,row])).values()].sort((a,b)=>a.id.localeCompare(b.id))
+  let rows=[]
+  if(ids.size) {
+    const projects=await tx.project.findMany({where:{id:{in:readableProjectIds}},select:{businessId:true,workspace:{select:{businessId:true}}}})
+    const businessIds=[...new Set(projects.map(project=>project.businessId||project.workspace?.businessId).filter(Boolean))]
+    rows=await tx.auditEvent.findMany({where:{id:{in:[...ids]},tenantId,businessId:{in:businessIds}},orderBy:{id:'asc'}})
+  }
+  return [...new Map([...locators,...rows].map(row=>[row.id,row])).values()].sort((a,b)=>a.id.localeCompare(b.id))
+}
+export async function pipelineReadableProjects(tx,state,projectIds,viewer) {
+  const reads=new Set(projectIds)
+  for(const entry of state.values()) if(entry.type==='DEPENDENCY' && entry.row.contractJson!==null) {
+    const direction=pipelineOrdering(entry.row)
+    try {if(direction && projectIds.includes(pipelineProjectId(state,direction.successor))) reads.add(pipelineProjectId(state,direction.predecessor))} catch { /* opaque locator */ }
+  }
+  return [...new Set([...projectIds,...await readablePipelineProjects(tx,[...reads],viewer)])]
+
 }
 
 async function prepare(tx, plan, authority, projectIds) {
-  const before = await readPipelineState(tx), audits = await readPipelineEvidence(tx, before, plan, projectIds, authority.scopes[0].tenant.id)
-  const readProjects = new Set(projectIds)
-  for (const entry of before.values()) {
-    if (entry.type !== 'DEPENDENCY' || entry.row.contractJson === null) continue
-    const direction=pipelineOrdering(entry.row)
-    if (!direction) continue
-    try { if (projectIds.includes(pipelineProjectId(before,direction.successor))) readProjects.add(pipelineProjectId(before,direction.predecessor)) } catch { /* locator path remains restricted */ }
-  }
-  const readableProjectIds=await readablePipelineProjects(tx,[...readProjects],authority.viewer)
+  const before = await readPipelineState(tx)
+  const readableProjectIds=await pipelineReadableProjects(tx,before,projectIds,authority.viewer)
+  await hydratePipelineGates(tx,before,readableProjectIds)
+  const audits=await readPipelineEvidence(tx,before,plan,projectIds,authority.scopes[0].tenant.id,readableProjectIds,authority.viewer)
   const compiled = await compilePlanDelta(plan, { tx, state: before, projectIds, readableProjectIds, actorPersonId: authority.viewer.principal.id, audits })
   const first = authority.scopes[0]
   const rows = pipelineReadRows(before, projectIds, compiled.proposedContracts)
@@ -92,8 +123,8 @@ async function prepare(tx, plan, authority, projectIds) {
     authorityHash: handoffHash('pm-authority:v1', authority.rows), catalogueHash: handoffHash('pm-execution-catalog:v1', catalogue),
     graph: rows.filter(row => row.type === 'DEPENDENCY').map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
     entities: rows.filter(row => !['GATE', 'DEPENDENCY'].includes(row.type)).map(row => ({ type: row.type, id: row.id, hash: entityHash(row.type, row.row) })).sort((a, b) => a.type.localeCompare(b.type) || a.id.localeCompare(b.id)),
-    gates: rows.filter(row => row.type === 'GATE').map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
-    evidence: audits.map(row => ({ id: row.id, hash: entityHash('AUDIT_EVENT', clonePipelineValue(row)) })), resolutions: compiled.resolutions,
+    gates: rows.filter(row => row.type === 'GATE' && Object.hasOwn(row.row,'status')).map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
+    evidence: audits.filter(row=>!row.locatorOnly).map(row => ({ id: row.id, hash: entityHash('AUDIT_EVENT', clonePipelineValue(row)) })), resolutions: compiled.resolutions,
   }
   const releaseEffects = []
   for (const entry of compiled.state.values()) {
@@ -104,6 +135,7 @@ async function prepare(tx, plan, authority, projectIds) {
     const options = { tx, allowedProjectIds: readableProjectIds, audits }
     const old = before.has(pipelineKey(entry.type, entry.id)) ? await pipelineReleaseState(before, entry.id, options) : null
     const after = await pipelineReleaseState(compiled.state, entry.id, { ...options, proposedContracts: compiled.proposedContracts })
+    if ((!old || canonicalJSON(old) !== canonicalJSON(after)) && after.restricted) throw pipelineError('SCOPE_UNAVAILABLE',404)
     if (!old || canonicalJSON(old) !== canonicalJSON(after)) releaseEffects.push({ workItemId: entry.id, before: old, after })
   }
   releaseEffects.sort((a, b) => a.workItemId.localeCompare(b.workItemId))
@@ -152,9 +184,9 @@ async function applyCompiled(tx, prepared, provenance) {
   return actual
 }
 
-async function run(raw, { workspaceId, viewer, db = prisma, register = false } = {}, commit, receiptOnly = false) {
+async function run(raw, { workspaceId, viewer, db = prisma, register = false,requestBodyBytes = null } = {}, commit, receiptOnly = false) {
   try {
-    const plan = parse(raw, register), projectIds = register ? plan.projectIds : [plan.projectId]
+    const plan = parse(raw, register,requestBodyBytes), projectIds = register ? plan.projectIds : [plan.projectId]
     if (commit && !plan.expectedPreviewHash) throw pipelineError('INVALID_ENVELOPE', 400)
     if (!commit && plan.expectedPreviewHash !== null) throw pipelineError('INVALID_ENVELOPE', 400)
     return await withPipelineTransaction(db, async (tx, { postgres }) => {
@@ -193,7 +225,7 @@ async function run(raw, { workspaceId, viewer, db = prisma, register = false } =
       return response
     }, { write: commit })
   } catch (error) {
-    if(commit && !receiptOnly && isPipelineReceiptConflict(error)) return run(raw,{workspaceId,viewer,db,register},true,true)
+    if(commit && !receiptOnly && isPipelineReceiptConflict(error)) return run(raw,{workspaceId,viewer,db,register,requestBodyBytes},true,true)
     return pipelineFailure(error, !commit)
   }
 }

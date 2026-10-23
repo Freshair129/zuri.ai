@@ -150,6 +150,7 @@ export async function compilePlanDelta(plan, { tx, state: before, projectIds, re
       try { payload = JSON.parse(original?.payloadJson || 'null') } catch { /* handled below */ }
       if (!original || original.entityType !== 'PROJECT' || !projectIds.includes(original.entityId)) throw pipelineError('SCOPE_UNAVAILABLE', 404)
       if (!payload?.deltaReceipt) throw pipelineError('UNDO_CONFLICT',409)
+      if(!Array.isArray(payload.projectIds) || canonicalJSON(payload.projectIds)!==canonicalJSON(projectIds)) throw pipelineError('SCOPE_UNAVAILABLE',404)
       if (payload.deltaReceipt.inverseOfAuditEventId || payload.contractVersion !== '1') throw pipelineError('UNDO_CONFLICT', 409)
       const images=payload.stateImages, receipt=payload.deltaReceipt
       if (original.action !== 'PLAN_DELTA_COMMITTED' || !Array.isArray(images) || !images.length || images.length > 2000 || !Array.isArray(receipt.changes) || receipt.changes.length !== images.length) throw pipelineError('UNDO_CONFLICT',409)
@@ -165,6 +166,7 @@ export async function compilePlanDelta(plan, { tx, state: before, projectIds, re
       for (const image of payload.stateImages) {
         const current = state.get(pipelineKey(image.type, image.id))?.row
         requirePipelineHash(current ? entityHash(image.type, current) : null, image.after ? entityHash(image.type, image.after) : null, 'UNDO_CONFLICT')
+        if(image.type==='DEPENDENCY') for(const row of [image.before,image.after].filter(Boolean)) {scopeReference({type:row.sourceType,id:row.sourceId});scopeReference({type:row.targetType,id:row.targetId})}
         if (current && image.type !== 'DEPENDENCY') scopeReference(image)
         if (!image.before && image.type !== 'DEPENDENCY') {
           const descendants = pipelineDescendants(state, image)
@@ -203,6 +205,7 @@ export async function compilePlanDelta(plan, { tx, state: before, projectIds, re
     // A hierarchy move repeats aggregate membership checks even with the same status.
     if (old && old.status === row.status && old.workstreamId === row.workstreamId && old.containerId === row.containerId) continue
     const release = await pipelineReleaseState(activeState, row.id, { tx, allowedProjectIds: readableProjectIds, audits, proposedContracts, protectedStatus: row.status })
+    if (release.restricted) throw pipelineError('SCOPE_UNAVAILABLE',404)
     if (release.held) throw pipelineError('RELEASE_HELD', 409)
   }
   return { state, changes, proposedContracts, softDeletes, resolutions: resolutions.sort((a, b) => a.type.localeCompare(b.type) || a.code.localeCompare(b.code)) }

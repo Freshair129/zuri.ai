@@ -10,6 +10,8 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction } from './pipeline-writer'
 export { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction }
 
+const inactivePipelineScope=row=>['DELETED','ARCHIVED','SUSPENDED'].includes(row.status)
+
 // Lock current resolver inputs, not a caller-supplied grant list. Names below
 // are fixed code constants, values are bound parameters. The rows/fingerprints
 // stay internal and must never be added to response DTOs.
@@ -40,7 +42,7 @@ export async function resolvePipelineBusinessAuthority(tx, businessId, suppliedV
   if (!ownsBusiness(viewer, businessId)) throw pipelineError('SCOPE_UNAVAILABLE', 404)
   const business = await tx.business.findUnique({ where: { id: businessId } })
   const tenant = business && await tx.tenant.findUnique({ where: { id: business.tenantId } })
-  if (!business || !tenant || [business, tenant].some(row => ['DELETED', 'ARCHIVED', 'SUSPENDED'].includes(row.status))) throw pipelineError('SCOPE_UNAVAILABLE', 404)
+  if (!business || !tenant || [business, tenant].some(inactivePipelineScope)) throw pipelineError('SCOPE_UNAVAILABLE', 404)
   rows.push(...await currentRows(tx, 'Business', 'business', { id: business.id }, postgres, write))
   rows.push(...await currentRows(tx, 'Tenant', 'tenant', { id: tenant.id }, postgres, write))
   rows.push(...await currentRows(tx, 'Workspace', 'workspace', { businessId }, postgres, write))
@@ -57,7 +59,7 @@ export async function resolvePipelineAuthority(tx, projectIds, suppliedViewer, {
     const workspace = await tx.workspace.findUnique({ where: { id: project.workspaceId } })
     const business = await tx.business.findUnique({ where: { id: project.businessId || workspace?.businessId || '' } })
     const tenant = business && await tx.tenant.findUnique({ where: { id: business.tenantId } })
-    if (!workspace || !business || !tenant || (workspace.businessId && workspace.businessId !== business.id) || (workspace.tenantId && workspace.tenantId !== tenant.id) || [workspace, business, tenant].some(row => ['DELETED', 'ARCHIVED', 'SUSPENDED'].includes(row.status))) throw pipelineError('SCOPE_UNAVAILABLE', 404)
+    if (!workspace || !business || !tenant || (workspace.businessId && workspace.businessId !== business.id) || (workspace.tenantId && workspace.tenantId !== tenant.id) || [workspace, business, tenant].some(inactivePipelineScope)) throw pipelineError('SCOPE_UNAVAILABLE', 404)
     if (workspaceId && workspaceId !== workspace.id) throw pipelineError('SCOPE_UNAVAILABLE', 404)
     for (const [model, delegate, row] of [['Project', 'project', project], ['Workspace', 'workspace', workspace], ['Business', 'business', business], ['Tenant', 'tenant', tenant]]) {
       const lockedRows = await currentRows(tx, model, delegate, { id: row.id }, postgres, write)
@@ -78,7 +80,7 @@ export async function resolvePipelineImportViewer(tx, workspace, suppliedViewer,
   const key = rows[0]?.row
   const business = await tx.business.findUnique({ where: { id: workspace.businessId || '' } })
   const tenant = business && await tx.tenant.findUnique({ where: { id: business.tenantId } })
-  if (!key || key.status !== 'ACTIVE' || !business || !tenant || key.tenantId !== tenant.id || key.tenantId !== suppliedViewer.tenantId || [business,tenant].some(row=>['DELETED','ARCHIVED','SUSPENDED'].includes(row.status))) throw pipelineError('SCOPE_UNAVAILABLE',404)
+  if (!key || key.status !== 'ACTIVE' || !business || !tenant || key.tenantId !== tenant.id || key.tenantId !== suppliedViewer.tenantId || [business,tenant].some(inactivePipelineScope)) throw pipelineError('SCOPE_UNAVAILABLE',404)
   for (const [model,delegate,id] of [['Business','business',business.id],['Tenant','tenant',tenant.id]]) await currentRows(tx,model,delegate,{id},settings.postgres,true)
   await currentRows(tx,'Workspace','workspace',workspace.id ? {id:workspace.id} : {businessId:business.id},settings.postgres,true)
   return { isApiAccess:true,tenantId:key.tenantId,serviceAccountId:key.id }

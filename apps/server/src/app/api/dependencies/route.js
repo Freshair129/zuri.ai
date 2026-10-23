@@ -8,7 +8,7 @@ import { dryRunPlanDelta, commitPlanDelta, pipelineFailure, pipelineResponseStat
 // @req FR-046 — a dependency list resolves a trusted viewer and requires a
 // Project or visible Business scope before the compatibility read runs.
 // @tested tests/unit/authorization-seam-routes.test.js
-import { handle, httpError, queryParams } from '../_helpers'
+import { handle, httpError, queryParams, readPipelineBody } from '../_helpers'
 import prisma from '@/lib/db'
 import { listDependencies, createDependency } from '@/modules/project-manager/application/dependency-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
@@ -52,10 +52,10 @@ export async function GET(request) {
 export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    const body = await request.json()
+    const {body,requestBodyBytes} = await readPipelineBody(request)
     try {
       if (!body.plan) return await createDependency(body, { viewer })
-      const options = { viewer, register: true }
+      const options = { viewer, register: true,requestBodyBytes }
       const result = body.plan.expectedPreviewHash === null ? await dryRunPlanDelta(body.plan, options) : await commitPlanDelta(body.plan, options)
       return NextResponse.json(result, { status: pipelineResponseStatus(result) })
     } catch (error) {

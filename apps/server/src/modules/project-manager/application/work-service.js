@@ -1,5 +1,5 @@
 import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
-import { assertPipelineEndpointRetained } from './pipeline-state'
+import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zWorkContainerInput, zWorkItemInput, zWorkItemUpdate } from '@/lib/validation/entities'
@@ -118,7 +118,7 @@ export async function createItem(input, { viewer, db = prisma, expectedVersion }
       targetAt: data.targetAt ?? null,
     },
   })
-  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:item.workstreamId},{ entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } }))
   return item
 }
 
@@ -147,7 +147,7 @@ export async function updateItem(id, patch, { viewer, db = prisma, expectedVersi
       version: { increment: 1 },
     },
   })
-  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:existing.workstreamId},{ entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data }))
   return item
 }
 
@@ -165,7 +165,7 @@ export async function deleteItem(id, { viewer, db = prisma } = {}) {
     where: { id },
     data: { deletedAt: new Date(), status: 'CANCELLED', version: { increment: 1 } },
   })
-  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: id, action: 'DELETED' })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:existing.workstreamId},{ entityType: 'WORK_ITEM', entityId: id, action: 'DELETED' }))
   return item
 }
 

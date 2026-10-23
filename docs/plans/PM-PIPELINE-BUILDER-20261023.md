@@ -159,6 +159,16 @@ review and hosted CI listed above; no deployment or merge is inferred.
   RegisterDelta still contains exactly one command. Atomic identity replacement
   uses the adopted ProjectDelta command batch where applicable; this increment
   does not add a multi-command global register or an identity-edit UI.
+- Gate state begins as structural IDs and scope only, then hydrates complete rows
+  after Project read authorization. Manual audit reads are scoped before fetching
+  evidence. Opaque affected releases refuse the entire preview; a dangling edge's
+  structural locator is never substituted for a full AuditEvent fingerprint.
+  Successor membership changes refresh the locator in the same delta, import or
+  CRUD audit, including cross-Project aggregates. Project-local undo cannot widen
+  an original two-Project Register scope.
+- HTTP adapters retain actual UTF-8 body byte counts before JSON parsing discards
+  whitespace or duplicate keys; new protocols enforce the adopted 1 MiB limit
+  before graph expansion. The retained domain service bound remains in force.
 - PostgreSQL takes a utility table lock before its first MVCC SELECT, then the
   adopted advisory key, under Serializable isolation. SQLite acquires its writer
   reservation before graph facts. Receipt-key conflicts roll back before a fresh
