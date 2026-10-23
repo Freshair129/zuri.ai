@@ -22,6 +22,7 @@ test('real MemoryOS: signed grants, restarted recall, isolation, receipts, leave
     ZURI_MSP_ARGS: JSON.stringify([path.join(repo, 'apps/msp-server/bin/msp-server.mjs')]),
     ZURI_MSP_CWD: repo, MSP_DB_PATH: path.join(scratch, 'isolated.sqlite'),
     MSP_THREAD_SERVICE_KEY: key, MSP_IDENTITY_HMAC_KEY: randomBytes(32).toString('hex'),
+    MSP_IDENTITY_HMAC_KEY_VERSION: 'acceptance-v1', MSP_IDENTITY_HMAC_KEYRING: '',
     MSP_GKS_COMMAND: '', MSP_THREAD_SERVICE_KEYRING: '', MSP_THREAD_RETENTION_DAYS: '0' }
   const { buildGksChildEnv } = await import(pathToFileURL(path.join(repo, 'apps/msp-server/src/providers/gks-stdio-provider.mjs')))
   assert.ok(!Object.hasOwn(buildGksChildEnv(env), 'MSP_THREAD_SERVICE_KEY'))

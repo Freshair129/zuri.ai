@@ -46,6 +46,7 @@ function authorization({ writePrivate = false } = {}) {
 
 const readOnlyVaultSet = {
   workspacePrivateVaultId: 'opaque-workspace-vault',
+  principalPrivateVaultId: 'opaque-principal-vault',
   globalPrivateVaultIds: ['opaque-global-vault'],
   sharedVaultIds: ['opaque-shared-vault'],
   permissions: { read: true, writePrivate: false, writeShared: false, policyVersion: 'FR-057.v2' },
@@ -92,7 +93,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     }
   })
 
-  it('resolves the canonical set first and reads API-009 by opaque Workspace Private ID', async () => {
+  it('resolves the canonical set first and reads API-009 by signed opaque Principal Private ID', async () => {
     const transport = transportFor()
     const port = createMspMemoryPort({
       transport,
@@ -103,7 +104,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     expect(result.entries).toEqual([{ key: 'fact-1', value: 'canonical' }])
     expect(result.vaultSet).toEqual(readOnlyVaultSet)
     expect(transport.calls.map((call) => call.name)).toEqual(['msp_vault_resolve', 'msp_memory_list'])
-    expect(transport.calls[1].input).toEqual({ vault_id: 'opaque-workspace-vault' })
+    expect(transport.calls[1].input).toMatchObject({ vault_id: 'opaque-principal-vault', access: { grant: { operation: 'msp_memory_list' } } })
   })
 
   it('uses canonical write permission and never writes when MSP denies it', async () => {
@@ -127,7 +128,7 @@ describe('API-010 canonical MSP memory boundary (FR-057)', () => {
     })
     await writablePort.rememberAuthorized(authorization({ writePrivate: true }), { key: 'fact-3', value: 'yes' })
     const upsert = writableTransport.calls.find((call) => call.name === 'msp_memory_upsert')
-    expect(upsert.input.vault.vault_id).toBe('opaque-workspace-vault')
+    expect(upsert.input.vault.vault_id).toBe('opaque-principal-vault')
     expect(upsert.input.vault.vault_id).not.toContain('tenant:')
   })
 

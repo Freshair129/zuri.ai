@@ -1,3 +1,4 @@
+import { authorizeMemoryToolFixture } from '../factories/msp-memory-authorizer'
 import { describe, expect, it } from 'vitest'
 import { createMspMemoryPort } from '@/modules/agent/msp-memory-port'
 
@@ -8,9 +9,9 @@ import { createMspMemoryPort } from '@/modules/agent/msp-memory-port'
 function authorization() {
   const scope = { tenantId: 'tenant', businessId: 'business', workspaceId: 'workspace', projectId: 'project' }
   return {
-    authContext: { scope, actor: { principalId: 'person' }, request: { agentId: 'agent' },
+    authContext: { transport: { signatureVerified: true }, scope, actor: { principalId: 'person', identityVerified: true }, request: { agentId: 'agent' },
       conversation: { sessionId: 'caller-session', instanceId: 'worker', threadId: 'thread' },
-      policy: { decision: 'ALLOW', privateMemoryAllowed: true, episodicMemoryAllowed: true } },
+      policy: { decision: 'ALLOW', privateMemoryAllowed: true, episodicMemoryAllowed: true, mspAuthorization: { read: true, writePrivate: true } } },
     authorizedVaults: [{ scope: 'private', ...scope, principalId: 'person', agentId: 'agent' }],
   }
 }
@@ -22,9 +23,9 @@ function entity(version, value) {
 
 function fixture(transport) {
   let resolutions = 0
-  const port = createMspMemoryPort({ transport, vaultSetResolver: { resolve: async () => {
+  const port = createMspMemoryPort({ transport, vaultSetResolver: { authorizeMemoryTool: authorizeMemoryToolFixture, resolve: async () => {
     resolutions += 1
-    return { workspacePrivateVaultId: 'opaque-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
+    return { workspacePrivateVaultId: 'legacy-workspace-unused', principalPrivateVaultId: 'opaque-vault', globalPrivateVaultIds: [], sharedVaultIds: [],
       permissions: { read: true, writePrivate: true, writeShared: false, policyVersion: 'v1' } }
   } } })
   return { port, resolutions: () => resolutions }
@@ -86,7 +87,7 @@ describe('MSP memory lineage at the authorized port', () => {
     expect(recall.evidence).toMatchObject({ hasMore: true, sessionAuthority: 'NOT_ATTESTED_BY_API_009',
       callerContext: { sessionId: 'caller-session', instanceId: 'worker' },
       references: [{ memoryId: 'msp:entity-1', version: 3, entryIndex: 0 }] })
-    expect(calls).toEqual([{ name: 'msp_memory_list', args: { vault_id: 'opaque-vault' } }])
+    expect(calls).toEqual([{ name: 'msp_memory_list', args: { vault_id: 'opaque-vault', access: { grant: expect.objectContaining({ operation: 'msp_memory_list', tenantId: 'tenant', principalId: 'person', agentId: 'agent', workspaceId: 'workspace' }), signature: expect.stringMatching(/^[a-f0-9]{64}$/) } } }])
   })
 
   it('keeps the upsert revision distinct from a later recall revision and rechecks vault permission', async () => {

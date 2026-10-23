@@ -132,7 +132,7 @@ function authorizationFacts(authContext, operation) {
   }
 }
 
-function buildRequest(scope, actor, operation, serviceKey) {
+function buildRequest(scope, actor, operation, serviceKey, principalPrivate = false) {
   const payload = {
     actor,
     access_context: {
@@ -159,6 +159,10 @@ function buildRequest(scope, actor, operation, serviceKey) {
       workspaceId: scope.workspaceId,
       projectId: scope.projectId,
     }, payloadHash, serviceKey),
+    ...(principalPrivate ? { access: signedGrant('msp_vault_resolve', {
+      tenantId: scope.tenantId, principalId: scope.principalId,
+      agentId: scope.agentId, workspaceId: scope.workspaceId, allowPassport: false,
+    }, payloadHash, serviceKey) } : {}),
   }
 }
 
@@ -183,6 +187,8 @@ function validateVaultSet(result) {
   }
   return {
     workspacePrivateVaultId: value.workspacePrivateVaultId,
+    ...(typeof value.principalPrivateVaultId === 'string' && value.principalPrivateVaultId.trim()
+      ? { principalPrivateVaultId: value.principalPrivateVaultId } : {}),
     globalPrivateVaultIds: [...value.globalPrivateVaultIds],
     sharedVaultIds: [...value.sharedVaultIds],
     permissions: { ...permissions },
@@ -200,21 +206,26 @@ export function createMspVaultResolver({ transport, actor = DEFAULT_ACTOR, servi
   const parsedServiceKeyring = parseServiceKeyring(serviceKeyring)
 
   return {
-    async resolve(authorization, { operation = 'read' } = {}) {
+    async resolve(authorization, { operation = 'read', principalPrivate = false } = {}) {
       if (operation !== 'read' && operation !== 'write') {
         throw new Error('API-010 operation must be read or write')
       }
+      if (typeof principalPrivate !== 'boolean') throw new Error('API-010 principalPrivate must be boolean')
       const scope = currentScope(authorization)
       const key = serviceKeyFor({ tenantId: scope.tenantId, serviceKey, serviceKeyring: parsedServiceKeyring })
       for (let attempt = 0; attempt < 2; attempt += 1) {
         let result
         try {
-          result = await callTool('msp_vault_resolve', buildRequest(scope, canonicalActor, operation, key))
+          result = await callTool('msp_vault_resolve', buildRequest(scope, canonicalActor, operation, key, principalPrivate))
         } catch (error) {
           if (attempt === 0 && error?.code === 'vault_provision_conflict') continue
           throw error
         }
         const vaultSet = validateVaultSet(result)
+        if (principalPrivate && (!vaultSet.principalPrivateVaultId
+          || vaultSet.principalPrivateVaultId === vaultSet.workspacePrivateVaultId)) {
+          throw new Error('API-010 principal private vault required for episodic memory')
+        }
         if (operation === 'read' && vaultSet.permissions.read !== true) {
           throw new Error('API-010 denied read permission')
         }
@@ -224,6 +235,27 @@ export function createMspVaultResolver({ transport, actor = DEFAULT_ACTOR, servi
         return vaultSet
       }
       throw new Error('API-010 resolver exhausted its conflict retry')
+    },
+    // API-009 §4.11: the operation and complete body are signed for the current
+    // server-derived owner tuple. A Workspace vault is never a private fallback.
+    async authorizeMemoryTool(authorization, { operation, input } = {}) {
+      if (!['msp_memory_list', 'msp_memory_upsert'].includes(operation)) {
+        throw new Error('MSP private memory operation is not supported')
+      }
+      const scope = currentScope(authorization)
+      const permissions = authorizationFacts(scope.authContext, operation === 'msp_memory_upsert' ? 'write' : 'read')
+      if (operation === 'msp_memory_upsert' ? !permissions.write_private : !permissions.read) {
+        throw new Error('MSP private memory permission denied')
+      }
+      if (!input || typeof input !== 'object' || Array.isArray(input) || Object.hasOwn(input, 'access')) {
+        throw new Error('MSP private memory input must be an unsigned object')
+      }
+      const payload = JSON.parse(JSON.stringify(input))
+      const key = serviceKeyFor({ tenantId: scope.tenantId, serviceKey, serviceKeyring: parsedServiceKeyring })
+      return { ...payload, access: signedGrant(operation, {
+        tenantId: scope.tenantId, principalId: scope.principalId,
+        agentId: scope.agentId, workspaceId: scope.workspaceId,
+      }, createHash('sha256').update(JSON.stringify(payload)).digest('hex'), key) }
     },
   }
 }
