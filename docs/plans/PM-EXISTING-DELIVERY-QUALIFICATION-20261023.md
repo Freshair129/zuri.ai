@@ -3,7 +3,7 @@ id: ZAI:PM-EXISTING-DELIVERY-PLAN-20261023
 title: Existing PM delivery qualification plan
 doc_type: implementation-plan
 status: approved
-version: "0.5.0"
+version: "0.6.0"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -136,16 +136,21 @@ state what ran. Existing production migration/live-Business gaps remain explicit
 release contains Pipeline Builder. Read the current deployment runbook and
 ADR-097/104/112 on the actual target before mutation.
 
+**Current selected environment:** fresh isolated PM UAT only, pinned to merged
+PR727 source `5012c9bd`. The UAT checklist results below do not grant production
+authority. See the dated UAT evidence section for target, hashes and limitations.
+
 **Files:** prepare the selected release's existing deployment/runbook and current
 domain evidence paths. Review `scripts/production-migration-reconcile.mjs` and
 the exact `supabase/migrations/*.sql` files named by the selected cohort.
 
-- [ ] Identify the active app, image SHA, Compose project, database, volume, runtime role and migration ledger with read-only observations. Explicitly distinguish primary dev, UAT and production; loopback binding plus an active tunnel is still externally reachable.
-- [ ] Compare actual catalog/security effects to the exact migration manifest. ADR-104's September approved set is not blanket authority for later Feature/KPI/4DX/bootstrap SQL; any extension needs its own exact reviewed apply scope. Never replay destructive historical SQL, insert ledger rows manually or use `prisma db push` against production.
-- [ ] Prepare a logical snapshot, demonstrate recovery on an isolated empty target, verify file/schema/snapshot hashes and obtain the selected environment's authority. Then execute the existing rolled-back dry run before any separately approved apply. No credential values belong in tracked evidence.
-- [ ] Build/release the exact reviewed artifact in a separate configured runtime; do not promote by repointing the primary dev container/database. Preserve previous image/configuration for rollback and document the additive-data rollback boundary.
-- [ ] Run authenticated selected-Business acceptance: Feature reads/writes with foreign-scope refusal, strategy/KPI/WIG flow and bootstrap as applicable. Verify actual non-bypass-role isolation and approval flow if present. Health/login alone cannot close these cases.
-- [ ] Independently check exact remote head/base/reviews/CI, image/source parity and post-merge results. Record actual migration/deploy/activation and remaining gaps in current notes/roadmap; keep historical proof files unchanged.
+- [x] Identify the active app, image SHA, Compose project, database, volume, runtime role and migration ledger with read-only observations. Explicitly distinguish primary dev, UAT and production; loopback binding plus an active tunnel is still externally reachable.
+- [x] Compare actual catalog/security effects to the exact migration manifest. ADR-104's September approved set is not blanket authority for later Feature/KPI/4DX/bootstrap SQL; any extension needs its own exact reviewed apply scope. Never replay destructive historical SQL, insert ledger rows manually or use `prisma db push` against production.
+- [x] Prepare a logical snapshot, demonstrate recovery on an isolated empty target, verify file/schema/snapshot hashes and obtain the selected environment's authority. Then execute the existing rolled-back dry run before any separately approved apply. No credential values belong in tracked evidence.
+- [x] For the selected fresh UAT, build the exact reviewed artifact in a separate configured runtime and demonstrate reconstruction from its retained current image/configuration and restored database. Do not promote by repointing the primary dev container/database; document the additive-data recovery boundary.
+- [ ] For a later existing release target, preserve its previous image/configuration and demonstrate the applicable rollback boundary. This fresh UAT had no previous web image; this item remains outside the selected UAT acceptance.
+- [x] Run authenticated selected-Business acceptance: Feature reads/writes with foreign-scope refusal, strategy/KPI/WIG flow and bootstrap as applicable. Verify actual non-bypass-role isolation and approval flow if present. Health/login alone cannot close these cases.
+- [x] Independently check exact remote head/base/reviews/CI, image/source parity and post-merge results. Record actual migration/deploy/activation and remaining gaps in current notes/roadmap; keep historical proof files unchanged.
 
 **Exit:** only the selected environment/cohort is accepted. Missing access,
 unreviewed migration extensions or unavailable live actors remain blocked for
@@ -522,6 +527,10 @@ selected adapter/browser qualification and explicit hosted/release boundaries.
 
 ## B4 PR and release-readiness preparation — 2026-10-23
 
+This is the historical PR-preparation scope at `4c55bdb3`. The later owner-approved
+merge and isolated UAT increment below supersede its unstarted statements only
+within their explicit scopes; production remains outside both.
+
 The owner selected PR preparation, exact-head hosted CI and independent release
 readiness review, explicitly excluding PR merge and production. The product
 candidate combines locally accepted A1/B1/B2/B3 through `4c31ab99` with current
@@ -558,3 +567,156 @@ from earlier A1/B2/B3 commits remain dated evidence. B2's 124/126 then focused
 0.5.0 (2026-10-23): select B4 PR/CI/readiness preparation, reconcile current main
 and retain the unexecuted environment/release gates. Final hosted evidence lives
 in the PR description bound to its head; changing that text does not change head.
+
+
+## B4 isolated UAT environment acceptance — 2026-10-23
+
+**Authority and scope:** the owner selected isolated UAT migration/recovery,
+actual runtime-role proof and independent review, while continuing to exclude
+production. This execution evidence introduces no requirement, ownership,
+canonical status-row adoption or production migration authority. Acceptance is
+limited to the synthetic PM cohort and the exact artifact below.
+
+### Target and artifact identity
+
+| Observation | Verified value |
+|---|---|
+| Selected source | `5012c9bd053d841bd169be4fcfccc69254d9bafd`, actual PR727 merge; tree `4df24e8ea9ef93d8aaa4b65fc253b5b1504b12d0` |
+| Existing exact-source hosted evidence | Governance `39944729561`, Edge/Desktop `39944729621`, Docker build-only `39944729553` passed after merge; these were not rerun during this UAT. Hosted E2E remained skipped |
+| Later observed main | `fa10e309` (pricing PR728); not included in this fixed artifact. The reviewed PM/migration paths are unchanged; these UAT results do not certify later revisions |
+| Compose project | `zuri-pm-b4-uat-20261023`, created fresh for this task |
+| Source database/container | `pm_b4_uat` / `zuri-pm-b4-uat-20261023-db-1`; PostgreSQL 16, loopback `55447`, volume `zuri-pm-b4-uat-20261023_pm-db` |
+| Restore container/volume | `zuri-pm-b4-uat-20261023-restore-db-1`, loopback `55448`, separate volume `zuri-pm-b4-uat-20261023_pm-restore` |
+| Source app | `https://127.0.0.1:3147`, local TLS proxy to loopback `3148` / web container `3000` |
+| Recovered app | `https://127.0.0.1:3157`, local TLS proxy to loopback `3158`, same image, distinct `pm_b4_restore_final` database on restore container |
+| Runtime / maintenance | Actual `zuri_web_login` inherits `zuri_app_runtime`; both non-superuser/non-bypass, neither creates roles/databases or owns tables. `pm_b4_owner` is maintenance arrangement/recovery only; runtime environments contain no maintenance credential |
+| Isolation | New project, database, volumes, bridge and generated credentials; no data/config copied from pre-existing dev, UAT or production environments. Recovery uses this fresh UAT's own retained configuration. Loopback-only access and no tunnel. Dedicated bridge is **not an air gap** |
+| TLS | Self-signed local UAT certificate; only test clients ignore its trust. Secure cookies retained; no system trust-store change |
+| Image | `zuri-pm-b4-uat:5012c9bd`, immutable local ID `sha256:aa034dbc383fc61540eb5213856c78c6bc46cef9561a64fb0d848f548b57a426`; built from clean pinned Server source, not published |
+| Runtime projection parity | Container and pinned source SHA-256 both `2fb23105bc65e4be580c7ccb82a8c9942c0e2644e05bc61243b2f9d977d61135` |
+
+Primary dev, Knowledge Studio, older UAT and production stacks were not used as
+application/database targets. No production credential, query, mutation,
+migration, role/grant update, runtime replacement or activation was performed.
+
+### Migration scope and provenance
+
+The production reconciler is hard-bound to a production project/ref and its
+older cohort. It was **not invoked or spoofed** for UAT. The reviewed UAT wrapper
+uses the unchanged source SQL below. Fresh UAT has no pre-existing Prisma or
+Supabase migration ledger; no historical ledger rows were inserted. Provenance
+is the hashed bootstrap and actual eight-file execution manifest, not a claim
+that production migration lineage has been reconciled.
+
+The current generated bootstrap would create cohort tables without provider
+CHECK/RLS contracts. Before any application table existed, the UAT-only derived
+bootstrap omitted 17 tables (Feature six, trace two, approval one, KR two, KPI
+two, WIG four), the exact Goal/provisioning columns and provisioning index
+owned by this cohort. No live cohort table was dropped. That produced 192
+baseline tables. The subsequent original migrations produced 209 tables and
+17 forced-RLS cohort tables; the hardening also covers existing IAM tables.
+
+- Source bootstrap SHA-256: `26b7d190a5d0a83450eb57d293897181b1c152265152da07d54bb1068d9dbfbf`.
+- Derived pre-cohort bootstrap SHA-256: `3568356e29a7894d3c3ed4302cb85a71383d6842008db992d6ec18fa8d83fd81`.
+- Baseline catalog SHA-256: `27ee3e823dcc01f88aa7493e723d662aba2dff10611f47d7509ee8d2c0d83c6b`.
+- Applied catalog SHA-256: `157490fb6c856eccfb45773c79748e65a99d3ed9517280ebaeb425965ee15c13`.
+
+| Exact unchanged provider SQL | SHA-256 |
+|---|---|
+| [20260917041000_add_phase_b_feature_authority.sql](../../apps/server/supabase/migrations/20260917041000_add_phase_b_feature_authority.sql) | `9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3` |
+| [20260922120000_pm_execution_trace_replay.sql](../../apps/server/supabase/migrations/20260922120000_pm_execution_trace_replay.sql) | `7ae1116ed7fe966c5bdfd2dab9c5b74fadc4ff4fa1d7fb1ad9e69133de5337ec` |
+| [20260922130000_business_key_results.sql](../../apps/server/supabase/migrations/20260922130000_business_key_results.sql) | `46c20760a6f6a12ab8c5c791427034cdb08c5bcad851c32346992092b93cabb4` |
+| [20260923010000_pm_approval_gateway_admission.sql](../../apps/server/supabase/migrations/20260923010000_pm_approval_gateway_admission.sql) | `a2edb856eb1a281cfad9ba37fa813c438716c4a23e72d02f7459a1b42d2e7d3c` |
+| [20260923020000_pm_trace_and_iam_rls_hardening.sql](../../apps/server/supabase/migrations/20260923020000_pm_trace_and_iam_rls_hardening.sql) | `a9efd89d08f624da16f3785ae6bcc40274ec261c6d5d448eabd6ce3339506fcf` |
+| [20261012120000_business_kpis.sql](../../apps/server/supabase/migrations/20261012120000_business_kpis.sql) | `332e6b42f20bbb134bf8645890f0170240d4ab7b8f706a7680df9366eb9e8be5` |
+| [20261012162000_business_wig_execution.sql](../../apps/server/supabase/migrations/20261012162000_business_wig_execution.sql) | `b0c57b3c28a80655cc823fccf83524e1078a882731c465c0bd7fb2bd07a1d6b7` |
+| [20261015010000_standard_business_provisioning.sql](../../apps/server/supabase/migrations/20261015010000_standard_business_provisioning.sql) | `09617043cb18f365216b2fcd372d118c8e469c3ac127d39fcdee1231a3328cce` |
+
+The unrelated `20260813213654_production_tenant_bootstrap.sql` is excluded.
+Before apply, the baseline logical snapshot was restored onto a separate empty
+UAT volume/database and all catalog/security and row hashes matched. The dry
+run removed only the source files' outer BEGIN/COMMIT wrappers to run their
+contents in one enclosing transaction, then ROLLBACK verified catalog equality.
+A second dry run on the independently restored baseline also verified all 192
+tables' data hashes remained identical (zero rows). Actual apply then executed
+the eight original files once, preserving their original transactions. Provider
+constraint definitions, policies, owner and ACL were inspected after apply.
+
+### Selected UAT acceptance results
+
+| Proof | Actual result and acceptance boundary |
+|---|---|
+| Authenticated deployed Feature | PASS: actual HTTPS login/session/CSRF; create, edit, read, foreign Project read/write refusals; real Chromium view after selecting Business shows the persisted Feature |
+| SMART / progress | PASS: omitted date persisted null with Time-bound false, repeated Goal title Specific false, A/R null; check-in value 5 of target 10 rolls Goal to 50%; manual derived progress 409, newly changed past date 400 |
+| KPI / 4DX | PASS: real KPI observation90 / target100 / warning80 gives WARN; selected lag archive409; on recovered app two-WIG cap refuses third409 and Business version rolls back; stored UTC week maps to Bangkok Monday00:00 |
+| Business provisioning | PASS: authenticated FR074 self-service creates FR286 pinned snapshot/digest and one keyed default Space. Creator gets the existing Tenant-wide OWNER/SELF_PROVISION membership; no template-added RoleBinding. This is not a new bootstrap authority/grant |
+| Actual role attributes | PASS: current_user/session_user are `zuri_web_login`, inherited runtime role, no owner membership, no SUPERUSER/BYPASSRLS/CREATEDB/CREATEROLE; runtime app connections observed in UAT database |
+| Six protected Feature families | PASS: all six contain nonempty owned rows; no scope sees0, correct scope sees them, same-Tenant sibling scope leaks0, scope resets after commit; foreign UPDATE affects0, mismatched scoped INSERT fails42501 |
+| Provider security bounds | PASS: forced RLS and non-runtime ownership; policies bind both Tenant/Business settings; no PUBLIC/anon/authenticated/service_role grants or runtime grant options; no runtime TRUNCATE/TRIGGER, no UPDATE/DELETE on snapshot/receipt tables |
+| Approval Gateway | PASS: unmodified request/admission modules compiled from pinned source, real persisted Identity/runtime client; authenticated reviewer decision uses deployed HTTPS API. Requester self-approval conflicts, admission consumes once with stored receipt hash, second admission refuses. Synthetic execution input; no downstream external effect executed |
+| Scope caveat | KR/KPI/WIG/Approval policies use USING(true). Their database login is non-bypass, but cross-Business authorization is evidenced at authenticated application boundaries, not claimed as Feature-style DB isolation |
+| Full PostgreSQL recovery | PASS: 209-table catalog/columns/constraints/indexes/RLS/policies/ACL/owners and all235 rows' per-table hashes equal on separate restore volume. Cluster-global role attributes/membership recreated and compared independently. No public sequences/views/user triggers/functions exist in this fixture |
+| Protected JSON recovery | PASS: maintenance CLI EXPORTED; ordinary runtime export refused. Wrong checksum refused; clean-target preview READY then confirmed RESTORED. All209 model hashes /235 rows match, including all six protected families. Reapply to nonempty target refused TARGET_NOT_EMPTY |
+| Image/config recovery | PASS: image save/load verified, retained private configuration copied, actual recovered app uses same image and non-bypass role on restored DB; login, persisted Feature/progress, foreign-scope refusal and actual writes work. Runtime contains no maintenance password |
+| Review | GPT-6 Luna Max independently checked sanitized report/runner/SQL hashes, scoped container inspection and actual in-container runtime SELECTs; PASS for this exact isolated UAT artifact. Final documentation patch review is bound to the staged tree recorded with the commit |
+
+Retained full snapshot SHA-256: `5560d3b2a371c5ab5cb0ce7e73f7d375bceb08bdab708dc33f6eb25218f3660b`; catalog
+`157490fb6c856eccfb45773c79748e65a99d3ed9517280ebaeb425965ee15c13`; per-table data manifest
+`d3d91f908a7cee8f2ccd32ef0848dc93373f9a47f85b61e0e70f9dd4790d74fc`. Protected JSON byte checksum:
+`1e7093897d4ec3fec1b75022f22085938719dc161fa6678214c54b8ad12ba3ae`. Raw backups, local TLS private keys, credentials,
+image archive and operator files are ignored/local-only, never staged.
+
+### Execution record, recovery limits and handoff
+
+The reviewed execution helpers and sanitized reports are retained under the
+ignored `.local/pm-b4-uat-20261023/` directory; `evidence/evidence-manifest.json`
+hashes the reports and non-secret runner sources. Final manifest SHA-256: `366d2ce8b2d67deef39fd608cbd8a0920a22f99c468ba0350f14d7edbd279d02`. The reviewer accepted the executed UAT artifact and its stated limits; the final documentation delta is reviewed separately. Core commands were:
+
+```text
+node .local/pm-b4-uat-20261023/acceptance.cjs bootstrap
+node .local/pm-b4-uat-20261023/recovery.cjs dump baseline
+node .local/pm-b4-uat-20261023/recovery.cjs restore baseline
+node .local/pm-b4-uat-20261023/acceptance.cjs dry-run
+node .local/pm-b4-uat-20261023/acceptance.cjs apply
+node .local/pm-b4-uat-20261023/acceptance.cjs seed
+node .local/pm-b4-uat-20261023/http-acceptance.cjs
+node .local/pm-b4-uat-20261023/browser-acceptance.cjs
+node .local/pm-b4-uat-20261023/role-proof.cjs
+node .local/pm-b4-uat-20261023/runtime-write.cjs
+node .local/pm-b4-uat-20261023/recovery.cjs dump final
+node .local/pm-b4-uat-20261023/recovery.cjs restore final
+node .local/pm-b4-uat-20261023/recovery.cjs restore final schema-only
+node .local/pm-b4-uat-20261023/recovery.cjs json
+node .local/pm-b4-uat-20261023/attest.cjs
+node .local/pm-b4-uat-20261023/recovered-write.cjs
+node .local/pm-b4-uat-20261023/dryrun-restore.cjs
+```
+
+These are owned, one-run UAT execution helpers, not a portable production
+migration entrypoint. This is composed evidence: initial harness assumptions
+about the default public namespace, nested roadmap response, existing ownership
+400 status, Business UI selection, attempt-id lease, byte checksum, module
+packaging and node-pg parsing of UTC timestamp-without-time-zone were corrected.
+A recovered-app environment-file mistake was removed before acceptance; final
+source/recovered runtime inspections prove maintenance credentials absent.
+No application source or issued SQL was changed to make a check pass. Failed
+setup attempts are not silently promoted to a clean first-attempt suite. The
+successful HTTP steps preceded the corrected Business-selection browser rerun;
+full row/hash comparison preceded intentional writes on the recovered copy.
+
+Fresh UAT had no previous web image. Baseline recovery and current image/config
+reconstruction were demonstrated; no running-installation downgrade, destructive
+migration down, production rollback or off-host disaster recovery is claimed.
+File/object custody fixtures are empty: no binary/object/native-provider recovery
+is accepted here. Synthetic governance-family rows exercise retention/RLS only,
+not Git verifier/capture acceptance. No live-agent/provider effect is accepted.
+
+Selected UAT apps and their local TLS proxies remain loopback-only for review;
+private configuration/backup custody stays local. Source UAT snapshot is retained
+at235 rows; later write tests occurred on the recovered copy. Production remains
+unselected and untouched. C/Pipeline Builder and held canonical delivery rows
+remain excluded. Independent reviewer acceptance closes only B4's selected UAT qualification; any production release needs its own environment authority.
+
+0.6.0 (2026-10-23): record fresh isolated UAT migration, actual-role/API/browser,
+full/protected recovery and reconstructed-runtime evidence with explicit limits;
+canonical source statements/status holds and production remain unchanged.
