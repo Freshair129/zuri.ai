@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.8.4"
+version: "0.8.5"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -546,6 +546,27 @@ readyz_during_drain=503, container_health=healthy, providerCalls=1,
 completeCalls=1, sendCalls=1 and shutdown_exit=0. This is disposable hosted
 image qualification, not local Docker, a deployment or live LINE acceptance.
 
+## Qualification and integration of main after PR 726
+
+Head 53fac5d6480ad7ba9eaf34d6506b3c239104ff65 passed governance run
+39934133610 and Edge run 39934133528: 13 successful checks and 2 policy skips
+(E2E and Desktop). The binary lineage file passed all four cases in 4785 ms;
+Server shard 1 passed 2163 tests with 7 skips, then PostgreSQL passed all
+158 tests across 17 files. The fresh real Linux container drain smoke also
+passed health, readiness, one send/completion and shutdown checks. The earlier
+timeout remains failed evidence; the successful run does not diagnose its cause.
+
+Before merge, main advanced from 55f9413b to 3a44bd18 through PR 726. The
+integration preserves its scoped E2E fixtures, Knowledge Studio graph setup and
+Marketing transaction correction. Only the generated runtime domain-state file
+conflicted; it is rebuilt with the graph and document-view generators from the
+combined source. No generated JSON is concatenated and no canonical identity or
+product permission changes. Fresh composed-head CI remains required before
+merging PR 725; the earlier successful run qualifies its own head only. The
+four-file Marketing, E2E warm-up, Business Home read-model and binary-lineage
+regression group passed 57/57 on the combined source. Independent Luna Max
+review found no P1/P2 in the incoming main delta.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -590,3 +611,7 @@ recovery authority or rewriting earlier hosted evidence.
 local Node 22 shard comparison, the bounded test-budget correction and the
 actual hosted container drain proof without claiming a diagnosed performance
 cause or production acceptance.
+
+0.8.4 to 0.8.5 records the successful exact-head hosted qualification and the
+subsequent main integration boundary, keeping the new composed-head gates
+separate from the prior passing run.
