@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.4.9b"
+version: "1.4.10b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-09-26T05:00:00+07:00,Claude Opus 5.5"
+last_update: "2026-10-23,Codex"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -17,6 +17,11 @@ relations:
 ---
 
 # GenesisRAG17 — execution flow and extension map
+
+Version 1.4.10b adopts the approved Knowledge capability accountability and
+solo-operator staffing clarification. Current component, stage, wire and
+publication authority remain unchanged; operational scheduling guidance is
+linked from the ownership section.
 
 Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 
@@ -63,6 +68,23 @@ flowchart TD
 | [MSP](https://github.com/Freshair129/Memory-and-Soul-Passport/tree/codex/ki17-integration), Tier 2 | runtime credential, exact scope/role checks, relay; **ไม่มี stage** | source และ worker ใช้ grant คนละ role; relay ไป GKS และ query ไป worker loopback |
 | [GKS](https://github.com/Freshair129/Genesis-Knowledge-System/tree/codex/ki17-integration), Tier 3 | Stage 9–14 decisions, canonical knowledge, Stage 17 quality verdict, durable receipts/evidence | เป็น passive server; ไม่เรียก GenesisBlock ออกไปเอง |
 | [GenesisBlock worker](https://github.com/Freshair129/GenesisBlock/tree/codex/ki17-integration/genesisrag17-worker), Tier 4 | physical Stage 13, Stage 15–16, physical publication ของ Stage 17 และ query | แพ็กเกจแยกจาก engine; ดึงงาน/ส่ง receipts ผ่าน MSP; process เดียวถือ native store |
+
+### End-to-end accountability (2026-10-23)
+
+Knowledge owns Zuri's complete admission-to-serving capability outcome, while
+the table above retains each component's execution/data authority. The user is
+sole product owner, developer and operator; these are roles one person holds,
+not a requirement for four separate teams. GKS remains the external canonical
+knowledge/quality authority, and cannot by itself own Zuri admission or current
+serving authorization. See the
+[approved design](change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md),
+[Knowledge charter](domains/knowledge/CHARTER.md) and
+[operations](runbooks/GENESISRAG17-OPERATIONS.md).
+
+Current source paths in the locator table below already target Core
+orchestration. The process-local worker scheduler supplies bounded backoff and
+safe status/observers without changing stages, wire, receipts or durable attempts.
+Its successful pass is not proof that a run or corpus has completed.
 
 ## Flow ที่รันจริง
 

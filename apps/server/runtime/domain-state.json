@@ -3001,7 +3001,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-110",
@@ -3089,7 +3089,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 53
+          "testCount": 55
         },
         {
           "id": "FR-187",
@@ -3815,7 +3815,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-110",
@@ -3911,7 +3911,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 53
+          "testCount": 55
         },
         {
           "id": "FR-187",
@@ -6350,7 +6350,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-110",
@@ -6622,7 +6622,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 53
+          "testCount": 55
         },
         {
           "id": "FR-174",
@@ -9018,8 +9018,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 18,
-          "testCount": 52
+          "codeCount": 19,
+          "testCount": 55
         },
         {
           "id": "FR-110",
@@ -9043,7 +9043,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 27,
-          "testCount": 53
+          "testCount": 55
         },
         {
           "id": "FR-254",
@@ -9196,6 +9196,8 @@
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
+        "apps/server/tests/unit/knowledge-runtime-loop.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-s3-object-storage.test.js",
         "apps/server/tests/unit/knowledge-stage-runner.test.js",

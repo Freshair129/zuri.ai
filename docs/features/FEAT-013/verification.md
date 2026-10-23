@@ -20,6 +20,7 @@ status: generated
 
 - [apps/server/src/app/api/pipelines/knowledge/\[executionRunId\]/route.js](../../../apps/server/src/app/api/pipelines/knowledge/%5BexecutionRunId%5D/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/pipelines/runs/route.js](../../../apps/server/src/app/api/pipelines/runs/route.js) — `implements` (`annotation`)
+- [apps/server/src/instrumentation.js](../../../apps/server/src/instrumentation.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/genesisrag17-contract.js](../../../apps/server/src/modules/knowledge/genesisrag17-contract.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js](../../../apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/genesisrag17-source.js](../../../apps/server/src/modules/knowledge/genesisrag17-source.js) — `implements` (`annotation`)
@@ -40,6 +41,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/acceptance/genesisrag17-e2e.test.js](../../../apps/server/tests/acceptance/genesisrag17-e2e.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/acceptance/knowledge-admission-native.test.js](../../../apps/server/tests/acceptance/knowledge-admission-native.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -80,6 +82,8 @@ status: generated
 - [apps/server/tests/unit/knowledge-ingestion-job-state.test.js](../../../apps/server/tests/unit/knowledge-ingestion-job-state.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-ingestion-job.test.js](../../../apps/server/tests/unit/knowledge-ingestion-job.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-published-snapshot-contract.test.js](../../../apps/server/tests/unit/knowledge-published-snapshot-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/knowledge-runtime-instrumentation.test.js](../../../apps/server/tests/unit/knowledge-runtime-instrumentation.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/knowledge-runtime-loop.test.js](../../../apps/server/tests/unit/knowledge-runtime-loop.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-runtime.test.js](../../../apps/server/tests/unit/knowledge-runtime.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-s3-object-storage.test.js](../../../apps/server/tests/unit/knowledge-s3-object-storage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-tracking-route.test.js](../../../apps/server/tests/unit/pipeline-tracking-route.test.js) — `verifies` (`transitive`)
@@ -251,6 +255,8 @@ status: generated
 - [apps/server/tests/unit/knowledge-documents-withdrawal.test.js](../../../apps/server/tests/unit/knowledge-documents-withdrawal.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-http.test.js](../../../apps/server/tests/unit/knowledge-http.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-published-snapshot-contract.test.js](../../../apps/server/tests/unit/knowledge-published-snapshot-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/knowledge-runtime-instrumentation.test.js](../../../apps/server/tests/unit/knowledge-runtime-instrumentation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/knowledge-runtime-loop.test.js](../../../apps/server/tests/unit/knowledge-runtime-loop.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-runtime.test.js](../../../apps/server/tests/unit/knowledge-runtime.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-s3-object-storage.test.js](../../../apps/server/tests/unit/knowledge-s3-object-storage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-mcp-transport.test.js](../../../apps/server/tests/unit/pipeline-mcp-transport.test.js) — `verifies` (`transitive`)

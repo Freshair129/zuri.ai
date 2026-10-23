@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-CONTRACT
 title: GenesisRAG17 isolated execution wire contract
-version: "1.4.5b"
+version: "1.4.6b"
 status: active
 created_at: "2026-09-07T23:00:00+07:00,RWANG"
-last_update: "2026-09-25T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-10-23,Codex"
 attributes:
   domain: knowledge
   scope: isolated seventeen-stage acceptance implementation
@@ -14,6 +14,10 @@ relations:
 ---
 
 # Approved GenesisRAG17 implementation contract
+
+Version 1.4.6b adds approved capability accountability and bounded local
+worker-scheduling guidance. Parent ADR-073 authority, wire fields, durable
+attempts, stage ownership and external deployment pins remain unchanged.
 
 Version 1.3.1b records the user-approved code-audit remediation; wire `genesisrag17.v1` is unchanged.
 Version 1.4.0b records ADR-075 D6 / FR-188 (structured-record profile, contract revision 2):
@@ -36,6 +40,22 @@ User approval: explicit implementation request in this task, 2026-09-07. C-3 / H
 Tier 1 owns versioned RawExternalRecord -> ParsedArtifact -> Chunk persistence and source resolution. New versions append rows. Tier 2 MSP authenticates, authorizes and relays; it owns no stage, content store or pipeline cursor. GKS is passive canonical resolution/fact/ontology/temporal/graph-decision and final quality authority. Tier 4 pulls through MSP, owns physical graph/vector/index writes and physical publication. No Tier 1 direct GKS or Tier 4 client. Every source mention occurrence retains a separate sourceMentionId and semanticType, independent of the resolution key.
 
 ## Wire v1 (frozen before implementation)
+
+Operational accountability follows the approved
+[ownership design](../change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md):
+Knowledge owns Zuri's integration outcome; GKS retains knowledge/quality,
+MSP trust/relay and the worker physical publication. The user's sole
+product/development/operations ownership does not merge those system authorities.
+Cross-repository source/artifact revisions and actual provider/consumer/native
+qualification belong in existing release evidence. Current source inspection is
+not a deployment upgrade or a substitute for executed acceptance.
+
+Local source/admission process loops use bounded infrastructure backoff and
+process-local diagnostics. Scheduling retries keep the existing immutable
+outbox and attempt. A retry-burst budget controls cooldown frequency rather
+than manufacturing terminal evidence or abandoning admitted work. Observer
+failure cannot decide an ingestion outcome. The wire below is unchanged;
+see [operations](../runbooks/GENESISRAG17-OPERATIONS.md).
 
 All new pipeline messages use camelCase and `schemaVersion: "genesisrag17.v1"`. Legacy promotion/evidence APIs remain readable and unchanged. JSON SHA256 uses recursively sorted object keys, arrays in original order, UTF-8, no whitespace. Hash helpers must reject non-JSON numbers. Text hashes are SHA256 of exact UTF-8 content. Times are ISO UTC. Pipeline scope is the six-field shape `{portfolioId,tenantId,businessId,workspaceId,agentId,visibility}`; all fields are explicit strings (unused workspace/agent empty), visibility private for acceptance. Equality is exact across all six fields. At the legacy GKS resolver boundary, preserve workspaceId, set projectId to empty and map visibility to sharing; agentId is never a projectId. Never derive identity/authorization from caller `actor`.
 
