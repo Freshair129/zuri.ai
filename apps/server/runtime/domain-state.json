@@ -7114,7 +7114,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         },
         {
           "id": "FR-273",
@@ -18692,7 +18692,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 3
+          "testCount": 4
         }
       ],
       "evidence": [
@@ -18702,6 +18702,7 @@
         "apps/server/src/modules/project-manager/application/approval-gateway.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/project-approval-gateway.test.js",
+        "apps/server/tests/postgres/project-approval-gateway-races.test.js",
         "apps/server/tests/unit/production-migration-reconciliation.test.js"
       ]
     },

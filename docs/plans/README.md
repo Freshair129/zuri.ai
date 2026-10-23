@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.0"
+version: "0.3.1"
 checked_at: "2026-10-23"
 checked_base_revision: "e3474ef3c16b5cc5b6e797c63e69d6dc202c191f"
 ---
@@ -23,8 +23,10 @@ rewrite those pinned rows or move their consumed paths.
 ## Current implementation plans
 
 The owner approved the linked PM SRS and explicitly requested the following
-plans on 2026-10-23. The plans remain proposed for review before coding; they are
-ordinary implementation documents, separate from retired DDC procedures.
+plans on 2026-10-23, then approved the package at `c291afcd` and authorized A1
+with tests and independent review first. Tracks B/C remain unstarted; Pipeline
+contract adoption remains separate. These are ordinary implementation documents,
+separate from retired DDC procedures.
 
 | Plan | Scope |
 |---|---|
@@ -34,7 +36,7 @@ ordinary implementation documents, separate from retired DDC procedures.
 | [Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Contract adoption before the four design-gated FR-082–085 implementation slices. |
 
 Enumeration for this plan addition: fourteen direct files, no child directories
-(the nine retained sources below, this README, and four new proposed plans).
+(the nine retained sources below, this README, and four approved plans).
 
 ## Retained files
 
@@ -78,3 +80,5 @@ links the dated gap assessment. No requirement, ID, ownership or task status cha
 0.2.0 → 0.3.0 (2026-10-23): add the explicitly requested proposed PM plan package
 after owner approval of the linked SRS. Preserve cleanup history and retained
 contracts; no application work or production activation is recorded as done.
+
+0.3.1 (2026-10-23): record owner approval of the package and selection of A1; preserve the separate Pipeline and release gates.

@@ -2,10 +2,12 @@
 id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
-status: proposed
-version: "0.1.0"
+status: approved
+version: "0.1.2"
+approved_at: "2026-10-23"
+approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
-execution_status: not-started
+execution_status: in-progress
 relations:
   - type: references
     target: ZAI:PM-DOMAIN-SRS
@@ -27,7 +29,7 @@ relations:
 
 ## Global Constraints
 
-- Planning is authorized by the owner's 2026-10-23 instruction to prepare a plan before coding. All task checkboxes remain unchecked; plan review precedes implementation.
+- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first. Tracks B/C remain unstarted; C0 contract adoption and external release authority remain separate.
 - Canonical statements, explicit FEAT membership and subject anchors remain pinned. This SRS approval is not approval of a canonical-row migration or of the wider PMR candidate.
 - Execution modes remain `SOFTWARE_SPRINT`, `DATA_MIGRATION`, `B2B_SALES`, `B2C_CAMPAIGN`, `PRODUCT_LAUNCH`, `OPERATIONS`, `BUSINESS_EXPANSION`; consume their existing enum/contract source.
 - Preserve Tenant isolation, Business operation, Project ownership, strategy-weighted progress and the current neutral work model. Team and Employment never supply access grants.
@@ -74,8 +76,8 @@ from Track C because the selected FEAT's source already names them.
 
 | Plan | Independently reviewable deliverable | Dependencies | May start coding now? |
 |---|---|---|---|
-| [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | No; this turn produces plans only |
-| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | No; external/live steps also need the selected environment's authority |
+| [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
+| [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | Not selected for this increment; external/live steps also need the selected environment's authority |
 | [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | No; ADR-035 is still design-only |
 
 ```mermaid
@@ -134,7 +136,7 @@ decisions for review, not existing runtime contracts or new canonical authority.
 | Canonical status-row repair | B1 may prepare the precise migration proposal, but cannot label an unapproved migrated row source-preserved or repair hashes/ledger manually |
 | Actual runtime-role grant/credential changes | B2 can qualify isolated roles. External role configuration and real-role proof belong to the environment owner and ADR-097 release boundary |
 | Historical document-20 developer procedures | Retired by ADR-113; no current task packet, rule-check, G0 or DDC receipt is introduced |
-| Planning-time verification | Governance/profile/corpus and independent plan review only. Every application command in the subplans is scheduled, not reported as run |
+| Planning-time verification | At initial plan drafting, only governance/profile/corpus and independent plan review ran; application commands were scheduled. A1 execution results are now recorded below; B/C commands remain scheduled |
 
 ## 6. Self-review and version history
 
@@ -148,3 +150,16 @@ row has a named owning task and test cases in that subplan.
 | Version | Date | Change |
 |---|---|---|
 | 0.1.0 | 2026-10-23 | Initial proposed plan package against e1014247 and the explicitly approved linked SRS; implementation, production and candidate adoption remain unstarted |
+
+0.1.1 (2026-10-23): owner approved the plan package at c291afcd and selected A1 for execution with tests/review. Wider candidate and Pipeline contract adoption remain excluded.
+
+## Current execution state — 2026-10-23
+
+A1 is accepted locally at `6888ecc629cca769866d8cc2f715cb5414746c5f`; its
+[source-linked evidence](../domains/project-manager/features/FR-272-approval-gateway-admission.md#a1-acceptance-evidence--2026-10-23)
+records PostgreSQL contention/audit proofs, related SQLite checks, build and
+independent review. It also records the reproduced stale-Identity-authority defect
+and correction. Hosted CI/merge and release remain separate. B1–B4 and C0–C4 are
+unstarted; the next planned unit is B1. No later unit was executed by A1 approval.
+
+0.1.2 (2026-10-23): record A1's local result without closing the remaining PM plan.

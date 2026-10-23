@@ -2,8 +2,10 @@
 id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
-status: proposed
-version: "0.1.0"
+status: approved
+version: "0.1.1"
+approved_at: "2026-10-23"
+approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
 relations:
   - type: references
@@ -177,3 +179,5 @@ registered tools and import cannot bypass the same check.
 0.1.0 (2026-10-23): initial proposed gated plan. C0 identifies source gaps in
 transport, undo, move and release semantics; C1–C4 are not authorized to guess
 them or implement the wider PM candidate.
+
+0.1.1 (2026-10-23): owner approved the implementation-plan package at c291afcd; only A1 is selected for this increment. Track B/C execution and C0 contract adoption remain unstarted.

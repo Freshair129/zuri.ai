@@ -2,8 +2,10 @@
 id: ZAI:PM-EXISTING-DELIVERY-PLAN-20261023
 title: Existing PM delivery qualification plan
 doc_type: implementation-plan
-status: proposed
-version: "0.1.0"
+status: approved
+version: "0.1.1"
+approved_at: "2026-10-23"
+approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
 relations:
   - type: references
@@ -149,3 +151,5 @@ this task; local qualification work can still be delivered independently.
 
 0.1.0 (2026-10-23): initial proposed existing-delivery qualification plan.
 No command above has been executed as application acceptance during planning.
+
+0.1.1 (2026-10-23): owner approved the implementation-plan package at c291afcd; only A1 is selected for this increment. Track B/C execution and C0 contract adoption remain unstarted.
