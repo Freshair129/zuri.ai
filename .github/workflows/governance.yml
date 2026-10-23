@@ -893,6 +893,12 @@ jobs:
           echo "Determining impacted e2e targets from changed files..."
           printf '%s\n' "$changed" | node scripts/ci-select-e2e.mjs $select_args >> "$GITHUB_OUTPUT"
 
+      # FR-289 reads the real generated graph at runtime. Jobs have independent
+      # filesystems: the govern/tests jobs do not populate the E2E checkout.
+      - name: Build the document graph for Knowledge Studio
+        if: steps.select-e2e.outputs.skip != 'true'
+        run: npm run docs:graph
+
       # The e2e server is production-built so route compilation cannot consume
       # a spec's test budget. The dev-only warm-up remains the local default;
       # CI does not need it once `next start` has a complete build. The build

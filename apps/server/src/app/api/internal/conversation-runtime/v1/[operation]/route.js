@@ -5,16 +5,16 @@ import { createConversationRuntimeCore } from '@/modules/line-oa-studio/applicat
 // @tested tests/integration/conversation-runtime-vertical-slice.test.js
 export const dynamic = 'force-dynamic'
 
-export function createConversationRuntimeRouteHandlers(core = createConversationRuntimeCore()) {
+export function createConversationRuntimeRouteHandlers(core = createConversationRuntimeCore(), { contractVersion = 'conversation-runtime.v1' } = {}) {
   return Object.freeze({
     async GET(request, { params }) {
       const { operation } = await params
       if (operation !== 'health') return new Response(null, { status: 404 })
-      return core.handle(request, { health: true })
+      return core.handle(request, { health: true, contractVersion })
     },
     async POST(request, { params }) {
       const { operation } = await params
-      return core.handle(request, { operation })
+      return core.handle(request, { operation, contractVersion })
     },
   })
 }

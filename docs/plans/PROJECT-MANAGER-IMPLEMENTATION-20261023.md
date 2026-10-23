@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.5"
+version: "0.1.6"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -188,3 +188,11 @@ related regressions 144/144, generated consumers 51/51 and browser 23/23. Build
 and governance passed; independent review covers the final composed patch.
 Hosted exact-head CI has not run and remains required before merge. B4/C and
 production remain unstarted; held canonical status migrations remain held.
+
+
+0.1.6 (2026-10-23): owner selected the [B4 PR/hosted-CI/readiness preparation](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b4-pr-and-release-readiness-preparation--2026-10-23)
+subscope with no merge or production. The candidate incorporates main `77be99c8`;
+final composed checks, independent review and hosted runs are recorded in the PR
+against its exact head. B4 environment/release acceptance remains unexecuted;
+C and held canonical migrations remain excluded. Earlier unstarted B4 statements
+are superseded only for this preparation subscope.

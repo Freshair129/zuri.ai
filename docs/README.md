@@ -71,6 +71,10 @@ reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md
 
 ## Domain ownership and service execution
 
+- [Approved GenesisRAG17 ownership and reliability design](change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md)
+  and [implementation plan](change-requests/knowledge/genesisrag17-implementation-20261023.md)
+  retain four repositories, Knowledge capability accountability and explicit
+  component authority. [Operations](runbooks/GENESISRAG17-OPERATIONS.md) explains recovery and qualification.
 - [Domain index](domains/README.md) lists confirmed charters and observed
   coverage.
 - [Project Manager linked SRS](domains/project-manager/SRS.md) is an approved

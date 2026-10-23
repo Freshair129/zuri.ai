@@ -22,6 +22,7 @@ owns_models:
   - StockReservation
   - InventoryStocktake
   - InventoryLedgerFence
+  - LineStockDisclosurePolicy
   - ProductIdentifier
   - ProductUnitConversion
   - InventoryCatalogIntake
@@ -33,9 +34,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.5.0"
+version: "1.6.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-09-13T21:00:00+07:00"
+updated_at: "2026-10-23T13:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -356,9 +357,28 @@ from an import.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.6.0 | 2026-10-23 | active-foundation | Registers FR-291 scoped customer stock disclosure policy and projection, default-OFF owner authorization and non-portable recovery boundary; Commerce and Knowledge retain price and publication authority | working-tree | Codex |
 | 1.5.0 | 2026-09-13 | active-foundation | Claimed `InventoryCatalogIntake` (FR-208) and recorded ADR-084: one catalogue intake envelope for JSON, Excel and LINE, a planner that resolves before it creates and never overwrites, a persisted preview whose plan hash an all-or-nothing commit must match, the Excel template/reader and Import tab (FR-209), and the parser and formatters behind the agent lane's `#sku` LINE command (FR-210). The catalogue writers now accept a transaction client | working-tree | Claude Opus 5 |
 | 1.4.0 | 2026-09-13 | active-foundation | Claimed `ProductIdentifier` and `ProductUnitConversion` (FR-203, FR-204) and recorded ADR-083's SKU governance: the nature declared at the master and inherited (FR-201), variant identity with a unique key per master and the lookalike guard (FR-202), the SKU lifecycle with PHASE_OUT / REACTIVATE / MERGE and the guarded ARCHIVE (FR-205), the read-only hygiene report on the new `/inventory/hygiene` tab (FR-206) and replenishment parameters (FR-207). Every ledger rule still reads the SKU; nothing existing changes meaning | working-tree | Claude Fable 5.1 |
 | 1.3.0 | 2026-09-11 | owner-approved | Added FR-184's durable NONE/LOT stocktake aggregate and lock-only ledger fence to Inventory; the existing `/inventory` surface remains the only UI and SERIAL observation, bins, campaigns and production migration remain out of scope | working-tree | RWANG |
 | 1.2.0 | 2026-09-10 | active-foundation | Claimed `WarehouseLocation`, `CustomizationWorkOrder`, `KittingWorkOrder` and `StockReservation` (FR-174..FR-181, ADR-074): the located ledger with its atomic transfer, landed cost in satang, the two WIP work orders and the irreversible customer dedication, de-kitting, the shelf-life storage guard, Available-to-Promise with two-tier reservations, and the FlowAccount set code recorded as a per-Tenant `Product.flowAccountSku` attribute rather than a second `code` or an installation-unique `ExternalRef`. Inventory valuation moves in from "future Finance"; the `warehouse` bar slot stays reserved for bins and stocktake | working-tree | Claude Opus 5 |
 | 1.1.0 | 2026-09-06 | active-foundation | Claimed `ProductRecipe` and `ProductRecipeLine` (FR-156 — the legacy Culinary recipes relabelled as a bill of materials at a batch size), recorded FEFO consumption on the ledger, and the `Warehouse` display label | working-tree | Claude Fable 5.1 |
 | 1.0.0 | 2026-09-06 | active-foundation | Established the Inventory domain: eight catalogue/ledger identities, counted-versus-uncounted policy, authority ladder, invariants and explicit external boundaries | working-tree | Claude Fable 5.1 |
+
+
+## Customer stock disclosure boundary
+
+Inventory owns LineStockDisclosurePolicy and the narrow customer stock
+projection in [FR-291](../../requirements/FR-291.md), under the
+[approved LINE fact contract](../../change-requests/integration/line-agent-stock-price-facts-20261023.md).
+This grants neither staff authority to a Customer nor pricing ownership to
+Inventory. Commerce retains price authority and Knowledge retains publication
+proof; Core orchestrates and revalidates the separate owner projections.
+
+Portable JSON recovery excludes this disclosure authority and clears existing
+grants when its account/Product/Business parents are replaced. A restored
+installation starts with disclosure OFF and needs explicit owner enabling;
+a legacy business snapshot cannot replay a prior enabled grant.
+
+Version 1.5.0 to 1.6.0 registers Inventory ownership of the scoped policy model
+and customer projection while preserving Commerce/Knowledge/Identity boundaries.

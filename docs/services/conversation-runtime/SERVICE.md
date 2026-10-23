@@ -2,7 +2,7 @@
 id: ZAI:SERVICE-CONVERSATION-RUNTIME
 status: active
 superseded_by: null
-version: "0.2.0"
+version: "0.3.0"
 relations:
   - type: relates_to
     target: ZAI:ADR-106
@@ -74,3 +74,30 @@ Version diff 0.0 → 0.1.0: consolidates navigation to existing Runtime authorit
 its test boundary without changing runtime behavior.
 0.1.0 → 0.2.0: explains the existing ContextReceipt contract at the Runtime/Core
 boundary and the coordinated rollout required by its enforcement correction.
+
+
+## LINE product facts: explicit v2 boundary
+
+[FR-291](../../requirements/FR-291.md) and the
+[approved product-fact contract](../../change-requests/integration/line-agent-stock-price-facts-20261023.md)
+govern this extension. Core owns the typed command, caller/policy authorization,
+Inventory and exact published-price reads, deterministic formatting, durable
+content-free job/execution binding and final-release revalidation. Runtime has
+no direct Inventory, Knowledge, policy or database access.
+
+The separate conversation-runtime.v2 endpoint and schema may return a
+PRODUCT_FACTS fixed turn containing only bounded reply text with the existing
+claimed-job/authority context. Private decision bindings remain in Core's trace
+journal; Runtime cannot send or substitute one. No model, MemoryReceipt or
+ContextReceipt is fabricated for this fixed turn. Core verifies completion text
+and reloads the decision before the shared Server/Runtime transport release.
+
+The existing published v1 operation schema stays strict and never accepts
+PRODUCT_FACTS. The Runtime production composition explicitly selects v2; legacy
+client callers can retain v1. Deploy matching Core/Runtime versions together
+under ADR-106 drain/qualification controls. A recognized product command reaching
+v1 is refused rather than silently becoming an ordinary model question.
+The same resolver and pre-send check protect Server-owned jobs.
+
+Version 0.2.0 to 0.3.0 adds the authorized v2 product-fact contract and shared
+release boundary; source tests and deployment acceptance remain separate claims.

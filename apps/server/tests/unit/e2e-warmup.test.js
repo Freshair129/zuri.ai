@@ -63,6 +63,15 @@ describe('the CI e2e server mode', () => {
     expect(workflow).toContain("E2E_EXTERNAL_SERVER: 'true'")
     expect(workflow).toContain('E2E_SERVER_MODE: production')
   })
+
+  it('builds the real document graph in the E2E job before starting its server', () => {
+    const workflow = readFileSync('../../.github/workflows/governance.yml', 'utf8')
+    const e2eJob = workflow.slice(workflow.indexOf('\n  e2e:'))
+    const graphStep = e2eJob.indexOf('Build the document graph for Knowledge Studio')
+    expect(graphStep).toBeGreaterThan(0)
+    expect(graphStep).toBeLessThan(e2eJob.indexOf('Start production e2e server'))
+    expect(e2eJob.slice(graphStep, e2eJob.indexOf('Production build for e2e server'))).toContain('run: npm run docs:graph')
+  })
 })
 
 describe('the warm-up derives every module under src/app', () => {

@@ -10,7 +10,7 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.169.3b"
+version: "2.170.1b"
 updated: "2026-10-23"
 owner: "Owen"
 source_of_truth: true
@@ -18,6 +18,10 @@ live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.170.1b (2026-10-23): B4 is selected for PR/hosted-CI/release-readiness preparation only. B2 isolated role/recovery and B3 strategy adapter/browser evidence are recorded in the approved qualification plan; B3 local head is `4c31ab99`. The candidate incorporates main `77be99c8`, preserving both PostgreSQL test selections. Exact-head hosted checks and independent readiness review remain pending at preparation time; results belong to the PR at its final head. No PR merge, image release, migration, environment acceptance or production action is authorized by this increment. Historical B1/A1 findings below retain their dated source scope. Task states/counts remain unchanged.
+
+> Revision 2.170.0b (2026-10-23): records the owner-requested FR-291 implementation as a delivery trace only. No new phase, sprint, schedule, estimate or production acceptance is assigned.
 
 > Revision 2.169.3b (2026-10-23): B1 statically reconciles PM delivery at `2c13f616`. FR-252 W1/W2 and composed read/API/UI, FR-268/269/270 and bounded FR-286 ancestors are present; current note/roadmap wording no longer treats those code paths as absent. FR-271 calculator/UI are present but shared server SMART evaluation is missing; B3 is amended for exact optional-date/write-time contract reconciliation and regression proof before coding. Six canonical delivery cells remain proposed/held with source-row hashes in the approved qualification plan. The62 retained FRs were rechecked at the documented static depth. B1 runs documentation checks/review only; B2/B3 qualification, hosted integration and live/production release remain open. Task statuses/counts do not change.
 
@@ -547,6 +551,7 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 
 | ID | Parent ID | Type | Title | Priority | Owner | Status | Dependencies | Source Section |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| LINE-PRODUCT-FACTS-20261023 | — | task | FR-291 explicit customer LINE stock and exact published-price facts across Server and Runtime | — | Codex / Luna | review (bounded implementation; local verification recorded in application-fixes; exact-head hosted status belongs to the PR; not deployed) | FR-180; FR-253; FR-234 | ../requirements/FR-291.md; ../../reports/gap-analysis-2026-10-23/application-fixes.md |
 | TASK-ZAI-009 | SPR-ZAI-03 | task | Business Agent Factory v1 (FR-285): persisted standard five-role config, scoped initial owner apply and atomic Business provisioning | P1 | Codex | done (bounded local factory; hosted CI and PR665 merge verified; canonical delivery ledger below owns evidence) | TASK-ZAI-007; TASK-ZAI-008 | ../change-requests/agent-factory/AGENT-FACTORY-V1.md |
 | TASK-ZAI-013 | SPR-ZAI-05 | task | Standard Business Template v1 (FR-286): catalog-only snapshot and one atomic default Business Space | P0 | Codex | done (bounded FR-286; merged PR #667; hosted CI passed; E2E/Desktop skipped; canonical delivery ledger below owns evidence) | TASK-ZAI-009 | ../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md |
 | TASK-ZAI-047 | PHASE-ZAI-KNOWLEDGE | task | Knowledge console (FR-254): source versions, complete processing runs, corpus generations and exact citation artifacts | P0 | RWANG | review (isolated implementation and native acceptance; not deployed) | FR-173; FR-071; FR-110 | ../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md |

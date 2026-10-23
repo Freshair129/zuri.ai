@@ -70,6 +70,14 @@ export function loadCanonicalDocumentRegistry(repositoryRoot) {
   return { index, records }
 }
 
+/** Frozen, hash-validated approval copies are provenance, not live ID declarations.
+ * Call only after loadCanonicalDocumentRegistry has validated the indexed records.
+ */
+export function canonicalApprovalSnapshotPaths(registry) {
+  return new Set(registry.index.records.filter(entry => entry.recordVersion === 2)
+    .map(entry => entry.manifestPath.replace(/\.manifest\.json$/, '.approval.md')))
+}
+
 /** Ensure FEAT rows and each FR's explicit feature_id make the same claim. */
 export function validateCanonicalMembership(records) {
   const byId = new Map(records.map(item => [item.record.id, item.record]))

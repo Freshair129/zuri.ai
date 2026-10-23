@@ -1,3 +1,11 @@
+// @tested tests/integration/fr253-pricing-catalog.test.js
+// @tested tests/integration/conversation-runtime-product-facts-vertical.test.js
+// @req FR-291 — actual policy, projection, publication, paired Runtime and recovery tests on disposable PostgreSQL.
+// @tested tests/integration/line-stock-disclosure-policy.test.js
+// @tested tests/integration/line-product-facts.test.js
+// @tested tests/integration/line-published-price-reader.test.js
+// @tested tests/integration/conversation-runtime-product-facts.test.js
+// @tested tests/integration/line-stock-policy-backup.test.js
 import base from './vitest.config'
 
 // @req FR-149, FR-150 — the WorkToolPort suite on PostgreSQL, the production
@@ -32,11 +40,14 @@ import base from './vitest.config'
 // @tested tests/integration/fr268-business-key-result-mutation.test.js
 // @tested tests/integration/fr269-business-kpi-mutation.test.js
 // @tested tests/integration/fr270-business-wig-execution.test.js
+// @req FR-103, FR-232 — consent and identity/version claims commit atomically
+// with memory erasure on both supported database engines.
+// @tested tests/integration/crm-customer-consent.test.js
 export default {
   ...base,
   test: {
     ...base.test,
-    include: ['tests/integration/fr268-business-key-result-mutation.test.js', 'tests/integration/fr269-business-kpi-mutation.test.js', 'tests/integration/fr270-business-wig-execution.test.js', 'tests/postgres/phase-b-runtime-role.test.js', 'tests/postgres/project-approval-gateway-races.test.js', 'tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js'],
+    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js', 'tests/integration/line-stock-disclosure-policy.test.js', 'tests/integration/line-product-facts.test.js', 'tests/integration/line-published-price-reader.test.js', 'tests/integration/fr253-pricing-catalog.test.js', 'tests/integration/conversation-runtime-product-facts.test.js', 'tests/integration/conversation-runtime-product-facts-vertical.test.js', 'tests/integration/line-stock-policy-backup.test.js', 'tests/integration/crm-customer-consent.test.js', 'tests/integration/fr268-business-key-result-mutation.test.js', 'tests/integration/fr269-business-kpi-mutation.test.js', 'tests/integration/fr270-business-wig-execution.test.js', 'tests/postgres/phase-b-runtime-role.test.js', 'tests/postgres/project-approval-gateway-races.test.js'],
     // @req FR-252 — actual runtime-role service/recovery qualification.
     // @tested tests/postgres/phase-b-runtime-role.test.js
     globalSetup: ['tests/global-setup-postgres.js'],

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { buildBusinessHomeReadModel, DOMAIN_STATE, SEVERITY } from '@/modules/business/application/business-home-read-model'
+import { DOMAINS as registryDomains } from '@/config/domains'
 
 // @req FR-060 — Business Home Dashboard projection.
 // @spec SDD-033 — non-owning, pure, nothing persisted.
@@ -27,6 +28,15 @@ const build = (over = {}) =>
   buildBusinessHomeReadModel({ projects: [], strategy: null, domains: DOMAINS, now: NOW, ...over })
 
 describe('reserved domains', () => {
+  it('preserves every real registry slot and its reserved state in the projection', () => {
+    const operational = registryDomains.filter((domain) => domain.key !== 'business-home')
+    const { health } = build({ domains: registryDomains })
+    expect(health.domains.map((domain) => domain.key)).toEqual(operational.map((domain) => domain.key))
+    expect(health.domains.filter((domain) => domain.state === DOMAIN_STATE.RESERVED).map((domain) => domain.key))
+      .toEqual(operational.filter((domain) => domain.soon).map((domain) => domain.key))
+    expect(health.coverageLabel).toContain(`of ${operational.length} domains`)
+  })
+
   it('render as RESERVED with no score — never zero', () => {
     const { health } = build()
     const commerce = health.domains.find((d) => d.key === 'commerce')

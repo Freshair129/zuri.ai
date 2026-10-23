@@ -6,12 +6,15 @@ import { reconcileAbandonedLineAdmissions } from '@/modules/line-oa-studio/appli
 import { runDueLineTransportHealth } from '@/modules/line-oa-studio/application/line-transport-health-schedule'
 import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 import { withLineCatalogCommand } from '@/modules/agent/line-catalog-command'
+import { withLineProductFactsCommand } from '@/modules/agent/line-product-facts-command'
 // @req FR-149, FR-150 — deployment-authenticated bounded durable worker tick.
 // @req FR-190 — the same tick carries the hourly transport-health sweep, so a
 //   silent or misrouted channel produces a log line without a second process.
 // @req FR-210 — the answer port is wrapped by the `#sku` catalogue command: a
 //   direct message from a verified sender with Inventory write authority is
 //   answered by the command, every other message by the model as before.
+// @req FR-291 — the explicit `#product` command uses the shared deterministic
+//   product-facts resolver and never falls through to the model.
 // @spec ADR-061, ADR-084 D4, SEC-001
 // @tested tests/integration/server-line-jobs.test.js, tests/integration/line-admission-reconciler.test.js,
 //   tests/unit/agent-line-catalog-command.test.js, tests/unit/line-transport-health-schedule.test.js
@@ -56,8 +59,8 @@ export async function POST(request) {
   try {
     const ports = serverLinePorts()
     const result = await runLineConversationWorker({ ...ports,
-      answer: withLineCatalogCommand(createServerLineAnswer({ threadMemory: ports.threadMemory,
-        projectionReceiptWriter: ports.projectionReceiptWriter })) })
+      answer: withLineProductFactsCommand(withLineCatalogCommand(createServerLineAnswer({ threadMemory: ports.threadMemory,
+        projectionReceiptWriter: ports.projectionReceiptWriter }))) })
     return NextResponse.json({ ...result, reconciled })
   } catch { return NextResponse.json({ error: 'LINE_WORKER_UNAVAILABLE' }, { status: 503 }) }
 }

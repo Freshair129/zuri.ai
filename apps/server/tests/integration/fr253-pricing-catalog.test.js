@@ -98,6 +98,7 @@ describe('FR-253 computed catalog admission', () => {
       expect(row.inputProvenance).toBe('INVENTORY_LEDGER')
       expect(row.rulesHash).toBe(approved.rulesHash)
       expect(row.inputHash).toBe(pricingHash(JSON.parse(row.inputJson)))
+      expect(JSON.parse(row.resultJson).catalogProjection.baseUnit).toBe(product.unit)
       expect(JSON.parse(row.inputJson).sourceRefs[0]).toMatchObject({ kind: 'INVENTORY_LEDGER', productId: product.id, receiptCount: 2, sha256: expect.stringMatching(/^[a-f0-9]{64}$/) })
     }
     const sources = await prisma.knowledgeSource.findMany({ where: { fileAssetId: asset.id } })

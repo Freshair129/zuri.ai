@@ -7,14 +7,18 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 //   surface for LINE conversation work to have one.
 // @req FR-210 — the worker's answer port is the model answer wrapped once by the
 //   `#sku` catalogue command, and that composition takes nothing from the request.
+// @req FR-291 — the deterministic product-facts wrapper composes outside `#sku`
+//   and receives no client-supplied authority or resolver options.
 // @spec ADR-061, ADR-100 D2, ADR-084 D4, SEC-001, SEC-025
 // @tested tests/unit/server-line-worker-routes.test.js
 const mocks = vi.hoisted(() => ({
-  ports: vi.fn(), answer: vi.fn(), catalog: vi.fn(), tick: vi.fn(),
+  ports: vi.fn(), answer: vi.fn(), catalog: vi.fn(), productFacts: vi.fn(), tick: vi.fn(),
+  baseAnswer: vi.fn(), catalogAnswer: vi.fn(), productFactsAnswer: vi.fn(),
 }))
 vi.mock('@/modules/line-oa-studio/application/server-line-runtime', () => ({ serverLinePorts: mocks.ports }))
 vi.mock('@/modules/agent/server-line-answer', () => ({ createServerLineAnswer: mocks.answer }))
 vi.mock('@/modules/agent/line-catalog-command', () => ({ withLineCatalogCommand: mocks.catalog }))
+vi.mock('@/modules/agent/line-product-facts-command', () => ({ withLineProductFactsCommand: mocks.productFacts }))
 vi.mock('@/modules/line-oa-studio/application/line-conversation-jobs', () => ({
   runLineConversationWorker: mocks.tick,
 }))
@@ -28,9 +32,10 @@ beforeEach(() => {
   vi.resetAllMocks()
   vi.stubEnv('ZURI_LINE_WORKER_TOKEN', token)
   vi.stubEnv('ZURI_LINE_SERVER_ENABLED', 'true')
-  mocks.ports.mockReturnValue({ resolveAccount: 'server-port' })
-  mocks.answer.mockReturnValue('answer-port')
-  mocks.catalog.mockImplementation((port) => ({ catalogCommandWraps: port }))
+  mocks.ports.mockReturnValue({ resolveAccount: 'server-port', threadMemory: 'memory-port', projectionReceiptWriter: 'receipt-port' })
+  mocks.answer.mockReturnValue(mocks.baseAnswer)
+  mocks.catalog.mockReturnValue(mocks.catalogAnswer)
+  mocks.productFacts.mockReturnValue(mocks.productFactsAnswer)
   mocks.tick.mockResolvedValue({ status: 'IDLE' })
 })
 afterEach(() => vi.unstubAllEnvs())
@@ -47,14 +52,20 @@ describe('deployment worker route', () => {
     expect(mocks.ports).not.toHaveBeenCalled()
     expect(mocks.tick).not.toHaveBeenCalled()
   })
-  it('runs only with matching deployment bearer and ignores any client authority payload', async () => {
-    const response = await workerPost(request('{"tenantId":"evil","resolveAccount":"evil"}', `Bearer ${token}`))
+  it('composes model, #sku and #product wrappers with the matching deployment bearer, ignoring client authority payload', async () => {
+    const response = await workerPost(request('{"tenantId":"evil","resolveAccount":"evil","productFactsOptions":{"knowledgeReaderFactory":"evil"}}', `Bearer ${token}`))
     expect(response.status).toBe(200)
-    // The model answer is wrapped exactly once by the `#sku` command (FR-210);
-    // nothing from the request body reaches the composition.
+    // The model answer is wrapped in order by the `#sku` command (FR-210)
+    // and deterministic `#product` command (FR-291). Request fields never
+    // reach the server-owned ports or command composition.
+    expect(mocks.answer).toHaveBeenCalledTimes(1)
+    expect(mocks.answer).toHaveBeenCalledWith({ threadMemory: 'memory-port', projectionReceiptWriter: 'receipt-port' })
     expect(mocks.catalog).toHaveBeenCalledTimes(1)
-    expect(mocks.catalog).toHaveBeenCalledWith('answer-port')
-    expect(mocks.tick).toHaveBeenCalledWith({ resolveAccount: 'server-port', answer: { catalogCommandWraps: 'answer-port' } })
+    expect(mocks.catalog).toHaveBeenCalledWith(mocks.baseAnswer)
+    expect(mocks.productFacts).toHaveBeenCalledTimes(1)
+    expect(mocks.productFacts).toHaveBeenCalledWith(mocks.catalogAnswer)
+    expect(mocks.tick).toHaveBeenCalledWith({ resolveAccount: 'server-port', threadMemory: 'memory-port',
+      projectionReceiptWriter: 'receipt-port', answer: mocks.productFactsAnswer })
   })
   it('redacts disabled/unavailable runtime errors and does not run a tick', async () => {
     mocks.ports.mockImplementation(() => { throw new Error('PRIVATE_MOUNT_PATH_AND_SECRET') })

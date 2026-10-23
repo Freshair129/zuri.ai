@@ -1,7 +1,7 @@
 ---
 status: active
 superseded_by: null
-version: "0.2.1"
+version: "0.3.0"
 ---
 
 # Conversation Runtime verification
@@ -74,10 +74,38 @@ CRM/ERP fact read ports or close their separate authority gap.
 
 For manual exact-main execution and receipt rules, read the
 [Q1 qualification record](../../migrations/scoped-verification/QUALIFICATION.md).
-The PostgreSQL package command currently runs WorkToolPort and the memory-erasure
-due-query suite. Retain both; narrowing that existing engine guard is outside Q1.
+At Q1 qualification the PostgreSQL package command ran WorkToolPort and the
+memory-erasure due-query suite. Retain both engine guards. The current configured
+profile also covers scope/provisioning, approval, ATP, consent and FR-291 policy,
+publication, paired execution and recovery; package scripts and the PostgreSQL
+Vitest configuration own its exact current file list.
 
 Version diff 0.0 → 0.1.0: adds reproducible scope guidance and the shadow-only limit.
 0.1.0 → 0.2.0: adds explicit semantic consumers, contract fallback and manual
 qualification navigation without changing ordinary CI conditions.
 0.2.0 → 0.2.1: records receipt-integrity consumer checks and their evidence limit.
+
+
+## Product-fact v2 qualification
+
+Qualify the paired Core producer and Runtime consumer, including the production
+client's explicit v2 selection, strict v1 refusal, authenticated route version
+binding and no product turn under an unsupported version. Exercise both durable
+execution owners through the same safe source resolver and common send gate.
+
+Use real disposable SQLite/PostgreSQL rows for owner policy CAS, verified direct
+source evidence, exact Customer-to-Business binding, fenced ATP and accepted
+Knowledge publication plus Commerce producer lineage. Test price-only with stock
+policy OFF and no Inventory call, stock-only with no price call, denied combined
+requests with no facet payload and an allowed source failure as PARTIAL.
+
+Revoke/rebind identity, Customer, account, audience, stock policy or publication
+between prepare/answer and send; missing/stale private bindings or changed result
+digests must prevent old facts reaching transport. Test execution retry and
+content-free audit/trace binding. Fixed operational turns invoke no model and
+do not fabricate a ContextReceipt. Mock transport proves boundary behavior;
+a live LINE provider send and production publication acceptance require their
+own evidence and are not inferred from fixture success.
+
+Version 0.2.1 to 0.3.0 adds paired v2 producer/consumer and dual-cohort authority,
+publication, retry and deterministic-answer qualification.

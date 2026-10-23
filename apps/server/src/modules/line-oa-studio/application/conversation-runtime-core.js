@@ -17,6 +17,7 @@ import {
   LINE_WORK_DUPLICATE_TEXT,
 } from '@/modules/agent/line-project-work-tools'
 import { lineCatalogCommandReply, lineCatalogViewer } from '@/modules/agent/line-catalog-command'
+import { parseLineProductFactsRequest, resolveLineProductFacts, revalidateLineProductFacts } from '@/modules/agent/line-product-facts'
 import { parseLineCatalogCommand } from '@/modules/inventory'
 import { appendTraceEvent, sha256 } from '@/modules/agent/execution-trace'
 import { serverLinePorts } from './server-line-runtime'
@@ -29,6 +30,8 @@ import {
   runtimeOperationStatus, sendRuntimeConversationJob, runtimeOutOfHoursReply, LINE_TEXT_MAX_CHARS, runtimeSenderAuthority,
   runtimeWorkBudgetSpent,
 } from './line-conversation-jobs'
+import { normalizeLineProductFactsReply, readLineProductFactsDecision,
+  recordLineProductFactsDecision } from './line-product-facts-decision'
 
 // @req FR-149, FR-171 — authenticated core ownership boundary for the independent runtime.
 // @req FR-235 — Core `prepare` selects a runtime turn's evidence with the same
@@ -59,6 +62,8 @@ import {
 //   tests/integration/conversation-runtime-memory.test.js,
 //   tests/integration/conversation-runtime-unverified.test.js
 const VERSION = 'conversation-runtime.v1'
+const VERSION_V2 = 'conversation-runtime.v2'
+const SUPPORTED_VERSIONS = Object.freeze([VERSION, VERSION_V2])
 const MAX_BODY_BYTES = 64 * 1024
 const MAX_RESPONSE_BYTES = 64 * 1024
 const identifier = z.string().trim().min(1).max(128)
@@ -66,8 +71,9 @@ const claimSchema = z.object({
   jobId: identifier, executionId: identifier, claimantId: identifier,
   version: z.number().int().positive(), tenantId: identifier, businessId: identifier, accountId: identifier,
 }).strict()
-const envelopeSchema = z.object({
-  contractVersion: z.literal(VERSION), operation: z.enum(['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']),
+const operations = ['claim', 'renew', 'resolve', 'prepare', 'work-tool', 'credential', 'complete', 'fail', 'send', 'trace', 'status', 'memory']
+const envelopeSchemaFor = contractVersion => z.object({
+  contractVersion: z.literal(contractVersion), operation: z.enum(operations),
   correlationId: z.string().min(1).max(128).regex(/^[A-Za-z0-9._:-]+$/),
   idempotencyKey: z.string().min(1).max(200).regex(/^[A-Za-z0-9._:-]+$/),
   deadlineAt: z.string().datetime({ offset: true }), payload: z.record(z.unknown()).refine(value => Object.keys(value).length <= 32),
@@ -222,8 +228,8 @@ function exactPayload(payload, operation) {
   }
 }
 
-function safeResponse(data) {
-  const value = { contractVersion: VERSION, ok: true, data }
+function safeResponse(data, contractVersion = VERSION) {
+  const value = { contractVersion, ok: true, data }
   const body = JSON.stringify(value)
   if (Buffer.byteLength(body, 'utf8') > MAX_RESPONSE_BYTES) throw error('CONTRACT_RESPONSE_TOO_LARGE', 500)
   return body
@@ -233,11 +239,11 @@ function safeResponse(data) {
 // characters take six bytes each) plus full evidence can outgrow the response cap. The legacy path answers
 // such a turn, so `prepare` must too: it drops the lowest-ranked evidence records until the answer fits and
 // never touches the question, which admission already bounded.
-function fitPreparedTurn(result) {
+function fitPreparedTurn(result, contractVersion = VERSION) {
   const records = result?.evidence?.records
   const keptRecords = Array.isArray(records) ? [...records] : []
   const keptSlices = Array.isArray(result?.slices) ? [...result.slices] : []
-  const bytes = () => Buffer.byteLength(JSON.stringify({ contractVersion: VERSION, ok: true,
+  const bytes = () => Buffer.byteLength(JSON.stringify({ contractVersion, ok: true,
     data: { ...result, evidence: { ...result.evidence, records: keptRecords }, slices: keptSlices } }), 'utf8')
   while (keptRecords.length && bytes() > MAX_RESPONSE_BYTES) keptRecords.pop()
   while (keptSlices.length && bytes() > MAX_RESPONSE_BYTES) keptSlices.pop()
@@ -268,7 +274,7 @@ async function recordRuntimeMspSources(db, job, turn, now) {
     occurredAt: new Date(now().getTime()) })
 }
 
-function validateResult(operation, data, request) {
+function validateResult(operation, data, request, contractVersion = VERSION) {
   const invalid = () => { throw error('CONTRACT_RESPONSE_INVALID', 500) }
   if (!boundedJsonWithin(data, MAX_RESPONSE_BYTES)) invalid()
   const exact = (value, allowed) => value && typeof value === 'object' && !Array.isArray(value)
@@ -282,11 +288,14 @@ function validateResult(operation, data, request) {
     return
   }
   if (operation === 'prepare') {
-    // FR-244 / FR-210 — an OUT_OF_HOURS or CATALOG_COMMAND turn carries Core's fixed
-    // reply and nothing to execute; a CATALOG_COMMAND turn's question is a `#sku` command.
-    if (data?.turnKind !== undefined && (!['OUT_OF_HOURS', 'CATALOG_COMMAND'].includes(data.turnKind) || !present(data.replyText, 5000)
+    // FR-244 / FR-210 / FR-291 — fixed turn kinds are version-specific; a product
+    // command can enter only through the v2 contract and the exact typed trigger.
+    const allowedTurnKinds = contractVersion === VERSION_V2
+      ? ['OUT_OF_HOURS', 'CATALOG_COMMAND', 'PRODUCT_FACTS'] : ['OUT_OF_HOURS', 'CATALOG_COMMAND']
+    if (data?.turnKind !== undefined && (!allowedTurnKinds.includes(data.turnKind) || !present(data.replyText, 5000)
       || data.workCommand != null || data.workReply != null || data.evidence?.records?.length || data.slices?.length
-      || (data.turnKind === 'CATALOG_COMMAND' && !parseLineCatalogCommand(data.question)))) invalid()
+      || (data.turnKind === 'CATALOG_COMMAND' && !parseLineCatalogCommand(data.question))
+      || (data.turnKind === 'PRODUCT_FACTS' && data.question !== 'PRODUCT_FACTS'))) invalid()
     if (data?.turnKind === undefined && data?.replyText !== undefined) invalid()
     if (!exact(data, ['question', 'evidence', 'slices', 'authorized', 'audienceKind', 'threadId', 'maxBudgetChars', 'workCommand', 'workReply',
       'turnKind', 'replyText', 'memorySync'])
@@ -517,8 +526,17 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
   send = sendRuntimeConversationJob, appendTrace = appendRuntimeConversationTrace,
   workSearch = searchLineProjectWork, workPropose = proposeLineWork, workConfirm = confirmLineWork,
   catalogViewer = lineCatalogViewer, catalogCommand = lineCatalogCommandReply,
+  productFactsParser = parseLineProductFactsRequest, productFactsResolver = resolveLineProductFacts,
+  productFactsRevalidator = revalidateLineProductFacts,
+  productFactsOptions = {},
   threadMemoryFactory = null, memoryContextAssembler, memoryAuthorizationResolver,
   corpusReaderFactory = createCorpusKnowledgeReader } = {}) {
+  if (!productFactsOptions || typeof productFactsOptions !== 'object' || Array.isArray(productFactsOptions)
+    || Object.keys(productFactsOptions).some(key => key !== 'knowledgeReaderFactory')
+    || (productFactsOptions.knowledgeReaderFactory !== undefined && typeof productFactsOptions.knowledgeReaderFactory !== 'function')) {
+    throw new Error('LINE_PRODUCT_FACTS_OPTIONS_INVALID')
+  }
+  const lineProductFactsOptions = Object.freeze({ ...productFactsOptions })
   let businessPortsPromise
   // `businessPorts` may be the ports object itself (tests) or a function returning it.
   const getBusinessPorts = typeof businessPorts === 'function' ? businessPorts : (async () => {
@@ -608,6 +626,34 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { question: job.inbound.body.slice(0, LINE_TEXT_MAX_CHARS), evidence: { records: [] }, slices: [], authorized: true,
       audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
       turnKind: 'CATALOG_COMMAND', replyText: decision.replyText }
+  }
+
+  const isProductFactsMessage = job => productFactsParser(job?.inbound?.body) !== null
+  async function productFactsDecision(job) {
+    if (!isProductFactsMessage(job)) return null
+    return readLineProductFactsDecision(db, job)
+  }
+  async function productFactsCommandTurn(job) {
+    const existing = await readLineProductFactsDecision(db, job)
+    if (existing && !await productFactsRevalidator(job, existing.binding, { ...lineProductFactsOptions, db, now })) {
+      throw error('LINE_PRODUCT_FACTS_AUTHORITY_REVOKED', 409)
+    }
+    const resolved = await productFactsResolver(job, { ...lineProductFactsOptions, db, now })
+    const replyText = normalizeLineProductFactsReply(resolved?.text)
+    if (existing) {
+      if (!resolved?.binding || typeof resolved.binding !== 'object' || Array.isArray(resolved.binding)
+        || sha256(resolved.binding) !== existing.bindingSha256
+        || sha256(replyText) !== existing.replySha256) throw error('LINE_PRODUCT_FACTS_DECISION_STALE', 409)
+      return { replyText, decision: existing }
+    }
+    const decision = await recordLineProductFactsDecision(db, job, { binding: resolved?.binding, replyText, now })
+    return { replyText, decision }
+  }
+  async function requiredProductFactsDecision(job) {
+    if (!isProductFactsMessage(job)) return null
+    const decision = await productFactsDecision(job)
+    if (!decision) throw error('LINE_PRODUCT_FACTS_NOT_PREPARED', 409)
+    return decision
   }
 
   async function ownedClaim(ref, { status = 'CLAIMED', checkLease = true, checkIdentity = true } = {}) {
@@ -778,7 +824,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     return { status: 'NOT_FOUND', operationId: request.operationId }
   }
 
-  async function operate(envelope) {
+  async function operate(envelope, contractVersion = VERSION) {
     const { operation, payload } = envelope
     const claimRef = payload.claim
     switch (operation) {
@@ -815,6 +861,18 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         // Server worker's answer port checks `#sku` before its model answer.
         const catalogTurn = await catalogCommandTurn(job, identityState)
         if (catalogTurn) return catalogTurn
+        // @req FR-291 — only the explicit v2 contract may carry a deterministic
+        // product-facts reply. v1 refuses a recognized command before grounding.
+        if (isProductFactsMessage(job)) {
+          if (contractVersion !== VERSION_V2) throw error('PRODUCT_FACTS_REQUIRES_V2', 409)
+          const product = await productFactsCommandTurn(job)
+          // PRODUCT_FACTS carries only a fixed marker and the deterministic
+          // reply over the Runtime boundary; the customer's SKU/query remains
+          // in Core's persisted inbound message and never enters a model prompt.
+          return { question: 'PRODUCT_FACTS', evidence: { records: [] }, slices: [],
+            authorized: true, audienceKind: job.audienceKind, threadId: null, maxBudgetChars: 0, workCommand: null,
+            turnKind: 'PRODUCT_FACTS', replyText: product.replyText }
+        }
         const prepared = await prepare(job, { deadlineAt: envelope.deadlineAt })
         const episodicSlices = prepared?.workCommand == null && prepared?.workReply == null
           ? await episodicSlicesForRuntime({ env, job, identityState, businessPorts: getBusinessPorts,
@@ -822,7 +880,7 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         const turn = fitPreparedTurn(episodicSlices.length
           ? { ...prepared, slices: [...(prepared.slices ?? []), ...episodicSlices],
             maxBudgetChars: prepared.maxBudgetChars || DEFAULT_CONTEXT_BUDGET_CHARS }
-          : prepared)
+          : prepared, contractVersion)
         await traceEvidenceTrimmed(db, job, { phase: 'prepare', recordsBefore: prepared?.evidence?.records?.length,
           recordsKept: turn?.evidence?.records?.length, now })
         // An opted-in turn tells the runtime to run the memory phases; a Work
@@ -840,14 +898,25 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
         const { job } = await ownedClaim(claimRef)
         // @req FR-244 — no model runs for an out-of-hours turn; Core does not hand one out.
         if (runtimeOutOfHoursReply(job) !== null) throw error('OUT_OF_HOURS_TURN_HAS_NO_MODEL', 409)
+        if (await requiredProductFactsDecision(job)) throw error('LINE_PRODUCT_FACTS_TURN_HAS_NO_MODEL', 409)
         // @req FR-210 — no model runs for a `#sku` turn; Core does not hand one out.
         if ((await requiredCatalogDecision(job))?.decision === 'COMMAND') throw error('CATALOG_COMMAND_TURN_HAS_NO_MODEL', 409)
         return resolveCredential(job)
       }
-      case 'work-tool': return workOperation(claimRef, payload)
-      case 'memory': return memory.operate(claimRef, payload, { deadlineAt: envelope.deadlineAt })
+      case 'work-tool': {
+        const { job } = await ownedClaim(claimRef)
+        if (await requiredProductFactsDecision(job)) throw error('LINE_PRODUCT_FACTS_TURN_HAS_NO_WORK', 409)
+        return workOperation(claimRef, payload)
+      }
+      case 'memory': {
+        const { job } = await ownedClaim(claimRef)
+        if (await requiredProductFactsDecision(job)) throw error('LINE_PRODUCT_FACTS_TURN_HAS_NO_MEMORY', 409)
+        return memory.operate(claimRef, payload, { deadlineAt: envelope.deadlineAt })
+      }
       case 'complete': {
         const { job } = await ownedClaim(claimRef)
+        const product = runtimeOutOfHoursReply(job) !== null ? null : await requiredProductFactsDecision(job)
+        if (product && sha256(payload.text) !== product.replySha256) throw error('LINE_PRODUCT_FACTS_REPLY_MISMATCH', 409)
         // @req FR-210 — Core, not the runtime, owns a `#sku` reply: READY is committed
         // only for the stored reply, bounded as the runtime (and the Server worker)
         // bound an answer, so a runtime cannot report an import that did not happen.
@@ -864,7 +933,8 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
       case 'send': {
         if (payload.operationId !== `${claimRef.jobId}:${claimRef.executionId}:delivery`) throw error('DELIVERY_IDENTITY_INVALID')
         const ports = linePorts(env, db)
-        return send(claimRef, { db, ...ports, env, now })
+        return send(claimRef, { db, ...ports, env, now, revalidateProductFacts: productFactsRevalidator,
+          productFactsOptions: lineProductFactsOptions })
       }
       case 'trace': {
         assertRuntimeTraceEvent(claimRef, payload)
@@ -902,29 +972,30 @@ export function createConversationRuntimeCore({ db = prisma, env = process.env, 
     }
   }
 
-  async function handle(request, { operation: routeOperation, health = false } = {}) {
+  async function handle(request, { operation: routeOperation, health = false, contractVersion = VERSION } = {}) {
+    if (!SUPPORTED_VERSIONS.includes(contractVersion)) throw error('CONTRACT_VERSION_UNSUPPORTED')
     if (health) {
       if (!authorized(request.headers.get('authorization'), env.CONVERSATION_RUNTIME_TOKEN)) return reply(401, JSON.stringify({ error: 'CORE_CREDENTIAL_REQUIRED' }))
       return reply(env.CONVERSATION_RUNTIME_TOKEN?.length >= 32 ? 200 : 503,
-        JSON.stringify({ contractVersion: VERSION, status: env.CONVERSATION_RUNTIME_TOKEN?.length >= 32 ? 'READY' : 'UNAVAILABLE', runtimeOwner: 'CONVERSATION_RUNTIME' }))
+        JSON.stringify({ contractVersion, status: env.CONVERSATION_RUNTIME_TOKEN?.length >= 32 ? 'READY' : 'UNAVAILABLE', runtimeOwner: 'CONVERSATION_RUNTIME' }))
     }
-    if (!authorized(request.headers.get('authorization'), env.CONVERSATION_RUNTIME_TOKEN)) return reply(401, JSON.stringify({ contractVersion: VERSION, ok: false, error: { code: 'CORE_CREDENTIAL_REQUIRED', retryable: false } }))
+    if (!authorized(request.headers.get('authorization'), env.CONVERSATION_RUNTIME_TOKEN)) return reply(401, JSON.stringify({ contractVersion, ok: false, error: { code: 'CORE_CREDENTIAL_REQUIRED', retryable: false } }))
     try {
       const raw = await readBoundedJson(request)
-      const parsed = envelopeSchema.safeParse(raw)
+      const parsed = envelopeSchemaFor(contractVersion).safeParse(raw)
       if (!parsed.success || parsed.data.operation !== routeOperation) throw error('CONTRACT_ENVELOPE_INVALID')
       const envelope = parsed.data
       exactPayload(envelope.payload, envelope.operation)
       if (Date.parse(envelope.deadlineAt) <= now().getTime() && envelope.operation !== 'status') throw error('CONTRACT_DEADLINE_EXPIRED', 408)
-      const data = await operate(envelope)
-      validateResult(envelope.operation, data, envelope.payload)
-      return reply(200, safeResponse(data))
+      const data = await operate(envelope, contractVersion)
+      validateResult(envelope.operation, data, envelope.payload, contractVersion)
+      return reply(200, safeResponse(data, contractVersion))
     } catch (cause) {
       const status = Number.isInteger(cause?.status) && cause.status >= 400 && cause.status < 600 ? cause.status : 503
       const candidateCode = cause?.code ?? cause?.message
       const code = typeof candidateCode === 'string' && /^[A-Z0-9_:-]{1,80}$/.test(candidateCode)
         ? candidateCode : 'CORE_OPERATION_UNAVAILABLE'
-      return reply(status, JSON.stringify({ contractVersion: VERSION, ok: false,
+      return reply(status, JSON.stringify({ contractVersion, ok: false,
         error: { code, retryable: status >= 500 || status === 408 } }))
     }
   }
@@ -940,3 +1011,4 @@ function authorized(value, token) {
 }
 
 export const conversationRuntimeContractVersion = VERSION
+export const conversationRuntimeContractVersionV2 = VERSION_V2

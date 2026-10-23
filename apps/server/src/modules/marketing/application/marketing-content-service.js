@@ -549,7 +549,6 @@ export async function createMarketingContent(
       createdAt: timestamp,
     })
     await recordAudit(tx, auditEntity({ brief }, revision, 'CREATED', actorId))
-    return txRepository.load(brief.id)
   })
   return getMarketingContent(
     { viewer, businessId: data.businessId, briefId },

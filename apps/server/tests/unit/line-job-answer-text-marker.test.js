@@ -55,6 +55,8 @@ describe('LineConversationJob.answerText writers (FR-244 marker invariant)', () 
       'modules/line-oa-studio/application/line-conversation-jobs.js :: current.outOfHoursReplyText',
       // Runtime send refused on revoked authority: CANCELLED, cleared.
       'modules/line-oa-studio/application/line-conversation-jobs.js :: null',
+      // Product-fact release revalidation refused: CANCELLED, stale reply cleared.
+      'modules/line-oa-studio/application/line-conversation-jobs.js :: null',
       // settleExecution: text only with READY (see the next case).
       "modules/line-oa-studio/application/line-conversation-jobs.js :: finalStatus === 'UNKNOWN' ? null : text ?? null",
       // PDPA erasure: cleared.
@@ -74,6 +76,7 @@ describe('LineConversationJob.answerText writers (FR-244 marker invariant)', () 
     // settleExecution: FAILED always carries a code and no text; UNKNOWN clears; only
     // READY (no code) keeps the text.
     expect(source).toContain(`const finalStatus = outcome === 'UNKNOWN' ? 'UNKNOWN' : code ? 'FAILED' : 'READY'`)
+    expect(source).toContain(`data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_PRODUCT_FACTS_AUTHORITY_REVOKED'`)
     expect(source).toMatch(/code = 'REPLY_DEADLINE_MISSED'\r?\n\s*text = undefined/)
   })
 

@@ -3,6 +3,7 @@ CREATE TABLE "Portfolio" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "version" INTEGER NOT NULL DEFAULT 1,
@@ -34,6 +35,7 @@ CREATE TABLE "LegalEntity" (
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "LegalEntity_pkey" PRIMARY KEY ("id")
 );
@@ -74,6 +76,10 @@ CREATE TABLE "Business" (
     "legalEntityId" TEXT,
     "name" TEXT NOT NULL,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "provisioningTemplateId" TEXT,
+    "provisioningTemplateVersion" TEXT,
+    "provisioningTemplateDigest" TEXT,
+    "provisioningSnapshotJson" TEXT,
     "capabilitiesJson" TEXT NOT NULL DEFAULT '{}',
     "knowledgeCandidatesEnabled" BOOLEAN NOT NULL DEFAULT false,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -81,6 +87,26 @@ CREATE TABLE "Business" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Business_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "BusinessAgentConfig" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "schemaVersion" TEXT NOT NULL,
+    "templateId" TEXT NOT NULL,
+    "templateVersion" INTEGER NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "delegationPolicy" TEXT NOT NULL DEFAULT 'DENY',
+    "snapshotJson" TEXT NOT NULL,
+    "snapshotDigest" TEXT NOT NULL,
+    "appliedByPersonId" TEXT NOT NULL,
+    "appliedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "BusinessAgentConfig_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -96,6 +122,7 @@ CREATE TABLE "Branch" (
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "Branch_pkey" PRIMARY KEY ("id")
 );
@@ -409,6 +436,7 @@ CREATE TABLE "Workspace" (
     "portfolioId" TEXT,
     "tenantId" TEXT,
     "businessId" TEXT,
+    "provisioningKey" TEXT,
     "status" TEXT NOT NULL DEFAULT 'ACTIVE',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
@@ -1598,6 +1626,62 @@ CREATE TABLE "AgentTraceEvent" (
     "version" INTEGER NOT NULL DEFAULT 1,
 
     CONSTRAINT "AgentTraceEvent_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentApprovalRequest" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "requesterPersonId" TEXT NOT NULL,
+    "requesterExternalIdentityId" TEXT NOT NULL,
+    "actionName" TEXT NOT NULL,
+    "tier" INTEGER NOT NULL,
+    "quorum" INTEGER NOT NULL,
+    "targetKind" TEXT NOT NULL,
+    "conversationId" TEXT,
+    "customerId" TEXT,
+    "targetVersion" TEXT NOT NULL,
+    "inputSummaryJson" TEXT NOT NULL DEFAULT '{}',
+    "inputDigest" TEXT NOT NULL,
+    "status" TEXT NOT NULL DEFAULT 'PENDING',
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AgentApprovalRequest_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentApprovalDecision" (
+    "id" TEXT NOT NULL,
+    "requestId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "personId" TEXT NOT NULL,
+    "decision" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AgentApprovalDecision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentApprovalNotification" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "recipientPersonId" TEXT NOT NULL,
+    "approvalRequestId" TEXT NOT NULL,
+    "decisionId" TEXT NOT NULL,
+    "notificationType" TEXT NOT NULL,
+    "decision" TEXT NOT NULL,
+    "approvalStatus" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "readAt" TIMESTAMP(3),
+
+    CONSTRAINT "AgentApprovalNotification_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -4120,6 +4204,24 @@ CREATE TABLE "MarketingExternalReport" (
     CONSTRAINT "MarketingExternalReport_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "LineStockDisclosurePolicy" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineOaAccountId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL DEFAULT false,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "reason" TEXT NOT NULL,
+    "createdByPersonId" TEXT NOT NULL,
+    "updatedByPersonId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LineStockDisclosurePolicy_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -4152,6 +4254,18 @@ CREATE UNIQUE INDEX "Business_code_key" ON "Business"("code");
 
 -- CreateIndex
 CREATE INDEX "Business_tenantId_idx" ON "Business"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Business_id_tenantId_key" ON "Business"("id", "tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessAgentConfig_businessId_key" ON "BusinessAgentConfig"("businessId");
+
+-- CreateIndex
+CREATE INDEX "BusinessAgentConfig_tenantId_idx" ON "BusinessAgentConfig"("tenantId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "BusinessAgentConfig_businessId_tenantId_key" ON "BusinessAgentConfig"("businessId", "tenantId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Branch_code_key" ON "Branch"("code");
@@ -4323,6 +4437,9 @@ CREATE INDEX "Workspace_tenantId_idx" ON "Workspace"("tenantId");
 
 -- CreateIndex
 CREATE INDEX "Workspace_businessId_idx" ON "Workspace"("businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Workspace_businessId_provisioningKey_key" ON "Workspace"("businessId", "provisioningKey");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Project_code_key" ON "Project"("code");
@@ -4916,6 +5033,27 @@ CREATE INDEX "AgentTraceEvent_kind_occurredAt_id_idx" ON "AgentTraceEvent"("kind
 CREATE UNIQUE INDEX "AgentTraceEvent_scope_idempotency_key" ON "AgentTraceEvent"("tenantId", "businessId", "idempotencyKey");
 
 -- CreateIndex
+CREATE INDEX "AgentApprovalRequest_tenantId_businessId_status_expiresAt_idx" ON "AgentApprovalRequest"("tenantId", "businessId", "status", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "AgentApprovalRequest_requesterPersonId_createdAt_idx" ON "AgentApprovalRequest"("requesterPersonId", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AgentApprovalDecision_tenantId_businessId_createdAt_idx" ON "AgentApprovalDecision"("tenantId", "businessId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentApprovalDecision_request_person_key" ON "AgentApprovalDecision"("requestId", "personId");
+
+-- CreateIndex
+CREATE INDEX "AgentApprovalNotification_recipient_read_created_idx" ON "AgentApprovalNotification"("recipientPersonId", "readAt", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AgentApprovalNotification_scope_created_idx" ON "AgentApprovalNotification"("tenantId", "businessId", "createdAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentApprovalNotification_decision_recipient_key" ON "AgentApprovalNotification"("decisionId", "recipientPersonId");
+
+-- CreateIndex
 CREATE INDEX "MemoryProjectionReceipt_erasure_lookup_idx" ON "MemoryProjectionReceipt"("tenantId", "principalId", "erasureStatus");
 
 -- CreateIndex
@@ -5339,6 +5477,9 @@ CREATE UNIQUE INDEX "LineOaAccount_tenantId_code_key" ON "LineOaAccount"("tenant
 CREATE UNIQUE INDEX "LineOaAccount_tenantId_bindingCode_key" ON "LineOaAccount"("tenantId", "bindingCode");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "LineOaAccount_id_tenantId_businessId_key" ON "LineOaAccount"("id", "tenantId", "businessId");
+
+-- CreateIndex
 CREATE INDEX "LineOaRichMenu_lineOaAccountId_status_idx" ON "LineOaRichMenu"("lineOaAccountId", "status");
 
 -- CreateIndex
@@ -5517,6 +5658,9 @@ CREATE UNIQUE INDEX "Product_tenantId_flowAccountSku_key" ON "Product"("tenantId
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Product_productMasterId_variantKey_key" ON "Product"("productMasterId", "variantKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Product_id_tenantId_businessId_key" ON "Product"("id", "tenantId", "businessId");
 
 -- CreateIndex
 CREATE INDEX "ProductIdentifier_productId_status_idx" ON "ProductIdentifier"("productId", "status");
@@ -5905,6 +6049,12 @@ CREATE INDEX "MarketingExternalReport_tenantId_businessId_initiativeId_ac_idx" O
 -- CreateIndex
 CREATE UNIQUE INDEX "MarketingExternalReport_bindingId_sourceReportId_key" ON "MarketingExternalReport"("bindingId", "sourceReportId");
 
+-- CreateIndex
+CREATE INDEX "LineStockDisclosurePolicy_businessId_lineOaAccountId_idx" ON "LineStockDisclosurePolicy"("businessId", "lineOaAccountId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineStockDisclosurePolicy_tenantId_businessId_lineOaAccount_key" ON "LineStockDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "productId");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -5922,6 +6072,9 @@ ALTER TABLE "Business" ADD CONSTRAINT "Business_tenantId_fkey" FOREIGN KEY ("ten
 
 -- AddForeignKey
 ALTER TABLE "Business" ADD CONSTRAINT "Business_legalEntityId_fkey" FOREIGN KEY ("legalEntityId") REFERENCES "LegalEntity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "BusinessAgentConfig" ADD CONSTRAINT "BusinessAgentConfig_businessId_tenantId_fkey" FOREIGN KEY ("businessId", "tenantId") REFERENCES "Business"("id", "tenantId") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Branch" ADD CONSTRAINT "Branch_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -6378,6 +6531,51 @@ ALTER TABLE "CustomerRetentionConsent" ADD CONSTRAINT "CustomerRetentionConsent_
 
 -- AddForeignKey
 ALTER TABLE "ConversationAnalysis" ADD CONSTRAINT "ConversationAnalysis_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_requesterPersonId_fkey" FOREIGN KEY ("requesterPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_requesterExternalIdentityId_fkey" FOREIGN KEY ("requesterExternalIdentityId") REFERENCES "ExternalIdentity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_conversationId_fkey" FOREIGN KEY ("conversationId") REFERENCES "Conversation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalRequest" ADD CONSTRAINT "AgentApprovalRequest_customerId_fkey" FOREIGN KEY ("customerId") REFERENCES "Customer"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalDecision" ADD CONSTRAINT "AgentApprovalDecision_requestId_fkey" FOREIGN KEY ("requestId") REFERENCES "AgentApprovalRequest"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalDecision" ADD CONSTRAINT "AgentApprovalDecision_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalDecision" ADD CONSTRAINT "AgentApprovalDecision_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalDecision" ADD CONSTRAINT "AgentApprovalDecision_personId_fkey" FOREIGN KEY ("personId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalNotification" ADD CONSTRAINT "AgentApprovalNotification_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalNotification" ADD CONSTRAINT "AgentApprovalNotification_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalNotification" ADD CONSTRAINT "AgentApprovalNotification_recipientPersonId_fkey" FOREIGN KEY ("recipientPersonId") REFERENCES "Person"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalNotification" ADD CONSTRAINT "AgentApprovalNotification_approvalRequestId_fkey" FOREIGN KEY ("approvalRequestId") REFERENCES "AgentApprovalRequest"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentApprovalNotification" ADD CONSTRAINT "AgentApprovalNotification_decisionId_fkey" FOREIGN KEY ("decisionId") REFERENCES "AgentApprovalDecision"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PipelineRun" ADD CONSTRAINT "PipelineRun_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE CASCADE ON UPDATE CASCADE;
@@ -7113,4 +7311,13 @@ ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_pl
 
 -- AddForeignKey
 ALTER TABLE "MarketingExternalReport" ADD CONSTRAINT "MarketingExternalReport_auditEventId_fkey" FOREIGN KEY ("auditEventId") REFERENCES "AuditEvent"("id") ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- AddForeignKey
+ALTER TABLE "LineStockDisclosurePolicy" ADD CONSTRAINT "LineStockDisclosurePolicy_businessId_tenantId_fkey" FOREIGN KEY ("businessId", "tenantId") REFERENCES "Business"("id", "tenantId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineStockDisclosurePolicy" ADD CONSTRAINT "LineStockDisclosurePolicy_lineOaAccountId_tenantId_busines_fkey" FOREIGN KEY ("lineOaAccountId", "tenantId", "businessId") REFERENCES "LineOaAccount"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineStockDisclosurePolicy" ADD CONSTRAINT "LineStockDisclosurePolicy_productId_tenantId_businessId_fkey" FOREIGN KEY ("productId", "tenantId", "businessId") REFERENCES "Product"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE;
 

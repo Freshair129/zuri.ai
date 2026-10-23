@@ -1,4 +1,15 @@
-import { queryKnowledgeCorpus as defaultQueryKnowledgeCorpus } from './knowledge-corpus-service'
+import { queryKnowledgeCorpus as defaultQueryKnowledgeCorpus, readAuthorizedKnowledgeManifest } from './knowledge-corpus-service'
+import prisma from '@/lib/db'
+import { createHash } from 'node:crypto'
+import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
+import {
+  SMARTGIFT_CATALOG_CONTENT_TYPE,
+  SMARTGIFT_CATALOG_FORMAT,
+  SMARTGIFT_CATALOG_PROVIDER,
+  smartGiftSourceKey,
+  splitSmartGiftCatalogRecords,
+} from './smartgift-catalog-adapter'
+import { hashGenesisRag17Json, hashGenesisRag17Text } from './genesisrag17-contract'
 
 // @req FR-235 — an in-process implementation of the existing `knowledge.query`
 // port, backed by `queryKnowledgeCorpus` (FR-173), never an HTTP self-call
@@ -29,6 +40,7 @@ import { queryKnowledgeCorpus as defaultQueryKnowledgeCorpus } from './knowledge
 
 const DEFAULT_TOP_K = 5
 const DEFAULT_MAX_PACKET_BYTES = 8192
+const SHA256 = /^[a-f0-9]{64}$/
 
 function byteLength(text) {
   return Buffer.byteLength(typeof text === 'string' ? text : '', 'utf8')
@@ -52,6 +64,116 @@ function emptyResult() {
   return { records: [], retrievalRefs: [], meta: { corpusGeneration: null, manifestHash: null, ranking: null } }
 }
 
+function parseJson(value) {
+  if (typeof value !== 'string') return null
+  try { return JSON.parse(value) } catch { return null }
+}
+
+function sameManifestEntry(left, right) {
+  return Boolean(left && right && hashGenesisRag17Json(left) === hashGenesisRag17Json(right))
+}
+
+function samePublishedIdentity(left, right) {
+  return Boolean(left && right && left.id === right.id && left.corpusId === right.corpusId
+    && left.sourceId === right.sourceId && left.revision === right.revision
+    && left.sourceVersion === right.sourceVersion && left.contentHash === right.contentHash
+    && left.status === right.status && left.executionRunId === right.executionRunId
+    && left.snapshotId === right.snapshotId && left.snapshotGeneration === right.snapshotGeneration
+    && left.receiptHash === right.receiptHash && left.rawArtifactId === right.rawArtifactId
+    && left.parsedArtifactId === right.parsedArtifactId && left.content === right.content
+    && left.sourceMetaJson === right.sourceMetaJson)
+}
+
+function sameSourceIdentity(left, right) {
+  return Boolean(left && right && left.id === right.id && left.corpusId === right.corpusId
+    && left.sourceKey === right.sourceKey && left.kind === right.kind && left.title === right.title
+    && left.fileAssetId === right.fileAssetId && left.activeIngestionId === right.activeIngestionId
+    && left.desiredRevision === right.desiredRevision && left.version === right.version
+    && left.revokedAt === right.revokedAt && left.deletedAt === right.deletedAt)
+}
+
+function sameAssetIdentity(left, right) {
+  return Boolean(left && right && left.id === right.id && left.tenantId === right.tenantId
+    && left.businessId === right.businessId && left.projectId === right.projectId
+    && left.code === right.code && left.name === right.name && left.mime === right.mime && left.size === right.size
+    && left.sha256 === right.sha256 && left.version === right.version
+    && left.status === right.status && left.deletedAt === right.deletedAt
+    && left.storageKind === right.storageKind && left.blobRef === right.blobRef)
+}
+
+export function uniquePublishedCatalogEntry(entries, externalId) {
+  if (!Array.isArray(entries) || typeof externalId !== 'string' || !externalId) return null
+  const matches = entries.filter((entry) => entry?.fileAssetId && entry.title === `PriceListEntry ${externalId}`)
+  return matches.length === 1 ? matches[0] : null
+}
+
+function acceptedCatalogSource({ ingestion, source, asset, entry, descriptor, record, sourceMeta, corpusId, tenantId, businessId, productId, quantity }) {
+  const externalId = `commerce-price:${productId}:${quantity}`
+  return ingestion.status === 'PUBLISHED'
+    && ingestion.corpusId === corpusId
+    && ingestion.sourceId === source.id
+    && ingestion.revision === entry.revision
+    && ingestion.sourceVersion === entry.sourceVersion
+    && ingestion.contentHash === entry.contentHash
+    && ingestion.contentHash === hashGenesisRag17Text(ingestion.content)
+    && ingestion.executionRunId === entry.executionRunId
+    && ingestion.snapshotId === entry.snapshotId
+    && ingestion.snapshotGeneration === entry.generation
+    && ingestion.receiptHash === entry.receiptHash
+    && ingestion.rawArtifactId === entry.rawArtifactId
+    && ingestion.parsedArtifactId === entry.parsedArtifactId
+    && source.corpusId === corpusId
+    && source.id === entry.sourceId
+    && source.kind === 'FILE'
+    && source.title === entry.title
+    && source.fileAssetId === entry.fileAssetId
+    && source.activeIngestionId === ingestion.id
+    && source.desiredRevision === ingestion.revision
+    && source.revokedAt === null && source.deletedAt === null
+    && asset.id === entry.fileAssetId
+    && asset.tenantId === tenantId
+    && asset.businessId === businessId
+    && asset.projectId === null
+    && asset.status === 'ACTIVE' && asset.deletedAt === null
+    && /^PCAT-[a-f0-9]{64}$/.test(asset.code || '')
+    && asset.name === `commerce-price-${productId}.json`
+    && SHA256.test(asset.sha256 || '')
+    && descriptor.format === SMARTGIFT_CATALOG_FORMAT
+    && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
+    && descriptor.entityType === 'PriceListEntry'
+    && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && descriptor.externalId === externalId
+    && Number.isSafeInteger(descriptor.recordIndex) && descriptor.recordIndex >= 0
+    && Number.isSafeInteger(descriptor.recordCount) && descriptor.recordCount > descriptor.recordIndex
+    && descriptor.fileSha256 === asset.sha256
+    && record.entityType === 'PriceListEntry'
+    && record.externalId === externalId
+    && record.productExternalId === `commerce-sku:${productId}`
+    && record.qty === quantity
+    && record.srpSource === 'COMMERCE_APPROVED_COMPUTED'
+    && ingestion.sourceVersion === asset.sha256
+    && descriptor.fileSha256 === asset.sha256
+    && sourceMeta?.kind === 'FILE'
+    && sourceMeta.title === source.title
+    && sourceMeta.sourceKey === source.sourceKey
+    && sourceMeta.fileAssetId === asset.id
+    && sourceMeta.fileAssetVersion === asset.version
+    && sourceMeta.mime === asset.mime
+    && sourceMeta.size === Buffer.byteLength(ingestion.content, 'utf8')
+    && sourceMeta.storageKind === asset.storageKind
+    && sourceMeta.sourceVersion === ingestion.sourceVersion
+    && sourceMeta.contentHash === ingestion.contentHash
+    && sourceMeta.structured?.format === descriptor.format
+    && sourceMeta.structured?.provider === descriptor.provider
+    && sourceMeta.structured?.entityType === descriptor.entityType
+    && sourceMeta.structured?.contentType === descriptor.contentType
+    && sourceMeta.structured?.externalId === descriptor.externalId
+    && sourceMeta.structured?.recordIndex === descriptor.recordIndex
+    && sourceMeta.structured?.recordCount === descriptor.recordCount
+    && sourceMeta.structured?.fileSha256 === descriptor.fileSha256
+    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: externalId })
+}
+
 /**
  * @param {object} input
  * @param {string} input.tenantId — the job's already-verified tenant. Not
@@ -69,6 +191,10 @@ export function createCorpusKnowledgeReader({
   topK = DEFAULT_TOP_K,
   maxPacketBytes = DEFAULT_MAX_PACKET_BYTES,
   queryKnowledgeCorpus: queryCorpus = defaultQueryKnowledgeCorpus,
+  db = prisma,
+  env = process.env,
+  objectStoragePort = null,
+  fileContentResolver = resolveFileAssetContent,
 } = {}) {
   if (typeof tenantId !== 'string' || !tenantId.trim() || typeof businessId !== 'string' || !businessId.trim()) {
     throw Object.assign(new Error('CORPUS_KNOWLEDGE_READER_SCOPE_REQUIRED'), { code: 'CORPUS_KNOWLEDGE_READER_SCOPE_REQUIRED' })
@@ -77,7 +203,129 @@ export function createCorpusKnowledgeReader({
   // widened, never accepted as a constructor argument from a caller.
   const viewer = Object.freeze({ visibleBusinessIds: Object.freeze([businessId]) })
 
+  // @req FR-291 — expose only the exact record from the current authorized
+  // Knowledge publication, after receipt-backed manifest and PCAT byte checks.
+  // @spec ADR-098, ADR-090, SEC-001
+  // @tested tests/integration/line-published-price-reader.test.js
+  async function readPublishedCatalogRecord({ productId, quantity } = {}) {
+    if (typeof productId !== 'string' || !productId.trim() || !Number.isSafeInteger(quantity) || quantity < 1) return null
+    const startedAt = new Date()
+    const externalId = `commerce-price:${productId}:${quantity}`
+    try {
+      const manifest = await readAuthorizedKnowledgeManifest({ businessId, projectId: null }, { db, viewer, env })
+      if (manifest.scope?.tenantId !== tenantId || manifest.scope?.businessId !== businessId) return null
+      // Multiple currently published candidates for one exact product/quantity
+      // have no declared precedence. Refuse ambiguity instead of selecting by
+      // database order or a caller-controlled idempotency key.
+      const entry = uniquePublishedCatalogEntry(manifest.entries, externalId)
+      if (!entry) return null
+      if (!entry.sourceId || !entry.ingestionId || !entry.fileAssetId
+        || !sameManifestEntry(entry.scope, manifest.scope)
+        || entry.title !== `PriceListEntry ${externalId}`
+        || entry.scope?.tenantId !== tenantId || entry.scope?.businessId !== businessId) return null
+      const [source, loadedIngestion] = await Promise.all([
+        db.knowledgeSource.findUnique({ where: { id: entry.sourceId } }),
+        db.knowledgeIngestion.findUnique({ where: { id: entry.ingestionId } }),
+      ])
+      if (!source || !loadedIngestion) return null
+      const sourceMeta = parseJson(loadedIngestion.sourceMetaJson)
+      const descriptor = sourceMeta?.structured
+      const assetBefore = await db.fileAsset.findUnique({ where: { id: entry.fileAssetId } })
+      if (!assetBefore || assetBefore.tenantId !== tenantId || assetBefore.businessId !== businessId
+        || assetBefore.projectId !== null || assetBefore.storageKind !== 'MANAGED_BLOB'
+        || assetBefore.mime !== SMARTGIFT_CATALOG_CONTENT_TYPE
+        || !/^PCAT-[a-f0-9]{64}$/.test(assetBefore.code || '')) return null
+      const { asset: resolvedAsset, content: rawContent } = await fileContentResolver(entry.fileAssetId, {
+        db,
+        visibleBusinessIds: [businessId],
+        objectStoragePort,
+      })
+      if (!sameAssetIdentity(assetBefore, resolvedAsset)) return null
+      const bytes = Buffer.from(rawContent)
+      const fileSha256 = createHash('sha256').update(bytes).digest('hex')
+      if (bytes.length !== assetBefore.size || fileSha256 !== assetBefore.sha256 || fileSha256 !== descriptor?.fileSha256) return null
+      let content
+      try { content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) } catch { return null }
+      const split = splitSmartGiftCatalogRecords({
+        content,
+        fileAssetId: assetBefore.id,
+        fileSha256,
+        fileName: assetBefore.name,
+      })
+      if (split.recordCount !== descriptor?.recordCount || !Number.isSafeInteger(descriptor?.recordIndex)
+        || descriptor.recordIndex < 0 || descriptor.recordIndex >= split.recordCount) return null
+      const admittedRecord = split.records.find((record) => record.index === descriptor.recordIndex)
+      if (!admittedRecord || admittedRecord.externalId !== externalId
+        || admittedRecord.content !== loadedIngestion.content
+        || admittedRecord.contentHash !== loadedIngestion.contentHash
+        || descriptor.entityType !== admittedRecord.entityType
+        || source.sourceKey !== admittedRecord.sourceKey) return null
+      if (!acceptedCatalogSource({
+        ingestion: { ...loadedIngestion, sourceMeta }, source, asset: assetBefore, entry, descriptor,
+        record: admittedRecord.record, sourceMeta, corpusId: manifest.corpusId, tenantId, businessId, productId, quantity,
+      })) return null
+
+      const [finalManifest, finalSource, finalIngestion, finalAsset] = await Promise.all([
+        readAuthorizedKnowledgeManifest({ businessId, projectId: null }, { db, viewer, env }),
+        db.knowledgeSource.findUnique({ where: { id: source.id } }),
+        db.knowledgeIngestion.findUnique({ where: { id: loadedIngestion.id } }),
+        db.fileAsset.findUnique({ where: { id: assetBefore.id } }),
+      ])
+      const finalEntry = finalManifest.entries.find((candidate) => candidate.sourceId === entry.sourceId && candidate.ingestionId === entry.ingestionId)
+      if (finalManifest.scope?.tenantId !== tenantId || finalManifest.scope?.businessId !== businessId
+        || finalManifest.corpusId !== manifest.corpusId
+        || finalManifest.corpusGeneration !== manifest.corpusGeneration
+        || finalManifest.manifestHash !== manifest.manifestHash
+        || !sameManifestEntry(entry, finalEntry)
+        || !sameSourceIdentity(source, finalSource)
+        || !samePublishedIdentity(loadedIngestion, finalIngestion)
+        || !sameAssetIdentity(assetBefore, finalAsset)) return null
+
+      const record = {
+        entityType: admittedRecord.record.entityType,
+        externalId: admittedRecord.record.externalId,
+        productExternalId: admittedRecord.record.productExternalId,
+        qty: admittedRecord.record.qty,
+        srpUnitPriceThb: admittedRecord.record.srpUnitPriceThb,
+        srpSource: admittedRecord.record.srpSource,
+      }
+      const observedTo = new Date().toISOString()
+      return {
+        record,
+        assetId: assetBefore.id,
+        assetCode: assetBefore.code,
+        assetSha256: assetBefore.sha256,
+        publicationDigest: hashGenesisRag17Json({
+          schema: 'zuri.line-published-catalog-source.v1',
+          tenantId,
+          businessId,
+          corpusId: manifest.corpusId,
+          corpusGeneration: manifest.corpusGeneration,
+          manifestHash: manifest.manifestHash,
+          entry: {
+            sourceId: entry.sourceId, ingestionId: entry.ingestionId, sourceVersion: entry.sourceVersion,
+            revision: entry.revision, executionRunId: entry.executionRunId, snapshotId: entry.snapshotId,
+            generation: entry.generation, receiptHash: entry.receiptHash, rawArtifactId: entry.rawArtifactId,
+            parsedArtifactId: entry.parsedArtifactId, contentHash: entry.contentHash, fileAssetId: entry.fileAssetId,
+          },
+          source: { id: source.id, version: source.version, activeIngestionId: source.activeIngestionId },
+          asset: { id: assetBefore.id, code: assetBefore.code, sha256: assetBefore.sha256, version: assetBefore.version },
+          record: { externalId, quantity, productExternalId: record.productExternalId },
+        }),
+        observedFrom: startedAt.toISOString(),
+        observedTo,
+      }
+    } catch {
+      // This is an internal source capability. Its boundary is a fail-closed
+      // candidate read; callers receive no Knowledge denial or source detail.
+      return null
+    }
+  }
+
   return {
+    async readPublishedCatalogRecord(input) {
+      return readPublishedCatalogRecord(input)
+    },
     async query(input) {
       const queryText = queryTextFromRegisteredQuery(input).trim()
       if (!queryText) return emptyResult()

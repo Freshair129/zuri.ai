@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.6.0"
+version: "0.8.5"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -11,8 +11,8 @@ follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 The owner authorized application fixes after committing and pushing the
 [assessment](README.md). This record separates implemented behavior, local
 verification and remaining external acceptance. It issues no new requirements,
-product roadmap or delivery dates. Canonical IDs and source-preserved rows are
-unchanged; the assessment remains a snapshot of application revision e3474ef3.
+product roadmap or delivery dates. Existing canonical IDs and source-preserved rows are
+unchanged; the approved follow-up below adds standalone FR-291; the assessment remains a snapshot of application revision e3474ef3.
 
 ## Implemented scope
 
@@ -299,6 +299,274 @@ distinct integration prerequisites recorded in the plan. F07 is unchanged.
 Final document checks and exact-head hosted CI remain required for this composed
 patch; their actual results belong in the PR. Merge and deployment remain separate.
 
+### Consent identity snapshot correction after final review
+
+The final merge-readiness review found that consent decline selected the
+Customer's mutable `personId` before the transaction. A real LINE account merge
+could commit in that gap, leaving `DECLINED` recorded while erasure selected the
+previous Person and missed the Customer's current memory lineage. A disposable
+SQLite regression reproduced that outcome: the consent changed but the private
+message retained its original body.
+
+The existing owner/domain gates and early tenant-scoped admission lookup remain.
+Inside the Serializable transaction, the service now re-reads the tenant-scoped
+Customer and claims its exact Person/version before erasing memory. The claim,
+erasure and audit commit or roll back together. The claim precedes erasure's
+existing `PENDING_MSP` writer, which can itself increment the Customer version;
+the returned summary re-reads that final state. No identity, retention-purpose,
+schema or external-erasure authority changes.
+
+Verification of the correction:
+
+- The actual identity-link interleave first failed because the original message
+  survived; it passes after the transaction-scoped selection and claim.
+- A second real-database test injects a row/Person/version change between the
+  authoritative read and claim, verifies rejection and complete rollback of
+  Customer/message/audit state. This is deterministic claim fault injection,
+  not a claim of two independent concurrent database writers.
+- Five selected SQLite files passed **64/64**: consent unit/integration,
+  Knowledge candidate erasure, shared-speaker erasure and identity linking.
+- The same consent integration file passed **10/10** on a fresh disposable
+  PostgreSQL cluster via `npm run test:postgres --
+  tests/integration/crm-customer-consent.test.js`. It is now included in the
+  existing PostgreSQL profile. No ambient or deployed database was used.
+
+These results qualify the added correction, not a fresh full local application
+suite. The earlier source fingerprints remain historical. Final independent
+re-review and exact-head hosted checks are recorded in PR #723; #724 must carry
+this corrected parent before its own final readiness audit.
+
+## Customer LINE stock and published-price implementation
+
+The owner authorized implementation of the approved
+[stock/price contract](../../docs/change-requests/integration/line-agent-stock-price-facts-20261023.md).
+The sanctioned authored-record migration adds
+[FR-291](../../docs/requirements/FR-291.md) without changing existing identities,
+statements or FEAT membership. Its approval copy, manifest and receipt remain
+frozen. Readiness presentation is maintained in the FEATURES template and
+regenerated; Agent is the orchestration navigation, not exclusive data ownership.
+
+Customers use an explicit strict command, for example:
+
+```text
+#product {"sku":"MUG-01","facets":["availability","price"],"quantity":100,"unit":"piece"}
+```
+
+Stock requires the original signed DIRECT source, live verified identity, an
+exact non-erased Customer-to-Business binding and an owner-enabled account/SKU
+policy. That policy defaults OFF, uses version CAS and audited changes, and is
+excluded from portable recovery authority. Inventory returns only positive/zero
+ATP or not-measured, never counts, sufficiency or delivery promises.
+
+Price-only keeps existing published Knowledge authority without stock-specific
+identity or policy gates. Commerce verifies current receipt-backed publication,
+exact PCAT bytes/hash, frozen calculation and effective rule lineage, exact
+SKU/quantity/base-unit and safe THB minor units; tax remains UNKNOWN. The
+producer now freezes baseUnit privately. Legacy calculations without that proof
+and records whose current unit differs return unavailable rather than being
+relabeled or backfilled.
+
+Both Server and Runtime use the same deterministic resolver and final live
+revalidation gate. Strict v1 is unchanged; the production client explicitly uses
+v2 PRODUCT_FACTS. The private execution-bound decision stays in Core, with a
+content-free idempotent AuditEvent and immutable trace. Recognized malformed,
+denied or unavailable commands never fall through to a model. Stock-policy or
+identity denial suppresses a combined request; an authorized technical failure
+in one source preserves the other as PARTIAL. Product turns do not read memory;
+a real memory-read receipt still requires its matching append receipt.
+
+Review corrections include opted-in memory completion, facet-local failure
+handling, the frozen published unit, policy first-create concurrency mapping,
+real Knowledge owner withdrawal coverage, literal AuditEvent persistence and
+facet-aware documentation. Graph scanning validates canonical provenance before
+excluding exact sealed approval copies from live identity declarations;
+unregistered duplicate documents remain subject to normal guards.
+
+The first implementation freeze passed these local checks; the subsequent main synchronization is qualified separately below:
+
+| Command / scope | Actual result |
+|---|---|
+| Server `npm test --` all 16 `tests/integration/conversation-runtime-*.test.js` files plus the 13 files listed below | 29 files; 475 passed, 1 PostgreSQL-only race skipped on SQLite. |
+| Server `npm run test:postgres` | Full configured profile: 17 files; 158/158 passed on a new disposable embedded cluster, including that race and retained CRM consent coverage. |
+| Runtime `npm test` / `npm run build` | 91/91; boundary build passed for 11 source files. |
+| Server `npm run build` | Passed compilation and type checks. Existing multiple-lockfile root-inference warning remains; standalone lint is not configured. |
+| SQLite and PostgreSQL baseline plus incremental policy DDL | Passed in isolated databases; PostgreSQL proves three scoped foreign keys and default-OFF policy. Supabase migration source is byte-identical to the tested PostgreSQL incremental DDL. No deployed migration applied. |
+| `npm run docs:migration:test` | 99/99 registry, migration, reader, query and view contracts. |
+| Registry/services/graph/views, `npm run govern`, `npm run docs:llms` and `npm run docs:llms:check` | Passed on the final composed tree; strict preflight 0 critical, 0 warning, 43 information. Corpus fresh (411 KB). |
+
+The 13 additional Server files are `tests/unit/line-product-facts.test.js`,
+`tests/unit/corpus-knowledge-reader.test.js`,
+`tests/unit/line-job-answer-text-marker.test.js`,
+`tests/unit/customer-consent-service.test.js`,
+`tests/integration/line-product-facts.test.js`,
+`tests/integration/line-stock-disclosure-policy.test.js`,
+`tests/integration/line-published-price-reader.test.js`,
+`tests/integration/fr253-pricing-catalog.test.js`,
+`tests/integration/openapi-docs.test.js`,
+`tests/integration/line-stock-policy-backup.test.js`,
+`tests/integration/fr075-restore-authorization.test.js`,
+`tests/integration/line-server-backup.test.js` and
+`tests/integration/crm-customer-consent.test.js`. Commands run from apps/server;
+Runtime commands run from services/conversation-runtime. Select the 16 Runtime
+integration paths with `rg --files tests/integration` filtered by
+`conversation-runtime-.*\.test\.js$`, then pass those exact paths plus the 13
+additional paths to `npm test --`; this avoids selecting the whole directory.
+
+Earlier failing composed runs are not passes: the 16-file PostgreSQL attempt
+had one IDLE failure because the owner-reader fixture left its own expired
+CLAIMED jobs in the shared test database. Cleanup now cancels only the tracked
+fixture job IDs. The first broad Server run had eight vertical failures after
+the HTTP harness sent the new production v2 client to v1 handlers, plus one
+writer-inventory assertion. The corrected harness dispatches by the real path,
+asserts v2 traffic and preserves v1 tests; the writer guard explicitly includes
+the reviewed cancellation clear. The final complete reruns above passed after
+those corrections, without test retries or widening a baseline.
+
+Independent Luna Max review covered author-separated source slices and the
+final audit race, fixture dispatch/cleanup, marker invariant and governance
+reader fixes. No P1/P2 remained in those reviewed deltas. Registry, services,
+graph, views, strict governance and corpus freshness are separate final checks;
+the pull request records their output and exact-head hosted CI. Local results
+are scoped, not a fresh full Server suite or live/provider acceptance.
+
+PR #723 merged independently as fbe6485e1ee037e55b6eea1cd078ee5d5cdc28b0
+while this follow-up was being verified. Its tree matches the incorporated
+c49fbdf consent patch; all three CRM source/test files were preserved exactly.
+This stock/price change is delivered on a separate follow-up branch and PR.
+No live LINE send, provider activation, deployment, active database migration
+or stock disclosure enabling is included. F07 and the separate GenesisRAG work
+remain outside this implementation.
+
+## Main synchronization for follow-up PR 725
+
+Main advanced again to 55f9413b4961874b90a86ccedca2bd26f6f395c2 when
+PR #724 merged after PR #723. PR #725 initially reported a conflict in the
+generated runtime/domain-state.json only. The graph generator rebuilt that
+file from the composed sources; no generated JSON was concatenated. Adopted
+Knowledge sources match main, the FR-291 source slice is unchanged, and the
+553-record registry, ledger and sealed approval artifacts remain unchanged.
+Independent Luna Max review found no P1/P2 in the integration.
+
+Fresh checks after that synchronization:
+
+| Check | Actual result |
+|---|---|
+| Server group above plus unit/genesisrag17-worker, unit/knowledge-runtime-instrumentation, unit/knowledge-runtime-loop and unit/knowledge-runtime (all .test.js under tests) | 33 files; 526 passed, 1 PostgreSQL-only skip. |
+| Full disposable PostgreSQL profile | 17 files; 158/158. |
+| Runtime test/build | 91/91; 11-source-file build passed. |
+| Server build | Passed; existing lockfile inference warning remains. |
+| Registry/services/graph/views, govern and corpus freshness | Passed; 0 critical, 0 warning, 43 info; corpus fresh at 413 KB. |
+| Document migration/reader contracts | 99/99. |
+
+The four added unit paths are existing main worker/runtime guards, not new
+product scope. Exact-head hosted results belong to PR #725 and are separate
+from these local checks. No merge, deployment or live acceptance is claimed
+for this follow-up.
+
+## Hosted integration corrections after head 1635603b
+
+The first hosted run for PR #725 passed Server build and governance but exposed
+two service qualification gaps: SCM kernel drift and the Runtime image smoke's
+v1-only fake Core. These failures are not passes or runner retries.
+
+The sanctioned SCM generator synchronized only pricing-catalog-projection and
+its kernel manifest to the already-reviewed Server source. Kernel check and
+77-source-file boundary build passed. After installing the isolated service's
+locked dependencies, its full 47-file SQLite suite passed 350 with 2 explicit
+skips; the full disposable PostgreSQL suite passed 351 with 1 platform skip.
+The initial local SCM attempt before dependency installation failed to load
+zod and is not acceptance evidence. Windows SIGTERM skips remain unproved
+locally and belong to the Linux image qualification.
+
+The Runtime smoke dependency now routes both v1/v2 with matching envelopes.
+A real HTTP regression uses the production v2 client through prepare and also
+checks legacy v1 health. Runtime tests passed 92/92 and its 11-source-file build
+passed. The smoke changes and generated SCM mirror received independent Luna
+Max review with no P1/P2. Local Docker smoke was unavailable because the Docker
+Desktop Linux engine pipe could not be reached; no Compose project was started.
+Only the new exact-head hosted drain smoke can qualify that image behavior.
+No deployment, live provider or production acceptance is implied.
+
+## Full Server CI compatibility corrections
+
+The completed first hosted run also found two Server shard failures: Phase B
+correctly refused the stale 208-table schema binding, the PostgreSQL snapshot
+directory rejected the extra 0003 file, and a unit test still mocked the answer
+composition before the product wrapper existed. The other two shards passed.
+These are retained as failed prior-head evidence.
+
+The production incremental policy DDL remains only in Supabase migrations. The
+incorrect extra file under prisma/postgres was removed; `npm run db:pg:sql`
+regenerated the full 0001 snapshot from the current schema, preserving the one
+legitimate 0002 partial-index file. No static directory guard was weakened.
+
+Phase B's current static binding advances to 209 mappings in Document 26 version
+0.3.23b. All prior 208 mappings are unchanged; only the excluded stock policy
+is added to the complete empty-target/catalog census. The exact schema hash is
+fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808,
+and the canonical target hash is
+db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633.
+Historical 208 and 192 inventories are reconstructed with exact counts and
+hashes before proving refusal. A policy row makes a target nonempty despite
+its portable snapshot exclusion; no disclosure grant is restored. No historical
+receipt, canonical requirement or loader guard was rewritten or relaxed.
+
+The worker-route unit fixture now uses callable wrappers and proves the exact
+Server answer to #sku to #product composition using only server-owned options.
+The matching-bearer regression was red at 503, then passed 3/3 after the fixture
+correction. The focused Phase B run went from collection refusal to 46/46.
+A composed 8-file recovery/migration/worker/backup group passed 85/85; after the
+last historical fixture correction, the full Phase B file passed 46/46 again.
+Independent Luna Max review found no remaining P1/P2, including exact mapping
+preservation and the corrected historical-192 proof. New exact-head CI and
+Docker smoke remain mandatory before the owner-authorized merge of PR #725.
+
+## Hosted binary-lineage timeout investigation
+
+Governance run 39929409307 on d1e5f82a passed governance, build, Runtime,
+SCM and Server shards 2/4, 3/4 and 4/4. Server shard 1/4 failed three valid binary
+lineage cases at the 30-second test deadline; 2160 tests passed and 7 were
+skipped. The PDF, DOCX and HTML failures are retained as failed hosted evidence,
+not silently reclassified as successful retries. PostgreSQL did not run after
+that failed shard.
+
+The same four-case file passed in isolation on Node 24 and Node 22. A complete
+local Node 22 first-shard run subsequently passed 2163 tests with 7 skips,
+including all four binary lineage cases. That does not establish the cause of
+the hosted delay or prove a performance correction. The valid fixtures are
+under 1 KB, while the production binary parser has a bounded 60-second worker
+deadline and the previous test deadline was only 30 seconds. The follow-up
+aligns only these cases' test budget with that production deadline and adds
+stage diagnostics; parser limits and lineage assertions remain unchanged.
+Fresh exact-head hosted tests remain required.
+
+The completed Runtime job in that run did exercise a real Linux container:
+IMAGE_START_SMOKE=PASS, healthz=200, readyz_before_drain=200,
+readyz_during_drain=503, container_health=healthy, providerCalls=1,
+completeCalls=1, sendCalls=1 and shutdown_exit=0. This is disposable hosted
+image qualification, not local Docker, a deployment or live LINE acceptance.
+
+## Qualification and integration of main after PR 726
+
+Head 53fac5d6480ad7ba9eaf34d6506b3c239104ff65 passed governance run
+39934133610 and Edge run 39934133528: 13 successful checks and 2 policy skips
+(E2E and Desktop). The binary lineage file passed all four cases in 4785 ms;
+Server shard 1 passed 2163 tests with 7 skips, then PostgreSQL passed all
+158 tests across 17 files. The fresh real Linux container drain smoke also
+passed health, readiness, one send/completion and shutdown checks. The earlier
+timeout remains failed evidence; the successful run does not diagnose its cause.
+
+Before merge, main advanced from 55f9413b to 3a44bd18 through PR 726. The
+integration preserves its scoped E2E fixtures, Knowledge Studio graph setup and
+Marketing transaction correction. Only the generated runtime domain-state file
+conflicted; it is rebuilt with the graph and document-view generators from the
+combined source. No generated JSON is concatenated and no canonical identity or
+product permission changes. Fresh composed-head CI remains required before
+merging PR 725; the earlier successful run qualifies its own head only. The
+four-file Marketing, E2E warm-up, Business Home read-model and binary-lineage
+regression group passed 57/57 on the combined source. Independent Luna Max
+review found no P1/P2 in the incoming main delta.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -319,3 +587,31 @@ interface contract. No canonical row, runtime operation or access grant changes.
 0.5.0 → 0.6.0 records design approval, the bounded ATP source/clock correction,
 its real-database red/green evidence and the implementation plan. It does not
 certify customer stock/price integration or alter canonical rows and grants.
+
+0.6.0 → 0.7.0 records the final review's consent/identity race correction and
+its SQLite/PostgreSQL claim and rollback proof. Earlier verification records
+and their source fingerprints are preserved.
+
+0.7.0 to 0.8.0 records the approved customer LINE stock/price implementation,
+review corrections and actual composed verification without rewriting the dated
+assessment or claiming production acceptance.
+
+0.8.0 to 0.8.1 records main synchronization and fresh composed verification for
+PR #725 after PR #724 landed, preserving source and approval identities.
+
+0.8.1 to 0.8.2 records the hosted service-qualification corrections, isolated
+SCM engine results and Runtime smoke compatibility without reclassifying a
+failed hosted run or unavailable local Docker check as PASS.
+
+0.8.2 to 0.8.3 records static SQL snapshot discipline, the reviewed 209-model
+Phase B rebind and complete recovery/worker fixture proofs without changing
+recovery authority or rewriting earlier hosted evidence.
+
+0.8.3 to 0.8.4 preserves the failed hosted binary-lineage evidence, its successful
+local Node 22 shard comparison, the bounded test-budget correction and the
+actual hosted container drain proof without claiming a diagnosed performance
+cause or production acceptance.
+
+0.8.4 to 0.8.5 records the successful exact-head hosted qualification and the
+subsequent main integration boundary, keeping the new composed-head gates
+separate from the prior passing run.

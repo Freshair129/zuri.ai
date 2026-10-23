@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto'
-import { validateClaim, validateTurnContext, validateWorkToolRequest } from './contracts.js'
+import { CONTRACT_VERSION, validateClaim, validateTurnContext, validateWorkToolRequest } from './contracts.js'
 import { composeTurnContext } from './context.js'
 import { NO_EVIDENCE_REPLY, boundLineText, checkModelAnswer, deterministicFallback } from './line-answer-policy.js'
 
@@ -291,17 +291,21 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
     const stableModelId = modelOperation(claim.jobId)
     let text = null
     let fixedReply = false
+    let deferFixedReplyFailure = false
     let composed = null
     try {
       const authority = await ports.authority.resolve(claim, { signal })
       assertAuthority(authority, claim)
-      const turn = validateTurnContext(await ports.context.prepare(claim, authority, { signal }))
+      const turn = validateTurnContext(await ports.context.prepare(claim, authority, { signal }), {
+        contractVersion: ports.contractVersion ?? CONTRACT_VERSION,
+      })
       // @req FR-244 — Core decided at admission that this message arrived outside the
       // account's hours and handed over its fixed reply. The runtime produces exactly
       // that reply: no Work command, context, credential or model call.
-      fixedReply = turn.turnKind === 'OUT_OF_HOURS'
+      fixedReply = turn.turnKind === 'OUT_OF_HOURS' || turn.turnKind === 'PRODUCT_FACTS'
+      deferFixedReplyFailure = turn.turnKind === 'OUT_OF_HOURS'
       if (fixedReply) {
-        stage = 'out-of-hours'
+        stage = turn.turnKind === 'PRODUCT_FACTS' ? 'product-facts' : 'out-of-hours'
         text = turn.replyText
       } else if (turn.workReply) {
         // Core derived a fixed reply from malformed Work command text; no tool runs.
@@ -534,7 +538,7 @@ export function createConversationRuntime({ ports, claimantId = `conversation-ru
       // else is left CLAIMED for lease reclaim. Before `prepare` the runtime cannot
       // know the turn kind, so Core refuses the `fail` itself (OUT_OF_HOURS_FAILURE_DEFERRED).
       const settles = stage !== 'completion' && stage !== 'delivery'
-      let deferred = settles && fixedReply && !AUTHORITY_ENDED.includes(code)
+      let deferred = settles && deferFixedReplyFailure && !AUTHORITY_ENDED.includes(code)
       if (!deferred && settles) {
         try { await ports.job.fail(claim, { code, outcome }, { signal }) }
         catch (failError) { deferred = failError?.code === 'OUT_OF_HOURS_FAILURE_DEFERRED' /* else core status/lease recovery owns reconciliation */ }

@@ -3,7 +3,7 @@ id: ZAI:PM-EXISTING-DELIVERY-PLAN-20261023
 title: Existing PM delivery qualification plan
 doc_type: implementation-plan
 status: approved
-version: "0.4.0"
+version: "0.5.0"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -518,3 +518,43 @@ B4 and C remain unstarted. Exact-head hosted CI remains required before merge.
 
 0.4.0 (2026-10-23): record B3 contract reconciliation, test-first SMART correction,
 selected adapter/browser qualification and explicit hosted/release boundaries.
+
+
+## B4 PR and release-readiness preparation — 2026-10-23
+
+The owner selected PR preparation, exact-head hosted CI and independent release
+readiness review, explicitly excluding PR merge and production. The product
+candidate combines locally accepted A1/B1/B2/B3 through `4c31ab99` with current
+main `77be99c8cb7b564408e37ba3358f3835b25d520e`. Main contributed 17 commits
+since the original branch base `5d79760b`; its current sources and CI policy
+are included rather than treating old local results as composed-tree acceptance.
+
+Integration preserves both sides of PostgreSQL explicit test selection (PM
+races/runtime-role/strategy and current main stock-price/consent suites). The
+roadmap keeps both delivery histories and unchanged task counts. Generated
+bindings are rebuilt serially from the composed inputs. Local integration and
+hosted results are reported in the PR with their exact commit/run URLs; results
+from earlier A1/B2/B3 commits remain dated evidence. B2's 124/126 then focused
+16/16 caveat and B3's SQLite provider-only skip remain unchanged.
+
+**Readiness boundaries:**
+
+- PR preparation and CI/reviewer qualification are selected; this is not full
+  B4 environment acceptance. The B4 environment checkboxes remain unchecked.
+- No production target is selected or inspected in this increment. Active image,
+  Compose/database/volume/runtime-role/ledger, exact migration apply set and
+  source/image parity are **NOT_VERIFIED** for this candidate.
+- Actual non-bypass-role installation grants, migration lineage/dry run, complete
+  snapshot/storage/config recovery, authenticated selected-Business live acceptance,
+  release artifact/rollback image and post-merge verification remain external
+  release gates under ADR-097/104/112. Earlier isolated proofs cannot close them.
+- No schema migration or provider grant change is introduced by the PM patch.
+  Main's existing migrations are baseline, not an authorized production apply set.
+- Hosted E2E/Desktop skips remain skips under the current workflows. A green PR
+  status cannot establish full browser, device or selected-environment acceptance.
+- C/Pipeline Builder and held canonical delivery-row migrations remain excluded.
+  No auto-merge, PR merge, deployment, production read/write or credential access.
+
+0.5.0 (2026-10-23): select B4 PR/CI/readiness preparation, reconcile current main
+and retain the unexecuted environment/release gates. Final hosted evidence lives
+in the PR description bound to its head; changing that text does not change head.
