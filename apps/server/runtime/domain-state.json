@@ -1364,7 +1364,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -6390,7 +6390,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 15,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -9321,7 +9321,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 47
+          "testCount": 46
         },
         {
           "id": "FR-134",
@@ -9385,7 +9385,6 @@
         "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
-        "apps/server/tests/e2e/fr060-business-home.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/asset-disposal-audit.test.js",
         "apps/server/tests/integration/backup.test.js",
