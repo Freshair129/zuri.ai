@@ -2,7 +2,7 @@
 doc_type: implementation-plan
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PLAN-20261023
 status: approved
-version: "0.2.0"
+version: "0.3.1"
 date: "2026-10-23"
 relations:
   - type: references
@@ -23,10 +23,13 @@ relations:
 
 # Main-dev LINE local Ollama implementation plan
 
-**Status:** Approved for bounded main-dev implementation. The canonical
-migration and ADR-100 D9 have received independent review and acceptance. This
-plan does not change production provider behavior or roadmap status, and no
-Ollama implementation, configuration, or LINE acceptance is claimed.
+**Status:** The bounded TEST ONLY fixture contract is approved and its reviewed
+`FR-079`/`FR-080` source-row migration and generated projections are applied.
+The owner discovery/selection API and UI have focused 38-test coverage; the
+fixture helper, runtime integration, and Server answer path pass 119 focused
+tests. Independent runtime review found no remaining P1/P2. Private overlay
+configuration and live acceptance remain pending. Nothing here changes production provider
+behavior or claims deployment or a successful Ollama/LINE conversation.
 
 ## Goal and boundaries
 
@@ -37,13 +40,15 @@ The existing `PRODUCTION_LINE` profile keeps rejecting Ollama, local vaults, and
 raw credentials. Public provider selection continues through the existing
 write-only `apiKey` route and FR-266; PRP remains governed by FR-267 and ADR-100
 D7. No new application table, Edge path, MSP-memory path, or production change
-is in scope. Reuse the existing Prisma-backed IntegrationConnection resolver
-and published-corpus reader for this explicit profile; do not add a database
-role, broad read grant, or alternate source unless a separate reviewed design
-shows the existing scoped reader cannot meet the boundary. The current Prisma
-application role may be broader than this feature needs; this plan does not
-describe it as least-privilege. Ollama receives no database or storage
-connection or credentials.
+is in scope. The local test profile uses a dedicated, operator-configured,
+read-only fixture built from the existing synthetic TEST ONLY PCAT product
+metadata. It does not read GKS/corpus text, the production-pinned `zuri_core`
+source, Supabase, or product/stock/price tables. The existing Prisma-backed
+IntegrationConnection resolver remains the source for the selected model;
+Prisma is also used for the expected database identity and trusted application
+scope checks. The current Prisma application role may be broader than this
+feature needs; this plan does not describe it as least-privilege. Ollama
+receives no database or storage connection or credentials.
 
 The `#product` fact flow remains a separate deterministic path. Its existing
 stock and published-price acceptance must make zero Ollama/model calls. A
@@ -68,6 +73,9 @@ ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_TENANT_IDS=["<tenant UUID>"]
 ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_BUSINESS_IDS=["<Business UUID>"]
 ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_LINE_OA_ACCOUNT_IDS=["<internal LINE OA account UUID>"]
 ZURI_MAIN_DEV_LOCAL_OLLAMA_BASE_URL=http://host.docker.internal:11434
+ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH=<absolute private read-only fixture path>
+ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256=<64 lowercase hex SHA-256>
+ZURI_MODEL_TIMEOUT_MS=25000
 ```
 
 Before listing, selecting, or invoking a local model, compare
@@ -75,23 +83,54 @@ Before listing, selecting, or invoking a local model, compare
 with the private expected name and validate the server-resolved Tenant,
 Business, and internal OA account against separate allowlists. Do not treat the
 current Supabase-pinned `ZURI_LINE_DB_URL` as the main-dev database or use it for
-the local profile. For the allowlisted test OA, compose the existing
-`PHASE1_LINE_LLM` resolver from Prisma (`resolvePhase1PrimaryConnection`) and the
-existing `createCorpusKnowledgeReader`/`queryKnowledgeCorpus` in `GKS_CORPUS`
-mode; do not instantiate the production-pinned `zuri_core` reader or query
-through `ZURI_LINE_DB_URL`. Configure the test OA through the existing account
-setting for `GKS_CORPUS`; default `BUSINESS_KNOWLEDGE` and
-`GKS_THEN_BUSINESS_KNOWLEDGE` are not accepted in this profile because they
-can access the Supabase-backed reader or fall back to it. The selected corpus
-reader is Business-scoped and returns a bounded evidence packet. Keep customer
-disclosure at the existing source authorization boundary: Business-owner
-visibility or corpus publication alone does not authorize customer disclosure.
-Only evidence already eligible under the customer-public source contract may
-reach the answer path. The Server may use its existing app connection through
-these scoped application ports, but it does not pass database or object-storage
-credentials to Ollama; the model receives only the Server-built prompt/evidence
-packet. The profile is not inferred from
-`NODE_ENV`; absent, empty, malformed, or mismatched inputs disable the feature.
+the local profile.
+
+The ordinary-chat source is a private, read-only JSON fixture produced by the
+root-owned main-dev setup from the existing synthetic TEST ONLY PCAT product
+metadata. The fixture builder and runtime reader use only this metadata and
+never open or query the source price list or stock. Its versioned envelope is
+labeled `TEST_ONLY_PUBLIC` and carries the
+exact Tenant, Business, and internal LINE OA account IDs. The fixture's
+absolute path is server configuration, never a browser value or URL. Require a
+local path and reject UNC/network locations, symlinks or reparse points in any
+path component, and non-regular files. Read raw bytes with a hard 64 KiB cap
+(using at most one extra sentinel byte to reject overflow), hash the complete
+accepted bytes and compare the separately configured expected digest, then
+parse. Only after parsing enforce a maximum of eight Product records and the
+strict envelope/schema/scope. Reject changed hashes, unknown envelope
+versions/classifications, scope mismatches, extra record fields,
+non-Product/inactive rows, and any record that does not pass the existing
+FR-047 BusinessKnowledge contract.
+Preserve the source reference and source digest from the real TEST ONLY PCAT
+fixture as provenance. For this test projection, `sell_price`, `currency`, and
+`moq` are null and there are no price-list or stock fields; no price or stock
+facts are generated or queried. This synthetic fixture is authorized only for
+the scoped main-dev test; it does not classify any real Business data as
+customer-public or authorize a production data path.
+
+Reuse `parseBusinessKnowledgeQuery` and the existing in-memory
+`createInMemoryBusinessKnowledgeReader` for the registered product search,
+detail, and compare queries. The runtime accepts only the selected test OA's
+`BUSINESS_KNOWLEDGE` setting and supplies this fixture reader through the
+existing answer-budget composer. It refuses GKS/corpus modes and shadow
+grounding, thread or episodic memory enabled in configuration, and per-job
+memory opt-ins. Specifically, it rejects
+`ZURI_MSP_THREAD_MEMORY_ENABLED=true`,
+`ZURI_MSP_EPISODIC_MEMORY_ENABLED=true`, per-job `memorySyncOptIn=true` or
+`episodicMemoryOptIn=true`, and `knowledgeGroundingShadow=true`. No GKS wrapper,
+private chunk, memory packet, or shadow read may reach this model. The
+`#product` fact path remains separate and continues to use
+its existing persisted stock and receipt-backed published-price readers with
+zero Ollama/model calls. Ollama receives only the Server-built bounded
+test-fixture evidence packet and no database or object-storage credentials.
+The profile is not inferred from `NODE_ENV`; absent, empty, malformed, or
+mismatched inputs disable the feature.
+For this profile only, the Ollama generation request disables thinking and caps
+output at 256 tokens to keep the LINE turn bounded. A token-limit completion is
+rejected rather than delivering a partial answer. Legacy evaluation and public
+provider options remain unchanged. These are server-side constants, never
+connection metadata or browser inputs; see the
+[Ollama generate contract](https://docs.ollama.com/api/generate).
 Accept only the exact server-configured
 `http://host.docker.internal:11434` origin, without redirects or any
 browser/metadata-selected endpoint. This runtime source takes its model only from
@@ -103,28 +142,26 @@ not accepted as Ollama inference.
 
 ## Delivery sequence
 
-1. **Apply the approved document migration.** Use
-   [the approved change proposal](../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md),
-   then migrate only `FR-079`, `FR-080`, and `FEAT-045` as reviewed existing-row
-   wrappers. Preserve their IDs, leading anchors, source paths, FEAT membership,
-   and the ID ledger. The supported projection command is
-   `npm run docs:registry`; run `npm run docs:graph`, `npm run docs:views`, and
-   `npm run govern` serially afterward. Do not use the new-record registration
-   or ID-allocation workflows.
+1. **Reviewed document migration — complete.** The approved change proposal
+   migrated only the existing `FR-079` and `FR-080` wrappers. The `FEAT-045`
+   row remains unchanged from its prior migration. IDs, leading anchors, source
+   paths, FEAT membership, and the ID ledger were preserved; the root integrator
+   applied the registry, graph, views, and governance projections serially.
 2. **Add the profile guard and main-dev composition.** In
    `apps/server/src/modules/agent/phase1-runtime.js` and
    `apps/server/src/modules/agent/server-line-answer.js`, add an explicit
    main-dev-only runtime composition that does not weaken `PRODUCTION_LINE`,
-   verifies the expected database using the local Prisma connection, and uses
-   the existing Prisma-backed `resolvePhase1PrimaryConnection` instead of the
-   Supabase-pinned `resolvePhase1PrimaryConnectionByQuery`. Do not instantiate
-   or require `ZURI_LINE_DB_URL` for this profile's model connection or
-   Knowledge reads. The test OA must use its existing `GKS_CORPUS` account
-   setting; reject `BUSINESS_KNOWLEDGE` and
-   `GKS_THEN_BUSINESS_KNOWLEDGE` for this profile, so the Supabase-backed reader
-   and fallback cannot run. Preserve the scoped corpus reader and existing
-   customer-disclosure boundary; do not broaden corpus visibility or send
-   database/storage credentials to the model. Do not require the legacy
+   verifies the expected database using the local Prisma connection, uses the
+   existing Prisma-backed `resolvePhase1PrimaryConnection`, and injects the
+   pinned TEST ONLY fixture reader instead of any GKS/corpus reader. Do not
+   instantiate or require `ZURI_LINE_DB_URL` for this profile's model
+   connection or Knowledge reads. Require `BUSINESS_KNOWLEDGE` for the test OA
+   and reject GKS/corpus modes, grounding shadow, thread/episodic memory
+   configuration, and per-job memory opt-ins. Bound fixture reads to 64 KiB and
+   eight records, verify its separately configured SHA-256, and enforce exact
+   Tenant/Business/OA scope plus the FR-047 Product schema with null price,
+   currency, and MOQ and no stock fields. Do not send database/storage
+   credentials or any live GKS content to the model. Do not require the legacy
    single-model environment trio or create a global legacy provider; retain the
    existing Business-key-first resolution and fail the local test if a Business
    `MODEL_PROVIDER_KEY` is present. In
@@ -182,7 +219,7 @@ meaning:
 - `apps/server/tests/unit/fr079-runtime-cutover.test.js` and
   `apps/server/tests/unit/model-provider-port.test.js`: default-off, actual
   Prisma database identity (not the Supabase URL), profile-specific Prisma
-  connection/corpus composition, existing runtime-source behavior unchanged,
+  connection/TEST ONLY fixture composition, existing runtime-source behavior unchanged,
   allowlist mismatch, production denial, exact endpoint, URL/redirect rejection,
   no secret, and Ollama failure without fallback.
 - `apps/server/tests/unit/fr080-integration-management.test.js`,
@@ -200,9 +237,9 @@ meaning:
   `apps/server/tests/unit/phase1-business-agent-runtime.test.js`: ordinary chat
   traces the selected local model for an evidence-bearing registered query;
   empty evidence correctly produces `not-called` and cannot count as inference;
-  actual inference failures never fall back. Cover corpus scope and customer-
-  public evidence eligibility without making Business-private corpus material
-  eligible for customer disclosure.
+  actual inference failures never fall back. Cover exact fixture hash and scope,
+  TEST ONLY classification, metadata-only Product projection, and refusal of
+  GKS/corpus, memory opt-ins and shadow grounding.
 - `apps/server/tests/integration/conversation-runtime-product-facts-vertical.test.js`
   and `apps/server/tests/integration/line-product-facts.test.js`: authorized
   `#product` facts still use their persisted stock and receipt-backed published
@@ -221,14 +258,15 @@ UI and already connected test OA:
 2. From the Business-owner UI, list the actually installed models and select
    one. Verify the existing connection is the single active primary, stores only
    the exact model ID, and has no provider credential or secret reference.
-3. Choose a registered ordinary-chat query that matches real searchable,
-   published evidence already eligible under the customer-public source
-   contract. Verify the evidence packet is non-empty before sending it to the
-   allowlisted OA; a greeting/no-evidence query is not a valid inference test
-   because `answerBusinessQuestion` correctly skips the model in that case.
-   Capture the provider/model trace and the actual delivered response; verify it used Ollama on the Server
-   and did not use a paid provider key. Stop Ollama or remove the selected model
-   and verify the request fails closed with no fallback.
+3. Choose a registered ordinary-chat query that matches the product metadata in
+   the SHA-pinned TEST ONLY fixture. Verify the bounded evidence packet is
+   non-empty and carries only test Product metadata before sending the query to
+   the allowlisted test OA; a greeting/no-evidence query is not a valid
+   inference test because `answerBusinessQuestion` correctly skips the model in
+   that case. Capture the provider/model trace and actual delivered test
+   response; verify it used Ollama on the Server, included no price/MOQ/stock
+   claim, and did not use a paid provider key. Stop Ollama or remove the selected
+   model and verify the request fails closed with no fallback.
 4. Separately, run the `#product` acceptance against real persisted stock and
    published price evidence. Verify the customer answer uses those sources and
    the local model invocation count remains zero.
@@ -240,42 +278,46 @@ Record the selected model/version and trace evidence without credentials. This
 is main-dev acceptance only; it does not prove production activation or alter
 the production OA webhook.
 
-## Current source-reader limitation
+## Test-only source boundary
 
-Read-only inspection of main-dev and the source at `fa10e309` found that the
-existing GKS corpus capability is Business-scoped but does not itself classify
-chunk text as customer-public. `genesisrag17-contract.js` uses private storage
-visibility, and `corpus-knowledge-reader.js` returns chunks without a disclosure
-classification. Neither private storage visibility nor publication alone grants
-customer disclosure. The existing `business-contract.js` has an explicit
-`PUBLIC` projection, while its current PostgreSQL reader depends on the separate
-production-pinned `zuri_core` runtime that is absent in main-dev.
+The user selected TEST ONLY products for this main-dev inference test. The
+fixture is built by the root-owned private setup from the existing synthetic
+main-dev PCAT product metadata; the price list and stock are excluded. It is
+bound to the private main-dev Tenant, Business, and LINE OA IDs and pinned by a
+separate exact SHA-256 value. The FR-047 `PUBLIC` sensitivity field validates
+the record shape; the envelope's `TEST_ONLY_PUBLIC` classification limits this
+synthetic disclosure to the scoped main-dev test and does not classify real
+Business data as customer-public.
 
-This is an unresolved implementation prerequisite, not permission to copy the
-production migrations or send arbitrary GKS chunks to Ollama. Keep the local
-profile disabled for real LINE ordinary-chat inference until a reviewed source
-reader satisfies the approved customer-public contract. Helper/provider tests
-using synthetic packets do not close this gate. The real published-price
-`#product` response was independently delivered and confirmed by the user; that
-zero-model command remains separate and does not close this inference gate.
+Do not substitute the SmartGift code fixture, a GKS chunk, an arbitrary corpus
+publication, a Supabase query, or production-pinned `zuri_core` source. A missing
+or mismatched fixture keeps the profile disabled. The accepted published-price
+`#product` response remains separately grounded in persisted stock and
+receipt-backed price evidence and continues to make zero model calls; that
+acceptance does not prove local ordinary-chat inference.
 
 ## Status and remaining work
 
-The bounded design, canonical migration, and ADR-100 D9 amendment are approved.
-The source-row wrappers and generated projections have been reviewed and
-regenerated serially. The preparatory profile/scope helper and source-specific
-Ollama provider transport passed 60 focused tests, independent review and the
-Server build. Those tests include production-source denial, keyed-provider
-rejection, scope mismatch, redirect rejection, request/response limits and
-cancellation of an unread oversized response.
+The bounded profile scope and ADR-100 D9 amendment are approved under the
+user's main-dev request and root integration review. The revised TEST ONLY
+fixture contract has independent approval, and the reviewed `FR-079`/`FR-080`
+wrappers plus generated projections are applied. The owner discovery/selection
+API and UI pass 38 focused tests. The profile/scope helper, bounded Ollama
+transport, pinned fixture reader, Phase-1 runtime, and Server answer path pass
+119 focused tests. These results cover production-source denial, key presence
+without secret resolution, scope mismatch, no-memory/no-corpus composition,
+redirect and size limits, and fail-closed invalid model output.
 
-Owner discovery/selection endpoints and UI, Phase-1/Server integration, and the
-customer-public source reader remain unimplemented. No local profile has been
-enabled or deployed, and no ordinary-chat Ollama/LINE acceptance is claimed.
-Complete those prerequisites and real main-dev acceptance before calling the
-profile complete. The separate LINE Studio color fix was delivered in PR #729;
-it does not activate this profile.
+Independent review approved the runtime patch with no P1/P2 findings. Private
+overlay configuration and live main-dev ordinary-chat acceptance remain
+pending. The local profile has not been reported as deployed or LINE-accepted.
+The separate LINE Studio color fix was delivered in PR #729 and does not
+activate this profile.
 
-Version 0.2.0 records approval for the bounded main-dev implementation and
-acceptance sequence. It creates no requirement, ID, table, provider credential,
-or roadmap state.
+Version 0.3.0 replaces the customer-public/GKS source assumption with the
+user-selected synthetic TEST ONLY PCAT metadata fixture and its hash/scope
+boundary. It creates no requirement, ID, table, provider credential, or
+roadmap state.
+
+Version 0.3.1 records independent implementation review, profile-only bounded
+non-thinking generation, and the separation from pending live LINE acceptance.

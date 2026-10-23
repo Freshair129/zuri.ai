@@ -92,6 +92,7 @@ status: generated
 - [apps/server/tests/unit/line-oa-credential-input-props.test.js](../../../apps/server/tests/unit/line-oa-credential-input-props.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-model-key-card-render.test.js](../../../apps/server/tests/unit/line-oa-model-key-card-render.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-readiness-journey.test.js](../../../apps/server/tests/unit/line-oa-readiness-journey.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/main-dev-local-ollama-runtime.test.js](../../../apps/server/tests/unit/main-dev-local-ollama-runtime.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/phase1-business-agent-runtime.test.js](../../../apps/server/tests/unit/phase1-business-agent-runtime.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform/model-provider-admin-port.test.js](../../../apps/server/tests/unit/platform/model-provider-admin-port.test.js) — `verifies` (`test-reference`)

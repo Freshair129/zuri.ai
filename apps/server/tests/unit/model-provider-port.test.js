@@ -82,6 +82,26 @@ describe('ModelProviderPort (FR-048)', () => {
       redirect: 'error',
       headers: expect.not.objectContaining({ Authorization: expect.anything() }),
     }))
+    expect(JSON.parse(fetchFn.mock.calls[0][1].body)).toMatchObject({ think: false, options: { num_predict: 256 } })
+  })
+
+  it('rejects a token-capped main-dev reply rather than delivering an incomplete answer', async () => {
+    const port = createModelProviderPort({ runtimeSource: 'MAIN_DEV_LOCAL_OLLAMA', provider: 'ollama',
+      model: 'local-test', baseUrl: 'http://host.docker.internal:11434',
+      fetchFn: async () => new Response(JSON.stringify({ response: 'unfinished answer', done: true, done_reason: 'length' })),
+    })
+    await expect(port.generate({ question: 'q', evidence: { records: [] } })).rejects.toThrow(/TRUNCATED/)
+  })
+
+  it('keeps legacy local-evaluation generation options unchanged', async () => {
+    const fetchFn = vi.fn(async () => new Response(JSON.stringify({ response: 'answer' })))
+    const port = createModelProviderPort({ runtimeSource: 'TEST', provider: 'ollama',
+      model: 'local-test', baseUrl: 'http://127.0.0.1:11434', fetchFn,
+    })
+    await port.generate({ question: 'q', evidence: { records: [] } })
+    const body = JSON.parse(fetchFn.mock.calls[0][1].body)
+    expect(body).not.toHaveProperty('think')
+    expect(body).not.toHaveProperty('options')
   })
 
   it.each([

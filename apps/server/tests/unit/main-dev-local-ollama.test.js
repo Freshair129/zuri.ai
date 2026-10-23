@@ -1,4 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
+import os from 'node:os'
+import path from 'node:path'
 import * as ollamaApi from '@/modules/agent/main-dev-local-ollama'
 
 // @req FR-079, FR-080 — profile, database, scope, and tags discovery gates.
@@ -18,6 +20,8 @@ const enabledEnv = () => ({
   ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_BUSINESS_IDS: JSON.stringify([BUSINESS_ID]),
   ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_LINE_OA_ACCOUNT_IDS: JSON.stringify([ACCOUNT_ID]),
   ZURI_MAIN_DEV_LOCAL_OLLAMA_BASE_URL: 'http://host.docker.internal:11434',
+  ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH: path.join(os.tmpdir(), 'ollama-test-only-public.json'),
+  ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256: 'a'.repeat(64),
 })
 
 async function loadApi() {
@@ -42,6 +46,8 @@ describe('main-dev local Ollama profile', () => {
       runtimeSource: 'MAIN_DEV_LOCAL_OLLAMA',
       expectedDatabase: 'zuri_main_dev',
       baseUrl: 'http://host.docker.internal:11434',
+      testFixturePath: path.join(os.tmpdir(), 'ollama-test-only-public.json'),
+      testFixtureSha256: 'a'.repeat(64),
       allowedTenantIds: [TENANT_ID],
       allowedBusinessIds: [BUSINESS_ID],
       allowedLineOaAccountIds: [ACCOUNT_ID],
@@ -58,6 +64,51 @@ describe('main-dev local Ollama profile', () => {
   ])('rejects enabled configuration with %s', async (_name, override) => {
     const api = await loadApi()
     expect(() => api.readMainDevLocalOllamaProfile({ ...enabledEnv(), ...override })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+  })
+
+  it.each([
+    ['network fixture path', { ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH: '\\\\server\\share\\fixture.json' }],
+    ['missing fixture digest', { ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256: 'bad' }],
+  ])('rejects enabled configuration with %s', async (_name, override) => {
+    const api = await loadApi()
+    expect(() => api.readMainDevLocalOllamaProfile({ ...enabledEnv(), ...override })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+  })
+
+  it('requires a trusted direct SERVER job with Business Knowledge and no memory features', async () => {
+    const api = await loadApi()
+    const acceptedJob = {
+      tenantId: TENANT_ID, businessId: BUSINESS_ID, accountId: ACCOUNT_ID,
+      executionMode: 'SERVER', runtimeOwner: 'SERVER', memorySyncOptIn: false, episodicMemoryOptIn: false,
+      account: {
+        id: ACCOUNT_ID, tenantId: TENANT_ID, businessId: BUSINESS_ID,
+        executionMode: 'SERVER', runtimeOwner: 'SERVER', serverEnabled: true,
+        knowledgeGrounding: 'BUSINESS_KNOWLEDGE', knowledgeGroundingShadow: false,
+        memoryPolicy: 'OFF', memoryProjectId: null,
+      },
+    }
+    expect(api.assertMainDevLocalOllamaJob({ env: enabledEnv(), job: acceptedJob })).toMatchObject({
+      runtimeSource: 'MAIN_DEV_LOCAL_OLLAMA',
+    })
+
+    for (const badJob of [
+      { ...acceptedJob, accountId: OTHER_ACCOUNT_ID },
+      { ...acceptedJob, executionMode: 'EDGE' },
+      { ...acceptedJob, account: { ...acceptedJob.account, knowledgeGrounding: 'GKS_CORPUS' } },
+      { ...acceptedJob, account: { ...acceptedJob.account, knowledgeGroundingShadow: true } },
+      { ...acceptedJob, memorySyncOptIn: true },
+      { ...acceptedJob, episodicMemoryOptIn: true },
+      { ...acceptedJob, account: { ...acceptedJob.account, memoryPolicy: 'ON' } },
+      { ...acceptedJob, account: { ...acceptedJob.account, memoryProjectId: 'project' } },
+    ]) {
+      expect(() => api.assertMainDevLocalOllamaJob({ env: enabledEnv(), job: badJob }))
+        .toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+    }
+    expect(() => api.assertMainDevLocalOllamaJob({
+      env: { ...enabledEnv(), ZURI_MSP_THREAD_MEMORY_ENABLED: 'true' }, job: acceptedJob,
+    })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
+    expect(() => api.assertMainDevLocalOllamaJob({
+      env: { ...enabledEnv(), ZURI_MSP_EPISODIC_MEMORY_ENABLED: 'true' }, job: acceptedJob,
+    })).toThrow(/MAIN_DEV_LOCAL_OLLAMA/)
   })
 
   it('checks the actual Prisma database and all three independently allowlisted IDs', async () => {

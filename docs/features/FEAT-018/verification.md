@@ -103,9 +103,9 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/fr146-line-oa-account.test.js](../../../apps/server/tests/integration/fr146-line-oa-account.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/business-model-credential-resolution.test.js](../../../apps/server/tests/unit/business-model-credential-resolution.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-binding-status.test.js](../../../apps/server/tests/unit/line-binding-status.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-settings-consolidation.test.js](../../../apps/server/tests/unit/line-oa-settings-consolidation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/main-dev-local-ollama-runtime.test.js](../../../apps/server/tests/unit/main-dev-local-ollama-runtime.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/phase1-business-agent-runtime.test.js](../../../apps/server/tests/unit/phase1-business-agent-runtime.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-151](requirements/FR-151.md)

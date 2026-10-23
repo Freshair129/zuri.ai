@@ -6,7 +6,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { anchor, sameAnchor } from '../apps/server/scripts/id-anchors.mjs';
 import { reservedBranchIds } from '../apps/server/scripts/id-stability.mjs';
-import { authoredProvenanceKeys, parseCanonicalIndex, parseCanonicalRecord, splitRow, validateCanonicalEntry, validateAuthoredProvenance } from '../apps/server/scripts/document-registry-format.mjs';
+import { authoredProvenanceKeys, parseCanonicalIndex, parseCanonicalRecord, splitRow, validateCanonicalEntry, validateAuthoredProvenance, validateReviewedProvenance } from '../apps/server/scripts/document-registry-format.mjs';
 
 const SOURCE_REVISION = 'a34ceaf79c112e02b1bcfdbf0a84122d835b002e';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -192,7 +192,52 @@ function buildTemplate(sourceText, sourcePath, records) {
   }).join('');
 }
 
-function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
+// Reconcile an explicitly reviewed second revision only in the projection writer.
+// Readers/check mode continue to require exact canonical/index equality.
+function reviewedRevisionEntry(projectRoot, record, entry) {
+  verifyMigrationBaseRevision(projectRoot, record.migrationBaseRevision);
+  const blob = file => execFileSync('git', ['--no-replace-objects', 'show', `${record.migrationBaseRevision}:${file}`], {
+    cwd: projectRoot, windowsHide: true, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'],
+  });
+  let priorText, priorIndex;
+  try {
+    priorText = blob(entry.path);
+    priorIndex = parseCanonicalIndex(blob(INDEX_PATH));
+  } catch { throw new Error(`${record.id} migration base must contain its prior canonical record and index`); }
+  const prior = parseCanonicalRecord(priorText);
+  const priorEntry = priorIndex.records.find(candidate => candidate.id === entry.id);
+  if (!priorEntry || JSON.stringify(priorEntry) !== JSON.stringify(entry)
+    || sha256(gitBlobText(priorText)) !== priorEntry.recordSha256) {
+    throw new Error(`${record.id} migration base differs from the prior indexed state`);
+  }
+  validateCanonicalEntry(prior, priorEntry, priorIndex);
+  validateReviewedProvenance(prior, blob);
+  const identityKeys = ['id', 'namespace', 'family', 'recordVersion', 'status', 'sourcePath', 'featureId', 'statementCell', 'subjectAnchor', 'sourceRowEol'];
+  if (prior.status !== 'reviewed-migration' || identityKeys.some(key => record[key] !== prior[key])
+    || JSON.stringify(record.requirementCells) !== JSON.stringify(prior.requirementCells)
+    || JSON.stringify(record.requirementKeys) !== JSON.stringify(prior.requirementKeys)
+    || anchor(record.statement) !== anchor(prior.statement)) {
+    throw new Error(`${record.id} reviewed revision changed its prior identity, membership, or subject`);
+  }
+  verifyApprovedMigrationDocument(projectRoot, record.migrationDocument);
+  validateReviewedProvenance(record, file => readFileSync(join(projectRoot, file)));
+  const approval = readFileSync(join(projectRoot, record.migrationDocument), 'utf8').replace(/\r\n/g, '\n');
+  const frontmatter = approval.match(/^---\n([\s\S]*?)\n---(?:\n|$)/)?.[1] ?? '';
+  const lines = approval.split('\n');
+  const heading = '### `ZAI:' + record.id + '`';
+  const sectionStart = lines.indexOf(heading);
+  const nextHeading = lines.findIndex((line, offset) => offset > sectionStart && /^#{1,3} /.test(line));
+  const section = sectionStart < 0 ? [] : lines.slice(sectionStart + 1, nextHeading < 0 ? lines.length : nextHeading);
+  if (!frontmatter.split('\n').includes(`migration_base_revision: ${record.migrationBaseRevision}`)
+    || lines.filter(line => line === heading).length !== 1
+    || !section.includes(record.row.replace(/\r?\n$/, ''))) {
+    throw new Error(`${record.id} approved migration row or base does not match the candidate`);
+  }
+  return { ...entry, sourceRowSha256: record.sourceRowSha256,
+    migrationBaseRevision: record.migrationBaseRevision, migrationDocument: record.migrationDocument };
+}
+
+function loadRecords(projectRoot, index, { verifyIndexHash = true, allowReviewedRevision = false } = {}) {
   const ledgerPath = join(projectRoot, 'docs/.id-ledger.json');
   const ledger = existsSync(ledgerPath) ? JSON.parse(readFileSync(ledgerPath, 'utf8')) : {};
   const reservations = reservedBranchIds(ledger);
@@ -204,7 +249,10 @@ function loadRecords(projectRoot, index, { verifyIndexHash = true } = {}) {
     const text = readFileSync(file, 'utf8');
     const record = parseCanonicalRecord(text);
     const recordDigest = sha256(Buffer.from(gitBlobText(text), 'utf8'));
-    validateCanonicalEntry(record, entry, index);
+    const revised = allowReviewedRevision && record.status === 'reviewed-migration' && entry.status === 'reviewed-migration'
+      && (record.sourceRowSha256 !== entry.sourceRowSha256 || record.migrationBaseRevision !== entry.migrationBaseRevision
+        || record.migrationDocument !== entry.migrationDocument);
+    validateCanonicalEntry(record, revised ? reviewedRevisionEntry(projectRoot, record, entry) : entry, index);
     validateAuthoredProvenance(record, file => readFileSync(join(projectRoot, file)));
     if (verifyIndexHash && entry.recordSha256 !== recordDigest) throw new Error(`${entry.id} canonical record hash does not match index`);
     if (record.status === 'reviewed-migration') {
@@ -338,7 +386,7 @@ function adopt(projectRoot) {
 export function writeCanonicalProjections(projectRoot = ROOT, { check = false } = {}) {
   const indexText = readFileSync(join(projectRoot, INDEX_PATH), 'utf8');
   const index = parseCanonicalIndex(indexText);
-  const records = loadRecords(projectRoot, index, { verifyIndexHash: check });
+  const records = loadRecords(projectRoot, index, { verifyIndexHash: check, allowReviewedRevision: !check });
   const nextIndex = buildIndex(projectRoot, records);
   const nextIndexText = `${JSON.stringify(nextIndex, null, 2)}\n`;
   if (check && nextIndexText !== indexText) throw new Error(`${INDEX_PATH} is stale; run --write`);

@@ -12,6 +12,7 @@ import {
 } from './line-knowledge-grounding'
 import { runLineGroundingShadowCompare } from './line-grounding-shadow-compare'
 import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/line-memory-scope'
+import { assertMainDevLocalOllamaJob } from './main-dev-local-ollama'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -19,6 +20,8 @@ import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/l
 // @req FR-234, FR-235 — every model attempt receives only the evidence and MSP
 // slices selected under one composer budget. A content-free receipt is recorded
 // immediately before the provider entry; empty/fully-trimmed evidence calls no model.
+// @req FR-079, FR-080 — the opted-in main-dev Ollama turn requires a trusted OA,
+// the pinned TEST ONLY reader, and no corpus grounding, shadow or memory path.
 // The private-memory opt-in gates MSP recall independently of public knowledge.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
@@ -32,7 +35,7 @@ import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/l
 // disabled by default, never throws).
 // @tested tests/unit/server-line-answer.test.js, tests/integration/line-worker-memory.test.js,
 //   tests/unit/line-knowledge-grounding.test.js, tests/integration/line-gks-grounding.test.js,
-//   tests/unit/line-grounding-shadow-compare.test.js
+//   tests/unit/line-grounding-shadow-compare.test.js, tests/unit/main-dev-local-ollama-runtime.test.js
 
 function failure(code) {
   const error = new Error(code)
@@ -549,8 +552,15 @@ export function createServerLineAnswer({
     if (job.account && (job.account.tenantId !== tenantId || job.account.businessId !== businessId)) {
       throw failure('LINE_ANSWER_SCOPE_MISMATCH')
     }
-    const memoryOptIn = job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
-    const episodicMemoryOptIn = job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
+    let mainDevLocalOllamaProfile = null
+    try {
+      mainDevLocalOllamaProfile = assertMainDevLocalOllamaJob({ env, job })
+    } catch {
+      throw failure('LINE_ANSWER_UNAVAILABLE')
+    }
+    const mainDevLocalOllama = Boolean(mainDevLocalOllamaProfile)
+    const memoryOptIn = !mainDevLocalOllama && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    const episodicMemoryOptIn = !mainDevLocalOllama && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
     const route = memoryOptIn ? memoryRoute(job) : null
     let selectedThreadMemory = memoryOptIn ? threadMemory : null
     let selectedEpisodicMemory = null
@@ -583,7 +593,11 @@ export function createServerLineAnswer({
           throw failure('LINE_BUSINESS_AGENT_NOT_CONFIGURED')
         }
         businessKnowledge = ports.businessKnowledge
-        model = await ports.resolveModel({ tenantId, businessId })
+        model = await ports.resolveModel({
+          tenantId,
+          businessId,
+          ...(mainDevLocalOllama ? { accountId: job.accountId } : {}),
+        })
         if (memoryOptIn && !selectedThreadMemory) selectedThreadMemory = ports.threadMemory
         if (episodicMemoryOptIn) selectedEpisodicMemory = ports.episodicMemory ?? null
       }
@@ -603,7 +617,9 @@ export function createServerLineAnswer({
       // `tenantId`/`businessId` above, or is absent — this reads no other
       // field from it, and the corpus reader is built from the job's own
       // verified scope, never from the account row's identity.
-      const groundingMode = resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
+      const groundingMode = mainDevLocalOllama
+        ? 'BUSINESS_KNOWLEDGE'
+        : resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
       // @req FR-277 — kept unwrapped, before the mode-gated wrap below, so a
       // shadow-compare generation (fired later, only for an account with
       // `knowledgeGroundingShadow: true`) can build the PAIRED mode's own
@@ -611,7 +627,7 @@ export function createServerLineAnswer({
       // resolved — never the grounding wrapper, which is already bound to
       // `groundingMode`, not its pair.
       const rawBusinessKnowledgeReader = businessKnowledge
-      if (groundingMode !== 'BUSINESS_KNOWLEDGE') {
+      if (!mainDevLocalOllama && groundingMode !== 'BUSINESS_KNOWLEDGE') {
         const corpusReader = createCorpusKnowledgeReader({
           tenantId, businessId,
           ...lineKnowledgeGroundingBudgetFromEnv(env),
@@ -705,6 +721,14 @@ export function createServerLineAnswer({
       // a failed journal write must never be mistaken for that safe fallback.
       trace?.assertHealthy()
       if (typeof result?.text !== 'string' || !result.text.trim()) throw failure('LINE_ANSWER_EMPTY')
+      if (mainDevLocalOllama && (
+        result.provider?.status === 'fallback'
+        || result.provider?.status === 'rejected-output'
+        || (result.provider?.status !== 'not-called'
+          && (result.provider?.provider !== 'ollama' || result.provider?.status !== 'ok'))
+      )) {
+        throw failure('MAIN_DEV_LOCAL_OLLAMA_OUTPUT_REJECTED')
+      }
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
       const answerText = boundLineText(result.text)
@@ -717,7 +741,7 @@ export function createServerLineAnswer({
       // rejection can only come from a bug in this call's own argument
       // construction (the function itself never rejects); `.catch` is a
       // second line of defence, not the primary safety mechanism.
-      if (job.account?.knowledgeGroundingShadow === true) {
+      if (!mainDevLocalOllama && job.account?.knowledgeGroundingShadow === true) {
         void runLineGroundingShadowCompare({
           job, primaryMode: groundingMode, primaryAnswerText: answerText,
           tenantId, businessId, question, model,

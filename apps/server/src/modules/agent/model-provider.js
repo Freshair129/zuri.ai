@@ -265,7 +265,9 @@ function requestFor(config, prompt) {
     return {
       url: `${config.baseUrl}/api/generate`,
       headers: {},
-      body: { model: config.model, prompt, stream: false },
+      body: { model: config.model, prompt, stream: false,
+        ...(config.mainDevLocalOllama ? { think: false, options: { num_predict: 256 } } : {}),
+      },
     }
   }
   if (config.provider === 'anthropic') {
@@ -423,6 +425,7 @@ export function createModelProviderPort(inputConfig) {
       timeoutMs: z.number().int().min(100).max(25000).default(10000).parse(inputConfig.timeoutMs),
       baseUrl: new URL(inputConfig.baseUrl).toString().replace(/\/$/, ''),
       ...(isMainDevLocalOllama ? {
+        mainDevLocalOllama: true,
         requestMaxBytes: MAIN_DEV_OLLAMA_REQUEST_MAX_BYTES,
         responseMaxBytes: MAIN_DEV_OLLAMA_RESPONSE_MAX_BYTES,
       } : {}),
@@ -540,6 +543,9 @@ export function createModelProviderPort(inputConfig) {
         }
 
         if (errorCode === null && !response.ok) errorCode = `MODEL_PROVIDER_HTTP_${response.status}`
+        if (errorCode === null && config.mainDevLocalOllama && json?.done_reason === 'length') {
+          errorCode = 'MODEL_PROVIDER_TRUNCATED_RESPONSE'
+        }
 
         if (errorCode === null) {
           const rawText = textFrom(config.provider, json)

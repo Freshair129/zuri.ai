@@ -1,7 +1,7 @@
 ---
 id: "ZAI:ADR-100"
 title: "LINE OA runs server-executed on browser-provisioned API keys"
-version: "0.5.4b"
+version: "0.5.5b"
 status: approved
 approval_scope: design-and-documentation
 approved_on: "2026-09-21"
@@ -414,15 +414,26 @@ credentials remains unchanged. Production and ordinary deployment defaults are
 unchanged. The application contains no default instance or account identifiers.
 
 For the allowlisted test OA, the Server uses the existing Prisma-backed
-`PHASE1_LINE_LLM` resolver and scoped published-corpus reader in `GKS_CORPUS`
-mode; the profile does not use the Supabase-pinned `ZURI_LINE_DB_URL`, the
-production-pinned reader, or a fallback reader. Only evidence already eligible
-under the customer-public source contract may ground a customer response.
-Business visibility or corpus publication alone does not authorize customer
-disclosure. This boundary is enforced through the existing scoped application
-ports. It does not claim a least-privilege database principal or row-level
-database-role isolation; the model receives only the Server-built bounded
-evidence packet and never receives database or object-storage credentials.
+`PHASE1_LINE_LLM` resolver and a separate operator-configured, read-only JSON
+fixture built only from the existing synthetic main-dev TEST ONLY PCAT product
+metadata. Its versioned envelope is bound to the trusted Tenant, Business, and
+internal OA account ID; it is labeled `TEST_ONLY_PUBLIC`, SHA-256 pinned, and
+size-bounded. The source price list and stock are excluded. Each projected
+Product passes the existing FR-047 BusinessKnowledge contract with null
+`sell_price`, `currency`, and `moq` and no stock fields. The existing `PUBLIC`
+sensitivity field validates record shape; the fixture is authorized only for
+the scoped main-dev test and does not classify any real Business data as
+customer-public or authorize a production data path. The profile does not use
+the Supabase-pinned `ZURI_LINE_DB_URL`, production-pinned reader, GKS/corpus
+content, or a fallback reader. The test OA must use `BUSINESS_KNOWLEDGE`; GKS or
+corpus modes and grounding shadow are refused. The Server also rejects
+`ZURI_MSP_THREAD_MEMORY_ENABLED=true`,
+`ZURI_MSP_EPISODIC_MEMORY_ENABLED=true`, per-job `memorySyncOptIn=true` or
+`episodicMemoryOptIn=true`, and `knowledgeGroundingShadow=true`. It uses its
+existing scoped application ports and Prisma identity checks. This does not claim a
+least-privilege database principal or row-level database-role isolation; the
+model receives only the Server-built bounded fixture evidence packet and never
+receives database or object-storage credentials.
 
 The endpoint is fixed server-side to the exact
 `http://host.docker.internal:11434` origin; the Server rejects
@@ -445,6 +456,6 @@ ordinary-chat inference acceptance requires a registered evidence-bearing
 query, a real server-side Ollama trace, and a delivered response. A greeting or
 no-evidence query is not inference evidence.
 
-Version 0.5.3b → 0.5.4b adds approved D9 for the bounded main-dev profile while
-preserving D1–D8, public provider keys, PRP, and production denials. Implementation
-and live main-dev acceptance remain pending.
+Version 0.5.4b → 0.5.5b records the approved TEST ONLY fixture source boundary
+for D9 while preserving D1–D8, public provider keys, PRP, and production
+denials. Implementation and live main-dev acceptance remain pending.

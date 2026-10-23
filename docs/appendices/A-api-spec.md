@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.112.0b to 1.113.0b (2026-10-23): FR-079/FR-080 add default-off main-dev-only installed Ollama model discovery and selection. Inventory: 353 route handlers. These owner-scoped test endpoints do not change public provider, credential, or production activation policy.
+
 Version diff 1.111.0b to 1.112.0b (2026-10-23): FR-291 adds the paired Runtime v2 Core operation route and authenticated stock disclosure policy route. Inventory: 351 route handlers. No deployment or live activation is claimed.
 
 Version diff 1.110.0b → 1.111.0b (2026-10-22): retire the developer-only worker-observability endpoint with ADR-113. Inventory: 349 route handlers, 350 OpenAPI paths and 459 operations. This removes local DDC observation only; normal application APIs and hosted CI remain separate.
@@ -94,7 +96,7 @@ Version diff 1.83.0b → 1.84.0b: compose FR-253 pricing (six paths/seven operat
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.112.0b |
+| **Version** | 1.113.0b |
 | **Status** | Candidate — current route inventory with explicit deferred contracts |
 | **Last Updated** | 2026-10-23 |
 
@@ -157,7 +159,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=351 -->
+<!-- api-spec-counts: route_handlers=353 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1353,6 +1355,8 @@ canary evidence; those remain owner-gated release criteria.
 | POST | `/api/integration/model-providers` | Business owner; FR-223/FR-224 gate and limit; `{businessId,provider,model,apiKey}`, both trimmed (a pasted key routinely carries a trailing newline); the key *and the model* are proved live together by reading that one model from the provider — no tokens spent — before anything is stored (422 `MODEL_KEY_REJECTED` for the key, 422 `MODEL_NOT_FOUND` when the key works but this model is not available to it, 400 `MODEL_ID_INVALID`, 503 `MODEL_PROVIDER_UNAVAILABLE`, 400 `MODEL_PROVIDER_UNSUPPORTED`), then written through the SecretStorePort as `MODEL_PROVIDER_KEY`. For `provider: "prp"` (FR-267) the address is the server's configured `ZURI_PRIVATE_RUNTIME_BASE_URL`, never a request field, and the proof is PRP's `GET /v1/models` granted-alias list — the chosen alias must be in it; 503 `PRIVATE_RUNTIME_NOT_CONFIGURED` when the server has no runtime configured. Entering a first key and rotating are the same call; a key for a different vendor replaces the connection's provider rather than creating a second one. Response `{connectionId,provider,providerChanged,credential}`; `no-store`. |
 | POST | `/api/integration/model-providers/[id]/revoke` | Business owner; `{reason,confirmation:"REVOKE"}` with the gate and limit; purges every version. It does **not** fence the LINE OA account the next answer fails closed when the key will not resolve (SDD-106), and pausing the account as well would be this route deciding availability for the owner. Response `{credential:{status,version}}`; `no-store`. |
 | POST | `/api/integration/model-providers/[id]/validate` | Business owner; empty body with the gate and limit; re-proves the stored key *and the stored model* with the provider and records `lastValidatedAt`/`lastValidationCode` including on rejection, so the readiness journey stops reporting an older success — this is how an owner learns a provider has since retired their model, before a customer does. 409 `CREDENTIAL_REENTRY_REQUIRED` when it no longer resolves, 422 `MODEL_KEY_REJECTED`, 422 `MODEL_NOT_FOUND`. Unavailability is not recorded, so a provider's bad minute cannot demote a working key. Response `{credential,provider}`; `no-store`. |
+| GET | `/api/integration/local-ollama/models` | FR-079/FR-080, ADR-100 D9: authenticated Business owner plus Studio visibility, default-off private main-dev profile. Server derives the unique allowlisted Tenant/Business/connected SERVER OA and checks actual Prisma database identity. Returns `{businessId,accountId,accountName,models,selectedModelId}` with installed model IDs only; no endpoint or secret. Refuses Business model credentials, memory/corpus/shadow-enabled accounts, and ambiguous scope. `401` unauthenticated; `404` disabled/ineligible; `409` credential/primary conflict; `503` Ollama unavailable; `no-store`. |
+| POST | `/api/integration/local-ollama/selection` | Same trusted owner/profile scope; strict `{modelId}` only, streamed body limit 16 KiB. Re-lists installed IDs, stores only model metadata, and promotes through the existing primary CAS/uniqueness gate. Creates no credential or secret reference. Returns `{businessId,accountId,modelId,selected:true}`. `400` invalid/uninstalled model; `401` unauthenticated; `404` disabled/ineligible; `409` concurrent selection, credential or provider conflict; `413` oversized body; `503` discovery unavailable; `no-store`. TEST ONLY fixture grounding and production exclusions remain governed by FR-079. |
 
 Execution contract: `contracts/line-conversation-execution.schema.json` — **withdrawn for new work by FR-265 / ADR-100 D2**; the file stays because a deployed daemon still speaks it until upgraded and ADR-061 cites it. Job errors are redacted; Edge validation 400, missing credentials 401, unavailable/disabled 503, invisible job 404, stale lease/version 409. Transport ownership and execution policy changes increment account epoch and cancel waiting jobs; SENDING or unacknowledged UNKNOWN blocks handoff.
 

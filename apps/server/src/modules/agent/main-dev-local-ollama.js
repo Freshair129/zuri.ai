@@ -1,4 +1,5 @@
 import { MODEL_ID_PATTERN } from '@/lib/validation/enums'
+import path from 'node:path'
 
 // @req FR-079, FR-080 — guard the default-off main-dev model source and its owner-scoped model discovery.
 // @spec ADR-100 D9, SEC-001 — verify server/database identity and exact Tenant, Business, and LINE OA scope; Ollama receives no credentials.
@@ -8,6 +9,7 @@ export const MAIN_DEV_LOCAL_OLLAMA_ORIGIN = 'http://host.docker.internal:11434'
 
 const DATABASE_NAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{0,62}$/
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const SHA256_PATTERN = /^[a-f0-9]{64}$/
 const MAX_ALLOWLIST_ENTRIES = 32
 const MAX_TAGS_RESPONSE_BYTES = 64 * 1024
 const MAX_INSTALLED_MODELS = 256
@@ -43,6 +45,16 @@ function requiredAllowlist(env, name) {
   return Object.freeze([...unique])
 }
 
+function requiredFixturePath(env) {
+  const value = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH
+  if (typeof value !== 'string' || !value || value.includes('\0')
+    || /^(?:\\\\|\/\/)/.test(value) || /^\\\\\?\\UNC\\/i.test(value)
+    || !path.isAbsolute(value) || path.normalize(value) !== value) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+  }
+  return value
+}
+
 /**
  * Read the private, default-off main-dev profile. This profile is explicit and
  * identity-bound even when the Docker image keeps NODE_ENV=production.
@@ -60,16 +72,63 @@ export function readMainDevLocalOllamaProfile(env = process.env) {
   if (env.ZURI_MAIN_DEV_LOCAL_OLLAMA_BASE_URL !== MAIN_DEV_LOCAL_OLLAMA_ORIGIN) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_ORIGIN_INVALID')
   }
+  const testFixtureSha256 = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+  if (typeof testFixtureSha256 !== 'string' || !SHA256_PATTERN.test(testFixtureSha256)) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+  }
 
   return Object.freeze({
     enabled: true,
     runtimeSource: MAIN_DEV_LOCAL_OLLAMA_SOURCE,
     expectedDatabase,
     baseUrl: MAIN_DEV_LOCAL_OLLAMA_ORIGIN,
+    testFixturePath: requiredFixturePath(env),
+    testFixtureSha256,
     allowedTenantIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_TENANT_IDS'),
     allowedBusinessIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_BUSINESS_IDS'),
     allowedLineOaAccountIds: requiredAllowlist(env, 'ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_LINE_OA_ACCOUNT_IDS'),
   })
+}
+
+/** Return whether a request is explicitly attempting to use the test profile. */
+export function isMainDevLocalOllamaRequested(env = process.env) {
+  return env.ZURI_PHASE1_RUNTIME_SOURCE === MAIN_DEV_LOCAL_OLLAMA_SOURCE
+    || env.ZURI_MAIN_DEV_LOCAL_OLLAMA_ENABLED === 'true'
+}
+
+/** Refuse memory, corpus, shadow, or non-Server jobs before composing the test turn. */
+export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
+  if (!isMainDevLocalOllamaRequested(env)) return null
+  const profile = readMainDevLocalOllamaProfile(env)
+  if (!profile) throw fail('MAIN_DEV_LOCAL_OLLAMA_DISABLED')
+
+  const tenantId = job?.tenantId
+  const businessId = job?.businessId
+  const accountId = job?.accountId
+  const account = job?.account
+  if (typeof accountId !== 'string' || account?.id !== accountId
+    || account?.tenantId !== tenantId || account?.businessId !== businessId
+    || !profile.allowedTenantIds.includes(tenantId)
+    || !profile.allowedBusinessIds.includes(businessId)
+    || !profile.allowedLineOaAccountIds.includes(accountId)) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_SCOPE_DENIED')
+  }
+  if (job.executionMode !== 'SERVER' || job.runtimeOwner !== 'SERVER'
+    || account.executionMode !== 'SERVER' || account.runtimeOwner !== 'SERVER'
+    || account.serverEnabled !== true) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_EXECUTION_DENIED')
+  }
+  if (account.knowledgeGrounding !== 'BUSINESS_KNOWLEDGE'
+    || account.knowledgeGroundingShadow === true
+    || account.memoryPolicy !== 'OFF'
+    || account.memoryProjectId != null
+    || env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
+    || env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
+    || job.memorySyncOptIn === true
+    || job.episodicMemoryOptIn === true) {
+    throw fail('MAIN_DEV_LOCAL_OLLAMA_JOB_SETTINGS_DENIED')
+  }
+  return profile
 }
 
 /**

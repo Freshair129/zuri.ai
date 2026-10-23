@@ -103,6 +103,38 @@ describe('OpenAPI document', () => {
     }
   })
 
+  it('documents the default-off main-dev local Ollama owner routes with strict scoped contracts', () => {
+    const models = doc.paths['/api/integration/local-ollama/models'].get
+    const selection = doc.paths['/api/integration/local-ollama/selection'].post
+
+    expect(models.operationId).toBe('listMainDevLocalOllamaModels')
+    expect(models.security).toEqual([{ SessionAuth: [] }])
+    expect(Object.keys(models.responses).sort()).toEqual(['200', '401', '404', '409', '503'])
+    expect(models.responses['200'].content['application/json'].schema.$ref).toBe('#/components/schemas/LocalOllamaModelListResponse')
+    expect(models.responses['404'].description).toContain('default-off')
+
+    expect(selection.operationId).toBe('selectMainDevLocalOllamaModel')
+    expect(selection.security).toEqual([{ SessionAuth: [] }])
+    expect(selection.requestBody.required).toBe(true)
+    expect(selection.requestBody.content['application/json'].schema).toMatchObject({
+      type: 'object',
+      additionalProperties: false,
+      required: ['modelId'],
+      properties: { modelId: { type: 'string', pattern: expect.any(String) } },
+    })
+    expect(selection.requestBody.content['application/json'].schema.properties).not.toHaveProperty('businessId')
+    expect(selection.requestBody.content['application/json'].schema.properties).not.toHaveProperty('accountId')
+    expect(selection.requestBody.content['application/json'].schema.properties).not.toHaveProperty('endpoint')
+    expect(Object.keys(selection.responses).sort()).toEqual(['200', '400', '401', '404', '409', '413', '503'])
+    expect(selection.responses['200'].content['application/json'].schema.$ref).toBe('#/components/schemas/LocalOllamaSelectionResponse')
+
+    for (const operation of [models, selection]) {
+      for (const response of Object.values(operation.responses)) {
+        expect(response.headers['Cache-Control'].schema.enum).toEqual(['no-store'])
+      }
+    }
+  })
+
   it('labels generic inventory coverage without overwriting detailed intake contracts', () => {
     expect(doc['x-zuri-route-inventory']).toMatchObject({
       source: 'src/app/api/**/route.js plus explicit OAuth callbacks',
@@ -307,9 +339,11 @@ describe('OpenAPI document', () => {
       // to /api/scope without adding another path: 459 + 2 = 461 operations.
       // FR-291 adds the v2 Conversation Runtime contract path (GET + POST)
       // and explicit owner-managed stock-disclosure grant (POST):
-      // 350 + 2 = 352 paths; 461 + 3 = 464 operations.
-      pathCount: 352,
-      operationCount: 464,
+      // FR-079/FR-080 add the default-off local Ollama model inventory and
+      // selection routes: two paths and two operations.
+      // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
+      pathCount: 354,
+      operationCount: 466,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get

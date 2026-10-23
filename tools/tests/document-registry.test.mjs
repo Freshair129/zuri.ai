@@ -116,7 +116,7 @@ test('readCanonicalRegistry verifies all pinned canonical records and explicit f
   for (const feature of records.filter((record) => record.family === 'FEAT')) {
     for (const id of feature.requirementKeys) assert.equal(byId.get(id)?.family, 'FR', `${feature.id} -> ${id}`);
   }
-  const reviewedMigrationIds = ['FEAT-044', 'FR-260', 'FR-261', 'FR-262', 'FR-263', 'FR-264', 'FR-278', 'FR-285', 'FR-286'];
+  const reviewedMigrationIds = ['FEAT-044', 'FEAT-045', 'FR-079', 'FR-080', 'FR-260', 'FR-261', 'FR-262', 'FR-263', 'FR-264', 'FR-278', 'FR-285', 'FR-286'];
   assert.deepEqual(
     records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).sort(),
     reviewedMigrationIds.sort(),
@@ -238,6 +238,61 @@ test('writer refreshes authored wrapper hashes while preserving source rows and 
   } finally {
     assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
     assert.ok(path.basename(root).startsWith('zuri-registry-writer-'));
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test('repeat reviewed migration requires exact committed prior state and approved row; readers stay strict', () => {
+  const root = mkdtempSync(path.join(os.tmpdir(), 'zuri-reviewed-revision-'));
+  const relative = 'docs/requirements/FR-092.md';
+  const indexPath = 'registry/document-registry/index.json';
+  const approval = 'docs/change-requests/test/addendum.md';
+  const put = (file, text) => { mkdirSync(path.dirname(path.join(root, file)), { recursive: true }); writeFileSync(path.join(root, file), text); };
+  const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+  try {
+    const original = reviewedCanonicalRecord({ row: '| FR-092 | Stable capability: previous behavior | approved |\n' });
+    const parsed = parseCanonicalRecord(original);
+    const entry = { id: parsed.id, namespace: parsed.namespace, family: parsed.family, recordVersion: 1,
+      status: parsed.status, path: relative, sourcePath: parsed.sourcePath, sourceRowSha256: parsed.sourceRowSha256,
+      recordSha256: createHash('sha256').update(original).digest('hex'), statementCell: 2, requirementCells: [],
+      migrationBaseRevision: parsed.migrationBaseRevision, migrationDocument: parsed.migrationDocument,
+      exportDocument: parsed.sourcePath, exportOrder: 0 };
+    const indexText = JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [entry] });
+    put(relative, original); put(indexPath, indexText);
+    put(approval, '---\nstatus: approved\n---\n## Approval\nPrevious reviewed behavior.\n');
+    put('registry/document-registry/PRD-SDD-v1.0.template.md', '{{CANONICAL_ROW:FR-092}}');
+    put('registry/document-registry/FEATURES.template.md', '# Features\n');
+    put('docs/PRD-SDD-v1.0.md', parsed.row); put('docs/FEATURES.md', '# Features\n');
+    git('init', '-q'); git('add', '.');
+    git('-c', 'user.name=Registry test', '-c', 'user.email=registry@example.test', 'commit', '-qm', 'Prior reviewed state');
+    const base = git('rev-parse', 'HEAD');
+    const row = '| FR-092 | Stable capability: newly approved behavior | approved |\n';
+    const candidate = reviewedCanonicalRecord({ row, migrationBaseRevision: base });
+    put(relative, candidate);
+    assert.throws(() => readCanonicalRegistry(root), /does not match/);
+    assert.throws(() => writeCanonicalProjections(root, { check: true }), /does not match/);
+    assert.throws(() => writeCanonicalProjections(root), /approved.*row|row.*approval/i);
+    put(approval, '---\nstatus: approved\nmigration_base_revision: ' + base + '\n---\n## Approval\n### `ZAI:FR-093`\n' + row);
+    assert.throws(() => writeCanonicalProjections(root), /approved.*row|row.*approval/i);
+    put(approval, '---\nstatus: proposed\nmigration_base_revision: ' + base + '\n---\n## Approval\n### `ZAI:FR-092`\n' + row);
+    assert.throws(() => writeCanonicalProjections(root), /approved|approval/i);
+    put(approval, '---\nstatus: approved\nmigration_base_revision: ' + base + '\n---\n## Approval\n### `ZAI:FR-092`\n```text\n' + row + '```\n');
+    put(indexPath, JSON.stringify({ version: 1, sourceRevision: SOURCE_REVISION, records: [{ ...entry, recordSha256: 'f'.repeat(64) }] }));
+    assert.throws(() => writeCanonicalProjections(root), /prior|base/i);
+    put(indexPath, indexText);
+    const otherRow = '| FR-092 | Different capability: new behavior | approved |\n';
+    put(relative, reviewedCanonicalRecord({ row: otherRow, migrationBaseRevision: base }));
+    put(approval, '---\nstatus: approved\nmigration_base_revision: ' + base + '\n---\n## Approval\n' + otherRow);
+    assert.throws(() => writeCanonicalProjections(root), /identity|subject/i);
+    put(relative, candidate);
+    put(approval, '---\nstatus: approved\nmigration_base_revision: ' + base + '\n---\n## Approval\n### `ZAI:FR-092`\n```text\n' + row + '```\n');
+    writeCanonicalProjections(root);
+    writeCanonicalProjections(root, { check: true });
+    assert.equal(readCanonicalRegistry(root)[0].row, row);
+    assert.equal(readFileSync(path.join(root, relative), 'utf8'), candidate);
+  } finally {
+    assert.ok(path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep));
+    assert.ok(path.basename(root).startsWith('zuri-reviewed-revision-'));
     rmSync(root, { recursive: true, force: true });
   }
 });
