@@ -1,9 +1,9 @@
 ---
 domain: project-manager
 doc_type: domain-document-spine
-version: "0.1.0b"
+version: "0.2.0b"
 created_at: "2026-09-18T20:42:13+07:00,RWANG"
-last_update: "2026-09-18T20:42:13+07:00,RWANG"
+last_update: "2026-10-23,Codex"
 superseded_by: null
 source: gpt-site-design-review
 status: candidate
@@ -15,16 +15,22 @@ attributes:
 
 # Project Manager document spine
 
-This is the repository entry point for the Project Manager design.
+This is the repository entry point for Project Manager domain documentation.
+
+Start with the [ownership charter](CHARTER.md) and the proposed
+[source-linked domain SRS](SRS.md). The latter indexes exact canonical records,
+their lifecycle, peer contracts and evidence limits. The full-system design
+below remains a candidate proposal; its separate [candidate SRS](../../architecture/project-manager-system/17-SRS.md)
+is not an approved replacement for canonical requirements.
 
 The public GPT design Site supplies the information architecture and reading order. GitHub stores the canonical Markdown, contracts, registries and evidence. The Site is rebuilt/exported from this tree and is never edited as a second source.
 
 ## Source-of-truth rules
 
-- GitHub repository files are the authoritative source for requirements, architecture, contracts, FR notes and evidence.
-- The Site-derived 01–22 sequence is the core design spine. Existing files under architecture/project-manager-system are the canonical repository copies of that spine.
+- Requirement statements, lifecycle and FEAT membership live in the exact per-ID records located by the [canonical registry](../../../registry/document-registry/index.json), under the [canonical format](../../migrations/document-reintegration/CANONICAL-FORMAT.md). Charters and accepted ADRs retain their ownership and decision authority.
+- The Site-derived 01–22 sequence is the candidate design spine. Existing files under architecture/project-manager-system are its repository source copies; their own lifecycle and any exact accepted slice determine authority.
 - Repository supplements use the 23+ layer: implementation baselines, Phase B decisions, G14, TaskUsageLedger and current evidence.
-- Registered FR behavior lives once in a feature note under features/. Proposal-local PMR behavior lives once under requirements/. Architecture documents link to those files instead of owning another copy of the requirement body.
+- Feature notes under features/ explain requirements, rationale and delivery evidence; they do not replace canonical per-ID records. Proposal-local PMR bodies remain under requirements/. A context link to an existing FR does not adopt a PMR; PMR-013 explicitly records registration as FR-272.
 - Generated views such as FEATURE-MAP.md, DOMAIN-MAP.md and TRACE.md remain governed outputs; do not hand-edit them.
 
 ## Read the core Site spine
@@ -70,7 +76,8 @@ The Site-only current implementation page is represented in the repository as [2
 
 ## Requirement and FR extraction
 
-- [FR-INDEX.md](FR-INDEX.md) links every existing canonical Project Manager FR note without copying its body.
+- [Source-linked SRS](SRS.md) indexes the selected canonical FEAT/FR and shared constraints without copying statements or acceptance criteria.
+- [FR-INDEX.md](FR-INDEX.md) links supporting Project Manager FR notes; note status is separate from canonical lifecycle and current delivery evidence.
 - [requirements/README.md](requirements/README.md) links one extracted file for each of the 33 proposal-local PMR requirements.
 - [Machine-readable PMR index](../../architecture/project-manager-system/contracts/pm-requirement-index.json) connects PMR → capability → owner → acceptance → existing FR context.
 - A PMR with an existing FR context remains a proposal requirement until canonical registration; an existing FR is never silently repurposed.
@@ -85,3 +92,10 @@ The Site-only current implementation page is represented in the repository as [2
 ## Verification path
 
 After changing this spine or any source document, run npm run govern, inspect the generated graph/preflight, then run the relevant tests/build. A static Site page is review evidence, not proof of runtime activation.
+
+## Change history
+
+0.1.0b → 0.2.0b (2026-10-23): add charter/SRS reading order and reconcile the
+older feature-note authority wording with the canonical-record cutover. Retain
+the candidate package, PMR keys and historical supplements without promoting
+their approval, implementation or production status.
