@@ -144,6 +144,47 @@ describe('Marketing Content persistence (FR-157)', () => {
     })
   })
 
+  it('loads the created aggregate only after its transaction commits', async () => {
+    const loadEvents = []
+    let committed = false
+    const observingRepository = (db, scope) => {
+      const repository = createMarketingContentRepository(db, scope)
+      return {
+        ...repository,
+        async load(briefId) {
+          loadEvents.push(committed ? 'post-commit-load' : 'pre-commit-load')
+          return repository.load(briefId)
+        },
+        async transaction(callback) {
+          const result = await repository.transaction((txRepository, tx) => callback({
+            ...txRepository,
+            async load(...args) {
+              loadEvents.push('in-transaction-load')
+              return txRepository.load(...args)
+            },
+          }, tx))
+          committed = true
+          loadEvents.push('transaction-committed')
+          return result
+        },
+      }
+    }
+
+    const created = await createMarketingContent(
+      { businessId: businessA.id, title: 'Committed content response', payload: basePayload },
+      deps(ownerA, { createRepository: observingRepository }),
+    )
+
+    expect(loadEvents).toEqual(['transaction-committed', 'post-commit-load'])
+    expect(created).toMatchObject({
+      businessId: businessA.id,
+      title: 'Committed content response',
+      currentRevision: 1,
+      currentVersion: { revision: 1, title: 'Committed content response' },
+    })
+    expect(created.versions).toHaveLength(1)
+  })
+
   it('creates a server-resolved immutable revision and exposes visible members read-only', async () => {
     const created = await createMarketingContent(
       { businessId: businessA.id, title: 'Creative brief', payload: withAsset(assetA.id) },

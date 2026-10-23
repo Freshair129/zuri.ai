@@ -1,17 +1,102 @@
 const { test, expect } = require('@playwright/test')
 const { randomUUID } = require('node:crypto')
-const { loginAsOwner, loginRequest, readScope, E2E_PASSWORD } = require('./e2e-auth')
+const { PrismaClient } = require('@prisma/client')
+const { e2eTarget } = require('./e2e-target')
+const { loginRequest, readScope, E2E_PASSWORD } = require('./e2e-auth')
+const { signUpBusinessActor } = require('./e2e-business-actor')
 
 // @req FR-253 — actual persisted policy/formula edits, server preview and OWNER activation.
 // @spec ADR-098; SEC-001
 // @tested tests/e2e/fr253-pricing-rules.spec.js
 
+const FIXTURE_TENANT_CODE = 'TNT-FR253-PRICING'
+const FIXTURE_TENANT_NAME = 'FR-253 pricing E2E tenant'
+const FIXTURE_BUSINESS_CODE = 'BUS-SMARTGIFT'
+const FIXTURE_BUSINESS_NAME = 'FR-253 pricing E2E Business'
+const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
+let fixture
+
+async function removePricingFixture() {
+  const tenant = await prisma.tenant.findUnique({ where: { code: FIXTURE_TENANT_CODE } })
+  if (!tenant) return
+  if (tenant.name !== FIXTURE_TENANT_NAME) throw new Error('Refusing to remove a Tenant outside the FR-253 E2E fixture')
+
+  const business = await prisma.business.findUnique({ where: { code: FIXTURE_BUSINESS_CODE } })
+  if (!business) {
+    if (await prisma.business.count({ where: { tenantId: tenant.id } })) {
+      throw new Error('Refusing to remove a Tenant with Businesses outside the FR-253 E2E fixture')
+    }
+    await prisma.tenant.delete({ where: { id: tenant.id } })
+    return
+  }
+  if (business.tenantId !== tenant.id || business.name !== FIXTURE_BUSINESS_NAME) {
+    throw new Error('Refusing to remove a Business outside the FR-253 E2E fixture')
+  }
+
+  const memberships = await prisma.membership.findMany({
+    where: { businessId: business.id },
+    include: { person: { select: { email: true } } },
+  })
+  if (memberships.some(({ person }) => !person.email?.startsWith('sod-'))) {
+    throw new Error('Refusing to remove a non-test member from the FR-253 E2E fixture')
+  }
+  const actorIds = memberships.map(({ personId }) => personId)
+  const ruleSets = await prisma.pricingRuleSet.findMany({ where: { businessId: business.id }, select: { id: true, sourceRuleSetId: true } })
+  const tenantBusinesses = await prisma.business.count({ where: { tenantId: tenant.id } })
+  if (tenantBusinesses !== 1) throw new Error('Refusing to remove a Tenant with Businesses outside the FR-253 E2E fixture')
+
+  await prisma.pricingCalculation.deleteMany({ where: { businessId: business.id } })
+  // Remove cloned drafts before their source because rule lineage is restrictive.
+  let remaining = ruleSets
+  while (remaining.length) {
+    const leaves = remaining.filter(({ id }) => !remaining.some((candidate) => candidate.sourceRuleSetId === id))
+    if (!leaves.length) throw new Error('FR-253 pricing fixture has an unexpected cyclic rule lineage')
+    await prisma.pricingRuleSet.deleteMany({ where: { id: { in: leaves.map(({ id }) => id) } } })
+    const deletedIds = new Set(leaves.map(({ id }) => id))
+    remaining = remaining.filter(({ id }) => !deletedIds.has(id))
+  }
+  await prisma.auditEvent.deleteMany({ where: { businessId: business.id } })
+  await prisma.membership.deleteMany({ where: { businessId: business.id } })
+  if (actorIds.length) await prisma.person.deleteMany({ where: { id: { in: actorIds } } })
+  await prisma.stockMovement.deleteMany({ where: { businessId: business.id } })
+  await prisma.product.deleteMany({ where: { businessId: business.id } })
+  await prisma.productMaster.deleteMany({ where: { businessId: business.id } })
+  await prisma.inventoryCategory.deleteMany({ where: { businessId: business.id } })
+  await prisma.business.delete({ where: { id: business.id } })
+  await prisma.tenant.delete({ where: { id: tenant.id } })
+}
+
+async function preparePricingFixture() {
+  await removePricingFixture()
+  const existingBusiness = await prisma.business.findUnique({ where: { code: FIXTURE_BUSINESS_CODE } })
+  if (existingBusiness) throw new Error('BUS-SMARTGIFT is already owned outside the FR-253 E2E fixture')
+  const portfolio = await prisma.portfolio.findFirst({ orderBy: { code: 'asc' } })
+  if (!portfolio) throw new Error('FR-253 E2E seed Portfolio is unavailable')
+  const tenant = await prisma.tenant.create({
+    data: { code: FIXTURE_TENANT_CODE, name: FIXTURE_TENANT_NAME, portfolioId: portfolio.id },
+  })
+  const business = await prisma.business.create({
+    data: { code: FIXTURE_BUSINESS_CODE, name: FIXTURE_BUSINESS_NAME, tenantId: tenant.id },
+  })
+  fixture = { tenant, business }
+}
+
+test.beforeAll(async () => { await preparePricingFixture() })
+test.afterAll(async () => {
+  try { await removePricingFixture() } finally { await prisma.$disconnect() }
+})
+
 test('FR-253 — OWNER edits variables and expressions, previews, approves and clones immutable policy', async ({ page }) => {
-  await loginAsOwner(page)
-  await page.getByRole('button', { name: /Open Business Business 01/ }).click()
+  const actor = await signUpBusinessActor(page.request, fixture.business.id)
+  // Signup establishes the isolated actor's authenticated session; membership
+  // is then added to the disposable Business before this real entry flow.
+  await page.goto('/businesses')
+  await page.getByRole('button', { name: `Open Business ${FIXTURE_BUSINESS_NAME}`, exact: true }).click()
   await expect(page).toHaveURL(/\/overview$/)
   const scope = await readScope(page.request)
-  const businessId = scope.businesses.find((business) => business.code === 'BUS-001').id
+  const scopedBusiness = scope.businesses.find((business) => business.code === FIXTURE_BUSINESS_CODE)
+  expect(scopedBusiness).toMatchObject({ id: fixture.business.id, name: FIXTURE_BUSINESS_NAME })
+  const businessId = scopedBusiness.id
   const fixtureCode = randomUUID().slice(0, 8)
   const createInventory = async (path, data) => {
     const response = await page.request.post(`/api/inventory/${path}`, { data: { businessId, ...data } })
@@ -57,7 +142,7 @@ test('FR-253 — OWNER edits variables and expressions, previews, approves and c
   await page.getByRole('button', { name: 'อนุมัติรุ่นและตั้งวันมีผล', exact: true }).click()
   const approved = await approvedResponse
   expect(approved.ok(), await approved.text()).toBe(true)
-  await expect(page.getByRole('status')).toContainText('อนุมัติรุ่นแล้ว')
+  await expect(page.getByRole('status').filter({ hasText: 'อนุมัติรุ่นแล้ว' })).toBeVisible()
   await page.reload()
   await expect(page.getByLabel('ชื่อชุดสูตร', { exact: true })).toHaveValue(name)
   await expect(page.getByLabel('ชื่อชุดสูตร', { exact: true })).toBeDisabled()
