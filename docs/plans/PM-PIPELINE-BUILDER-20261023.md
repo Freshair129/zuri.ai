@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.1"
+version: "0.1.2"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -48,6 +48,12 @@ release truth table; the executor cannot guess their blocking meaning.
 
 ## Task C0: Resolve the technical contract before any schema/UI code
 
+**Current selection (2026-10-23):** owner selected C after PR730 merge. C0
+preparation is in progress against `635120c5`; the [exact proposed supplement](../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
+and its linked examples own the reviewable choices. ADR-035/canonical lifecycle
+are unchanged; C1–C4 remain `CONTRACT_NOT_ADOPTED` until exact adoption and the
+source reconciliation listed there. Earlier “C unselected” state is historical.
+
 **Files:** prepare a source-owned supplement at
 `docs/architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md` and
 its reviewed contract examples; reconcile ADR-035 and the existing FEAT-007 note.
@@ -85,6 +91,13 @@ interfaces/tests in this plan before their code task starts.
 ## Task C1: Handoff persistence, shared delta lane and global register (FR-084)
 
 **Entry:** C0 adopted; schema/receipt/security/recovery consequences reviewed.
+
+The proposed C0 supplement adapter extension makes RegisterDelta1.3 (body.plan on
+the existing dependency route) and Bundle1.1 part of C1's consumer migration.
+Keep the existing bundle.import.commit receipt label/anchor, add contract fields
+and preview hashing through the same transaction writer, and test shared-key
+cross-Tenant conflicts plus numeric/counter-overflow refusal. These are exact
+adoption choices in the supplement, not approved application changes yet.
 
 **Files (Server-relative; proposed new files):**
 
@@ -181,3 +194,6 @@ transport, undo, move and release semantics; C1–C4 are not authorized to guess
 them or implement the wider PM candidate.
 
 0.1.1 (2026-10-23): owner approved the implementation-plan package at c291afcd; only A1 is selected for this increment. Track B/C execution and C0 contract adoption remain unstarted.
+
+0.1.2 (2026-10-23): owner selected C; prepare source-qualified C0 supplement and
+examples before application code. No implicit adoption of new release semantics.

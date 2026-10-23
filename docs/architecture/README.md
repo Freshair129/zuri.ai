@@ -64,6 +64,7 @@ Generated navigation for current source documents in the architecture grouping. 
 - [TaskUsageLedger implementation packet](project-manager-system/27-TASK-USAGE-LEDGER-IMPLEMENTATION-PACKET.md)
 - [Current Project Manager implementation and delivery status](project-manager-system/28-CURRENT-IMPLEMENTATION-AND-DELIVERY-STATUS.md)
 - [Approval Gateway admission — design and delivery packet](project-manager-system/29-APPROVAL-GATEWAY-ADMISSION-DESIGN.md)
+- [Pipeline Builder contract foundation](project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
 - [Project Manager — Full System Design](project-manager-system/README.md)
 - [Monorepo documentation and verification policy](VERIFICATION-POLICY.md)
 - [ADR-001 — Build Standalone Before Integrating with Zuri](../decisions/ADR-001-STANDALONE-ZURI-V2.md)

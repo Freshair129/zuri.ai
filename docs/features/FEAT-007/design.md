@@ -50,6 +50,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Pipeline Builder contract foundation](../../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md) — `references` · `metadata` · `current`
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
@@ -61,6 +62,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 
 > 🔜 design only — ADR-035 proposed, implementation not authorized
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Pipeline Builder contract foundation](../../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md) — `references` · `metadata` · `current`
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 

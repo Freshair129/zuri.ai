@@ -293,6 +293,7 @@ The public GPT design Site is the presentation/export layer. GitHub is the sourc
 - Extracted proposal requirements: [PMR files](../../domains/project-manager/requirements/README.md) and [machine index](contracts/pm-requirement-index.json).
 - Registered FR behavior: [FR index](../../domains/project-manager/FR-INDEX.md) and the existing feature notes; the index does not duplicate their bodies.
 - Repository supplements: documents 23–27, G14/TaskUsageLedger packets and [current status snapshot](28-CURRENT-IMPLEMENTATION-AND-DELIVERY-STATUS.md).
+- Proposed Pipeline Builder C0: [contract foundation](30-PIPELINE-CONTRACT-FOUNDATION.md) and its linked examples; exact adoption is required before application implementation.
 - Site HTML/MD copies are generated review artifacts. They must be rebuilt from this repository after a source change; they are not edited independently.
 
 This structure keeps the Site's navigation/read order while making each requirement, contract and evidence artifact addressable from GitHub without duplicated normative prose.

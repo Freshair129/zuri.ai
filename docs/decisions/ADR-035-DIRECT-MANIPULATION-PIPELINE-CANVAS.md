@@ -15,6 +15,13 @@ attributes:
 **Status:** Proposed — design only. No implementation is authorized by this
 document; it declares the ids and the boundaries the implementation must hold.
 
+**C0 review supplement (2026-10-23):** [Pipeline contract foundation](../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
+proposes exact data/delta/release/move/undo and activation contracts against
+source `635120c5`. Its section11 records the required canonical interpretation
+of ordering/lineage directions and aggregate release scope. Neither this link
+nor selection of C accepts those choices; this ADR remains proposed until exact
+product adoption and source reconciliation. Existing D1–D6 text is preserved.
+
 **Relates to:** FR-082, FR-083, FR-084, FR-085, FEAT-007, BR-017, SDD-046 ·
 existing: FR-005, FR-007, FR-012, FR-040, FR-063, FR-064, FR-068, BR-009,
 SDD-009, SDD-019, NFR-008 · ADR-012, ADR-028
