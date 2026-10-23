@@ -2,7 +2,7 @@
 doc_type: implementation-plan
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PLAN-20261023
 status: approved
-version: "0.3.1"
+version: "0.3.2"
 date: "2026-10-23"
 relations:
   - type: references
@@ -145,7 +145,9 @@ not accepted as Ollama inference.
 1. **Reviewed document migration — complete.** The approved change proposal
    migrated only the existing `FR-079` and `FR-080` wrappers. The `FEAT-045`
    row remains unchanged from its prior migration. IDs, leading anchors, source
-   paths, FEAT membership, and the ID ledger were preserved; the root integrator
+   paths, FEAT membership, and the ID ledger's identity inventory were preserved;
+   the existing writer's `--review` operation acknowledges the approved same-subject
+   statement digests for `FR-079`, `FR-080`, and `FEAT-045`. The root integrator
    applied the registry, graph, views, and governance projections serially.
 2. **Add the profile guard and main-dev composition.** In
    `apps/server/src/modules/agent/phase1-runtime.js` and
@@ -321,3 +323,6 @@ roadmap state.
 
 Version 0.3.1 records independent implementation review, profile-only bounded
 non-thinking generation, and the separation from pending live LINE acceptance.
+
+Version 0.3.2 records the sanctioned statement-digest review for the three approved
+same-subject amendments. IDs, subject anchors, roster, and membership are unchanged.

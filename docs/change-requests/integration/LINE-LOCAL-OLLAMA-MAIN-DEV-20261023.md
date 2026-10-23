@@ -3,7 +3,7 @@ doc_type: intake-note
 id: ZAI:LINE-LOCAL-OLLAMA-MAIN-DEV-PROPOSAL-20261023
 status: approved
 superseded_by: null
-version: "0.3.1"
+version: "0.3.2"
 date: "2026-10-23"
 migration_base_revision: 8cd98190669748a74131eaedc7f8993e69b77f49
 relations:
@@ -204,8 +204,10 @@ The revised `FR-079` and `FR-080` source-row migration is authorized against
 explicit FEAT membership, and pinned leading subject anchors remain unchanged.
 The `FEAT-045` row below is unchanged from its prior approved migration based on
 `fa10e309ac1e2833ad518f5432e921a5822d5d4d`; this amendment does not migrate or
-rebind that row. No new IDs, changed membership, or ID-ledger edits are part of
-the work.
+rebind that row. No new IDs or changed membership are part of the work. The
+sanctioned ID-ledger writer acknowledges the approved same-subject statement
+digests for `FR-079`, `FR-080`, and `FEAT-045` through `--review`; the identity
+inventory, subject anchors, roster, and historical declarations remain unchanged.
 
 ### `ZAI:FR-079`
 
@@ -240,7 +242,9 @@ FR-266 and FR-267 are not migrated. Their existing browser `apiKey` and
 credentialed PRP contracts remain unchanged. Only the `FR-079` and `FR-080`
 wrappers are migrated from the declared 8cd base; `FEAT-045` keeps its prior
 fa10 migration provenance and unchanged row. No IDs, FEAT membership, ID-ledger
-entries, pinned source revision, or record paths may be rewritten. Each newly
+identity or subject-anchor entries, pinned source revision, or record paths may
+be rewritten. Only the three review-only statement digest witnesses are updated
+through the existing sanctioned writer. Each newly
 migrated wrapper carries the hash of its approved row bytes; the pinned initial
 hashes remain recoverable from the applicable migration base.
 
@@ -254,8 +258,12 @@ subject anchors, and FEAT membership remain unchanged. The existing-row workflow
 `--register-reviewed` or `document-record-migration --apply`; those handle new
 standalone FR records. The sanctioned projection command after accepted wrapper
 updates is `npm run docs:registry`, followed serially by `npm run docs:graph`,
-`npm run docs:views`, and `npm run govern`. Do not run `docs:ids --write` or edit
-`docs/.id-ledger.json` for this same-subject migration.
+`npm run docs:views`, and `npm run govern`. Do not run `docs:ids --write` or
+hand-edit `docs/.id-ledger.json` for this same-subject migration. Use
+`npm run docs:ids -- --review <ID> --reason "<reviewed amendment reason>"`
+from `apps/server/`, separately for `FR-079`, `FR-080`, and `FEAT-045`, to
+acknowledge their approved body changes without changing their pinned subjects
+or identities.
 
 ## Approved ADR-100 amendment
 
@@ -299,3 +307,6 @@ acceptance remain pending.
 
 Version 0.3.1 reconciles tested implementation status with independent review,
 while keeping live LINE and production acceptance explicitly pending.
+
+Version 0.3.2 records the sanctioned statement-digest review for the three approved
+same-subject amendments. It changes no canonical source row or acceptance claim.
