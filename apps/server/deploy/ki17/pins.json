@@ -2,10 +2,10 @@
   "manifestVersion": 1,
   "id": "ZAI:KI17-DEPLOYMENT-PINS",
   "profile": "stdio",
-  "cycle": "ADR-075 Phase 3 — GenesisRAG17 edge deployment, stdio transport (the production tuple)",
+  "cycle": "ADR-075 Phase 3 — GenesisRAG17 stdio release candidate, signed MSP legacy grants",
   "design": "docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md",
-  "recordedAt": "2026-09-28",
-  "note": "Default manifest for every ki17 target: the proven stdio tuple the production images run (release-05f3567d-ki17-overlay, 2026-09-28): GenesisBlock 5156f412 (PR #178 stale-lock recovery + PR #179 benchmark fixture compatibility), MSP 68e6169d (v0.2.8), GKS ecf1e4de. G-3 passed 36/36 on this tuple on 2026-09-20. The private GKS HTTP canary tuple lives in pins.gks-http.json and is opt-in.",
+  "recordedAt": "2026-10-24",
+  "note": "Selected stdio release candidate: MSP d0d48c1 (PR #40, signed API-010 caller regressions and compatibility evidence; includes the signed legacy-grant enforcement merged in PR #38). GKS ecf1e4de and GenesisBlock 5156f412 are unchanged. The earlier MSP 68e6169d tuple's historical G-3 evidence does not attest this candidate; exact-image acceptance is required before production promotion. Cross tests passed against Zuri bf48f2ff and 64e23f31. The private GKS HTTP canary tuple stays opt-in in pins.gks-http.json.",
   "runtime": {
     "node": "24.18.0",
     "nodePlatform": "linux-x64",
@@ -19,15 +19,15 @@
   "repositories": {
     "zuri-ai": {
       "repository": "Freshair129/zuri.ai",
-      "commit": "05f3567d35398fc1705489c249210fc4b3660d50",
+      "commit": "64e23f31e76128bdb7a6392fda4bf51344e67b97",
       "buildContext": null,
       "verifiedInBuild": false,
-      "note": "This repository is the build's own main context, and .dockerignore excludes .git from it, so the build cannot read its own HEAD. Recorded for the G-4 gate and verified by the operator on the host before the build (`git rev-parse HEAD`).",
+      "note": "Consumer source baseline for this pin amendment, not a claim about the future release commit. This repository is the build's own main context and .dockerignore excludes .git. Record and verify the actual clean release HEAD on the host and its image revision label at the G-4 gate; the build does not attest this entry.",
       "entrypoints": []
     },
     "msp": {
       "repository": "Freshair129/Memory-and-Soul-Passport",
-      "commit": "68e6169dbb371dac2f0debf0bf731b553f7dc26d",
+      "commit": "d0d48c1a8e833478525d9a6ce5ee16af2c85444d",
       "buildContext": "msp",
       "verifiedInBuild": true,
       "installRoot": "/opt/ki17/msp",
