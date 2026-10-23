@@ -2,7 +2,7 @@
 id: ZAI:GENESISRAG17-OWNERSHIP-IMPLEMENTATION
 doc_type: implementation-plan
 status: active
-version: "0.1.0"
+version: "0.1.1"
 date: "2026-10-23"
 relations:
   - type: relates_to
@@ -151,6 +151,37 @@ uses explicit isolated runtime/model roots and the existing non-skipping runner.
 - Initial `npm run govern`: PASS, 0 critical/0 warning/43 info. The final
   composed-tree rerun and corpus freshness are recorded in the Git/PR handoff,
   separately from this plan's design authority.
-- Native prerequisites `KI17_MSP_ROOT`, `KI17_GKS_ROOT`, `KI17_GENESIS_ROOT` and
-  `KI17_MODEL_DIR` are not configured in this worktree. Native acceptance and
-  present-day deployed health are not claimed.
+- At the initial implementation handoff, native prerequisites `KI17_MSP_ROOT`,
+  `KI17_GKS_ROOT`, `KI17_GENESIS_ROOT` and `KI17_MODEL_DIR` were not configured;
+  that handoff made no native or deployed-health claim.
+- The subsequent owner-authorized merge-readiness pass provisioned isolated
+  provider sources at the existing deployed pins: MSP `68e6169d`, GKS
+  `ecf1e4de`, GenesisBlock `5156f412`. GenesisBlock's 753 source blobs match
+  GitHub at that pin after accounting for checkout CRLF/LF, and its Windows
+  native addon was built from that source with `cargo build --locked --lib`.
+  The pinned E5 artifact sizes/hashes all passed; Python 3.12.14 used the exact
+  worker requirements. No provider pin or deployed installation changed.
+- Before incorporating the separately reviewed consent fix from PR #723, the
+  complete native command passed **42/42** with no skips on the Zuri `e4bbcfc3`
+  source, Node 24.20.0/Windows x64. Provider checks passed MSP **14/14**, GKS
+  **53/53** and GenesisBlock worker **22/22** without skips. The first native
+  run had **41 passed/1 failed** because the LINE fixture's actual
+  `qwen2.5:0.5b` model was absent; after installing it the complete command
+  passed. That failed run is not PASS or hidden as a skipped test.
+- Actual browser/HTTP/MCP/native admission passed **2/2** after installing the
+  required Chromium and fixing the test helper to await the authorized scope
+  response during Next dev cold startup. It still uses Business Routing and
+  checks HTTP 200; no route/auth shortcut or product latency promise is added.
+  The earlier missing-browser and five-second navigation failures remain
+  separate failed-run evidence. Newly generated reports were retained outside
+  the repository and their tracked historical targets restored.
+- Final parent/source revisions, re-review, any composed-tree reruns and
+  exact-head hosted results belong to PR #724's delivery evidence. These are
+  Windows native/synthetic-fixture results, not Linux image, production-health,
+  deployed migration or numeric SLO qualification.
+
+## Version diff
+
+0.1.0 → 0.1.1 records the later native qualification, its prerequisite/helper
+corrections and distinct failed runs. It adds no requirement, provider upgrade
+or deployment authority; final Git/CI status remains in the PR.
