@@ -40,8 +40,8 @@ if (invokedDirectly) {
     failures = [`cannot read ${manifestFile} / ${receiptFile}: ${error.message}`]
   }
   if (failures.length) {
-    process.stderr.write(`KI17_OVERLAY_TUPLE_MISMATCH: KI17_FROM's /opt/ki17 is not the stdio production tuple\n  ${failures.join('\n  ')}\n`)
+    process.stderr.write(`KI17_OVERLAY_TUPLE_MISMATCH: KI17_FROM's /opt/ki17 is not the selected stdio tuple\n  ${failures.join('\n  ')}\n`)
     process.exit(1)
   }
-  process.stdout.write('ki17 overlay: KI17_FROM carries the stdio production tuple\n')
+  process.stdout.write('ki17 overlay: KI17_FROM carries the selected stdio tuple\n')
 }
