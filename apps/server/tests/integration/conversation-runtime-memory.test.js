@@ -42,13 +42,14 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // Parity: the same claimed job is answered once by the legacy Server answer and once
 // by the runtime, each against a fresh MSP stand-in with identical history, and the
 // MSP calls, their signed claims and the provider request are compared.
+// Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/conversation-runtime-memory.test.js
 const serviceToken = 'synthetic-memory-runtime-core-token-00001'
 const mspServiceKey = 'synthetic-msp-thread-service-key-00000001'
 const providerKey = 'synthetic-memory-provider-key'
 const sealKey = '6d'.repeat(32)
 const lineUser = 'synthetic-memory-line-user'
-const question = 'ราคาเท่าไร'
+const question = 'ขอชื่อสินค้า A1'
 const evidenceRecords = [{ product_code: 'A1', name: 'สินค้าทดสอบ', sell_price: 12 }]
 const providerReply = { choices: [{ message: { content: 'คำตอบจากโมเดล' } }] }
 const schema = JSON.parse(readFileSync(new URL(

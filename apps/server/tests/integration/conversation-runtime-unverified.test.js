@@ -42,8 +42,8 @@ const pendingOwner = 'Usynthetic-unverified-pending-owner'
 const verifiedUser = 'Usynthetic-unverified-verified-user'
 const otherSpeaker = 'Usynthetic-unverified-other-speaker'
 const groupId = 'Csynthetic-unverified-group'
-const answerText = 'มีชุดของขวัญพรีเมียมในแคตตาล็อกค่ะ'
-const evidenceFixture = { records: [{ product: 'synthetic-unverified-gift-set', answer: 'ชุดของขวัญพรีเมียม' }] }
+const answerText = 'ชุดของขวัญพรีเมียม'
+const evidenceFixture = { records: [{ product_code: 'CRUNV-GIFT-01', name: 'ชุดของขวัญพรีเมียม' }] }
 const outOfHoursText = 'ขณะนี้ปิดทำการ กรุณาติดต่อใหม่ในเวลาทำการค่ะ'
 
 let tenant, business, provider, legacyAccount, runtimeAccount, owner, workstream, sequence = 0
@@ -224,7 +224,7 @@ async function verifyPendingOwner() {
 
 describe('unverified sender: the runtime cohort answers byte for byte as the legacy Server path', () => {
   it('an ordinary question with evidence: the same grounded model answer, with the Business credential and no person', async () => {
-    const result = await bothPaths('มีชุดของขวัญอะไรบ้างคะ')
+    const result = await bothPaths('ชุดของขวัญพรีเมียมชื่ออะไรคะ')
     expect(expectByteParity(result)).toBe(answerText)
     expect(result.spies).toMatchObject({ credential: 1, model: 1 })
     expect(result.wire).not.toContain('work-tool')
@@ -239,7 +239,7 @@ describe('unverified sender: the runtime cohort answers byte for byte as the leg
 
   it('no evidence: the same fixed reply, and no model or credential', async () => {
     evidence = { records: [] }
-    const result = await bothPaths('มีบริการซ่อมรถไหมคะ')
+    const result = await bothPaths('ชุดของขวัญพรีเมียมชื่ออะไรคะ')
     expect(expectByteParity(result)).not.toBe(answerText)
     expect(result.spies).toMatchObject({ credential: 0, model: 0 })
   })
@@ -290,7 +290,7 @@ describe('unverified sender: the runtime cohort answers byte for byte as the leg
 
   it('a group mention from an unverified speaker: the same answer to the group; an unmentioned message gets no job on either path', async () => {
     const source = { type: 'group', groupId, userId: stranger }
-    const result = await bothPaths('ซูริ มีชุดของขวัญอะไรบ้าง', { source })
+    const result = await bothPaths('ซูริ ชุดของขวัญพรีเมียมชื่ออะไรคะ', { source })
     expect(expectByteParity(result)).toBe(answerText)
     expect(result.runtimeJob).toMatchObject({ audienceKind: 'GROUP', recipientId: groupId, sourceUserId: stranger })
     clock = instant()
@@ -391,7 +391,7 @@ describe('unverified sender: Core hands the runtime no person, Work, memory or c
   it('the runtime cannot write the admission record that would move a job out of the verified fence', async () => {
     clock = instant()
     const { ports, core } = buildRuntime()
-    const job = await jobRow((await admit(runtimeAccount, 'มีชุดของขวัญไหม', { user: verifiedUser })).jobId)
+    const job = await jobRow((await admit(runtimeAccount, 'ชุดของขวัญพรีเมียมชื่ออะไรคะ', { user: verifiedUser })).jobId)
     const { claim } = await claimTurn(ports)
     expect(claim.jobId).toBe(job.id)
     const ref = { jobId: claim.jobId, executionId: claim.executionId, claimantId: claim.claimantId, version: claim.version,
@@ -445,7 +445,7 @@ describe('an unverified job cannot complete or send once its account, transport,
     clock = instant()
     const sink = []
     const built = buildRuntime({ sink })
-    const job = await jobRow((await admit(runtimeAccount, 'ซูริ มีชุดของขวัญไหม', { source })).jobId)
+    const job = await jobRow((await admit(runtimeAccount, 'ซูริ ชุดของขวัญพรีเมียมชื่ออะไรคะ', { source })).jobId)
     expect(job.runtimeOwner).toBe('CONVERSATION_RUNTIME')
     const { claim } = await claimTurn(built.ports)
     expect(claim.jobId).toBe(job.id)
