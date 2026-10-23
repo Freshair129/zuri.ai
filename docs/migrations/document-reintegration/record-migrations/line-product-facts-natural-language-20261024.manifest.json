@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "migrationId": "line-product-facts-natural-language-20261024",
+  "base": {
+    "commit": "b6fbbaadc5599bd8034968f35973dfe1a3f9fd13",
+    "indexSha256": "5b7bb9da6a90e62712038b2fa47e9908c211474f0acc8f0cc3441ab1a8bceb12",
+    "ledgerSha256": "606250e19aa6decd45ca73ce858349029e32d4d1c096b2f14e5fcfd3e697380c"
+  },
+  "approval": {
+    "path": "docs/change-requests/integration/line-product-facts-natural-language-20261024.md",
+    "revision": "b6fbbaadc5599bd8034968f35973dfe1a3f9fd13",
+    "version": "0.1.1",
+    "sha256": "bccb0e71385ea69d3122fc0c21b41a5985a03eb7487ce67ae4e256ef4a0964d4"
+  },
+  "records": [
+    {
+      "id": "FR-291",
+      "family": "FR",
+      "statement": "Customer LINE product facts: accept an explicit strict #product JSON request for one exact public SKU and selected availability/price facets, with positive base-unit quantity required for price. A separately enabled main-dev natural-language entry may classify bounded, unambiguous stock/price questions about one exact TEST-ONLY SKU into the same typed request only after the actual database and trusted Tenant, Business and internal LINE account match the existing main-dev allowlists. Price requires an explicit positive safe-integer quantity and exact base unit; missing SKU/quantity/unit, multiple products, exact-stock-count requests, negation, unsupported instructions or ambiguous wording produce deterministic clarification or refusal without owner reads or model fallback. A deterministic guard classifies stock/price intent before model routing even for omitted, unknown or non-test SKUs; unsupported requests and disabled or out-of-scope profiles clarify or refuse without a model or stock/price read. Eligible test products must match a server-configured internal Product ID and exact code allowlist, not a caller label or prefix alone. Ordinary product-name questions retain their existing route. This entry changes neither real-data/production disclosure nor FR-132 quotation semantics. Core derives scope and principal from the persisted job and original signed direct-user event; a verified active ChannelIdentity and non-erased Customer with an exact non-null Business binding are required for stock, never a fabricated staff Viewer or memory permission. A Business OWNER controls a default-off, version-CAS Inventory disclosure policy keyed by Tenant, Business, internal LINE account and Product, with audited changes. Inventory returns only quantity-independent positive/zero ATP or not-measured for eligible products using its fenced quantity reader, never counts, quantity sufficiency or fulfillment promises. Commerce reads an exact published SKU/quantity/unit THB sell price only after Knowledge verifies current generation/manifest/source-receipt membership and PCAT asset/content plus producer-calculation lineage and effective approved pricing rules; NOT_VERIFIED, stale, revoked, foreign or imprecise sources are unavailable, tax remains UNKNOWN, and no new price opt-in or FR-132 quotation change is introduced. Both Server and Conversation Runtime use the same deterministic bounded allow-listed formatter with no model invocation or fallback for recognized product-fact requests, private cost/provenance fields or unrequested owner reads. Core persists a content-free per-job/execution decision, verifies completion text, and revalidates live identity/customer/account/direct audience, applicable owner authority, policy, publication and result before either cohort sends; changed or missing bindings suppress old facts. A separate conversation-runtime.v2 fixed PRODUCT_FACTS contract carries only bounded reply text and existing job/authority context; strict v1 rejects product turns. Malformed requests clarify, denied combined requests have no product/facet payload, allowed one-source failures are explicit PARTIAL, and every read binds a content-free audit without a fabricated model receipt. Local DB and paired Core/Runtime tests prove successful publication-backed reads, negative authorization/source cases, revocation/rebind, concurrency and retry; no production disclosure activation is implied.",
+      "statementSha256": "defea20550104d6fdbc8ff3d7ce234a09a1c92f2c815e114f81b43e6ce64d572",
+      "subjectAnchor": "customer line product facts"
+    }
+  ]
+}

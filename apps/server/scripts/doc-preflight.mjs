@@ -24,6 +24,7 @@ import { classifyRequirements, assertCapabilityTerminology } from './capability-
 import { generateDomainState } from './domain-state.mjs'
 import { parseCanonicalRecord } from './document-registry-format.mjs'
 import {
+  canonicalApprovalSnapshotContexts,
   buildCanonicalGraphEntries,
   canonicalizeDeclaredIdentities,
   loadCanonicalDocumentRegistry,
@@ -75,9 +76,11 @@ const specDocs = []
 const allDocs = labDocs
 const canonicalIndexPath = path.join(workspaceRoot(ROOT), 'registry/document-registry/index.json')
 let canonicalRegistry = { index: { records: [] }, records: [] }
+let approvalContexts = new Map()
 if (existsSync(canonicalIndexPath)) {
   try {
     canonicalRegistry = loadCanonicalDocumentRegistry(workspaceRoot(ROOT))
+    approvalContexts = canonicalApprovalSnapshotContexts(canonicalRegistry, workspaceRoot(ROOT))
   } catch (error) {
     add('critical', 'canonical-record-registry', 'Canonical document registry is invalid', error.message,
       ['registry/document-registry/index.json'], 'Repair the canonical record/index mismatch; compatibility exports are projections')
@@ -89,8 +92,6 @@ if (existsSync(canonicalIndexPath)) {
 const canonicalRecords = canonicalRegistry.index.records
 const canonicalRecordItems = canonicalRegistry.records
 const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
-const approvalContexts = new Map(canonicalRecords.filter(record => record.recordVersion === 2)
-  .map(record => [record.manifestPath.replace(/\.manifest\.json$/, '.approval.md'), record.approvalPath]))
 
 // Direct-root inventory is intentionally based on the live filesystem. The
 // register is a checked reader index, not permission to delete or move entries.

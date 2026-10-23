@@ -13,6 +13,7 @@ import { createReservation } from '@/modules/inventory/application/inventory-atp
 import { setLineStockDisclosurePolicy } from '@/modules/inventory/application/line-stock-disclosure-policy-service'
 import { readLineStockProjection } from '@/modules/inventory/application/line-stock-projection'
 import { resolveLineProductFacts, revalidateLineProductFacts } from '@/modules/agent/line-product-facts'
+import { naturalProductFactsFixture } from '../factories/natural-product-facts'
 
 // @req FR-291 — the dedicated customer reader uses admitted LINE source,
 //   exact Business identity and explicit stock disclosure while returning no count.
@@ -107,7 +108,7 @@ beforeAll(async () => {
   const master = await createProductMaster({ businessId: business.id, code: `LPF-M-${tag}`, categoryId: category.id,
     nameTh: 'สินค้าทดสอบ', nameEn: 'Test product' }, { viewer: owner })
   product = await createProduct({ businessId: business.id, productMasterId: master.id,
-    code: `LPF-SKU-${tag}`, name: 'สินค้าอ่านอย่างปลอดภัย', unit: 'piece', stockPolicy: 'TRACKED', trackingMode: 'NONE' }, { viewer: owner })
+    code: `TEST-ONLY-LPF-${tag}`, name: 'สินค้าอ่านอย่างปลอดภัย', unit: 'piece', stockPolicy: 'TRACKED', trackingMode: 'NONE' }, { viewer: owner })
   const identity = await resolveLineIdentity({ tenantId: tenant.id, lineUserId: USER, channelAccountId: account.bindingCode })
   const verified = await activateChannelIdentity({ tenantId: tenant.id, personId: identity.personId,
     channelAccountId: account.bindingCode, providerSubject: USER, now: sourceNow })
@@ -297,5 +298,93 @@ describe('LINE product facts owner reader', () => {
     const projection = await readLineStockProjection({ tenantId: business.tenantId, businessId: business.id,
       productId: service.id, db: prisma, now: sourceNow })
     expect(projection).toMatchObject({ state: 'NOT_MEASURED', basis: null })
+  })
+})
+
+describe('natural-language facts keep the same owner boundaries', () => {
+  let pilot
+  beforeAll(async () => {
+    const identity = await prisma.channelIdentity.findUniqueOrThrow({ where: { id: channelIdentityId } })
+    await activateChannelIdentity({ tenantId: business.tenantId, personId: identity.personId,
+      channelAccountId: account.bindingCode, providerSubject: USER, now: sourceNow })
+    const policy = await prisma.lineStockDisclosurePolicy.findUnique({ where: { tenantId_businessId_lineOaAccountId_productId: {
+      tenantId: business.tenantId, businessId: business.id, lineOaAccountId: account.id, productId: product.id,
+    } } })
+    if (!policy?.enabled) await setPolicy(true, policy?.version ?? 0, 'Natural-language fixture explicit test disclosure')
+    pilot = await naturalProductFactsFixture({ db: prisma, business, accounts: [account], product })
+  })
+
+  it('answers availability from the actual ATP reader and revalidates the pilot before release', async () => {
+    const question = await admitProductQuestion(`สินค้า ${product.code} มีของไหม`)
+    const observed = await readLineStockProjection({ tenantId: business.tenantId, businessId: business.id,
+      productId: product.id, db: prisma, now: sourceNow })
+    const before = await resolveLineProductFacts(question, { db: pilot.db, env: pilot.env, now: sourceNow })
+    expect(before.text).toContain(observed.state === 'ATP_POSITIVE' ? 'มี ATP มากกว่าศูนย์' : 'ATP เป็นศูนย์')
+    expect(before.text).not.toContain('จำนวนคงเหลือ')
+    expect(await revalidateLineProductFacts(question, before.binding, { db: pilot.db, env: pilot.env, now: sourceNow })).toBe(true)
+    expect(await revalidateLineProductFacts(question, before.binding, { db: pilot.db,
+      env: { ...pilot.env, ZURI_LINE_NATURAL_PRODUCT_FACTS_ENABLED: 'false' }, now: sourceNow })).toBe(false)
+    expect(await revalidateLineProductFacts(question, before.binding, { db: pilot.db,
+      env: { ...pilot.env, ZURI_LINE_NATURAL_PRODUCT_FACTS_PRODUCTS: '[]' }, now: sourceNow })).toBe(false)
+  })
+
+  it('passes the explicit quantity/unit only to the existing published-price reader', async () => {
+    const question = await admitProductQuestion(`ราคา ${product.code} 3 piece เท่าไร`)
+    const stockReader = vi.fn()
+    const priceReader = vi.fn(async input => ({ state: 'PUBLISHED', unitAmountMinor: 1234, currency: 'THB',
+      quantity: input.quantity, unit: input.unit, taxTreatment: 'UNKNOWN', observedFrom: sourceNow.toISOString(),
+      observedTo: sourceNow.toISOString(), publicationDigest: 'e'.repeat(64) }))
+    const result = await resolveLineProductFacts(question, { db: pilot.db, env: pilot.env, now: sourceNow,
+      priceReader, stockReader, knowledgeReaderFactory: ({ tenantId, businessId }) => ({ scope: { tenantId, businessId } }) })
+    expect(result.text).toContain('฿12.34')
+    expect(priceReader).toHaveBeenCalledWith(expect.objectContaining({ productId: product.id, quantity: 3, unit: 'piece' }), expect.anything())
+    expect(stockReader).not.toHaveBeenCalled()
+  })
+
+  it.each(['มีของไหม', 'ราคา REAL-1 1 EA เท่าไร', 'ขอราคาสินค้า', 'COUNT', 'COUNT_EN', 'QUANTITY', 'NEGATED'])('does not read facts for ambiguity: %s', async text => {
+    if (text === 'QUANTITY') text = `What is the quantity of ${product.code}?`
+    if (text === 'COUNT_EN') text = `How much does ${product.code} have in stock for 1 piece?`
+    if (text === 'NEGATED') text = `ไม่อยากรู้ราคา ${product.code} 1 piece`
+    const question = await admitProductQuestion(text === 'COUNT' ? `${product.code} เหลือกี่ชิ้น` : text)
+    const stockReader = vi.fn(), priceReader = vi.fn()
+    const result = await resolveLineProductFacts(question, { db: pilot.db, env: pilot.env, now: sourceNow, stockReader, priceReader })
+    expect(result.text).not.toContain('฿')
+    expect(stockReader).not.toHaveBeenCalled()
+    expect(priceReader).not.toHaveBeenCalled()
+  })
+
+  it('refuses disabled, foreign and wrong-Product-ID profiles without owner reads', async () => {
+    const question = await admitProductQuestion(`${product.code} มีของไหม และราคา 1 piece เท่าไร`)
+    for (const env of [
+      { ...pilot.env, ZURI_LINE_NATURAL_PRODUCT_FACTS_ENABLED: 'false' },
+      { ...pilot.env, ZURI_MAIN_DEV_LOCAL_OLLAMA_ALLOWED_BUSINESS_IDS: JSON.stringify(['aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa']) },
+      { ...pilot.env, ZURI_LINE_NATURAL_PRODUCT_FACTS_PRODUCTS: JSON.stringify([{ productId: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', sku: product.code }]) },
+    ]) {
+      const stockReader = vi.fn(), priceReader = vi.fn()
+      const result = await resolveLineProductFacts(question, { db: pilot.db, env, now: sourceNow, stockReader, priceReader })
+      expect(result.text).toBe('ขออภัย ขณะนี้ยังไม่สามารถยืนยันข้อมูลสินค้าที่ร้องขอได้')
+      expect(stockReader).not.toHaveBeenCalled()
+      expect(priceReader).not.toHaveBeenCalled()
+    }
+  })
+
+  it('does not trust another Product merely because its code starts TEST-ONLY', async () => {
+    const other = await createProduct({ businessId: business.id, productMasterId: product.productMasterId,
+      code: `TEST-ONLY-UNAPPROVED-${Date.now()}`, name: 'Unapproved test marker', unit: 'piece', stockPolicy: 'TRACKED', trackingMode: 'NONE' }, { viewer: owner })
+    const question = await admitProductQuestion(`ราคา ${other.code} 1 piece เท่าไร`)
+    const stockReader = vi.fn(), priceReader = vi.fn()
+    const result = await resolveLineProductFacts(question, { db: pilot.db, env: pilot.env, now: sourceNow, stockReader, priceReader })
+    expect(result.text).toBe('ขออภัย ขณะนี้ยังไม่สามารถยืนยันข้อมูลสินค้าที่ร้องขอได้')
+    expect(stockReader).not.toHaveBeenCalled()
+    expect(priceReader).not.toHaveBeenCalled()
+  })
+
+  it('withholds combined natural facts from a pending identity without reading either owner', async () => {
+    const question = await admitProductQuestion(`${product.code} มีของไหม ราคา 1 piece เท่าไร`, `U-natural-pending-${Date.now()}`)
+    const stockReader = vi.fn(), priceReader = vi.fn()
+    const result = await resolveLineProductFacts(question, { db: pilot.db, env: pilot.env, now: sourceNow, stockReader, priceReader })
+    expect(result.text).toBe('ขออภัย ขณะนี้ยังไม่สามารถยืนยันข้อมูลสินค้าที่ร้องขอได้')
+    expect(stockReader).not.toHaveBeenCalled()
+    expect(priceReader).not.toHaveBeenCalled()
   })
 })

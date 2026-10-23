@@ -12,6 +12,7 @@ import { appendTraceEvent, playbackTrace } from '@/modules/agent/execution-trace
 
 // @req FR-171 — production composition records exact model input and durable delivery evidence.
 // @spec SEC-001, SEC-005, ADR-070
+// Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/server-line-trace.test.js
 
 const env = { ZURI_LINE_REPLY_SEAL_KEY: 'b4'.repeat(32) }
@@ -32,11 +33,11 @@ async function fixture() {
   } })
   const now = new Date()
   const event = { type: 'message', webhookEventId: suffix, replyToken: 'fixture-reply-secret', timestamp: now.getTime() - 50,
-    source: { type: 'user', userId: `user-${suffix}` }, message: { type: 'text', id: `msg-${suffix}`, text: 'AB-1 ราคาเท่าไร' } }
+    source: { type: 'user', userId: `user-${suffix}` }, message: { type: 'text', id: `msg-${suffix}`, text: 'AB-1 ชื่อสินค้าอะไร' } }
   const admitted = await admitLineConversation({ account, event, correlationId: suffix, now, env })
   const evidence = { records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: now.toISOString() }] }
   const fetchFn = vi.fn(async () => ({ ok: true, headers: new Headers({ 'x-request-id': 'provider-request' }), json: async () => ({
-    id: 'response-1', output_text: 'AB-1 ราคา 50 บาท', usage: { input_tokens: 120, output_tokens: 20, total_tokens: 140,
+    id: 'response-1', output_text: 'AB-1 ชื่อแก้ว', usage: { input_tokens: 120, output_tokens: 20, total_tokens: 140,
       input_tokens_details: { cached_tokens: 30 }, output_tokens_details: { reasoning_tokens: 5 } },
   }) }))
   const model = createModelProviderPort({ provider: 'openai', model: 'fixture', credential: 'fixture-model-secret', fetchFn })
@@ -86,7 +87,8 @@ describe('SERVER LINE execution trace', () => {
     const message = await prisma.message.findUnique({ where: { id: f.inboundMessageId } })
     await prisma.$transaction(tx => redactLineConversationJobs(tx, { tenantId: f.tenant.id, conversationIds: [message.conversationId] }))
     const result = await readLineConversationTrace(f.jobId, { viewer: f.owner })
-    expect(JSON.stringify(result)).not.toContain('ราคา')
+    expect(JSON.stringify(result)).not.toContain('AB-1')
+    expect(JSON.stringify(result)).not.toContain('แก้ว')
     expect(result.playback.status).toBe('REPLAY_INCOMPLETE')
     expect(f.reply).toHaveBeenCalledOnce()
     await expect(appendTraceEvent(prisma, { scope: { tenantId: f.tenant.id, businessId: f.business.id },

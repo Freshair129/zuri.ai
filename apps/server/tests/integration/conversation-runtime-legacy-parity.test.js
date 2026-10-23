@@ -14,6 +14,7 @@ import { MAX_RESPONSE_BYTES, MAX_TURN_QUESTION_CHARS } from '../../../../service
 
 // @req FR-149, FR-171 — a runtime turn accepts and delivers exactly what the legacy Server path does.
 // @spec ADR-106 D2-D4, SDD-110 — admission, Core `prepare`/`send` and the runtime agree on bounds and outcomes.
+// Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/conversation-runtime-legacy-parity.test.js
 
 // Both paths read business knowledge through the same factory. Core's default `prepare` imports it lazily,
@@ -37,7 +38,7 @@ const sealKey = '5c'.repeat(32)
 const lineUser = 'synthetic-parity-line-user'
 const utf8 = value => Buffer.byteLength(JSON.stringify(value), 'utf8')
 // Thai text is three UTF-8 bytes per UTF-16 unit, so a full-length message also exercises the byte bounds.
-const message = length => 'ขอราคาชุดของขวัญพรีเมียมสำหรับลูกค้าองค์กร '.repeat(Math.ceil(length / 40)).slice(0, length)
+const message = length => 'ขอข้อมูลชุดของขวัญพรีเมียมสำหรับลูกค้าองค์กร '.repeat(Math.ceil(length / 40)).slice(0, length)
 const contextBudgetPrefix = (records, budget = 4_000) => {
   let used = 0
   let count = 0

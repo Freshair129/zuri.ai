@@ -285,8 +285,8 @@ describe('FR-291 Core/Runtime product-facts integration', () => {
       .rejects.toMatchObject({ code: 'LINE_PRODUCT_FACTS_DECISION_CONFLICT' })
   })
 
-  it('keeps v1 fail-closed for a recognized product command before the resolver or model', async () => {
-    const job = await admit(runtimeAccount)
+  it.each([requestText, 'ราคา TEST-ONLY-V1 1 EA เท่าไร'])('keeps v1 fail-closed before the resolver or model: %s', async text => {
+    const job = await admit(runtimeAccount, text)
     let resolverCalls = 0
     const wire = []
     const core = createConversationRuntimeCore({ db: prisma, env: { CONVERSATION_RUNTIME_TOKEN: serviceToken },
