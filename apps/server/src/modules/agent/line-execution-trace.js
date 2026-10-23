@@ -47,8 +47,8 @@ export function createLineExecutionTrace({ db, job }) {
       retrieval = {
         retrievalRunId: randomUUID(),
         source: meta.source ?? 'BUSINESS_QUERY',
-        query,
-        evidence,
+        ...(meta.contentFree === true ? { queryHash: digest(query), recordCount: evidence?.records?.length ?? 0 }
+          : { query, evidence }),
         snapshotHash: digest(evidence),
         observedAt: new Date().toISOString(),
         ...(meta.mode !== undefined ? { mode: meta.mode } : {}),

@@ -29,6 +29,25 @@ async function loadApi() {
 }
 
 describe('main-dev local Ollama profile', () => {
+  it('selects real TEST ONLY RAG without requiring or reading a fixture', () => {
+    const env = enabledEnv()
+    delete env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH
+    delete env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+    Object.assign(env, {
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS: JSON.stringify([{ productId: OTHER_ACCOUNT_ID,
+        sku: 'TEST-ONLY-RAG-001', sourceId: TENANT_ID, ingestionId: BUSINESS_ID, fileSha256: 'c'.repeat(64) }]),
+    })
+    expect(ollamaApi.readMainDevLocalOllamaProfile(env)).toMatchObject({
+      knowledgeSource: 'GENESISRAG17_TEST_ONLY', testFixturePath: null, testFixtureSha256: null,
+      rag: { manifestHash: 'b'.repeat(64), products: [{ sku: 'TEST-ONLY-RAG-001' }] },
+    })
+  })
+  it.each(['', 'UNKNOWN', 'gks', 'GENESISRAG17_TEST_ONLY '])('rejects unknown knowledge source %s', source => {
+    expect(() => ollamaApi.readMainDevLocalOllamaProfile({ ...enabledEnv(),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: source })).toThrow(/CONFIGURATION_INVALID/)
+  })
   it('is disabled unless the server-side flag is explicitly true', async () => {
     const api = await loadApi()
     expect(api.readMainDevLocalOllamaProfile({ NODE_ENV: 'production' })).toBeNull()
@@ -152,6 +171,25 @@ describe('main-dev local Ollama profile', () => {
     }
 
     expect(api.assertMainDevLocalOllamaJob({ env, job: memoryJob })).toMatchObject({ memoryEnabled: true })
+
+    const ragEnv = {
+      ...env,
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS: JSON.stringify([{
+        productId: '33019679-ea52-4e6c-95ab-241e60260edd',
+        sku: 'TEST-ONLY-RAG-001',
+        sourceId: '43019679-ea52-4e6c-95ab-241e60260edd',
+        ingestionId: '53019679-ea52-4e6c-95ab-241e60260edd',
+        fileSha256: 'c'.repeat(64),
+      }]),
+    }
+    delete ragEnv.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_PATH
+    delete ragEnv.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
+    const ragJob = { ...memoryJob, account: { ...memoryJob.account, knowledgeGrounding: 'GKS_CORPUS' } }
+    expect(api.assertMainDevLocalOllamaJob({ env: ragEnv, job: ragJob })).toMatchObject({
+      memoryEnabled: true, knowledgeSource: 'GENESISRAG17_TEST_ONLY',
+    })
   })
 
   it('checks the actual Prisma database and all three independently allowlisted IDs', async () => {

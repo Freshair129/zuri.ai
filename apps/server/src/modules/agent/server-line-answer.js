@@ -13,6 +13,8 @@ import {
 import { runLineGroundingShadowCompare } from './line-grounding-shadow-compare'
 import { resolveLineMemoryProject } from '@/modules/line-oa-studio/application/line-memory-scope'
 import { assertMainDevLocalOllamaJob } from './main-dev-local-ollama'
+import prisma from '@/lib/db'
+import { recordMainDevTestRagDecision } from './main-dev-test-rag-decision'
 
 // @req FR-149, FR-150 — answer an already-admitted durable conversation job;
 // @req FR-171 — persist selected evidence and pass the trace observer to the actual provider.
@@ -20,10 +22,10 @@ import { assertMainDevLocalOllamaJob } from './main-dev-local-ollama'
 // @req FR-234, FR-235 — every model attempt receives only the evidence and MSP
 // slices selected under one composer budget. A content-free receipt is recorded
 // immediately before the provider entry; empty/fully-trimmed evidence calls no model.
-// @req FR-079, FR-080 — the main-dev Ollama turn requires a trusted OA and the
-// pinned TEST ONLY reader; corpus grounding and shadow remain denied. MSP memory
-// stays default-off and is available only through its explicit profile opt-in,
-// while the existing identity, policy, consent, audience, and bounded-flow gates apply.
+// @req FR-079, FR-080 — the main-dev Ollama turn requires a trusted OA and either
+// the pinned TEST ONLY fixture or pinned GENESISRAG17_TEST_ONLY RAG reader; shadow
+// stays denied. MSP memory is default-off and needs its separate profile opt-in,
+// then uses the existing identity, policy, consent and bounded receipt path.
 // @spec ADR-061, SEC-001, SEC-010 — public scoped knowledge by default; the
 // persisted opt-in may compose the trusted MSP thread without a second CRM
 // ingest, write action or implicit external model fallback.
@@ -560,6 +562,7 @@ export function createServerLineAnswer({
       throw failure('LINE_ANSWER_UNAVAILABLE')
     }
     const mainDevLocalOllama = Boolean(mainDevLocalOllamaProfile)
+    const mainDevTestRag = mainDevLocalOllamaProfile?.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
     const memoryAllowed = !mainDevLocalOllama || mainDevLocalOllamaProfile.memoryEnabled === true
     const memoryOptIn = memoryAllowed && job.memorySyncOptIn === true && env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
     const episodicMemoryOptIn = memoryAllowed && job.episodicMemoryOptIn === true && env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
@@ -619,7 +622,7 @@ export function createServerLineAnswer({
       // `tenantId`/`businessId` above, or is absent — this reads no other
       // field from it, and the corpus reader is built from the job's own
       // verified scope, never from the account row's identity.
-      const groundingMode = mainDevLocalOllama
+      const groundingMode = mainDevTestRag ? 'GKS_CORPUS' : mainDevLocalOllama
         ? 'BUSINESS_KNOWLEDGE'
         : resolveLineKnowledgeGroundingMode(job.account?.knowledgeGrounding)
       // @req FR-277 — kept unwrapped, before the mode-gated wrap below, so a
@@ -642,9 +645,13 @@ export function createServerLineAnswer({
 
       // Fetch once and compose every cohort, including public Business evidence.
       // Private memory authority gates only MSP slices, never public knowledge.
-      const tracedKnowledge = trace && groundingMode === 'BUSINESS_KNOWLEDGE' ? { query: async input => {
+      const tracedKnowledge = trace && (groundingMode === 'BUSINESS_KNOWLEDGE' || mainDevTestRag) ? { query: async input => {
         const evidence = await businessKnowledge.query(input)
-        await trace.recordEvidence(input, evidence)
+        await trace.recordEvidence(input, evidence, mainDevTestRag ? {
+          contentFree: true,
+          mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: evidence.meta?.reason ?? null,
+          budgetMs: evidence.meta?.budgetMs ?? null, retrievalRefs: evidence.retrievalRefs ?? [],
+        } : undefined)
         return evidence
       } } : businessKnowledge
       let memoryContext = null
@@ -734,6 +741,12 @@ export function createServerLineAnswer({
       // LINE's text message limit is 5000 UTF-16 code units. Never leave a split
       // surrogate at the boundary when an evidence value contains emoji.
       const answerText = boundLineText(result.text)
+      if (mainDevTestRag) {
+        if (result.provider?.status !== 'not-called') await runtimePorts.revalidateKnowledge()
+        await recordMainDevTestRagDecision(runtimeDependencies.integrationDb ?? prisma, job, {
+          binding: runtimePorts.getKnowledgeBinding(), replyText: answerText,
+        })
+      }
       // @req FR-277 — shadow-compare (ADR-090 Phase 3, TASK-ZAI-095). Started,
       // never awaited: the customer-facing answer above is already final, and
       // the worker's own reply/push dispatch happens in the caller after this

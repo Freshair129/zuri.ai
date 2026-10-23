@@ -186,6 +186,18 @@ describe('main-dev local Ollama owner selection', () => {
     fetchFn = ollamaTags()
   })
 
+  it('retains owner model selection only for the matching private RAG profile and GKS account', async () => {
+    db.state.accounts = [account({ knowledgeGrounding: 'GKS_CORPUS' })]
+    const env = enabledEnv({ ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),
+      ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_PRODUCTS: JSON.stringify([{ productId: OTHER_BUSINESS_ID,
+        sku: 'TEST-ONLY-RAG-001', sourceId: TENANT_ID, ingestionId: BUSINESS_ID, fileSha256: 'c'.repeat(64) }]) })
+    await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env, fetchFn }))
+      .resolves.toMatchObject({ accountId: ACCOUNT_ID, knowledgeSource: 'GENESISRAG17_TEST_ONLY' })
+    db.state.accounts = [account({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE' })]
+    await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env, fetchFn })).rejects.toMatchObject({ status: 404 })
+  })
+
   it('lists installed models only for the unique owned Business and connected server OA in the actual main-dev database', async () => {
     await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env: enabledEnv(), fetchFn })).resolves.toEqual({
       businessId: BUSINESS_ID,

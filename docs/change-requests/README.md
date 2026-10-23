@@ -1,14 +1,14 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.5.0"
+version: "1.6.0"
 updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.5.0
+**Version:** 1.6.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
@@ -16,6 +16,11 @@ version-controlled.
 
 ## Current contract proposals
 
+- [LINE Ollama with a TEST ONLY GenesisRAG17 source](integration/line-ollama-test-only-genesisrag17-20261024.md)
+  (0.1.0, bounded main-dev implementation contract approved): separately enabled
+  real-corpus grounding from exact allowlisted TEST ONLY Product lineage, with
+  filtered model input and unchanged deterministic stock/price handling. Code,
+  tests, actual RAG retrieval, LINE receipt and deployment remain separate evidence.
 - [TEST ONLY natural-language LINE stock and price](integration/line-product-facts-natural-language-20261024.md)
   (0.1.0, design approved): bounded intent entry into the existing source-bound
   fact reader, exact trusted test-product membership, and same-ID FR-291 amendment.
@@ -44,6 +49,9 @@ approval for its bounded main-dev implementation, the reviewed same-ID source-ro
 migration, and ADR-100 D9. The change-request remains intake documentation, not a
 standalone product requirement or production activation record.
 
+Version 1.6.0 adds the approved main-dev GenesisRAG17 TEST ONLY source proposal
+and its FR-079 same-ID migration. Implementation and live RAG/LINE acceptance
+remain pending; production behavior is unchanged.
 Version 1.1.0 adds this navigation entry. The historical intake explanations
 below retain their original context; current canonical editing follows
 [the reintegration contract](../migrations/document-reintegration/CANONICAL-FORMAT.md),
