@@ -26,11 +26,14 @@ import base from './vitest.config'
 // @req FR-181 — the registered ATP tool preserves the post-fence implicit
 // clock and explicit caller clock on the PostgreSQL adapter as well.
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js
+// @req FR-103, FR-232 — consent and identity/version claims commit atomically
+// with memory erasure on both supported database engines.
+// @tested tests/integration/crm-customer-consent.test.js
 export default {
   ...base,
   test: {
     ...base.test,
-    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js'],
+    include: ['tests/integration/conversation-runtime-work-tool-port.test.js', 'tests/integration/line-memory-erasure-due-query.test.js', 'tests/integration/agent-business-factory.test.js', 'tests/integration/agent-factory-backup.test.js', 'tests/integration/business-provisioning-template.test.js', 'tests/integration/business-provisioning-backup.test.js', 'tests/integration/agent-approval-gateway.test.js', 'tests/integration/fr180-atp-reservations.test.js', 'tests/integration/fr181-smartgift-agent-tools.test.js', 'tests/integration/crm-customer-consent.test.js'],
     globalSetup: ['tests/global-setup-postgres.js'],
     hookTimeout: 120000,
   },

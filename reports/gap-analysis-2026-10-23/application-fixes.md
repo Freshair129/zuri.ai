@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: reviewed
-version: "0.6.0"
+version: "0.7.0"
 source_assessment_revision: "d1a3acb4f9c6827fdf3c78435e6fefb423263665"
 follow_up_base_revision: "175faacbabf41dd64a172253b0c00de45d466a3f"
 ---
@@ -299,6 +299,43 @@ distinct integration prerequisites recorded in the plan. F07 is unchanged.
 Final document checks and exact-head hosted CI remain required for this composed
 patch; their actual results belong in the PR. Merge and deployment remain separate.
 
+### Consent identity snapshot correction after final review
+
+The final merge-readiness review found that consent decline selected the
+Customer's mutable `personId` before the transaction. A real LINE account merge
+could commit in that gap, leaving `DECLINED` recorded while erasure selected the
+previous Person and missed the Customer's current memory lineage. A disposable
+SQLite regression reproduced that outcome: the consent changed but the private
+message retained its original body.
+
+The existing owner/domain gates and early tenant-scoped admission lookup remain.
+Inside the Serializable transaction, the service now re-reads the tenant-scoped
+Customer and claims its exact Person/version before erasing memory. The claim,
+erasure and audit commit or roll back together. The claim precedes erasure's
+existing `PENDING_MSP` writer, which can itself increment the Customer version;
+the returned summary re-reads that final state. No identity, retention-purpose,
+schema or external-erasure authority changes.
+
+Verification of the correction:
+
+- The actual identity-link interleave first failed because the original message
+  survived; it passes after the transaction-scoped selection and claim.
+- A second real-database test injects a row/Person/version change between the
+  authoritative read and claim, verifies rejection and complete rollback of
+  Customer/message/audit state. This is deterministic claim fault injection,
+  not a claim of two independent concurrent database writers.
+- Five selected SQLite files passed **64/64**: consent unit/integration,
+  Knowledge candidate erasure, shared-speaker erasure and identity linking.
+- The same consent integration file passed **10/10** on a fresh disposable
+  PostgreSQL cluster via `npm run test:postgres --
+  tests/integration/crm-customer-consent.test.js`. It is now included in the
+  existing PostgreSQL profile. No ambient or deployed database was used.
+
+These results qualify the added correction, not a fresh full local application
+suite. The earlier source fingerprints remain historical. Final independent
+re-review and exact-head hosted checks are recorded in PR #723; #724 must carry
+this corrected parent before its own final readiness audit.
+
 ## Version diff
 
 0.2.0 → 0.3.0 records the final policy-fence correction, consumer reconciliation,
@@ -319,3 +356,7 @@ interface contract. No canonical row, runtime operation or access grant changes.
 0.5.0 → 0.6.0 records design approval, the bounded ATP source/clock correction,
 its real-database red/green evidence and the implementation plan. It does not
 certify customer stock/price integration or alter canonical rows and grants.
+
+0.6.0 → 0.7.0 records the final review's consent/identity race correction and
+its SQLite/PostgreSQL claim and rollback proof. Earlier verification records
+and their source fingerprints are preserved.

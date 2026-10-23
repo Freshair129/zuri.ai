@@ -108,13 +108,34 @@ export async function recordCustomerConsent(customerId, input, {
   let resealFile = null
   try {
     return await db.$transaction(async (tx) => {
+      // Identity linking can re-point this Customer after the admission read.
+      // Derive erasure and the consent write from one serializable snapshot;
+      // the guarded update also refuses a changed identity/version.
+      const currentCustomer = await tx.customer.findFirst({
+        where: { id: customerId, tenantId: business.tenantId },
+        select: { id: true, personId: true, version: true, consentStatus: true },
+      })
+      if (!currentCustomer) throw failure(404, 'CUSTOMER_NOT_FOUND')
+
+      // Claim the row before erasure's own PENDING_MSP writer increments its
+      // version. Both writers still commit or roll back in this transaction.
+      const updated = await tx.customer.update({
+        where: { id: currentCustomer.id, tenantId: business.tenantId, personId: currentCustomer.personId, version: currentCustomer.version },
+        data: {
+          consentStatus: data.status,
+          consentRecordedAt: recordedAt,
+          consentRecordedByPersonId: actorId,
+          consentNote: data.note ?? null,
+          version: { increment: 1 },
+        },
+      })
       if (data.status === 'DECLINED') {
-        // The Customer's Person is derived from the tenant-scoped row above.
+        // The Customer's Person is derived from the transaction-scoped row.
         // Identity composes CRM, LINE, raw-record, and Knowledge-owned ports;
         // no identity/login or retention-purpose rows are revoked here.
         const memory = await eraseCustomerMemoryInTransaction(tx, {
           tenantId: business.tenantId,
-          personId: customer.personId,
+          personId: currentCustomer.personId,
           reason: 'CONSENT_DECLINED',
           now: recordedAt,
           viewer,
@@ -137,24 +158,16 @@ export async function recordCustomerConsent(customerId, input, {
         payload: {
           businessId: data.businessId,
           tenantId: business.tenantId,
-          previousStatus: customer.consentStatus,
+          previousStatus: currentCustomer.consentStatus,
           status: data.status,
           ...(correlationId ? { correlationId } : {}),
         },
       })
 
-      const updated = await tx.customer.update({
-        where: { id: customer.id },
-        data: {
-          consentStatus: data.status,
-          consentRecordedAt: recordedAt,
-          consentRecordedByPersonId: actorId,
-          consentNote: data.note ?? null,
-          version: { increment: 1 },
-        },
-      })
-
-      return { ...consentSummary(updated), auditEventId: audit.id }
+      const finalCustomer = data.status === 'DECLINED'
+        ? await tx.customer.findUnique({ where: { id: currentCustomer.id } })
+        : updated
+      return { ...consentSummary(finalCustomer), auditEventId: audit.id }
     }, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
   } catch (error) {
     if (!resealFile && error?.archiveFile) resealFile = error.archiveFile
