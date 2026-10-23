@@ -4,6 +4,7 @@
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { failStrategyAudit } from '../helpers/strategy-audit-failure'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import {
   createBusinessKpi,
@@ -49,6 +50,14 @@ function auditFor(entityId, action) {
 describe('FR-269 Business KPI mutation and read scope', () => {
   let kpi
   let tieKpi
+
+  it('rolls KPI and observation writes back with a failed audit', async () => {
+    const subject = await createBusinessKpi({ businessId: businessA.id, name: 'B3 rollback KPI', perspective: 'FINANCIAL', unit: 'USD', target: 100, warningThreshold: 80, direction: 'UP', cadence: 'MONTHLY' }, { viewer: ownerViewer })
+    const before = await prisma.businessKpi.findUnique({ where: { id: subject.id } })
+    await expect(recordBusinessKpiObservation(subject.id, { value: 90 }, { viewer: ownerViewer, db: failStrategyAudit(prisma) })).rejects.toThrow('B3 injected audit failure')
+    expect(await prisma.businessKpi.findUnique({ where: { id: subject.id } })).toEqual(before)
+    expect(await prisma.businessKpiObservation.count({ where: { kpiId: subject.id } })).toBe(0)
+  })
 
   beforeAll(async () => {
     process.env.ZURI_SESSION_SECRET = AUTH_SESSION_SECRET

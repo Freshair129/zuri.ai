@@ -6,6 +6,7 @@
 // @tested tests/unit/fr271-smart-checks.test.js
 
 const normalize = (s) => String(s ?? '').trim().toLowerCase()
+const presentNumber = value => (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) && Number.isFinite(Number(value))
 
 /**
  * @param {object} input   the Key Result draft: { title, metric, unit, baseline, target, dueAt }
@@ -23,8 +24,8 @@ export function smartChecks(input, goal, now = Date.now()) {
   const measurable =
     String(input?.metric ?? '').trim().length > 0 &&
     String(input?.unit ?? '').trim().length > 0 &&
-    Number.isFinite(baseline) &&
-    Number.isFinite(target) &&
+    presentNumber(input?.baseline) &&
+    presentNumber(input?.target) &&
     target !== baseline
 
   const t = now instanceof Date ? now.getTime() : Number(now)

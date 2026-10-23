@@ -17,8 +17,9 @@ import { Modal, Field } from '@/components/ui'
 import { GOAL_STATUSES, GOAL_PRIORITIES, ROADMAP_STATUSES, KEY_RESULT_DIRECTIONS, KEY_RESULT_STATUSES } from '@/lib/validation/enums'
 import { Trash2, Check, X as XIcon } from 'lucide-react'
 import { api } from './useApi'
-// @req FR-271 — the SAME pure function the server enforces at write time, so
-// this live checklist can never claim a check the API does not also make.
+// @req FR-271 — shared computation; the server evaluates at its own acceptance
+// instant. False Specific/optional-date checks remain advisory.
+// @tested tests/e2e/fr271-smart-feedback.spec.js
 import { smartChecks } from '../progress/smart-checks'
 // @req FR-268, SDD-107 — the check-in modal's live progress preview uses the
 // same calculator the server writes through, never a second formula.
@@ -611,8 +612,9 @@ function SmartChecklistRow({ label, value }) {
 
 /**
  * Create or edit a Key Result under a Goal. The SMART checklist re-runs
- * smartChecks() — the exact function FR-271 enforces server-side — on every
- * keystroke, so this preview can never claim a check the API would refuse.
+ * smartChecks() — the exact function FR-271 evaluates server-side — on every
+ * keystroke. The server recomputes at its acceptance time; optional dates and
+ * Specific warnings follow the FR-271 B3 interpretation.
  * `status` only appears when editing: zKeyResultCreateInput has no status
  * field (a new Key Result is always ACTIVE) — archiving is a patch.
  *
@@ -622,6 +624,11 @@ function SmartChecklistRow({ label, value }) {
  * scope for this pass.
  */
 export function KeyResultModal({ open, onClose, goal, keyResult, onSaved }) {
+  const requestEpoch = useRef(0)
+  useEffect(() => {
+    requestEpoch.current += 1
+    return () => { requestEpoch.current += 1 }
+  }, [open])
   const [form, setForm] = useState(() => ({
     title: keyResult?.title || '',
     metric: keyResult?.metric || '',
@@ -644,6 +651,7 @@ export function KeyResultModal({ open, onClose, goal, keyResult, onSaved }) {
 
   const submit = async (e) => {
     e.preventDefault()
+    const epoch = requestEpoch.current
     setBusy(true)
     setError(null)
     try {
@@ -662,12 +670,13 @@ export function KeyResultModal({ open, onClose, goal, keyResult, onSaved }) {
       } else {
         await api(`/api/business/goals/${goal.id}/key-results`, { method: 'POST', body })
       }
+      if (epoch !== requestEpoch.current) return
       onSaved?.()
       onClose()
     } catch (err) {
-      setError(err.message)
+      if (epoch === requestEpoch.current) setError(err.message)
     } finally {
-      setBusy(false)
+      if (epoch === requestEpoch.current) setBusy(false)
     }
   }
 
@@ -725,6 +734,8 @@ export function KeyResultModal({ open, onClose, goal, keyResult, onSaved }) {
             <SmartChecklistRow label="Relevant" value={checklist.relevant} />
             <SmartChecklistRow label="Time-bound" value={checklist.timeBound} />
           </div>
+          {!form.dueAt && <p className="mt-2 text-xs text-muted">Due date is optional; Time-bound remains unchecked without one.</p>}
+          {!checklist.specific && form.title.trim() && <p className="mt-2 text-xs text-muted">Use a title distinct from the Goal for a more specific result.</p>}
         </div>
 
         <FormError message={error} />

@@ -116,6 +116,7 @@ status: generated
 
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/e2e/fr059-strategy-edit.spec.js](../../../apps/server/tests/e2e/fr059-strategy-edit.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/fr271-smart-feedback.spec.js](../../../apps/server/tests/e2e/fr271-smart-feedback.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/smoke.spec.js](../../../apps/server/tests/e2e/smoke.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
@@ -167,6 +168,7 @@ status: generated
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr059-business-strategy-mutation.test.js](../../../apps/server/tests/integration/fr059-business-strategy-mutation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr268-business-key-result-mutation.test.js](../../../apps/server/tests/integration/fr268-business-key-result-mutation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr269-business-kpi-mutation.test.js](../../../apps/server/tests/integration/fr269-business-kpi-mutation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
@@ -212,6 +214,7 @@ status: generated
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr059-business-strategy-mutation.test.js](../../../apps/server/tests/integration/fr059-business-strategy-mutation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr268-business-key-result-mutation.test.js](../../../apps/server/tests/integration/fr268-business-key-result-mutation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr270-business-wig-execution.test.js](../../../apps/server/tests/integration/fr270-business-wig-execution.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
@@ -232,14 +235,18 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js](../../../apps/server/src/modules/project-manager/application/business-strategy-mutation-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/components/StrategyEditModals.jsx](../../../apps/server/src/modules/project-manager/components/StrategyEditModals.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/progress/smart-checks.js](../../../apps/server/src/modules/project-manager/progress/smart-checks.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr059-strategy-edit.spec.js](../../../apps/server/tests/e2e/fr059-strategy-edit.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/fr271-smart-feedback.spec.js](../../../apps/server/tests/e2e/fr271-smart-feedback.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr059-business-strategy-mutation.test.js](../../../apps/server/tests/integration/fr059-business-strategy-mutation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr268-business-key-result-mutation.test.js](../../../apps/server/tests/integration/fr268-business-key-result-mutation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr059-strategy-edit-ui.test.js](../../../apps/server/tests/unit/fr059-strategy-edit-ui.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr059-strategy-validation.test.js](../../../apps/server/tests/unit/fr059-strategy-validation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr271-smart-checks.test.js](../../../apps/server/tests/unit/fr271-smart-checks.test.js) — `verifies` (`test-reference`)
 
 ## Limits

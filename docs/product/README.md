@@ -237,6 +237,7 @@ Generated navigation for current source documents in the product grouping. A pat
 - [PMR-032 — Proposal requirement](../domains/project-manager/requirements/PMR-032-proposal-requirement.md)
 - [PMR-033 — Proposal requirement](../domains/project-manager/requirements/PMR-033-proposal-requirement.md)
 - [Project Manager proposal requirements](../domains/project-manager/requirements/README.md)
+- [SRS — Project Manager](../domains/project-manager/SRS.md)
 - [Domain documentation index](../domains/README.md)
 - [Features (FEAT registry)](../FEATURES.md)
 - [Gap Analysis — zuri-ai requirements × ความสามารถเดิมใน GoVibe](../GAP-ANALYSIS-ZURI-GOVIBE.md)

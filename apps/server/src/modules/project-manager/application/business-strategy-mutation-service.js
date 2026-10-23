@@ -40,6 +40,10 @@ import { recordAudit } from './audit'
 import { keyResultProgress, expectedProgress } from '../progress/key-result-progress'
 import { rollupGoal } from '../progress/goal-rollup'
 import { weekStartFor } from '../progress/week'
+// @req FR-271 — shared SMART feedback and bounded write validation; dates remain optional.
+// @spec ADR-101 D3
+// @tested tests/integration/fr268-business-key-result-mutation.test.js
+import { smartChecks } from '../progress/smart-checks'
 import { serializeBusinessKpi } from '@/modules/business/application/business-strategy-service'
 
 // ---- authorization ----------------------------------------------------------
@@ -780,7 +784,12 @@ export async function updateGoal(id, patch, { db = prisma, viewer } = {}) {
 // selected lag-Key-Result invariant. The write precedes the count so competing
 // transactions queue on the same row in SQLite and PostgreSQL; any conflict
 // rolls the version bump back with the transaction.
-async function lockBusinessWigState(tx, businessId) {
+async function lockBusinessWigState(tx, businessId, { preserveVersion = false } = {}) {
+  if (preserveVersion) {
+    // Portable write fence without changing public metadata on a no-op patch.
+    await tx.$executeRaw`UPDATE "Business" SET "version" = "version" WHERE "id" = ${businessId}`
+    return
+  }
   await tx.business.update({ where: { id: businessId }, data: { version: { increment: 1 } } })
 }
 
@@ -972,7 +981,20 @@ async function recomputeGoalProgress(tx, goalId, { overrideValueFor } = {}) {
   return rollup.percent
 }
 
-export async function createKeyResult(goalId, input, { db = prisma, viewer } = {}) {
+function keyResultFeedback(kr, goal, now) {
+  return { ...serializeKeyResultDto(kr, now), smartChecks: smartChecks(kr, goal, now), smartCheckedAt: new Date(now).toISOString() }
+}
+
+function assertKeyResultSmart(candidate, goal, { now, checkDate }) {
+  const checks = smartChecks(candidate, goal, now)
+  if (!checks.measurable) throw badRequest('SMART Measurable requires a metric, unit and target that must differ from baseline')
+  if (!String(candidate.title ?? '').trim()) throw badRequest('Key Result title must not be empty')
+  if (checkDate && candidate.dueAt != null && !checks.timeBound) {
+    throw badRequest('SMART due date must be on or after now and on or before the Goal target date')
+  }
+}
+
+export async function createKeyResult(goalId, input, { db = prisma, viewer, now: suppliedNow } = {}) {
   requireOwner(viewer)
   const data = zKeyResultCreateInput.parse(input)
   const goal = await db.businessGoal.findUnique({ where: { id: goalId }, select: { id: true, businessId: true } })
@@ -992,6 +1014,11 @@ export async function createKeyResult(goalId, input, { db = prisma, viewer } = {
   }
 
   const kr = await db.$transaction(async (tx) => {
+    await lockBusinessWigState(tx, goal.businessId, { preserveVersion: true })
+    const currentGoal = await tx.businessGoal.findUnique({ where: { id: goalId } })
+    if (!currentGoal || currentGoal.businessId !== goal.businessId) throw badRequest('Goal scope changed; refresh and retry')
+    const now = suppliedNow ?? Date.now()
+    assertKeyResultSmart(data, currentGoal, { now, checkDate: true })
     const created = await tx.businessKeyResult.create({
       data: {
         code,
@@ -1021,39 +1048,31 @@ export async function createKeyResult(goalId, input, { db = prisma, viewer } = {
       actorId: viewer.principal?.id ?? null,
       businessId: goal.businessId,
     })
-    return created
+    return keyResultFeedback(created, currentGoal, now)
   })
 
-  return serializeKeyResultDto(kr)
+  return kr
 }
 
-export async function updateKeyResult(id, patch, { db = prisma, viewer } = {}) {
+export async function updateKeyResult(id, patch, { db = prisma, viewer, now: suppliedNow } = {}) {
   requireOwner(viewer)
   const data = zKeyResultPatchInput.parse(patch)
   const existing = await db.businessKeyResult.findUnique({ where: { id } })
   if (!existing) throw new Error('Key Result not found')
   assertBusinessOwned(existing.businessId, viewer)
 
-  if (data.target !== undefined || data.baseline !== undefined) {
-    const nextBaseline = data.baseline ?? existing.baseline
-    const nextTarget = data.target ?? existing.target
-    if (nextTarget === nextBaseline) throw badRequest('target must differ from baseline (FR-271 Measurable)')
-  }
-
-  if (Object.keys(data).length === 0) {
-    const unchanged = await db.businessKeyResult.findUnique({ where: { id }, include: KEY_RESULT_INCLUDE })
-    return serializeKeyResultDto(unchanged)
-  }
-
   const kr = await db.$transaction(async (tx) => {
-    let current = existing
+    await lockBusinessWigState(tx, existing.businessId, { preserveVersion: data.status === undefined })
+    const current = await tx.businessKeyResult.findUnique({ where: { id }, include: KEY_RESULT_INCLUDE })
+    if (!current || current.businessId !== existing.businessId) throw badRequest('Key Result scope changed; refresh and retry')
+    const parentGoal = await tx.businessGoal.findUnique({ where: { id: current.goalId } })
+    if (!parentGoal || parentGoal.businessId !== current.businessId) throw badRequest('Goal scope changed; refresh and retry')
+    const now = suppliedNow ?? Date.now()
+    if (Object.keys(data).length === 0) return keyResultFeedback(current, parentGoal, now)
+    const candidate = { ...current, ...Object.fromEntries(Object.entries(data).filter(([, value]) => value !== undefined)) }
+    const checkDate = data.dueAt !== undefined && (data.dueAt?.getTime() ?? null) !== (current.dueAt?.getTime() ?? null)
+    assertKeyResultSmart(candidate, parentGoal, { now, checkDate })
     if (data.status !== undefined) {
-      await lockBusinessWigState(tx, existing.businessId)
-      current = await tx.businessKeyResult.findUnique({ where: { id } })
-      const parentGoal = await tx.businessGoal.findUnique({
-        where: { id: current.goalId },
-        select: { status: true, isWig: true },
-      })
       if (data.status === 'ARCHIVED' && current.isLagMeasure && parentGoal?.isWig && parentGoal.status !== 'ARCHIVED') {
         throw conflict('The lag Key Result of an active WIG cannot be archived')
       }
@@ -1087,10 +1106,10 @@ export async function updateKeyResult(id, patch, { db = prisma, viewer } = {}) {
       actorId: viewer.principal?.id ?? null,
       businessId: existing.businessId,
     })
-    return updated
+    return keyResultFeedback(updated, parentGoal, now)
   })
 
-  return serializeKeyResultDto(kr)
+  return kr
 }
 
 // ---- Business scorecard KPIs (FR-269) --------------------------------------
