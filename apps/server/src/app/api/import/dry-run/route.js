@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+import { pipelineResponseStatus } from '@/modules/project-manager/import/plan-delta-service'
 // @req FR-012 — validate PlanEnvelope import via dry-run semantic contract check
 // @req FR-065 — the dry run is authorized identically to the commit: previewing
 // a scope you were not given is the same leak as writing to it.
@@ -17,6 +19,7 @@ export async function POST(request) {
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     const body = await request.json()
-    return dryRunPlan(body.plan, { workspaceId: await resolveImportWorkspaceId(body), viewer })
+    const result = await dryRunPlan(body.plan, { workspaceId: await resolveImportWorkspaceId(body), viewer })
+    return body.plan?.schemaVersion === '1.3' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

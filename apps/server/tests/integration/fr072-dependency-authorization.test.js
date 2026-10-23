@@ -71,7 +71,7 @@ describe('FR-072 dependency-service authorization', () => {
   })
 
   describe('createDependency — fixture (i): both endpoints in Business B', () => {
-    it('refuses the attacker (nothing written) and permits the owner of B on the same edge', async () => {
+    it('refuses the attacker (nothing written) and requires the declared writer for its owner', async () => {
       const before = await prisma.dependency.count()
       const error = await refusalFrom(() =>
         createDependency(
@@ -82,17 +82,18 @@ describe('FR-072 dependency-service authorization', () => {
       expect(error.status).toBe(404)
       expect(await prisma.dependency.count()).toBe(before)
 
-      const created = await createDependency(
+      await expect(createDependency(
         { sourceType: 'WORKSTREAM', sourceId: workstreamB.id, targetType: 'WORKSTREAM', targetId: workstreamB2.id, dependencyType: 'BLOCKS' },
         { viewer: ownerB },
-      )
+      )).rejects.toMatchObject({code:'CONTRACT_REQUIRED'})
+      const created = await prisma.dependency.create({data:{sourceType:'WORKSTREAM',sourceId:workstreamB.id,targetType:'WORKSTREAM',targetId:workstreamB2.id,dependencyType:'BLOCKS'}})
       expect(created.sourceId).toBe(workstreamB.id)
       expect(await prisma.dependency.count()).toBe(before + 1)
     })
   })
 
   describe('createDependency — fixture (ii): endpoints in A and B (proves the conjunction is causal)', () => {
-    it('a viewer owning both A and B succeeds; a viewer owning only A is refused', async () => {
+    it('an owner of both requires the declared writer; a viewer owning only A is refused', async () => {
       const before = await prisma.dependency.count()
 
       // Owning only A is not enough — the target endpoint lives in B.
@@ -105,10 +106,11 @@ describe('FR-072 dependency-service authorization', () => {
       expect(error.status).toBe(404)
       expect(await prisma.dependency.count()).toBe(before)
 
-      const created = await createDependency(
+      await expect(createDependency(
         { sourceType: 'WORKSTREAM', sourceId: workstreamA.id, targetType: 'WORKSTREAM', targetId: workstreamB.id, dependencyType: 'REQUIRES' },
         { viewer: viewerBoth },
-      )
+      )).rejects.toMatchObject({code:'CONTRACT_REQUIRED'})
+      const created = await prisma.dependency.create({data:{sourceType:'WORKSTREAM',sourceId:workstreamA.id,targetType:'WORKSTREAM',targetId:workstreamB.id,dependencyType:'REQUIRES'}})
       expect(created.sourceId).toBe(workstreamA.id)
       expect(created.targetId).toBe(workstreamB.id)
       expect(await prisma.dependency.count()).toBe(before + 1)
@@ -161,11 +163,8 @@ describe('FR-072 dependency-service authorization', () => {
       expect(error.message).toBe('Dependency not found')
     })
 
-    it('refuses the attacker (edge not deleted) and permits the owner of both endpoints', async () => {
-      const dependency = await createDependency(
-        { sourceType: 'WORKSTREAM', sourceId: workstreamB.id, targetType: 'WORKSTREAM', targetId: workstreamB2.id, dependencyType: 'REQUIRES' },
-        { viewer: ownerB },
-      )
+    it('refuses the attacker (edge not deleted) and requires preview for the owner of both endpoints', async () => {
+      const dependency = await prisma.dependency.create({ data: { sourceType: 'WORKSTREAM', sourceId: workstreamB.id, targetType: 'WORKSTREAM', targetId: workstreamB2.id, dependencyType: 'REQUIRES' } })
       const before = await prisma.dependency.count()
 
       const error = await refusalFrom(() => deleteDependency(dependency.id, { viewer: attacker }))
@@ -173,22 +172,18 @@ describe('FR-072 dependency-service authorization', () => {
       expect(error.message).toBe('Dependency not found')
       expect(await prisma.dependency.count()).toBe(before)
 
-      const deleted = await deleteDependency(dependency.id, { viewer: ownerB })
-      expect(deleted.id).toBe(dependency.id)
-      expect(await prisma.dependency.count()).toBe(before - 1)
+      await expect(deleteDependency(dependency.id, { viewer: ownerB })).rejects.toMatchObject({code:'UPGRADE_REQUIRED'})
+      expect(await prisma.dependency.count()).toBe(before)
     })
 
     it('requires BOTH endpoints on delete too — owning only A is refused for an A/B edge', async () => {
-      const dependency = await createDependency(
-        { sourceType: 'WORKSTREAM', sourceId: workstreamA.id, targetType: 'WORKSTREAM', targetId: workstreamB2.id, dependencyType: 'BLOCKS' },
-        { viewer: viewerBoth },
-      )
+      const dependency = await prisma.dependency.create({ data: { sourceType: 'WORKSTREAM', sourceId: workstreamA.id, targetType: 'WORKSTREAM', targetId: workstreamB2.id, dependencyType: 'BLOCKS' } })
       const error = await refusalFrom(() => deleteDependency(dependency.id, { viewer: viewerOnlyA }))
       expect(error.status).toBe(404)
       expect(error.message).toBe('Dependency not found')
 
-      const deleted = await deleteDependency(dependency.id, { viewer: viewerBoth })
-      expect(deleted.id).toBe(dependency.id)
+      await expect(deleteDependency(dependency.id, { viewer: viewerBoth })).rejects.toMatchObject({code:'UPGRADE_REQUIRED'})
+      expect(await prisma.dependency.findUnique({where:{id:dependency.id}})).not.toBe(null)
     })
   })
 })

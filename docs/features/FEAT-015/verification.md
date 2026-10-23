@@ -184,6 +184,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-contract-regressions.test.js](../../../apps/server/tests/integration/pipeline-contract-regressions.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-inventory-stall.test.js](../../../apps/server/tests/integration/project-inventory-stall.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-inventory.test.js](../../../apps/server/tests/integration/project-inventory.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)

@@ -1,3 +1,5 @@
+import { dryRunHandoffBundle } from './bundle-handoff-service'
+import { wouldCreateCycle } from '../../application/dependency-service'
 import prisma from '@/lib/db'
 import { dryRunPlan } from '../plan-import-service'
 import { zExecutionPlanBundle, validateBundleSemantics } from './bundle-schema'
@@ -29,37 +31,10 @@ import { resolveBundleScope, resolveProjectWorkspace, resolveStrategy } from './
  * database ids through the codes the preview resolved.
  */
 async function combinedDependencyCycle(bundleEdges, db) {
-  const existing = await db.dependency.findMany({
-    where: { sourceType: 'PROJECT', targetType: 'PROJECT' },
-    select: { sourceId: true, targetId: true },
-  })
-  const adjacency = new Map()
-  const addEdge = (from, to) => {
-    if (!adjacency.has(from)) adjacency.set(from, new Set())
-    adjacency.get(from).add(to)
-  }
-  for (const edge of existing) addEdge(`id:${edge.sourceId}`, `id:${edge.targetId}`)
-  for (const edge of bundleEdges) {
-    // A bundle project that already exists participates under its database id
-    // so bundle edges and existing edges meet in one graph; a brand-new
-    // project cannot yet appear in any existing edge, so its code is enough.
-    addEdge(edge.sourceProjectId ? `id:${edge.sourceProjectId}` : `code:${edge.sourceProjectCode}`,
-      edge.targetProjectId ? `id:${edge.targetProjectId}` : `code:${edge.targetProjectCode}`)
-  }
-  const state = new Map()
-  let cyclic = false
-  const visit = (node) => {
-    if (cyclic || state.get(node) === 'done') return
-    if (state.get(node) === 'visiting') {
-      cyclic = true
-      return
-    }
-    state.set(node, 'visiting')
-    for (const next of adjacency.get(node) || []) visit(next)
-    state.set(node, 'done')
-  }
-  for (const node of adjacency.keys()) visit(node)
-  return cyclic
+  const existing = await db.dependency.findMany()
+  const candidate = bundleEdges.map(edge=>({sourceType:'PROJECT',sourceId:edge.sourceProjectId || 'new:'+edge.sourceProjectCode,targetType:'PROJECT',targetId:edge.targetProjectId || 'new:'+edge.targetProjectCode}))
+  for(const edge of candidate) if(await wouldCreateCycle(edge.sourceType,edge.sourceId,edge.targetType,edge.targetId,{edges:[...existing,...candidate.filter(row=>row!==edge)]}))return true
+  return false
 }
 
 /**
@@ -73,7 +48,7 @@ async function combinedDependencyCycle(bundleEdges, db) {
  * projects, dependencies, preview }`; `preview` is the one combined object the
  * confirm screen renders and `valid === (conflict count === 0)`.
  */
-export async function dryRunBundle(rawBundle, { viewer, db = prisma } = {}) {
+export async function dryRunLegacyBundle(rawBundle, { viewer, db = prisma } = {}) {
   // Phase A — authorize before parsing anything beyond the scope selector.
   const scope = await resolveBundleScope(rawBundle, { viewer, db })
   if (scope.error) return { valid: false, errors: [scope.error], preview: null }
@@ -192,6 +167,10 @@ export async function dryRunBundle(rawBundle, { viewer, db = prisma } = {}) {
       targetProjectId: targetProject?.id ?? null,
     })
   }
+  if (bundle.schemaVersion === '1.0') for (const edge of dependencies) {
+    const stored = edge.sourceProjectId && edge.targetProjectId && await db.dependency.findFirst({where:{sourceType:'PROJECT',sourceId:edge.sourceProjectId,targetType:'PROJECT',targetId:edge.targetProjectId,dependencyType:edge.relation}})
+    if(!stored) errors.push('CONTRACT_REQUIRED: create a declared handoff through Bundle1.1')
+  }
   if (dependencies.length > 0 && await combinedDependencyCycle(dependencies, db)) {
     errors.push('Cross-project dependencies would create a cycle with existing Project dependencies')
   }
@@ -267,4 +246,8 @@ export async function dryRunBundle(rawBundle, { viewer, db = prisma } = {}) {
       },
     },
   }
+}
+
+export async function dryRunBundle(raw, options = {}) {
+  return raw?.schemaVersion === '1.1' ? dryRunHandoffBundle(raw, options) : dryRunLegacyBundle(raw, options)
 }

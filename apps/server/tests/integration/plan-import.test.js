@@ -64,7 +64,7 @@ const plan = {
     },
   ],
   repositories: [{ code: 'REP-IMP', provider: 'github', fullName: 'org/imported', role: 'REFERENCE' }],
-  dependencies: [{ sourceRef: 'IMP-GATE1', targetRef: 'WST-IMP-DEV', type: 'RELATES_TO' }],
+  dependencies: [], // C1: legacy full plans preserve entities; new edges require the declared lane.
 }
 
 function schema12Plan() {
@@ -103,7 +103,7 @@ function schema12Plan() {
     }
   })
   candidate.repositories = [{ ...candidate.repositories[0], code: 'REP-IMP-V12' }]
-  candidate.dependencies = [{ sourceRef: 'V12-IMP-GATE1', targetRef: 'V12-WST-IMP-DEV', type: 'RELATES_TO' }]
+  candidate.dependencies = []
   return candidate
 }
 
@@ -249,7 +249,7 @@ describe('plan envelope import', () => {
     expect(project.goalLinks.map((link) => link.goal.code)).toEqual(['GOAL-IMP'])
     expect(project.businessId).toBe(workspace.businessId)
     const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO' } })
-    expect(dep).toBeTruthy()
+    expect(dep).toBeNull()
     const audit = await prisma.auditEvent.findFirst({
       where: { action: 'PLAN_IMPORTED', entityId: project.id },
     })

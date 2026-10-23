@@ -1,0 +1,6 @@
+// @req FR-084 — recovery refuses unknown/corrupt contracts without stripping evidence.
+import {it,expect} from 'vitest'
+import {previewSnapshot,SNAPSHOT_MODELS,SNAPSHOT_SCHEMA_VERSION} from '@/modules/project-manager/application/backup-service'
+const snapshot=value=>({schemaVersion:SNAPSHOT_SCHEMA_VERSION,createdAt:'2026-10-24T00:00:00.000Z',tables:{...Object.fromEntries(SNAPSHOT_MODELS.map(m=>[m,[]])),dependency:[{id:'legacy',sourceType:'PROJECT',sourceId:'a',targetType:'PROJECT',targetId:'b',dependencyType:'BLOCKS',contractJson:value}]}})
+it('rejects unknown versions, JSON null, corruption and forged/incomplete stored marks before mutation',()=>{for(const value of ['null','{',JSON.stringify({version:2,deliverable:'x',acceptance:{kind:'MANUAL',satisfied:true}}),JSON.stringify({version:1,deliverable:'x',acceptance:{kind:'MANUAL',satisfied:true}})]){const result=previewSnapshot(snapshot(value));expect(result.errors.some(error=>String(error).includes('DEPENDENCY_HANDOFF_INVALID')),value).toBe(true)}})
+it('keeps legacy SQL NULL distinct from malformed declared JSON',()=>{expect(previewSnapshot(snapshot(null)).errors.some(error=>String(error).includes('DEPENDENCY_HANDOFF_INVALID'))).toBe(false)})

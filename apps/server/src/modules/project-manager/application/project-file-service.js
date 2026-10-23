@@ -1,3 +1,6 @@
+import { withPipelineTransaction, isPipelineTransaction, pipelineTransactionFacade } from './pipeline-writer'
+// @req FR-084 — new WorkItem metadata links serialize with guarded inverse.
+// @tested tests/integration/pipeline-contract-regressions.test.js
 // @req FR-037 — ProjectFile metadata references, optional WorkItem link, and audited mutation.
 // @spec SDD-016, BR-002, SEC-003, docs/features/FR-037-project-files.md
 // @tested tests/unit/project-file-service.test.js
@@ -12,7 +15,6 @@ import { recordAudit } from './audit'
 import { legacyFileAssetDto } from './file-asset-service'
 import { assertProjectWritable } from './project-authorization'
 
-const codeExists = async (code) => Boolean(await prisma.projectFile.findUnique({ where: { code } }))
 
 async function assertProject(db, projectId) {
   const project = await db.project.findUnique({ where: { id: projectId } })
@@ -38,6 +40,7 @@ export async function listProjectFiles(projectId, { db = prisma } = {}) {
 }
 
 export async function createProjectFile(projectId, input, { db = prisma, viewer } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db,tx=>createProjectFile(projectId,input,{db:pipelineTransactionFacade(tx),viewer}))
   const data = zProjectFileInput.parse(input)
   await assertProject(db, projectId)
   await assertProjectWritable(viewer, projectId, { db })
@@ -45,7 +48,7 @@ export async function createProjectFile(projectId, input, { db = prisma, viewer 
     const workItem = await db.workItem.findFirst({ where: { id: data.workItemId, deletedAt: null, workstream: { projectId } } })
     if (!workItem) throw new Error('Work item must belong to the project')
   }
-  const code = data.code || (await uniqueHumanCode('FIL', data.name, codeExists))
+  const code = data.code || (await uniqueHumanCode('FIL', data.name, async code=>Boolean(await db.projectFile.findUnique({where:{code}}))))
   const file = await db.projectFile.create({
     data: {
       code,

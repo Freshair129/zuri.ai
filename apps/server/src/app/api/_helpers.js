@@ -63,6 +63,7 @@ function prismaErrorStatus(err) {
 export async function handle(fn) {
   try {
     const data = await fn()
+    if (data instanceof Response) return data
     return NextResponse.json(data)
   } catch (err) {
     if (err instanceof ZodError) {

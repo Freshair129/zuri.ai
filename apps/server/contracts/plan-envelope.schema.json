@@ -2,359 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "zuri-v2://contracts/plan-envelope.schema.json",
   "title": "Zuri Project Manager Plan Envelope",
-  "type": "object",
-  "required": [
-    "schemaVersion",
-    "project",
-    "workstreams"
-  ],
-  "additionalProperties": false,
-  "properties": {
-    "schemaVersion": {
-      "enum": [
-        "1.0",
-        "1.1",
-        "1.2"
-      ]
-    },
-    "generatedBy": {
-      "type": "string"
-    },
-    "generatedAt": {
-      "type": "string"
-    },
-    "scope": {
-      "type": "object",
-      "additionalProperties": false,
-      "properties": {
-        "portfolioCode": {
-          "type": "string"
-        },
-        "tenantCode": {
-          "type": "string"
-        },
-        "businessCode": {
-          "type": "string"
-        },
-        "workspaceCode": {
-          "type": "string"
-        }
-      }
-    },
-    "project": {
-      "type": "object",
-      "required": [
-        "code",
-        "name"
-      ],
-      "additionalProperties": false,
-      "properties": {
-        "code": {
-          "type": "string",
-          "minLength": 1
-        },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "description": {
-          "type": "string"
-        },
-        "type": {
-          "type": "string"
-        },
-        "status": {
-          "type": "string"
-        },
-        "targetAt": {
-          "anyOf": [
-            { "type": "string", "format": "date-time" },
-            { "type": "string", "format": "date" }
-          ]
-        },
-        "goalIds": {
-          "type": "array",
-          "maxItems": 100,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "riskIds": {
-          "type": "array",
-          "maxItems": 100,
-          "uniqueItems": true,
-          "items": {
-            "type": "string",
-            "minLength": 1
-          }
-        },
-        "externalRefs": {
-          "type": "array",
-          "items": {
-            "$ref": "#/$defs/externalRef"
-          }
-        }
-      }
-    },
-    "trace": {
-      "$ref": "#/$defs/trace"
-    },
-    "domainBinding": {
-      "$ref": "#/$defs/domainBinding"
-    },
-    "identityRefs": {
-      "$ref": "#/$defs/identityRefs"
-    },
-    "workstreams": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "code",
-          "name",
-          "executionMode",
-          "progressStrategy"
-        ],
-        "additionalProperties": false,
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "executionMode": {
-            "enum": [
-              "SOFTWARE_SPRINT",
-              "DATA_MIGRATION",
-              "B2B_SALES",
-              "B2C_CAMPAIGN",
-              "PRODUCT_LAUNCH",
-              "OPERATIONS",
-              "BUSINESS_EXPANSION"
-            ]
-          },
-          "executionModeId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "executionContractId": {
-            "type": "string",
-            "minLength": 1
-          },
-          "contractVersion": {
-            "type": "string",
-            "minLength": 1
-          },
-          "progressStrategy": {
-            "enum": [
-              "TASK_WEIGHT",
-              "RECORD_VALIDATION",
-              "WEIGHTED_PIPELINE",
-              "KPI_ATTAINMENT",
-              "MILESTONE_READINESS",
-              "SLA_SCORE",
-              "EXPANSION_READINESS"
-            ]
-          },
-          "progressWeight": {
-            "type": "number",
-            "exclusiveMinimum": 0
-          },
-          "containers": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/container"
-            }
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/item"
-            }
-          },
-          "milestones": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/milestone"
-            }
-          },
-          "gates": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/gate"
-            }
-          },
-          "tagRefs": {
-            "type": "array",
-            "maxItems": 100,
-            "items": {
-              "$ref": "#/$defs/tagRef"
-            }
-          },
-          "externalRefs": {
-            "type": "array",
-            "items": {
-              "$ref": "#/$defs/externalRef"
-            }
-          }
-        },
-        "allOf": [
-          {
-            "if": { "properties": { "executionMode": { "const": "SOFTWARE_SPRINT" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "TASK_WEIGHT" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["SPRINT", "EPIC", "RELEASE"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["TASK", "BUG"] }, "metrics": { "type": "object", "properties": { "completedWeight": {}, "plannedWeight": {}, "defects": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "DATA_MIGRATION" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "RECORD_VALIDATION" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["MIGRATION_STAGE", "MIGRATION_BATCH"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["DATASET", "VALIDATION", "RECONCILIATION"] }, "metrics": { "type": "object", "properties": { "recordsTotal": {}, "processed": {}, "success": {}, "failed": {}, "validated": {}, "reconciled": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "B2B_SALES" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "WEIGHTED_PIPELINE" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["SALES_PIPELINE", "SALES_STAGE"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["ACCOUNT", "DEAL", "ACTIVITY"] }, "metrics": { "type": "object", "properties": { "target": {}, "wonRevenue": {}, "weightedValue": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "B2C_CAMPAIGN" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "KPI_ATTAINMENT" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["CAMPAIGN", "CAMPAIGN_WAVE", "CHANNEL"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["CREATIVE", "AUDIENCE", "EXPERIMENT"] }, "metrics": { "type": "object", "properties": { "spend": {}, "leads": {}, "cpa": {}, "cac": {}, "conversion": {}, "conversions": {}, "revenue": {}, "roas": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "PRODUCT_LAUNCH" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "MILESTONE_READINESS" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["LAUNCH_PHASE"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["DELIVERABLE"] }, "metrics": { "type": "object", "properties": { "readiness": {}, "blockedGates": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "OPERATIONS" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "SLA_SCORE" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["OPS_PERIOD", "OPS_PROCESS"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["CHECKLIST_ITEM", "ISSUE", "SLA"] }, "metrics": { "type": "object", "properties": { "slaMet": {}, "slaTotal": {}, "throughput": {}, "backlog": {}, "incidents": {}, "completed": {} }, "additionalProperties": false } } } }
-              }
-            }
-          },
-          {
-            "if": { "properties": { "executionMode": { "const": "BUSINESS_EXPANSION" } } },
-            "then": {
-              "properties": {
-                "progressStrategy": { "const": "EXPANSION_READINESS" },
-                "containers": { "items": { "properties": { "subtype": { "enum": ["EXPANSION_INITIATIVE", "EXPANSION_SITE"] } } } },
-                "items": { "items": { "properties": { "subtype": { "enum": ["SETUP_ACTION", "APPROVAL"] }, "metrics": { "type": "object", "properties": { "legal": {}, "location": {}, "budget": {}, "hiring": {}, "vendors": {}, "operationalReadiness": {}, "goLive": {} }, "additionalProperties": false } } } }
-              }
-            }
-          }
-        ]
-      }
-    },
-    "repositories": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "code",
-          "provider"
-        ],
-        "properties": {
-          "code": {
-            "type": "string"
-          },
-          "provider": {
-            "type": "string"
-          },
-          "fullName": {
-            "type": "string"
-          },
-          "url": {
-            "type": "string"
-          },
-          "role": {
-            "type": "string"
-          },
-          "pathScope": {
-            "type": "string"
-          }
-        },
-        "additionalProperties": false
-      }
-    },
-    "dependencies": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": [
-          "sourceRef",
-          "targetRef",
-          "type"
-        ],
-        "properties": {
-          "sourceRef": {
-            "type": "string"
-          },
-          "targetRef": {
-            "type": "string"
-          },
-          "type": {
-            "enum": [
-              "BLOCKS",
-              "REQUIRES",
-              "RELATES_TO",
-              "START_AFTER",
-              "FINISH_BEFORE"
-            ]
-          }
-        },
-        "additionalProperties": false
-      }
-    }
-  },
-  "allOf": [
+  "oneOf": [
     {
-      "if": { "properties": { "schemaVersion": { "const": "1.2" } } },
-      "then": {
-        "required": ["trace", "domainBinding", "identityRefs"],
-        "properties": {
-          "trace": {
-            "required": ["correlationId", "idempotencyKey"]
-          },
-          "domainBinding": {
-            "required": ["primaryDomainId", "supportingDomainIds", "technicalOwnerDomainId"]
-          },
-          "workstreams": {
-            "items": {
-              "required": ["executionModeId", "executionContractId", "contractVersion"]
-            }
-          }
-        }
-      }
+      "$ref": "#/$defs/fullPlan"
+    },
+    {
+      "$ref": "#/$defs/projectDelta"
     }
   ],
   "$defs": {
@@ -440,8 +93,14 @@
         },
         "targetAt": {
           "anyOf": [
-            { "type": "string", "format": "date-time" },
-            { "type": "string", "format": "date" }
+            {
+              "type": "string",
+              "format": "date-time"
+            },
+            {
+              "type": "string",
+              "format": "date"
+            }
           ]
         },
         "externalRefs": {
@@ -535,26 +194,59 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "tagId": { "type": "string", "minLength": 1 },
-        "requestedTagCode": { "type": "string", "minLength": 1 }
+        "tagId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "requestedTagCode": {
+          "type": "string",
+          "minLength": 1
+        }
       },
       "anyOf": [
-        { "required": ["tagId"] },
-        { "required": ["requestedTagCode"] }
+        {
+          "required": [
+            "tagId"
+          ]
+        },
+        {
+          "required": [
+            "requestedTagCode"
+          ]
+        }
       ]
     },
     "trace": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "correlationId": { "type": "string", "minLength": 1 },
-        "idempotencyKey": { "type": "string", "minLength": 1 },
-        "replayOfExecutionRunId": { "type": ["string", "null"] },
-        "replayOfExecutionStepId": { "type": ["string", "null"] },
+        "correlationId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "idempotencyKey": {
+          "type": "string",
+          "minLength": 1
+        },
+        "replayOfExecutionRunId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "replayOfExecutionStepId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "replayStepKeys": {
           "type": "array",
           "maxItems": 20,
-          "items": { "type": "string", "minLength": 1 }
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
         }
       }
     },
@@ -562,41 +254,1929 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "primaryDomainId": { "type": "string", "minLength": 1 },
-        "supportingDomainIds": { "type": "array", "maxItems": 20, "items": { "type": "string", "minLength": 1 } },
-        "technicalOwnerDomainId": { "type": "string", "minLength": 1 }
+        "primaryDomainId": {
+          "type": "string",
+          "minLength": 1
+        },
+        "supportingDomainIds": {
+          "type": "array",
+          "maxItems": 20,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "technicalOwnerDomainId": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "identityRefs": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "gateIds": { "$ref": "#/$defs/stringIds" },
-        "artifactIds": { "$ref": "#/$defs/stringIds" },
-        "contractIds": { "$ref": "#/$defs/stringIds" },
-        "meetingIds": { "$ref": "#/$defs/stringIds" },
-        "callIds": { "$ref": "#/$defs/stringIds" },
-        "followupIds": { "$ref": "#/$defs/stringIds" },
-        "reqIds": { "$ref": "#/$defs/stringIds" },
-        "verifyIds": { "$ref": "#/$defs/stringIds" },
-        "integrationId": { "type": ["string", "null"] },
-        "graphId": { "type": ["string", "null"] },
-        "nodeIds": { "$ref": "#/$defs/stringIds" },
-        "edgeIds": { "$ref": "#/$defs/stringIds" },
-        "workflowContractId": { "type": ["string", "null"] },
-        "workflowId": { "type": ["string", "null"] },
-        "runbookId": { "type": ["string", "null"] },
-        "runbookIds": { "$ref": "#/$defs/stringIds" },
-        "promotionId": { "type": ["string", "null"] },
-        "promotionIds": { "$ref": "#/$defs/stringIds" },
-        "skillIds": { "$ref": "#/$defs/stringIds" },
-        "toolIds": { "$ref": "#/$defs/stringIds" }
+        "gateIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "artifactIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "contractIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "meetingIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "callIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "followupIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "reqIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "verifyIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "integrationId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "graphId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nodeIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "edgeIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "workflowContractId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workflowId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runbookId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runbookIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "promotionId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "promotionIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "skillIds": {
+          "$ref": "#/$defs/stringIds"
+        },
+        "toolIds": {
+          "$ref": "#/$defs/stringIds"
+        }
       }
     },
     "stringIds": {
       "type": "array",
       "maxItems": 100,
-      "items": { "type": "string", "minLength": 1 }
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "fullPlan": {
+      "type": "object",
+      "required": [
+        "schemaVersion",
+        "project",
+        "workstreams"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "schemaVersion": {
+          "enum": [
+            "1.0",
+            "1.1",
+            "1.2"
+          ]
+        },
+        "generatedBy": {
+          "type": "string"
+        },
+        "generatedAt": {
+          "type": "string"
+        },
+        "scope": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "portfolioCode": {
+              "type": "string"
+            },
+            "tenantCode": {
+              "type": "string"
+            },
+            "businessCode": {
+              "type": "string"
+            },
+            "workspaceCode": {
+              "type": "string"
+            }
+          }
+        },
+        "project": {
+          "type": "object",
+          "required": [
+            "code",
+            "name"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "code": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "description": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "targetAt": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date-time"
+                },
+                {
+                  "type": "string",
+                  "format": "date"
+                }
+              ]
+            },
+            "goalIds": {
+              "type": "array",
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "riskIds": {
+              "type": "array",
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "externalRefs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/externalRef"
+              }
+            }
+          }
+        },
+        "trace": {
+          "$ref": "#/$defs/trace"
+        },
+        "domainBinding": {
+          "$ref": "#/$defs/domainBinding"
+        },
+        "identityRefs": {
+          "$ref": "#/$defs/identityRefs"
+        },
+        "workstreams": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "name",
+              "executionMode",
+              "progressStrategy"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "name": {
+                "type": "string"
+              },
+              "executionMode": {
+                "enum": [
+                  "SOFTWARE_SPRINT",
+                  "DATA_MIGRATION",
+                  "B2B_SALES",
+                  "B2C_CAMPAIGN",
+                  "PRODUCT_LAUNCH",
+                  "OPERATIONS",
+                  "BUSINESS_EXPANSION"
+                ]
+              },
+              "executionModeId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "executionContractId": {
+                "type": "string",
+                "minLength": 1
+              },
+              "contractVersion": {
+                "type": "string",
+                "minLength": 1
+              },
+              "progressStrategy": {
+                "enum": [
+                  "TASK_WEIGHT",
+                  "RECORD_VALIDATION",
+                  "WEIGHTED_PIPELINE",
+                  "KPI_ATTAINMENT",
+                  "MILESTONE_READINESS",
+                  "SLA_SCORE",
+                  "EXPANSION_READINESS"
+                ]
+              },
+              "progressWeight": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "containers": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/container"
+                }
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/item"
+                }
+              },
+              "milestones": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/milestone"
+                }
+              },
+              "gates": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/gate"
+                }
+              },
+              "tagRefs": {
+                "type": "array",
+                "maxItems": 100,
+                "items": {
+                  "$ref": "#/$defs/tagRef"
+                }
+              },
+              "externalRefs": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/externalRef"
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "SOFTWARE_SPRINT"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "TASK_WEIGHT"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "SPRINT",
+                              "EPIC",
+                              "RELEASE"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "TASK",
+                              "BUG"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "completedWeight": {},
+                              "plannedWeight": {},
+                              "defects": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "DATA_MIGRATION"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "RECORD_VALIDATION"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "MIGRATION_STAGE",
+                              "MIGRATION_BATCH"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "DATASET",
+                              "VALIDATION",
+                              "RECONCILIATION"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "recordsTotal": {},
+                              "processed": {},
+                              "success": {},
+                              "failed": {},
+                              "validated": {},
+                              "reconciled": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "B2B_SALES"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "WEIGHTED_PIPELINE"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "SALES_PIPELINE",
+                              "SALES_STAGE"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "ACCOUNT",
+                              "DEAL",
+                              "ACTIVITY"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "target": {},
+                              "wonRevenue": {},
+                              "weightedValue": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "B2C_CAMPAIGN"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "KPI_ATTAINMENT"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "CAMPAIGN",
+                              "CAMPAIGN_WAVE",
+                              "CHANNEL"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "CREATIVE",
+                              "AUDIENCE",
+                              "EXPERIMENT"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "spend": {},
+                              "leads": {},
+                              "cpa": {},
+                              "cac": {},
+                              "conversion": {},
+                              "conversions": {},
+                              "revenue": {},
+                              "roas": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "PRODUCT_LAUNCH"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "MILESTONE_READINESS"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "LAUNCH_PHASE"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "DELIVERABLE"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "readiness": {},
+                              "blockedGates": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "OPERATIONS"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "SLA_SCORE"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "OPS_PERIOD",
+                              "OPS_PROCESS"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "CHECKLIST_ITEM",
+                              "ISSUE",
+                              "SLA"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "slaMet": {},
+                              "slaTotal": {},
+                              "throughput": {},
+                              "backlog": {},
+                              "incidents": {},
+                              "completed": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "if": {
+                  "properties": {
+                    "executionMode": {
+                      "const": "BUSINESS_EXPANSION"
+                    }
+                  }
+                },
+                "then": {
+                  "properties": {
+                    "progressStrategy": {
+                      "const": "EXPANSION_READINESS"
+                    },
+                    "containers": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "EXPANSION_INITIATIVE",
+                              "EXPANSION_SITE"
+                            ]
+                          }
+                        }
+                      }
+                    },
+                    "items": {
+                      "items": {
+                        "properties": {
+                          "subtype": {
+                            "enum": [
+                              "SETUP_ACTION",
+                              "APPROVAL"
+                            ]
+                          },
+                          "metrics": {
+                            "type": "object",
+                            "properties": {
+                              "legal": {},
+                              "location": {},
+                              "budget": {},
+                              "hiring": {},
+                              "vendors": {},
+                              "operationalReadiness": {},
+                              "goLive": {}
+                            },
+                            "additionalProperties": false
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "code",
+              "provider"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "provider": {
+                "type": "string"
+              },
+              "fullName": {
+                "type": "string"
+              },
+              "url": {
+                "type": "string"
+              },
+              "role": {
+                "type": "string"
+              },
+              "pathScope": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "dependencies": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "sourceRef",
+              "targetRef",
+              "type"
+            ],
+            "properties": {
+              "sourceRef": {
+                "type": "string"
+              },
+              "targetRef": {
+                "type": "string"
+              },
+              "type": {
+                "enum": [
+                  "BLOCKS",
+                  "REQUIRES",
+                  "RELATES_TO",
+                  "START_AFTER",
+                  "FINISH_BEFORE"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "schemaVersion": {
+                "const": "1.2"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "trace",
+              "domainBinding",
+              "identityRefs"
+            ],
+            "properties": {
+              "trace": {
+                "required": [
+                  "correlationId",
+                  "idempotencyKey"
+                ]
+              },
+              "domainBinding": {
+                "required": [
+                  "primaryDomainId",
+                  "supportingDomainIds",
+                  "technicalOwnerDomainId"
+                ]
+              },
+              "workstreams": {
+                "items": {
+                  "required": [
+                    "executionModeId",
+                    "executionContractId",
+                    "contractVersion"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "handoffContractV1": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "deliverable",
+        "acceptance"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "deliverable": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "\\S"
+        },
+        "acceptance": {
+          "oneOf": [
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "satisfied"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "MANUAL"
+                },
+                "satisfied": {
+                  "type": "boolean"
+                }
+              }
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "kind",
+                "gateId"
+              ],
+              "properties": {
+                "kind": {
+                  "const": "GATE"
+                },
+                "gateId": {
+                  "type": "string",
+                  "format": "uuid"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "projectDelta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "projectId",
+        "trace",
+        "expectedPreviewHash",
+        "commands"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "1.3"
+        },
+        "kind": {
+          "const": "PROJECT_DELTA"
+        },
+        "projectId": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "trace": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "correlationId",
+            "idempotencyKey"
+          ],
+          "properties": {
+            "correlationId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "idempotencyKey": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "expectedPreviewHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "commands": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 50,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "clientRef",
+                  "source",
+                  "target",
+                  "dependencyType",
+                  "contract"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.create"
+                  },
+                  "clientRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "source": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "target": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "dependencyType": {
+                    "enum": [
+                      "BLOCKS",
+                      "REQUIRES",
+                      "RELATES_TO",
+                      "START_AFTER",
+                      "FINISH_BEFORE",
+                      "SUPERSEDES",
+                      "DERIVES_FROM"
+                    ]
+                  },
+                  "contract": {
+                    "$ref": "#/$defs/handoffContractV1"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "id",
+                  "expectedDependencyHash",
+                  "contract"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.contract"
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedDependencyHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "contract": {
+                    "$ref": "#/$defs/handoffContractV1"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "id",
+                  "expectedDependencyHash"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.remove"
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedDependencyHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "type",
+                  "id",
+                  "expectedEntityHash",
+                  "parent",
+                  "expectedParentHash"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "node.move"
+                  },
+                  "type": {
+                    "enum": [
+                      "WORKSTREAM",
+                      "WORK_CONTAINER",
+                      "WORK_ITEM"
+                    ]
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedEntityHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "parent": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "expectedParentHash": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "pattern": "^[0-9a-f]{64}$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "originalAuditEventId",
+                  "expectedAfterHash"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "undo"
+                  },
+                  "originalAuditEventId": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedAfterHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "clientRef",
+                  "type",
+                  "parent",
+                  "fields"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "node.create"
+                  },
+                  "clientRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "type": {
+                    "const": "WORKSTREAM"
+                  },
+                  "parent": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "fields": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "name",
+                      "executionMode"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240,
+                        "pattern": "\\S"
+                      },
+                      "executionMode": {
+                        "enum": [
+                          "SOFTWARE_SPRINT",
+                          "DATA_MIGRATION",
+                          "B2B_SALES",
+                          "B2C_CAMPAIGN",
+                          "PRODUCT_LAUNCH",
+                          "OPERATIONS",
+                          "BUSINESS_EXPANSION"
+                        ]
+                      },
+                      "progressStrategy": {
+                        "type": "string"
+                      },
+                      "progressWeight": {
+                        "type": "number",
+                        "multipleOf": 1e-06,
+                        "exclusiveMinimum": 0,
+                        "maximum": 1000000,
+                        "default": 1
+                      },
+                      "status": {
+                        "enum": [
+                          "PLANNED",
+                          "ACTIVE",
+                          "ON_HOLD",
+                          "DONE",
+                          "ARCHIVED"
+                        ],
+                        "default": "PLANNED"
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "clientRef",
+                  "type",
+                  "parent",
+                  "fields"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "node.create"
+                  },
+                  "clientRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "type": {
+                    "const": "WORK_CONTAINER"
+                  },
+                  "parent": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "fields": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "title",
+                      "subtype"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240,
+                        "pattern": "\\S"
+                      },
+                      "subtype": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "status": {
+                        "enum": [
+                          "PLANNED",
+                          "ACTIVE"
+                        ],
+                        "default": "PLANNED"
+                      },
+                      "startAt": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "targetAt": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      }
+                    }
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "clientRef",
+                  "type",
+                  "parent",
+                  "fields"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "node.create"
+                  },
+                  "clientRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "type": {
+                    "const": "WORK_ITEM"
+                  },
+                  "parent": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "fields": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "code",
+                      "title",
+                      "subtype"
+                    ],
+                    "properties": {
+                      "code": {
+                        "type": "string",
+                        "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+                      },
+                      "title": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 240,
+                        "pattern": "\\S"
+                      },
+                      "subtype": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 100
+                      },
+                      "status": {
+                        "enum": [
+                          "PLANNED",
+                          "READY",
+                          "IN_PROGRESS",
+                          "REVIEW",
+                          "BLOCKED",
+                          "DONE",
+                          "CANCELLED"
+                        ],
+                        "default": "PLANNED"
+                      },
+                      "assigneeRef": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "weight": {
+                        "type": "number",
+                        "multipleOf": 1e-06,
+                        "exclusiveMinimum": 0,
+                        "maximum": 1000000,
+                        "default": 1
+                      },
+                      "numericValue": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "multipleOf": 1e-06,
+                            "minimum": -1000000000000.0,
+                            "maximum": 1000000000000.0
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "probability": {
+                        "anyOf": [
+                          {
+                            "type": "number",
+                            "multipleOf": 1e-06,
+                            "minimum": 0,
+                            "maximum": 1
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "startAt": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      },
+                      "targetAt": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ],
+                        "default": null
+                      }
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    "registerDelta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "kind",
+        "projectIds",
+        "trace",
+        "expectedPreviewHash",
+        "commands"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "1.3"
+        },
+        "kind": {
+          "const": "DEPENDENCY_REGISTER"
+        },
+        "projectIds": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "trace": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "correlationId",
+            "idempotencyKey"
+          ],
+          "properties": {
+            "correlationId": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "idempotencyKey": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        },
+        "expectedPreviewHash": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "commands": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "clientRef",
+                  "source",
+                  "target",
+                  "dependencyType",
+                  "contract"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.create"
+                  },
+                  "clientRef": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[A-Za-z0-9_-]+$"
+                  },
+                  "source": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "target": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "id"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "PROJECT",
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "type",
+                          "ref"
+                        ],
+                        "properties": {
+                          "type": {
+                            "enum": [
+                              "WORKSTREAM",
+                              "MILESTONE",
+                              "GATE",
+                              "WORK_CONTAINER",
+                              "WORK_ITEM"
+                            ]
+                          },
+                          "ref": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[A-Za-z0-9_-]+$"
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  "dependencyType": {
+                    "enum": [
+                      "BLOCKS",
+                      "REQUIRES",
+                      "RELATES_TO",
+                      "START_AFTER",
+                      "FINISH_BEFORE",
+                      "SUPERSEDES",
+                      "DERIVES_FROM"
+                    ]
+                  },
+                  "contract": {
+                    "$ref": "#/$defs/handoffContractV1"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "id",
+                  "expectedDependencyHash",
+                  "contract"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.contract"
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedDependencyHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  },
+                  "contract": {
+                    "$ref": "#/$defs/handoffContractV1"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "op",
+                  "id",
+                  "expectedDependencyHash"
+                ],
+                "properties": {
+                  "op": {
+                    "const": "dependency.remove"
+                  },
+                  "id": {
+                    "type": "string",
+                    "format": "uuid"
+                  },
+                  "expectedDependencyHash": {
+                    "type": "string",
+                    "pattern": "^[0-9a-f]{64}$"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
     }
   }
 }

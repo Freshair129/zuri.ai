@@ -12,15 +12,21 @@ attributes:
 
 # ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract
 
-**Status:** Proposed — design only. No implementation is authorized by this
-document; it declares the ids and the boundaries the implementation must hold.
+**Status:** Accepted for staged implementation — product owner adopted C0 v0.1.5
+D1–D6 at `1b76049a` on 2026-10-24. C1 is selected; C2–C4 retain their sequential
+implementation prerequisites. This is no production or delivery claim.
+
+The [approved source-row migration](../change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md)
+records canonical reconciliation. The supplement sections4–9 refine the original
+D1–D6 below, including typed release direction/aggregate scope and a global graph
+lock; the original design rationale remains historical context.
 
 **C0 review supplement (2026-10-23):** [Pipeline contract foundation](../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
 proposes exact data/delta/release/move/undo and activation contracts against
 source `635120c5`. Its section11 records the required canonical interpretation
 of ordering/lineage directions and aggregate release scope. Neither this link
-nor selection of C accepts those choices; this ADR remains proposed until exact
-product adoption and source reconciliation. Existing D1–D6 text is preserved.
+nor selection of C originally accepted those choices. The subsequent explicit
+2026-10-24 adoption above accepts the pinned supplement. Existing D1–D6 rationale is preserved.
 
 **Relates to:** FR-082, FR-083, FR-084, FR-085, FEAT-007, BR-017, SDD-046 ·
 existing: FR-005, FR-007, FR-012, FR-040, FR-063, FR-064, FR-068, BR-009,

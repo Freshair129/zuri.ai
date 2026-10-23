@@ -1769,6 +1769,8 @@ model Dependency {
   targetType     String
   targetId       String
   dependencyType String
+  // @req FR-084 — declared handoff; SQL NULL preserves pre-contract legacy rows.
+  contractJson   String?
   createdAt      DateTime @default(now())
 
   @@unique([sourceType, sourceId, targetType, targetId, dependencyType])

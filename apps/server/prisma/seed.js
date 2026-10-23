@@ -17,9 +17,9 @@ function hashSeedPassword(password) {
   return `scrypt$${salt}$${derivedKey}`
 }
 
-async function main() {
+async function main(db) {
   // ---- Portfolio / Tenants / Businesses (4 isolated tenants) ---------------
-  const portfolio = await prisma.portfolio.upsert({
+  const portfolio = await db.portfolio.upsert({
     where: { code: 'PF-001' },
     update: {},
     create: { code: 'PF-001', name: 'Business Group' },
@@ -34,13 +34,13 @@ async function main() {
   const tenants = {}
   const businesses = {}
   for (const spec of tenantSpecs) {
-    const tenant = await prisma.tenant.upsert({
+    const tenant = await db.tenant.upsert({
       where: { code: spec.code },
       update: {},
       create: { code: spec.code, name: `Tenant ${spec.code.slice(-3)}`, portfolioId: portfolio.id },
     })
     tenants[spec.code] = tenant
-    businesses[spec.business.code] = await prisma.business.upsert({
+    businesses[spec.business.code] = await db.business.upsert({
       where: { code: spec.business.code },
       update: {},
       create: { code: spec.business.code, name: spec.business.name, tenantId: tenant.id },
@@ -52,23 +52,23 @@ async function main() {
   // entity is a party inside one isolation boundary, so it cannot hang off the
   // Portfolio above several of them. Business 01 lives in TNT-001, and the
   // Business->LegalEntity ancestry guard requires the two to share a tenant.
-  const legalEntity = await prisma.legalEntity.upsert({
+  const legalEntity = await db.legalEntity.upsert({
     where: { code: 'LE-001' },
     update: {},
     create: { code: 'LE-001', legalName: 'Business 01 Co., Ltd.', tenantId: tenants['TNT-001'].id },
   })
-  await prisma.legalEntityIdentifier.upsert({
+  await db.legalEntityIdentifier.upsert({
     where: { country_type_value: { country: 'TH', type: 'TH_TAX_ID', value: '0105500000001' } },
     update: {},
     create: { legalEntityId: legalEntity.id, country: 'TH', type: 'TH_TAX_ID', value: '0105500000001' },
   })
-  await prisma.business.update({
+  await db.business.update({
     where: { code: 'BUS-001' },
     data: { legalEntityId: legalEntity.id },
   })
 
   // Branch under Business 01 (branch != tenant).
-  await prisma.branch.upsert({
+  await db.branch.upsert({
     where: { code: 'BR-001' },
     update: {},
     create: {
@@ -81,7 +81,7 @@ async function main() {
 
   // Seeded account identity. A credential is provisioned only when the caller
   // explicitly supplies ZURI_SEED_OWNER_PASSWORD; there is no password fallback.
-  const owner = await prisma.person.upsert({
+  const owner = await db.person.upsert({
     where: { code: 'PER-OWNER' },
     update: { email: 'owner@local' },
     create: { code: 'PER-OWNER', displayName: 'Local Owner', email: 'owner@local' },
@@ -89,23 +89,23 @@ async function main() {
   const seedOwnerPassword = process.env.ZURI_SEED_OWNER_PASSWORD
   if (seedOwnerPassword) {
     const passwordHash = hashSeedPassword(seedOwnerPassword)
-    await prisma.personCredential.upsert({
+    await db.personCredential.upsert({
       where: { personId: owner.id },
       update: { passwordHash },
       create: { personId: owner.id, passwordHash },
     })
   }
-  const existingMembership = await prisma.membership.findFirst({
+  const existingMembership = await db.membership.findFirst({
     where: { personId: owner.id, tenantId: tenants['TNT-001'].id },
   })
   if (!existingMembership) {
-    await prisma.membership.create({
+    await db.membership.create({
       data: { personId: owner.id, tenantId: tenants['TNT-001'].id, businessId: businesses['BUS-001'].id, role: 'OWNER' },
     })
   }
 
   // ---- Workspaces ----------------------------------------------------------
-  const wsPlatform = await prisma.workspace.upsert({
+  const wsPlatform = await db.workspace.upsert({
     where: { code: 'WS-PLATFORM' },
     update: {},
     create: {
@@ -122,7 +122,7 @@ async function main() {
     ['BUS-004', 'WS-B04-MIG'],
   ]) {
     const business = businesses[busCode]
-    await prisma.workspace.upsert({
+    await db.workspace.upsert({
       where: { code: wsCode },
       update: {},
       create: {
@@ -135,12 +135,12 @@ async function main() {
       },
     })
   }
-  const wsBusiness = await prisma.workspace.findUnique({ where: { code: 'WS-B01-MIG' } })
+  const wsBusiness = await db.workspace.findUnique({ where: { code: 'WS-B01-MIG' } })
 
   // ---- Business Strategy (FR-041) -----------------------------------------
   // Strategy is intentionally Business-level; the shared portfolio project
   // below remains unowned by a Business and is not attributed to this roadmap.
-  const strategyRoadmap = await prisma.businessRoadmap.upsert({
+  const strategyRoadmap = await db.businessRoadmap.upsert({
     where: { code: 'RM-B01-2026' },
     update: { title: 'Business 01 Direction 2026', status: 'ACTIVE' },
     create: {
@@ -154,7 +154,7 @@ async function main() {
     },
   })
   const horizon = async (key, label, position, targetAt) =>
-    prisma.businessRoadmapHorizon.upsert({
+    db.businessRoadmapHorizon.upsert({
       where: { roadmapId_position: { roadmapId: strategyRoadmap.id, position } },
       update: { key, label, targetAt: new Date(targetAt) },
       create: { roadmapId: strategyRoadmap.id, key, label, position, targetAt: new Date(targetAt) },
@@ -163,7 +163,7 @@ async function main() {
   const mediumHorizon = await horizon('MEDIUM', 'Medium term', 2, '2026-08-31')
   const longHorizon = await horizon('LONG', 'Long term', 3, '2026-12-31')
   const goal = async (code, title, horizonId, progress, priority = 'MEDIUM') =>
-    prisma.businessGoal.upsert({
+    db.businessGoal.upsert({
       where: { code },
       update: { title, horizonId, progress, priority, status: progress >= 100 ? 'DONE' : 'ACTIVE' },
       create: {
@@ -191,13 +191,13 @@ async function main() {
   await goal('GOAL-B01-EXPANSION', 'Prepare the next business expansion', longHorizon.id, 12, 'MEDIUM')
 
   const keyResult = async (code, goalId, fields) =>
-    prisma.businessKeyResult.upsert({
+    db.businessKeyResult.upsert({
       where: { code },
       update: { goalId, businessId: businesses['BUS-001'].id, ...fields },
       create: { code, goalId, businessId: businesses['BUS-001'].id, ...fields },
     })
   const checkIn = async (keyResultId, weekStartAt, value, confidence, note) =>
-    prisma.businessKeyResultCheckIn.upsert({
+    db.businessKeyResultCheckIn.upsert({
       where: { keyResultId_weekStartAt: { keyResultId, weekStartAt: new Date(weekStartAt) } },
       update: { value, confidence, note: note ?? null },
       create: { keyResultId, weekStartAt: new Date(weekStartAt), value, confidence, note: note ?? null },
@@ -237,7 +237,7 @@ async function main() {
   // `create`, because the demo database predates both columns: a seed that only
   // filled them on first insert would leave every existing row null and the
   // Dashboard permanently empty on any machine that had seeded before.
-  const project = await prisma.project.upsert({
+  const project = await db.project.upsert({
     where: { code: 'PRJ-B01-TRANSFORM' },
     update: {
       businessId: businesses['BUS-001'].id,
@@ -264,7 +264,7 @@ async function main() {
   // can check against something, and so the many-to-many link is exercised by
   // the demo data rather than only by tests (ADR-037 D3).
   const team = async (code, name, description) =>
-    prisma.team.upsert({
+    db.team.upsert({
       where: { code },
       update: { name, businessId: businesses['BUS-001'].id },
       create: { code, name, description, businessId: businesses['BUS-001'].id },
@@ -275,20 +275,20 @@ async function main() {
   for (const t of [platformTeam, growthTeam]) {
     // `upsert` on the composite unique keeps a re-seed from stacking duplicate
     // links — the same idempotency the rest of this file holds to.
-    await prisma.projectTeam.upsert({
+    await db.projectTeam.upsert({
       where: { projectId_teamId: { projectId: project.id, teamId: t.id } },
       update: {},
       create: { projectId: project.id, teamId: t.id },
     })
   }
-  await prisma.teamMembership.upsert({
+  await db.teamMembership.upsert({
     where: { teamId_personId: { teamId: platformTeam.id, personId: owner.id } },
     update: {},
     create: { teamId: platformTeam.id, personId: owner.id },
   })
 
   const ws = async (code, name, executionMode, progressStrategy, progressWeight, viewConfig = {}) =>
-    prisma.workstream.upsert({
+    db.workstream.upsert({
       where: { code },
       update: { viewConfigJson: JSON.stringify(viewConfig) },
       create: {
@@ -304,14 +304,14 @@ async function main() {
     })
 
   const container = async (code, workstreamId, subtype, title, status = 'ACTIVE', metadata = {}) =>
-    prisma.workContainer.upsert({
+    db.workContainer.upsert({
       where: { code },
       update: {},
       create: { code, workstreamId, subtype, title, status, metadataJson: JSON.stringify(metadata) },
     })
 
   const item = async (code, workstreamId, containerId, subtype, title, fields = {}) =>
-    prisma.workItem.upsert({
+    db.workItem.upsert({
       where: { code },
       update: {
         status: fields.status || 'PLANNED',
@@ -334,7 +334,7 @@ async function main() {
     })
 
   const milestone = async (code, workstreamId, title, fields = {}) =>
-    prisma.milestone.upsert({
+    db.milestone.upsert({
       where: { code },
       update: { status: fields.status || 'PLANNED' },
       create: {
@@ -350,7 +350,7 @@ async function main() {
     })
 
   const gate = async (code, workstreamId, title, fields = {}) =>
-    prisma.gate.upsert({
+    db.gate.upsert({
       where: { code },
       update: { status: fields.status || 'OPEN' },
       create: {
@@ -481,16 +481,16 @@ async function main() {
   // freshly seeded database and looked broken rather than empty. A second
   // Person also makes the count something other than 1, which is the number a
   // bug would most plausibly produce.
-  const delivery = await prisma.person.upsert({
+  const delivery = await db.person.upsert({
     where: { code: 'PER-DELIVERY' },
     update: {},
     create: { code: 'PER-DELIVERY', displayName: 'Delivery Lead', email: 'delivery@local' },
   })
-  const existingDeliveryMembership = await prisma.membership.findFirst({
+  const existingDeliveryMembership = await db.membership.findFirst({
     where: { personId: delivery.id, tenantId: tenants['TNT-001'].id },
   })
   if (!existingDeliveryMembership) {
-    await prisma.membership.create({
+    await db.membership.create({
       data: {
         personId: delivery.id,
         tenantId: tenants['TNT-001'].id,
@@ -502,7 +502,7 @@ async function main() {
       },
     })
   }
-  await prisma.teamMembership.upsert({
+  await db.teamMembership.upsert({
     where: { teamId_personId: { teamId: growthTeam.id, personId: delivery.id } },
     update: {},
     create: { teamId: growthTeam.id, personId: delivery.id },
@@ -510,18 +510,18 @@ async function main() {
 
   // Deterministic split by code order, so a re-seed assigns the same items to
   // the same people and the headcount does not drift between runs.
-  const assignable = await prisma.workItem.findMany({
+  const assignable = await db.workItem.findMany({
     where: { deletedAt: null, workstream: { projectId: project.id } },
     orderBy: { code: 'asc' },
     select: { id: true },
   })
-  await Promise.all(assignable.map((workItem, index) => prisma.workItem.update({
+  await Promise.all(assignable.map((workItem, index) => db.workItem.update({
     where: { id: workItem.id },
     data: { assigneeRef: index % 2 === 0 ? owner.id : delivery.id },
   })))
 
   // ---- Repository metadata (local only, no GitHub API) ---------------------
-  const repo = await prisma.repository.upsert({
+  const repo = await db.repository.upsert({
     where: { code: 'REP-ZURI' },
     // @req FR-073 — set on update too, so re-seeding an existing database gives
     // this row an owner instead of leaving it ungoverned and unwritable.
@@ -537,42 +537,41 @@ async function main() {
       defaultBranch: 'main',
     },
   })
-  const existingLink = await prisma.projectRepository.findFirst({
+  const existingLink = await db.projectRepository.findFirst({
     where: { projectId: project.id, repoId: repo.id, role: 'REFERENCE' },
   })
   if (!existingLink) {
-    await prisma.projectRepository.create({
+    await db.projectRepository.create({
       data: { projectId: project.id, repoId: repo.id, role: 'REFERENCE', pathScope: 'src/' },
     })
   }
 
   // Cross-workstream dependency: data gate blocks dev release gate.
-  const gateData = await prisma.gate.findUnique({ where: { code: 'GATE-DATA-ID' } })
-  const gateRel = await prisma.gate.findUnique({ where: { code: 'GATE-REL-12' } })
-  const depExists = await prisma.dependency.findFirst({
+  const gateData = await db.gate.findUnique({ where: { code: 'GATE-DATA-ID' } })
+  const gateRel = await db.gate.findUnique({ where: { code: 'GATE-REL-12' } })
+  const depExists = await db.dependency.findFirst({
     where: { sourceId: gateData.id, targetId: gateRel.id, dependencyType: 'BLOCKS' },
   })
   if (!depExists) {
-    await prisma.dependency.create({
-      data: {
-        sourceType: 'GATE',
-        sourceId: gateData.id,
-        targetType: 'GATE',
-        targetId: gateRel.id,
-        dependencyType: 'BLOCKS',
+    const { seedDeclaredHandoff } = await import('../scripts/seed-pipeline-handoff.mjs')
+    await seedDeclaredHandoff(db, {
+      projectId: project.id, actorPersonId: owner.id,
+      command: { op: 'dependency.create', clientRef: 'seed-data-release',
+        source: { type: 'GATE', id: gateData.id }, target: { type: 'GATE', id: gateRel.id }, dependencyType: 'BLOCKS',
+        contract: { version: 1, deliverable: 'Validated migration data', acceptance: { kind: 'GATE', gateId: gateData.id } },
       },
     })
   }
 
   // @req FR-043 - additive backfill for existing Business-space Projects.
   // Shared portfolio/tenant Projects intentionally remain ownerless.
-  const legacyProjects = await prisma.project.findMany({
+  const legacyProjects = await db.project.findMany({
     where: { businessId: null },
     select: { id: true, workspace: { select: { businessId: true } } },
   })
   for (const legacy of legacyProjects) {
     if (legacy.workspace?.businessId) {
-      await prisma.project.update({ where: { id: legacy.id }, data: { businessId: legacy.workspace.businessId } })
+      await db.project.update({ where: { id: legacy.id }, data: { businessId: legacy.workspace.businessId } })
     }
   }
 
@@ -582,20 +581,20 @@ async function main() {
   // ownerless rather than assigned by guess. Ownerless means refused for every
   // principal, which is the honest outcome — scripts/backfill-repository-business.mjs
   // reports those so an owner can decide.
-  const legacyRepos = await prisma.repository.findMany({
+  const legacyRepos = await db.repository.findMany({
     where: { businessId: null },
     select: { id: true, projects: { select: { project: { select: { businessId: true } } } } },
   })
   for (const legacy of legacyRepos) {
     const owners = [...new Set(legacy.projects.map((l) => l.project?.businessId).filter(Boolean))]
     if (owners.length === 1) {
-      await prisma.repository.update({ where: { id: legacy.id }, data: { businessId: owners[0] } })
+      await db.repository.update({ where: { id: legacy.id }, data: { businessId: owners[0] } })
     }
   }
 
-  const auditCount = await prisma.auditEvent.count({ where: { action: 'SEEDED' } })
+  const auditCount = await db.auditEvent.count({ where: { action: 'SEEDED' } })
   if (auditCount === 0) {
-    await prisma.auditEvent.create({
+    await db.auditEvent.create({
       data: {
         entityType: 'SNAPSHOT',
         entityId: 'seed',
@@ -609,7 +608,7 @@ async function main() {
   console.log('Seed complete: PF-001, 4 tenants, 5 workspaces, Business 01 project with 7 workstreams.')
 }
 
-main()
+import('../scripts/seed-pipeline-handoff.mjs').then(({ withPipelineSeed }) => withPipelineSeed(prisma, main))
   .catch((e) => {
     console.error(e)
     process.exit(1)

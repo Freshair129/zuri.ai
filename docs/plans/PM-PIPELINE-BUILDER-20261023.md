@@ -22,11 +22,11 @@ relations:
 
 **Goal:** After exact contract adoption, join Structure Plan, Dependency Map and Board through persisted handoff obligations and accessible editing.
 
-**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. The current proposed ADR-035 does not authorize C1–C4 code.
+**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize selected C1; C2–C4 remain later increments.
 
 **Tech Stack:** Existing React components, Zod/JSON Schema, PM import/services, Prisma adapters, Vitest and Playwright; no drag library or graph service is selected.
 
-**Spec:** [Approved linked SRS](../domains/project-manager/SRS.md), [FEAT-007](../features/FEAT-007/feature.md), [FR-082](../features/FEAT-007/requirements/FR-082.md), [FR-083](../features/FEAT-007/requirements/FR-083.md), [FR-084](../features/FEAT-007/requirements/FR-084.md), [FR-085](../features/FEAT-007/requirements/FR-085.md), [proposed ADR-035](../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md), [UX note](../domains/project-manager/features/FR-082-pipeline-canvas.md).
+**Spec:** [Approved linked SRS](../domains/project-manager/SRS.md), [FEAT-007](../features/FEAT-007/feature.md), [FR-082](../features/FEAT-007/requirements/FR-082.md), [FR-083](../features/FEAT-007/requirements/FR-083.md), [FR-084](../features/FEAT-007/requirements/FR-084.md), [FR-085](../features/FEAT-007/requirements/FR-085.md), [ADR-035](../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md), [UX note](../domains/project-manager/features/FR-082-pipeline-canvas.md).
 
 ## Global Constraints
 
@@ -46,13 +46,18 @@ undo, incompatible reparenting, and drag-only interactions are owned by C0–C4.
 Non-ordering dependency types and non-WorkItem endpoints require an adopted
 release truth table; the executor cannot guess their blocking meaning.
 
+**Adoption update (2026-10-24):** owner accepted exact C0 v0.1.5 D1–D6 at
+`1b76049a` and selected C1, including isolated runtime-role race/recovery proof.
+The following C0 preparation notes are historical; canonical reconciliation is
+recorded in [the approved migration](../change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md).
+C2–C4 remain outside this C1 increment.
+
 ## Task C0: Resolve the technical contract before any schema/UI code
 
-**Current selection (2026-10-23):** owner selected C after PR730 merge. C0
-preparation is in progress against `635120c5`; the [exact proposed supplement](../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
-and its linked examples own the reviewable choices. ADR-035/canonical lifecycle
-are unchanged; C1–C4 remain `CONTRACT_NOT_ADOPTED` until exact adoption and the
-source reconciliation listed there. Earlier “C unselected” state is historical.
+**Current selection (2026-10-24):** C0 v0.1.5 D1–D6 is adopted at
+`1b76049a`; the canonical adoption migration records that decision. C1 is selected.
+The following preparation checklist records C0's original design work; it does
+not reinstate the former `CONTRACT_NOT_ADOPTED` boundary.
 
 **Files:** prepare a source-owned supplement at
 `docs/architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md` and
@@ -96,8 +101,7 @@ The proposed C0 supplement adapter extension makes RegisterDelta1.3 (body.plan o
 the existing dependency route) and Bundle1.1 part of C1's consumer migration.
 Keep the existing bundle.import.commit receipt label/anchor, add contract fields
 and preview hashing through the same transaction writer, and test shared-key
-cross-Tenant conflicts plus numeric/counter-overflow refusal. These are exact
-adoption choices in the supplement, not approved application changes yet.
+cross-Tenant conflicts plus numeric/counter-overflow refusal. These exact adapter choices are adopted in C0 v0.1.5 and selected for C1.
 
 **Files (Server-relative; proposed new files):**
 

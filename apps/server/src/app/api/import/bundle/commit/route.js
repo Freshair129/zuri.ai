@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+import { pipelineResponseStatus } from '@/modules/project-manager/import/plan-delta-service'
 // @req FR-108 — commit a confirmed ExecutionPlanBundle: one transaction over
 // strategy + N Projects + cross-Project dependencies, with an idempotent
 // bundle receipt (ADR-049 D7/D8/D9). Calling this endpoint is the single
@@ -20,6 +22,7 @@ export async function POST(request) {
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     const body = await request.json()
-    return commitBundle(body.bundle, { viewer })
+    const result = await commitBundle(body.bundle, { viewer })
+    return body.bundle?.schemaVersion === '1.1' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

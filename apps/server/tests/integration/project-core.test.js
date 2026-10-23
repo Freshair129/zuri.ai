@@ -131,14 +131,15 @@ describe('project core', () => {
       }, { viewer })
     ).rejects.toThrow(/self-dependency/i)
 
-    await createDependency({
+    await prisma.dependency.create({ data: {
       sourceType: 'WORKSTREAM',
       sourceId: wsMig.id,
       targetType: 'WORKSTREAM',
       targetId: wsDev.id,
       dependencyType: 'BLOCKS',
-    }, { viewer })
-    // Reverse edge would create a cycle.
+    } })
+    // Historical NULL fixture retains the owning cycle and blocked read rules.
+    // New bare writes are refused before any new graph write.
     expect(await wouldCreateCycle('WORKSTREAM', wsDev.id, 'WORKSTREAM', wsMig.id)).toBe(true)
     await expect(
       createDependency({
@@ -148,7 +149,7 @@ describe('project core', () => {
         targetId: wsMig.id,
         dependencyType: 'REQUIRES',
       }, { viewer })
-    ).rejects.toThrow(/cycle/i)
+    ).rejects.toMatchObject({code:'CONTRACT_REQUIRED'})
 
     // wsDev is blocked because wsMig (ACTIVE, not DONE) blocks it.
     const evalResult = await evaluateBlocked('WORKSTREAM', wsDev.id)

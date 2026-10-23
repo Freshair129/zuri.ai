@@ -1,3 +1,6 @@
+import { withPipelineTransaction } from '@/modules/project-manager/application/pipeline-writer'
+// @req FR-084 — adding a Workstream allocation serializes with inverse safety.
+// @tested tests/integration/pipeline-contract-regressions.test.js
 // @req FR-135 — temporal asset responsibility, location history, and project allocation.
 // @spec SDD-080, BR-023, SEC-023, ADR-055
 // @tested tests/unit/asset-lifecycle-service.test.js
@@ -259,7 +262,7 @@ export async function allocateAssetToProject({
     throw lifecycleError('Invalid effectiveFrom date', 400)
   }
 
-  return db.$transaction(async (tx) => {
+  return withPipelineTransaction(db, async (tx) => {
     const asset = await tx.registeredAsset.findFirst({
       where: { id: registeredAssetId, businessId, deletedAt: null },
     })

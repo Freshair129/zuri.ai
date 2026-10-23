@@ -1,3 +1,7 @@
+import { authorizeDependencyRead, dependencyEvidenceState } from '../../application/handoff-evidence'
+import { commitHandoffBundle, writeBundleHandoffEdge, bundleHandoffReceipt } from './bundle-handoff-service'
+import { withPipelineTransaction, pipelineError, pipelineTransactionFacade, isPipelineTransaction } from '../../application/pipeline-transaction'
+import { dependencyHash, handoffContractState } from '../../application/handoff-contract'
 import prisma from '@/lib/db'
 import {
   createGoal,
@@ -6,7 +10,7 @@ import {
   updateRoadmap,
 } from '../../application/business-strategy-mutation-service'
 import { commitPlan, PLAN_COMMIT_TRANSACTION_OPTIONS } from '../plan-import-service'
-import { dryRunBundle } from './bundle-dry-run'
+import { dryRunLegacyBundle } from './bundle-dry-run'
 import { findBundleReplay, normalizedBundleHash, recordBundleReceipt } from './bundle-receipt'
 import {
   createExecutionTraceContext,
@@ -55,18 +59,7 @@ import {
  * `db.$transaction(fn)`: the nested call simply continues on THIS transaction
  * (the outer transaction is the unit of atomicity, per the D8 comment above).
  */
-function asTransactionDb(tx) {
-  const proxy = new Proxy(tx, {
-    get(target, prop) {
-      if (prop === '$transaction') return async (fn) => fn(proxy)
-      const value = target[prop]
-      // Bind against the real client so Prisma's own internals keep their
-      // `this`; only $transaction is virtualized.
-      return typeof value === 'function' ? value.bind(target) : value
-    },
-  })
-  return proxy
-}
+function asTransactionDb(tx) { return pipelineTransactionFacade(tx) }
 
 // A 100-Project bundle is thousands of upserts; the 5s interactive-transaction
 // default is sized for a single envelope, not a programme. `commitPlan` needs
@@ -164,14 +157,21 @@ async function applyStrategy(bundle, { strategy, business, viewer, db }) {
  * per-Project commit. Re-runs the bundle dry-run first and refuses on any
  * conflict — one decision point, not a stored preview that could go stale.
  */
-export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
-  const dry = await dryRunBundle(rawBundle, { viewer, db })
+export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, handoffContext = null } = {}) {
+  if (!isPipelineTransaction(db)) {
+    try { return await withPipelineTransaction(db, async tx => {
+      const result = await commitLegacyBundle(rawBundle, { viewer, db: pipelineTransactionFacade(tx), handoffContext })
+      if (!result.committed) throw Object.assign(new Error('IMPORT_REFUSED'), { pipelineResult: result })
+      return result
+    }) } catch (error) { if (error.pipelineResult) return error.pipelineResult; throw error }
+  }
+  const dry = handoffContext?.base || await dryRunLegacyBundle(rawBundle, { viewer, db })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
   const { bundle, business, strategy } = dry
   const idempotencyKey = bundle.trace?.idempotencyKey ?? null
-  const payloadHash = normalizedBundleHash(bundle)
+  const payloadHash = handoffContext?.payloadHash || normalizedBundleHash(bundle)
   const traceContext = createExecutionTraceContext({
     plan: bundle,
     snapshotValue: bundle,
@@ -192,7 +192,7 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
 
   let result
   try {
-    result = await db.$transaction(async (tx) => {
+    result = await withPipelineTransaction(db, async (tx) => {
       const db = asTransactionDb(tx)
 
       if (idempotencyKey) {
@@ -235,6 +235,7 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
           viewer,
           db,
           traceSourceKind: 'BUNDLE',
+          allocatedEntityIds: handoffContext?.allocations[entry.bundleProjectRef] || null,
         })
         if (!committed.committed) {
           throw new BundleCommitError(
@@ -274,13 +275,16 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
           dependencyType: dependency.relation,
         }
         const existing = await tx.dependency.findFirst({ where: data })
-        const row = existing ?? await tx.dependency.create({ data })
+        if (!existing && !handoffContext) throw pipelineError('CONTRACT_REQUIRED')
+        const written = handoffContext ? await writeBundleHandoffEdge(tx, dependency, handoffContext) : { row: existing, existed: true }
+        const row = written.row
         dependencies.push({
           id: row.id,
           sourceProjectRef: dependency.sourceProjectRef,
           targetProjectRef: dependency.targetProjectRef,
           relation: dependency.relation,
-          existed: Boolean(existing),
+          existed: written.existed,
+          ...(handoffContext ? { expectedDependencyHash: dependencyHash(row), contractState: written.existed ? await dependencyEvidenceState(tx, row, await authorizeDependencyRead(tx, row, viewer)) : row.contractJson === null ? 'UNDECLARED' : JSON.parse(row.contractJson).acceptance.kind === 'MANUAL' ? JSON.parse(row.contractJson).acceptance.satisfied ? 'SATISFIED' : 'DECLARED' : handoffContractState(row.contractJson, {gate:await tx.gate.findUnique({where:{id:JSON.parse(row.contractJson).acceptance.gateId}})}) } : {}),
         })
       }
 
@@ -300,8 +304,9 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
         },
         projects,
         dependencies,
+        ...(handoffContext ? { auditEventId: handoffContext.auditEventId, handoffReceipt: await bundleHandoffReceipt(tx, handoffContext) } : {}),
       }
-      const auditEvent = await recordBundleReceipt(tx, { bundle, business, payloadHash, receipt })
+      const auditEvent = await recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId:handoffContext?.auditEventId, actorPersonId:handoffContext?.actorPersonId, tenantId:handoffContext?.tenantId })
       const dependencyStep = traceContext.steps.find((step) => step.stepKey === 'bundle.dependencies')
       await finishExecutionStep(tx, dependencyStep.executionStepId, {
         status: 'SUCCEEDED',
@@ -317,7 +322,7 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
         auditEventId: auditEvent.id,
       })
       return { receipt: { ...receipt, auditEventId: auditEvent.id } }
-    }, BUNDLE_TRANSACTION_OPTIONS)
+    })
   } catch (error) {
     if (db === prisma && db.projectExecutionRun) {
       try {
@@ -358,4 +363,8 @@ export async function commitBundle(rawBundle, { viewer, db = prisma } = {}) {
     receipt: result.receipt,
     preview: dry.preview,
   }
+}
+
+export async function commitBundle(raw, options = {}) {
+  return raw?.schemaVersion === '1.1' ? commitHandoffBundle(raw, options) : commitLegacyBundle(raw, options)
 }

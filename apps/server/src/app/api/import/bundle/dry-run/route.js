@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+import { pipelineResponseStatus } from '@/modules/project-manager/import/plan-delta-service'
 // @req FR-108 — validate an ExecutionPlanBundle and preview the combined
 // programme changes; read-only, and authorized identically to the commit
 // (ADR-049 D5: previewing a scope you were not given is the same leak as
@@ -21,6 +23,7 @@ export async function POST(request) {
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
     const body = await request.json()
-    return dryRunBundle(body.bundle, { viewer })
+    const result = await dryRunBundle(body.bundle, { viewer })
+    return body.bundle?.schemaVersion === '1.1' ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

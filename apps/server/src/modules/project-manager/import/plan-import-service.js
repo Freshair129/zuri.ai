@@ -1,6 +1,10 @@
+import { checkCatalogue } from './plan-delta-operations'
+import { readPipelineState, assertPipelineProgress } from '../application/pipeline-state'
+import { withPipelineTransaction, pipelineError, isPipelineTransaction, pipelineTransactionFacade } from '../application/pipeline-transaction'
+import { dryRunPlanDelta, commitPlanDelta } from './plan-delta-service'
 import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
-import { normalizePlanEnvelope, zPlanEnvelope, validatePlanSemantics } from './plan-schema'
+import { normalizePlanEnvelope, zFullPlanEnvelope, validatePlanSemantics } from './plan-schema'
 import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
 import { authorizeImportTarget } from './import-authorization'
 import { recordAudit } from '../application/audit'
@@ -162,12 +166,14 @@ async function resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db = pris
  * so every existing caller is byte-for-byte unchanged.
  */
 export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } = {}) {
+  if (rawPlan?.schemaVersion === '1.3') return dryRunPlanDelta(rawPlan, { workspaceId, viewer, db })
   // Authorize the target BEFORE parsing the plan.
   const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db })
   if (target.error) return { valid: false, errors: [target.error], preview: null }
   const workspace = target.workspace
+  try { checkCatalogue() } catch { return {valid:false,errors:['MODE_INCOMPATIBLE'],preview:null} }
 
-  const parsed = zPlanEnvelope.safeParse(rawPlan)
+  const parsed = zFullPlanEnvelope.safeParse(rawPlan)
   if (!parsed.success) {
     return {
       valid: false,
@@ -388,6 +394,20 @@ export async function dryRunPlan(rawPlan, { workspaceId, viewer, db = prisma } =
     else inserts.push({ kind: 'repository', code: r.code, title: r.fullName || r.code })
   }
 
+  // FR-084 compatibility: old envelopes may retain existing edges, never create
+  // a new undeclared obligation. Resolve exactly the same identity decisions.
+  const existingEndpoint = async code => {
+    const decided = resolution[code]
+    if (!decided) return null
+    const model = {project:'project',workstream:'workstream',container:'workContainer',item:'workItem',milestone:'milestone',gate:'gate'}[decided.kind]
+    const row = decided.entityId ? await db[model].findUnique({where:{id:decided.entityId}}) : await db[model].findUnique({where:{code}})
+    return row ? {type:KIND_TO_ENDPOINT[decided.kind],id:row.id} : null
+  }
+  for (const dependency of plan.dependencies || []) {
+    const source = await existingEndpoint(dependency.sourceRef), target = await existingEndpoint(dependency.targetRef)
+    const existing = source && target && await db.dependency.findFirst({where:{sourceType:source.type,sourceId:source.id,targetType:target.type,targetId:target.id,dependencyType:dependency.type}})
+    if (!existing) conflicts.push({kind:'dependency',code:dependency.sourceRef,reason:'CONTRACT_REQUIRED: create a declared handoff through RegisterDelta1.3'})
+  }
   const dependencyCount = (plan.dependencies || []).length
   const externalRefCount = Object.values(resolution).reduce((s, r) => s + r.refs.length, 0)
 
@@ -434,7 +454,16 @@ export async function commitPlan(rawPlan, {
   traceSourceKind = 'PLAN',
   replayOfExecutionStepIds = null,
   traceStepKeys = PLAN_EXECUTION_STEP_KEYS,
+  allocatedEntityIds = null,
 } = {}) {
+  if (rawPlan?.schemaVersion === '1.3') return commitPlanDelta(rawPlan, { workspaceId, viewer, db })
+  if (!isPipelineTransaction(db)) {
+    try { return await withPipelineTransaction(db, async tx => {
+      const result = await commitPlan(rawPlan, { workspaceId, viewer, db: pipelineTransactionFacade(tx), traceSourceKind, replayOfExecutionStepIds, traceStepKeys, allocatedEntityIds })
+      if (!result.committed) throw Object.assign(new Error('IMPORT_REFUSED'), { pipelineResult: result })
+      return result
+    }) } catch (error) { if (error.pipelineResult) return error.pipelineResult; throw error }
+  }
   const dry = await dryRunPlan(rawPlan, { workspaceId, viewer, db })
   if (!dry.valid) {
     return { committed: false, errors: dry.errors, preview: dry.preview }
@@ -467,7 +496,7 @@ export async function commitPlan(rawPlan, {
 
   let result
   try {
-    result = await db.$transaction(async (tx) => {
+    result = await withPipelineTransaction(db, async (tx) => {
     if (idempotencyKey) {
       const existingReceipt = await tx.planImportReceipt.findUnique({
         where: { idempotencyKey },
@@ -526,6 +555,8 @@ export async function commitPlan(rawPlan, {
      * everything else upserts by code. Mappings are then (re)attached.
      */
     const write = async (model, kind, code, update, create) => {
+      const allocated = allocatedEntityIds?.[KIND_TO_ENDPOINT[kind] + ':' + code]
+      if (allocated) create = { ...create, id: allocated }
       const decided = resolution[code]
       const record =
         decided?.matchedBy === 'externalRef'
@@ -757,9 +788,10 @@ export async function commitPlan(rawPlan, {
         dependencyType: d.type,
       }
       const existing = await tx.dependency.findFirst({ where: data })
-      if (!existing) await tx.dependency.create({ data })
+      if (!existing) throw pipelineError('CONTRACT_REQUIRED')
     }
 
+    assertPipelineProgress(await readPipelineState(tx), [project.id])
     const auditEvent = await recordAudit(tx, {
       entityType: 'PROJECT',
       entityId: project.id,
@@ -851,7 +883,7 @@ export async function commitPlan(rawPlan, {
       replayOfExecutionStepId,
       preview: dry.preview,
     }
-    }, PLAN_COMMIT_TRANSACTION_OPTIONS)
+    })
   } catch (error) {
     // A bundle's outer transaction owns rollback and must not persist a nested
     // failure. The root PlanEnvelope path records the failed trace after its

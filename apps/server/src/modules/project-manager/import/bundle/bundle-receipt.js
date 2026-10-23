@@ -1,3 +1,4 @@
+import { readPipelineState, pipelineReleaseScopes } from '../../application/pipeline-state'
 import { createHash } from 'node:crypto'
 import { recordAudit } from '../../application/audit'
 
@@ -86,11 +87,12 @@ export async function findBundleReplay(tx, { idempotencyKey, payloadHash }) {
  * makes replay and hash-conflict detection possible. Must run inside the
  * commit transaction so a failed bundle leaves neither.
  */
-export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt }) {
+export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId = null, actorPersonId = null, tenantId = null }) {
   const idempotencyKey = bundle.trace?.idempotencyKey ?? null
   const correlationId = bundle.trace?.correlationId ?? null
 
   const auditEvent = await recordAudit(tx, {
+    id: auditEventId, actorId: actorPersonId, tenantId, businessId: actorPersonId ? business.id : null,
     entityType: 'EXECUTION_PLAN_BUNDLE',
     entityId: receipt.bundleRunId,
     action: BUNDLE_AUDIT_ACTION,
@@ -104,6 +106,7 @@ export async function recordBundleReceipt(tx, { bundle, business, payloadHash, r
       correlationId,
       payloadHash,
       receipt,
+      ...(actorPersonId ? { releaseScopes: pipelineReleaseScopes(await readPipelineState(tx), receipt.projects.map(project => project.projectId)), stateImages: (await tx.dependency.findMany({ where: { id: { in: receipt.dependencies.filter(edge => !edge.existed).map(edge => edge.id) } } })).map(row => ({ type: 'DEPENDENCY', id: row.id, before: null, after: row })) } : {}),
     },
   })
 

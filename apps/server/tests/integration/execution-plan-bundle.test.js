@@ -24,7 +24,9 @@ import { replayProjectExecutionTrace } from '@/modules/project-manager/applicati
 // importable, not merely illustrative.
 
 const samplePath = path.resolve(__dirname, '../../contracts/sample-execution-plan-bundle.json')
-const sampleBundle = () => JSON.parse(readFileSync(samplePath, 'utf8'))
+const sampleBundle = () => ({ ...JSON.parse(readFileSync(samplePath, 'utf8')), dependencies: [] })
+// C1 keeps this legacy orchestration regression without new bare edge writes.
+// Declared roots are exercised against Bundle1.1 in pipeline-bundle-handoff.test.js.
 
 let business
 let otherBusiness
@@ -64,7 +66,7 @@ describe('ExecutionPlanBundle import (FR-108)', () => {
       goals: { insert: 1, update: 0 },
     })
     expect(dry.preview.counts.projects.count).toBe(2)
-    expect(dry.preview.counts.dependencies).toBe(1)
+    expect(dry.preview.counts.dependencies).toBe(0)
     // The NEW goal has no UUID yet, so both projects carry it as a pending
     // symbol rather than a fabricated id (D4).
     expect(dry.preview.symbols.goals['GOAL-KNOWLEDGE'].status).toBe('NEW')
@@ -110,7 +112,7 @@ describe('ExecutionPlanBundle import (FR-108)', () => {
     expect(dry.errors.join('\n')).toContain('does not match a workspace in the bundle\'s Business scope')
   })
 
-  it('commits the sample bundle in one transaction: strategy, both Projects, the cross-Project edge, and the receipt', async () => {
+  it('commits the sample bundle in one transaction: strategy, both Projects and the receipt without new bare edges', async () => {
     const result = await commitBundle(sampleBundle(), { viewer })
     expect(result.errors ?? []).toEqual([])
     expect(result.committed).toBe(true)
@@ -140,7 +142,7 @@ describe('ExecutionPlanBundle import (FR-108)', () => {
     const edge = await prisma.dependency.findFirst({
       where: { sourceType: 'PROJECT', sourceId: msp.id, targetType: 'PROJECT', targetId: gks.id },
     })
-    expect(edge?.dependencyType).toBe('BLOCKS')
+    expect(edge).toBeNull()
 
     // The bundle receipt row reuses the PlanImportReceipt ledger under its own
     // stepKey, and the audit lineage names both per-Project runs (D9).

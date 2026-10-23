@@ -2,7 +2,7 @@
 id: ZAI:PM-PIPELINE-CONTRACT-FOUNDATION
 title: Pipeline Builder contract foundation
 doc_type: technical-supplement
-status: proposed
+status: approved
 version: "0.1.5"
 source_revision: "635120c552de9b456b6ab80e98b529211fc3d888"
 relations:
@@ -22,11 +22,17 @@ relations:
 
 ## 1. Authority and adoption boundary
 
+**Adopted 2026-10-24:** owner approved the exact v0.1.5 D1–D6 at `1b76049a`.
+[Canonical reconciliation](../../change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md)
+preserves that normative revision; C1 is selected. The original preparation
+account below describes its pre-adoption state, not a continuing approval block.
+No implementation, test or production acceptance is inferred.
+
 Audience: product owner, PM implementer and independent reviewer. This is C0's
-**proposed technical supplement**, prepared against source `635120c5`, after
-PR730. Selecting C starts contract preparation; it does not accept previously
-unwritten release semantics. No transport, application, schema or canonical row
-changes are made by this document. C1–C4 remain `CONTRACT_NOT_ADOPTED`.
+**adopted technical supplement**, prepared against source `635120c5`, after
+PR730 and approved at `1b76049a`. D1–D6 govern the selected C1 implementation.
+C2–C4 remain later implementation tasks; adopting their contract does not claim
+their implementation or acceptance.
 
 Controlling sources are [ADR-035](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md),
 [FR-082](../../features/FEAT-007/requirements/FR-082.md),
@@ -34,8 +40,7 @@ Controlling sources are [ADR-035](../../decisions/ADR-035-DIRECT-MANIPULATION-PI
 [FR-084](../../features/FEAT-007/requirements/FR-084.md),
 [FR-085](../../features/FEAT-007/requirements/FR-085.md),
 [BR-017](../../requirements/BR-017.md), [SDD-046](../../requirements/SDD-046.md)
-and [NFR-008](../../requirements/NFR-008.md). Their source-preserved lifecycle
-is unchanged. [The implementation plan](../../plans/PM-PIPELINE-BUILDER-20261023.md)
+and [NFR-008](../../requirements/NFR-008.md). Their reviewed lifecycle reconciliation is recorded in the adoption migration. [The implementation plan](../../plans/PM-PIPELINE-BUILDER-20261023.md)
 owns sequencing; this supplement proposes the missing technical choices.
 
 Adoption must name this document's exact revision and the accompanying
