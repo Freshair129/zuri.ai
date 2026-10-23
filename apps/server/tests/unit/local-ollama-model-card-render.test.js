@@ -29,6 +29,16 @@ const status = {
 }
 
 describe('main-dev local Ollama model card', () => {
+  it('keeps the selector visible only when the server-selected RAG mode matches GKS_CORPUS', () => {
+    const ragStatus = { ...status, knowledgeSource: 'GENESISRAG17_TEST_ONLY' }
+    const ragAccount = { ...account, knowledgeGrounding: 'GKS_CORPUS' }
+    expect(findEligibleLocalOllamaAccount({ business, accounts: [ragAccount], status: ragStatus })).toBe(ragAccount)
+    expect(findEligibleLocalOllamaAccount({ business, accounts: [ragAccount], status })).toBeNull()
+    expect(findEligibleLocalOllamaAccount({ business, accounts: [account], status: ragStatus })).toBeNull()
+    const html = renderToStaticMarkup(createElement(LocalOllamaModelCard, { account: ragAccount, status: ragStatus, api: vi.fn() }))
+    expect(html).toContain('GenesisRAG17')
+    expect(html).not.toMatch(/sourceId|ingestionId|fileSha256|host\.docker/)
+  })
   it('is eligible only for the exact active Business and connected server-owned test OA', () => {
     expect(findEligibleLocalOllamaAccount({ business, accounts: [account], status })).toBe(account)
     expect(findEligibleLocalOllamaAccount({ business: { id: 'other-business' }, accounts: [account], status })).toBeNull()

@@ -80,7 +80,7 @@ function isEligibleAccount(row, profile) {
     && row.serverEnabled === true
     && row.executionMode === 'SERVER'
     && row.runtimeOwner === 'SERVER'
-    && row.knowledgeGrounding === 'BUSINESS_KNOWLEDGE'
+    && row.knowledgeGrounding === (profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     && row.knowledgeGroundingShadow === false
     && (row.memoryPolicy ?? 'OFF') === 'OFF'
     && row.memoryProjectId == null
@@ -225,6 +225,7 @@ export async function listMainDevLocalOllamaModels({
     accountName: context.account.displayName,
     models,
     selectedModelId: primary?.provider?.code === LOCAL_PROVIDER_CODE ? parseModelId(primary) : null,
+    ...(profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? { knowledgeSource: profile.knowledgeSource } : {}),
   }
 }
 
