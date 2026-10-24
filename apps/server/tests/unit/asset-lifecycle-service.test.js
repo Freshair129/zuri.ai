@@ -11,6 +11,7 @@ import {
 
 function makeMockTx(overrides = {}) {
   return {
+    $executeRawUnsafe:vi.fn(async()=>0),
     registeredAsset: {
       findFirst: vi.fn().mockResolvedValue({
         id: 'ast-1',

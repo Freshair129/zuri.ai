@@ -1,12 +1,14 @@
 # Appendix A — API Specification
 
-Version diff 1.113.0b to 1.114.0b (2026-10-24): FR-230 adds deployment-authenticated MSP session retention. Inventory: 354 route handlers. Scheduler qualification and production memory activation are separate.
+Version diff 1.114.0b to 1.115.0b (2026-10-24): FR-230 adds deployment-authenticated MSP session retention. Inventory: 355 route handlers. Scheduler qualification and production memory activation are separate.
 
 ## MSP session retention maintenance
 
 | Method | Path | Behavior | Errors |
 |---|---|---|---|
 | POST | `/api/agent/memory-retention` | FR-230: separate timing-safe deployment bearer `ZURI_MSP_RETENTION_SWEEP_TOKEN`, minimum 32 characters; no viewer/model-selected scope. Bodyless sweep permits exact `dry_run=true` or `false` query only. Uses the protected single Tenant/Workspace/key matching normal LINE composition and signed API-011 operator grants. Downward-only windows, live-job fence, bounded counts and durable pending-access guard. COMPLETE/DRY_RUN are success; DEFERRED/PARTIAL/UNKNOWN/FAILED are incomplete. Dry-run journals/audits. Recovery instead accepts exactly `{reconcileRunId, stoppedContainerId, proof}` with no query: an expiring host-only Ed25519 stopped-container attestation, validated against exact environment/run/old+current IDs and persisted STARTED origin before an idempotent reconciliation audit. Only its public key exists on web. | `400 MSP_RETENTION_REQUEST_INVALID`; `401 MSP_RETENTION_CREDENTIAL_REQUIRED`; `503` incomplete results, invalid recovery proof or `MSP_RETENTION_UNAVAILABLE` |
+
+Version diff 1.113.0b to 1.114.0b (2026-10-24): FR-235 adds owner-only customer product disclosure listing, preview, approve and withdraw. Inventory: 354 route handlers. No product grant or deployment is implied.
 
 Version diff 1.112.0b to 1.113.0b (2026-10-23): FR-079/FR-080 add default-off main-dev-only installed Ollama model discovery and selection. Inventory: 353 route handlers. These owner-scoped test endpoints do not change public provider, credential, or production activation policy.
 
@@ -167,7 +169,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=354 -->
+<!-- api-spec-counts: route_handlers=355 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -772,6 +774,8 @@ in `health.sources.binding`; `effectiveStatus` is `LIVE` only on `ACTIVE`.
 | POST | `/api/line-oa/accounts` | implemented (FR-146): `{ businessId, integrationConnectionId, code, displayName, basicId?, bindingCode?, transportMode?, isDefaultForBusiness?, botProfile? }` connects an existing same-Business `LINE_OA` connection as an account — `code` unique per Tenant, one account per connection, one binding code per Tenant; `transportMode` defaults to `EDGE` when the Business holds an ACTIVE `EdgeDeviceCredential` (FR-144) and `CLOUD` otherwise; the Business's first account becomes its default; status `CONNECTED` when a binding code is given, else `DRAFT`. Audited as `LINE_OA_ACCOUNT_CONNECTED` with the transport-mode source | `404 Business not found` (also a viewer without publish authority); `404 Integration connection not found` (unknown, foreign-Tenant or non-LINE connection); `409 LINE_OA_CONNECTION_OUTSIDE_BUSINESS \| LINE_OA_CONNECTION_ALREADY_BOUND \| LINE_OA_ACCOUNT_CODE_TAKEN \| LINE_OA_BINDING_CODE_TAKEN`; `400` validation (strict schema: no status, tenant or unknown field rides in) |
 | GET | `/api/line-oa/accounts/[id]` | implemented (FR-146): one account with computed `health`; `effectiveStatus` is `LIVE` only when the stored status is `CONNECTED` and the binding reader reports `ACTIVE` | `404 Business not found` — an unknown id and an account in a Business the viewer may not see answer identically |
 | PATCH | `/api/line-oa/accounts/[id]` | implemented (FR-146): `{ action, version, transportMode? }` applies one versioned action under publisher authority — `PAUSE` (CONNECTED → PAUSED), `RESUME` (PAUSED → CONNECTED), `ARCHIVE` (any non-terminal → ARCHIVED, clears the default), `SET_DEFAULT` (moves the Business's single default), `CONFIGURE_EXECUTION` (the delivery policy `allowDelayedPush`; it fences queued work). `SWITCH_TRANSPORT_MODE` is **withdrawn** (FR-265, ADR-100 D1) — CLOUD is the only transport owner, so there is nothing to switch between. The update is a compare-and-swap on `(id, version)`; each action writes one audit row without secrets or customer content. There is no DELETE: archiving keeps the row | `404 Business not found`; `409 LINE_OA_ACCOUNT_VERSION_CONFLICT \| LINE_OA_ACCOUNT_TRANSITION_INVALID \| LINE_OA_ACCOUNT_ARCHIVED \| LINE_OA_ACCOUNT_ALREADY_DEFAULT \| LINE_OA_RUNTIME_GROUNDING_MODE_UNSUPPORTED` (the last: opting into, or switching a runtime-owned account to, a stored grounding mode the Conversation Runtime cannot serve, FR-149); `400` validation (`version` required; `allowDelayedPush` required for `CONFIGURE_EXECUTION`; a withdrawn action is refused by the enum) |
+| GET | `/api/line-oa/accounts/[id]/product-disclosure` | FR-235: current Business OWNER plus LINE Studio visibility; bounded product search, published ProductMaster source search/cursor, and selected-product policy summaries. No grant or model call. | `401` unauthenticated; `404` inaccessible/ineligible scope |
+| POST | `/api/line-oa/accounts/[id]/product-disclosure` | FR-235: `PREVIEW` returns exact selected fields/example and version-bound previewHash without granting; `APPROVE` commits the matching preview/reason with CAS and audit; `WITHDRAW` disables and clears aliases without needing the source. Shared account send fence; in-flight attempts refuse mutation. Stock/price authority is separate. | `400` invalid input; `404` scope denied; `409` stale version/source or send in progress; `422` selected field unavailable |
 
 ## LINE OA Studio rich menus (FR-151 / ADR-060)
 

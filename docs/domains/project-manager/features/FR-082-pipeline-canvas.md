@@ -142,6 +142,11 @@ every state above announced, not merely drawn.
 
 ## Open questions for the implementation plan
 
+The [C0 contract foundation](../../../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md)
+now proposes the source-qualified delta/contract/release/undo and accessibility
+integration boundaries for review. It remains proposed and requires exact product
+adoption and canonical reconciliation; this UX note does not authorize C1–C4.
+
 1. Does the contract dialog need a per-Project template ("every handover in this
    project needs a signed drawing")? Probably yes eventually; deliberately out of
    scope until one project asks twice.

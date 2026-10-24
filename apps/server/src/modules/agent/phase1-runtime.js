@@ -253,6 +253,7 @@ function createMainDevLocalOllamaPorts(env, {
   let authorizedScope = null
   let fixtureReader = null
   const ragSelected = profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY'
+  const customerSelected = profile.knowledgeSource === 'GENESISRAG17_CUSTOMER_PRODUCTS'
   async function revalidateKnowledge() {
     if (!ragSelected) return null
     const current = readMainDevLocalOllamaProfile(env)
@@ -319,7 +320,9 @@ function createMainDevLocalOllamaPorts(env, {
       businessId: scope.businessId,
       accountId: scope.accountId,
     })
-    fixtureReader = ragSelected
+    fixtureReader = customerSelected
+      ? Object.freeze({query:async()=>{throw mainDevRuntimeFailure('LINE_CUSTOMER_PRODUCT_READER_REQUIRED')}})
+      : ragSelected
       ? mainDevTestRagReaderFactory({ profile, ...authorizedScope, db, env })
       : createMainDevPublicTestKnowledgeReader({ profile, ...authorizedScope })
     return Object.freeze({

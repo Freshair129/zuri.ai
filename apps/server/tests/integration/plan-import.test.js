@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -64,7 +65,7 @@ const plan = {
     },
   ],
   repositories: [{ code: 'REP-IMP', provider: 'github', fullName: 'org/imported', role: 'REFERENCE' }],
-  dependencies: [{ sourceRef: 'IMP-GATE1', targetRef: 'WST-IMP-DEV', type: 'RELATES_TO' }],
+  dependencies: [], // C1: legacy full plans preserve entities; new edges require the declared lane.
 }
 
 function schema12Plan() {
@@ -103,7 +104,7 @@ function schema12Plan() {
     }
   })
   candidate.repositories = [{ ...candidate.repositories[0], code: 'REP-IMP-V12' }]
-  candidate.dependencies = [{ sourceRef: 'V12-IMP-GATE1', targetRef: 'V12-WST-IMP-DEV', type: 'RELATES_TO' }]
+  candidate.dependencies = []
   return candidate
 }
 
@@ -139,7 +140,7 @@ describe('plan envelope import', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Import Tenant', code: 'TNT-IMP' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Import Business', code: 'BUS-IMP' })
     workspace = await createWorkspace({ name: 'Import WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-IMP' })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
     businessGoal = await prisma.businessGoal.create({
       data: {
         businessId: business.id,
@@ -248,8 +249,10 @@ describe('plan envelope import', () => {
     expect(project.repositories.length).toBe(1)
     expect(project.goalLinks.map((link) => link.goal.code)).toEqual(['GOAL-IMP'])
     expect(project.businessId).toBe(workspace.businessId)
-    const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO' } })
-    expect(dep).toBeTruthy()
+    const importedItems=await prisma.workItem.findMany({where:{workstreamId:{in:project.workstreams.map(row=>row.id)}},select:{id:true}})
+    expect(importedItems).toHaveLength(2)
+    const dep = await prisma.dependency.findFirst({ where: { dependencyType: 'RELATES_TO',sourceType:'WORK_ITEM',targetType:'WORK_ITEM', sourceId:{in:importedItems.map(row=>row.id)},targetId:{in:importedItems.map(row=>row.id)} } })
+    expect(dep).toBeNull()
     const audit = await prisma.auditEvent.findFirst({
       where: { action: 'PLAN_IMPORTED', entityId: project.id },
     })

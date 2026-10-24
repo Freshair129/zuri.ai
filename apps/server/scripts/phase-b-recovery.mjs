@@ -1,3 +1,5 @@
+import { PIPELINE_GRAPH_LOCK } from '../src/modules/project-manager/application/pipeline-lock.js'
+import { dependencyHandoffRecoveryErrors } from '../src/modules/project-manager/application/pipeline-handoff-recovery.js'
 // @req FR-252 — process-only protected recovery and complete-family export.
 // @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // @tested tests/integration/phase-b-recovery.test.js
@@ -21,7 +23,7 @@ import {
 
 const { Pool } = pg
 const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
-const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/phase-b/target-schema.inventory.json')
+const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/pipeline-target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) added one
@@ -44,9 +46,10 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req TASK-ZAI-011 — include recipient-bound approval notifications in portable snapshots.
 // @req FR-001 — retain the archive/version schema with all 208 predecessor mappings preserved.
 // @req FR-291 — include stock disclosure policy in the complete target census while excluding it from portable snapshots.
-const FROZEN_SCHEMA_SHA256 = "fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808"
-const FROZEN_TARGET_SCHEMA_SHA256 = "db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633"
-const FROZEN_APPLICATION_TABLE_COUNT = 209
+// @req FR-235 — include excluded product disclosure authority in the complete census.
+const FROZEN_SCHEMA_SHA256 = 'd02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9'
+const FROZEN_TARGET_SCHEMA_SHA256 = 'a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7'
+const FROZEN_APPLICATION_TABLE_COUNT = 210
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -305,7 +308,12 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
       let client
       try {
         client = await pool.connect()
-        await client.query(`BEGIN ISOLATION LEVEL REPEATABLE READ${readOnly ? ' READ ONLY' : ''}`)
+        await client.query(`BEGIN ISOLATION LEVEL SERIALIZABLE${readOnly ? ' READ ONLY' : ''}`)
+        if (!readOnly) {
+          await client.query(`SET LOCAL lock_timeout = '${Math.max(1, Math.floor(lockTimeoutMs))}ms'`)
+          await client.query('LOCK TABLE public."Dependency" IN EXCLUSIVE MODE')
+          await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [PIPELINE_GRAPH_LOCK])
+        }
       } catch {
         client?.release()
         throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_CONNECTION_UNAVAILABLE, 'Recovery connection could not begin a transaction')
@@ -347,6 +355,8 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
           const missing = [...expected].filter((key) => !actual.has(key))
           const unexpected = [...actual].filter((key) => !expected.has(key) && !allowed.has(key))
           if (missing.length || unexpected.length) throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'PostgreSQL catalog does not match the frozen application table inventory')
+          const column = await client.query("SELECT data_type, is_nullable FROM information_schema.columns WHERE table_schema='public' AND table_name='Dependency' AND column_name='contractJson'")
+          if (column.rows.length !== 1 || column.rows[0].data_type !== 'text' || column.rows[0].is_nullable !== 'YES') throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Dependency handoff target column is unavailable')
           return { expectedCount: expected.size, catalogCount: actual.size - [...actual].filter((key) => allowed.has(key)).length }
         },
         async assertPrivileges({ write = false } = {}) {
@@ -486,6 +496,7 @@ export async function runCleanTargetRestore({ snapshotBytes, snapshot, expectedS
   if (snapshot !== undefined && comparableJson(snapshot) !== comparableJson(effectiveSnapshot)) {
     return redactedResult({ status: 'REFUSED', errorCode: PHASE_B_ERROR_CODES.SNAPSHOT_INVALID, ...base })
   }
+  if (dependencyHandoffRecoveryErrors(effectiveSnapshot).length) return redactedResult({ status: 'REFUSED', errorCode: PHASE_B_ERROR_CODES.SNAPSHOT_INVALID, ...base })
   if (unsupportedMarketingReportSnapshot(effectiveSnapshot)) return redactedResult({ status: 'REFUSED', errorCode: 'MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', ...base })
   try {
     const sharedValidation = await validateSnapshotRecovery(effectiveSnapshot)

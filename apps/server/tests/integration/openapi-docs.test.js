@@ -341,9 +341,9 @@ describe('OpenAPI document', () => {
       // and explicit owner-managed stock-disclosure grant (POST):
       // FR-079/FR-080 add the default-off local Ollama model inventory and
       // selection routes: two paths and two operations.
-      // FR-230 adds one detailed MSP retention POST path/operation.
-      pathCount: 355,
-      operationCount: 467,
+// FR-230 retention and FR-235 product disclosure compose with prior inventory.
+      pathCount: 356,
+      operationCount: 469,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])
@@ -564,7 +564,7 @@ describe('OpenAPI document', () => {
   })
 
   it('carries the real execution-mode enum, not a hand-written copy', () => {
-    const modes = doc.components.schemas.PlanEnvelope.properties.workstreams.items.properties.executionMode
+    const modes = doc.components.schemas.FullPlanEnvelope.properties.workstreams.items.properties.executionMode
     expect(modes.enum).toEqual(EXECUTION_MODES)
   })
 
@@ -625,7 +625,7 @@ describe('OpenAPI document', () => {
   })
 
   it('documents externalRefs on every entity a customer can key', () => {
-    const envelope = doc.components.schemas.PlanEnvelope.properties
+    const envelope = doc.components.schemas.FullPlanEnvelope.properties
     const workstream = envelope.workstreams.items.properties
     expect(envelope.project.properties.externalRefs).toBeTruthy()
     expect(workstream.externalRefs).toBeTruthy()
@@ -636,13 +636,13 @@ describe('OpenAPI document', () => {
   })
 
   it('keeps strict() visible to integrators as additionalProperties:false', () => {
-    expect(doc.components.schemas.PlanEnvelope.additionalProperties).toBe(false)
+    expect(doc.components.schemas.FullPlanEnvelope.additionalProperties).toBe(false)
     expect(doc.components.schemas.AssetIntakeEnvelope.additionalProperties).toBe(false)
     expect(doc.components.schemas.ExternalRef.required).toEqual(expect.arrayContaining(['system', 'id']))
   })
 
   it('accepts legacy envelope versions and the stable identity version', () => {
-    expect(doc.components.schemas.PlanEnvelope.properties.schemaVersion.enum).toEqual(['1.0', '1.1', '1.2'])
+    expect(doc.components.schemas.FullPlanEnvelope.properties.schemaVersion.enum).toEqual(['1.0', '1.1', '1.2'])
   })
 
   it('is deterministic — same input, byte-identical document', () => {
@@ -657,20 +657,21 @@ describe('contracts/plan-envelope.schema.json mirrors the Zod schema', () => {
   const contract = JSON.parse(
     readFileSync(path.resolve(__dirname, '../../contracts/plan-envelope.schema.json'), 'utf8')
   )
-  const generated = doc.components.schemas.PlanEnvelope
+  const generated = doc.components.schemas.FullPlanEnvelope
   const defs = contract.$defs
 
+  const fullContract = contract.$defs.fullPlan
   const propertyNames = (schema) => Object.keys(schema.properties || {}).sort()
 
   it('exposes the same top-level fields', () => {
-    expect(propertyNames(contract)).toEqual(propertyNames(generated))
-    expect(contract.properties.schemaVersion.enum).toEqual(generated.properties.schemaVersion.enum)
+    expect(propertyNames(fullContract)).toEqual(propertyNames(generated))
+    expect(fullContract.properties.schemaVersion.enum).toEqual(generated.properties.schemaVersion.enum)
   })
 
   it('exposes the same entity fields', () => {
     const gws = generated.properties.workstreams.items
-    expect(propertyNames(contract.properties.workstreams.items)).toEqual(propertyNames(gws))
-    expect(propertyNames(contract.properties.project)).toEqual(propertyNames(generated.properties.project))
+    expect(propertyNames(fullContract.properties.workstreams.items)).toEqual(propertyNames(gws))
+    expect(propertyNames(fullContract.properties.project)).toEqual(propertyNames(generated.properties.project))
     expect(propertyNames(defs.item)).toEqual(propertyNames(gws.properties.items.items))
     expect(propertyNames(defs.container)).toEqual(propertyNames(gws.properties.containers.items))
     expect(propertyNames(defs.milestone)).toEqual(propertyNames(gws.properties.milestones.items))
@@ -680,10 +681,10 @@ describe('contracts/plan-envelope.schema.json mirrors the Zod schema', () => {
 
   it('keeps the execution enums identical', () => {
     const gws = generated.properties.workstreams.items
-    expect(contract.properties.workstreams.items.properties.executionMode.enum).toEqual(
+    expect(fullContract.properties.workstreams.items.properties.executionMode.enum).toEqual(
       gws.properties.executionMode.enum
     )
-    expect(contract.properties.workstreams.items.properties.progressStrategy.enum).toEqual(
+    expect(fullContract.properties.workstreams.items.properties.progressStrategy.enum).toEqual(
       gws.properties.progressStrategy.enum
     )
   })

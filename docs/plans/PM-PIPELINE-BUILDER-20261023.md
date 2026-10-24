@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.1"
+version: "0.1.4"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -22,11 +22,11 @@ relations:
 
 **Goal:** After exact contract adoption, join Structure Plan, Dependency Map and Board through persisted handoff obligations and accessible editing.
 
-**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. The current proposed ADR-035 does not authorize C1–C4 code.
+**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize selected C1; C2–C4 remain later increments.
 
 **Tech Stack:** Existing React components, Zod/JSON Schema, PM import/services, Prisma adapters, Vitest and Playwright; no drag library or graph service is selected.
 
-**Spec:** [Approved linked SRS](../domains/project-manager/SRS.md), [FEAT-007](../features/FEAT-007/feature.md), [FR-082](../features/FEAT-007/requirements/FR-082.md), [FR-083](../features/FEAT-007/requirements/FR-083.md), [FR-084](../features/FEAT-007/requirements/FR-084.md), [FR-085](../features/FEAT-007/requirements/FR-085.md), [proposed ADR-035](../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md), [UX note](../domains/project-manager/features/FR-082-pipeline-canvas.md).
+**Spec:** [Approved linked SRS](../domains/project-manager/SRS.md), [FEAT-007](../features/FEAT-007/feature.md), [FR-082](../features/FEAT-007/requirements/FR-082.md), [FR-083](../features/FEAT-007/requirements/FR-083.md), [FR-084](../features/FEAT-007/requirements/FR-084.md), [FR-085](../features/FEAT-007/requirements/FR-085.md), [ADR-035](../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md), [UX note](../domains/project-manager/features/FR-082-pipeline-canvas.md).
 
 ## Global Constraints
 
@@ -46,7 +46,18 @@ undo, incompatible reparenting, and drag-only interactions are owned by C0–C4.
 Non-ordering dependency types and non-WorkItem endpoints require an adopted
 release truth table; the executor cannot guess their blocking meaning.
 
+**Adoption update (2026-10-24):** owner accepted exact C0 v0.1.5 D1–D6 at
+`1b76049a` and selected C1, including isolated runtime-role race/recovery proof.
+The following C0 preparation notes are historical; canonical reconciliation is
+recorded in [the approved migration](../change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md).
+C2–C4 remain outside this C1 increment.
+
 ## Task C0: Resolve the technical contract before any schema/UI code
+
+**Current selection (2026-10-24):** C0 v0.1.5 D1–D6 is adopted at
+`1b76049a`; the canonical adoption migration records that decision. C1 is selected.
+The following preparation checklist records C0's original design work; it does
+not reinstate the former `CONTRACT_NOT_ADOPTED` boundary.
 
 **Files:** prepare a source-owned supplement at
 `docs/architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md` and
@@ -86,6 +97,12 @@ interfaces/tests in this plan before their code task starts.
 
 **Entry:** C0 adopted; schema/receipt/security/recovery consequences reviewed.
 
+The proposed C0 supplement adapter extension makes RegisterDelta1.3 (body.plan on
+the existing dependency route) and Bundle1.1 part of C1's consumer migration.
+Keep the existing bundle.import.commit receipt label/anchor, add contract fields
+and preview hashing through the same transaction writer, and test shared-key
+cross-Tenant conflicts plus numeric/counter-overflow refusal. These exact adapter choices are adopted in C0 v0.1.5 and selected for C1.
+
 **Files (Server-relative; proposed new files):**
 
 - Create `src/modules/project-manager/application/handoff-contract.js` for pure validation/state derivation; `import/plan-delta-schema.js` for the adopted command schema; `import/plan-delta-service.js` for shared-lane orchestration.
@@ -101,10 +118,10 @@ transaction-aware domain implementation from both register and import. All
 affected endpoints must authorize both governing scopes; Gate facts are read
 only after authorization.
 
-- [ ] Write failing tests for new edge without contract, invalid/foreign Gate, forged manual provenance, identical retry, changed-payload retry, audit rollback, legacy null round-trip and two opposing concurrent edges. Assert no partial writes or second cycle implementation. Add authorized stale inverse/undo refusal and exact receipt linkage assertions from C0.
-- [ ] Implement the pure schema/state functions, additive migration and transaction-aware domain/import branch. Serialize graph-changing writes on the adopted common scope locks; acquire multiple scope locks in deterministic order. Repeat authority, self/cycle and CAS checks at commit, not only in preview.
-- [ ] Wire the existing global register's mandatory contract form and preview/error states before enabling any new canvas writer. Update API/full-import/bundle edge writers under C0's compatibility policy. Legacy stored rows stay null; do not backfill satisfaction or actor evidence.
-- [ ] Verify migrations and backup/recovery against both adapters; run the new suites plus existing plan import, import authorization, dependency authorization, core and bundle regressions. Run production build and the global register browser journey, with zero required skips/flaky results.
+- [x] Write failing tests for new edge without contract, invalid/foreign Gate, forged manual provenance, identical retry, changed-payload retry, audit rollback, legacy null round-trip and two opposing concurrent edges. Assert no partial writes or second cycle implementation. Add authorized stale inverse/undo refusal and exact receipt linkage assertions from C0.
+- [x] Implement the pure schema/state functions, additive migration and transaction-aware domain/import branch. Serialize graph-changing writes on the adopted common scope locks; acquire multiple scope locks in deterministic order. Repeat authority, self/cycle and CAS checks at commit, not only in preview.
+- [x] Wire the existing global register's mandatory contract form and preview/error states before enabling any new canvas writer. Update API/full-import/bundle edge writers under C0's compatibility policy. Legacy stored rows stay null; do not backfill satisfaction or actor evidence.
+- [x] Verify migrations and backup/recovery against both adapters; run the new suites plus existing plan import, import authorization, dependency authorization, core and bundle regressions. Run production build and the global register browser journey, with zero required skips/flaky results.
 
 ```text
 npm --prefix apps/server test -- tests/unit/handoff-contract.test.js tests/integration/plan-delta.test.js tests/integration/dependency-handoff.test.js tests/integration/plan-import.test.js tests/integration/import-target-authorization.test.js tests/integration/fr072-dependency-authorization.test.js tests/integration/project-core.test.js
@@ -117,6 +134,118 @@ npm --prefix apps/server run test:e2e -- tests/e2e/dependency-handoff.spec.js
 **Exit:** the existing register and shared import lane enforce the adopted new-edge
 contract, with legacy read/recovery compatibility. C1 alone does not claim canvas
 editing or Board holding.
+
+### C1 execution boundary (2026-10-24)
+
+C0 v0.1.5 D1–D6 is implemented in the candidate branch. Local C1 PM application qualification
+and independent source review are complete as recorded below. Final composed
+documentary/governance and exact-head hosted results are PR gates; no deployment or merge is inferred.
+
+- Nullable `Dependency.contractJson` preserves existing SQL NULL rows without
+  backfill. The issued SQLite and PostgreSQL migrations add only nullable TEXT.
+  Recovery uses the new `pipeline-target-schema.inventory.json`; the historical
+  Phase B inventory and approved C0 examples remain unchanged.
+- The shared writer covers ProjectDelta1.3, RegisterDelta and Bundle1.1, with
+  strict schemas, server-owned manual provenance, CAS, receipt linkage and undo.
+  Full Plan1.0–1.2 and Bundle1.0 retain imports without new bare edge writes;
+  legacy XLSX new bare edges receive `CONTRACT_REQUIRED` through that same lane.
+- New actor/hash/UUID frames require a current Person. Existing Enterprise API
+  service keys remain supported by legacy full envelopes and Bundle1.0, with
+  their actual key row rechecked inside the commit fence. No service-actor
+  identity is inferred for the new protocols.
+- Existing register GET adds only state/hash after both endpoint scopes. Editing
+  an existing edge resolves both endpoint Projects through an authorized opt-in
+  scope response from the existing resolver; it never prefills private evidence.
+  RegisterDelta still contains exactly one command. Atomic identity replacement
+  uses the adopted ProjectDelta command batch where applicable; this increment
+  does not add a multi-command global register or an identity-edit UI.
+- Gate state begins as structural IDs and scope only, then hydrates complete rows
+  after Project read authorization. Manual audit reads are scoped before fetching
+  evidence. Opaque affected releases refuse the entire preview; a dangling edge's
+  structural locator is never substituted for a full AuditEvent fingerprint.
+  Successor membership changes refresh the locator in the same delta, import or
+  CRUD audit, including cross-Project aggregates. Project-local undo cannot widen
+  an original two-Project Register scope.
+- HTTP adapters retain actual UTF-8 body byte counts before JSON parsing discards
+  whitespace or duplicate keys; new protocols enforce the adopted 1 MiB limit
+  before graph expansion. The retained domain service bound remains in force.
+- PostgreSQL takes a utility table lock before its first MVCC SELECT, then the
+  adopted advisory key, under Serializable isolation. SQLite acquires its writer
+  reservation before graph facts. Receipt-key conflicts roll back before a fresh
+  authorization and winning-receipt lookup; unrelated unique failures do not replay.
+- The new import protocols and retained full-import consumer guard their own
+  initially protected work changes. Existing CRUD joins the serializer and
+  endpoint-retention checks. FR-085-wide CRUD/Board holds and explanation remain
+  Task C4; C1 does not claim that later capability.
+- Canonical FR identities, membership and subject anchors are retained. The
+  sanctioned ID-ledger writer records owner-approved same-subject statement
+  reviews for FR-084 and FR-085. C2–C4 remain unselected and production untouched.
+
+
+### C1 qualification record (2026-10-24)
+
+This is implementation evidence for the selected increment, not a requirement
+source. The approved C0 examples and historical Phase B schema inventory remain
+unchanged. The initial reviewed C1 PM application/contracts/Prisma checkpoint is `e41240f17ad617b1672d232de4d0ca597d312723`;
+reviewed test-only follow-ups end at `30120d04ea7de61e317f51674d67f4d79f91346a`.
+Git comparison confirms no C1 PM application, contract or Prisma differences between
+those revisions. The earlier main synchronization at `75e20709` retains upstream
+PR #734/#735 changes outside that PM tree and preserves both PostgreSQL test
+selections. Hosted checks must evaluate the final PR head independently.
+
+| Check | Observed result and boundary |
+| --- | --- |
+| SQLite C1 and retained consumers | 41 files, 324 tests passed together after fixture cleanup; includes endpoint/type matrix, Delta/Register/Bundle, authorization, shared writer, CAS/undo, raw-body bounds, receipt races, migration mirrors and actual snapshot round trip |
+| Changed consumer reruns | 7 files, 102 tests passed: CRM legal hold, canonical source verifier, FR-072 refusal disclosure, stocktake backup, full plan import, Marketing Campaign and FileAsset service |
+| PostgreSQL C1 | `test:postgres -- tests/postgres/pipeline-handoff-races.test.js`: 13 tests passed on the final application source with actual isolated runtime login roles; includes observed lock contention, opposing cycles, unique receipt race, revocation/CAS, recovery process and wrong-schema/corruption refusal |
+| PostgreSQL retained Phase B | Earlier composed run: 2 files, 26 tests passed, including the 13 actual-role Phase B/recovery CLI tests; the final C1-only PostgreSQL rerun above qualifies the later phase-display fix |
+| Production build and browser | The merged-source `75e20709` build passed, including lint/type and 94 static pages. Its owned isolated production-build browser journey passed in one attempt with the fail-on-flaky guard: preview/cancel without writes, create/reload, edit, stale CAS and removal |
+| Canonical migration/readers | Pre-main-sync `npm run docs:migration:test`: 146 tests passed after updating the exact approved-migration and planned-status assertions; identities and implementation evidence remain distinct. The composed post-merge reader rerun and final hosted result must be recorded in the PR |
+| Independent source review | GPT-6 Luna Max approved application patch `e41240f1` against main `7d6a80e0`; subsequent fixture-only changes were separately reviewed and their reported issue corrected |
+| Governance / hosted CI | Registry, graph, views and govern passed on the merged `75e20709` tree. This qualification-wording follow-up requires its own final govern pass; record that result, the composed reader rerun and exact-head hosted jobs in the PR before acceptance |
+
+The broad local Server run was interrupted after observing seven failed files
+and changing their fixtures; it is **not** a clean full-suite or final-patch PASS.
+The 102-test rerun covers every observed failed file. A subsequent composed
+C1 run exposed one CAS test leaving deliberately corrupt JSON in the shared test
+database; restoring its original bytes in `finally` allowed all 324 selected
+tests, including the affected recovery files, to pass together. Neither recovery
+validation nor verification time budgets were relaxed. Exact-head hosted full
+Server checks remain required; scoped reruns do not replace them.
+
+#### Hosted-CI correction round
+
+The first final-head run caught SCM kernel mirror drift; the sanctioned
+`kernel:sync` updated only the shared enum mirror and its manifest at `7eb5854e`.
+Its exact-head hosted governance/build and all three services passed, but full
+Server shards found further retained-consumer failures. That red run is not
+acceptance. The follow-up retains explicit Serializable transaction options on
+SQLite as well as PostgreSQL, and forwards version-specific PlanEnvelope error
+paths through a preprocessor around the original OpenAPI-capable union.
+Snapshot fixtures now supply explicit empty Dependency arrays, Pricing mocks
+supply the writer reservation/schema probe, and the Marketing execution reader
+fixture uses actual Person/Membership rows. Existing recovery refusal and
+Serializable race assertions remain unchanged.
+
+The initial focused eight-file run passed 98 tests before the OpenAPI-compatible
+preprocess correction; it does not qualify that corrected representation. The composed follow-up
+passed **49 files / 422 tests** together, including all original 324 C1 tests,
+OpenAPI schema mirrors and all seven newly failing hosted files. The diagnostic
+regression covers every supported full-plan version (1.0/1.1/1.2). GPT-6 Luna Max
+reviewed this seven-file application/fixture correction and found no remaining
+source blocker after the OpenAPI representation was corrected. Record fresh
+PostgreSQL, build, governance and final-head hosted results in the PR before
+acceptance; the earlier source checkpoint does not prove this correction.
+The corrected application source is committed at `0842c3e9`; fresh qualification
+passed 26/26 actual-role PostgreSQL tests (C1 plus retained Phase B), the
+production build, one isolated browser attempt and strict governance before the
+latest main composition. Upstream main `6b66fd28` (PR #736, Agent/Ollama and
+FR-079) was subsequently merged without C1 PM application changes. Regenerate
+canonical outputs and run governance on that composed tree; final hosted tests
+and build must qualify the final PR head.
+
+C2 canvas gestures, C3 structure editing, C4 Board/CRUD release enforcement,
+production migration, deployment and merge remain outside this increment.
 
 ## Task C2: Accessible edge creation on the Project canvas (FR-083)
 
@@ -181,3 +310,12 @@ transport, undo, move and release semantics; C1–C4 are not authorized to guess
 them or implement the wider PM candidate.
 
 0.1.1 (2026-10-23): owner approved the implementation-plan package at c291afcd; only A1 is selected for this increment. Track B/C execution and C0 contract adoption remain unstarted.
+
+0.1.2 (2026-10-23): owner selected C; prepare source-qualified C0 supplement and
+examples before application code. No implicit adoption of new release semantics.
+
+
+0.1.3 (2026-10-24): owner adopted C0 v0.1.5 D1–D6 at `1b76049a` and
+selected C1. Canonical sources were reconciled through the reviewed migration;
+C1 implementation, isolated SQLite/PostgreSQL qualification and independent
+source review are recorded above. Hosted exact-head acceptance remains a PR gate.

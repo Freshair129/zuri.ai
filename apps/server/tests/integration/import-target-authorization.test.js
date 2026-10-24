@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -76,10 +77,10 @@ beforeAll(async () => {
     code: 'WS-IMPAUTH-PLATFORM',
   })
 
-  owner = makeViewer({
+  owner = await persistImportViewer(makeViewer({
     visibleBusinessIds: [home.business.id],
     ownedBusinessIds: [home.business.id],
-  })
+  }))
 
   // The shape from the authorization RCAs: globally labelled OWNER, and the
   // target Business is visible — but owned somewhere else entirely.
@@ -142,10 +143,10 @@ describe('a viewer who does not own the target is refused — by both routes int
     // Without this, every refusal above could be passing for an unrelated reason
     // — a malformed plan, a workspace that never resolved — and the suite would
     // look like it proves authorization while proving nothing.
-    const asOwnerOfForeign = makeViewer({
+    const asOwnerOfForeign = await persistImportViewer(makeViewer({
       visibleBusinessIds: [foreign.businessId],
       ownedBusinessIds: [foreign.businessId],
-    })
+    }))
     const result = await commitPlan(planFor('WS-IMPAUTH-OTHER', 'PRJ-IMPAUTH-HIJACK'), {
       workspaceId: foreign.id,
       viewer: asOwnerOfForeign,

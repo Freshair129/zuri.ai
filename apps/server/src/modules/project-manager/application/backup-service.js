@@ -1,3 +1,5 @@
+import { withPipelineTransaction } from './pipeline-writer'
+import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
 // @spec ADR-098
@@ -486,6 +488,12 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  // @req FR-235 — owner-approved public product fields are security authority.
+  // @tested tests/integration/line-stock-policy-backup.test.js
+  lineProductDisclosurePolicy:
+    'Customer product-field disclosure authority is never exported or replayed by portable recovery. ' +
+    'Restoring Business/account/Product parents cascades these grants; the installation starts OFF ' +
+    'until a current Business OWNER previews and approves a new source-bound policy.',
   // @req FR-291 — disclosure is security authority, not portable business data.
   // @tested tests/integration/line-stock-policy-backup.test.js
   lineStockDisclosurePolicy:
@@ -1774,7 +1782,7 @@ async function liveBusinessProvisioningCounts(db) {
 }
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
-  const errors = []
+  const errors = dependencyHandoffRecoveryErrors(snapshot)
   if (unsupportedMarketingReportSnapshot(snapshot)) errors.push('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED')
   const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
@@ -2104,7 +2112,11 @@ export async function importSnapshot(snapshot, {
   })
 
   try {
-    await db.$transaction(async (tx) => {
+    await withPipelineTransaction(db, async (tx) => {
+      // Probe the additive field even on an empty target before any replacement.
+      try { await tx.dependency.findFirst({select:{id:true,contractJson:true}}) }
+      catch { throw new BackupRestoreSafetyError('DEPENDENCY_HANDOFF_SCHEMA_UNAVAILABLE','Dependency handoff target schema is unavailable') }
+
       await assertMarketingReportBackupSafe(tx, snapshot)
       // This is the commit-side half of the legacy protected-table guard. It
       // must run before plugin/mount/model deletion so a row that appeared

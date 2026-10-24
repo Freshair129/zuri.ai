@@ -59,7 +59,11 @@ describe('MSP real database maintenance fence', () => {
       expect(second.tenants[0]).toMatchObject({ status: 'DEFERRED', reason: 'PRIOR_RUN_UNSETTLED' })
       expect(calls).toBe(1)
       await expect(createMspRetentionGate(runtime)({ tenantId: tenant.id })).rejects.toThrow('MSP_RETENTION_IN_PROGRESS')
-    } finally { releaseResolve(); await first }
+    } finally { releaseResolve() }
+    const firstResult = await first
+    expect(firstResult.tenants[0].status).toBe('UNKNOWN')
+    const actions = (await prisma.auditEvent.findMany({ where: { entityType: 'MSP_RETENTION', entityId: firstResult.runId } })).map(e => e.action)
+    expect(actions.sort()).toEqual(['MSP_RETENTION_REQUESTED', 'MSP_RETENTION_STARTED', 'MSP_RETENTION_UNKNOWN'].sort())
     await expect(createMspRetentionGate(runtime)({ tenantId: tenant.id })).resolves.toBeUndefined()
   })
   it('blocks an independent LINE table writer while the MSP call is in flight', async () => {

@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import ExcelJS from 'exceljs'
 import { buildTemplateWorkbook, SHEETS } from '@/modules/project-manager/import/xlsx-template'
@@ -69,7 +70,7 @@ describe('FR-018 xlsx intake', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Xlsx Tenant', code: 'TNT-XLSX' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Xlsx Business', code: 'BUS-XLSX' })
     await createWorkspace({ name: 'Xlsx WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-XLSX' })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
   })
 
   it('template workbook contains every entity sheet with enum dropdowns', async () => {
@@ -88,7 +89,7 @@ describe('FR-018 xlsx intake', () => {
   })
 
   it('round trip: filled template converts to a valid envelope and dry-runs clean', async () => {
-    const buffer = await filledTemplate(GOOD_FILL)
+    const buffer = await filledTemplate({...GOOD_FILL,dependencies:[]})
     const { envelope, errors } = await workbookToEnvelope(buffer)
     expect(errors).toEqual([])
     expect(envelope.schemaVersion).toBe('1.0')
@@ -108,7 +109,7 @@ describe('FR-018 xlsx intake', () => {
   })
 
   it('commit from xlsx envelope creates the full graph', async () => {
-    const buffer = await filledTemplate(GOOD_FILL)
+    const buffer = await filledTemplate({...GOOD_FILL,dependencies:[]})
     const { envelope } = await workbookToEnvelope(buffer)
     const workspace = await prisma.workspace.findUnique({ where: { code: 'WS-XLSX' } })
     const result = await runCommit(envelope, { workspaceId: workspace.id })
@@ -120,6 +121,16 @@ describe('FR-018 xlsx intake', () => {
     expect(project.workstreams.length).toBe(2)
     expect(project.milestones.length).toBe(1)
     expect(project.gates.length).toBe(1)
+  })
+
+  it('refuses a legacy workbook new bare edge without creating a partial graph',async()=>{
+    const {envelope,errors}=await workbookToEnvelope(await filledTemplate(GOOD_FILL))
+    expect(errors).toEqual([]);expect(envelope.dependencies).toHaveLength(1)
+    const options={workspaceId:(await prisma.workspace.findUnique({where:{code:'WS-XLSX'}})).id}
+    const before=await prisma.dependency.count(),dry=await dryRun(envelope,options)
+    expect(dry.valid).toBe(false);expect(dry.errors.join(' ')).toContain('CONTRACT_REQUIRED')
+    expect((await runCommit(envelope,options)).committed).toBe(false)
+    expect(await prisma.dependency.count()).toBe(before)
   })
 
   it('reports per-row errors with sheet and row numbers', async () => {

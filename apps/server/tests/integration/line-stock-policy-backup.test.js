@@ -32,12 +32,23 @@ describe('LINE stock disclosure recovery', () => {
     const policy = await setLineStockDisclosurePolicy({ businessId: business.id, lineOaAccountId: account.id,
       productId: product.id, enabled: true, expectedVersion: 0, reason: 'Owner allows test stock disclosure' }, { viewer: owner })
     expect(policy.enabled).toBe(true)
-    expect(await prisma.lineStockDisclosurePolicy.count()).toBe(1)
+    expect(await prisma.lineStockDisclosurePolicy.count({ where: { businessId: business.id } })).toBe(1)
+    // Product field disclosure is separate owner authority and must not survive recovery either.
+    expect(SNAPSHOT_EXCLUDED_MODELS.lineProductDisclosurePolicy).toMatch(/authority|disclosure/i)
+    await prisma.lineProductDisclosurePolicy.create({ data: {
+      tenantId: tenant.id, businessId: business.id, lineOaAccountId: account.id,
+      productId: product.id, sourceId: 'unavailable-source', fieldsJson: '["sku"]',
+      sourceBindingJson: '{}', projectionSha256: 'a'.repeat(64),
+      approvedByPersonId: owner.principal.id, approvedAt: new Date(),
+      reason: 'Synthetic restore authority test', enabled: true,
+    } })
     const snapshot = await exportSnapshot()
     expect(snapshot.tables).not.toHaveProperty('lineStockDisclosurePolicy')
+    expect(snapshot.tables).not.toHaveProperty('lineProductDisclosurePolicy')
     const restored = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
     expect(restored).toMatchObject({ restored: true })
     expect(await prisma.lineStockDisclosurePolicy.count()).toBe(0)
+    expect(await prisma.lineProductDisclosurePolicy.count()).toBe(0)
     expect(await prisma.lineOaAccount.findUnique({ where: { id: account.id } })).toMatchObject({ serverEnabled: false })
   })
 })

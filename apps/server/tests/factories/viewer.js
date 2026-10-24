@@ -159,7 +159,9 @@ export function makeViewer(over = {}) {
     }
   }
 
+  if (over.isSuperadmin === true && (role !== 'OWNER' || !isPlatform || !isOperator)) fail('Superadmin retains OWNER, platform and operator resolver invariants')
   return {
+    ...(over.isSuperadmin === true ? { isSuperadmin: true } : {}),
     principal, role, visibleBusinessIds, ownedBusinessIds, ownedTenantIds,
     domainsByBusinessId: domains,
     visibleDomains,

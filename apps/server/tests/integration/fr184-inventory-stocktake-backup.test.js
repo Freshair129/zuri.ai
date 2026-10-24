@@ -117,7 +117,7 @@ describe('FR-184 stocktake snapshot recovery', () => {
         schemaVersion: INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['inventoryLedgerFence', 'inventoryStocktake'],
       },
-      tables: { inventoryLedgerFence: [] },
+      tables: { dependency: [], inventoryLedgerFence: [] },
     }
     const result = await previewImport(invalid, { db, viewer: makeOperatorViewer() })
     expect(result).toMatchObject({ valid: false, inventoryStocktakeRecovery: { status: 'INVALID' } })
@@ -128,7 +128,7 @@ describe('FR-184 stocktake snapshot recovery', () => {
     const db = new Proxy({}, {
       get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({ count: vi.fn().mockResolvedValue(['inventoryLedgerFence', 'inventoryStocktake'].includes(model) ? 1 : 0) }),
     })
-    const legacy = { schemaVersion: '1.0', tables: { inventoryLedgerFence: [], inventoryStocktake: [] } }
+    const legacy = { schemaVersion: '1.0', tables: { dependency: [], inventoryLedgerFence: [], inventoryStocktake: [] } }
     const result = await previewImport(legacy, { db, viewer: makeOperatorViewer() })
     expect(result).toMatchObject({ valid: false, inventoryStocktakeRecovery: { status: 'UNAVAILABLE' } })
     expect(result.errors).toContain('Inventory stocktake recovery is unavailable while the installation contains stocktake rows; refusing a restore that would erase evidence')

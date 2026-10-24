@@ -93,8 +93,8 @@ describe('every status in the envelope is enum-typed', () => {
     expect(zPlanEnvelope.safeParse(envelope()).success).toBe(true)
   })
 
-  it('names the offending field so an integrator can find it', () => {
-    const parsed = zPlanEnvelope.safeParse(withStatus('item', 'BANANA'))
+  it.each(['1.0', '1.1', '1.2'])('names the offending field for full envelope %s', (schemaVersion) => {
+    const parsed = zPlanEnvelope.safeParse({ ...withStatus('item', 'BANANA'), schemaVersion })
     const path = parsed.error.issues.map((i) => i.path.join('.')).join(' ')
     expect(path).toContain('items.0.status')
   })

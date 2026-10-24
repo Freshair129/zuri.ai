@@ -941,6 +941,7 @@ CREATE TABLE "Dependency" (
     "targetType" TEXT NOT NULL,
     "targetId" TEXT NOT NULL,
     "dependencyType" TEXT NOT NULL,
+    "contractJson" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Dependency_pkey" PRIMARY KEY ("id")
@@ -4222,6 +4223,31 @@ CREATE TABLE "LineStockDisclosurePolicy" (
     CONSTRAINT "LineStockDisclosurePolicy_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "LineProductDisclosurePolicy" (
+    "id" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "lineOaAccountId" TEXT NOT NULL,
+    "productId" TEXT NOT NULL,
+    "sourceId" TEXT NOT NULL,
+    "fieldsJson" TEXT NOT NULL,
+    "sourceBindingJson" TEXT NOT NULL,
+    "projectionSha256" TEXT NOT NULL,
+    "skuLookupSha256" TEXT,
+    "nameThLookupSha256" TEXT,
+    "nameEnLookupSha256" TEXT,
+    "approvedByPersonId" TEXT NOT NULL,
+    "approvedAt" TIMESTAMP(3) NOT NULL,
+    "reason" TEXT NOT NULL,
+    "enabled" BOOLEAN NOT NULL DEFAULT false,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "LineProductDisclosurePolicy_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Portfolio_code_key" ON "Portfolio"("code");
 
@@ -6055,6 +6081,21 @@ CREATE INDEX "LineStockDisclosurePolicy_businessId_lineOaAccountId_idx" ON "Line
 -- CreateIndex
 CREATE UNIQUE INDEX "LineStockDisclosurePolicy_tenantId_businessId_lineOaAccount_key" ON "LineStockDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "productId");
 
+-- CreateIndex
+CREATE INDEX "LineProductDisclosurePolicy_scope_account_idx" ON "LineProductDisclosurePolicy"("businessId", "lineOaAccountId");
+
+-- CreateIndex
+CREATE INDEX "LineProductDisclosurePolicy_sku_lookup_idx" ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "skuLookupSha256");
+
+-- CreateIndex
+CREATE INDEX "LineProductDisclosurePolicy_name_th_lookup_idx" ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "nameThLookupSha256");
+
+-- CreateIndex
+CREATE INDEX "LineProductDisclosurePolicy_name_en_lookup_idx" ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "nameEnLookupSha256");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LineProductDisclosurePolicy_scope_product_key" ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "productId");
+
 -- AddForeignKey
 ALTER TABLE "Tenant" ADD CONSTRAINT "Tenant_portfolioId_fkey" FOREIGN KEY ("portfolioId") REFERENCES "Portfolio"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -7320,4 +7361,13 @@ ALTER TABLE "LineStockDisclosurePolicy" ADD CONSTRAINT "LineStockDisclosurePolic
 
 -- AddForeignKey
 ALTER TABLE "LineStockDisclosurePolicy" ADD CONSTRAINT "LineStockDisclosurePolicy_productId_tenantId_businessId_fkey" FOREIGN KEY ("productId", "tenantId", "businessId") REFERENCES "Product"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineProductDisclosurePolicy" ADD CONSTRAINT "LineProductDisclosurePolicy_businessId_tenantId_fkey" FOREIGN KEY ("businessId", "tenantId") REFERENCES "Business"("id", "tenantId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineProductDisclosurePolicy" ADD CONSTRAINT "LineProductDisclosurePolicy_lineOaAccountId_tenantId_busin_fkey" FOREIGN KEY ("lineOaAccountId", "tenantId", "businessId") REFERENCES "LineOaAccount"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "LineProductDisclosurePolicy" ADD CONSTRAINT "LineProductDisclosurePolicy_productId_tenantId_businessId_fkey" FOREIGN KEY ("productId", "tenantId", "businessId") REFERENCES "Product"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE;
 

@@ -6,6 +6,7 @@ import path from 'node:path'
 // @tested tests/unit/main-dev-local-ollama.test.js
 export const MAIN_DEV_LOCAL_OLLAMA_SOURCE = 'MAIN_DEV_LOCAL_OLLAMA'
 export const MAIN_DEV_LOCAL_OLLAMA_ORIGIN = 'http://host.docker.internal:11434'
+export const CUSTOMER_PRODUCT_KNOWLEDGE_SOURCE = 'GENESISRAG17_CUSTOMER_PRODUCTS'
 
 const DATABASE_NAME_PATTERN = /^[A-Za-z0-9][A-Za-z0-9_-]{0,62}$/
 const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
@@ -58,6 +59,10 @@ function requiredFixturePath(env) {
 
 function knowledgeConfiguration(env) {
   const knowledgeSource = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE ?? 'TEST_ONLY_FIXTURE'
+  if (knowledgeSource === 'GENESISRAG17_CUSTOMER_PRODUCTS') {
+    if (env[MAIN_DEV_MEMORY_ENABLED_ENV] === 'true') throw fail('MAIN_DEV_LOCAL_OLLAMA_CONFIGURATION_INVALID')
+    return { knowledgeSource, testFixturePath: null, testFixtureSha256: null, rag: null }
+  }
   if (knowledgeSource === 'TEST_ONLY_FIXTURE') {
     const testFixtureSha256 = env.ZURI_MAIN_DEV_LOCAL_OLLAMA_TEST_FIXTURE_SHA256
     if (typeof testFixtureSha256 !== 'string' || !SHA256_PATTERN.test(testFixtureSha256)) {
@@ -123,6 +128,12 @@ export function isMainDevLocalOllamaRequested(env = process.env) {
     || env.ZURI_MAIN_DEV_LOCAL_OLLAMA_ENABLED === 'true'
 }
 
+/** This local source has no qualified Conversation Runtime cohort yet. */
+export function isLineCustomerProductSourceRequested(env = process.env) {
+  return isMainDevLocalOllamaRequested(env)
+    && env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE === CUSTOMER_PRODUCT_KNOWLEDGE_SOURCE
+}
+
 /** Refuse unapproved memory, corpus, shadow, or non-Server jobs before composing the test turn. */
 export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
   if (!isMainDevLocalOllamaRequested(env)) return null
@@ -145,7 +156,7 @@ export function assertMainDevLocalOllamaJob({ env = process.env, job } = {}) {
     || account.serverEnabled !== true) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_EXECUTION_DENIED')
   }
-  if (account.knowledgeGrounding !== (profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
+  if (account.knowledgeGrounding !== (['GENESISRAG17_TEST_ONLY', 'GENESISRAG17_CUSTOMER_PRODUCTS'].includes(profile.knowledgeSource) ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     || account.knowledgeGroundingShadow === true) {
     throw fail('MAIN_DEV_LOCAL_OLLAMA_JOB_SETTINGS_DENIED')
   }

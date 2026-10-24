@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.23b"
+version: "0.3.25b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-23,Codex Root, FR-291 excluded stock policy static census binding"
+last_update: "2026-10-24,Codex Root, composed Pipeline C1 and FR-235 recovery binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -618,7 +618,29 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
-### Current FR-291 stock policy static binding
+| 0.3.24b | 2026-10-24 | beta | Add excluded product-field disclosure authority to the complete 210-table census; preserve every predecessor mapping and historical binding refusal | working-tree | Codex Root |
+| 0.3.25b | 2026-10-24 | beta | Compose Pipeline C1 and FR-235 into the current 210-table recovery binding; retain predecessor bindings as historical | working-tree | Codex Root |
+
+### Historical FR-235 product disclosure binding before Pipeline C1
+
+The owner-approved [LINE customer product contract](../../change-requests/integration/line-customer-product-disclosure-20261024.md)
+adds only `LineProductDisclosurePolicy` to the complete census, preserving all
+209 predecessor mappings. Knowledge owns this default-OFF disclosure authority.
+It is excluded from portable snapshots; restoring its Business/account/Product
+parents clears the grant, requiring a fresh owner preview and approval.
+
+- Pre-C1 canonical LF schema SHA-256: `291c8a43acdeb62e1839e262d663371a6c009c92a46fe60f3296c045c550e86e`.
+- Pre-C1 target inventory SHA-256, computed with `computeTargetSchemaSha256`: `3848d6a69c33dec8f6e49ece409bcc73854bb7493b7eb5d78e154e9b6c4814c1`.
+
+This 210-model binding predates the Pipeline C1 `Dependency.contractJson`
+column and is now historical. The policy model remains in the current Pipeline
+inventory, while the current reader binds the composed schema below. This former
+binding is refused at loader, adapter, export and restore boundaries. A nonempty
+policy table still makes a recovery target nonempty. This static schema
+maintenance does not relax recovery, privilege, custody or production gates and
+applies no deployed migration.
+
+### Historical FR-291 stock policy static binding
 
 The approved [customer LINE stock/price contract](../../change-requests/integration/line-agent-stock-price-facts-20261023.md)
 adds only `LineStockDisclosurePolicy` to the complete application table census.
@@ -631,14 +653,16 @@ grant. Existing portable recovery exclusion remains in force.
 - Exact canonical LF schema SHA-256: `fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808`.
 - Target inventory SHA-256, computed with `computeTargetSchemaSha256`: `db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633`.
 
-The current loader binds these exact values and all 209 model mappings. The
-208-table FR-001 predecessor below and every earlier binding remain historical
-and must be refused at loader, adapter, export and restore boundaries. An
-existing policy row makes a target nonempty even though the policy is excluded
-from portable data. No schema validation, target visibility, privilege, custody
-or transaction gate is relaxed. This reviewed static rebind under the owner's
-implementation mandate applies no deployed migration and grants no live
-recovery, external target connection or production release authority.
+These exact values identify the historical pre-C1 FR-291 inventory preserved at
+`contracts/phase-b/target-schema.inventory.json`. The current reader uses the
+Pipeline inventory below. The 208-table FR-001 predecessor and every earlier
+binding remain historical and must be refused at loader, adapter, export and
+restore boundaries. An existing policy row makes a target nonempty even though
+the policy is excluded from portable data. No schema validation, target
+visibility, privilege, custody or transaction gate is relaxed. This reviewed
+static rebind under the owner's implementation mandate applies no deployed
+database migration and grants no live recovery, external target connection or
+production release authority.
 
 ### Historical FR-001 scope metadata static binding
 
@@ -750,3 +774,28 @@ target visibility, clean-target, custody and production gates remain in force.
 | 0.2.1b | 2026-09-17 | candidate | Pin schema-inventory hash bytes and explicit full-visibility attestation after independent owner-selection PASS | bd99651f | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Define offline command, actual visibility and locking proof, family matrix and Identity transaction/replay seam | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | candidate | Propose bounded clean-target recovery and reviewed PM erasure targets to close source-audited W2 authority gaps | bd99651f | RWANG |
+
+## Current composed Pipeline C1 and FR-235 schema binding (2026-10-24)
+
+The owner-approved C0 v0.1.5 D1–D6 and C1 instruction authorize qualification
+of the additive nullable Dependency.contractJson column. The current recovery
+reader selects [the Pipeline inventory](contracts/pipeline-target-schema.inventory.json).
+It preserves all 209 Pipeline C1 model/table mappings and adds
+`LineProductDisclosurePolicy` to the complete census, for 210 models. The
+default-OFF policy remains excluded from portable snapshots. The prior Phase B
+inventory file stays byte-for-byte historical. This records a static binding,
+not a production migration or recovery acceptance claim.
+
+- Current canonical LF schema SHA-256: `d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9`.
+- Current target inventory SHA-256, computed with `computeTargetSchemaSha256`: `a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7`.
+- Historical Pipeline C1 209-table schema/target binding: `d8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21` / `dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559`.
+- Historical pre-C1 FR-235 210-table schema/target binding: `291c8a43acdeb62e1839e262d663371a6c009c92a46fe60f3296c045c550e86e` / `3848d6a69c33dec8f6e49ece409bcc73854bb7493b7eb5d78e154e9b6c4814c1`.
+- Historical pre-C1 FR-291 Phase B 209-table schema/target binding: `fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808` / `db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633`.
+- Both adapters must preserve legacy NULL and declared contract/provenance,
+  immutable delta audit/receipt/trace identities, and cross-Tenant legacy bridges.
+- Unknown contract versions/corruption or missing target columns refuse restore
+  before mutation; downgrade must not strip enforcement or content.
+
+The three prior bindings above remain historical and must be refused at loader,
+adapter, export and restore boundaries. The current inventory changes no recovery
+or erasure authority and does not authorize a live migration or recovery run.

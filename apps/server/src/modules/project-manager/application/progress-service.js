@@ -1,3 +1,6 @@
+import { withPipelineTransaction, isPipelineTransaction, pipelineTransactionFacade } from './pipeline-transaction'
+// @req FR-084 — derived graph-row cache refreshes share the graph writer boundary.
+// @tested tests/integration/plan-delta.test.js
 import prisma from '@/lib/db'
 import { calculateWorkstreamProgress } from '../progress/strategies'
 import { rollupProject, rollupBusiness } from '../progress/rollup'
@@ -20,8 +23,9 @@ function hydrateBundle(workstream) {
 /**
  * Compute progress for one workstream (loads data, runs pure calculator).
  */
-export async function computeWorkstreamProgress(workstreamId) {
-  const workstream = await prisma.workstream.findUnique({
+export async function computeWorkstreamProgress(workstreamId, { db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => computeWorkstreamProgress(workstreamId, { db: pipelineTransactionFacade(tx) }))
+  const workstream = await db.workstream.findUnique({
     where: { id: workstreamId },
     include: { items: true, containers: true, milestones: true, gates: true },
   })
@@ -29,7 +33,7 @@ export async function computeWorkstreamProgress(workstreamId) {
   const bundle = hydrateBundle(workstream)
   const result = calculateWorkstreamProgress(workstream.progressStrategy, bundle)
   // Refresh cache (best-effort; progress remains derivable at any time).
-  await prisma.workstream.update({
+  await db.workstream.update({
     where: { id: workstreamId },
     data: { progressCache: result.percent },
   })
@@ -48,8 +52,9 @@ export async function computeWorkstreamProgress(workstreamId) {
 /**
  * Compute project progress: every active workstream + weighted roll-up.
  */
-export async function computeProjectProgress(projectId) {
-  const project = await prisma.project.findUnique({
+export async function computeProjectProgress(projectId, { db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => computeProjectProgress(projectId, { db: pipelineTransactionFacade(tx) }))
+  const project = await db.project.findUnique({
     where: { id: projectId },
     include: {
       workstreams: {
@@ -86,7 +91,7 @@ export async function computeProjectProgress(projectId) {
   }
   if (staleCaches.length) {
     await Promise.all(staleCaches.map((ws) =>
-      prisma.workstream.update({ where: { id: ws.id }, data: { progressCache: ws.percent } })))
+      db.workstream.update({ where: { id: ws.id }, data: { progressCache: ws.percent } })))
   }
   const rollup = rollupProject(workstreamResults)
   return {

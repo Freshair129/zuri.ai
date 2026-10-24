@@ -1,6 +1,8 @@
+import { authorizeDependencyRead, dependencyEvidenceState } from './handoff-evidence'
+import { pipelineError } from './pipeline-transaction'
+import { dependencyHash } from './handoff-contract'
 import prisma from '@/lib/db'
 import { zDependencyInput } from '@/lib/validation/entities'
-import { recordAudit } from './audit'
 import { projectDependencyGraph } from './project-dependency-map'
 import { assertEndpointWritable } from './project-authorization'
 
@@ -39,11 +41,11 @@ const nodeKey = (type, id) => `${type}:${id}`
  * Cycle detection: would adding source -> target create a directed cycle
  * among existing dependency edges? (DFS from target looking for source.)
  */
-export async function wouldCreateCycle(sourceType, sourceId, targetType, targetId) {
-  const all = await prisma.dependency.findMany({
+export async function wouldCreateCycle(sourceType, sourceId, targetType, targetId, { db = prisma, edges: suppliedEdges, adjacency } = {}) {
+  const all = adjacency ? [] : suppliedEdges || await db.dependency.findMany({
     select: { sourceType: true, sourceId: true, targetType: true, targetId: true },
   })
-  const edges = new Map()
+  const edges = adjacency || new Map()
   for (const d of all) {
     const from = nodeKey(d.sourceType, d.sourceId)
     if (!edges.has(from)) edges.set(from, [])
@@ -64,7 +66,7 @@ export async function wouldCreateCycle(sourceType, sourceId, targetType, targetI
 }
 
 export async function createDependency(input, { viewer } = {}) {
-  const data = zDependencyInput.parse(input)
+  const data = zDependencyInput.parse(Object.fromEntries(['sourceType','sourceId','targetType','targetId','dependencyType'].map(key => [key,input?.[key]])))
   if (data.sourceType === data.targetType && data.sourceId === data.targetId) {
     throw new Error('Self-dependency is not allowed')
   }
@@ -76,17 +78,7 @@ export async function createDependency(input, { viewer } = {}) {
   // reach it.
   await assertEndpointWritable(viewer, { type: data.sourceType, id: data.sourceId })
   await assertEndpointWritable(viewer, { type: data.targetType, id: data.targetId })
-  if (await wouldCreateCycle(data.sourceType, data.sourceId, data.targetType, data.targetId)) {
-    throw new Error('Dependency would create a cycle')
-  }
-  const dependency = await prisma.dependency.create({ data })
-  await recordAudit(prisma, {
-    entityType: 'DEPENDENCY',
-    entityId: dependency.id,
-    action: 'CREATED',
-    payload: data,
-  })
-  return dependency
+  throw pipelineError(input?.contract ? 'UPGRADE_REQUIRED' : 'CONTRACT_REQUIRED', input?.contract ? 409 : 422)
 }
 
 export async function deleteDependency(id, { viewer } = {}) {
@@ -109,9 +101,7 @@ export async function deleteDependency(id, { viewer } = {}) {
     { type: dependency.targetType, id: dependency.targetId },
     { notFoundMessage: 'Dependency not found' },
   )
-  const deleted = await prisma.dependency.delete({ where: { id } })
-  await recordAudit(prisma, { entityType: 'DEPENDENCY', entityId: id, action: 'DELETED' })
-  return deleted
+  throw pipelineError('UPGRADE_REQUIRED', 409)
 }
 
 async function resolveEndpoint(type, id) {
@@ -128,7 +118,7 @@ async function resolveEndpoint(type, id) {
   }
 }
 
-export async function listDependencies({ projectId, businessId } = {}) {
+export async function listDependencies({ projectId, businessId } = {}, { viewer } = {}) {
   const deps = await prisma.dependency.findMany({ orderBy: { createdAt: 'asc' } })
   const belongs = projectId
     ? await projectEntityIds(projectId)
@@ -144,11 +134,15 @@ export async function listDependencies({ projectId, businessId } = {}) {
     : deps
   const resolved = []
   for (const d of scoped) {
-    const [source, target] = await Promise.all([
-      resolveEndpoint(d.sourceType, d.sourceId),
-      resolveEndpoint(d.targetType, d.targetId),
-    ])
-    resolved.push({ ...d, source, target })
+    // Internal legacy graph projection adds no contract/evidence fields. Public
+    // register callers supply the trusted viewer and must own both read scopes.
+    const scopes = viewer ? await authorizeDependencyRead(prisma, d, viewer) : null
+    if (viewer && !scopes) continue
+    const [source, target] = await Promise.all([resolveEndpoint(d.sourceType, d.sourceId), resolveEndpoint(d.targetType, d.targetId)])
+    const { contractJson, ...legacy } = d
+    resolved.push(viewer
+      ? { ...legacy, source, target, expectedDependencyHash: dependencyHash(d), contractState: await dependencyEvidenceState(prisma, d, scopes) }
+      : { ...legacy, source, target })
   }
   return resolved
 }

@@ -47,6 +47,7 @@ import { lineTraceSummary } from "../domain/line-trace-summary";
 import LineOaReadinessJourney from "./LineOaReadinessJourney";
 import LineOaModelKeyCard from "./LineOaModelKeyCard";
 import LocalOllamaModelCard, { findEligibleLocalOllamaAccount } from "./LocalOllamaModelCard";
+import LineProductDisclosureCard from "./LineProductDisclosureCard";
 
 async function api(url, method = "GET", body) {
   const response = await fetch(url, {
@@ -267,6 +268,7 @@ export default function LineStudioAccountConsole() {
                   <AccountCard
                     key={account.id}
                     account={account}
+                    businessId={business?.id}
                     modelCredential={modelStatus?.modelCredential ?? null}
                     onAction={action}
                     onRefresh={refresh}
@@ -299,7 +301,7 @@ export default function LineStudioAccountConsole() {
   );
 }
 
-function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
+function AccountCard({ account, businessId, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
   const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
@@ -401,6 +403,9 @@ function AccountCard({ account, modelCredential, onAction, onRefresh, busy }) {
       <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
       <LineOaReadinessJourney key={account.id} account={account} modelCredential={modelCredential}
         onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
+      {account.status === "ACTIVE" && (
+        <LineProductDisclosureCard businessId={businessId} accountId={account.id} />
+      )}
 
       <fieldset disabled={busy || account.status === "ARCHIVED"} className="grid gap-3 pt-1">
         {/* FR-265 — executionMode remains SERVER. This separate Core-owned cohort

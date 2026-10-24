@@ -22,6 +22,8 @@ import { assertMemoryAnswerAppended, loadMemoryReceipt } from './runtime-memory-
 import { parseLineProductFactsRequest, revalidateLineProductFacts } from '@/modules/agent/line-product-facts'
 import { normalizeLineProductFactsReply, readLineProductFactsDecision } from './line-product-facts-decision'
 import { checkMainDevTestRagSend } from '@/modules/agent/main-dev-test-rag-decision'
+import { checkLineCustomerProductSend } from '@/modules/agent/line-customer-product-decision'
+import { isMainDevLocalOllamaRequested } from '@/modules/agent/main-dev-local-ollama'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -349,7 +351,9 @@ async function admitLineTextMessage({ account, event, correlationId, now = new D
     // which answers it exactly as before.
     const audienceThread = audienceKind === 'GROUP' ? event.source?.groupId
       : audienceKind === 'ROOM' ? event.source?.roomId : userId
-    const runtimeEligible = current.runtimeOwner === 'CONVERSATION_RUNTIME' && RUNTIME_AUDIENCES.includes(audienceKind)
+    const customerProductsServerMode = isMainDevLocalOllamaRequested(env)
+      && env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE === 'GENESISRAG17_CUSTOMER_PRODUCTS'
+    const runtimeEligible = !customerProductsServerMode && current.runtimeOwner === 'CONVERSATION_RUNTIME' && RUNTIME_AUDIENCES.includes(audienceKind)
       && typeof audienceThread === 'string' && audienceThread.length > 0 && audienceThread === threadId
       && (audienceKind === 'DIRECT' || threadId !== userId)
       && memoryRuntimeEligible && (audienceKind === 'DIRECT' || !legacyOnlyWorkCommand)
@@ -1065,17 +1069,28 @@ function validateProductFactsOptions(options) {
   return Object.freeze({ ...options })
 }
 
+function validateCustomerProductOptions(options) {
+  if (!options || typeof options !== 'object' || Array.isArray(options)
+    || Object.keys(options).some(key => key !== 'snapshotReader')
+    || (options.snapshotReader !== undefined && typeof options.snapshotReader !== 'function')) {
+    throw new Error('LINE_CUSTOMER_PRODUCT_OPTIONS_INVALID')
+  }
+  return Object.freeze({ ...options })
+}
+
 export async function runLineConversationWorker({ db = prisma, answer, resolveAccount, replyTransport, pushTransport,
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
   revalidateProductFacts = revalidateLineProductFacts,
   productFactsOptions = {},
   testRagOptions = {},
+  customerProductOptions = {},
   threadMemory = null,
   memoryDeliveryBatch,
   memoryDeliveryLeaseMs,
   executionConcurrency = boundedCount(env.ZURI_LINE_WORKER_EXECUTION_CONCURRENCY, EXECUTION_CONCURRENCY),
   sendBatch = boundedCount(env.ZURI_LINE_WORKER_SEND_BATCH, SEND_BATCH) }) {
   productFactsOptions = validateProductFactsOptions(productFactsOptions)
+  customerProductOptions = validateCustomerProductOptions(customerProductOptions)
   const owner = { executionMode: 'SERVER', runtimeOwner: 'SERVER' }
   await maintenance(db, now(), owner)
   // @req FR-022 — the same Core tick also carries pending MSP principal erasures
@@ -1121,7 +1136,8 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
   let sent = 0
   for (const job of ready) {
     last = await sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
-      requiredRuntimeOwner: owner.runtimeOwner, revalidateProductFacts, productFactsOptions, testRagOptions })
+      requiredRuntimeOwner: owner.runtimeOwner, revalidateProductFacts, productFactsOptions, testRagOptions,
+      customerProductOptions })
     sent += 1
   }
   await scanMemory()
@@ -1131,13 +1147,14 @@ export async function runLineConversationWorker({ db = prisma, answer, resolveAc
 /** Send one READY job and record the outcome. Split out of the tick when it became a batch. */
 async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTransport, env, workerId, now,
   requiredExecutionMode = 'SERVER', requiredRuntimeOwner = 'SERVER', expectedExecutionId = job.executionId,
-  revalidateProductFacts = revalidateLineProductFacts, productFactsOptions = {}, testRagOptions = {} }) {
+  revalidateProductFacts = revalidateLineProductFacts, productFactsOptions = {}, testRagOptions = {}, customerProductOptions = {} }) {
   if (!testRagOptions || typeof testRagOptions !== 'object' || Array.isArray(testRagOptions)
     || Object.keys(testRagOptions).some(key => key !== 'snapshotReader')
     || (testRagOptions.snapshotReader !== undefined && typeof testRagOptions.snapshotReader !== 'function')) {
     throw new Error('MAIN_DEV_TEST_RAG_OPTIONS_INVALID')
   }
   productFactsOptions = validateProductFactsOptions(productFactsOptions)
+  customerProductOptions = validateCustomerProductOptions(customerProductOptions)
   if (job.executionMode !== 'SERVER' || job.runtimeOwner !== requiredRuntimeOwner
     || (expectedExecutionId && job.executionId !== expectedExecutionId)) {
     return { id: job.id, status: 'FENCED' }
@@ -1217,7 +1234,8 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     try { isProductFacts = parseLineProductFactsRequest(current.inbound?.body) !== null }
     catch { isProductFacts = typeof current.inbound?.body === 'string' && current.inbound.body.trim().startsWith('#product') }
     let fixedOutOfHoursReply = false
-    if ((isProductFacts || env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE === 'GENESISRAG17_TEST_ONLY') && current.answerText) {
+    if ((isProductFacts || !current.executionId || ['GENESISRAG17_TEST_ONLY', 'GENESISRAG17_CUSTOMER_PRODUCTS']
+      .includes(env.ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE)) && current.answerText) {
       try {
         const events = await readExecutionTrace(tx, { scope: { tenantId: current.tenantId, businessId: current.businessId }, turnId: current.id })
         fixedOutOfHoursReply = events.some(event => event.kind === 'ANSWER_READY'
@@ -1259,6 +1277,17 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
         return { count: 0, testRagRejected: cancelled.count > 0 }
       }
     }
+    if (requiredRuntimeOwner === 'SERVER' && !(fixedOutOfHoursReply && !current.executionId)) {
+      const decision = await checkLineCustomerProductSend(tx, current, { ...customerProductOptions, env,
+        requireWhenConfigured: !isProductFacts && !fixedOutOfHoursReply && !isLineProjectWorkCommand(current.inbound?.body) })
+      if (decision.required && !decision.allowed) {
+        const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id,
+          runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
+        data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_CUSTOMER_PRODUCT_AUTHORITY_REVOKED',
+          sealedReplyToken: null, version: { increment: 1 } } })
+        return { count: 0, customerProductRejected: cancelled.count > 0 }
+      }
+    }
     const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode, runtimeOwner: requiredRuntimeOwner,
       executionId: expectedExecutionId, version: job.version, status: 'READY' },
       data: { status: 'SENDING', sendMethod: method, firstSendAt: job.firstSendAt ?? at,
@@ -1269,7 +1298,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     }, at)
     return result
   })
-  if (claimed.productFactsRejected || claimed.testRagRejected) return { id: job.id, status: 'CANCELLED' }
+  if (claimed.productFactsRejected || claimed.testRagRejected || claimed.customerProductRejected) return { id: job.id, status: 'CANCELLED' }
   if (!claimed.count) return { status: 'CONTENDED' }
   let result
   let receivedProviderResponse = true

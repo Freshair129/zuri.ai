@@ -582,6 +582,14 @@ export const TAX_REGISTRATION_BRANCH_STATUSES = ['ACTIVE', 'ARCHIVED']
 
 export const zExecutionMode = z.enum(EXECUTION_MODES)
 export const zProgressStrategy = z.enum(PROGRESS_STRATEGIES)
+// @req FR-084, FR-085 — adopted Pipeline command/change sets and release phases.
+// @spec ADR-035
+// @tested tests/integration/pipeline-endpoint-matrix.test.js
+export const PIPELINE_NODE_TYPES = DEPENDENCY_ENDPOINT_TYPES.filter(type => ['WORKSTREAM', 'WORK_CONTAINER', 'WORK_ITEM'].includes(type))
+export const PIPELINE_CHANGE_TYPES = [...DEPENDENCY_ENDPOINT_TYPES, 'DEPENDENCY']
+export const PIPELINE_ORDERING_DEPENDENCY_TYPES = DEPENDENCY_TYPES.filter(type => ['BLOCKS', 'REQUIRES', 'START_AFTER', 'FINISH_BEFORE'].includes(type))
+export const PIPELINE_PROTECTED_WORK_STATUSES = WORK_STATUSES.filter(status => ['IN_PROGRESS', 'REVIEW', 'DONE'].includes(status))
+
 export const zDependencyType = z.enum(DEPENDENCY_TYPES)
 export const zDependencyEndpointType = z.enum(DEPENDENCY_ENDPOINT_TYPES)
 export const zProjectStatus = z.enum(PROJECT_STATUSES)

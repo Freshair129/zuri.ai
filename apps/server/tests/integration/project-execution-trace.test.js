@@ -1,4 +1,6 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { beforeAll, describe, expect, it } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import {
   createBusiness,
@@ -31,9 +33,10 @@ describe('Project Manager execution trace and replay', () => {
       name: 'Trace Workspace',
       scopeType: 'BUSINESS',
       businessId: business.id,
-      code: 'WS-TRACE',
+      // LINE trace fixtures also provision WS-TRACE through Business creation.
+      code: `WS-PM-TRACE-${randomUUID()}`,
     })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
     plan = {
       schemaVersion: '1.2',
       generatedBy: 'trace-test',
