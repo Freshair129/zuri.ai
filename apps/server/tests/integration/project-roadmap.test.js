@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-068 — an authorized Project Roadmap returns Business Goals and the
 // same neutral execution records without leaking another Business's Goal.
 // @spec SDD-039, ADR-028, FR-070
@@ -31,8 +32,8 @@ describe('FR-068 Project Execution Roadmap', () => {
       code: `WS-RM-A-${suffix}`,
     })
 
-    viewerA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] })
-    viewerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
+    viewerA = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }))
+    viewerB = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] }))
     project = await createProject({ workspaceId: workspaceA.id, name: 'Roadmap Project', code: `PRJ-RM-${suffix}`, description: 'Roadmap outcome' }, { viewer: viewerA })
 
     goalA = await prisma.businessGoal.create({

@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
 const mocks = vi.hoisted(() => ({ resolveRequestViewer: vi.fn() }))
@@ -79,8 +80,8 @@ describe('FR-251 Project Execution Domains', () => {
       code: `WS-DOMVIEW-PORTFOLIO-${id}`,
     })
 
-    viewerA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] })
-    viewerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
+    viewerA = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }))
+    viewerB = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] }))
 
     projectA = await createProject({
       workspaceId: workspaceA.id,

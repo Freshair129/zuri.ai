@@ -1,3 +1,5 @@
+// @req FR-085 — held Work mutations are domain refusals, not infrastructure retries.
+// @tested tests/integration/line-project-work-tools.test.js
 import { withPipelineTransaction } from '@/modules/project-manager/application/pipeline-transaction'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
@@ -208,6 +210,7 @@ export const LINE_WORK_DUPLICATE_TEXT = 'คำสั่งนี้ยืนย
 const LINE_WORK_ERROR_TEXT = Object.freeze({
   WORK_CONFIRMATION_EXPIRED: 'คำยืนยันหมดอายุ กรุณาสร้างคำขอใหม่',
   WORK_VERSION_CONFLICT: 'งานมีการเปลี่ยนแปลงแล้ว กรุณาตรวจสอบและสร้างคำขอใหม่',
+  RELEASE_HELD: 'งานนี้ยังรอหลักฐานรับมอบงานก่อนเริ่มหรือปิดงาน กรุณาตรวจสอบ Handoff ใน Board',
   WORK_ACTION_UNAVAILABLE: 'ไม่สามารถดำเนินการคำสั่งงานนี้ได้ กรุณาตรวจสอบรูปแบบคำสั่ง การเชื่อมตัวตน และสิทธิ์ของคุณ',
 })
 // Refusals the Work writers raise about the request itself: its scope, identity,
@@ -215,7 +218,7 @@ const LINE_WORK_ERROR_TEXT = Object.freeze({
 // transport failure, a stale claim, a missing receipt) is not in this set.
 const LINE_WORK_DOMAIN_CODES = new Set(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_SCOPE_DENIED',
   'WORK_IDENTITY_REQUIRED', 'WORK_TARGET_NOT_FOUND', 'WORK_ACTION_DENIED', 'WORK_PROPOSAL_CONFLICT',
-  'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID'])
+  'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID', 'RELEASE_HELD', 'SCOPE_UNAVAILABLE'])
 const LINE_WORK_TARGET_MISSING_MESSAGES = new Set(['Work item not found', 'Workstream not found'])
 
 export function lineWorkReadText(result) {
@@ -232,9 +235,12 @@ export function lineWorkConfirmText(result) {
 
 /** The legacy reply for a failed Work command. No raw database error or private target detail reaches it. */
 export function lineWorkErrorReply(error) {
-  const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT'].includes(error?.code ?? error?.message)
-    ? error.code ?? error.message : 'WORK_ACTION_UNAVAILABLE'
-  return { text: LINE_WORK_ERROR_TEXT[code], errorCode: code }
+  const cause = error?.code ?? error?.message
+  // Preserve the adopted WorkToolPort rejection enum; held-specific wording is
+  // presentation, not a new machine code or protocol version.
+  const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT'].includes(cause)
+    ? cause : 'WORK_ACTION_UNAVAILABLE'
+  return { text: LINE_WORK_ERROR_TEXT[cause === 'RELEASE_HELD' ? 'RELEASE_HELD' : code], errorCode: code }
 }
 
 /** True for a refusal of the Work request itself, which the legacy handler answers with a fixed text. */

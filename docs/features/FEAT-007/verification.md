@@ -124,20 +124,48 @@ status: generated
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-feature-repository.test.js](../../../apps/server/tests/unit/project-feature-repository.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-file-service.test.js](../../../apps/server/tests/unit/project-file-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/work-release-policy.test.js](../../../apps/server/tests/unit/work-release-policy.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-085](requirements/FR-085.md)
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/work/\[id\]/route.js](../../../apps/server/src/app/api/work/%5Bid%5D/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/work/route.js](../../../apps/server/src/app/api/work/route.js) — `implements` (`annotation`)
 - [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
+- [apps/server/src/modules/agent/line-project-work-tools.js](../../../apps/server/src/modules/agent/line-project-work-tools.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/pipeline-state.js](../../../apps/server/src/modules/project-manager/application/pipeline-state.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/work-release-policy.js](../../../apps/server/src/modules/project-manager/application/work-release-policy.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/work-service.js](../../../apps/server/src/modules/project-manager/application/work-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/StatusSelect.jsx](../../../apps/server/src/modules/project-manager/components/StatusSelect.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/WorkpackageModal.jsx](../../../apps/server/src/modules/project-manager/components/WorkpackageModal.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx](../../../apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/views/KanbanBoard.jsx](../../../apps/server/src/modules/project-manager/views/KanbanBoard.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx](../../../apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/pipeline-release-holds.spec.js](../../../apps/server/tests/e2e/pipeline-release-holds.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/conversation-runtime-work-tool-port.test.js](../../../apps/server/tests/integration/conversation-runtime-work-tool-port.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr072-work-service-authorization.test.js](../../../apps/server/tests/integration/fr072-work-service-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/line-project-work-tools.test.js](../../../apps/server/tests/integration/line-project-work-tools.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/project-core.test.js](../../../apps/server/tests/integration/project-core.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/work-listing-scope.test.js](../../../apps/server/tests/integration/work-listing-scope.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/work-release-gates.test.js](../../../apps/server/tests/integration/work-release-gates.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/postgres/work-release-races.test.js](../../../apps/server/tests/postgres/work-release-races.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/global-view-drilldown.test.js](../../../apps/server/tests/unit/global-view-drilldown.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/work-list-business-scope.test.js](../../../apps/server/tests/unit/work-list-business-scope.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/work-release-policy.test.js](../../../apps/server/tests/unit/work-release-policy.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/work-surface-scope-inventory.test.js](../../../apps/server/tests/unit/work-surface-scope-inventory.test.js) — `verifies` (`transitive`)
 
 ## Limits
 

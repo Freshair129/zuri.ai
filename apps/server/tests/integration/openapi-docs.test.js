@@ -356,7 +356,8 @@ describe('OpenAPI document', () => {
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
       // FR-235 adds owner-only product disclosure GET/POST on one path.
       pathCount: 357,
-      operationCount: 470,
+      // FR-085 adds release GET on existing /api/work/{id}; no new path.
+      operationCount: 471,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

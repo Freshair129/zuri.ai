@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { createHash, randomUUID } from 'node:crypto'
 import { execFile } from 'node:child_process'
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
@@ -38,6 +39,7 @@ import {
 // @tested tests/integration/project-feature-read-routes.test.js
 
 const fixture = {
+  ownerPeople: [],
   portfolios: [],
   tenants: [],
   businesses: [],
@@ -106,8 +108,9 @@ beforeAll(async () => {
   })
   fixture.workspaces.push(workspaceA.id, workspaceB.id)
 
-  viewerA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] })
-  viewerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
+  viewerA = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }))
+  viewerB = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] }))
+  fixture.ownerPeople.push(viewerA.principal.id, viewerB.principal.id)
   sharedReader = ownsElsewhere({ owns: businessB.id, sees: businessA.id })
 
   projectA = await createProject({
@@ -239,6 +242,8 @@ afterAll(async () => {
   if (fixture.workspaces.length) await prisma.workspace.deleteMany({ where: { id: { in: fixture.workspaces } } })
   // FR-286 default Spaces remain subject to FR-192 Restrict.
   if (fixture.businesses.length) await prisma.workspace.deleteMany({ where: { businessId: { in: fixture.businesses }, provisioningKey: 'STANDARD_DEFAULT' } })
+  if (fixture.ownerPeople.length) await prisma.membership.deleteMany({where:{personId:{in:fixture.ownerPeople}}})
+  if (fixture.ownerPeople.length) await prisma.person.deleteMany({where:{id:{in:fixture.ownerPeople}}})
   if (fixture.businesses.length) await prisma.business.deleteMany({ where: { id: { in: fixture.businesses } } })
   if (fixture.tenants.length) await prisma.tenant.deleteMany({ where: { id: { in: fixture.tenants } } })
   if (fixture.portfolios.length) await prisma.portfolio.deleteMany({ where: { id: { in: fixture.portfolios } } })

@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-086 — the Projects Dashboard composes one authorized read model over
 // real data: the band sums, the scope refuses rather than filters, progress is
 // read-only, and the query count does not grow with the number of Projects.
@@ -59,8 +60,8 @@ describe('FR-086 Projects Dashboard', () => {
     workspaceA2 = await createWorkspace({ name: `Dash Space A2 ${suffix}`, scopeType: 'BUSINESS', businessId: businessA.id, code: `WS-DASH-A2-${suffix}` })
     const workspaceB = await createWorkspace({ name: `Dash Space B ${suffix}`, scopeType: 'BUSINESS', businessId: businessB.id, code: `WS-DASH-B-${suffix}` })
 
-    viewerA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] })
-    viewerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
+    viewerA = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }))
+    viewerB = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] }))
 
     // Three Projects in Business A, one in Business B. Statuses chosen so the
     // band cannot be right by accident: two of the five values are used, and

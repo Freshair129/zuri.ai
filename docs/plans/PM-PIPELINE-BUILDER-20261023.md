@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.6"
+version: "0.1.8"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -22,7 +22,7 @@ relations:
 
 **Goal:** After exact contract adoption, join Structure Plan, Dependency Map and Board through persisted handoff obligations and accessible editing.
 
-**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize the shared foundation. C1 is merged; C2 is qualified in open PR740; the owner selected C3. C4 remains a later increment.
+**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize the shared foundation. C1–C3 are merged; the owner selected C4 on 2026-10-24. Production remains excluded.
 
 **Tech Stack:** Existing React components, Zod/JSON Schema, PM import/services, Prisma adapters, Vitest and Playwright; no drag library or graph service is selected.
 
@@ -361,12 +361,16 @@ descendants/references atomically under expected hashes.
 ## Task C4: Server-enforced release holds and Board explanation (FR-085)
 
 **Files:** create `application/work-release-policy.js`; modify `application/work-service.js`,
-`application/dependency-service.js`, `views/KanbanBoard.jsx`, the actual work-status
+`application/pipeline-state.js` (existing release predicate/index), `views/KanbanBoard.jsx`, the actual work-status
 API/modal paths (`src/app/api/work/[id]/route.js`,
 `components/WorkpackageModal.jsx`, `components/StatusSelect.jsx`),
 `src/modules/agent/line-project-work-tools.js`, `import/plan-import-service.js`
 and all additional writers found by the census that can perform the adopted protected
-status transitions. Create `tests/unit/work-release-policy.test.js`,
+status transitions. Add `components/WorkReleaseNotice.jsx`; modify the actual
+`views/universal/AllWorkView.jsx` listing consumer and `api-docs/openapi.js`.
+Existing import/delta/Bundle writers already use the same predicate; preserve
+their guards rather than adding another calculator. Retained WorkToolPort and
+Project-core success fixtures now bind their actual persisted owner identity. Create `tests/unit/work-release-policy.test.js`,
 `tests/integration/work-release-gates.test.js`,
 `tests/postgres/work-release-races.test.js` and `tests/e2e/pipeline-release-holds.spec.js`.
 
@@ -376,9 +380,9 @@ writers. `updateItem(id,patch,{viewer,db,expectedVersion})` retains its public
 signature and consumes the policy before a protected transition. Direct HTTP,
 registered tools and import cannot bypass the same check.
 
-- [ ] Write failing truth-table tests for every adopted endpoint/type/status combination, manual and Gate acceptance, missing evidence, undeclared legacy rows and foreign-scope redaction. Include creation/import with an initially protected status, not only PATCH transitions. Add a two-client test that races release against acceptance/contract changes; one consistent transaction outcome must win.
-- [ ] Enumerate all actual status writers before editing, including raw ORM calls in import/tool services. Route protected transitions through the owning policy/transaction without adding a second progress calculator. Render held state and authorized predecessor links before the user attempts a move; preserve the `StatusSelect` equivalent.
-- [ ] Run `npm --prefix apps/server test -- tests/unit/work-release-policy.test.js tests/integration/work-release-gates.test.js tests/integration/line-project-work-tools.test.js tests/integration/plan-import.test.js`, `npm --prefix apps/server run test:postgres -- tests/postgres/work-release-races.test.js`, and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-release-holds.spec.js`. Add any further consumer regression files discovered by the writer census, then run build/governance and required shared consumers.
+- [x] Write failing truth-table tests for every adopted endpoint/type/status combination, manual and Gate acceptance, missing evidence, undeclared legacy rows and foreign-scope redaction. Include creation/import with an initially protected status, not only PATCH transitions. Add a two-client test that races release against acceptance/contract changes; one consistent transaction outcome must win.
+- [x] Enumerate all actual status writers before editing, including raw ORM calls in import/tool services. Route protected transitions through the owning policy/transaction without adding a second progress calculator. Render held state and authorized predecessor links before the user attempts a move; preserve the `StatusSelect` equivalent.
+- [x] Run `npm --prefix apps/server test -- tests/unit/work-release-policy.test.js tests/integration/work-release-gates.test.js tests/integration/line-project-work-tools.test.js tests/integration/plan-import.test.js`, `npm --prefix apps/server run test:postgres -- tests/postgres/work-release-races.test.js`, and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-release-holds.spec.js`. Add any further consumer regression files discovered by the writer census, then run build/governance and required shared consumers.
 - [ ] Obtain independent whole-track review, current schema/recovery proof and exact-head hosted checks. Commit `feat(pm): enforce handoff release holds`. Pass the selected artifact to B4; do not mark deployment from local completion.
 
 ## Version history
@@ -547,3 +551,164 @@ C3 will target the C2 branch in a stacked PR while PR740 remains unmerged.
 Its branch also contains the already-merged PR741 composition from main; those
 six LINE files are upstream context, not new C3 implementation. No merge,
 C4, production, migration or maximum-size runtime-capacity claim is selected.
+
+## C4 source qualification (2026-10-24)
+
+The owner selected C4 after PR740 merged as `408f4156` and PR742 as
+`c7ca37e723317b67c74fa0954c1a404432ac5719`; both exact post-merge CI gates passed.
+C4 starts from that current main. This paragraph supersedes earlier increment
+selection notes without rewriting their historical evidence.
+
+Before implementation, source reconciliation confirms canonical ZAI:FR-085,
+BR-017, SDD-046, NFR-008 and adopted C0 v0.1.5 section5: typed ordering and
+aggregate expansion, protected status entry including create/import, no retroactive
+legacy-null holds, unchanged historical statuses after evidence changes, redacted
+foreign predecessors, sorted/max100 four-field DTO. No canonical behavior change,
+new status, migration or progress calculator is selected.
+
+Writer census: `work-service` create/update owns HTTP, modal/StatusSelect,
+MCP `work_status_update` and confirmed LINE tools. These already use the global
+pipeline transaction but omit the release predicate. Full Plan1.0–1.2 checks
+prospective protected creation/status/membership; ProjectDelta1.3 compiler covers
+create/move/undo; Bundle adapters delegate to these writers. Gate CRUD, dependency
+contract changes and hierarchy writers share the graph serializer. Recovery
+restores an approved snapshot, not a new status transition, and retains contracts.
+No additional direct WorkItem status writer was found in application source.
+
+Implementation will reuse `pipelineReleaseState` and the existing scoped snapshot/
+evidence readers, adding a policy facade for authorized release reads and CRUD
+prospective transition guards. Board uses opt-in release projections on the
+existing work listing; the existing work-item route adds an authorized release
+GET for modal/StatusSelect. Current route authorization remains authoritative;
+no read grants write authority. UI shows held/restricted/unavailable states with
+safe links before a move; StatusSelect remains keyboard/single-pointer capable.
+Protected writes are always rechecked under the shared graph lock. Existing
+import compiler and full-import predicates remain the same owning rule.
+
+Planned proof: pure type/status truth table and all six aggregate endpoints;
+SQLite actual CRUD/create/import/API/MCP/LINE consumers, missing/manual/Gate/
+legacy/foreign evidence, rollback/no status rewrite; isolated PostgreSQL runtime
+role with observed distinct-session release/evidence contention, recovery parity;
+owned isolated browser Board/card/modal/StatusSelect including restricted state,
+keyboard and narrow viewport; scoped regressions, build, governance and independent
+whole-track review. Exact-head hosted CI is a PR gate; no merge or production
+operation is authorized by this C4 implementation selection.
+
+## C4 local qualification and review corrections (2026-10-24)
+
+This records candidate implementation/test evidence against main `c7ca37e7`,
+not canonical lifecycle promotion, merge, selected-environment acceptance or
+production deployment. The final PR binds its immutable head and hosted results.
+
+- WorkItem CRUD uses the existing global graph transaction and shared release
+  predicate. Protected create/status/membership changes re-resolve current Person,
+  Membership and governing authority inside the lock; stale-owner refusal rolls
+  back fields/version/audit. Same-status edits and safe pause/cancel phases retain
+  their existing route ownership checks. No route read grants write authority.
+- Actual census found a foreign/deleted parent gap in the retained WorkItem PATCH.
+  A failing protected-parent test reproduced it; the writer now requires an active
+  container in the same Workstream. Existing C3 move/compiler rules stay intact.
+- Authorized GET on the existing work-item route returns the exact four-field
+  release DTO. Optional listing `release=1` feeds Board and All Work. Targets are
+  authorized before evidence; unreadable predecessors redact all IDs/labels/counts.
+  No new model, schema migration, status, contract variant or progress calculator.
+- Read batches authorize unique Projects, read the global state once, hydrate
+  readable Gates, and read tenant-scoped evidence. A shared structural index expands
+  each successor once; the existing predicate still owns interpretation and phase
+  decisions. Evidence lookups are cached only within this read snapshot. These are
+  query-count/parity proofs, not maximum-capacity or production-latency acceptance.
+- Board cards link readable predecessors before editing. Modal and StatusSelect
+  retain keyboard/single-pointer paths, explain held/restricted/unavailable states
+  and reload. Protected modal Save waits for release loading/errors; the server
+  always checks the actual requested phase (finish-only does not prevent start).
+- LINE classifies RELEASE_HELD and opaque scope as domain refusals; a denied
+  confirmation rolls back its unique receipt. Its human reply reveals no private
+  target; infrastructure failures retain their existing retry semantics.
+
+| Check | Observed result and boundary |
+| --- | --- |
+| SQLite final composed regression | 20 files / 232 tests PASS, zero-test guard: CRUD/API/MCP/LINE, full import/delta/Bundle, legacy recovery, current authorization, work/read surfaces, C1–C3 regressions and actual WorkToolPort |
+| Pure matrix | Six successor types × seven dependency types × six Gate/legacy states × three protected phases; indexed/non-indexed DTO equality, same-status/creation/membership entry, blocker sort/max100/restricted redaction |
+| PostgreSQL final backend | 5 suites / 46 tests PASS: six C4 cases on real non-owner/non-superuser/non-bypass runtime roles, both observed independent-session Gate/release lock orders, manual-contract race, stale-owner refusal, audit rollback, C1 process recovery and C2/C3 regressions, plus WorkToolPort on actual PostgreSQL |
+| Browser final | 7/7 PASS in13.4s, one attempt, retries0 and fail-on-flaky/zero-test guards; owned loopback3131 and disposable seeded SQLite, owned server stopped |
+| Browser behaviors | Pre-attempt links/keyboard modal, protected refusal and safe pause, finish-only start, stale Gate refusal/reload/finish, legacy keyboard StatusSelect at390px/reduced-motion, actual restricted-scope DTO with no private metadata, stale unheld-row refresh and delayed release-read Save guard |
+| Build | Final Next production build PASS, including its validity phase and94 static pages; no standalone configured lint/typecheck claim |
+| Governance and hosted CI | Final composed governance and exact-head hosted CI are pending at this evidence snapshot; their executed results must be recorded in the PR. An earlier govern check caught graph staleness while review annotations were changing and is not counted as PASS |
+
+GPT-6 Luna Max independently reviewed application/test/plan tree
+`fc623ec09d64809a13a938e68174fbd91102d746`. Two Important findings were a stale
+All Work row after a denied PATCH, and repeated whole-graph/per-item projection
+work. The valid browser regression observed the missing predecessor link before
+fixing refresh, and passes after it. Query-count regression observed two graph
+reads for two Projects and passes at one; indexed and ordinary predicates produce
+the same truth-table DTOs without rescanning graph values per item. The adjacent
+modal timing test observed enabled Save during a delayed read and passes disabled.
+The stricter C0 fresh-authority interpretation was applied to protected CRUD;
+stale owner writes failed the regression before correction and now refuse/rollback.
+The reviewer did not run tests; the integrator ran these executed proofs.
+
+Earlier failed runs remain diagnostics. Initial CRUD tests showed forbidden
+transitions/creation were accepted, then passed after shared policy wiring.
+One full-import fixture initially omitted required fields, and its audit assertion
+wrongly expected no failed execution trace: legacy full import deliberately records
+that trace after rollback; success receipts/import audits and domain rows stay
+unchanged. Initial browser fixtures inherited seed Project holds and an ambiguous
+Status label selector; these are not C4 acceptance. Final fixtures use their own
+Project and declared Gate rows for arrangement, then drive actual status/read APIs
+and browser controls. An incidental stale edge-import preview during a concurrent
+progress-cache refresh was a correct C0 refusal, not bypassed in product code;
+C4 fixtures no longer test unrelated C1 preview timing. Failed/aborted runs and
+unsuccessful Windows grep selection are not green evidence or hidden retries.
+
+0.1.6 → 0.1.7 (2026-10-24): reconciles C2/C3 merge state, selects C4 under the
+unchanged adopted contract, records writer/authority/read-projection decisions,
+actual local qualification and independent review corrections. C4 PR/hosted and
+B4 selected-artifact/environment release gates remain distinct; production excluded.
+
+### C4 follow-up consumer and wire compatibility qualification
+
+Before closing draft PR744, the additional census of all remaining direct
+WorkService consumers found five synthetic successful-owner fixtures rejected
+by the new current-authority guard. They now use the existing persisted
+Person/Membership fixture helper. Inventory identifies its specific member by
+ID instead of assuming first-row order; the read-route fixture removes only its
+owned people/memberships. Unauthorized assertions were retained. That final
+nine-file consumer run passed65 tests; intermediate setup/assertion/cleanup
+failures are retained as diagnostics, not passes.
+
+The scoped WorkToolPort audit also caught an actual adapter compatibility bug:
+held rejection was classified as domain-level but emitted a machine code outside
+the adopted port enum. An actual Core-backed confirmation and the formatter
+regression both failed before correction. The reply now uses the existing
+`WORK_ACTION_UNAVAILABLE` code with controlled held-specific human text; no
+schema, enum, contract version or transport was extended. The WorkItem remains
+PLANNED and its unique executed audit receipt is absent on refusal.
+
+After that correction, SQLite follow-up11files/107tests and PostgreSQL5suites/
+47tests passed, including the actual held Core/Runtime port path on both engines,
+C4 runtime-role races/authority/rollback and retained C1 process recovery/C2/C3.
+These supplement, rather than relabel, the earlier SQLite232 and browser7 proofs.
+The browser and PM release-policy/UI sources are unchanged by this follow-up;
+final artifact build/governance and exact-head hosted results remain PR gates.
+
+GPT-6 Luna Max independently signed source tree `49da898d` (eight-file delta
+from initial head `8eff69bb`): five fixture migrations, two affected test files,
+and only the LINE formatter's wire-compatibility correction in application code.
+It confirmed no new C4/port blocker or weakened assertion; the reviewer did not
+run tests. Initial `8eff69bb` hosted results cannot qualify the follow-up head.
+
+0.1.7 → 0.1.8 (2026-10-24): records additional writer-consumer fixture qualification
+and the reproduced/corrected existing-port refusal mapping. Product contract,
+canonical lifecycle and production boundary are unchanged; final PR head and
+its hosted acceptance will be bound in PR744 after the actual follow-up checks complete.
+
+The initial hosted run also exposed shared-test-state pollution: the C4 missing-
+audit and malformed-contract fixtures intentionally corrupted evidence but did
+not restore/remove their owned corruption, so ordinary backup previews later
+refused the snapshot. A new end-of-suite snapshot-validity regression failed
+with `DEPENDENCY_HANDOFF_INVALID` before cleanup. Exact audit-row restoration
+and removal of only the malformed fixture edge fixed it without loosening backup
+validation. The composed nine-file run passed94 tests, including all12 C4 release
+cases, actual Core/LINE consumers, the five migrated readers and all10 standard
+Business backup cases. The initial hosted failures are retained; only fresh CI
+on the follow-up head can close the hosted gate.

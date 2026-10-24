@@ -11,7 +11,7 @@ import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-id
 import { resolveLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
-import { searchLineProjectWork, proposeLineWork, confirmLineWork, handleLineProjectWorkCommand } from '@/modules/agent/line-project-work-tools'
+import { searchLineProjectWork, proposeLineWork, confirmLineWork, handleLineProjectWorkCommand, isLineWorkDomainError, lineWorkErrorReply } from '@/modules/agent/line-project-work-tools'
 
 // @req FR-026, FR-072, FR-150 — real isolated SQLite confirms permission, confirmation,
 // stale version, channel binding, replay and canonical writer transaction behavior.
@@ -268,5 +268,32 @@ it('operational Work search shares the canonical active-workstream population', 
   expect(after.items).toEqual([])
  } finally {
   await prisma.workstream.update({ where: { id: stream.id }, data: { status: stream.status } })
+ }
+})
+
+// @req FR-085 — confirmation and receipt cannot bypass a declared handoff hold.
+it('held LINE status confirmation rolls back its receipt and canonical mutation',async()=>{
+ const project=await prisma.project.findUnique({where:{id:stream.projectId}})
+ const item=await prisma.workItem.create({data:{code:randomUUID(),title:'C4 LINE held',subtype:'TASK',workstreamId:stream.id}})
+ const predecessor=await prisma.workItem.create({data:{code:randomUUID(),title:'C4 LINE predecessor',subtype:'TASK',workstreamId:stream.id}})
+ const gate=await prisma.gate.create({data:{code:randomUUID(),title:'C4 LINE acceptance',projectId:project.id,workstreamId:stream.id,status:'OPEN'}})
+ const edge=await prisma.dependency.create({data:{sourceType:'WORK_ITEM',sourceId:predecessor.id,targetType:'WORK_ITEM',targetId:item.id,dependencyType:'BLOCKS',contractJson:JSON.stringify({version:1,deliverable:'Drawing',acceptance:{kind:'GATE',gateId:gate.id}})}})
+ try {
+  const request=await job('/work-update')
+  const preview=await proposeLineWork(request.id,{action:'update_work',targetId:item.id,args:{status:'DONE'}},{now:at})
+  const confirmation=await job(`ยืนยันงาน ${preview.proposalId}`)
+  await expect(confirmLineWork(confirmation.id,preview.proposalId,{now:at})).rejects.toMatchObject({code:'RELEASE_HELD'})
+  expect((await prisma.workItem.findUnique({where:{id:item.id}})).status).toBe('PLANNED')
+  expect(await prisma.auditEvent.findUnique({where:{id:`line-work-executed:${preview.proposalId}`}})).toBeNull()
+ } finally {
+  await prisma.dependency.delete({where:{id:edge.id}});await prisma.gate.delete({where:{id:gate.id}});await prisma.workItem.deleteMany({where:{id:{in:[item.id,predecessor.id]}}})
+ }
+})
+
+it('recognizes hold and opaque scope as domain refusals in every LINE executor',()=>{
+ for(const code of ['RELEASE_HELD','SCOPE_UNAVAILABLE']) {
+  const error=Object.assign(new Error(code),{code,status:code==='RELEASE_HELD'?409:404})
+  expect(isLineWorkDomainError(error)).toBe(true)
+  const reply=lineWorkErrorReply(error);expect(reply.text).toBeTruthy();expect(reply.text).not.toContain(code);expect(reply.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
  }
 })

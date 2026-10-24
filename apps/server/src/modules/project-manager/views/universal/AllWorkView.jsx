@@ -1,3 +1,5 @@
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
 'use client'
 
 // Universal "All Work" view — neutral vocabulary only (work items, streams,
@@ -102,7 +104,7 @@ export function buildWorkColumns({ projectId, onStatusChanged } = {}) {
       key: 'status',
       label: 'Status',
       render: (r) => (
-        <StatusSelect entity="work" id={r.id} value={r.status} statuses={WORK_STATUSES} onChanged={onStatusChanged} />
+        <StatusSelect entity="work" id={r.id} value={r.status} statuses={WORK_STATUSES} initialRelease={r.release} onChanged={onStatusChanged} />
       ),
     },
   ]
@@ -122,7 +124,7 @@ export default function AllWorkView({ projectId }) {
   const [planModalOpen, setPlanModalOpen] = useState(false)
   const [uploadModalOpen, setUploadModalOpen] = useState(false)
 
-  const params = new URLSearchParams()
+  const params = new URLSearchParams({release: '1'})
   if (projectId) params.set('projectId', projectId)
   if (selectedBusinessId) params.set('businessId', selectedBusinessId)
   if (status) params.set('status', status)

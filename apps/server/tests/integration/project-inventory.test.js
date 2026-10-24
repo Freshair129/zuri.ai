@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 // @req FR-077, FR-135 — Project Inventory composes an authorized Project read model without cross-scope leakage.
 // @spec SDD-045, ADR-034, ADR-012, ADR-014, ADR-016, ADR-017
 // @tested tests/integration/project-inventory.test.js
@@ -22,6 +23,7 @@ let projectA
 let projectB
 let sharedProject
 let itemA
+let inventoryPersonId
 let inventoryAssetCode
 let viewerA
 let viewerB
@@ -53,8 +55,8 @@ describe('FR-077 Project Inventory', () => {
       code: `WS-INV-TENANT-${suffix}`,
     })
 
-    viewerA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] })
-    viewerB = makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] })
+    viewerA = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }))
+    viewerB = await persistImportViewer(makeViewer({ visibleBusinessIds: [businessB.id], ownedBusinessIds: [businessB.id] }))
     const memberA = makeViewer({ visibleBusinessIds: [businessA.id], ownedBusinessIds: [] })
 
     projectA = await createProject({ workspaceId: workspaceA.id, name: 'Inventory Project A', code: `PRJ-INV-A-${suffix}` }, { viewer: viewerA })
@@ -197,6 +199,7 @@ describe('FR-077 Project Inventory', () => {
       },
     })
     const person = await prisma.person.create({ data: { code: `PER-INV-${suffix}`, displayName: 'Inventory Person', email: 'inventory@example.test' } })
+    inventoryPersonId = person.id
     await prisma.membership.create({ data: { personId: person.id, tenantId: tenantA.id, businessId: businessA.id, role: 'MEMBER' } })
     await prisma.dependency.create({
       data: { sourceType: 'WORK_ITEM', sourceId: itemA.id, targetType: 'WORKSTREAM', targetId: workstreamA.id, dependencyType: 'BLOCKS' },
@@ -234,7 +237,7 @@ describe('FR-077 Project Inventory', () => {
       name: 'Project Inventory laptop',
     }))
     expect(result.sections.repositories.items[0].repo.fullName).toContain('org/inventory-')
-    expect(result.sections.team.items[0].person.displayName).toBe('Inventory Person')
+    expect(result.sections.team.items.find(row => row.person.id === inventoryPersonId)?.person.displayName).toBe('Inventory Person')
     expect(result.sections.activity.items[0]).not.toHaveProperty('payload')
     expect(result.sections.work.progress).toBeUndefined()
     expect(result.sections.progress.rollup.percent).toBeGreaterThan(0)

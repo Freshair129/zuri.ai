@@ -1,12 +1,20 @@
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
 'use client'
 
 import { useState } from 'react'
 import { api } from './useApi'
+import {PIPELINE_PROTECTED_WORK_STATUSES} from '@/lib/validation/enums'
+import WorkReleaseNotice, {useWorkRelease,workReleaseError} from './WorkReleaseNotice'
 
 /**
  * Inline status dropdown that PATCHes an entity endpoint on change.
  */
-export default function StatusSelect({ entity, id, value, statuses, onChanged }) {
+export default function StatusSelect({ entity, id, value, statuses, onChanged, initialRelease }) {
+  const [refreshRelease,setRefreshRelease] = useState(false)
+  const releaseState = useWorkRelease(entity === 'work' && (initialRelease === undefined || refreshRelease) ? id : null)
+  const noticeState = initialRelease === undefined || refreshRelease ? releaseState : {release:initialRelease}
+  const reloadRelease = () => {setRefreshRelease(true);releaseState.reload()}
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
 
@@ -31,20 +39,23 @@ export default function StatusSelect({ entity, id, value, statuses, onChanged })
           setError(null)
           try {
             await api(endpoint, { method: 'PATCH', body: { status: e.target.value } })
+            reloadRelease()
             onChanged?.()
           } catch (err) {
-            setError(err.message)
+            setError(workReleaseError(err))
+            reloadRelease()
           } finally {
             setBusy(false)
           }
         }}
       >
         {statuses.map((s) => (
-          <option key={s} value={s}>
+          <option key={s} value={s} disabled={entity === 'work' && s !== value && PIPELINE_PROTECTED_WORK_STATUSES.includes(s) && !!(noticeState.loading || noticeState.error)}>
             {s.replace(/_/g, ' ')}
           </option>
         ))}
       </select>
+      {entity === 'work' && <WorkReleaseNotice {...noticeState} onReload={reloadRelease} />}
       {error && (
         <span className="text-[9px]" style={{ color: 'var(--danger)' }} role="alert">
           {error}

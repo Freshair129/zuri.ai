@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.10"
+version: "0.1.11"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -78,7 +78,7 @@ from Track C because the selected FEAT's source already names them.
 |---|---|---|---|
 | [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
 | [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 accepted at 56b6ed97; owner authorized B2 isolated role/service/recovery qualification. B3 local adapter/browser qualification is recorded below; external/live steps need the selected environment's authority |
-| [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | C0 adopted at `1b76049a`; C1 merged as `cb0bfbbc` (PR737). C2 qualified in open PR740; C3 selected; C4 remains unselected |
+| [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | C0 adopted at `1b76049a`; C1 merged as `cb0bfbbc` (PR737). C2 merged PR740 as `408f4156`; C3 merged PR742 as `c7ca37e7`, exact post-merge CI passed. C4 selected; production excluded |
 
 ```mermaid
 flowchart LR
@@ -158,13 +158,13 @@ row has a named owning task and test cases in that subplan.
 C0 v0.1.5 D1–D6 and its canonical adoption migration are accepted. C1 merged
 through PR737 as `cb0bfbbcf42140bdd7295c8ebe95461e5d988a4b`; exact-commit
 post-merge governance, Edge/Desktop and Docker build workflows succeeded.
-The owner selected C2 accessible edge creation, qualified through local checks,
-independent review and exact-head hosted CI at `fc2ec33b` in open PR740.
-The owner then selected C3 source qualification and implementation rather than
-merging PR740. C3 composes current main `08ecc44e` with that C2 source on its own
-branch. The [C subplan](PM-PIPELINE-BUILDER-20261023.md#c3-source-qualification-2026-10-24)
-records the pre-code reconciliation and scoped execution. C4, merge and production
-remain excluded. This is not complete Pipeline Builder or release acceptance.
+C2 merged through PR740 as `408f4156`; C3 merged through PR742 as
+`c7ca37e723317b67c74fa0954c1a404432ac5719`, with successful exact-commit
+post-merge governance, Edge/Desktop and Docker build-only CI. The owner selected
+C4 server release holds and Board explanation. The [C subplan](PM-PIPELINE-BUILDER-20261023.md#c4-source-qualification-2026-10-24)
+records pre-code source/contract and writer reconciliation. C4 local implementation/tests and independent review corrections are recorded
+in the subplan; final composed governance/PR/hosted qualification remains a gate; production remains excluded. This does not imply
+complete Pipeline Builder acceptance or deployment.
 
 ### Earlier current-state note — 2026-10-23
 
@@ -239,3 +239,5 @@ increment notes remain historical; no canonical requirement lifecycle changes.
 
 0.1.9 → 0.1.10 (2026-10-24): records C2 qualification in open PR740 and the
 owner's separate selection of C3. No merge, C4 or production is selected.
+
+0.1.10 → 0.1.11 (2026-10-24): reconciles C2/C3 merge evidence and selects C4 source qualification and implementation under unchanged adopted C0 contract; production remains excluded.
