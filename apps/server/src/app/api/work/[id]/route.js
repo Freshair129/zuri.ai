@@ -19,3 +19,12 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   return handle(async () => deleteItem(params.id, { viewer: await resolveRequestViewer(request) }))
 }
+
+// @req FR-085 — release DTO is scoped before evidence and exposes no foreign metadata.
+// @tested tests/integration/work-release-gates.test.js
+export async function GET(request,{params}) {
+ return handle(async()=>{
+  const {getWorkItemReleaseState}=await import('@/modules/project-manager/application/work-release-policy')
+  return getWorkItemReleaseState(params.id,{viewer:await resolveRequestViewer(request)})
+ })
+}

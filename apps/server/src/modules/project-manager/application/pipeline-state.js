@@ -206,19 +206,43 @@ export async function validatePipelineGraph(before, after, changed) {
   }
 }
 
-export async function pipelineReleaseState(state, itemId, { tx, allowedProjectIds, audits = [], proposedContracts = new Map(), protectedStatus } = {}) {
+// @req FR-085 — bulk reads expand each successor once and reuse the same predicate.
+// @tested tests/unit/work-release-policy.test.js
+export function buildPipelineReleaseIndex(state,audits=[],itemIds=null) {
+  const index=new Map(),wanted=itemIds && new Set(itemIds),locators=new Map()
+  for(const audit of [...audits].sort((a,b)=>new Date(b.occurredAt)-new Date(a.occurredAt))) {
+    let scopes=[];try{scopes=JSON.parse(audit.payloadJson).releaseScopes||[]}catch{}
+    for(const scope of scopes)if(!locators.has(scope.dependencyId))locators.set(scope.dependencyId,scope)
+  }
+  const add=(id,entry)=>{if(wanted && !wanted.has(id))return;if(!index.has(id))index.set(id,[]);index.get(id).push(entry)}
+  for(const entry of state.values()) {
+    if(entry.type!=='DEPENDENCY' || entry.row.contractJson===null)continue
+    const direction=pipelineOrdering(entry.row);if(!direction)continue
+    try {for(const row of pipelineItems(state,direction.successor))add(row.id,entry)} catch {
+      const ids=new Set(locators.get(entry.id)?.successorItemIds||[])
+      if(direction.successor.type==='WORK_ITEM')ids.add(direction.successor.id)
+      for(const id of ids)add(id,{...entry,successorUnavailable:true})
+    }
+  }
+  return index
+}
+
+export async function pipelineReleaseState(state, itemId, { tx, allowedProjectIds, audits = [], proposedContracts = new Map(), protectedStatus, releaseIndex = null } = {}) {
   const blockers = []
-  for (const entry of state.values()) {
+  for (const entry of releaseIndex ? releaseIndex.get(itemId) || [] : state.values()) {
     if (entry.type !== 'DEPENDENCY') continue
     const edge = entry.row, direction = pipelineOrdering(edge)
     if (!direction || edge.contractJson === null || (protectedStatus && protectedStatus !== 'DONE' && edge.dependencyType === 'FINISH_BEFORE')) continue
+    if(entry.successorUnavailable)return {held:true,blockers:[],truncated:false,restricted:true}
     let successors
+    if(!releaseIndex) {
     try { successors = pipelineItems(state, direction.successor) } catch {
       const locator = [...audits].sort((a, b) => new Date(b.occurredAt) - new Date(a.occurredAt)).flatMap(audit => { try { return JSON.parse(audit.payloadJson).releaseScopes || [] } catch { return [] } }).find(scope => scope.dependencyId === edge.id)
       if (locator?.successorItemIds.includes(itemId) || (direction.successor.type === 'WORK_ITEM' && direction.successor.id === itemId)) return { held: true, blockers: [], truncated: false, restricted: true }
       continue
     }
     if (!successors.some(row => row.id === itemId)) continue
+    }
     let predecessor
     try {
       if (!allowedProjectIds.includes(pipelineProjectId(state, direction.predecessor))) return { held: true, blockers: [], truncated: false, restricted: true }

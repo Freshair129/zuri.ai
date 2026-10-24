@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import { makeViewer } from '../factories/viewer'
@@ -40,7 +41,7 @@ describe('project core', () => {
     const business = await createBusiness({ tenantId: tenant.id, name: 'Core Business', code: 'BUS-CORE' })
     businessId = business.id
     workspace = await createWorkspace({ name: 'Core WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-CORE' })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
     project = await createProject({ workspaceId: workspace.id, name: 'Core Project', code: 'PRJ-CORE' }, { viewer })
   })
 

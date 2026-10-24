@@ -338,7 +338,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // GET renders the consent screen (it redirects there and mints nothing);
   // POST is the consent form's own submission and the only path that mints.
   ['/api/plugin/auth/authorize', ['GET', 'POST']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
-  ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
+  ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
   // @req FR-022, FR-097 — verified channel onboarding and identity link tokens (ADR-045).
   ['/api/identity/link-tokens', ['POST']],
   ['/api/identity/link-tokens/redeem', ['POST']],
@@ -1236,7 +1236,14 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   // Zod superRefine predicates are not represented by zod-to-openapi. Keep
   // their machine-readable forms explicit and exercise both validators with
   // the same pair/discriminator/path cases in openapi-docs.test.js.
+  // @req FR-085 — authorized release DTO; listing projection remains opt-in.
+  document.paths['/api/work/{id}'].get.summary = 'Read authorized WorkItem handoff release state'
+  document.paths['/api/work/{id}'].get.description = 'Authorize the WorkItem first. Return held, blockers, truncated, restricted; unreadable predecessors return held true, blockers empty, truncated false, restricted true. Blockers sorted by dependencyId, max100, safe app-relative predecessor links. Protected PATCH entries recheck under the shared graph lock and refuse held work with409 or redacted unavailable scope with404.'
+  document.paths['/api/work'].get.parameters = [...(document.paths['/api/work'].get.parameters || []), {in:'query',name:'release',schema:{type:'string',enum:['1']},description:'Opt in to an authorized per-item release DTO on every listed item; default listing stays compatible.'}]
   const schemas = document.components.schemas
+  schemas.WorkReleaseState = {type:'object',additionalProperties:false,required:['held','blockers','truncated','restricted'],properties:{held:{type:'boolean'},truncated:{type:'boolean'},restricted:{type:'boolean'},blockers:{type:'array',maxItems:100,items:{type:'object',additionalProperties:false,required:['dependencyId','predecessor','state','reason'],properties:{dependencyId:{type:'string'},predecessor:{type:'object',additionalProperties:false,required:['type','id','label','href'],properties:{type:{type:'string'},id:{type:'string'},label:{type:'string'},href:{type:'string',pattern:'^/projects/[^/]+/board$'}}},state:{type:'string',enum:['DECLARED','INVALID']},reason:{type:'string',enum:['UNSATISFIED','EVIDENCE_UNAVAILABLE']}}}}}}
+  document.paths['/api/work/{id}'].get.responses['200'] = {description:'Authorized release state',content:{'application/json':{schema:{$ref:'#/components/schemas/WorkReleaseState'}}}}
+
   const provenancePair = [
     {
       required: ['canonicalFeatureKey', 'governanceSnapshotId'],

@@ -42,7 +42,7 @@
     "requirementCount": 279,
     "verifiedRequirementCount": 247,
     "progressPercent": 93.8,
-    "gapCount": 76,
+    "gapCount": 78,
     "gaps": [
       {
         "domain": "agent",
@@ -69,6 +69,35 @@
           "apps/server/tests/unit/postgres-business-knowledge.test.js",
           "apps/server/tests/unit/production-migration-reconciliation.test.js",
           "apps/server/tests/unit/supabase-production-isolation.test.js"
+        ]
+      },
+      {
+        "domain": "agent",
+        "id": "REQ-FR-085",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-085 is partial",
+        "evidence": [
+          "apps/server/src/modules/agent/line-project-work-tools.js",
+          "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+          "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+          "apps/server/tests/integration/line-project-work-tools.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+          "apps/server/tests/integration/plan-delta.test.js",
+          "apps/server/tests/integration/project-core.test.js",
+          "apps/server/tests/integration/work-listing-scope.test.js",
+          "apps/server/tests/integration/work-release-gates.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/postgres/work-release-races.test.js",
+          "apps/server/tests/unit/authorization-seam-routes.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/global-view-drilldown.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/work-list-business-scope.test.js",
+          "apps/server/tests/unit/work-release-policy.test.js",
+          "apps/server/tests/unit/work-surface-scope-inventory.test.js"
         ]
       },
       {
@@ -228,7 +257,8 @@
           "apps/server/tests/unit/pipeline-writer-census.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/project-feature-repository.test.js",
-          "apps/server/tests/unit/project-file-service.test.js"
+          "apps/server/tests/unit/project-file-service.test.js",
+          "apps/server/tests/unit/work-release-policy.test.js"
         ]
       },
       {
@@ -1005,7 +1035,47 @@
           "apps/server/tests/unit/pipeline-writer-census.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
           "apps/server/tests/unit/project-feature-repository.test.js",
-          "apps/server/tests/unit/project-file-service.test.js"
+          "apps/server/tests/unit/project-file-service.test.js",
+          "apps/server/tests/unit/work-release-policy.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-085",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-085 is partial",
+        "evidence": [
+          "apps/server/src/app/api/work/[id]/route.js",
+          "apps/server/src/app/api/work/route.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/src/modules/project-manager/application/pipeline-state.js",
+          "apps/server/src/modules/project-manager/application/work-release-policy.js",
+          "apps/server/src/modules/project-manager/application/work-service.js",
+          "apps/server/src/modules/project-manager/components/StatusSelect.jsx",
+          "apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx",
+          "apps/server/src/modules/project-manager/components/WorkpackageModal.jsx",
+          "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
+          "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
+          "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+          "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+          "apps/server/tests/integration/line-project-work-tools.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+          "apps/server/tests/integration/plan-delta.test.js",
+          "apps/server/tests/integration/project-core.test.js",
+          "apps/server/tests/integration/work-listing-scope.test.js",
+          "apps/server/tests/integration/work-release-gates.test.js",
+          "apps/server/tests/integration/xlsx-intake.test.js",
+          "apps/server/tests/postgres/work-release-races.test.js",
+          "apps/server/tests/unit/authorization-seam-routes.test.js",
+          "apps/server/tests/unit/context-composer.test.js",
+          "apps/server/tests/unit/conversation-analysis-contract.test.js",
+          "apps/server/tests/unit/global-view-drilldown.test.js",
+          "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/work-list-business-scope.test.js",
+          "apps/server/tests/unit/work-release-policy.test.js",
+          "apps/server/tests/unit/work-surface-scope-inventory.test.js"
         ]
       },
       {
@@ -1379,7 +1449,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 75
+          "testCount": 77
         },
         {
           "id": "FR-079",
@@ -1396,6 +1466,36 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 27
+        },
+        {
+          "id": "FR-085",
+          "title": "Contract-gated release on the Board",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 19,
+          "evidence": [
+            "apps/server/src/modules/agent/line-project-work-tools.js",
+            "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+            "apps/server/tests/integration/line-project-work-tools.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/integration/work-listing-scope.test.js",
+            "apps/server/tests/integration/work-release-gates.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/postgres/work-release-races.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/global-view-drilldown.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/work-list-business-scope.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js",
+            "apps/server/tests/unit/work-surface-scope-inventory.test.js"
+          ]
         },
         {
           "id": "FR-093",
@@ -1778,6 +1878,34 @@
           ]
         },
         {
+          "id": "REQ-FR-085",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-085 is partial",
+          "evidence": [
+            "apps/server/src/modules/agent/line-project-work-tools.js",
+            "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+            "apps/server/tests/integration/line-project-work-tools.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/integration/work-listing-scope.test.js",
+            "apps/server/tests/integration/work-release-gates.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/postgres/work-release-races.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/global-view-drilldown.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/work-list-business-scope.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js",
+            "apps/server/tests/unit/work-surface-scope-inventory.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-132",
           "severity": "medium",
           "check": "requirements",
@@ -1903,7 +2031,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 36,
+          "testCount": 37,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -1941,7 +2069,8 @@
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
-            "apps/server/tests/unit/project-file-service.test.js"
+            "apps/server/tests/unit/project-file-service.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js"
           ]
         },
         {
@@ -2164,7 +2293,8 @@
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
-            "apps/server/tests/unit/project-file-service.test.js"
+            "apps/server/tests/unit/project-file-service.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js"
           ]
         }
       ],
@@ -2974,7 +3104,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 84
+          "testCount": 86
         },
         {
           "id": "FR-059",
@@ -6274,7 +6404,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 84
+          "testCount": 86
         },
         {
           "id": "FR-075",
@@ -6796,7 +6926,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 17
+          "testCount": 19
         },
         {
           "id": "FR-006",
@@ -6812,7 +6942,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-008",
@@ -7060,7 +7190,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 84
+          "testCount": 86
         },
         {
           "id": "FR-056",
@@ -7124,7 +7254,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 4
         },
         {
           "id": "FR-064",
@@ -7188,7 +7318,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 75
+          "testCount": 77
         },
         {
           "id": "FR-073",
@@ -7308,7 +7438,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 20,
-          "testCount": 36,
+          "testCount": 37,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -7365,7 +7495,48 @@
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
-            "apps/server/tests/unit/project-file-service.test.js"
+            "apps/server/tests/unit/project-file-service.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js"
+          ]
+        },
+        {
+          "id": "FR-085",
+          "title": "Contract-gated release on the Board",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 11,
+          "testCount": 19,
+          "evidence": [
+            "apps/server/src/app/api/work/[id]/route.js",
+            "apps/server/src/app/api/work/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/pipeline-state.js",
+            "apps/server/src/modules/project-manager/application/work-release-policy.js",
+            "apps/server/src/modules/project-manager/application/work-service.js",
+            "apps/server/src/modules/project-manager/components/StatusSelect.jsx",
+            "apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx",
+            "apps/server/src/modules/project-manager/components/WorkpackageModal.jsx",
+            "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
+            "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
+            "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+            "apps/server/tests/integration/line-project-work-tools.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/integration/work-listing-scope.test.js",
+            "apps/server/tests/integration/work-release-gates.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/postgres/work-release-races.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/global-view-drilldown.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/work-list-business-scope.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js",
+            "apps/server/tests/unit/work-surface-scope-inventory.test.js"
           ]
         },
         {
@@ -8614,7 +8785,7 @@
           "details": {
             "mutations": 142,
             "guardedMutations": 141,
-            "reads": 84,
+            "reads": 85,
             "unguardedReads": 11
           }
         },
@@ -8832,7 +9003,46 @@
             "apps/server/tests/unit/pipeline-writer-census.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
             "apps/server/tests/unit/project-feature-repository.test.js",
-            "apps/server/tests/unit/project-file-service.test.js"
+            "apps/server/tests/unit/project-file-service.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-085",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-085 is partial",
+          "evidence": [
+            "apps/server/src/app/api/work/[id]/route.js",
+            "apps/server/src/app/api/work/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/src/modules/project-manager/application/pipeline-state.js",
+            "apps/server/src/modules/project-manager/application/work-release-policy.js",
+            "apps/server/src/modules/project-manager/application/work-service.js",
+            "apps/server/src/modules/project-manager/components/StatusSelect.jsx",
+            "apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx",
+            "apps/server/src/modules/project-manager/components/WorkpackageModal.jsx",
+            "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
+            "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
+            "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+            "apps/server/tests/integration/line-project-work-tools.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/integration/work-listing-scope.test.js",
+            "apps/server/tests/integration/work-release-gates.test.js",
+            "apps/server/tests/integration/xlsx-intake.test.js",
+            "apps/server/tests/postgres/work-release-races.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/context-composer.test.js",
+            "apps/server/tests/unit/conversation-analysis-contract.test.js",
+            "apps/server/tests/unit/global-view-drilldown.test.js",
+            "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/work-list-business-scope.test.js",
+            "apps/server/tests/unit/work-release-policy.test.js",
+            "apps/server/tests/unit/work-surface-scope-inventory.test.js"
           ]
         },
         {
@@ -9832,6 +10042,7 @@
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
+        "agent",
         "asset-management",
         "project-manager"
       ],
@@ -9869,23 +10080,27 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 23,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-085",
           "title": "Contract-gated release on the Board",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 1,
-          "testCount": 5
+          "codeCount": 13,
+          "testCount": 19
         }
       ],
       "evidence": [
         "apps/server/src/app/api/_helpers.js",
         "apps/server/src/app/api/projects/[id]/tree/route.js",
         "apps/server/src/app/api/resolve/route.js",
+        "apps/server/src/app/api/work/[id]/route.js",
+        "apps/server/src/app/api/work/route.js",
         "apps/server/src/lib/validation/enums.js",
+        "apps/server/src/modules/agent/line-project-work-tools.js",
         "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
         "apps/server/src/modules/project-manager/application/dependency-service.js",
         "apps/server/src/modules/project-manager/application/file-asset-service.js",
@@ -9901,8 +10116,13 @@
         "apps/server/src/modules/project-manager/application/project-feature-repository.js",
         "apps/server/src/modules/project-manager/application/project-file-service.js",
         "apps/server/src/modules/project-manager/application/structure-canvas.js",
+        "apps/server/src/modules/project-manager/application/work-release-policy.js",
+        "apps/server/src/modules/project-manager/application/work-service.js",
         "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+        "apps/server/src/modules/project-manager/components/StatusSelect.jsx",
         "apps/server/src/modules/project-manager/components/StructureCanvas.jsx",
+        "apps/server/src/modules/project-manager/components/WorkReleaseNotice.jsx",
+        "apps/server/src/modules/project-manager/components/WorkpackageModal.jsx",
         "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
         "apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js",
         "apps/server/src/modules/project-manager/import/bundle/bundle-handoff-service.js",
@@ -9911,10 +10131,13 @@
         "apps/server/src/modules/project-manager/import/plan-delta-schema.js",
         "apps/server/src/modules/project-manager/import/plan-delta-service.js",
         "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
+        "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
         "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
+        "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
         "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
         "apps/server/tests/e2e/dependency-handoff.spec.js",
         "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
         "apps/server/tests/integration/dependency-handoff.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
@@ -9922,6 +10145,9 @@
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
         "apps/server/tests/integration/fr072-project-file-authorization.test.js",
+        "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+        "apps/server/tests/integration/line-project-work-tools.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
         "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
@@ -9935,10 +10161,13 @@
         "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/plan-delta.test.js",
         "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/integration/work-listing-scope.test.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
         "apps/server/tests/postgres/pipeline-handoff-races.test.js",
         "apps/server/tests/postgres/pipeline-structure-moves.test.js",
+        "apps/server/tests/postgres/work-release-races.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -9947,6 +10176,7 @@
         "apps/server/tests/unit/dependency-handoff-form.test.js",
         "apps/server/tests/unit/dependency-map-view.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
+        "apps/server/tests/unit/global-view-drilldown.test.js",
         "apps/server/tests/unit/handoff-contract.test.js",
         "apps/server/tests/unit/handoff-migration.test.js",
         "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -9961,7 +10191,10 @@
         "apps/server/tests/unit/project-feature-repository.test.js",
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-structure-tree.test.js",
-        "apps/server/tests/unit/wbs-structure.test.js"
+        "apps/server/tests/unit/wbs-structure.test.js",
+        "apps/server/tests/unit/work-list-business-scope.test.js",
+        "apps/server/tests/unit/work-release-policy.test.js",
+        "apps/server/tests/unit/work-surface-scope-inventory.test.js"
       ]
     },
     {
@@ -14706,7 +14939,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 17
+          "testCount": 19
         }
       ],
       "evidence": [
@@ -14725,11 +14958,13 @@
         "apps/server/src/modules/project-manager/import/task-envelope.js",
         "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
         "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-work-service-authorization.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/task-modal-intake.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/design-system.test.js",
@@ -14819,7 +15054,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -14829,12 +15064,14 @@
         "apps/server/src/modules/project-manager/application/active-filters.js",
         "apps/server/src/modules/project-manager/application/dependency-service.js",
         "apps/server/src/modules/project-manager/application/work-service.js",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
         "apps/server/tests/integration/fr072-work-service-authorization.test.js",
         "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/global-view-scope-contract.test.js",
@@ -16533,7 +16770,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 84
+          "testCount": 86
         }
       ],
       "evidence": [
@@ -16631,6 +16868,7 @@
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -16658,6 +16896,7 @@
         "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/api-path-reachability.test.js",
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/auth-service.test.js",
@@ -17389,12 +17628,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 4
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/projects/[projectId]/board/page.jsx",
         "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/fr063-board-columns.test.js",
         "apps/server/tests/unit/plan-status-vocabulary.test.js"
       ]
@@ -17714,7 +17955,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 75
+          "testCount": 77
         }
       ],
       "evidence": [
@@ -17752,6 +17993,7 @@
         "apps/server/src/modules/project-manager/application/work-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
+        "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/channel-account-claim.test.js",
@@ -17808,6 +18050,7 @@
         "apps/server/tests/integration/scm-core-facade-http.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
+        "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -21283,8 +21526,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 19,
-      "testCount": 28,
+      "codeCount": 20,
+      "testCount": 30,
       "domains": [
         "knowledge",
         "platform-control",

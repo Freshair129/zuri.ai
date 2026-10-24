@@ -1,4 +1,7 @@
-import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
+import { assertWorkItemRelease, getWorkItemReleaseStates } from './work-release-policy'
+import { withPipelineTransaction, isPipelineTransaction, pipelineError } from './pipeline-transaction'
 import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
@@ -94,7 +97,7 @@ export async function createItem(input, { viewer, db = prisma, expectedVersion }
   await assertWorkstreamWritable(viewer, data.workstreamId, { db })
   if (data.containerId) {
     const container = await db.workContainer.findUnique({ where: { id: data.containerId } })
-    if (!container || container.workstreamId !== data.workstreamId) {
+    if (!container || container.deletedAt || container.workstreamId !== data.workstreamId) {
       throw new Error('Container must belong to the same workstream')
     }
   }
@@ -118,6 +121,7 @@ export async function createItem(input, { viewer, db = prisma, expectedVersion }
       targetAt: data.targetAt ?? null,
     },
   })
+  await assertWorkItemRelease(null,item,{viewer,db})
   await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:item.workstreamId},{ entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } }))
   return item
 }
@@ -129,6 +133,11 @@ export async function updateItem(id, patch, { viewer, db = prisma, expectedVersi
   if (!existing || existing.deletedAt) throw new Error('Work item not found')
   await assertWorkstreamWritable(viewer, existing.workstreamId, { db, notFoundMessage: 'Work item not found' })
   if (expectedVersion !== undefined && existing.version !== expectedVersion) throw new Error('WORK_VERSION_CONFLICT')
+  if (data.containerId) {
+    const parent = await db.workContainer.findUnique({where:{id:data.containerId}})
+    if (!parent || parent.deletedAt || parent.workstreamId !== existing.workstreamId) throw pipelineError('SCOPE_UNAVAILABLE',404)
+  }
+
   const item = await db.workItem.update({
     where: { id, ...(expectedVersion === undefined ? {} : { version: expectedVersion }) },
     data: {
@@ -147,6 +156,7 @@ export async function updateItem(id, patch, { viewer, db = prisma, expectedVersi
       version: { increment: 1 },
     },
   })
+  await assertWorkItemRelease(existing,item,{viewer,db})
   await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:existing.workstreamId},{ entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data }))
   return item
 }
@@ -185,7 +195,12 @@ export const WORK_LIST_LIMIT = 500
  *   `truncated` is decided by asking for one row more than we will return —
  *   the only way to know there is a next row without counting the whole table.
  */
-export async function listWork({ workstreamId, projectId, subtype, status, q, executionMode, businessIds } = {}) {
+export async function listWork({ workstreamId, projectId, subtype, status, q, executionMode, businessIds, release = false } = {}, { viewer, db = prisma } = {}) {
+  if (release) return withPipelineTransaction(db, async tx => {
+    const result = await listWork({workstreamId,projectId,subtype,status,q,executionMode,businessIds},{db:tx})
+    const states = await getWorkItemReleaseStates(result.items.map(item=>item.id),{viewer,db:tx})
+    return {...result,items:result.items.map(item=>({...item,release:states[item.id]}))}
+  },{write:false})
   const where = { deletedAt: null }
   if (workstreamId) where.workstreamId = workstreamId
   if (subtype) where.subtype = subtype
@@ -202,7 +217,7 @@ export async function listWork({ workstreamId, projectId, subtype, status, q, ex
     where.workstream.project = { businessId: { in: businessIds } }
   }
 
-  const rows = await prisma.workItem.findMany({
+  const rows = await db.workItem.findMany({
     where,
     orderBy: { updatedAt: 'desc' },
     include: {

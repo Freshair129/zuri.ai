@@ -1,10 +1,13 @@
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
 'use client'
 
 import { useState } from 'react'
 import { Plus, Check, Trash2 } from 'lucide-react'
 import { Modal } from '@/components/ui'
-import { WORK_STATUSES, ITEM_SUBTYPES } from '@/lib/validation/enums'
+import { WORK_STATUSES, ITEM_SUBTYPES, PIPELINE_PROTECTED_WORK_STATUSES } from '@/lib/validation/enums'
 import { api } from './useApi'
+import WorkReleaseNotice, {useWorkRelease,workReleaseError} from './WorkReleaseNotice'
 
 // Indest-style workpackage detail/editor. Persists via PATCH /api/work/[id] — core
 // fields on the WorkItem, everything Indest-extra (description, cost, effort, result,
@@ -24,6 +27,7 @@ function readMetrics(item) {
 }
 
 export default function WorkpackageModal({ open, item, onClose, onSaved }) {
+  const releaseState = useWorkRelease(open ? item?.id : null)
   const [tab, setTab] = useState('General')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)
@@ -42,6 +46,7 @@ export default function WorkpackageModal({ open, item, onClose, onSaved }) {
       todos: Array.isArray(m.todos) ? m.todos : [],
     }
   })
+  const protectedEntry = form.status !== item?.status && PIPELINE_PROTECTED_WORK_STATUSES.includes(form.status)
   const [todoText, setTodoText] = useState('')
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
 
@@ -82,7 +87,8 @@ export default function WorkpackageModal({ open, item, onClose, onSaved }) {
       onSaved?.()
       onClose()
     } catch (e) {
-      setError(e.message || 'Save failed')
+      setError(workReleaseError(e))
+      releaseState.reload()
     } finally {
       setBusy(false)
     }
@@ -92,6 +98,7 @@ export default function WorkpackageModal({ open, item, onClose, onSaved }) {
 
   return (
     <Modal open={open} onClose={onClose} wide title={form.title || 'Workpackage'}>
+      <WorkReleaseNotice {...releaseState} onReload={releaseState.reload} />
       <div className="mb-3 flex items-center gap-2">
         <span className="flex items-center gap-1.5 rounded-full bg-[var(--surface-mid)] px-2.5 py-1 text-[10px] font-bold">
           <span className="h-2 w-2 rounded-full" style={{ background: STATUS_DOT[form.status] }} />
@@ -214,10 +221,10 @@ export default function WorkpackageModal({ open, item, onClose, onSaved }) {
         </div>
       </div>
 
-      {error && <p className="mt-3 text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
+      {error && <p role="alert" className="mt-3 text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
       <div className="mt-4 flex justify-end gap-2">
         <button type="button" className="btn" onClick={onClose}>Cancel</button>
-        <button type="button" className="btn btn-primary" onClick={save} disabled={busy}>{busy ? 'Saving…' : 'Save'}</button>
+        <button type="button" className="btn btn-primary" onClick={save} disabled={busy || (protectedEntry && !!(releaseState.loading || releaseState.error))}>{busy ? 'Saving…' : 'Save'}</button>
       </div>
     </Modal>
   )

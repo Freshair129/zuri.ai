@@ -1,3 +1,5 @@
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
 // @req FR-005 — list or create work items in the neutral WorkContainer/WorkItem model
 // @req FR-046 — every mutating request resolves one trusted viewer and fails closed.
 // @req FR-072 — the service refuses this write unless the viewer owns the governing Business.
@@ -45,7 +47,8 @@ export async function GET(request) {
       status: q.status || undefined,
       q: q.q || undefined,
       businessIds: allowedBusinessIds,
-    })
+      release: q.release === '1',
+    }, { viewer })
   })
 }
 

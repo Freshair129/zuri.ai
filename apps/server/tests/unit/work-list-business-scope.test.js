@@ -45,13 +45,13 @@ describe('GET /api/work businessId scope', () => {
     mocks.viewer = ownsElsewhere({ owns: 'business-a', sees: 'business-b' })
     const response = await list('businessId=business-b')
     expect(response.status).toBe(200)
-    expect(mocks.listWork).toHaveBeenCalledWith(expect.objectContaining({ businessIds: ['business-b'] }))
+    expect(mocks.listWork).toHaveBeenCalledWith(expect.objectContaining({ businessIds: ['business-b'] }), {viewer:mocks.viewer})
   })
 
   it('keeps the installation operator able to narrow to any Business', async () => {
     mocks.viewer = makeOperatorViewer()
     const response = await list('businessId=business-z')
     expect(response.status).toBe(200)
-    expect(mocks.listWork).toHaveBeenCalledWith(expect.objectContaining({ businessIds: ['business-z'] }))
+    expect(mocks.listWork).toHaveBeenCalledWith(expect.objectContaining({ businessIds: ['business-z'] }), {viewer:mocks.viewer})
   })
 })

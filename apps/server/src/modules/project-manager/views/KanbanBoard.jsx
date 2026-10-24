@@ -1,9 +1,12 @@
+// @req FR-085 — shared release holds and pre-attempt explanation on existing work surfaces.
+// @tested tests/integration/work-release-gates.test.js, tests/e2e/pipeline-release-holds.spec.js
 'use client'
 
 import { useMemo, useState } from 'react'
 import { CircleDashed, CircleDot, Loader, Eye, Ban, CircleCheck, XCircle } from 'lucide-react'
 import { useFetch, LoadingCard } from '../components/useApi'
 import { ErrorState, TruncationNotice } from '@/components/ui'
+import WorkReleaseNotice from '../components/WorkReleaseNotice'
 import WorkpackageModal from '../components/WorkpackageModal'
 import { WORK_STATUSES } from '@/lib/validation/enums'
 
@@ -27,6 +30,7 @@ const COLUMNS = WORK_STATUSES.map((key) => ({
 
 function Card({ item, onOpen }) {
   return (
+    <div data-work-card={item.id}>
     <button
       type="button"
       onClick={() => onOpen(item)}
@@ -43,11 +47,13 @@ function Card({ item, onOpen }) {
         <span>w{item.weight}</span>
       </div>
     </button>
+    <WorkReleaseNotice release={item.release} />
+    </div>
   )
 }
 
 export default function KanbanBoard({ projectId }) {
-  const { data, loading, error, reload } = useFetch(`/api/work?projectId=${projectId}`)
+  const { data, loading, error, reload } = useFetch(`/api/work?projectId=${projectId}&release=1`)
   const [selected, setSelected] = useState(null)
 
   const byStatus = useMemo(() => {
