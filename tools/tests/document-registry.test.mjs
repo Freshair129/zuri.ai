@@ -116,7 +116,7 @@ test('readCanonicalRegistry verifies all pinned canonical records and explicit f
   for (const feature of records.filter((record) => record.family === 'FEAT')) {
     for (const id of feature.requirementKeys) assert.equal(byId.get(id)?.family, 'FR', `${feature.id} -> ${id}`);
   }
-  const reviewedMigrationIds = ['FEAT-044', 'FEAT-045', 'FR-079', 'FR-080', 'FR-260', 'FR-261', 'FR-262', 'FR-263', 'FR-264', 'FR-278', 'FR-285', 'FR-286'];
+  const reviewedMigrationIds = ['FEAT-044', 'FEAT-045', 'FR-049', 'FR-079', 'FR-080', 'FR-235', 'FR-260', 'FR-261', 'FR-262', 'FR-263', 'FR-264', 'FR-278', 'FR-285', 'FR-286'];
   assert.deepEqual(
     records.filter((record) => record.status === 'reviewed-migration').map((record) => record.id).sort(),
     reviewedMigrationIds.sort(),
