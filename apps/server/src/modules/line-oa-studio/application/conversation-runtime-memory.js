@@ -358,7 +358,7 @@ export function createConversationRuntimeMemory({ db, env, now = () => new Date(
     if (typeof env.ZURI_MSP_THREAD_SERVICE_KEY !== 'string' || env.ZURI_MSP_THREAD_SERVICE_KEY.length < 32) {
       throw error('MSP_THREAD_SERVICE_KEY_REQUIRED', 503)
     }
-    const port = createServerLineThreadMemory(env, { strict: true })
+    const port = createServerLineThreadMemory(env, { strict: true, db })
     if (!port) throw error('MSP_THREAD_MEMORY_TRANSPORT_REQUIRED', 503)
     return port
   }

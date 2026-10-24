@@ -3,6 +3,7 @@ import { resolveServerLineAccount, createServerLineReplyTransport, createServerL
 import { createLineSecretManagerFromEnv } from '@/platform/integrations/core/secret-store/dispatching-secret-manager'
 import { createMspTransportFromEnvironment, MSP_TRANSPORT_MISCONFIGURED } from '@/modules/agent/msp-stdio-transport'
 import { createMspThreadMemoryPort } from '@/modules/agent/msp-thread-memory-port'
+import { createMspRetentionGate } from '@/modules/agent/msp-retention-gate'
 import { recordMemoryProjectionReceipt } from './line-memory-projection'
 // @req FR-149 — deployment composition, no credentials returned to clients.
 // @req FR-223 — accounts resolve through the dispatching secret manager: the mount,
@@ -13,7 +14,7 @@ import { recordMemoryProjectionReceipt } from './line-memory-projection'
 // @req FR-149 — `strict` is the Conversation Runtime Core memory operation's
 //   mode: an opted-in turn cannot degrade to "no scanner", so the typed
 //   MSP_TRANSPORT_MISCONFIGURED 503 is rethrown instead of being folded into null.
-export function createServerLineThreadMemory(env, { strict = false } = {}) {
+export function createServerLineThreadMemory(env, { strict = false, db = prisma } = {}) {
   // The admission flag is intentionally absent here. It enrolls new jobs only;
   // an already-enrolled pending receipt remains recoverable after an operator
   // disables admission, provided the independent MSP service configuration is
@@ -34,6 +35,7 @@ export function createServerLineThreadMemory(env, { strict = false } = {}) {
   if (!transport) return null
   return createMspThreadMemoryPort({
     transport,
+    maintenanceGate: createMspRetentionGate(db),
     actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
     agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
     workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
@@ -49,6 +51,6 @@ export function serverLinePorts(env = process.env, db = prisma) {
   const secretManager = createLineSecretManagerFromEnv(env, { db })
   return { resolveAccount: accountId => resolveServerLineAccount({ accountId, db, secretManager }),
     replyTransport: createServerLineReplyTransport(), pushTransport: createServerLinePushTransport(),
-    threadMemory: createServerLineThreadMemory(env),
+    threadMemory: createServerLineThreadMemory(env, { db }),
     projectionReceiptWriter: input => recordMemoryProjectionReceipt(db, input) }
 }

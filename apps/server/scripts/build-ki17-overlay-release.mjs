@@ -141,10 +141,12 @@ export function assertDeployable({ envImage, processEnvImage }) {
 }
 
 /** The build commands, as argv arrays (run from apps/server). */
-export function buildCommands({ baseTag, releaseTag, ki17From }) {
+export function buildCommands({ baseTag, releaseTag, ki17From, commit }) {
+  if (commit !== undefined && !SHA_PATTERN.test(commit)) throw new OverlayError('KI17_OVERLAY_SHA_INVALID', 'build label requires full revision')
+  const identity = commit ? ['--label', `org.opencontainers.image.revision=${commit}`] : []
   return {
-    runner: ['docker', 'build', '--target', 'runner', '-t', baseTag, '.'],
-    overlay: ['docker', 'build', '-f', OVERLAY_DOCKERFILE, '--build-arg', `BASE=${baseTag}`, '--build-arg', `KI17_FROM=${ki17From}`, '-t', releaseTag, '.'],
+    runner: ['docker', 'build', '--target', 'runner', '-t', baseTag, ...identity, '.'],
+    overlay: ['docker', 'build', '-f', OVERLAY_DOCKERFILE, '--build-arg', `BASE=${baseTag}`, '--build-arg', `KI17_FROM=${ki17From}`, '-t', releaseTag, ...identity, '.'],
   }
 }
 

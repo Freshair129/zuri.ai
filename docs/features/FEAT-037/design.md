@@ -42,6 +42,7 @@ Feature record: [ZAI:FEAT-037 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `relates` · `control-block` · `current`
 - [ADR-094 — A LINE conversation is split into idle-bounded sessions](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md) — `relates` · `control-block` · `current`
+- [MSP retention scheduler implementation plan](../../plans/MSP-RETENTION-SCHEDULER-20261024.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-231 canonical record](requirements/FR-231.md)

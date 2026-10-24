@@ -113,6 +113,9 @@ COPY --from=builder --chown=node:node /app/scripts/server-line-worker.mjs /app/s
 # and tests/unit/server-retention-sweep-worker-script.test.js fails if an
 # import the script names is missing from this line.
 COPY --from=builder --chown=node:node /app/scripts/server-retention-sweep-worker.mjs /app/scripts/retention-sweep-worker-run.mjs ./scripts/
+# FR-230 — separate MSP maintenance caller; host owns the daily schedule.
+COPY --from=builder --chown=node:node /app/scripts/server-msp-retention-worker.mjs /app/scripts/msp-retention-worker-run.mjs ./scripts/
+COPY --from=builder --chown=node:node /app/scripts/server-msp-retention-reconcile.mjs ./scripts/
 # src/modules/integration/application/sot-plan.js reads contracts/sot-pipeline-plan.v1.json
 # from process.cwd() at request time, so the tracer cannot see it — ship the folder.
 COPY --from=builder --chown=node:node /app/contracts ./contracts

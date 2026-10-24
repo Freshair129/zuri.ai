@@ -92,9 +92,14 @@ function makeConnection(overrides = {}) {
   }
 }
 
-function runtimeDependencies({ databaseName = 'zuri_main_dev', connection = makeConnection(), businessKeyPresent = false } = {}) {
+function runtimeDependencies({ databaseName = 'zuri_main_dev', connection = makeConnection(), businessKeyPresent = false, retentionOutstanding = false } = {}) {
   const integrationDb = {
-    $queryRaw: vi.fn(async () => [{ databaseName }]),
+    $queryRaw: vi.fn(async strings => {
+      const sql = strings.join('')
+      if (sql.includes('current_database()')) return [{ databaseName }]
+      if (sql.includes('FROM "AuditEvent"')) return retentionOutstanding ? [{ id: 'prior-started' }] : []
+      throw new Error('UNEXPECTED_RUNTIME_FIXTURE_QUERY')
+    }),
     integrationConnection: {
       findMany: vi.fn(async ({ where } = {}) => {
         if (where?.purpose === 'MODEL_PROVIDER') {
@@ -118,6 +123,15 @@ function runtimeDependencies({ databaseName = 'zuri_main_dev', connection = make
 }
 
 describe('main-dev keyless Ollama Phase-1 ports', () => {
+  it('keeps the durable crash guard in the main-dev profile without retention configuration', async () => {
+    const dependencies = runtimeDependencies({ retentionOutstanding: true }), mspTransport = vi.fn()
+    const ports = createPhase1BusinessAgentPortsFromEnv(profileEnv({ ZURI_MAIN_DEV_LOCAL_OLLAMA_MEMORY_ENABLED: 'true',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_SERVICE_KEY: 'k'.repeat(40), ZURI_MSP_THREAD_WORKSPACE_ID: 'workspace-main-dev',
+    }), { bindingRequired: false, ...dependencies, mspTransport })
+    await expect(ports.threadMemory.resolveThread({ tenantId: TENANT_ID, threadKind: 'DIRECT', channelType: 'LINE',
+      channelAccountId: ACCOUNT_ID, externalRoomRef: 'main-dev-retention-test' })).rejects.toThrow('MSP_RETENTION_IN_PROGRESS')
+    expect(mspTransport).not.toHaveBeenCalled()
+  })
   it('uses the restricted RAG reader and revalidates on both sides of generation, never the fixture', async () => {
     const env = profileEnv({ ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY',
       ZURI_MAIN_DEV_LOCAL_OLLAMA_RAG_MANIFEST_SHA256: 'b'.repeat(64),

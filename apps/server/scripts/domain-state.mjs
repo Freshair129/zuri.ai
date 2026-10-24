@@ -700,10 +700,14 @@ function authorizationCheck(root, routes) {
     // Public provider hooks use an explicit marker and a named receiving service:
     // their contract authenticates provider signatures instead of a browser viewer.
     const hasPublicProviderAuth = /@public-provider-endpoint/.test(body) && /receiveNotionWebhook\s*\(/.test(body)
+    // FR-230 machine-only retention authenticates its deployment bearer before
+    // any work. This exact route is covered by negative authentication tests.
+    const hasMspRetentionAuth = route.route === '/api/agent/memory-retention'
+      && /bearerMatches\(request.headers.get\('authorization'\), process.env.ZURI_MSP_RETENTION_SWEEP_TOKEN\)/.test(body)
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1
-        if (hasViewer || hasPublicProviderAuth) guardedMutations += 1
+        if (hasViewer || hasPublicProviderAuth || hasMspRetentionAuth) guardedMutations += 1
       }
       if (method === 'GET') {
         reads += 1

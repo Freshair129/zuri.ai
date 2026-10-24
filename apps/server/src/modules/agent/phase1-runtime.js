@@ -21,6 +21,7 @@ import {
 import pg from 'pg'
 import { createMspTransportFromEnvironment } from './msp-stdio-transport'
 import { createMspThreadMemoryPort } from './msp-thread-memory-port'
+import { createMspRetentionGate } from './msp-retention-gate'
 import { createMspMemoryPort } from './msp-memory-port'
 import { createMspVaultResolver } from './msp-vault-resolver'
 import { MODEL_ID_PATTERN, MODEL_PROVIDER_PURPOSE } from '@/lib/validation/enums'
@@ -175,7 +176,7 @@ async function assertNoBusinessModelProviderKey(db, { tenantId, businessId }) {
   }
 }
 
-function composeMspMemoryPorts(ports, env, mspTransport) {
+function composeMspMemoryPorts(ports, env, mspTransport, db = prisma) {
   const threadMemoryEnabled = env.ZURI_MSP_THREAD_MEMORY_ENABLED === 'true'
   const episodicMemoryEnabled = env.ZURI_MSP_EPISODIC_MEMORY_ENABLED === 'true'
   if (threadMemoryEnabled || episodicMemoryEnabled) {
@@ -188,6 +189,7 @@ function composeMspMemoryPorts(ports, env, mspTransport) {
     if (threadMemoryEnabled) {
       ports.threadMemory = createMspThreadMemoryPort({
         transport,
+        maintenanceGate: createMspRetentionGate(db),
         actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
         agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
         workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,
@@ -354,7 +356,7 @@ function createMainDevLocalOllamaPorts(env, {
     revalidateKnowledge,
     getKnowledgeBinding: () => ragSelected ? fixtureReader?.getBinding() : null,
     close: async () => {},
-  }, env, mspTransport)
+  }, env, mspTransport, db)
 }
 
 export function createPhase1BusinessAgentPortsFromEnv(
@@ -548,7 +550,7 @@ export function createPhase1BusinessAgentPortsFromEnv(
     resolveModel,
     close: async () => {},
   }
-  return composeMspMemoryPorts(ports, env, mspTransport)
+  return composeMspMemoryPorts(ports, env, mspTransport, integrationDb ?? prisma)
 }
 
 function badRequest(message) {
