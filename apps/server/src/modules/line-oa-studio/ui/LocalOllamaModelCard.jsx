@@ -18,6 +18,10 @@ const REFUSALS = {
   LOCAL_OLLAMA_SELECTION_CONFLICT: 'มีการเปลี่ยนโมเดลพร้อมกัน โปรดโหลดหน้าใหม่แล้วลองอีกครั้ง',
   LOCAL_OLLAMA_PROVIDER_CREATE_CONFLICT: 'มีการตั้งค่า Ollama พร้อมกัน โปรดโหลดหน้าใหม่แล้วลองอีกครั้ง',
 };
+const GKS_KNOWLEDGE_SOURCES = new Set([
+  'GENESISRAG17_TEST_ONLY',
+  'GENESISRAG17_CUSTOMER_PRODUCTS',
+]);
 
 function explain(message) {
   for (const [code, thai] of Object.entries(REFUSALS)) {
@@ -36,7 +40,7 @@ export function findEligibleLocalOllamaAccount({ business, accounts = [], status
     && account.serverEnabled === true
     && account.executionMode === 'SERVER'
     && account.runtimeOwner === 'SERVER'
-    && account.knowledgeGrounding === (status.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
+    && account.knowledgeGrounding === (GKS_KNOWLEDGE_SOURCES.has(status.knowledgeSource) ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     && account.knowledgeGroundingShadow === false
     && (account.memoryPolicy ?? 'OFF') === 'OFF'
     && account.memoryProjectId == null
@@ -76,6 +80,7 @@ function LocalOllamaModelForm({ account, status, onSaved, api, busy }) {
   const installed = status.models.includes(modelId);
   const selectedModelIsMissing = Boolean(status.selectedModelId) && !status.models.includes(status.selectedModelId);
   const disabled = busy || working || !installed || modelId === status.selectedModelId;
+  const usesCustomerProducts = status.knowledgeSource === 'GENESISRAG17_CUSTOMER_PRODUCTS';
 
   return <section aria-label="Ollama ในเครื่องสำหรับทดสอบ" className={cardClass}>
     <div className="flex flex-wrap items-center justify-between gap-2">
@@ -84,12 +89,21 @@ function LocalOllamaModelForm({ account, status, onSaved, api, busy }) {
     </div>
 
     <p className="text-[11px] leading-relaxed text-[var(--text-secondary)]">
-      เลือกได้เฉพาะโมเดลที่ติดตั้งบนเซิร์ฟเวอร์ ตัวเลือกนี้ใช้กับสินค้าทดสอบและข้อมูลตัวอย่างใน main-dev เท่านั้น
-      ไม่ใช้ข้อมูลราคาหรือสต็อกจริงของธุรกิจ และไม่ใช้ API key แบบคิดค่าบริการ ห้ามใช้กับข้อมูลจริงหรือการสนทนาของลูกค้าจริง
+      {usesCustomerProducts
+        ? 'เลือกได้เฉพาะโมเดลที่ติดตั้งบนเซิร์ฟเวอร์ ตัวเลือกนี้ยังจำกัดอยู่ในโปรไฟล์ main-dev และไม่เปลี่ยนสิทธิ์ใช้ข้อมูลสินค้า'
+        : 'เลือกได้เฉพาะโมเดลที่ติดตั้งบนเซิร์ฟเวอร์ ตัวเลือกนี้ใช้กับสินค้าทดสอบและข้อมูลตัวอย่างใน main-dev เท่านั้น ไม่ใช้ข้อมูลราคาหรือสต็อกจริงของธุรกิจ และไม่ใช้ API key แบบคิดค่าบริการ ห้ามใช้กับข้อมูลจริงหรือการสนทนาของลูกค้าจริง'}
     </p>
     {status.knowledgeSource === 'GENESISRAG17_TEST_ONLY' && <p className="text-[11px] text-[var(--text-secondary)]">
       แหล่งข้อมูล: GenesisRAG17 เฉพาะสินค้าทดสอบที่อนุญาต กรองข้อมูลก่อนส่งให้โมเดล
     </p>}
+    {usesCustomerProducts && <>
+      <p className="text-[11px] text-[var(--text-secondary)]">
+        แหล่งข้อมูล: ข้อมูลสาธารณะของสินค้าที่เจ้าของธุรกิจเลือกและอนุมัติ เฉพาะฟิลด์ที่อนุมัติเท่านั้น
+      </p>
+      <p className="rounded-lg bg-[var(--bg-subtle)] px-2 py-1.5 text-[11px] text-[var(--text-primary)]">
+        การเลือกโมเดลไม่ให้สิทธิ์ใช้ข้อมูลสินค้า การเลือกฟิลด์และอนุมัติทำแยกต่างหาก ราคา สต็อก การจัดส่ง และคำมั่นสัญญาต้องตรวจสอบตามกติกาแยกต่างหาก
+      </p>
+    </>}
     <p className="rounded-lg border border-[var(--status-info)] bg-[var(--status-info-bg)] px-2 py-1.5 text-[11px] text-[var(--text-primary)]">
       การเลือกโมเดลนี้ไม่เปลี่ยนเกณฑ์ readiness สำหรับ production และไม่เปิดการใช้งาน production
     </p>

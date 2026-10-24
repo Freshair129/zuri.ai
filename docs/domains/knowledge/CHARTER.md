@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.9.0"
+version: "1.10.0"
 status: beta
-last_update: "2026-10-23,Codex"
+last_update: "2026-10-24,Codex"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -23,6 +23,7 @@ owns_models:
   - GenesisRag17EvidenceCursor
   - GenesisRag17PublicationReceipt
   - KnowledgeCandidate
+  - LineProductDisclosurePolicy
 ---
 
 # Domain charter — knowledge
@@ -103,15 +104,16 @@ process execution boundary. Numeric SLO targets require measured workload data.
   so a candidate already drafted stays reviewable if the flag is later
   turned off.
 - **"Owns no Prisma models" was this domain's boundary before ADR-072; it no
-  longer is, and the exception ADR-090 D6 adds is `KnowledgeCandidate` alone.**
-  Every other model in `owns_models` already existed before this decision
-  (ADR-072 phases 0–4, then ADR-073's lineage/batch/evidence models); D6 is
-  cited here because it is the reasoning that put a *review* table — not
-  another admission/lineage record — into this domain: the candidate is a
-  human decision this domain now holds evidence of, not a fact GKS asserted.
-  `KnowledgeCandidate` is claimed nowhere else — no other domain's charter or
-  `docs/.doc-graph.json` node names it — so preflight's model-ownership check
-  sees exactly one claimant.
+  longer is.** ADR-090 D6 added `KnowledgeCandidate`, a human review decision
+  this domain holds evidence of, not a fact GKS asserted. The separate
+  `LineProductDisclosurePolicy` records a Business OWNER's default-off,
+  account-specific permission to disclose selected descriptive Product fields
+  from a verified GenesisRAG17 record. It owns neither Product identity nor a
+  canonical knowledge catalog, and it grants no stock or price authority.
+  These two decision records are the additional Knowledge models; the
+  ingestion and lineage models in `owns_models` retain their prior boundaries.
+  Each model is claimed only here, so preflight's model-ownership check sees
+  one claimant per model.
 - Serves grounded answers to the agent domain through the knowledge contract;
   it does not talk to LINE and it does not resolve identity.
 - **Holds no client of GenesisBlockDB** — no `GenesisDatabase` binding, no
@@ -531,6 +533,7 @@ its own terms.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.9.0 → 1.10.0 (2026-10-24) | Claims LineProductDisclosurePolicy as Knowledge's default-off, audited per-account decision for selected descriptive Product fields from verified GenesisRAG17 records; Product identity, stock and price authority remain with their existing owners | Additive policy model and owner API; no catalog, stock or price authority transfer |
 | 1.8.8b → 1.9.0 (2026-10-23) | Adopts approved Knowledge capability accountability and the user's solo product/development/operations ownership; external component decision rights retained | Local worker scheduling/diagnostic safety only; no model, migration, wire, store or quality-authority transfer |
 | 1.8.7b → 1.8.8b (2026-09-25) | Corrects the earlier sliver claims (flow 1.4.6b/1.4.8b, spec 1.4.4b/1.4.6b): two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | `genesisrag17-source.js` changed; no model, route or requirement statement touched |
 | 1.8.6b → 1.8.7b (2026-09-25) | Closes three gaps an Opus gate review found in the 2026-09-24 Thai-safe-chunker remediation: (1) the "480 characters cannot exceed 512 e5 tokens" claim assumed at most one tokenizer token per raw character, but the pinned tokenizer's own NFKC normalization can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded by `text.normalize('NFKC').length <= 480`; (2) the overlap start could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier (`findOverlapStart`); (3) the forward grapheme-safety nudge used to extend a chunk without bound when no safe boundary existed at all (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected (proven byte-identical) | `genesisrag17-source.js` changed; no model, route or requirement statement touched; no re-ingestion of existing rows; SmartGift production (parser-2 only) publishes no changed record |

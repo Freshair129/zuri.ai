@@ -1,6 +1,6 @@
 {
-  "schemaSha256": "d8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21",
-  "targetSchemaSha256": "dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559",
+  "schemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+  "targetSchemaSha256": "a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -536,6 +536,11 @@
       "modelName": "LineOaWorkerCheckpoint",
       "schemaName": "public",
       "tableName": "LineOaWorkerCheckpoint"
+    },
+    {
+      "modelName": "LineProductDisclosurePolicy",
+      "schemaName": "public",
+      "tableName": "LineProductDisclosurePolicy"
     },
     {
       "modelName": "LineStockDisclosurePolicy",

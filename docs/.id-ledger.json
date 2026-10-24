@@ -2069,7 +2069,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "e038ff6c7a07fe9b6087ded3a8693368bfb7fd05b2b081a75f9e5cc10e36e9fd"
+      "statement_digest": "66ff446af2bc8f6b3d7993c5845893723d7c124b7e968923aace8c173d644a5c",
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Clarify that missing evidence skips inference while invalid model selection is rejected after inference"
     },
     "FR-050": {
       "family": "FR",
@@ -2463,9 +2465,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "b913c921c5d7cf6a5c36217bc8d90d5059456aa8f25964a16989d1fb25669e09",
+      "statement_digest": "30b829d45a5e9dd3543fd0868d8cdf2994499d1639dae631dbb8edbfdf4bed8d",
       "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Approved main-dev memory opt-in reconciled with PR734 native RAG; same subject and membership, source pins and delivery fencing retained."
+      "statement_digest_reason": "Owner approved explicit customer-product GenesisRAG17 projection with unchanged TEST ONLY, MSP and commercial authority; proposal 0.2.0."
     },
     "FR-080": {
       "family": "FR",
@@ -4631,14 +4633,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "a39df5bc6da45ef39a96d3cda957bbffb55d3efa723590bfec756e1991f567c6",
+      "statement_digest": "bf0ce6e5f1b23a7c262a6ed76e144f073dd5d6cb2e72ccd70487667ae114ca61",
       "history": [
         {
           "anchor": "line answer grounding from the published knowledge corpus",
           "since": "2026-09-13",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-10-23",
+      "statement_digest_reason": "Clarify inference skip versus rejection of a model response and the serialized SENDING cutoff"
     },
     "FR-236": {
       "family": "FR",

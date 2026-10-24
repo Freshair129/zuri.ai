@@ -145,6 +145,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -267,6 +268,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -496,6 +498,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -613,6 +616,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -700,6 +704,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -1210,6 +1215,7 @@
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-recovery.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -1291,8 +1297,8 @@
           "title": "Evidence-grounded answer",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 10
+          "codeCount": 5,
+          "testCount": 14
         },
         {
           "id": "FR-051",
@@ -1361,8 +1367,8 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 28
+          "codeCount": 11,
+          "testCount": 35
         },
         {
           "id": "FR-080",
@@ -1505,8 +1511,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 46
+          "codeCount": 9,
+          "testCount": 68
         },
         {
           "id": "FR-253",
@@ -1570,7 +1576,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/modules/agent/line-product-facts-command.js",
             "apps/server/src/modules/agent/line-product-facts-language.js",
@@ -1592,6 +1598,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -1623,7 +1630,7 @@
           "details": {
             "routes": 5,
             "inventoried": 5,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -1812,6 +1819,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -2220,7 +2228,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/modules/commerce/application/line-published-price-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -2239,6 +2247,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -2277,7 +2286,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -2391,6 +2400,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -3366,7 +3376,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 1
           }
         },
@@ -3656,7 +3666,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 35
         },
         {
           "id": "FR-080",
@@ -3954,7 +3964,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -4348,7 +4358,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/app/api/inventory/line-stock-disclosure/route.js",
             "apps/server/src/modules/inventory/application/line-stock-disclosure-policy-service.js",
@@ -4369,6 +4379,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -4416,7 +4427,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -4546,6 +4557,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -4631,6 +4643,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 28
+        },
+        {
+          "id": "FR-079",
+          "title": "Phase 1 LINE runtime connection cut-over",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 35
         },
         {
           "id": "FR-109",
@@ -4825,8 +4845,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 46
+          "codeCount": 6,
+          "testCount": 68
         },
         {
           "id": "FR-236",
@@ -4887,7 +4907,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -4906,6 +4926,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -4986,8 +5007,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 16,
-            "present": 16
+            "models": 17,
+            "present": 17
           }
         },
         "authorization": {
@@ -5135,6 +5156,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -5154,7 +5176,7 @@
         "routes": 6,
         "apiRoutes": 0,
         "pageRoutes": 6,
-        "ownedModels": 16,
+        "ownedModels": 17,
         "featureNotes": 18
       },
       "featureIds": [
@@ -5230,7 +5252,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 35
         },
         {
           "id": "FR-080",
@@ -5407,8 +5429,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 46
+          "codeCount": 10,
+          "testCount": 68
         },
         {
           "id": "FR-238",
@@ -5480,7 +5502,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/app/api/line-oa/worker/route.js",
             "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
@@ -5502,6 +5524,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -5538,9 +5561,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 15,
-            "inventoried": 15,
-            "openApiPaths": 354,
+            "routes": 16,
+            "inventoried": 16,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -5592,9 +5615,9 @@
             }
           ],
           "details": {
-            "mutations": 11,
-            "guardedMutations": 9,
-            "reads": 11,
+            "mutations": 12,
+            "guardedMutations": 10,
+            "reads": 12,
             "unguardedReads": 0
           }
         },
@@ -5703,6 +5726,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -5719,8 +5743,8 @@
         }
       ],
       "details": {
-        "routes": 25,
-        "apiRoutes": 15,
+        "routes": 26,
+        "apiRoutes": 16,
         "pageRoutes": 10,
         "ownedModels": 8,
         "featureNotes": 14
@@ -5778,7 +5802,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -6019,7 +6043,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -6396,7 +6420,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -6621,7 +6645,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -7183,7 +7207,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 35
         },
         {
           "id": "FR-080",
@@ -7985,6 +8009,14 @@
           "testCount": 14
         },
         {
+          "id": "FR-235",
+          "title": "LINE answer grounding from the published knowledge corpus",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 2,
+          "testCount": 68
+        },
+        {
           "id": "FR-236",
           "title": "LINE FAQ knowledge candidates",
           "declared": "done",
@@ -8397,7 +8429,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 28,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/app/api/internal/conversation-runtime/v2/[operation]/route.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -8418,6 +8450,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -8466,7 +8499,7 @@
           "details": {
             "routes": 184,
             "inventoried": 184,
-            "openApiPaths": 354,
+            "openApiPaths": 355,
             "missingFromOpenApi": 0
           }
         },
@@ -8954,6 +8987,7 @@
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-recovery.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
@@ -9469,6 +9503,7 @@
       "contributorDomains": [
         "agent",
         "integration",
+        "knowledge",
         "line-oa-studio",
         "project-manager"
       ],
@@ -9493,8 +9528,8 @@
           "title": "Phase 1 LINE runtime connection cut-over",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 17,
-          "testCount": 28
+          "codeCount": 21,
+          "testCount": 35
         },
         {
           "id": "FR-080",
@@ -9514,6 +9549,8 @@
         "apps/server/src/app/api/platform/integrations/route.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
+        "apps/server/src/modules/agent/line-customer-product-decision.js",
+        "apps/server/src/modules/agent/line-customer-product-knowledge.js",
         "apps/server/src/modules/agent/main-dev-local-ollama.js",
         "apps/server/src/modules/agent/main-dev-public-test-knowledge.js",
         "apps/server/src/modules/agent/main-dev-test-rag-decision.js",
@@ -9526,6 +9563,8 @@
         "apps/server/src/modules/integration/application/integration-management-service.js",
         "apps/server/src/modules/integration/application/line-registry-service.js",
         "apps/server/src/modules/integration/application/local-ollama-selection-service.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-contract.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-source.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LocalOllamaModelCard.jsx",
@@ -9544,6 +9583,7 @@
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+        "apps/server/tests/integration/line-customer-product-delivery.test.js",
         "apps/server/tests/integration/line-oa-provider-migration.test.js",
         "apps/server/tests/integration/line-registry-scope.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
@@ -9564,7 +9604,13 @@
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-customer-product-answer.test.js",
+        "apps/server/tests/unit/line-customer-product-decision.test.js",
+        "apps/server/tests/unit/line-customer-product-knowledge.test.js",
+        "apps/server/tests/unit/line-customer-product-profile.test.js",
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
+        "apps/server/tests/unit/line-product-disclosure-contract.test.js",
+        "apps/server/tests/unit/line-product-disclosure-source.test.js",
         "apps/server/tests/unit/line-registry-service.test.js",
         "apps/server/tests/unit/local-ollama-model-card-render.test.js",
         "apps/server/tests/unit/local-ollama-owner-routes.test.js",
@@ -13600,8 +13646,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 46
+          "codeCount": 31,
+          "testCount": 68
         },
         {
           "id": "FR-236",
@@ -13636,11 +13682,15 @@
         "apps/server/src/app/api/knowledge/candidates/[id]/route.js",
         "apps/server/src/app/api/knowledge/candidates/route.js",
         "apps/server/src/app/api/knowledge/gap-report/route.js",
+        "apps/server/src/app/api/line-oa/accounts/[id]/product-disclosure/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/business-knowledge-candidates.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/line-answer-policy.js",
+        "apps/server/src/modules/agent/line-customer-product-decision.js",
+        "apps/server/src/modules/agent/line-customer-product-knowledge.js",
+        "apps/server/src/modules/agent/line-customer-product-query.js",
         "apps/server/src/modules/agent/line-execution-trace.js",
         "apps/server/src/modules/agent/line-knowledge-grounding.js",
         "apps/server/src/modules/agent/main-dev-test-rag-knowledge.js",
@@ -13654,6 +13704,10 @@
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-candidate-zero-pii.js",
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-contract.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-fields.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-service.js",
+        "apps/server/src/modules/knowledge/line-product-disclosure-source.js",
         "apps/server/src/modules/knowledge/ui/KnowledgeCandidateReview.jsx",
         "apps/server/src/modules/knowledge/ui/KnowledgeGapReport.jsx",
         "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
@@ -13667,6 +13721,7 @@
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-readiness-journey.js",
         "apps/server/src/modules/line-oa-studio/ui/LineOaReadinessJourney.jsx",
+        "apps/server/src/modules/line-oa-studio/ui/LineProductDisclosureCard.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -13702,8 +13757,10 @@
         "apps/server/tests/integration/knowledge-corpus.test.js",
         "apps/server/tests/integration/knowledge-project.test.js",
         "apps/server/tests/integration/knowledge-query.test.js",
+        "apps/server/tests/integration/line-customer-product-delivery.test.js",
         "apps/server/tests/integration/line-gks-grounding.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-product-disclosure-policy.test.js",
         "apps/server/tests/integration/line-published-price-reader.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
@@ -13712,6 +13769,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
@@ -13744,12 +13802,20 @@
         "apps/server/tests/unit/knowledge-gap-report-service.test.js",
         "apps/server/tests/unit/knowledge-gap-report-ui.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
+        "apps/server/tests/unit/line-customer-product-answer.test.js",
+        "apps/server/tests/unit/line-customer-product-decision.test.js",
+        "apps/server/tests/unit/line-customer-product-knowledge.test.js",
+        "apps/server/tests/unit/line-customer-product-query.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
         "apps/server/tests/unit/line-oa-readiness-journey.test.js",
         "apps/server/tests/unit/line-oa-studio-description-admission.test.js",
+        "apps/server/tests/unit/line-product-disclosure-contract.test.js",
+        "apps/server/tests/unit/line-product-disclosure-route.test.js",
+        "apps/server/tests/unit/line-product-disclosure-source.test.js",
+        "apps/server/tests/unit/line-product-disclosure-ui.test.js",
         "apps/server/tests/unit/line-studio-account-console-render.test.js",
         "apps/server/tests/unit/main-dev-test-rag-answer.test.js",
         "apps/server/tests/unit/main-dev-test-rag-knowledge.test.js",
@@ -16589,7 +16655,7 @@
     },
     {
       "id": "FR-049",
-      "title": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient.",
+      "title": "Evidence-grounded answer: classify into a registered knowledge query, send only a bounded evidence packet to the configured provider, reject unsupported numbers/facts, and return a deterministic Thai fallback when evidence or provider output is insufficient. On the separate default-off GENESISRAG17_CUSTOMER_PRODUCTS path only, after one exact Product and current owner-approved selected-field projection are established, the configured model may return strict JSON containing only supplied opaque factIds. The Server rejects unknown or duplicate IDs, extra keys, free prose and invalid output, then renders selected facts with fixed Thai labels and exact approved values; missing evidence skips inference, while an empty/invalid model selection is rejected to the deterministic Thai fallback. This scoped renderer does not rewrite provider-wide answer verification, admit generic corpus prose, or change commercial authority.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -16610,14 +16676,16 @@
           "title": "Evidence-grounded answer",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 10
+          "codeCount": 7,
+          "testCount": 14
         }
       ],
       "evidence": [
         "apps/server/src/modules/agent/grounded-business-answer.js",
         "apps/server/src/modules/agent/index.js",
         "apps/server/src/modules/agent/line-answer-policy.js",
+        "apps/server/src/modules/agent/line-customer-product-knowledge.js",
+        "apps/server/src/modules/agent/line-customer-product-query.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-context.test.js",
         "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
@@ -16625,6 +16693,10 @@
         "apps/server/tests/unit/agent-role-registry.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-answer-policy.test.js",
+        "apps/server/tests/unit/line-customer-product-answer.test.js",
+        "apps/server/tests/unit/line-customer-product-knowledge.test.js",
+        "apps/server/tests/unit/line-customer-product-profile.test.js",
+        "apps/server/tests/unit/line-customer-product-query.test.js",
         "apps/server/tests/unit/role-memory-partition.test.js",
         "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/src/turn-runtime.js",
@@ -20821,7 +20893,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 17,
-          "testCount": 28
+          "testCount": 29
         }
       ],
       "evidence": [
@@ -20857,6 +20929,7 @@
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-recovery.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",

@@ -1,6 +1,7 @@
 import { timingSafeEqual } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
+import { isLineCustomerProductSourceRequested } from '@/modules/agent/main-dev-local-ollama'
 import { resolveBusinessModelCredential } from '@/modules/integration/application/model-provider-credential-service'
 import { selectRegisteredQuery } from '@/modules/agent/grounded-business-answer'
 import {
@@ -475,6 +476,7 @@ export function createCorePrepareTurn({ db = prisma, env = process.env, now = ()
   if (typeof businessPorts !== 'function') throw new Error('CORE_PREPARE_BUSINESS_PORTS_REQUIRED')
   const groundingQuery = createCoreGroundingQuery({ db, env, now, businessPorts, corpusReaderFactory, traceFactory })
   return async (job, { deadlineAt } = {}) => {
+    if (isLineCustomerProductSourceRequested(env)) throw error('RUNTIME_CUSTOMER_PRODUCT_MODE_UNSUPPORTED', 409)
     const question = job.inbound?.body
     // The legacy answer path's input check (createServerLineAnswer), before any read.
     // Non-retryable: the admitted inbound text will not change on a retry.

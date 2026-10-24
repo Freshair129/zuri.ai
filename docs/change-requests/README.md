@@ -1,20 +1,25 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.6.0"
+version: "1.8.0"
 updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.6.0
+**Version:** 1.8.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
 
 ## Current contract proposals
+
+- [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
+  (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
+  verified public projection, strict model fact selection and unchanged stock/price
+  authority. No real product is authorized by the proposal.
 
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](integration/line-ollama-test-only-genesisrag17-20261024.md)
   (0.1.0, bounded main-dev implementation contract approved): separately enabled
@@ -48,6 +53,10 @@ Version 1.3.0 added the main-dev local Ollama proposal. Version 1.4.0 records
 approval for its bounded main-dev implementation, the reviewed same-ID source-row
 migration, and ADR-100 D9. The change-request remains intake documentation, not a
 standalone product requirement or production activation record.
+
+Version 1.7.0 adds the proposed per-product/per-field customer disclosure design.
+Its design approval and actual owner grants remain separate; it does not widen
+FR-291 commercial eligibility.
 
 Version 1.6.0 adds the approved main-dev GenesisRAG17 TEST ONLY source proposal
 and its FR-079 same-ID migration. Implementation and live RAG/LINE acceptance

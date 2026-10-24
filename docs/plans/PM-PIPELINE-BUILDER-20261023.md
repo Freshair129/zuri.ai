@@ -410,3 +410,21 @@ recorded in the PR. No preview or PostgreSQL test process is left serving this
 candidate. Production and C3–C4 remain unselected. The retained local logs are
 under `.local/pm-pipeline-c2-20261024/`; the PR records reproducible commands and
 hosted evidence without treating those ignored logs as canonical authority.
+
+## C2 latest-main composition
+
+After local acceptance and PR740 creation, main advanced through PR738 to
+`832e365d14703c5cb70cb63514afeb86093b00cb` (LINE product disclosure). The
+composition preserves that main change, its new model/migrations, canonical
+record migration and updated current-schema recovery inventory; C2 introduces
+no additional model or migration relative to this base. C0 v0.1.5, ADR-035 and
+FR-083/084/085 have no changes between the original and composed base. BR-017's
+pinned source row is unchanged; upstream removed its explanatory successor note,
+while the adopted interpretation remains explicit in FR-085 and C0.
+
+The PostgreSQL selection conflict is resolved by retaining both new upstream
+LINE suites and the C2 canvas adapter suite. Generated state is rebuilt from
+the composed source rather than merged JSON. The C2 application files remain
+byte-identical to the reviewed local-acceptance source. Fresh adapter/browser,
+build, governance, exact-head hosted CI and review of this composed scope are
+required before integration. Production and C3–C4 remain unselected.
