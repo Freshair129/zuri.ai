@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.4"
+version: "0.1.5"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -22,7 +22,7 @@ relations:
 
 **Goal:** After exact contract adoption, join Structure Plan, Dependency Map and Board through persisted handoff obligations and accessible editing.
 
-**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize selected C1; C2–C4 remain later increments.
+**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize the shared foundation. C1 is merged; the owner selected C2; C3–C4 remain later increments.
 
 **Tech Stack:** Existing React components, Zod/JSON Schema, PM import/services, Prisma adapters, Vitest and Playwright; no drag library or graph service is selected.
 
@@ -247,23 +247,58 @@ and build must qualify the final PR head.
 C2 canvas gestures, C3 structure editing, C4 Board/CRUD release enforcement,
 production migration, deployment and merge remain outside this increment.
 
+## C2 source qualification (2026-10-24)
+
+The owner selected C2 after PR #737 merged. Reconciled before coding against
+main `cb0bfbbcf42140bdd7295c8ebe95461e5d988a4b`, C0 v0.1.5 D1–D6,
+ZAI:FR-083, BR-017, SDD-046 and NFR-008. C1 is merged and its exact-commit
+post-merge governance, Edge/Desktop and Docker build workflows succeeded
+(40059388443, 40059388437, 40059388466). Docker did not publish or deploy.
+The original C1 preparation/qualification sections remain historical evidence.
+
+C2 consumes ProjectDelta1.3 through the existing `/api/import/dry-run` and
+`/api/import/commit` adapters. The mandatory dialog proposes one
+`dependency.create`; the pending edge is the preview. Successful dry run
+continues to the existing transactional commit, receipt and guarded undo.
+Cancellation before commit invalidates delayed responses and writes nothing.
+An uncertain commit response retains the same idempotent request for retry.
+Self/cycle and fresh authority decisions remain in the existing server writer.
+
+The old map projects only endpoints of existing edges. C2 adds active,
+authorized Project-contained endpoints so the first edge can be created, plus
+only the existing safe contract-state projection. Stored provenance and raw
+contract JSON remain private. The unscoped internal compatibility mapper and
+global register retain their existing contracts. Input contract validation is
+factored into a browser-safe pure schema, re-exported by the existing server
+module; this changes no adopted schema or provenance semantics.
+
+No new model, route, migration, persisted position, graph library, release
+predicate or requirement statement is selected. C3 structure editing and C4
+Board/CRUD release enforcement remain unselected; production is untouched.
+
 ## Task C2: Accessible edge creation on the Project canvas (FR-083)
 
 **Files:** modify `views/DependencyMap.jsx`, `views/dependency-map.module.css`,
 `application/project-dependency-map.js`, and its existing Project API read path.
 Create `components/HandoffContractDialog.jsx`,
 `tests/unit/pipeline-edge-interactions.test.js` and
-`tests/e2e/pipeline-edge-editing.spec.js`.
+`tests/e2e/pipeline-edge-editing.spec.js`. The composed scope also factors
+`application/handoff-contract-schema.js` from the existing server module,
+adds `components/pipeline-edge-interactions.js`, updates existing map/route
+unit tests, adds `tests/integration/pipeline-canvas-adapter.test.js` and
+`tests/postgres/pipeline-canvas-adapter.test.js`, and selects the latter in
+`vitest.postgres.config.js`. Generated tracked verification/domain-state views
+follow these annotations; no canonical requirement row is changed.
 
 **Interfaces:** consume C1's adopted preview/commit adapter through the existing
 import routes and pure contract schema. Dialog completion proposes a command;
 cancellation produces no command/write. Graph projection adds only authorized
 contract/state fields from C0; no persisted x/y coordinates.
 
-- [ ] Write interaction/browser assertions for drag and `Connect to…` equivalents, mandatory dialog cancellation, pending preview, stale-response rejection, self/cycle/foreign-scope refusal and inline recovery/retry. Both gestures must produce the same command/receipt; cancel must leave dependency/audit counts unchanged.
-- [ ] Implement the dialog, focus restoration and pointer threshold without changing derived layout. Pending/declared/satisfied/undeclared/refused have text or shape and accessible announcements, not color alone. Reverted previews retain enough context to correct the error.
-- [ ] Run `npm --prefix apps/server test -- tests/unit/pipeline-edge-interactions.test.js tests/unit/dependency-map-view.test.js` and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-edge-editing.spec.js`. Include keyboard-only, single-pointer, narrow viewport and reduced-motion cases in the new browser file; run the behavior-appropriate build/governance/review/CI.
-- [ ] Commit the complete gesture/equivalent unit as `feat(pm): create dependency edges accessibly`.
+- [x] Write interaction/browser assertions for drag and `Connect to…` equivalents, mandatory dialog cancellation, pending preview, stale-response rejection, self/cycle/foreign-scope refusal and inline recovery/retry. Both gestures must produce the same command/receipt; cancel must leave dependency/audit counts unchanged.
+- [x] Implement the dialog, focus restoration and pointer threshold without changing derived layout. Pending/declared/satisfied/undeclared/refused have text or shape and accessible announcements, not color alone. Reverted previews retain enough context to correct the error.
+- [x] Run `npm --prefix apps/server test -- tests/unit/pipeline-edge-interactions.test.js tests/unit/dependency-map-view.test.js` and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-edge-editing.spec.js`. Include keyboard-only, single-pointer, narrow viewport and reduced-motion cases in the new browser file; run the behavior-appropriate build/governance/review/CI.
+- [x] Commit the complete gesture/equivalent unit as `feat(pm): create dependency edges accessibly`.
 
 ## Task C3: Structure add/reparent with the same writer (FR-082)
 
@@ -319,3 +354,95 @@ examples before application code. No implicit adoption of new release semantics.
 selected C1. Canonical sources were reconciled through the reviewed migration;
 C1 implementation, isolated SQLite/PostgreSQL qualification and independent
 source review are recorded above. Hosted exact-head acceptance remains a PR gate.
+
+0.1.4 → 0.1.5 (2026-10-24): records C1 merge/post-merge qualification and the
+owner-selected C2 source reconciliation. Canonical identities and behavior
+contracts remain unchanged; C3–C4 and production are excluded.
+
+## C2 independent review and corrections
+
+GPT-6 Luna Max reviewed the full application/test/plan snapshot tree
+`81492bffb8a9fd443041ecc674180592cf077ace` against merged main `cb0bfbbc`.
+It identified two Important issues: coded 5xx commit failures discarded the
+idempotent request, and unordered graph refreshes could replace a newer view.
+The latter also lacked inline reload recovery after a saved commit's GET failed.
+The review's minor scope-list omission is reconciled in Task C2 above.
+
+The correction preserves accepted requests for uncertain commit outcomes,
+uses only explicit definitive refusals to abandon them, guards graph reads by
+generation/Project and invalidates reads on unmount/mutation. Save stays busy
+until its refresh settles. Failed refresh retains an inline Reload Project
+control. Deferred-response and coded-5xx regressions were written and observed
+failing first. Final execution evidence is recorded separately from the original
+review snapshot. C1 writer internals were retained, and C3/C4, production and
+merge were explicitly outside that review.
+
+Governance additionally caught a copied endpoint-type list in the new read
+projection. It now consumes the canonical endpoint enum and existing model map,
+rather than introducing another catalogue or widening an accepted baseline.
+
+An additional recovery regression reproduced that Reload Project dismissed an
+uncertain-save alert while controls remained fenced, hiding Retry handoff.
+Reload now preserves refusal/uncertain context until correction, replay or
+dismissal; it clears only a saved commit's failed-refresh alert. Browser fixture
+cleanup retains per-test edge baselines, uses the explicit disposable E2E URL,
+and distinguishes the canvas alert from Next's route announcer.
+
+## C2 local qualification (2026-10-24)
+
+C2 implementation and local acceptance are complete on the selected candidate
+application source. This records execution evidence, not a canonical lifecycle
+promotion, complete Pipeline Builder acceptance, merge or production release.
+
+| Check | Executed result and scope |
+|---|---|
+| SQLite scoped regression | `npm --prefix apps/server test --` the 16 selected canvas, contract/register, endpoint, bounds, private-evidence, bundle/delta and authorization files: 139 assertions passed, no failures/skips |
+| PostgreSQL canvas adapter | `npm --prefix apps/server run test:postgres -- tests/postgres/pipeline-canvas-adapter.test.js`: 1 passed against an owned disposable cluster and actual non-superuser/non-bypass runtime role; manual/Gate, undeclared/invalid state projection and persistence |
+| Browser | Guarded Playwright on owned loopback port 3127 and its isolated seeded SQLite: `tests/e2e/pipeline-edge-editing.spec.js`, all 10 passed in one attempt with retries disabled and the flaky/zero-test guards retained |
+| Browser behaviors | Keyboard-only, drag and single-pointer equivalents; 390px/reduced-motion; mandatory cancellation and focus restoration; delayed preview cancellation; self/cycle/opaque foreign refusal; real stale commit; transport and coded-503 replay with the identical request; guarded undo; failed and out-of-order graph reload recovery |
+| Canonical reader | `node --test apps/server/tests/node/canonical-document-registry.test.mjs`: 12 passed, no failures/skips |
+| Build | `npm --prefix apps/server run build`: PASS, including Next's validity phase; no standalone Server typecheck or configured ESLint project is claimed |
+| Local governance | Registry, graph and view regeneration followed by `npm run govern`: 0 critical / 0 warning; owned tracked generated views were inspected; ignored graph/corpus/report outputs are not staged |
+
+The original independent review and its corrections are recorded above. Final
+same-patch review confirmation and exact-head hosted CI remain integration gates
+recorded in the PR. No preview or PostgreSQL test process is left serving this
+candidate. Production and C3–C4 remain unselected. The retained local logs are
+under `.local/pm-pipeline-c2-20261024/`; the PR records reproducible commands and
+hosted evidence without treating those ignored logs as canonical authority.
+
+## C2 latest-main composition
+
+After local acceptance and PR740 creation, main advanced through PR738 to
+`832e365d14703c5cb70cb63514afeb86093b00cb` (LINE product disclosure). The
+composition preserves that main change, its new model/migrations, canonical
+record migration and updated current-schema recovery inventory; C2 introduces
+no additional model or migration relative to this base. C0 v0.1.5, ADR-035 and
+FR-083/084/085 have no changes between the original and composed base. BR-017's
+pinned source row is unchanged; upstream removed its explanatory successor note,
+while the adopted interpretation remains explicit in FR-085 and C0.
+
+The PostgreSQL selection conflict is resolved by retaining both new upstream
+LINE suites and the C2 canvas adapter suite. Generated state is rebuilt from
+the composed source rather than merged JSON. The C2 application files remain
+byte-identical to the reviewed local-acceptance source. Fresh adapter/browser,
+build, governance, exact-head hosted CI and review of this composed scope are
+required before integration. Production and C3–C4 remain unselected.
+
+## C2 composed verification corrections
+
+The first composed run at `12fcd8b5` exposed two gaps after the earlier local
+qualification. Hosted PostgreSQL recovery failed four tests because the extracted
+handoff schema was imported without `.js`: the bundled application accepted it,
+but the unbundled Node recovery CLI raised `ERR_MODULE_NOT_FOUND`. A child-process
+CLI-load regression failed first; both the import and re-export now use the
+explicit extension. The existing full affected recovery suites are rerun in
+addition to the canvas adapter; a canvas-only pass cannot qualify recovery.
+
+The composed browser run passed 9 of 10 cases. Its failed-refresh test installed
+the simulated 503 before the initial page graph read had settled, causing an
+initial-load refusal rather than the intended post-save refusal. Browser setup
+now waits for the rendered connection control before fault injection. This
+changes test synchronization, not product behavior. The final PR evidence
+must record fresh results and independent review for these corrections; the failed
+run is retained and is not counted as a pass. Production and C3–C4 remain excluded.

@@ -37,7 +37,7 @@ describe('GET /api/projects/:id/dependencies', () => {
       params: { id: 'project-a' },
     })
 
-    expect(getProjectDependencyGraph).toHaveBeenCalledWith('project-a')
+    expect(getProjectDependencyGraph).toHaveBeenCalledWith('project-a', { viewer: await resolveRequestViewer.mock.results[0].value })
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual(graph)
   })

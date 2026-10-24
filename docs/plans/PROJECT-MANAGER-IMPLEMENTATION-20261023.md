@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.8"
+version: "0.1.9"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -21,7 +21,7 @@ relations:
 
 **Goal:** Close the remaining PM implementation/evidence gaps within the approved linked SRS, with independently reviewable increments and explicit release boundaries.
 
-**Architecture:** Retain the Server modular monolith, PM-owned writers and repository interfaces, the existing import lane, Identity authorization and immutable audit evidence. Qualify implemented capabilities before proposing additional code. The Pipeline Builder is a separately gated track because its controlling ADR remains proposed.
+**Architecture:** Retain the Server modular monolith, PM-owned writers and repository interfaces, the existing import lane, Identity authorization and immutable audit evidence. Qualify implemented capabilities before proposing additional code. The Pipeline Builder is a separately gated track with C0 v0.1.5 adopted at `1b76049a`; C1 merged and C2 selected separately.
 
 **Tech Stack:** Existing Next.js/React JavaScript, Zod, Prisma SQLite and generated PostgreSQL adapter, Vitest, Playwright and repository governance. No new framework or external service is selected.
 
@@ -29,7 +29,7 @@ relations:
 
 ## Global Constraints
 
-- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first, followed by B1 source reconciliation. A1 and B1/B2 are locally accepted; B3 local qualification is recorded below; B4 and C remain unstarted; C0 contract adoption and external release authority remain separate.
+- The owner approved this plan package at `c291afcd` on 2026-10-23 and explicitly authorized A1 implementation, tests and independent review first, followed by B1 source reconciliation. A1 and B1–B4 were qualified through PR727/730. C0 v0.1.5 was adopted at `1b76049a`; C1 merged through PR737 with exact-commit post-merge checks. The owner selected C2 only on 2026-10-24; C3–C4 and production remain unselected.
 - Canonical statements, explicit FEAT membership and subject anchors remain pinned. This SRS approval is not approval of a canonical-row migration or of the wider PMR candidate.
 - Execution modes remain `SOFTWARE_SPRINT`, `DATA_MIGRATION`, `B2B_SALES`, `B2C_CAMPAIGN`, `PRODUCT_LAUNCH`, `OPERATIONS`, `BUSINESS_EXPANSION`; consume their existing enum/contract source.
 - Preserve Tenant isolation, Business operation, Project ownership, strategy-weighted progress and the current neutral work model. Team and Employment never supply access grants.
@@ -78,7 +78,7 @@ from Track C because the selected FEAT's source already names them.
 |---|---|---|---|
 | [A: approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | Real PostgreSQL PM races, atomic audit rollback and exact source-bound results | Approval of this plan; unchanged ADR-103 scope | Yes; owner authorized A1 on 2026-10-23 |
 | [B: existing-delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Current-source disposition, runtime-role/service proof, adapter/recovery/browser evidence and a release candidate | B1 source reconciliation; A before a release containing approval behavior | B1 accepted at 56b6ed97; owner authorized B2 isolated role/service/recovery qualification. B3 local adapter/browser qualification is recorded below; external/live steps need the selected environment's authority |
-| [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | No; ADR-035 is still design-only |
+| [C: Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Handoff contract, accessible canvas editing and server-enforced release holds | C0 accepted technical supplement/ADR-035 disposition; C1 before C2, C3 and C4 | C0 adopted at `1b76049a`; C1 merged as `cb0bfbbc` (PR737). C2 is selected; C3–C4 remain unselected |
 
 ```mermaid
 flowchart LR
@@ -153,7 +153,19 @@ row has a named owning task and test cases in that subplan.
 
 0.1.1 (2026-10-23): owner approved the plan package at c291afcd and selected A1 for execution with tests/review. Wider candidate and Pipeline contract adoption remain excluded.
 
-## Current execution state — 2026-10-23
+## Current execution state — 2026-10-24
+
+C0 v0.1.5 D1–D6 and its canonical adoption migration are accepted. C1 merged
+through PR737 as `cb0bfbbcf42140bdd7295c8ebe95461e5d988a4b`; exact-commit
+post-merge governance, Edge/Desktop and Docker build workflows succeeded.
+The owner selected C2 accessible edge creation next, with adapter/browser tests
+and independent review. C2 local adapter/browser qualification is complete;
+final same-patch review confirmation and exact-head hosted checks remain PR
+integration gates. The [C subplan](PM-PIPELINE-BUILDER-20261023.md#c2-source-qualification-2026-10-24)
+records source reconciliation and scoped evidence. C3–C4 and production remain
+unselected. This is not complete Pipeline Builder or release acceptance.
+
+### Earlier current-state note — 2026-10-23
 
 PR727 is merged as `5012c9bd`; exact-source post-merge Governance, Edge/Desktop
 and Docker build-only CI passed. The owner then selected [B4 isolated UAT](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md#b4-isolated-uat-environment-acceptance--2026-10-23)
@@ -219,3 +231,7 @@ patch; the qualified application artifact remains pinned to `5012c9bd`.
 
 0.1.8 (2026-10-23): record PR730 merge/post-merge CI and owner selection of C0
 contract preparation. C1–C4 remain CONTRACT_NOT_ADOPTED; production unselected.
+
+0.1.8 → 0.1.9 (2026-10-24): reconciles C0 adoption and C1 merge/post-merge
+qualification; selects C2 only under the owner's current instruction. Earlier
+increment notes remain historical; no canonical requirement lifecycle changes.

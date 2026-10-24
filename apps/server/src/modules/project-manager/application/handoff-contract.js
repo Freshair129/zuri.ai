@@ -5,19 +5,12 @@ import { GATE_STATUSES } from '../../../lib/validation/enums.js'
 import { z } from 'zod'
 import { createHash } from 'node:crypto'
 
-const uuid = z.string().uuid().transform(value => value.toLowerCase())
-const text = z.string().transform(value => value.trim().normalize('NFC'))
-  .refine(value => [...value].length >= 1 && [...value].length <= 2000)
-const gate = z.object({ kind: z.literal('GATE'), gateId: uuid }).strict()
-const manual = z.object({ kind: z.literal('MANUAL'), satisfied: z.boolean() }).strict()
+import { zHandoffContractV1, uuid, text, gate, manual } from './handoff-contract-schema.js'
+export { zHandoffContractV1 } from './handoff-contract-schema.js'
 const storedManual = manual.extend({
   actorPersonId: uuid, decisionAuditEventId: uuid,
   decisionAt: z.string().regex(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)
     .refine(value => !Number.isNaN(Date.parse(value)) && new Date(value).toISOString() === value),
-}).strict()
-export const zHandoffContractV1 = z.object({
-  version: z.literal(1), deliverable: text,
-  acceptance: z.discriminatedUnion('kind', [manual, gate]),
 }).strict()
 export const zStoredHandoffContractV1 = z.object({
   version: z.literal(1), deliverable: text,
