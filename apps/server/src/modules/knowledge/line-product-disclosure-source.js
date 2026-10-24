@@ -35,7 +35,7 @@ const jsonHash = (value) => hashGenesisRag17Json(value)
 const businessSelect = { id: true, tenantId: true, status: true }
 const accountSelect = {
   id: true, tenantId: true, businessId: true, status: true, transportMode: true,
-  archivedAt: true, version: true,
+  archivedAt: true, serverEnabled: true,
 }
 const productSelect = {
   id: true, tenantId: true, businessId: true, code: true, name: true, unit: true,
@@ -53,7 +53,7 @@ const ingestionSelect = {
   rawArtifactId: true, parsedArtifactId: true, snapshotId: true, snapshotGeneration: true, receiptHash: true,
 }
 const assetSelect = {
-  id: true, tenantId: true, businessId: true, projectId: true, workItemId: true,
+  id: true, code: true, tenantId: true, businessId: true, projectId: true, workItemId: true,
   storageKind: true, relativePath: true, externalUrl: true, blobRef: true, name: true,
   mime: true, size: true, sha256: true, status: true, version: true, deletedAt: true,
 }
@@ -145,7 +145,7 @@ function accountIdentity(account) {
     status: account?.status ?? null,
     transportMode: account?.transportMode ?? null,
     archivedAt: safeTimestamp(account?.archivedAt),
-    version: account?.version ?? null,
+    serverEnabled: account?.serverEnabled ?? null,
   }
 }
 
@@ -229,7 +229,7 @@ function validateLiveScope({ business, account, product, input }) {
     && business.status === 'ACTIVE')
   insist(account && account.id === input.accountId && account.tenantId === input.tenantId
     && account.businessId === input.businessId && account.status === 'CONNECTED'
-    && account.transportMode === 'CLOUD' && account.archivedAt == null)
+    && account.transportMode === 'CLOUD' && account.serverEnabled === true && account.archivedAt == null)
   insist(product && product.id === input.productId && product.tenantId === input.tenantId
     && product.businessId === input.businessId && product.status === 'ACTIVE'
     && product.archivedAt == null && product.itemKind !== 'CUSTOM_COMPONENT'
@@ -318,7 +318,9 @@ function publicBinding({ input, manifest, entry, source, ingestion, asset, descr
     businessId: input.businessId,
     accountId: input.accountId,
     business: { id: business.id, identitySha256: jsonHash(businessIdentity(business)) },
-    account: { id: account.id, version: account.version, identitySha256: jsonHash(accountIdentity(account)) },
+    // Account.version also advances for policy/send row locks. Bind eligibility,
+    // not that bookkeeping counter; both CAS fences remain enforced separately.
+    account: { id: account.id, identitySha256: jsonHash(accountIdentity(account)) },
     product: { id: product.id, version: product.version, identitySha256: jsonHash(productIdentity(product)) },
     source: {
       id: source.id,
