@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.11"
+version: "0.1.12"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -241,3 +241,21 @@ increment notes remain historical; no canonical requirement lifecycle changes.
 owner's separate selection of C3. No merge, C4 or production is selected.
 
 0.1.10 → 0.1.11 (2026-10-24): reconciles C2/C3 merge evidence and selects C4 source qualification and implementation under unchanged adopted C0 contract; production remains excluded.
+
+
+## Pipeline Builder environment qualification — 2026-10-25
+
+C1–C4 are merged through PR737/740/742/744; C4 actual merge is `33e5616d`.
+The owner subsequently selected isolated Pipeline Builder environment acceptance.
+The [Pipeline subplan](PM-PIPELINE-BUILDER-20261023.md#pipeline-builder-isolated-uat-acceptance--2026-10-25)
+records the new pinned image, independent DB/volume, runtime-role, unchanged issued
+migrations, authenticated API/browser and full/protected recovery results.
+Serial governance passed0critical/0warning/43info and corpus/check passed.
+Independent GPT-6 Luna Max final bounded-UAT review is PASS with no material
+blocker; final composed documentary wording is revalidated before commit.
+This does not promote canonical delivery cells or accept production,
+arbitrary binary/object custody, capacity or off-host recovery. Historical B4 UAT
+on `5012c9bd` remains a different artifact.
+
+0.1.11 → 0.1.12: reconciles merged Pipeline Builder and its owner-selected isolated
+environment evidence; no new feature/requirement/contract or production authority.
