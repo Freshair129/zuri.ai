@@ -1,7 +1,7 @@
 // @req FR-230 — durable memory admission fence survives a lost lock connection.
 // @spec SEC-031, ADR-091 — pending maintenance blocks MSP access, not CRM ingress.
 // @tested tests/integration/msp-retention-fence.test.js, tests/unit/msp-retention.test.js
-export function createMspRetentionGate(db) {
+export function createMspRetentionGate(db, { excludeRunId = '' } = {}) {
   return async ({ tenantId }) => {
     if (typeof tenantId !== 'string' || !tenantId) throw new Error('MSP_RETENTION_GATE_SCOPE_REQUIRED')
     let outstanding
@@ -9,6 +9,7 @@ export function createMspRetentionGate(db) {
       outstanding = await db.$queryRaw`
         SELECT s."id" FROM "AuditEvent" s
         WHERE s."tenantId" = ${tenantId} AND s."entityType" = 'MSP_RETENTION'
+          AND s."entityId" <> ${excludeRunId}
           AND s."action" = 'MSP_RETENTION_STARTED'
           AND NOT EXISTS (
             SELECT 1 FROM "AuditEvent" e

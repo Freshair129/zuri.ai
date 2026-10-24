@@ -10,6 +10,13 @@ const request = (bearer = token, query = '') => new Request(`http://localhost/ap
 beforeEach(() => { vi.resetAllMocks(); vi.stubEnv('ZURI_MSP_RETENTION_SWEEP_TOKEN', token); mocks.run.mockResolvedValue({ ok: true, runId: 'run', tenants: [] }) })
 afterEach(() => vi.unstubAllEnvs())
 describe('MSP retention route', () => {
+  it('accepts the empty body stream supplied by the real Next HTTP adapter', async () => {
+    const req = new Request('http://localhost/api/agent/memory-retention?dry_run=true', {
+      method: 'POST', headers: { authorization: `Bearer ${token}` }, body: '' })
+    expect(req.body).not.toBeNull()
+    expect((await POST(req)).status).toBe(200)
+    expect(mocks.run).toHaveBeenCalledWith({ dryRun: true })
+  })
   it('recovery accepts only exact run/container attestation after the operator bearer', async () => {
     const body = { reconcileRunId: '00000000-0000-4000-8000-000000000001', stoppedContainerId: 'a'.repeat(64), proof: { claims: {}, signature: 'host-proof' } }
     const req = (value, auth = token, query = '') => new Request(`http://localhost/api/agent/memory-retention${query}`, {

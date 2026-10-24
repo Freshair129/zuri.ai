@@ -18,8 +18,8 @@ export async function POST(request) {
   // Sweep reads no body. Recovery accepts only the deployment operator's exact
   // run/stopped-container attestation; no supplied Tenant or clock is accepted.
   try {
-    if (request.body !== null) {
-      const raw = await request.text()
+    const raw = await request.text()
+    if (raw.length > 0) {
       if (raw.length > 1024) return NextResponse.json({ error: 'MSP_RETENTION_REQUEST_INVALID' }, { status: 400 })
       let body
       try { body = JSON.parse(raw) } catch { return NextResponse.json({ error: 'MSP_RETENTION_REQUEST_INVALID' }, { status: 400 }) }

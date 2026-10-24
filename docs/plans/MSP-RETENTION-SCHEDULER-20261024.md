@@ -90,13 +90,13 @@ does not enable memory or change the running image.
 
 ## Implementation tasks
 
-- [ ] 1. Add red tests for maintenance configuration/signing, downward-only
+- [x] 1. Add red tests for maintenance configuration/signing, downward-only
   windows, complete/partial/unknown outcomes and live-job skip/fence order.
   Implement Agent maintenance port/service and authenticated route.
-- [ ] 2. Add worker tests for exact endpoint, credentials, dry-run selection,
+- [x] 2. Add worker tests for exact endpoint, credentials, dry-run selection,
   timeout/redirect/error redaction and failed/deferred status. Implement worker
   plus guarded Windows registration/action scripts.
-- [ ] 3. Run real isolated SQLite and PostgreSQL fence tests. Run actual pinned
+- [x] 3. Run real isolated SQLite and PostgreSQL fence tests. Run actual pinned
   MSP dry/live/retry with old/fresh/foreign content, fresh process, nonce and
   tool-visible tombstone checks. Synthetic data only; no production writes.
 - [ ] 4. Run relevant existing consumer/CRM/transport tests, Server build and

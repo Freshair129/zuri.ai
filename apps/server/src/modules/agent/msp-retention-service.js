@@ -6,6 +6,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { createMspTransportFromEnvironment } from './msp-stdio-transport'
 import { resolveMspRetentionConfig, createMspRetentionPort, MSP_RETENTION_COUNT_KEYS, MSP_RETENTION_ROW_BOUND } from './msp-retention-port.mjs'
 import { verifyMspRetentionRecoveryProof } from './msp-retention-recovery.mjs'
+import { createMspRetentionGate } from './msp-retention-gate'
 
 // @req FR-230 — scheduled provider-owned retention, preserving live LINE work.
 // @spec SEC-031, ADR-091 — current Tenant override, signed scope and audit counts.
@@ -64,8 +65,7 @@ export async function runMspRetentionSweep({ db = prisma, env = process.env, dry
   for (const target of config.targets) {
     const space = await db.workspace.findFirst({ where: { id: target.workspaceId, status: 'ACTIVE' },
       select: { id: true, tenantId: true, business: { select: { tenantId: true } } } })
-    const ancestry = [space?.tenantId, space?.business?.tenantId].filter(value => value !== null && value !== undefined)
-    if (!space || ancestry.length === 0 || ancestry.some(value => value !== target.tenantId)) throw new Error('MSP_RETENTION_SCOPE_INVALID')
+    if (!space || space.tenantId !== target.tenantId || space.business?.tenantId !== target.tenantId) throw new Error('MSP_RETENTION_SCOPE_INVALID')
   }
   const runId = randomUUID(), tenants = [], deadline = Date.now() + 75000
   for (const target of config.targets) {
@@ -85,6 +85,13 @@ export async function runMspRetentionSweep({ db = prisma, env = process.env, dry
     }
     try {
       outcome = await withFence(db, env, provider, async tx => {
+        try { await createMspRetentionGate(tx, { excludeRunId: runId })({ tenantId }) }
+        catch (error) {
+          if (error.message !== 'MSP_RETENTION_IN_PROGRESS') throw error
+          const value = { tenantId, status: 'DEFERRED', reason: 'PRIOR_RUN_UNSETTLED', tablesAffected: totals }
+          const event = await audit(tx, value.status, value)
+          return { ...value, auditEventId: event.id }
+        }
         const pendingJobs = await tx.lineConversationJob.count({ where: { tenantId, OR: [
           { status: { notIn: TERMINAL } }, { memoryDeliveryState: { notIn: ['NONE', 'ACKNOWLEDGED', 'CLOSED'] } },
         ] } })
@@ -145,6 +152,9 @@ export async function reconcileMspRetentionRun({ db = prisma, env = process.env,
     const receipts = []
     for (const event of started) {
       const existing = await client.auditEvent.findFirst({ where: { entityType: 'MSP_RETENTION', entityId: runId, tenantId: event.tenantId, action: 'MSP_RETENTION_RECONCILED' } })
+      const settled = await client.auditEvent.findFirst({ where: { entityType: 'MSP_RETENTION', entityId: runId, tenantId: event.tenantId,
+        action: { in: ['MSP_RETENTION_COMPLETE', 'MSP_RETENTION_DRY_RUN', 'MSP_RETENTION_DEFERRED', 'MSP_RETENTION_PARTIAL', 'MSP_RETENTION_UNKNOWN', 'MSP_RETENTION_FAILED'] } } })
+      if (settled && !existing) throw new Error('MSP_RETENTION_RECONCILE_ALREADY_SETTLED')
       const receipt = existing ?? await recordAudit(client, { entityType: 'MSP_RETENTION', entityId: runId, tenantId: event.tenantId,
         action: 'MSP_RETENTION_RECONCILED', actorType: 'SYSTEM', reason: 'DEPLOYMENT_OPERATOR_CONFIRMED_CONTAINER_STOPPED',
         payload: { runId, startedAuditEventId: event.id, stoppedContainerId, replacementContainerHost: currentHost,

@@ -17,16 +17,24 @@ const now = new Date('2026-10-24T00:00:00Z')
 const result = (count = 0, dryRun = false) => ({ dryRun, cutoff: '2026-09-24T00:00:00.000Z', tablesAffected: { ...zero(), threadMessages: count } })
 function fixture({ provider = 'sqlite', jobs = 0, override = null } = {}) {
   const order = [], audits = []
-  const tx = { $executeRawUnsafe: vi.fn(async () => { order.push('lock') }),
+  const tx = { $queryRaw: vi.fn(async () => []), $executeRawUnsafe: vi.fn(async () => { order.push('lock') }),
     lineConversationJob: { count: vi.fn(async () => { order.push('jobs'); return jobs }) },
     tenantRetentionOverride: { findUnique: vi.fn(async () => override) },
     auditEvent: { create: vi.fn(async ({ data }) => { order.push(data.action); audits.push(data); return { id: `audit-${audits.length}` } }) } }
   const db = { ...tx, _engineConfig: { activeProvider: provider },
-    workspace: { findFirst: vi.fn(async () => ({ id: workspaceId, tenantId, business: null })) },
+    workspace: { findFirst: vi.fn(async () => ({ id: workspaceId, tenantId, business: { tenantId } })) },
     $transaction: vi.fn(async fn => fn(tx)) }
   return { db, tx, order, audits }
 }
 describe('MSP maintenance authority', () => {
+  it('defers a later sweep while a prior run remains unsettled', async () => {
+    const f = fixture(), portFactory = vi.fn()
+    f.tx.$queryRaw.mockResolvedValue([{ id: 'prior-started' }])
+    const value = await runMspRetentionSweep({ db: f.db, env: env(), portFactory })
+    expect(value.ok).toBe(false)
+    expect(value.tenants[0]).toMatchObject({ status: 'DEFERRED', reason: 'PRIOR_RUN_UNSETTLED' })
+    expect(portFactory).not.toHaveBeenCalled()
+  })
   it('requires an expiring host-only Ed25519 proof bound to exact environment and container/run identities', () => {
     const { privateKey, publicKey } = generateKeyPairSync('ed25519')
     const recoveryEnv = { ZURI_MSP_RETENTION_RECOVERY_PUBLIC_KEY: Buffer.from(publicKey.export({ format: 'pem', type: 'spki' })).toString('base64'),
@@ -154,7 +162,8 @@ describe('MSP retention execution', () => {
   it('rejects contradictory Workspace ancestry even when one parent matches', async () => {
     const f = fixture(), factory = vi.fn()
     for (const space of [{ id: workspaceId, tenantId, business: { tenantId: 'foreign' } },
-      { id: workspaceId, tenantId: 'foreign', business: { tenantId } }, { id: workspaceId, tenantId: null, business: null }]) {
+      { id: workspaceId, tenantId: 'foreign', business: { tenantId } }, { id: workspaceId, tenantId: null, business: null },
+      { id: workspaceId, tenantId, business: null }, { id: workspaceId, tenantId: null, business: { tenantId } }]) {
       f.db.workspace.findFirst.mockResolvedValue(space)
       await expect(runMspRetentionSweep({ db: f.db, env: env(), now, portFactory: factory })).rejects.toThrow('MSP_RETENTION_SCOPE_INVALID')
     }
