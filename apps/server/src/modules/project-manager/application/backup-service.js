@@ -1,3 +1,5 @@
+import { withPipelineTransaction } from './pipeline-writer'
+import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
 // @spec ADR-098
@@ -1780,7 +1782,7 @@ async function liveBusinessProvisioningCounts(db) {
 }
 
 export function previewSnapshot(snapshot, { remounts = [] } = {}) {
-  const errors = []
+  const errors = dependencyHandoffRecoveryErrors(snapshot)
   if (unsupportedMarketingReportSnapshot(snapshot)) errors.push('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED')
   const warnings = []
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
@@ -2110,7 +2112,11 @@ export async function importSnapshot(snapshot, {
   })
 
   try {
-    await db.$transaction(async (tx) => {
+    await withPipelineTransaction(db, async (tx) => {
+      // Probe the additive field even on an empty target before any replacement.
+      try { await tx.dependency.findFirst({select:{id:true,contractJson:true}}) }
+      catch { throw new BackupRestoreSafetyError('DEPENDENCY_HANDOFF_SCHEMA_UNAVAILABLE','Dependency handoff target schema is unavailable') }
+
       await assertMarketingReportBackupSafe(tx, snapshot)
       // This is the commit-side half of the legacy protected-table guard. It
       // must run before plugin/mount/model deletion so a row that appeared

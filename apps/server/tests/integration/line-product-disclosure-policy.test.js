@@ -452,7 +452,7 @@ describe('LINE customer product disclosure policy', () => {
     expect(result.policies[0].productId).toBe(product.id)
   })
 
-  it.skipIf(!IS_POSTGRES)('applies the private PostgreSQL RLS and grants from its migration', async () => {
+  it.skipIf(!IS_POSTGRES)('applies the complete private PostgreSQL migration twice with RLS and grants', async () => {
     const client = new pg.Client({ connectionString: process.env.DATABASE_URL })
     await client.connect()
     try {
@@ -464,9 +464,12 @@ describe('LINE customer product disclosure policy', () => {
         IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'service_role') THEN CREATE ROLE service_role NOLOGIN; END IF;
       END $$`)
       const migration = readFileSync(resolve(process.cwd(), 'supabase/migrations/20261024120000_line_product_disclosure_policy.sql'), 'utf8')
-      const securityStart = migration.indexOf('ALTER TABLE "LineProductDisclosurePolicy" ENABLE ROW LEVEL SECURITY;')
-      expect(securityStart).toBeGreaterThanOrEqual(0)
-      await client.query(migration.slice(securityStart))
+      // This file runs only against global-setup-postgres's disposable cluster.
+      // Prove fresh DDL and a retry, rather than applying only the security tail
+      // to a table that Prisma had already created for the fixture.
+      await client.query('DROP TABLE public."LineProductDisclosurePolicy"')
+      await client.query(migration)
+      await client.query(migration)
 
       const { rows: [table] } = await client.query(`SELECT relrowsecurity, relforcerowsecurity
         FROM pg_class WHERE oid = 'public."LineProductDisclosurePolicy"'::regclass`)

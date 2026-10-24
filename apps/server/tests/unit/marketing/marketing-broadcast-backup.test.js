@@ -20,7 +20,7 @@ function baseSnapshot(over = {}) {
     knowledgeAdmissionRecovery: { schemaVersion: 'knowledge-admission-recovery.v1', requiredTables: ['knowledgeCorpus', 'knowledgeSource', 'knowledgeIngestion', 'knowledgeCorpusGeneration'] },
     commerceBillingRecovery: { schemaVersion: 'commerce-billing-recovery.v1', requiredTables: ['businessBillingProfile', 'commerceDocumentSequence', 'commerceDocument'] },
     marketingBroadcastRecovery: { schemaVersion: 'marketing-broadcast-recovery.v1', requiredTables: ['marketingBroadcastIntent', 'marketingBroadcastIntentVersion'] },
-    tables: {
+    tables: { dependency: [],
       tenant: [], business: [], lineOaAccount: [], marketingContentBrief: [], marketingContentVersion: [],
       marketingBroadcastIntent: [], marketingBroadcastIntentVersion: [],
       genesisRag17IngestionIntent: [], genesisRag17SourceMention: [], knowledgeCorpus: [], knowledgeSource: [], knowledgeIngestion: [], knowledgeCorpusGeneration: [],
@@ -43,7 +43,7 @@ describe('Marketing broadcast snapshot recovery', () => {
 
   it('rejects malformed child payload evidence before deletion', async () => {
     const snapshot = baseSnapshot({
-      tables: {
+      tables: { dependency: [],
         ...baseSnapshot().tables,
         tenant: [{ id: 'tenant-1' }],
         business: [{ id: 'business-1', tenantId: 'tenant-1' }],
@@ -67,7 +67,7 @@ describe('Marketing broadcast snapshot recovery', () => {
     }
     const payloadJson = serializeMarketingBroadcastPayload(payload)
     const snapshot = baseSnapshot({
-      tables: {
+      tables: { dependency: [],
         ...baseSnapshot().tables,
         tenant: [{ id: 'tenant-1' }],
         business: [{ id: 'business-1', tenantId: 'tenant-1' }],

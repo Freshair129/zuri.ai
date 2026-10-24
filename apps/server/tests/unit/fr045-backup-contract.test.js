@@ -30,7 +30,7 @@ describe('FR-045 portable backup contract', () => {
   it('previews missing Business remounts without rejecting metadata-only restore', () => {
     const snapshot = {
       schemaVersion: '1.0', exportedAt: '2026-01-01T00:00:00.000Z',
-      tables: { fileAsset: [{ id: 'a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'a.txt' }] },
+      tables: { dependency: [], fileAsset: [{ id: 'a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'a.txt' }] },
       fileContentManifest: [{ fileId: 'a', businessId: 'business-a', relativePath: 'a.txt', contentIncluded: false }],
     }
     expect(previewSnapshot(snapshot, { remounts: [] })).toMatchObject({
@@ -50,7 +50,7 @@ describe('FR-045 portable backup contract', () => {
         schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['genesisRag17IngestionIntent', 'genesisRag17SourceMention'],
       },
-      tables: { genesisRag17IngestionIntent: [] },
+      tables: { dependency: [], genesisRag17IngestionIntent: [] },
     }
 
     expect(previewSnapshot(snapshot)).toMatchObject({
@@ -67,7 +67,7 @@ describe('FR-045 portable backup contract', () => {
         schemaVersion: GENESIS_RAG17_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['genesisRag17IngestionIntent', 'genesisRag17SourceMention'],
       },
-      tables: { genesisRag17IngestionIntent: [], genesisRag17SourceMention: [] },
+      tables: { dependency: [], genesisRag17IngestionIntent: [], genesisRag17SourceMention: [] },
     })
     expect(preview).toMatchObject({ valid: true, recovery: { status: 'AVAILABLE' } })
     expect(preview.warnings).toEqual([
@@ -85,7 +85,7 @@ describe('FR-045 portable backup contract', () => {
         schemaVersion: COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['businessBillingProfile', 'commerceDocumentSequence', 'commerceDocument'],
       },
-      tables: {},
+      tables: { dependency: [],},
     }
 
     const preview = await previewImport(snapshot, { db, viewer: makeOperatorViewer() })
@@ -104,7 +104,7 @@ describe('FR-045 portable backup contract', () => {
         schemaVersion: KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['knowledgeArtifactStorage', 'knowledgeArtifactOperation'],
       },
-      tables: {
+      tables: { dependency: [],
         knowledgeRawArtifact: [],
         knowledgeArtifactStorage: [{ id: 'storage-1', rawArtifactId: 'raw-missing', status: 'READY', sha256: 'a'.repeat(64), objectVersionId: 'version-1' }],
         knowledgeArtifactOperation: [{ id: 'operation-1', storageId: 'storage-missing', idempotencyKey: 'put-1' }],
@@ -124,7 +124,7 @@ describe('FR-045 portable backup contract', () => {
         schemaVersion: KNOWLEDGE_ARTIFACT_STORAGE_RECOVERY_MANIFEST_VERSION,
         requiredTables: ['knowledgeArtifactStorage', 'knowledgeArtifactOperation'],
       },
-      tables: {
+      tables: { dependency: [],
         knowledgeRawArtifact: [{ id: 'raw-1', portfolioId: 'p-1', tenantId: 't-1', businessId: 'b-1', workspaceId: 'w-1', agentId: 'a-1', visibility: 'private' }],
         knowledgeArtifactStorage: [{ id: 'storage-1', rawArtifactId: 'raw-1', portfolioId: 'p-1', tenantId: 't-1', businessId: 'b-other', workspaceId: 'w-1', agentId: 'a-1', visibility: 'private', status: 'PENDING', sha256: 'a'.repeat(64) }],
         knowledgeArtifactOperation: [{ id: 'operation-1', storageId: 'storage-1', portfolioId: 'p-1', tenantId: 't-1', businessId: 'b-1', workspaceId: 'w-1', agentId: 'a-1', visibility: 'private', idempotencyKey: 'put-1' }],

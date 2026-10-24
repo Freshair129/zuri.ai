@@ -63,6 +63,7 @@ function prismaErrorStatus(err) {
 export async function handle(fn) {
   try {
     const data = await fn()
+    if (data instanceof Response) return data
     return NextResponse.json(data)
   } catch (err) {
     if (err instanceof ZodError) {
@@ -94,4 +95,13 @@ export async function handle(fn) {
 export function queryParams(request) {
   const url = new URL(request.url)
   return Object.fromEntries(url.searchParams.entries())
+}
+
+// @req FR-084 — retain actual UTF-8 body size before JSON parsing discards whitespace/duplicate keys.
+// @tested tests/integration/pipeline-request-bounds.test.js
+export async function readPipelineBody(request) {
+  const bytes=Buffer.from(await request.arrayBuffer())
+  let body
+  try { body=JSON.parse(bytes.toString('utf8')) } catch { throw httpError(400,'INVALID_ENVELOPE') }
+  return {body,requestBodyBytes:bytes.byteLength}
 }

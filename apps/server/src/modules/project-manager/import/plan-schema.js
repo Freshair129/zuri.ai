@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { zPlanDelta } from './plan-delta-schema'
 import {
   zExecutionMode,
   zProgressStrategy,
@@ -175,7 +176,7 @@ const zWorkstream = z
   })
   .strict()
 
-export const zPlanEnvelope = z
+export const zFullPlanEnvelope = z
   .object({
     // 1.1 adds externalRefs; 1.2 adds stable identity and trace fields.
     schemaVersion: z.enum(['1.0', '1.1', '1.2']),
@@ -281,7 +282,7 @@ const EMPTY_IDENTITY_REFS = Object.freeze({
   runbookId: null, runbookIds: [], promotionId: null, promotionIds: [], skillIds: [], toolIds: [],
 })
 
-function domainBindingForMode(mode) {
+export function domainBindingForMode(mode) {
   const binding = DEFAULT_DOMAIN_BINDINGS[mode]
   return {
     primaryDomainId: binding.primaryDomainId,
@@ -454,3 +455,13 @@ export function validatePlanSemantics(plan) {
   }
   return errors
 }
+
+// FR-084: additive delta; legacy full envelopes remain independently readable.
+// Select the version before parsing so a rejected full-plan field keeps its
+// precise issue path instead of becoming an opaque root invalid_union error.
+export const zPlanEnvelope = z.preprocess((input, context) => {
+  const schema = input?.schemaVersion === '1.3' ? zPlanDelta : zFullPlanEnvelope
+  const parsed = schema.safeParse(input)
+  if (!parsed.success) for (const issue of parsed.error.issues) context.addIssue(issue)
+  return input
+}, z.union([zFullPlanEnvelope, zPlanDelta]))

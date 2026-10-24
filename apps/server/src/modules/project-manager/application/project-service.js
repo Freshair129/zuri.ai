@@ -1,3 +1,5 @@
+import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
+import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import {
@@ -22,8 +24,8 @@ import { PROJECT_LIST_LIMIT, serializeProjectListItem, zProjectListResponse } fr
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr072-project-service-authorization.test.js
 
-const codeExists = (model) => async (code) =>
-  Boolean(await prisma[model].findUnique({ where: { code } }))
+const codeExists = (model, db = prisma) => async (code) =>
+  Boolean(await db[model].findUnique({ where: { code } }))
 
 const hasOwn = (value, key) => Object.prototype.hasOwnProperty.call(value, key)
 
@@ -138,14 +140,15 @@ export async function getProject(id) {
   })
 }
 
-export async function createProject(input, { viewer } = {}) {
+export async function createProject(input, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createProject(input, { viewer, db: tx }))
   const data = zProjectInput.parse(input)
-  const workspace = await prisma.workspace.findUnique({ where: { id: data.workspaceId } })
+  const workspace = await db.workspace.findUnique({ where: { id: data.workspaceId } })
   if (!workspace) throw new Error('Workspace not found')
   await assertWorkspaceWritable(viewer, workspace)
   const businessId = resolveProjectBusinessId(workspace, data.businessId, hasOwn(data, 'businessId'))
-  const code = data.code || (await uniqueHumanCode('PRJ', data.name, codeExists('project')))
-  const project = await prisma.project.create({
+  const code = data.code || (await uniqueHumanCode('PRJ', data.name, codeExists('project', db)))
+  const project = await db.project.create({
     data: {
       code,
       businessId,
@@ -163,19 +166,20 @@ export async function createProject(input, { viewer } = {}) {
       targetAt: data.targetAt ?? null,
     },
   })
-  await recordAudit(prisma, { entityType: 'PROJECT', entityId: project.id, action: 'CREATED', payload: { code, businessId, workspaceId: data.workspaceId } })
+  await recordAudit(db, { entityType: 'PROJECT', entityId: project.id, action: 'CREATED', payload: { code, businessId, workspaceId: data.workspaceId } })
   return project
 }
 
-export async function updateProject(id, patch, { viewer } = {}) {
+export async function updateProject(id, patch, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => updateProject(id, patch, { viewer, db: tx }))
   const data = zProjectUpdate.parse(patch)
-  await assertProjectWritable(viewer, id)
-  const existing = await prisma.project.findUnique({ where: { id }, include: { workspace: true } })
+  await assertProjectWritable(viewer, id, { db })
+  const existing = await db.project.findUnique({ where: { id }, include: { workspace: true } })
   if (!existing || existing.deletedAt) throw new Error('Project not found')
   const targetWorkspaceId = data.workspaceId ?? existing.workspaceId
   const targetWorkspace = targetWorkspaceId === existing.workspaceId
     ? existing.workspace
-    : await prisma.workspace.findUnique({ where: { id: targetWorkspaceId } })
+    : await db.workspace.findUnique({ where: { id: targetWorkspaceId } })
   if (!targetWorkspace) throw new Error('Workspace not found')
   const workspaceChanged = targetWorkspaceId !== existing.workspaceId
   // The move conjunction: the current Project's Business and the destination
@@ -191,7 +195,7 @@ export async function updateProject(id, patch, { viewer } = {}) {
   if (workspaceChanged && existing.businessId && businessId && existing.businessId !== businessId) {
     throw new Error('Cannot move a Project across Business Spaces')
   }
-  const project = await prisma.project.update({
+  const project = await db.project.update({
     where: { id },
     data: {
       businessId,
@@ -211,30 +215,33 @@ export async function updateProject(id, patch, { viewer } = {}) {
       version: { increment: 1 },
     },
   })
-  await recordAudit(prisma, { entityType: 'PROJECT', entityId: id, action: 'UPDATED', payload: { ...data, businessId, workspaceId: targetWorkspaceId } })
+  await recordAudit(db, { entityType: 'PROJECT', entityId: id, action: 'UPDATED', payload: { ...data, businessId, workspaceId: targetWorkspaceId } })
   return project
 }
 
-export async function archiveProject(id, { viewer } = {}) {
-  await assertProjectWritable(viewer, id)
-  const project = await prisma.project.update({
+export async function archiveProject(id, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => archiveProject(id, { viewer, db: tx }))
+  await assertProjectWritable(viewer, id, { db })
+  await assertPipelineEndpointRetained(db, { type: 'PROJECT', id })
+  const project = await db.project.update({
     where: { id },
     data: { status: 'ARCHIVED', deletedAt: new Date(), version: { increment: 1 } },
   })
-  await recordAudit(prisma, { entityType: 'PROJECT', entityId: id, action: 'ARCHIVED' })
+  await recordAudit(db, { entityType: 'PROJECT', entityId: id, action: 'ARCHIVED' })
   return project
 }
 
 // ---- Workstreams -----------------------------------------------------------
 
-export async function createWorkstream(input, { viewer } = {}) {
+export async function createWorkstream(input, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createWorkstream(input, { viewer, db: tx }))
   const data = zWorkstreamInput.parse(input)
-  const project = await prisma.project.findUnique({ where: { id: data.projectId } })
+  const project = await db.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
-  await assertProjectWritable(viewer, data.projectId)
+  await assertProjectWritable(viewer, data.projectId, { db })
   const strategy = data.progressStrategy || MODE_DEFAULT_STRATEGY[data.executionMode]
-  const code = data.code || (await uniqueHumanCode('WST', data.name, codeExists('workstream')))
-  const workstream = await prisma.workstream.create({
+  const code = data.code || (await uniqueHumanCode('WST', data.name, codeExists('workstream', db)))
+  const workstream = await db.workstream.create({
     data: {
       code,
       projectId: data.projectId,
@@ -246,7 +253,7 @@ export async function createWorkstream(input, { viewer } = {}) {
       viewConfigJson: JSON.stringify(data.viewConfig || {}),
     },
   })
-  await recordAudit(prisma, {
+  await recordAudit(db, {
     entityType: 'WORKSTREAM',
     entityId: workstream.id,
     action: 'CREATED',
@@ -255,12 +262,13 @@ export async function createWorkstream(input, { viewer } = {}) {
   return workstream
 }
 
-export async function updateWorkstream(id, patch, { viewer } = {}) {
+export async function updateWorkstream(id, patch, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => updateWorkstream(id, patch, { viewer, db: tx }))
   const data = zWorkstreamUpdate.parse(patch)
-  const existing = await prisma.workstream.findUnique({ where: { id } })
+  const existing = await db.workstream.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) throw new Error('Workstream not found')
-  await assertWorkstreamWritable(viewer, id)
-  const workstream = await prisma.workstream.update({
+  await assertWorkstreamWritable(viewer, id, { db })
+  const workstream = await db.workstream.update({
     where: { id },
     data: {
       name: data.name ?? existing.name,
@@ -272,17 +280,19 @@ export async function updateWorkstream(id, patch, { viewer } = {}) {
       version: { increment: 1 },
     },
   })
-  await recordAudit(prisma, { entityType: 'WORKSTREAM', entityId: id, action: 'UPDATED', payload: data })
+  await recordAudit(db, { entityType: 'WORKSTREAM', entityId: id, action: 'UPDATED', payload: data })
   return workstream
 }
 
-export async function archiveWorkstream(id, { viewer } = {}) {
-  await assertWorkstreamWritable(viewer, id)
-  const workstream = await prisma.workstream.update({
+export async function archiveWorkstream(id, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => archiveWorkstream(id, { viewer, db: tx }))
+  await assertWorkstreamWritable(viewer, id, { db })
+  await assertPipelineEndpointRetained(db, { type: 'WORKSTREAM', id })
+  const workstream = await db.workstream.update({
     where: { id },
     data: { status: 'ARCHIVED', deletedAt: new Date(), version: { increment: 1 } },
   })
-  await recordAudit(prisma, { entityType: 'WORKSTREAM', entityId: id, action: 'ARCHIVED' })
+  await recordAudit(db, await pipelineScopeAudit(db,workstream.projectId,{ entityType: 'WORKSTREAM', entityId: id, action: 'ARCHIVED' }))
   return workstream
 }
 

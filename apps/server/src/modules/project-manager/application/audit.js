@@ -50,12 +50,14 @@
  * @param {string|null} [scope.sessionId]  FR-198 — correlation, unused today.
  */
 export async function recordAudit(db, {
+  id = null,
   entityType, entityId, action, payload = {}, actorType = 'LOCAL_USER', actorId = null,
   tenantId = null, businessId = null, reason = null, beforeJson = null, afterJson = null,
   requestId = null, sessionId = null,
 }) {
   return db.auditEvent.create({
     data: {
+      ...(id ? { id } : {}),
       entityType,
       entityId,
       action,

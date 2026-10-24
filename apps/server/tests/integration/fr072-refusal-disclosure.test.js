@@ -141,14 +141,13 @@ describe('FR-072(a) refusals disclose nothing at the boundary', () => {
       { workstreamId: workstream.id, subtype: 'TASK', title: 'Disclosure Item 2', code: 'WI-DISC-2' },
       { viewer: owner },
     )
-    dependency = await createDependency(
-      {
-        sourceType: 'WORK_ITEM', sourceId: item.id,
-        targetType: 'WORK_ITEM', targetId: other.id,
-        dependencyType: 'BLOCKS',
-      },
-      { viewer: owner },
-    )
+    // Existing pre-C1 NULL edge for refusal disclosure; runtime creation now
+    // requires the adopted preview/commit contract lane, tested separately.
+    dependency = await prisma.dependency.create({data:{
+      sourceType: 'WORK_ITEM', sourceId: item.id,
+      targetType: 'WORK_ITEM', targetId: other.id,
+      dependencyType: 'BLOCKS', contractJson: null,
+    }})
     projectFile = await createProjectFile(
       project.id,
       { name: 'disclosure.txt', mime: 'text/plain', size: 12, url: 'https://example.test/d.txt' },

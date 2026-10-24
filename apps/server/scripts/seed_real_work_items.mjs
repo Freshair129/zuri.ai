@@ -1,3 +1,8 @@
+// @req FR-084 — historical bespoke seed is retired before C1 activation.
+// @spec ADR-035
+// @tested tests/unit/pipeline-writer-census.test.js
+throw new Error('UPGRADE_REQUIRED: historical real-data seed is disabled; use authorized PlanEnvelope intake')
+
 import { PrismaClient as PostgresPrismaClient } from '@zuri/prisma-postgres'
 import { randomUUID } from 'crypto'
 

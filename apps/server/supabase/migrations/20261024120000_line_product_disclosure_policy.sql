@@ -1,4 +1,10 @@
-CREATE TABLE "LineProductDisclosurePolicy" (
+-- @req FR-235 — owner-approved per-product/per-field LINE disclosure.
+-- @spec SEC-001, SEC-032, ADR-018 — private authority and separately gated database apply.
+-- NOT APPLIED: source migration only. The authorized operator applies this SQL
+-- to the selected isolated target under docs/DB-MIGRATION-NOTES.md, verifies
+-- RLS/forced policy and role grants in PostgreSQL, then records apply evidence.
+
+CREATE TABLE IF NOT EXISTS "LineProductDisclosurePolicy" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
     "businessId" TEXT NOT NULL,
@@ -27,15 +33,15 @@ CREATE TABLE "LineProductDisclosurePolicy" (
       FOREIGN KEY ("productId", "tenantId", "businessId") REFERENCES "Product"("id", "tenantId", "businessId") ON DELETE CASCADE ON UPDATE CASCADE
 );
 
-CREATE UNIQUE INDEX "LineProductDisclosurePolicy_scope_product_key"
+CREATE UNIQUE INDEX IF NOT EXISTS "LineProductDisclosurePolicy_scope_product_key"
   ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "productId");
-CREATE INDEX "LineProductDisclosurePolicy_scope_account_idx"
+CREATE INDEX IF NOT EXISTS "LineProductDisclosurePolicy_scope_account_idx"
   ON "LineProductDisclosurePolicy"("businessId", "lineOaAccountId");
-CREATE INDEX "LineProductDisclosurePolicy_sku_lookup_idx"
+CREATE INDEX IF NOT EXISTS "LineProductDisclosurePolicy_sku_lookup_idx"
   ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "skuLookupSha256");
-CREATE INDEX "LineProductDisclosurePolicy_name_th_lookup_idx"
+CREATE INDEX IF NOT EXISTS "LineProductDisclosurePolicy_name_th_lookup_idx"
   ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "nameThLookupSha256");
-CREATE INDEX "LineProductDisclosurePolicy_name_en_lookup_idx"
+CREATE INDEX IF NOT EXISTS "LineProductDisclosurePolicy_name_en_lookup_idx"
   ON "LineProductDisclosurePolicy"("tenantId", "businessId", "lineOaAccountId", "nameEnLookupSha256");
 
 -- Private application policy rows contain owner-approved customer-facing facts

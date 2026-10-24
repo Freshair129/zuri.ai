@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -33,7 +34,7 @@ describe('Project Manager execution trace and replay', () => {
       businessId: business.id,
       code: 'WS-TRACE',
     })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
     plan = {
       schemaVersion: '1.2',
       generatedBy: 'trace-test',

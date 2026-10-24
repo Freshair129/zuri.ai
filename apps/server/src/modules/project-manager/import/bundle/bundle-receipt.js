@@ -1,3 +1,4 @@
+import { readPipelineState, pipelineReleaseScopes } from '../../application/pipeline-state'
 import { createHash } from 'node:crypto'
 import { recordAudit } from '../../application/audit'
 
@@ -51,32 +52,31 @@ export function normalizedBundleHash(bundle) {
  *                                           event the first run wrote. Replay
  *                                           never mutates historical records.
  */
-export async function findBundleReplay(tx, { idempotencyKey, payloadHash }) {
+export async function findBundleReplay(tx, { idempotencyKey, payloadHash, actor, businessId }) {
   const existing = await tx.planImportReceipt.findUnique({ where: { idempotencyKey } })
   if (!existing) return null
   if (existing.payloadHash !== payloadHash || existing.stepKey !== BUNDLE_STEP_KEY) {
     return {
       conflict: true,
-      errors: [`Idempotency key "${idempotencyKey}" was already used with a different payload`],
+      errors: ['IDEMPOTENCY_CONFLICT: already used with a different payload'],
     }
   }
   let receipt = null
   if (existing.auditEventId) {
     const auditEvent = await tx.auditEvent.findUnique({ where: { id: existing.auditEventId } })
     try {
-      receipt = JSON.parse(auditEvent?.payloadJson ?? 'null')?.receipt ?? null
+      const payload = JSON.parse(auditEvent?.payloadJson ?? 'null')
+      // Historical Bundle1.0 recorded no actor. Its freshly authorized Business,
+      // exact payload and original audit/receipt lineage remain the replay fence.
+      const actorMatches=payload && (Object.hasOwn(payload,'receiptActor') ? payload.receiptActor === actor : existing.schemaVersion === '1.0' && payload.schemaVersion === '1.0')
+      if(!actorMatches || payload?.businessId !== businessId || payload?.payloadHash !== payloadHash || payload?.idempotencyKey !== idempotencyKey || auditEvent?.action !== BUNDLE_AUDIT_ACTION || auditEvent?.entityType !== 'EXECUTION_PLAN_BUNDLE' || auditEvent?.entityId !== existing.executionRunId || payload?.receipt?.bundleRunId !== existing.executionRunId) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
+      receipt = payload?.receipt ?? null
     } catch {
       receipt = null
     }
   }
-  return {
-    replay: true,
-    receipt: receipt ?? {
-      bundleRunId: existing.executionRunId,
-      idempotencyKey: existing.idempotencyKey,
-      status: existing.status,
-    },
-  }
+  if(!receipt) return {conflict:true,errors:['IDEMPOTENCY_CONFLICT: already used with a different payload']}
+  return {replay:true,receipt}
 }
 
 /**
@@ -86,16 +86,18 @@ export async function findBundleReplay(tx, { idempotencyKey, payloadHash }) {
  * makes replay and hash-conflict detection possible. Must run inside the
  * commit transaction so a failed bundle leaves neither.
  */
-export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt }) {
+export async function recordBundleReceipt(tx, { bundle, business, payloadHash, receipt, auditEventId = null, actorPersonId = null, tenantId = null, receiptActor = null }) {
   const idempotencyKey = bundle.trace?.idempotencyKey ?? null
   const correlationId = bundle.trace?.correlationId ?? null
 
   const auditEvent = await recordAudit(tx, {
+    id: auditEventId, actorId: actorPersonId, tenantId, businessId: actorPersonId ? business.id : null,
     entityType: 'EXECUTION_PLAN_BUNDLE',
     entityId: receipt.bundleRunId,
     action: BUNDLE_AUDIT_ACTION,
     actorType: 'AGENT_PLAN',
     payload: {
+      receiptActor,
       manifestCode: bundle.manifest.code,
       businessId: business.id,
       businessCode: business.code,
@@ -104,6 +106,7 @@ export async function recordBundleReceipt(tx, { bundle, business, payloadHash, r
       correlationId,
       payloadHash,
       receipt,
+      ...(actorPersonId ? { releaseScopes: pipelineReleaseScopes(await readPipelineState(tx), receipt.projects.map(project => project.projectId)), stateImages: (await tx.dependency.findMany({ where: { id: { in: receipt.dependencies.filter(edge => !edge.existed).map(edge => edge.id) } } })).map(row => ({ type: 'DEPENDENCY', id: row.id, before: null, after: row })) } : {}),
     },
   })
 

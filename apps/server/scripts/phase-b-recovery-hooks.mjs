@@ -40,7 +40,7 @@ async function composedBackupService() {
         plugins: [{
           name: 'phase-b-no-ambient-db',
           setup(buildContext) {
-            buildContext.onResolve({ filter: /^@\/lib\/db$/ }, () => ({ path: 'phase-b-injected-db', namespace: 'phase-b-injected-db' }))
+            buildContext.onResolve({ filter: /(?:^@\/lib\/db$|(?:^|\/)lib\/db(?:\.js)?$)/ }, () => ({ path: 'phase-b-injected-db', namespace: 'phase-b-injected-db' }))
             buildContext.onLoad({ filter: /.*/, namespace: 'phase-b-injected-db' }, () => ({ contents: 'export const prisma = {}; export default prisma', loader: 'js' }))
           },
         }],

@@ -141,7 +141,9 @@ describe('Project Feature repository boundary', () => {
     })
 
     expect(calls[0].kind).toBe('transaction')
-    expect(calls.find((call) => call.kind === 'execute')).toMatchObject({ params: [tenantId, businessId] })
+    expect(calls[1].sql).toContain('lock_timeout')
+    expect(calls[2].sql).toContain('LOCK TABLE \"Dependency\"')
+    expect(calls.find((call) => call.kind === 'execute' && call.sql.includes('set_config'))).toMatchObject({ params: [tenantId, businessId] })
     expect(calls.find((call) => call.kind === 'query' && call.sql.includes('FOR UPDATE'))).toBeTruthy()
     expect(db.project.findUnique).toHaveBeenCalledTimes(2)
     expect(db.workspace.findUnique).toHaveBeenCalledTimes(2)

@@ -35,6 +35,20 @@ afterEach(async () => {
   }
 })
 
+// Each fresh archive directory belongs to this fixture Tenant. A suite-wide
+// sweep would archive earlier files' Tenants into it and break rollback proofs.
+async function sweepFixtureTenant(tenantId, options) {
+  const tenant = new Proxy(prisma.tenant, { get(delegate, key) {
+    if (key === 'findMany') return args => delegate.findMany({...args,where:{AND:[args?.where || {},{id:tenantId}]}})
+    const value=delegate[key];return typeof value==='function'?value.bind(delegate):value
+  } })
+  const db=new Proxy(prisma,{get(client,key){
+    if(key==='tenant') return tenant
+    const value=client[key];return typeof value==='function'?value.bind(client):value
+  }})
+  return runRetentionSweep({...options,db})
+}
+
 async function freshScope(label) {
   const suffix = randomUUID().slice(0, 8)
   const pf = await createPortfolio({ name: `CEA-hold ${label} ${suffix}`, code: `PF-CEAH-${suffix}` })
@@ -274,7 +288,7 @@ describe('SEC-034 erasure and the legal hold (TASK-ZAI-113 P1)', () => {
     expect(aBeforeB.customerId).not.toBe(bMessage.customerId)
     expect(aAfterB.customerId).toBe(aBeforeB.customerId)
 
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
     const hold = await recordCustomerLegalHold(
       bMessage.customerId,
       { businessId: business.id, reason: 'active hold before rollback test', endDate: futureDateOnly(400) },
@@ -397,7 +411,7 @@ describe('SEC-034 erasure and the legal hold (TASK-ZAI-113 P1)', () => {
   it('destroys the archive key on erasure when there is no legal hold', async () => {
     const { tenant, business } = await freshScope('erase-nohold')
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
 
     const keyBefore = await prisma.customerArchiveKey.findUnique({ where: { customerId: backdated.customerId } })
     expect(keyBefore).toBeTruthy()
@@ -414,7 +428,7 @@ describe('SEC-034 erasure and the legal hold (TASK-ZAI-113 P1)', () => {
     const { tenant, business } = await freshScope('erase-hold')
     const { viewer } = await ownerOf(business)
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
 
     await recordCustomerLegalHold(backdated.customerId, { businessId: business.id, reason: 'ข้อพิพาทที่ยังไม่จบ', endDate: futureDateOnly(400) }, { viewer })
 
@@ -451,7 +465,7 @@ describe('SEC-034 expireChatEvidenceArchive (TASK-ZAI-113 P2)', () => {
   it('destroys a Customer key once every archived line is past the retention term, and deletes the now-fully-expired file', async () => {
     const { tenant, business } = await freshScope('expire')
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
     const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
     expect(manifest).toBeTruthy()
     const filePath = path.join(baseDir, manifest.filePath)
@@ -474,7 +488,7 @@ describe('SEC-034 expireChatEvidenceArchive (TASK-ZAI-113 P2)', () => {
     const { tenant, business } = await freshScope('expire-hold')
     const { viewer } = await ownerOf(business)
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
     await recordCustomerLegalHold(backdated.customerId, { businessId: business.id, reason: 'ข้อพิพาทระหว่างพิจารณา', endDate: futureDateOnly(400) }, { viewer })
 
     const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
@@ -496,7 +510,7 @@ describe('SEC-034 expireChatEvidenceArchive (TASK-ZAI-113 P2)', () => {
     // same file): one goes on hold, the other does not.
     const held = await backdatedMessage({ tenant, business, ageDays: PAST, threadId: `${threadId}-A`, text: 'ลูกค้าที่ถือครอง' })
     const notHeld = await backdatedMessage({ tenant, business, ageDays: PAST, threadId: `${threadId}-B`, text: 'ลูกค้าที่ไม่ถือครอง' })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
     await recordCustomerLegalHold(held.customerId, { businessId: business.id, reason: 'ข้อพิพาทของลูกค้า A', endDate: futureDateOnly(400) }, { viewer })
 
     const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
@@ -515,7 +529,7 @@ describe('SEC-034 expireChatEvidenceArchive (TASK-ZAI-113 P2)', () => {
   it('destroys nothing and deletes nothing when the Tenant chain is broken', async () => {
     const { tenant, business } = await freshScope('expire-chain-broken')
     const backdated = await backdatedMessage({ tenant, business, ageDays: PAST })
-    await runRetentionSweep({ now: new Date(), baseDir })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
     const manifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
     const originalManifest = { fileSha256: manifest.fileSha256, manifestHash: manifest.manifestHash }
     try {

@@ -39,7 +39,7 @@ function emptySnapshot() {
   return {
     schemaVersion: '1.0',
     phaseBRecovery: { version: PHASE_B_RECOVERY_MANIFEST_VERSION, requiredTables: [...PHASE_B_FAMILY_DELEGATES] },
-    tables: Object.fromEntries(PHASE_B_FAMILY_DELEGATES.map((delegate) => [delegate, []])),
+    tables: {dependency:[],...Object.fromEntries(PHASE_B_FAMILY_DELEGATES.map((delegate) => [delegate, []]))},
   }
 }
 
@@ -119,8 +119,8 @@ describe('Phase B offline recovery runners', () => {
   // @req TASK-ZAI-011 — notification history joins portable snapshots and the pinned census.
   it('loads the committed pinned 210-table inventory and preserves prior mappings', () => {
     expect(inventory.applicationTables).toHaveLength(210)
-    expect(inventory.schemaSha256).toBe('291c8a43acdeb62e1839e262d663371a6c009c92a46fe60f3296c045c550e86e')
-    expect(inventory.targetSchemaSha256).toBe('3848d6a69c33dec8f6e49ece409bcc73854bb7493b7eb5d78e154e9b6c4814c1')
+    expect(inventory.schemaSha256).toBe('d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9')
+    expect(inventory.targetSchemaSha256).toBe('a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -152,6 +152,28 @@ describe('Phase B offline recovery runners', () => {
     })
     expect(previous208.applicationTables).toHaveLength(208)
     expect(previous208.targetSchemaSha256).toBe('af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683')
+  })
+
+  it('refuses the previous 209-table Pipeline C1 binding after FR-235 composition', async () => {
+    const previous = inventoryVariant({
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => modelName !== 'LineProductDisclosurePolicy'),
+      schemaSha256: 'd8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21',
+    })
+    expect(previous.applicationTables).toHaveLength(209)
+    expect(previous.targetSchemaSha256).toBe('dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559')
+    const dir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-pipeline-c1-old-'))
+    try {
+      const file = path.join(dir, 'inventory.json')
+      await writeFile(file, JSON.stringify(previous))
+      await expect(loadFrozenSchemaInventory({ modulePath: file })).rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+      const adapter = fakeAdapter()
+      const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
+      expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
+      expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
+      expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 210-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_pipeline_c1_old_qa', inventory: previous })).toThrow(/approved 210-table inventory/)
+      expect(adapter.events).not.toContain('begin')
+    } finally { await rm(dir, { recursive: true, force: true }) }
   })
 
   it('counts excluded stock disclosure authority and refuses restore before any write when its target table is nonempty', async () => {
@@ -239,6 +261,7 @@ describe('Phase B offline recovery runners', () => {
     const queries = []
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
+      if (sql.includes('information_schema.columns')) return {rows:[{data_type:'text',is_nullable:'YES'}]}
       if (sql.includes('pg_catalog.pg_class')) return { rows: inventory.applicationTables }
       if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: true, canInsert: true }] }
       if (sql.startsWith('SELECT COUNT')) return { rows: [{ count: '0' }] }
@@ -254,7 +277,7 @@ describe('Phase B offline recovery runners', () => {
       expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
       const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
       expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
-      expect(queries.filter(query => query.sql.startsWith('LOCK TABLE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
+      expect(queries.filter(query => query.sql.startsWith('LOCK TABLE') && query.sql.includes('SHARE ROW EXCLUSIVE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
       expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(210)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }

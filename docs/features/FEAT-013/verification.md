@@ -168,6 +168,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/agent-request-envelope.test.js](../../../apps/server/tests/integration/agent-request-envelope.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/agent-requestable-sensitivity.test.js](../../../apps/server/tests/unit/agent-requestable-sensitivity.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)

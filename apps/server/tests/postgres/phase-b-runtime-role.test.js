@@ -26,10 +26,12 @@ const scope = (fixture, callback, db = target.runtime) => repo(db).withProjectTr
 // authorizer execute unchanged. Record PIDs before the repository Project lock.
 function instrument(db, hooks = {}) {
   return new Proxy(db, { get(object, key) {
-    if (key === '$transaction') return (callback, settings) => object.$transaction(async tx => {
-      const [{ pid }] = await tx.$queryRawUnsafe('SELECT pg_backend_pid() AS pid')
+    if (key === '$transaction') return async (callback, settings) => {
+      // Diagnostic SELECT must precede BEGIN so it cannot establish an old
+      // Serializable snapshot while the shared graph mutex is still waiting.
+      const [{ pid }] = await object.$queryRawUnsafe('SELECT pg_backend_pid() AS pid')
       hooks.backend?.(pid)
-      return callback(new Proxy(tx, { get(transaction, field) {
+      return object.$transaction(async tx => callback(new Proxy(tx, { get(transaction, field) {
         if (field === 'auditEvent') return new Proxy(transaction[field], { get(delegate, method) {
           const value = delegate[method]
           if (method === 'create') return async args => { await hooks.beforeAudit?.(); return value.call(delegate, args) }
@@ -37,8 +39,8 @@ function instrument(db, hooks = {}) {
         } })
         const value = transaction[field]
         return typeof value === 'function' ? value.bind(transaction) : value
-      } }))
-    }, settings)
+      } })), settings)
+    }
     const value = object[key]
     return typeof value === 'function' ? value.bind(object) : value
   } })

@@ -140,6 +140,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/server-line-webhook.test.js](../../../apps/server/tests/integration/server-line-webhook.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`test-reference`)

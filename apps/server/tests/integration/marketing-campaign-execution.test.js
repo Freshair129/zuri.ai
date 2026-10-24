@@ -1,3 +1,4 @@
+import { persistImportViewer } from '../helpers/persist-import-viewer'
 import { describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { makeViewer } from '../factories/viewer'
@@ -55,8 +56,8 @@ async function acceptedFixture() {
     scopeType: 'BUSINESS',
     businessId: business.id,
   })
-  const owner = viewerFor(business.id, { principalId: `campaign-owner-${suffix}` })
-  const reviewer = viewerFor(business.id, { principalId: `campaign-reviewer-${suffix}` })
+  const owner = await persistImportViewer(viewerFor(business.id, { principalId: `campaign-owner-${suffix}` }))
+  const reviewer = await persistImportViewer(viewerFor(business.id, { principalId: `campaign-reviewer-${suffix}` }))
   const now = () => new Date('2026-09-06T12:00:00.000Z')
 
   const created = await createMarketingPlan(

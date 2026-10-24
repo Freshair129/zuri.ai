@@ -26,6 +26,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/fr072-project-file-authorization.test.js](../../../apps/server/tests/integration/fr072-project-file-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-contract-regressions.test.js](../../../apps/server/tests/integration/pipeline-contract-regressions.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/authorization-seam-list-routes.test.js](../../../apps/server/tests/unit/authorization-seam-list-routes.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)
@@ -86,6 +87,7 @@ status: generated
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-contract-regressions.test.js](../../../apps/server/tests/integration/pipeline-contract-regressions.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-authorization.test.js](../../../apps/server/tests/integration/project-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-management-navigation.test.js](../../../apps/server/tests/unit/asset-management-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)

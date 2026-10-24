@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -59,7 +60,7 @@ describe('external id intake', () => {
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'Ext Tenant', code: 'TNT-EXT' })
     const business = await createBusiness({ tenantId: tenant.id, name: 'Ext Business', code: 'BUS-EXT' })
     workspace = await createWorkspace({ name: 'Ext WS', scopeType: 'BUSINESS', businessId: business.id, code: 'WS-EXT' })
-    viewer = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id] }))
   })
 
   it('accepts a 1.0 envelope unchanged — external refs are additive', async () => {

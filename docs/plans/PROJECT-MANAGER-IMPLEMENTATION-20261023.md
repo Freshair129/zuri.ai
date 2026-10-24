@@ -3,7 +3,7 @@ id: ZAI:PM-IMPLEMENTATION-PLAN-20261023
 title: Project Manager remaining implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.7"
+version: "0.1.8"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -161,7 +161,10 @@ for migration/recovery and actual-role acceptance. A fresh, separate UAT runs th
 pinned source/image with 209 tables; source/full/protected restores reconcile 235
 rows. Deployed authenticated API/browser and reconstructed-runtime proofs passed;
 independent review accepted this exact isolated UAT artifact. These facts close no production environment
-gate and adopt no held canonical rows; C remains unselected.
+gate and adopt no held canonical rows. PR730 subsequently merged that evidence
+as `635120c5` with successful post-merge Governance and Edge/Desktop CI. The owner
+then selected C: [C0 contract preparation](PM-PIPELINE-BUILDER-20261023.md#task-c0-resolve-the-technical-contract-before-any-schemaui-code)
+is in progress; exact supplement/ADR/canonical adoption still precedes C1–C4.
 
 ### Earlier increments (historical scope)
 
@@ -213,3 +216,6 @@ B4 UAT. The qualification subplan owns exact target/image/SQL/hash/results,
 composed-run caveats and remaining production/file/provider limits. Final review
 and documentation governance results are recorded with this scoped evidence
 patch; the qualified application artifact remains pinned to `5012c9bd`.
+
+0.1.8 (2026-10-23): record PR730 merge/post-merge CI and owner selection of C0
+contract preparation. C1–C4 remain CONTRACT_NOT_ADOPTED; production unselected.

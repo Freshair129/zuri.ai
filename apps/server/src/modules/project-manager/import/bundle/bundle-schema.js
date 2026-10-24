@@ -1,5 +1,6 @@
+import { zHandoffContractV1 } from '../../application/handoff-contract'
 import { z } from 'zod'
-import { zPlanEnvelope } from '../plan-schema'
+import { zFullPlanEnvelope } from '../plan-schema'
 import { DEPENDENCY_TYPES } from '@/lib/validation/enums'
 
 // @req FR-108 — ExecutionPlanBundle runtime validator: the Zod mirror of
@@ -89,7 +90,7 @@ const zProjectEntry = z
       .max(100)
       .refine((refs) => new Set(refs).size === refs.length, { message: 'goalRefs must be unique' })
       .default([]),
-    plan: zPlanEnvelope,
+    plan: zFullPlanEnvelope,
   })
   .strict()
 
@@ -117,7 +118,7 @@ const zTrace = z
   })
   .strict()
 
-export const zExecutionPlanBundle = z
+export const zLegacyExecutionPlanBundle = z
   .object({
     kind: z.literal('EXECUTION_PLAN_BUNDLE'),
     schemaVersion: z.literal('1.0'),
@@ -132,6 +133,14 @@ export const zExecutionPlanBundle = z
     metadata: boundedRecord(50).optional(),
   })
   .strict()
+
+export const zHandoffExecutionPlanBundle = zLegacyExecutionPlanBundle.extend({
+  schemaVersion: z.literal('1.1'),
+  expectedPreviewHash: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
+  trace: zTrace.extend({ correlationId: z.string().uuid(), idempotencyKey: z.string().uuid() }).strict(),
+  dependencies: z.array(zCrossProjectDependency.extend({ contract: zHandoffContractV1 }).strict()).max(1000).default([]),
+}).strict()
+export const zExecutionPlanBundle = z.union([zLegacyExecutionPlanBundle,zHandoffExecutionPlanBundle])
 
 /**
  * Bundle-level semantic validation, beyond shape (ADR-049 D3 "validate

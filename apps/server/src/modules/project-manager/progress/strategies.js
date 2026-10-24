@@ -15,7 +15,18 @@ const DONE = new Set(['DONE', 'COMPLETED'])
 const CANCELLED = new Set(['CANCELLED'])
 const GATE_SATISFIED = new Set(SATISFIED_GATE_STATUSES)
 
-export function clampPercent(value) {
+export function finiteProgressNumber(value, strict = false) {
+  if (strict && !Number.isFinite(value)) throw Object.assign(new Error('NUMERIC_OVERFLOW'), { name: 'ProgressNumericError', code: 'NUMERIC_OVERFLOW', status: 422 })
+  return value
+}
+const finiteGuard = strict => value => finiteProgressNumber(value, strict)
+const progressNumberReader = strict => (value, fallback = 0) => {
+  if (value !== undefined && value !== null) finiteProgressNumber(Number(value), strict)
+  return num(value, fallback)
+}
+export function clampPercent(value, strict = false) {
+  finiteProgressNumber(value, strict)
+  finiteProgressNumber(value * 10, strict)
   if (!Number.isFinite(value)) return 0
   return Math.max(0, Math.min(100, Math.round(value * 10) / 10))
 }
@@ -87,13 +98,14 @@ function num(value, fallback = 0) {
  * 1. TASK_WEIGHT — Software Sprint.
  * completed weight / planned weight. Defect count reported as evidence.
  */
-export function taskWeight({ items = [], gates = [] }) {
+export function taskWeight({ items = [], gates = [], strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const scoped = activeItems(items)
-  const planned = scoped.reduce((s, i) => s + num(i.weight, 1), 0)
+  const planned = scoped.reduce((s, i) => finite(s + num(i.weight, 1)), 0)
   const completed = scoped
     .filter((i) => DONE.has(i.status))
-    .reduce((s, i) => s + num(i.weight, 1), 0)
+    .reduce((s, i) => finite(s + num(i.weight, 1)), 0)
   const defects = scoped.filter((i) => i.subtype === 'BUG' && !DONE.has(i.status)).length
   let percent = 0
   if (scoped.length === 0) {
@@ -101,7 +113,7 @@ export function taskWeight({ items = [], gates = [] }) {
   } else if (planned <= 0) {
     warnings.push('Planned weight is 0 — cannot divide; progress is 0.')
   } else {
-    percent = (completed / planned) * 100
+    percent = finite(finite(completed / planned) * 100)
   }
   const releaseGates = (gates || []).filter((g) => g.required)
   const openReleaseGates = releaseGates.filter((g) => !GATE_SATISFIED.has(g.status))
@@ -110,7 +122,7 @@ export function taskWeight({ items = [], gates = [] }) {
     warnings.push(`All weight complete but ${openReleaseGates.length} required gate(s) not passed — capped at 99%.`)
   }
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'TASK_WEIGHT',
       completedWeight: completed,
@@ -129,7 +141,8 @@ export function taskWeight({ items = [], gates = [] }) {
  * 2. RECORD_VALIDATION — Data Migration.
  * validated records / total records, aggregated across dataset items.
  */
-export function recordValidation({ items = [] }) {
+export function recordValidation({ items = [], strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const scoped = activeItems(items)
   let total = 0
@@ -145,11 +158,11 @@ export function recordValidation({ items = [] }) {
       missingMetrics++
       continue
     }
-    total += t
-    processed += num(m.processed)
-    validated += num(m.validated)
-    failed += num(m.failed)
-    reconciled += num(m.reconciled)
+    total = finite(total + t)
+    processed = finite(processed + num(m.processed))
+    validated = finite(validated + num(m.validated))
+    failed = finite(failed + num(m.failed))
+    reconciled = finite(reconciled + num(m.reconciled))
   }
   if (missingMetrics > 0) warnings.push(`${missingMetrics} item(s) missing recordsTotal metric — excluded.`)
   let percent = 0
@@ -158,10 +171,10 @@ export function recordValidation({ items = [] }) {
   } else if (total <= 0) {
     warnings.push('Total record count is 0 — cannot derive validation progress.')
   } else {
-    percent = (validated / total) * 100
+    percent = finite(finite(validated / total) * 100)
   }
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'RECORD_VALIDATION',
       recordsTotal: total,
@@ -180,7 +193,8 @@ export function recordValidation({ items = [] }) {
  * 3. WEIGHTED_PIPELINE — B2B Sales.
  * (won revenue + Σ open value × probability) / target.
  */
-export function weightedPipeline({ items = [], viewConfig = {} }) {
+export function weightedPipeline({ items = [], viewConfig = {}, strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const scoped = activeItems(items).filter((i) => i.subtype === 'DEAL' || i.numericValue != null)
   let wonRevenue = 0
@@ -188,37 +202,37 @@ export function weightedPipeline({ items = [], viewConfig = {} }) {
   let totalValue = 0
   for (const deal of scoped) {
     const value = num(deal.numericValue)
-    totalValue += value
+    totalValue = finite(totalValue + value)
     if (DONE.has(deal.status)) {
-      wonRevenue += value
+      wonRevenue = finite(wonRevenue + value)
     } else {
       const p = deal.probability == null ? 0 : num(deal.probability)
       if (deal.probability == null) warnings.push(`Deal ${deal.code} has no probability — counted at 0.`)
-      weightedOpen += value * p
+      weightedOpen = finite(weightedOpen + finite(value * p))
     }
   }
-  const weightedValue = wonRevenue + weightedOpen
+  const weightedValue = finite(wonRevenue + weightedOpen)
   const target = num(viewConfig.revenueTarget)
   let percent = 0
   if (scoped.length === 0) {
     warnings.push('No deals in pipeline — progress is 0.')
   } else if (target > 0) {
-    percent = (weightedValue / target) * 100
+    percent = finite(finite(weightedValue / target) * 100)
   } else if (totalValue > 0) {
     warnings.push('No revenueTarget configured — using weighted value over total pipeline value.')
-    percent = (weightedValue / totalValue) * 100
+    percent = finite(finite(weightedValue / totalValue) * 100)
   } else {
     warnings.push('No deal values recorded — cannot derive pipeline progress.')
   }
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'WEIGHTED_PIPELINE',
       dealCount: scoped.length,
       totalPipelineValue: totalValue,
       wonRevenue,
-      weightedOpenValue: Math.round(weightedOpen * 100) / 100,
-      weightedValue: Math.round(weightedValue * 100) / 100,
+      weightedOpenValue: Math.round(finite(weightedOpen * 100)) / 100,
+      weightedValue: Math.round(finite(weightedValue * 100)) / 100,
       revenueTarget: target || null,
       formula: '(wonRevenue + Σ openValue × probability) / revenueTarget × 100',
     },
@@ -232,7 +246,8 @@ export function weightedPipeline({ items = [], viewConfig = {} }) {
  * viewConfig.kpis = [{ key, label?, target, weight?, direction? ('up'|'down') }]
  * Actuals are summed from item metrics[key].
  */
-export function kpiAttainment({ items = [], viewConfig = {} }) {
+export function kpiAttainment({ items = [], viewConfig = {}, strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const kpis = Array.isArray(viewConfig.kpis) ? viewConfig.kpis : []
   const scoped = activeItems(items)
@@ -250,33 +265,33 @@ export function kpiAttainment({ items = [], viewConfig = {} }) {
   for (const kpi of kpis) {
     const target = num(kpi.target)
     const weight = num(kpi.weight, 1)
-    const actual = scoped.reduce((s, i) => s + num((i.metrics || {})[kpi.key]), 0)
+    const actual = scoped.reduce((s, i) => finite(s + num((i.metrics || {})[kpi.key])), 0)
     let attainment = 0
     if (target <= 0) {
       warnings.push(`KPI ${kpi.key} has no positive target — counted at 0.`)
     } else if (kpi.direction === 'down') {
       // Lower is better (e.g. CPA): full credit at/below target, decays linearly to 0 at 2× target.
-      attainment = actual <= 0 ? 0 : Math.max(0, Math.min(1, 2 - actual / target))
+      attainment = actual <= 0 ? 0 : Math.max(0, Math.min(1, finite(2 - finite(actual / target))))
       if (actual <= 0) warnings.push(`KPI ${kpi.key} has no recorded actual — counted at 0.`)
     } else {
-      attainment = Math.min(1, actual / target)
+      attainment = Math.min(1, finite(actual / target))
     }
     rows.push({
       key: kpi.key,
       label: kpi.label || kpi.key,
       target,
-      actual: Math.round(actual * 100) / 100,
+      actual: Math.round(finite(actual * 100)) / 100,
       weight,
       direction: kpi.direction || 'up',
-      attainment: Math.round(attainment * 1000) / 1000,
+      attainment: Math.round(finite(attainment * 1000)) / 1000,
     })
-    weightedSum += attainment * weight
-    weightTotal += weight
+    weightedSum = finite(weightedSum + finite(attainment * weight))
+    weightTotal = finite(weightTotal + weight)
   }
-  const percent = weightTotal > 0 ? (weightedSum / weightTotal) * 100 : 0
+  const percent = weightTotal > 0 ? finite(finite(weightedSum / weightTotal) * 100) : 0
   if (weightTotal <= 0) warnings.push('KPI weights sum to 0 — cannot derive attainment.')
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: { strategy: 'KPI_ATTAINMENT', kpis: rows, formula: 'Σ attainment × weight / Σ weight × 100' },
     warnings,
   }
@@ -286,19 +301,20 @@ export function kpiAttainment({ items = [], viewConfig = {} }) {
  * 5. MILESTONE_READINESS — Product Launch.
  * Weighted milestone completion; open required gates cap at 99%.
  */
-export function milestoneReadiness({ milestones = [], gates = [] }) {
+export function milestoneReadiness({ milestones = [], gates = [], strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
-  const totalWeight = milestones.reduce((s, m) => s + num(m.weight, 1), 0)
+  const totalWeight = milestones.reduce((s, m) => finite(s + num(m.weight, 1)), 0)
   const doneWeight = milestones
     .filter((m) => DONE.has(m.status))
-    .reduce((s, m) => s + num(m.weight, 1), 0)
+    .reduce((s, m) => finite(s + num(m.weight, 1)), 0)
   let percent = 0
   if (milestones.length === 0) {
     warnings.push('No milestones defined — progress is 0.')
   } else if (totalWeight <= 0) {
     warnings.push('Milestone weights sum to 0 — cannot derive readiness.')
   } else {
-    percent = (doneWeight / totalWeight) * 100
+    percent = finite(finite(doneWeight / totalWeight) * 100)
   }
   const requiredGates = (gates || []).filter((g) => g.required)
   const blockedGates = requiredGates.filter((g) => g.status === 'BLOCKED')
@@ -311,7 +327,7 @@ export function milestoneReadiness({ milestones = [], gates = [] }) {
     warnings.push(`${blockedGates.length} required gate(s) BLOCKED.`)
   }
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'MILESTONE_READINESS',
       milestoneCount: milestones.length,
@@ -330,7 +346,8 @@ export function milestoneReadiness({ milestones = [], gates = [] }) {
  * 6. SLA_SCORE — Operations.
  * Blend of checklist completion and SLA attainment metrics.
  */
-export function slaScore({ items = [] }) {
+export function slaScore({ items = [], strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const scoped = activeItems(items)
   if (scoped.length === 0) {
@@ -344,7 +361,7 @@ export function slaScore({ items = [] }) {
   const signals = []
   // Signal A: checklist/run completion.
   const completion = scoped.filter((i) => DONE.has(i.status)).length / scoped.length
-  signals.push({ key: 'completion', value: Math.round(completion * 1000) / 1000 })
+  signals.push({ key: 'completion', value: Math.round(finite(completion * 1000)) / 1000 })
   // Signal B: explicit SLA attainment (slaMet / slaTotal across items).
   let slaMet = 0
   let slaTotal = 0
@@ -352,19 +369,19 @@ export function slaScore({ items = [] }) {
   let backlog = 0
   for (const item of scoped) {
     const m = item.metrics || {}
-    slaMet += num(m.slaMet)
-    slaTotal += num(m.slaTotal)
-    incidents += num(m.incidents)
-    backlog += num(m.backlog)
+    slaMet = finite(slaMet + num(m.slaMet))
+    slaTotal = finite(slaTotal + num(m.slaTotal))
+    incidents = finite(incidents + num(m.incidents))
+    backlog = finite(backlog + num(m.backlog))
   }
   if (slaTotal > 0) {
-    signals.push({ key: 'slaAttainment', value: Math.round((slaMet / slaTotal) * 1000) / 1000 })
+    signals.push({ key: 'slaAttainment', value: Math.round(finite(finite(slaMet / slaTotal) * 1000)) / 1000 })
   } else {
     warnings.push('No SLA metrics recorded — score uses completion only.')
   }
-  const percent = (signals.reduce((s, x) => s + x.value, 0) / signals.length) * 100
+  const percent = finite(finite(signals.reduce((s, x) => finite(s + x.value), 0) / signals.length) * 100)
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'SLA_SCORE',
       itemCount: scoped.length,
@@ -384,7 +401,8 @@ export function slaScore({ items = [] }) {
  * Weighted completion of readiness actions across dimensions
  * (legal, location, budget, hiring, vendors, operations), gated by go-live gates.
  */
-export function expansionReadiness({ items = [], gates = [] }) {
+export function expansionReadiness({ items = [], gates = [], strictFinite = false }) {
+  const finite = finiteGuard(strictFinite), num = progressNumberReader(strictFinite)
   const warnings = []
   const scoped = activeItems(items)
   const byDimension = new Map()
@@ -393,24 +411,24 @@ export function expansionReadiness({ items = [], gates = [] }) {
     if (!byDimension.has(dim)) byDimension.set(dim, { total: 0, done: 0 })
     const bucket = byDimension.get(dim)
     const w = num(item.weight, 1)
-    bucket.total += w
-    if (DONE.has(item.status)) bucket.done += w
+    bucket.total = finite(bucket.total + w)
+    if (DONE.has(item.status)) bucket.done = finite(bucket.done + w)
   }
   const dimensions = [...byDimension.entries()].map(([name, b]) => ({
     name,
     doneWeight: b.done,
     totalWeight: b.total,
-    percent: b.total > 0 ? clampPercent((b.done / b.total) * 100) : 0,
+    percent: b.total > 0 ? clampPercent(finite(finite(b.done / b.total) * 100), strictFinite) : 0,
   }))
-  const totalWeight = scoped.reduce((s, i) => s + num(i.weight, 1), 0)
-  const doneWeight = scoped.filter((i) => DONE.has(i.status)).reduce((s, i) => s + num(i.weight, 1), 0)
+  const totalWeight = scoped.reduce((s, i) => finite(s + num(i.weight, 1)), 0)
+  const doneWeight = scoped.filter((i) => DONE.has(i.status)).reduce((s, i) => finite(s + num(i.weight, 1)), 0)
   let percent = 0
   if (scoped.length === 0) {
     warnings.push('No readiness actions tracked — progress is 0.')
   } else if (totalWeight <= 0) {
     warnings.push('Readiness weights sum to 0 — cannot derive readiness.')
   } else {
-    percent = (doneWeight / totalWeight) * 100
+    percent = finite(finite(doneWeight / totalWeight) * 100)
   }
   const goLiveGates = (gates || []).filter((g) => g.required)
   const openGates = goLiveGates.filter((g) => !GATE_SATISFIED.has(g.status))
@@ -419,7 +437,7 @@ export function expansionReadiness({ items = [], gates = [] }) {
     warnings.push(`${openGates.length} go-live gate(s) not passed — readiness capped at 99%.`)
   }
   return {
-    percent: clampPercent(percent),
+    percent: clampPercent(percent, strictFinite),
     evidence: {
       strategy: 'EXPANSION_READINESS',
       dimensions,
@@ -446,7 +464,7 @@ export const STRATEGY_CALCULATORS = {
 /**
  * Compute progress for a hydrated workstream bundle.
  */
-export function calculateWorkstreamProgress(strategy, bundle) {
+export function calculateWorkstreamProgress(strategy, bundle, { strictFinite = false } = {}) {
   const calculator = STRATEGY_CALCULATORS[strategy]
   if (!calculator) {
     return {
@@ -455,5 +473,5 @@ export function calculateWorkstreamProgress(strategy, bundle) {
       warnings: [`Unknown progress strategy: ${strategy}`],
     }
   }
-  return calculator(bundle)
+  return calculator({ ...bundle, strictFinite })
 }

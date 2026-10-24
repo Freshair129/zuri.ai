@@ -59,7 +59,10 @@ test('renders deterministic projections for canonical feature membership', () =>
 
   const plannedDesign = outputs.get('docs/features/FEAT-007/design.md');
   const plannedRequirement = records.find((record) => record.id === 'FR-082');
-  assert.ok(plannedRequirement.cells.slice(1, -1).at(-1).includes('design only'));
+  assert.equal(plannedRequirement.status, 'reviewed-migration');
+  assert.equal(plannedRequirement.migrationDocument, 'docs/change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md');
+  assert.ok(plannedRequirement.cells.slice(1, -1).at(-1).includes('approved planned'));
+  assert.ok(plannedRequirement.cells.slice(1, -1).at(-1).includes('implementation evidence remains separate'));
   assert.ok(plannedDesign.includes(plannedRequirement.cells.slice(1, -1).at(-1)));
 
   const evidenceDesign = outputs.get('docs/features/FEAT-013/design.md');
