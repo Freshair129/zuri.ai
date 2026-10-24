@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+import { pipelineResponseStatus } from '@/modules/project-manager/import/plan-delta-service'
 // @req FR-108 — commit a confirmed ExecutionPlanBundle: one transaction over
 // strategy + N Projects + cross-Project dependencies, with an idempotent
 // bundle receipt (ADR-049 D7/D8/D9). Calling this endpoint is the single
@@ -9,7 +11,7 @@
 // Thin transport only (SDD-056): viewer resolved FIRST (session, or the
 // FR-106 `apik_` key ahead of the session seam, as on the per-Project import
 // routes); all authorization and write decisions live in the orchestrator.
-import { handle } from '../../../_helpers'
+import { handle, readPipelineBody } from '../../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { resolveApiAccessViewer } from '@/modules/identity/api-access-auth'
 import { commitBundle } from '@/modules/project-manager/import/bundle/bundle-commit-service'
@@ -19,7 +21,8 @@ export const dynamic = 'force-dynamic'
 export async function POST(request) {
   return handle(async () => {
     const viewer = (await resolveApiAccessViewer(request)) ?? await resolveRequestViewer(request)
-    const body = await request.json()
-    return commitBundle(body.bundle, { viewer })
+    const {body,requestBodyBytes} = await readPipelineBody(request)
+    const result = await commitBundle(body.bundle, { viewer,requestBodyBytes })
+    return (body.bundle?.schemaVersion === '1.1' || pipelineResponseStatus(result) === 409) ? NextResponse.json(result, { status: pipelineResponseStatus(result) }) : result
   })
 }

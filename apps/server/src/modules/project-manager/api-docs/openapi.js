@@ -1,3 +1,6 @@
+import { registerPipelineAdapters, zDeltaPreview, zDeltaCommit, zPipelineFailure } from './pipeline-contract'
+import { zFullPlanEnvelope } from '../import/plan-schema'
+import { zHandoffContractV1 } from '../application/handoff-contract'
 import { z } from 'zod'
 import { OpenAPIRegistry, OpenApiGeneratorV3, extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi'
 import { zPlanEnvelope, zExternalRef } from '../import/plan-schema'
@@ -613,6 +616,7 @@ function registerLocalOllamaOperations(registry) {
 
 function registerInventoryOperations(registry) {
   const detailedOperations = new Set(['get /api/auth/csrf', 'get /api/projects/{id}/domain-view', 'get /api/projects/{id}/feature-view', 'get /api/projects/{id}/features', 'get /api/projects/{id}/features/{featureId}', 'get /api/projects/{id}/governance-snapshots', 'post /api/assets/intakes/validate', 'post /api/import/dry-run', 'post /api/import/commit', 'get /api/resolve', 'get /api/import/template'])
+  for (const operation of ['post /api/dependencies','delete /api/dependencies/{id}','post /api/import/bundle/dry-run','post /api/import/bundle/commit']) detailedOperations.add(operation)
   detailedOperations.add('post /api/growth/external-marketing-reports')
   detailedOperations.add('get /api/integration/local-ollama/models')
   detailedOperations.add('post /api/integration/local-ollama/selection')
@@ -764,7 +768,10 @@ const json = (schema, description) => ({ description, content: { 'application/js
 
 export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   const registry = new OpenAPIRegistry()
+  registry.register('FullPlanEnvelope', zFullPlanEnvelope)
+  registry.register('HandoffContractV1', zHandoffContractV1)
   registry.register('PlanEnvelope', zPlanEnvelope)
+  registerPipelineAdapters(registry)
   registry.register('ExternalRef', zExternalRef)
   registry.register('ImportRequest', zImportRequest)
   registry.register('DryRunResponse', zDryRunResponse)
@@ -1083,8 +1090,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     tags: ['Intake'],
     request: { body: { content: { 'application/json': { schema: zImportRequest } } } },
     responses: {
-      200: json(zDryRunResponse, 'Validation result plus the insert/update/conflict preview'),
-      400: json(zError, 'Malformed request'),
+      200: json(z.union([zDryRunResponse,zDeltaPreview]), 'Legacy or adopted delta preview'),
+      ...Object.fromEntries([400,401,404,409,413,422,503].map(status => [status,json(z.union([zError,zPipelineFailure]), 'Malformed, unauthorized, stale or refused request')])),
     },
   })
 
@@ -1098,8 +1105,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     tags: ['Intake'],
     request: { body: { content: { 'application/json': { schema: zImportRequest } } } },
     responses: {
-      200: json(zCommitResponse, 'Commit result'),
-      400: json(zError, 'Malformed request'),
+      200: json(z.union([zCommitResponse,zDeltaCommit]), 'Legacy or adopted delta commit'),
+      ...Object.fromEntries([400,401,404,409,413,422,503].map(status => [status,json(z.union([zError,zPipelineFailure]), 'Malformed, unauthorized, stale or refused request')])),
     },
   })
 

@@ -1,3 +1,6 @@
+import { lockPipelineGraph } from './pipeline-writer'
+// @req FR-084 — Feature WorkItem references serialize with guarded inverse.
+// @tested tests/integration/pipeline-contract-regressions.test.js
 import prisma from '@/lib/db'
 import { ownsBusiness, seesBusiness, isInstallationOperator } from '@/modules/identity/viewer-authority'
 
@@ -180,7 +183,7 @@ export async function resolveProjectFeatureScope(
   return { project, workspace, business, tenant, tenantId: tenant.id, businessId: business.id }
 }
 
-async function bindPostgresScope(tx, scope) {
+export async function bindPostgresScope(tx, scope) {
   await executeRaw(
     tx,
     "SELECT set_config('zuri.pm_tenant_id', $1, true), set_config('zuri.pm_business_id', $2, true)",
@@ -303,6 +306,7 @@ export function createProjectFeatureRepository({
     }
 
     const execute = async (tx) => {
+      if (writeMode && (postgres || (!sqliteTransaction && typeof db.$transactionImmediate !== 'function' && typeof db.withImmediateTransaction !== 'function'))) await lockPipelineGraph(tx, postgres)
       let scope = await resolveProjectFeatureScope(projectId, { db: tx, viewer, authority, mode })
       if (mode === 'write' || mode === 'mutation' || mode === 'erase' || mode === 'erasure') {
         await lockProject(tx, projectId, { postgres, lockProject: adapterLock })

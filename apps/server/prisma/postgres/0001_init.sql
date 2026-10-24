@@ -941,6 +941,7 @@ CREATE TABLE "Dependency" (
     "targetType" TEXT NOT NULL,
     "targetId" TEXT NOT NULL,
     "dependencyType" TEXT NOT NULL,
+    "contractJson" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "Dependency_pkey" PRIMARY KEY ("id")

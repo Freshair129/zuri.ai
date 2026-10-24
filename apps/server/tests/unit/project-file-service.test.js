@@ -9,12 +9,15 @@ import { makeViewer } from '../factories/viewer'
 const owner = makeViewer({ visibleBusinessIds: ['business-a'], ownedBusinessIds: ['business-a'] })
 
 function baseDb({ workItem = null } = {}) {
-  return {
+  const db = {
+    $executeRawUnsafe: vi.fn(async()=>0),
     project: { findUnique: vi.fn().mockResolvedValue({ id: 'project-a', deletedAt: null, businessId: 'business-a' }) },
     workItem: { findFirst: vi.fn().mockResolvedValue(workItem) },
     projectFile: { create: vi.fn().mockResolvedValue({ id: 'file-a', code: 'FIL-A', workItemId: null }) },
     auditEvent: { create: vi.fn().mockResolvedValue({}) },
   }
+  db.$transaction=vi.fn(async callback=>callback(db))
+  return db
 }
 
 describe('ProjectFile service', () => {

@@ -1,3 +1,5 @@
+import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
+import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
 import { uniqueHumanCode } from '@/lib/ids'
 import { zWorkContainerInput, zWorkItemInput, zWorkItemUpdate } from '@/lib/validation/entities'
@@ -14,8 +16,8 @@ import { assertWorkstreamWritable } from './project-authorization'
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr072-work-service-authorization.test.js
 
-const codeExists = (model) => async (code) =>
-  Boolean(await prisma[model].findUnique({ where: { code } }))
+const codeExists = (model, db = prisma) => async (code) =>
+  Boolean(await db[model].findUnique({ where: { code } }))
 
 export function hydrateItem(item) {
   return {
@@ -31,19 +33,20 @@ export function hydrateContainer(container) {
 
 // ---- Containers ------------------------------------------------------------
 
-export async function createContainer(input, { viewer } = {}) {
+export async function createContainer(input, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createContainer(input, { viewer, db: tx }))
   const data = zWorkContainerInput.parse(input)
-  const ws = await prisma.workstream.findUnique({ where: { id: data.workstreamId } })
+  const ws = await db.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
-  await assertWorkstreamWritable(viewer, data.workstreamId)
+  await assertWorkstreamWritable(viewer, data.workstreamId, { db })
   if (data.parentId) {
-    const parent = await prisma.workContainer.findUnique({ where: { id: data.parentId } })
+    const parent = await db.workContainer.findUnique({ where: { id: data.parentId } })
     if (!parent || parent.workstreamId !== data.workstreamId) {
       throw new Error('Parent container must belong to the same workstream')
     }
   }
-  const code = data.code || (await uniqueHumanCode('WC', data.title, codeExists('workContainer')))
-  const container = await prisma.workContainer.create({
+  const code = data.code || (await uniqueHumanCode('WC', data.title, codeExists('workContainer', db)))
+  const container = await db.workContainer.create({
     data: {
       code,
       workstreamId: data.workstreamId,
@@ -56,15 +59,16 @@ export async function createContainer(input, { viewer } = {}) {
       metadataJson: JSON.stringify(data.metadata || {}),
     },
   })
-  await recordAudit(prisma, { entityType: 'WORK_CONTAINER', entityId: container.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
+  await recordAudit(db, { entityType: 'WORK_CONTAINER', entityId: container.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
   return container
 }
 
-export async function updateContainer(id, patch, { viewer } = {}) {
-  const existing = await prisma.workContainer.findUnique({ where: { id } })
+export async function updateContainer(id, patch, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => updateContainer(id, patch, { viewer, db: tx }))
+  const existing = await db.workContainer.findUnique({ where: { id } })
   if (!existing) throw new Error('Container not found')
-  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Container not found' })
-  const container = await prisma.workContainer.update({
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { db, notFoundMessage: 'Container not found' })
+  const container = await db.workContainer.update({
     where: { id },
     data: {
       title: patch.title ?? existing.title,
@@ -76,13 +80,14 @@ export async function updateContainer(id, patch, { viewer } = {}) {
       version: { increment: 1 },
     },
   })
-  await recordAudit(prisma, { entityType: 'WORK_CONTAINER', entityId: id, action: 'UPDATED', payload: patch })
+  await recordAudit(db, { entityType: 'WORK_CONTAINER', entityId: id, action: 'UPDATED', payload: patch })
   return container
 }
 
 // ---- Items -----------------------------------------------------------------
 
 export async function createItem(input, { viewer, db = prisma, expectedVersion } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createItem(input, { viewer, db: tx, expectedVersion }))
   const data = zWorkItemInput.parse(input)
   const ws = await db.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
@@ -113,11 +118,12 @@ export async function createItem(input, { viewer, db = prisma, expectedVersion }
       targetAt: data.targetAt ?? null,
     },
   })
-  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:item.workstreamId},{ entityType: 'WORK_ITEM', entityId: item.id, action: 'CREATED', payload: { code, subtype: data.subtype } }))
   return item
 }
 
 export async function updateItem(id, patch, { viewer, db = prisma, expectedVersion } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => updateItem(id, patch, { viewer, db: tx, expectedVersion }))
   const data = zWorkItemUpdate.parse(patch)
   const existing = await db.workItem.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) throw new Error('Work item not found')
@@ -141,23 +147,25 @@ export async function updateItem(id, patch, { viewer, db = prisma, expectedVersi
       version: { increment: 1 },
     },
   })
-  await recordAudit(db, { entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:existing.workstreamId},{ entityType: 'WORK_ITEM', entityId: id, action: 'UPDATED', payload: data }))
   return item
 }
 
-export async function deleteItem(id, { viewer } = {}) {
-  const existing = await prisma.workItem.findUnique({ where: { id } })
+export async function deleteItem(id, { viewer, db = prisma } = {}) {
+  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => deleteItem(id, { viewer, db: tx }))
+  const existing = await db.workItem.findUnique({ where: { id } })
   if (!existing || existing.deletedAt) {
     const error = new Error('Work item not found')
     error.status = 404
     throw error
   }
-  await assertWorkstreamWritable(viewer, existing.workstreamId, { notFoundMessage: 'Work item not found' })
-  const item = await prisma.workItem.update({
+  await assertWorkstreamWritable(viewer, existing.workstreamId, { db, notFoundMessage: 'Work item not found' })
+  await assertPipelineEndpointRetained(db, { type: 'WORK_ITEM', id })
+  const item = await db.workItem.update({
     where: { id },
     data: { deletedAt: new Date(), status: 'CANCELLED', version: { increment: 1 } },
   })
-  await recordAudit(prisma, { entityType: 'WORK_ITEM', entityId: id, action: 'DELETED' })
+  await recordAudit(db, await pipelineScopeAudit(db,{type:'WORKSTREAM',id:existing.workstreamId},{ entityType: 'WORK_ITEM', entityId: id, action: 'DELETED' }))
   return item
 }
 

@@ -1,3 +1,4 @@
+import { persistImportViewer } from '../helpers/persist-import-viewer'
 import { beforeAll, describe, expect, it } from 'vitest'
 import { randomUUID } from 'node:crypto'
 
@@ -105,8 +106,8 @@ describe('Marketing Campaign initiative persistence (FR-160)', () => {
       name: `Campaign workspace ${id}`,
       code: `WS-CAM-${id}`,
     })
-    owner = viewer(business.id, `campaign-owner-${id}`)
-    reviewer = viewer(business.id, `campaign-reviewer-${id}`)
+    owner = await persistImportViewer(viewer(business.id, `campaign-owner-${id}`))
+    reviewer = await persistImportViewer(viewer(business.id, `campaign-reviewer-${id}`))
   })
 
   it('creates the Plan, immutable brief version, Initiative and audits atomically', async () => {

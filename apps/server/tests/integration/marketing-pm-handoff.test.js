@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -34,7 +35,7 @@ function viewerFor(businessId, { owner = true } = {}) {
     ownedBusinessIds: owner ? [businessId] : [],
     visibleDomains: ['growth'],
     domainsByBusinessId: { [businessId]: ['growth'] },
-    principal: { id: `person-handoff-${businessId}`, code: 'HANDOFF', displayName: 'Handoff Test' },
+    principal: { id: `person-handoff-${owner ? "owner" : "member"}-${businessId}`, code: 'HANDOFF', displayName: 'Handoff Test' },
   })
 }
 
@@ -49,6 +50,8 @@ async function fixture() {
     scopeType: 'BUSINESS',
     businessId: business.id,
   })
+  await persistImportViewer(viewerFor(business.id),{preservePrincipalId:true})
+  await persistImportViewer(viewerFor(business.id,{owner:false}),{preservePrincipalId:true})
   const createdAt = new Date('2026-09-06T00:00:00.000Z')
   const plan = await prisma.marketingPlan.create({
     data: {
@@ -460,6 +463,8 @@ describe('Marketing PM handoff', () => {
     author.principal = { id: 'marketing-author', code: 'AUTHOR', displayName: 'Marketing Author' }
     const reviewer = viewerFor(fx.business.id)
     reviewer.principal = { id: 'marketing-reviewer', code: 'REVIEWER', displayName: 'Marketing Reviewer' }
+    await persistImportViewer(author,{preservePrincipalId:true})
+    await persistImportViewer(reviewer,{preservePrincipalId:true})
     const now = () => new Date('2026-09-06T12:00:00.000Z')
     const created = await createMarketingPlan(
       { businessId: fx.business.id, title: 'Core service campaign', payload },

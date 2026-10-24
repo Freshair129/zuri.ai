@@ -750,3 +750,20 @@ target visibility, clean-target, custody and production gates remain in force.
 | 0.2.1b | 2026-09-17 | candidate | Pin schema-inventory hash bytes and explicit full-visibility attestation after independent owner-selection PASS | bd99651f | RWANG |
 | 0.2.0b | 2026-09-17 | candidate | Define offline command, actual visibility and locking proof, family matrix and Identity transaction/replay seam | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | candidate | Propose bounded clean-target recovery and reviewed PM erasure targets to close source-audited W2 authority gaps | bd99651f | RWANG |
+
+## Pipeline C1 schema binding (2026-10-24)
+
+The owner-approved C0 v0.1.5 D1–D6 and C1 instruction authorize qualification
+of the additive nullable Dependency.contractJson column. The current recovery
+reader selects [the Pipeline inventory](contracts/pipeline-target-schema.inventory.json),
+with all 209 model/table mappings unchanged. The prior Phase B inventory file
+is retained byte-for-byte as historical evidence. This is no production migration
+or recovery acceptance claim.
+
+- Schema SHA256: `d8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21`.
+- Target inventory SHA256: `dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559`.
+- Prior schema/target bindings: `fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808` / `db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633`.
+- Both adapters must preserve legacy NULL and declared contract/provenance,
+  immutable delta audit/receipt/trace identities, and cross-Tenant legacy bridges.
+- Unknown contract versions/corruption or missing target columns refuse restore
+  before mutation; downgrade must not strip enforcement or content.

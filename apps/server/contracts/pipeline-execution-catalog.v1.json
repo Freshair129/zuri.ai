@@ -1,0 +1,185 @@
+{
+  "sourceRevision": "635120c552de9b456b6ab80e98b529211fc3d888",
+  "contracts": {
+    "SOFTWARE_SPRINT": {
+      "progressStrategy": "TASK_WEIGHT",
+      "containerSubtypes": [
+        "SPRINT",
+        "EPIC",
+        "RELEASE"
+      ],
+      "itemSubtypes": [
+        "TASK",
+        "BUG"
+      ],
+      "metricKeys": [
+        "completedWeight",
+        "plannedWeight",
+        "defects"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-DEVELOPMENT",
+        "supportingDomainIds": [],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "DATA_MIGRATION": {
+      "progressStrategy": "RECORD_VALIDATION",
+      "containerSubtypes": [
+        "MIGRATION_STAGE",
+        "MIGRATION_BATCH"
+      ],
+      "itemSubtypes": [
+        "DATASET",
+        "VALIDATION",
+        "RECONCILIATION"
+      ],
+      "metricKeys": [
+        "recordsTotal",
+        "processed",
+        "success",
+        "failed",
+        "validated",
+        "reconciled"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-DEVELOPMENT",
+        "supportingDomainIds": [],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "B2B_SALES": {
+      "progressStrategy": "WEIGHTED_PIPELINE",
+      "containerSubtypes": [
+        "SALES_PIPELINE",
+        "SALES_STAGE"
+      ],
+      "itemSubtypes": [
+        "ACCOUNT",
+        "DEAL",
+        "ACTIVITY"
+      ],
+      "metricKeys": [
+        "target",
+        "wonRevenue",
+        "weightedValue"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-COMMERCE",
+        "supportingDomainIds": [
+          "DOM-CRM"
+        ],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "B2C_CAMPAIGN": {
+      "progressStrategy": "KPI_ATTAINMENT",
+      "containerSubtypes": [
+        "CAMPAIGN",
+        "CAMPAIGN_WAVE",
+        "CHANNEL"
+      ],
+      "itemSubtypes": [
+        "CREATIVE",
+        "AUDIENCE",
+        "EXPERIMENT"
+      ],
+      "metricKeys": [
+        "spend",
+        "leads",
+        "cpa",
+        "cac",
+        "conversion",
+        "conversions",
+        "revenue",
+        "roas"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-MARKETING",
+        "supportingDomainIds": [
+          "DOM-CRM"
+        ],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "PRODUCT_LAUNCH": {
+      "progressStrategy": "MILESTONE_READINESS",
+      "containerSubtypes": [
+        "LAUNCH_PHASE"
+      ],
+      "itemSubtypes": [
+        "DELIVERABLE"
+      ],
+      "metricKeys": [
+        "readiness",
+        "blockedGates"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-DEVELOPMENT",
+        "supportingDomainIds": [
+          "DOM-COMMERCE",
+          "DOM-MARKETING",
+          "DOM-OPERATIONS"
+        ],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "OPERATIONS": {
+      "progressStrategy": "SLA_SCORE",
+      "containerSubtypes": [
+        "OPS_PERIOD",
+        "OPS_PROCESS"
+      ],
+      "itemSubtypes": [
+        "CHECKLIST_ITEM",
+        "ISSUE",
+        "SLA"
+      ],
+      "metricKeys": [
+        "slaMet",
+        "slaTotal",
+        "throughput",
+        "backlog",
+        "incidents",
+        "completed"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-OPERATIONS",
+        "supportingDomainIds": [
+          "DOM-PEOPLE",
+          "DOM-COMMERCE"
+        ],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    },
+    "BUSINESS_EXPANSION": {
+      "progressStrategy": "EXPANSION_READINESS",
+      "containerSubtypes": [
+        "EXPANSION_INITIATIVE",
+        "EXPANSION_SITE"
+      ],
+      "itemSubtypes": [
+        "SETUP_ACTION",
+        "APPROVAL"
+      ],
+      "metricKeys": [
+        "legal",
+        "location",
+        "budget",
+        "hiring",
+        "vendors",
+        "operationalReadiness",
+        "goLive"
+      ],
+      "domainBinding": {
+        "primaryDomainId": "DOM-OPERATIONS",
+        "supportingDomainIds": [
+          "DOM-COMMERCE",
+          "DOM-PEOPLE",
+          "DOM-PLATFORM"
+        ],
+        "technicalOwnerDomainId": "TD-PROJECT-MANAGER"
+      }
+    }
+  }
+}

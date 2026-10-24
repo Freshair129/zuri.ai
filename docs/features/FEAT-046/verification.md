@@ -33,6 +33,7 @@ status: generated
 - [apps/server/tests/integration/credential-vault.postgres.test.js](../../../apps/server/tests/integration/credential-vault.postgres.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/notion-oauth-webhook.test.js](../../../apps/server/tests/integration/notion-oauth-webhook.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)

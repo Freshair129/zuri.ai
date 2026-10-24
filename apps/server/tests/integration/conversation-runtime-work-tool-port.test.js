@@ -170,10 +170,14 @@ async function confirmationState(proposalId, title) {
  * the handle changes, so the transaction, its isolation level and its rollback
  * are the real ones.
  */
-function withConfirmHooks({ afterReceiptLookup = null, afterResultWrite = null }) {
+function withConfirmHooks({ afterReceiptLookup = null, afterResultWrite = null, beforeGraphLock = null }) {
   const hooked = { findUnique: [afterReceiptLookup, 'line-work-executed:'], create: [afterResultWrite, 'line-work-result:'] }
   const wrapTx = tx => new Proxy(tx, { get(target, key) {
     const value = Reflect.get(target, key)
+    if (key === '$executeRawUnsafe' && beforeGraphLock) return async (sql, ...args) => {
+      if (sql === 'LOCK TABLE "Dependency" IN EXCLUSIVE MODE') await beforeGraphLock(target)
+      return value.call(target, sql, ...args)
+    }
     if (key !== 'auditEvent') return value
     return new Proxy(value, { get(delegate, method) {
       const fn = Reflect.get(delegate, method)
@@ -196,7 +200,7 @@ function withConfirmHooks({ afterReceiptLookup = null, afterResultWrite = null }
   } })
 }
 
-/** Hold each caller until `parties` have arrived, or until `timeoutMs` passes. */
+/** Require all callers to arrive before the real provider lock is acquired. */
 function barrier(parties, timeoutMs = 5000) {
   let arrived = 0
   let open
@@ -204,7 +208,10 @@ function barrier(parties, timeoutMs = 5000) {
   return async () => {
     arrived += 1
     if (arrived >= parties) open()
-    await Promise.race([gate, new Promise(resolve => setTimeout(resolve, timeoutMs))])
+    let timer
+    try {
+      await Promise.race([gate, new Promise((_, reject) => { timer = setTimeout(() => reject(new Error('RACE_BARRIER_TIMEOUT')), timeoutMs) })])
+    } finally { clearTimeout(timer) }
   }
 }
 
@@ -503,21 +510,28 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
   })
 
   it('confirm-execute: concurrent confirms of one proposal write one WorkItem, one receipt and one audit row; a later confirm job replays', async () => {
-    // On PostgreSQL every confirm transaction is held after it has read that no
-    // receipt exists until all four have read it, so all four race to write: only
-    // the unique receipt key can stop the losers. SQLite's single writer lock
-    // serialises the transactions, so there the later ones read the winner's
-    // receipt and replay; a barrier would only deadlock against that lock.
+    // C1 serializes graph writers on both engines. Rendezvous all four real
+    // PostgreSQL transactions BEFORE the provider lock, so they race to acquire
+    // it. Waiting for four receipt reads inside that exclusive lock would create
+    // an artificial timeout rather than a valid overlapping-writer proof.
+    // A loser may replay after serialization or refuse as retryable; neither
+    // outcome can write another item, receipt, result or canonical audit.
     const racing = engine === 'postgresql'
-    const { ports } = build(racing ? { coreOptions: { db: withConfirmHooks({ afterReceiptLookup: barrier(4) }) } } : {})
+    const rendezvous = barrier(4)
+    let confirmingTogether = false
+    const { ports } = build(racing ? { coreOptions: { db: withConfirmHooks({ beforeGraphLock: async () => {
+      if (confirmingTogether) await rendezvous()
+    } }) } } : {})
     const title = 'WorkToolPort concurrent confirmation'
     const proposalId = await proposeWork(ports, 'synthetic-wtp-race-propose', title)
     // Two confirmation messages, each claimed by its own runtime, each sent twice
     // (a retry racing its own first attempt): four confirms in flight at once.
     const first = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-a', proposalId)
     const second = await confirmationTurn(ports, 'synthetic-wtp-race-confirm-b', proposalId)
+    confirmingTogether = true
     const settled = await Promise.allSettled([first, second, first, second]
       .map(turn => ports.workTool.execute(turn.claim, turn.authority, turn.request)))
+    confirmingTogether = false
     const outcomes = settled.map(o => o.status === 'fulfilled'
       ? (o.value.result.receipt.duplicate ? 'replayed' : 'executed') : `refused ${o.reason?.code} retryable=${o.reason?.retryable}`)
     const fulfilled = settled.filter(o => o.status === 'fulfilled').map(o => o.value)
@@ -528,8 +542,12 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     for (const value of fulfilled) expect(value.result.receipt).toEqual(value === executed[0] ? receipt : { ...receipt, duplicate: true })
     // A loser that raced the winner's commit is refused as retryable (the runtime
     // then probes status and replays) and never writes.
-    for (const outcome of settled.filter(o => o.status === 'rejected')) expect(outcome.reason, JSON.stringify(outcomes)).toMatchObject({ retryable: true })
-    if (racing) expect(outcomes.filter(outcome => outcome.startsWith('refused')), JSON.stringify(outcomes)).toHaveLength(3)
+    for (const outcome of settled.filter(o => o.status === 'rejected')) {
+      expect(outcome.reason, JSON.stringify(outcomes)).toMatchObject({ retryable: true })
+      // A failed fixture rendezvous is never an accepted provider contention.
+      expect(outcome.reason.code, JSON.stringify(outcomes)).not.toBe('RACE_BARRIER_TIMEOUT')
+    }
+    expect(outcomes.filter(outcome => outcome === 'replayed' || outcome.startsWith('refused')), JSON.stringify(outcomes)).toHaveLength(3)
     expect(await confirmationState(proposalId, title)).toEqual(writtenOnce)
     // Receipt replay is scoped to the job that executed it (W1): the executing job's
     // status replays; the other job finds no receipt of its own and re-runs

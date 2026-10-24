@@ -1,3 +1,4 @@
+import {persistImportViewer} from '../helpers/persist-import-viewer'
 import { describe, it, expect, beforeAll } from 'vitest'
 import prisma from '@/lib/db'
 import {
@@ -45,7 +46,7 @@ describe('import child-entity scoping (cross-workspace / cross-tenant hijack)', 
     workspaceA = await makeScope('A')
     workspaceB = await makeScope('B')
     const businesses = [workspaceA.businessId, workspaceB.businessId]
-    viewer = makeViewer({ visibleBusinessIds: businesses, ownedBusinessIds: businesses })
+    viewer = await persistImportViewer(makeViewer({ visibleBusinessIds: businesses, ownedBusinessIds: businesses }))
 
     const planA = {
       schemaVersion: '1.1',

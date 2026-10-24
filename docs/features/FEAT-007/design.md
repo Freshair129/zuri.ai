@@ -26,7 +26,7 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🔜 design only — ADR-035 proposed, implementation not authorized
+> 🔜 approved planned — C0 v0.1.5 adopted 2026-10-24; implementation evidence remains separate
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
@@ -37,30 +37,32 @@ Feature record: [ZAI:FEAT-007 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🔜 design only — ADR-035 proposed, implementation not authorized
+> 🔜 approved planned — C0 v0.1.5 adopted 2026-10-24; implementation evidence remains separate
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-084 canonical record](requirements/FR-084.md)
 
-> Handoff Contract on a dependency edge: every `Dependency` carries a declared contract stating the **deliverable** the predecessor owes and the **acceptance** condition that says the debt is paid. Acceptance either references an existing `Gate` — whose status is then the single source of truth (ADR-035 D2) — or carries an explicit satisfied/unsatisfied mark with provenance. Persisted as one nullable JSON column with a Zod schema at the boundary (SDD-008); no new aggregate and no new model ownership, `Dependency` already belonging to the `project-manager` charter. Nullable at rest because rows predating the column exist: the invariant is enforced at the creation surface, and an edge with no contract renders as `contract undeclared` rather than looking complete (ADR-035 D6).
+> Handoff Contract on a dependency edge: every `Dependency` carries a declared contract stating the **deliverable** the predecessor owes and the **acceptance** condition that says the debt is paid. Acceptance either references an existing `Gate` — whose status is then the single source of truth (ADR-035 D2) — or carries an explicit satisfied/unsatisfied mark with provenance. Strict V1 client/persisted shapes, server-owned manual Person/time/audit provenance, predecessor-scoped Gate references and content-hash CAS follow the accepted Pipeline contract foundation v0.1.5 section4. Persisted as one nullable JSON column with a Zod schema at the boundary (SDD-008); no new aggregate and no new model ownership, `Dependency` already belonging to the `project-manager` charter. Nullable at rest because rows predating the column exist: the invariant is enforced at the creation surface, and an edge with no contract renders as `contract undeclared` rather than looking complete (ADR-035 D6).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🔜 design only — ADR-035 proposed, implementation not authorized
+> 🔜 approved planned — C0 v0.1.5 adopted 2026-10-24; implementation evidence remains separate
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Pipeline Builder contract foundation](../../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md) — `references` · `metadata` · `current`
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-085 canonical record](requirements/FR-085.md)
 
-> Contract-gated release on the Board: a WorkItem whose inbound edges carry declared, unsatisfied contracts is **held**, and says so on its own card — naming the predecessor it waits for as a link, before the user attempts the move rather than as a refusal after it. An edge whose contract is `undeclared` (a row predating FR-084) does not hold anything: it is surfaced for backfill, never enforced retroactively, because turning a data-migration gap into a production stoppage is the worse of the two failures.
+> Contract-gated release on the Board: a WorkItem governed by an effective ordering successor whose declared contract is unsatisfied or invalid is **held**, and says so on its own card — naming the predecessor it waits for as a link, before the user attempts the move rather than as a refusal after it. Ordering is BLOCKS source→target, REQUIRES target→source, START_AFTER source→target at start (DONE implies start), FINISH_BEFORE source→target at finish; related/lineage edges do not hold. Project/Workstream/Container/Milestone/Gate successors expand to their current WorkItems under the accepted Pipeline contract foundation v0.1.5 section5. Protected entry is IN_PROGRESS/REVIEW or DONE, including creation/import; existing statuses are not rewritten by evidence changes. An edge whose contract is `undeclared` (a row predating FR-084) does not hold anything: it is surfaced for backfill, never enforced retroactively, because turning a data-migration gap into a production stoppage is the worse of the two failures.
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🔜 design only — ADR-035 proposed, implementation not authorized
+> 🔜 approved planned — C0 v0.1.5 adopted 2026-10-24; implementation evidence remains separate
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Pipeline Builder contract foundation](../../architecture/project-manager-system/30-PIPELINE-CONTRACT-FOUNDATION.md) — `references` · `metadata` · `current`
 - [ADR-035 — The pipeline canvas: node → edge → node, and no edge without a contract](../../decisions/ADR-035-DIRECT-MANIPULATION-PIPELINE-CANVAS.md) — `relates` · `control-block` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 

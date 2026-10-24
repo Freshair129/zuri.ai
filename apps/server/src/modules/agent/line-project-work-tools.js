@@ -1,3 +1,4 @@
+import { withPipelineTransaction } from '@/modules/project-manager/application/pipeline-transaction'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
@@ -98,7 +99,7 @@ export async function proposeLineWork(jobId, { action, targetId, args }, { db = 
   idSchema.parse(targetId)
   if (!['create_work', 'update_work'].includes(action)) fail('WORK_ACTION_DENIED')
   const payload = (action === 'create_work' ? createSchema : patchSchema).parse(args)
-  return db.$transaction(async tx => {
+  return withPipelineTransaction(db, async tx => {
     const context = await contextFor(jobId, tx, at, expectedClaim)
     assertWrite(context)
     const target = await targetFor(context, action, targetId, tx)
@@ -122,7 +123,7 @@ export async function proposeLineWork(jobId, { action, targetId, args }, { db = 
 
 export async function confirmLineWork(jobId, proposalId, { db = prisma, now, expectedClaim } = {}) {
   idSchema.parse(proposalId)
-  return db.$transaction(async tx => {
+  return withPipelineTransaction(db, async tx => {
     const context = await contextFor(jobId, tx, clock(now), expectedClaim)
     // Only explicit human text in a new signed inbound can consume a proposal;
     // models cannot manufacture confirmation by calling this function.

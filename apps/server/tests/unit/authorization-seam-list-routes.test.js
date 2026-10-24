@@ -197,7 +197,7 @@ describe('mixed-method authorization seam routes', () => {
     const response = await dependenciesRoute.GET(request('/api/dependencies?businessId=business-b'))
 
     expect(response.status).toBe(200)
-    expect(mocks.listDependencies).toHaveBeenCalledWith({ businessId: 'business-b' })
+    expect(mocks.listDependencies).toHaveBeenCalledWith({ businessId: 'business-b' }, { viewer: expect.objectContaining({ownedBusinessIds:['business-b']}) })
   })
 
   it('refuses an invisible Business-scoped dependency list', async () => {

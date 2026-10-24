@@ -1,3 +1,5 @@
+import { NextResponse } from 'next/server'
+import { dryRunPlanDelta, commitPlanDelta, pipelineFailure, pipelineResponseStatus } from '@/modules/project-manager/import/plan-delta-service'
 // @req FR-007 — list or create dependencies with self/cycle rejection and blocked evaluation
 // @req FR-046 — every mutating request resolves one trusted viewer and fails closed.
 // @req FR-072 — the service refuses this write unless the viewer owns the governing Business.
@@ -6,7 +8,7 @@
 // @req FR-046 — a dependency list resolves a trusted viewer and requires a
 // Project or visible Business scope before the compatibility read runs.
 // @tested tests/unit/authorization-seam-routes.test.js
-import { handle, httpError, queryParams } from '../_helpers'
+import { handle, httpError, queryParams, readPipelineBody } from '../_helpers'
 import prisma from '@/lib/db'
 import { listDependencies, createDependency } from '@/modules/project-manager/application/dependency-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
@@ -43,13 +45,22 @@ export async function GET(request) {
     const filters = {}
     if (q.projectId) filters.projectId = q.projectId
     if (q.businessId) filters.businessId = q.businessId
-    return listDependencies(filters)
+    return listDependencies(filters, { viewer })
   })
 }
 
 export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
-    return createDependency(await request.json(), { viewer })
+    const {body,requestBodyBytes} = await readPipelineBody(request)
+    try {
+      if (!body.plan) return await createDependency(body, { viewer })
+      const options = { viewer, register: true,requestBodyBytes }
+      const result = body.plan.expectedPreviewHash === null ? await dryRunPlanDelta(body.plan, options) : await commitPlanDelta(body.plan, options)
+      return NextResponse.json(result, { status: pipelineResponseStatus(result) })
+    } catch (error) {
+      if (error?.name !== 'PipelineError') throw error
+      return NextResponse.json(pipelineFailure(error), { status: error.status })
+    }
   })
 }
