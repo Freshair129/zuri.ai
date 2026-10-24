@@ -10,6 +10,7 @@ import { useFetch, LoadingCard } from '../components/useApi'
 import { ErrorState, EmptyState } from '@/components/ui'
 import WorkpackageModal from '../components/WorkpackageModal'
 import s from './wbs.module.css'
+import StructureCanvas from '../components/StructureCanvas'
 
 const STATUS_DOT = {
   PLANNED: '#9CA3AF', READY: '#3b82f6', IN_PROGRESS: '#2563eb', REVIEW: '#f59e0b',
@@ -123,7 +124,7 @@ function WorkstreamNode({ ws, onOpen }) {
   )
 }
 
-export default function WbsCanvas({ projectId }) {
+function ReadOnlyWbsCanvas({ projectId }) {
   const { data, loading, error, reload } = useFetch(`/api/projects/${projectId}/tree`)
   const [selected, setSelected] = useState(null)
   if (loading) {
@@ -178,4 +179,10 @@ export default function WbsCanvas({ projectId }) {
     <WorkpackageModal key={selected?.id} open={!!selected} item={selected} onClose={() => setSelected(null)} onSaved={reload} />
     </>
   )
+}
+
+// @req FR-082 — authorized editing uses the same intake writer; readers retain their view.
+// @tested tests/e2e/pipeline-structure-editing.spec.js
+export default function WbsCanvas({ projectId }) {
+  return <StructureCanvas key={projectId} projectId={projectId} fallback={<ReadOnlyWbsCanvas projectId={projectId} />} />
 }

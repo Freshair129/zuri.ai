@@ -41,7 +41,7 @@
     "readyFeatureCount": 121,
     "requirementCount": 279,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.5,
+    "progressPercent": 93.8,
     "gapCount": 76,
     "gaps": [
       {
@@ -208,6 +208,7 @@
           "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
           "apps/server/tests/integration/pipeline-sqlite-races.test.js",
           "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+          "apps/server/tests/integration/plan-delta-moves.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -901,8 +902,25 @@
         "id": "REQ-FR-082",
         "severity": "medium",
         "check": "requirements",
-        "summary": "FR-082 is planned",
-        "evidence": []
+        "summary": "FR-082 is partial",
+        "evidence": [
+          "apps/server/src/app/api/projects/[id]/tree/route.js",
+          "apps/server/src/modules/project-manager/application/structure-canvas.js",
+          "apps/server/src/modules/project-manager/components/StructureCanvas.jsx",
+          "apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js",
+          "apps/server/src/modules/project-manager/import/plan-delta-service.js",
+          "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
+          "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
+          "apps/server/tests/integration/dependency-handoff.test.js",
+          "apps/server/tests/integration/plan-delta-moves.test.js",
+          "apps/server/tests/integration/plan-delta.test.js",
+          "apps/server/tests/integration/project-core.test.js",
+          "apps/server/tests/postgres/pipeline-structure-moves.test.js",
+          "apps/server/tests/unit/authorization-seam-routes.test.js",
+          "apps/server/tests/unit/pipeline-structure-interactions.test.js",
+          "apps/server/tests/unit/project-structure-tree.test.js",
+          "apps/server/tests/unit/wbs-structure.test.js"
+        ]
       },
       {
         "domain": "project-manager",
@@ -967,6 +985,7 @@
           "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
           "apps/server/tests/integration/pipeline-sqlite-races.test.js",
           "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+          "apps/server/tests/integration/plan-delta-moves.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -1876,7 +1895,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 35,
+          "testCount": 36,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -1894,6 +1913,7 @@
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -2116,6 +2136,7 @@
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -2945,7 +2966,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 82
+          "testCount": 84
         },
         {
           "id": "FR-059",
@@ -6245,7 +6266,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 82
+          "testCount": 84
         },
         {
           "id": "FR-075",
@@ -6855,7 +6876,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-018",
@@ -6983,7 +7004,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-041",
@@ -7031,7 +7052,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 82
+          "testCount": 84
         },
         {
           "id": "FR-056",
@@ -7229,9 +7250,27 @@
           "id": "FR-082",
           "title": "Structure editing by direct manipulation",
           "declared": "planned",
-          "status": "planned",
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "codeCount": 6,
+          "testCount": 10,
+          "evidence": [
+            "apps/server/src/app/api/projects/[id]/tree/route.js",
+            "apps/server/src/modules/project-manager/application/structure-canvas.js",
+            "apps/server/src/modules/project-manager/components/StructureCanvas.jsx",
+            "apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js",
+            "apps/server/src/modules/project-manager/import/plan-delta-service.js",
+            "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
+            "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
+            "apps/server/tests/integration/dependency-handoff.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/postgres/pipeline-structure-moves.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/pipeline-structure-interactions.test.js",
+            "apps/server/tests/unit/project-structure-tree.test.js",
+            "apps/server/tests/unit/wbs-structure.test.js"
+          ]
         },
         {
           "id": "FR-083",
@@ -7261,7 +7300,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 20,
-          "testCount": 35,
+          "testCount": 36,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -7298,6 +7337,7 @@
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -8683,8 +8723,25 @@
           "id": "REQ-FR-082",
           "severity": "medium",
           "check": "requirements",
-          "summary": "FR-082 is planned",
-          "evidence": []
+          "summary": "FR-082 is partial",
+          "evidence": [
+            "apps/server/src/app/api/projects/[id]/tree/route.js",
+            "apps/server/src/modules/project-manager/application/structure-canvas.js",
+            "apps/server/src/modules/project-manager/components/StructureCanvas.jsx",
+            "apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js",
+            "apps/server/src/modules/project-manager/import/plan-delta-service.js",
+            "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
+            "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
+            "apps/server/tests/integration/dependency-handoff.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
+            "apps/server/tests/integration/plan-delta.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/postgres/pipeline-structure-moves.test.js",
+            "apps/server/tests/unit/authorization-seam-routes.test.js",
+            "apps/server/tests/unit/pipeline-structure-interactions.test.js",
+            "apps/server/tests/unit/project-structure-tree.test.js",
+            "apps/server/tests/unit/wbs-structure.test.js"
+          ]
         },
         {
           "id": "REQ-FR-083",
@@ -8747,6 +8804,7 @@
             "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
             "apps/server/tests/integration/pipeline-sqlite-races.test.js",
             "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+            "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
@@ -9067,7 +9125,7 @@
       ],
       "featureCount": 53,
       "readyFeatureCount": 48,
-      "progressPercent": 96.9
+      "progressPercent": 98
     }
   },
   "features": [
@@ -9770,12 +9828,12 @@
         "project-manager"
       ],
       "useCase": "PM ลากโครงสร้างงาน เชื่อม dependency พร้อม Handoff Contract และให้ Board ถือรายการจน Gate ผ่าน",
-      "progressPercent": 60,
+      "progressPercent": 80,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-007 registry status is proposed",
-        "FR-082 is planned",
+        "FR-082 is partial",
         "FR-083 is partial",
         "FR-084 is partial",
         "FR-085 is partial"
@@ -9784,10 +9842,10 @@
         {
           "id": "FR-082",
           "title": "Structure editing by direct manipulation",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 6,
+          "testCount": 10
         },
         {
           "id": "FR-083",
@@ -9803,7 +9861,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 23,
-          "testCount": 35
+          "testCount": 36
         },
         {
           "id": "FR-085",
@@ -9816,6 +9874,7 @@
       ],
       "evidence": [
         "apps/server/src/app/api/_helpers.js",
+        "apps/server/src/app/api/projects/[id]/tree/route.js",
         "apps/server/src/app/api/resolve/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
@@ -9833,17 +9892,22 @@
         "apps/server/src/modules/project-manager/application/progress-service.js",
         "apps/server/src/modules/project-manager/application/project-feature-repository.js",
         "apps/server/src/modules/project-manager/application/project-file-service.js",
+        "apps/server/src/modules/project-manager/application/structure-canvas.js",
         "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+        "apps/server/src/modules/project-manager/components/StructureCanvas.jsx",
         "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
+        "apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js",
         "apps/server/src/modules/project-manager/import/bundle/bundle-handoff-service.js",
         "apps/server/src/modules/project-manager/import/pipeline-preview-db.js",
         "apps/server/src/modules/project-manager/import/plan-delta-operations.js",
         "apps/server/src/modules/project-manager/import/plan-delta-schema.js",
         "apps/server/src/modules/project-manager/import/plan-delta-service.js",
         "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
+        "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
         "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
         "apps/server/tests/e2e/dependency-handoff.spec.js",
         "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+        "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
         "apps/server/tests/integration/dependency-handoff.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
@@ -9860,13 +9924,16 @@
         "apps/server/tests/integration/pipeline-schema-mirrors.test.js",
         "apps/server/tests/integration/pipeline-sqlite-races.test.js",
         "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
+        "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/plan-delta.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
         "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+        "apps/server/tests/postgres/pipeline-structure-moves.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
+        "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/dependency-handoff-form.test.js",
@@ -9878,12 +9945,15 @@
         "apps/server/tests/unit/pipeline-finite-progress.test.js",
         "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
         "apps/server/tests/unit/pipeline-http-response.test.js",
+        "apps/server/tests/unit/pipeline-structure-interactions.test.js",
         "apps/server/tests/unit/pipeline-validation-paths.test.js",
         "apps/server/tests/unit/pipeline-writer-census.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
         "apps/server/tests/unit/project-feature-repository.test.js",
-        "apps/server/tests/unit/project-file-service.test.js"
+        "apps/server/tests/unit/project-file-service.test.js",
+        "apps/server/tests/unit/project-structure-tree.test.js",
+        "apps/server/tests/unit/wbs-structure.test.js"
       ]
     },
     {
@@ -15144,7 +15214,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 10
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -15157,6 +15227,7 @@
         "apps/server/src/modules/project-manager/import/plan-mode-envelope.js",
         "apps/server/src/modules/project-manager/import/task-envelope.js",
         "apps/server/tests/e2e/smoke.spec.js",
+        "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/plan-mode-modal-intake.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/task-modal-intake.test.js",
@@ -15164,6 +15235,7 @@
         "apps/server/tests/unit/human-plan-builder.test.js",
         "apps/server/tests/unit/mode-default-subtype.test.js",
         "apps/server/tests/unit/plan-intake-flow.test.js",
+        "apps/server/tests/unit/project-structure-tree.test.js",
         "apps/server/tests/unit/task-intake-modal.test.js",
         "apps/server/tests/unit/work-surface-scope-inventory.test.js"
       ]
@@ -16183,7 +16255,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -16200,6 +16272,7 @@
         "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
         "apps/server/tests/e2e/fr040-project-work.spec.js",
         "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+        "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
         "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/project-core.test.js",
@@ -16436,7 +16509,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 82
+          "testCount": 84
         }
       ],
       "evidence": [
@@ -16558,6 +16631,7 @@
         "apps/server/tests/integration/fr268-business-key-result-mutation.test.js",
         "apps/server/tests/integration/fr269-business-kpi-mutation.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
+        "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/unit/api-path-reachability.test.js",
@@ -16601,6 +16675,7 @@
         "apps/server/tests/unit/project-dependency-route.test.js",
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
+        "apps/server/tests/unit/project-structure-tree.test.js",
         "apps/server/tests/unit/project-team-service.test.js",
         "apps/server/tests/unit/run-bat-database-bootstrap.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
@@ -21177,8 +21252,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 17,
-      "testCount": 26,
+      "codeCount": 19,
+      "testCount": 28,
       "domains": [
         "knowledge",
         "platform-control",

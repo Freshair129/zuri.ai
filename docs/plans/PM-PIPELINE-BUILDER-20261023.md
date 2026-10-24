@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.5"
+version: "0.1.6"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -22,7 +22,7 @@ relations:
 
 **Goal:** After exact contract adoption, join Structure Plan, Dependency Map and Board through persisted handoff obligations and accessible editing.
 
-**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize the shared foundation. C1 is merged; the owner selected C2; C3–C4 remain later increments.
+**Architecture:** Add the nullable Dependency contract described by FR-084 and reuse the existing PM import/authorization/audit lane. Keep graph layout derived and server enforcement authoritative. Owner-approved C0 v0.1.5 and the reconciled ADR-035 authorize the shared foundation. C1 is merged; C2 is qualified in open PR740; the owner selected C3. C4 remains a later increment.
 
 **Tech Stack:** Existing React components, Zod/JSON Schema, PM import/services, Prisma adapters, Vitest and Playwright; no drag library or graph service is selected.
 
@@ -300,19 +300,62 @@ contract/state fields from C0; no persisted x/y coordinates.
 - [x] Run `npm --prefix apps/server test -- tests/unit/pipeline-edge-interactions.test.js tests/unit/dependency-map-view.test.js` and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-edge-editing.spec.js`. Include keyboard-only, single-pointer, narrow viewport and reduced-motion cases in the new browser file; run the behavior-appropriate build/governance/review/CI.
 - [x] Commit the complete gesture/equivalent unit as `feat(pm): create dependency edges accessibly`.
 
+## C3 source qualification (2026-10-24)
+
+The owner selected C3 after C2 local/hosted acceptance, explicitly choosing C3
+rather than merging PR740. Work starts on `codex/pm-pipeline-c3-20261024`,
+composed source `e9d312ad` (C2 `fc2ec33b` plus main `08ecc44e` / PR741).
+PR740 remains open and unchanged. C4, production and merge are excluded.
+
+FR-082, adopted C0 section7, ADR-035 and the current strict delta schema agree:
+create WORKSTREAM under PROJECT, and WORK_CONTAINER/WORK_ITEM under a contained
+WORKSTREAM or WORK_CONTAINER. Moves retain identity, descendants and Feature
+links, require source/destination subtree hashes, and revalidate hierarchy,
+mode, effective cycles and release under the existing graph transaction.
+No new schema, command variant or canonical requirement migration is needed.
+
+Current `compilePlanDelta` already implements these commands. `WbsCanvas` has no
+editing affordance; the existing tree GET has no subtree fingerprints and only
+two container levels. C3 adds an explicit canvas projection on the same GET,
+with contained structural labels/hashes and read-only eligible-parent discovery
+through the existing compiler. Mutation remains exclusively dry-run/commit.
+The unchanged plain GET and read-only view remain available to readers without
+write authority; their nested-container assembly is extended to preserve visibility
+at every new depth. No authority or provenance rows enter the canvas DTO.
+
+Owned additions: a structure-canvas read model, browser-safe command helpers,
+an accessible StructureCanvas editor/dialog and their adapter/unit/browser tests;
+the WBS entrypoint, owned styles, existing tree route and PG test selection are
+integrated. Existing standalone edit forms retain their CRUD purpose; new canvas
+create/move actions use the shared delta lane. Drop targets activate only after
+server prospective validation; keyboard/single-pointer Move to uses the same
+eligible set and command. Delayed reads/previews and uncertain commit recovery
+retain C2's generation/idempotency protections. This explanatory qualification
+was initially recorded before application/test changes; subsequent implementation
+clarifications are noted below and executed results follow separately.
+
+The eligible-parent implementation calls the exact `preparePlanDelta` used by
+dry run, including release-effect validation, not a second approximation. That
+internal preparation function is exported without changing its write semantics.
+
 ## Task C3: Structure add/reparent with the same writer (FR-082)
 
-**Files:** modify `views/WbsCanvas.jsx`, its owned styles, existing work/container
-forms and C1's delta command branch; create `tests/integration/plan-delta-moves.test.js`
-and `tests/e2e/pipeline-structure-editing.spec.js`.
+**Files:** modify `views/WbsCanvas.jsx`, its owned styles and the existing tree
+GET; add `components/StructureCanvas.jsx`, browser-safe structure command helpers
+and `application/structure-canvas.js`. Reuse C1's existing command branch;
+extract its shared read preparation in `import/plan-delta-service.js` without
+adding commands. Existing standalone forms retain their purpose. Add
+`tests/integration/plan-delta-moves.test.js`,
+`tests/e2e/pipeline-structure-editing.spec.js`, the owned helper/tree unit tests,
+`tests/postgres/pipeline-structure-moves.test.js` and its PG selection entry.
 
 **Interfaces:** consume C0's adopted node-create/move variants and parent/mode
 matrix. Derive valid drop targets from the same prospective semantic validation
 used by dry run. Commit preserves entity identities and updates affected
 descendants/references atomically under expected hashes.
 
-- [ ] Write tests for legal child creation, invalid hierarchy, descendant cycle, stale parent, foreign Project, incompatible mode, retained Feature links and unchanged ID/audit on refusal. Include an undo after a newer edit that must conflict instead of overwriting it.
-- [ ] Implement `+` forms and `Move to…` first, then drag using those same operations. Invalid targets never become active drop targets; the server independently revalidates. Preserve seven-mode contracts and the existing objective-first Project creation flow.
+- [x] Write tests for legal child creation, invalid hierarchy, descendant cycle, stale parent, foreign Project, incompatible mode, retained Feature links and unchanged ID/audit on refusal. Include an undo after a newer edit that must conflict instead of overwriting it.
+- [x] Implement `+` forms and `Move to…` first, then drag using those same operations. Invalid targets never become active drop targets; the server independently revalidates. Preserve seven-mode contracts and the existing objective-first Project creation flow.
 - [ ] Run `npm --prefix apps/server test -- tests/integration/plan-delta-moves.test.js tests/integration/plan-delta.test.js` and `npm --prefix apps/server run test:e2e -- tests/e2e/pipeline-structure-editing.spec.js`; repeat the graph contention cases for affected move operations on PG. Build/review/governance/CI then commit `feat(pm): edit Project structure through plan deltas`.
 
 ## Task C4: Server-enforced release holds and Board explanation (FR-085)
@@ -446,3 +489,61 @@ now waits for the rendered connection control before fault injection. This
 changes test synchronization, not product behavior. The final PR evidence
 must record fresh results and independent review for these corrections; the failed
 run is retained and is not counted as a pass. Production and C3–C4 remain excluded.
+
+## C3 independent review and corrections
+
+GPT-6 Luna Max reviewed immutable tree `4faa85e8` against composed base
+`e9d312ad`. Two Important findings were verified: a successful HTTP response
+missing `committed` was incorrectly treated as a definitive refusal, losing the
+accepted idempotent request; and eligible-parent discovery repeated full graph
+reads/preparation for every candidate. Regressions were observed failing first.
+
+Malformed commit results now remain uncertain and retain the identical request
+for replay. Eligible-parent discovery shares one transaction snapshot of the
+graph, readable scopes and evidence. It runs the same complete semantic/release
+validation against each prospective result, without recalculating unused preview
+fingerprints. The query-count regression observed ten graph reads before the
+fix and one afterward for eight eligible parents. This proves snapshot reuse,
+not maximum-size latency or production capacity. Writer previews/commits retain
+their complete fingerprints and current authority checks; these are internal
+read-model options, not envelope bypass fields.
+
+The reviewer also found an ARIA parent/group relationship issue and an outdated
+Task C3 file list. The hierarchy issue was treated as part of FR-082/NFR-008
+acceptance: a browser regression failed before nesting each group within its
+own treeitem and retaining visible keyboard focus. The file list above is
+reconciled with the pre-code qualification and actual owned files. No C4,
+canonical requirement migration, production or merge is introduced. Final review
+confirmation and executed qualification are recorded separately.
+
+0.1.5 → 0.1.6 (2026-10-24): records owner-selected C3, current-source
+reconciliation, actual file ownership and review corrections. C2 remains in open
+PR740; C3 is a separate branch, with no merge or production authority.
+
+## C3 local application qualification (2026-10-24)
+
+Application/test source tree `a07b7a0e` has completed scoped local acceptance.
+This is a source/implementation snapshot, not canonical lifecycle promotion,
+complete Pipeline Builder acceptance or a production release.
+
+| Check | Executed result and scope |
+|---|---|
+| SQLite | 11 selected files, 75 assertions passed, no failures/skips: structure adapter/helper/tree, shared delta, contract/register, authorization, existing WBS and Project core |
+| PostgreSQL | 3 suites, 17 passed on owned disposable clusters and actual non-owner/non-superuser/non-bypass runtime role; includes C3 cross-Workstream descendant/Feature-link retention, observed opposing-move contention and audit rollback, C1 graph races/process recovery and C2 adapter |
+| Browser | Guarded Playwright on owned loopback port3129 and its isolated seeded SQLite: 12/12 passed in one attempt, 19.1s; retries disabled and flaky/zero-test guards retained |
+| Browser behaviors | Actual keyboard create/cancel/focus, every create family, Move to and drag/invalid targets, 390px/reduced motion, stable identity/readback, newer-edit undo refusal, retained WorkItem metadata, delayed-preview cancellation, stale destination, coded503/malformed-success idempotent replay, deep compatible read and ARIA group ownership |
+| Build | `npm --prefix apps/server run build`: PASS, including Next validity phase; no standalone configured lint/typecheck run is claimed |
+| Independent review | GPT-6 Luna Max confirmed tree `a07b7a0e` against `e9d312ad`: no remaining Critical/Important blocker; shared snapshot preserves full semantics and internal options are not exposed through HTTP |
+
+The document/generated-output composition passed strict governance with
+0 critical / 0 warning / 43 info. Exact-head hosted CI remains a delivery gate;
+its revision-specific outcome will be recorded in the PR. The integration
+checkbox above is a pre-delivery snapshot; the PR will record its subsequent
+remote gate result without issuing a
+new canonical requirement state. No preview/test process remains serving after
+each owned run. Ignored local logs are under `.local/pm-pipeline-c3-20261024/`.
+
+C3 will target the C2 branch in a stacked PR while PR740 remains unmerged.
+Its branch also contains the already-merged PR741 composition from main; those
+six LINE files are upstream context, not new C3 implementation. No merge,
+C4, production, migration or maximum-size runtime-capacity claim is selected.

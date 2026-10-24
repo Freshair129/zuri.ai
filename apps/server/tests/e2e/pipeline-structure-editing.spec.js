@@ -1,0 +1,125 @@
+// @req FR-082 — actual create/move gestures and recovery on isolated persisted work.
+// @spec ADR-035, SDD-046, NFR-008
+const {test,expect}=require('@playwright/test')
+const {randomUUID}=require('node:crypto')
+const {PrismaClient}=require('@prisma/client')
+const {e2eTarget}=require('./e2e-target')
+const {loginAsOwner}=require('./e2e-auth')
+const db=new PrismaClient({datasources:{db:{url:e2eTarget().databaseUrl}}})
+let project,ws,source,destination,child,code
+async function arrange(page){
+ await loginAsOwner(page);await page.getByRole('button',{name:/Open Business Business 01/}).click()
+ project=await (await page.request.get('/api/resolve?type=PROJECT&code=PRJ-B01-TRANSFORM')).json()
+ ws=await db.workstream.findFirst({where:{projectId:project.id,executionMode:'SOFTWARE_SPRINT',deletedAt:null}})
+ destination=await db.workContainer.create({data:{code:randomUUID(),title:'C3 Destination',subtype:'EPIC',workstreamId:ws.id}})
+ child=await db.workContainer.create({data:{code:randomUUID(),title:'C3 Child',subtype:'EPIC',workstreamId:ws.id,parentId:destination.id}})
+ source=await db.workItem.create({data:{code:randomUUID(),title:'C3 Movable work',subtype:'TASK',workstreamId:ws.id}})
+ await page.goto(`/projects/${project.id}/structure`)
+ await expect(page.getByRole('button',{name:`Add child to ${project.code}`,exact:true})).toBeVisible()
+}
+test.beforeEach(()=>{project=ws=source=destination=child=null;code='C3-'+randomUUID()})
+test.afterEach(async()=>{
+ if(source)await db.workItem.deleteMany({where:{id:source.id}})
+ if(child)await db.workContainer.deleteMany({where:{id:child.id}})
+ if(destination)await db.workContainer.deleteMany({where:{id:destination.id}})
+ await db.workItem.deleteMany({where:{code:{in:[code,code+'-item']}}});await db.workContainer.deleteMany({where:{code}});await db.workstream.deleteMany({where:{code}})
+})
+test.afterAll(()=>db.$disconnect())
+const notice=page=>page.locator('p[role=alert]')
+test('keyboard creates from plus, cancels without writes, and uses the audited undo',async({page})=>{
+ await arrange(page);const button=page.getByRole('button',{name:`Add child to ${project.code}`,exact:true}),count=await db.auditEvent.count()
+ await button.focus();await page.keyboard.press('Enter');let dialog=page.getByRole('dialog',{name:'Add child'})
+ await expect(dialog.getByLabel('Code',{exact:true})).toBeFocused();await page.keyboard.press('Escape');await expect(button).toBeFocused();expect(await db.auditEvent.count()).toBe(count)
+ await page.keyboard.press('Enter');dialog=page.getByRole('dialog',{name:'Add child'});await page.keyboard.type(code);await page.keyboard.press('Tab');await page.keyboard.type('C3 added stream')
+ await page.keyboard.press('Tab');await expect(dialog.getByLabel('Execution mode',{exact:true})).toBeFocused();await page.keyboard.press('Home');await page.keyboard.press('Tab');await page.keyboard.press('Tab');await expect(dialog.getByRole('button',{name:'Create child',exact:true})).toBeFocused()
+ const saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await page.keyboard.press('Enter');expect((await (await saved).json()).committed).toBe(true)
+ await expect(page.getByText('C3 added stream',{exact:true})).toBeVisible();expect(await db.workstream.findUnique({where:{code}})).toMatchObject({executionMode:'SOFTWARE_SPRINT',progressStrategy:'TASK_WEIGHT'})
+ await page.getByRole('button',{name:'Undo last structure change',exact:true}).click();await expect(page.getByText('C3 added stream',{exact:true})).toHaveCount(0)
+ await page.reload();await expect(page.getByText('C3 added stream',{exact:true})).toHaveCount(0)
+})
+test('single-pointer Move to uses the server eligible list and persists stable identity',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await arrange(page)
+ await page.getByRole('button',{name:`Move ${source.code}`,exact:true}).click()
+ const dialog=page.getByRole('dialog',{name:'Move work'});await expect(dialog.getByLabel('Destination',{exact:true})).toBeVisible()
+ await dialog.getByLabel('Destination',{exact:true}).selectOption(destination.id)
+ const saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await dialog.getByRole('button',{name:'Move work',exact:true}).click();const receipt=await (await saved).json();expect(receipt.committed).toBe(true)
+ expect(receipt.deltaReceipt.changes.find(row=>row.type==='WORK_ITEM').id).toBe(source.id)
+ expect(await db.workItem.findUnique({where:{id:source.id}})).toMatchObject({containerId:destination.id,workstreamId:ws.id})
+ await page.reload();await expect(page.locator(`[data-structure-id="${destination.id}"]`).getByText(source.title,{exact:true})).toBeVisible()
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth)).toBeLessThanOrEqual(390)
+})
+test('drag advertises invalid descendant targets before drop and valid drop uses the same writer',async({page})=>{
+ await page.setViewportSize({width:2200,height:1200});await arrange(page)
+ const moving=page.getByRole('button',{name:`Drag ${destination.code}`,exact:true});await moving.scrollIntoViewIfNeeded();let box=await moving.boundingBox()
+ await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+15,box.y+box.height/2+15)
+ const invalid=page.locator(`[data-structure-id="${child.id}"]`).first();await expect(invalid).toHaveAttribute('data-drop-state','unavailable')
+ const before=await db.auditEvent.count(),target=await invalid.locator('[data-structure-card]').first().boundingBox();await page.mouse.move(target.x+target.width/2,target.y+target.height/2);await page.mouse.up();expect(await db.auditEvent.count()).toBe(before)
+ const handle=page.getByRole('button',{name:`Drag ${source.code}`,exact:true});await handle.scrollIntoViewIfNeeded();box=await handle.boundingBox();await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+15,box.y+box.height/2+15)
+ const allowed=page.locator(`[data-structure-id="${destination.id}"]`).first();await expect(allowed).toHaveAttribute('data-drop-state','available')
+ const drop=await allowed.locator('[data-structure-card]').first().boundingBox(),saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await page.mouse.move(drop.x+drop.width/2,drop.y+drop.height/2,{steps:10});await page.mouse.up();expect((await (await saved).json()).committed).toBe(true)
+ expect(await db.workItem.findUnique({where:{id:source.id}})).toMatchObject({containerId:destination.id})
+})
+test('newer edit refuses undo inline without overwriting work',async({page})=>{
+ await arrange(page);await page.getByRole('button',{name:`Move ${source.code}`,exact:true}).click();const dialog=page.getByRole('dialog',{name:'Move work'});await dialog.getByLabel('Destination',{exact:true}).selectOption(destination.id)
+ const saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await dialog.getByRole('button',{name:'Move work',exact:true}).click();await saved
+ await expect(page.getByRole('button',{name:'Undo last structure change',exact:true})).toBeEnabled();await db.workItem.update({where:{id:source.id},data:{title:'C3 newer work'}})
+ await page.getByRole('button',{name:'Undo last structure change',exact:true}).click();await expect(notice(page)).toContainText('Newer work')
+ expect(await db.workItem.findUnique({where:{id:source.id}})).toMatchObject({title:'C3 newer work',containerId:destination.id})
+})
+test('existing WorkItem detail retains its actual metadata',async({page})=>{
+ await arrange(page);await db.workItem.update({where:{id:source.id},data:{metricDataJson:JSON.stringify({description:'Retained C3 description'})}})
+ await page.getByRole('button',{name:source.title,exact:true}).click()
+ const dialog=page.getByRole('dialog',{name:source.title,exact:true});await expect(dialog).toBeVisible()
+ await expect(dialog.locator('textarea').first()).toHaveValue('Retained C3 description')
+})
+test('cancelled delayed preview never commits or changes the hierarchy',async({page})=>{
+ await arrange(page);let release,done;const held=new Promise(resolve=>{release=resolve}),settled=new Promise(resolve=>{done=resolve})
+ await page.getByRole('button',{name:`Move ${source.code}`,exact:true}).click();const dialog=page.getByRole('dialog',{name:'Move work'});await dialog.getByLabel('Destination',{exact:true}).selectOption(destination.id)
+ await page.route('**/api/import/dry-run',async route=>{const response=await route.fetch();await held;await route.fulfill({response});done()})
+ let commits=0;page.on('request',request=>{if(request.url().endsWith('/api/import/commit'))commits++})
+ await dialog.getByRole('button',{name:'Move work',exact:true}).click();await page.getByRole('button',{name:'Cancel preview',exact:true}).click();release();await settled
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
+ expect(commits).toBe(0);expect(await db.workItem.findUnique({where:{id:source.id}})).toMatchObject({containerId:null})
+ await expect(page.getByRole('button',{name:`Move ${source.code}`,exact:true})).toBeFocused()
+})
+for(const failure of ['503','malformed'])test(`uncertain committed response (${failure}) retains one identical request through reload and replay`,async({page})=>{
+ await arrange(page);await page.getByRole('button',{name:`Move ${source.code}`,exact:true}).click();const dialog=page.getByRole('dialog',{name:'Move work'});await dialog.getByLabel('Destination',{exact:true}).selectOption(destination.id)
+ let first,receipt,calls=0
+ await page.route('**/api/import/commit',async route=>{
+  const plan=route.request().postDataJSON().plan;calls++
+  if(calls===1){first=plan;const response=await route.fetch();receipt=await response.json();expect(receipt.committed).toBe(true);await route.fulfill({status:failure==='malformed'?200:503,contentType:'application/json',body:JSON.stringify(failure==='malformed'?{accepted:true}:{committed:false,errors:[{code:'GRAPH_BUSY'}]})})}
+  else{expect(plan).toEqual(first);await route.continue()}
+ })
+ await dialog.getByRole('button',{name:'Move work',exact:true}).click();await expect(notice(page)).toContainText('uncertain')
+ await page.getByRole('button',{name:'Reload Project',exact:true}).click();await expect(page.getByRole('button',{name:'Retry structure change',exact:true})).toBeVisible()
+ const replay=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await page.getByRole('button',{name:'Retry structure change',exact:true}).click();expect((await (await replay).json())).toMatchObject({replay:true,auditEventId:receipt.auditEventId})
+ expect(await db.planImportReceipt.count({where:{idempotencyKey:first.trace.idempotencyKey}})).toBe(1)
+})
+test('a real destination edit between preview and commit refuses the stale move inline',async({page})=>{
+ await arrange(page);await page.getByRole('button',{name:`Move ${source.code}`,exact:true}).click();const dialog=page.getByRole('dialog',{name:'Move work'});await dialog.getByLabel('Destination',{exact:true}).selectOption(destination.id)
+ await page.route('**/api/import/dry-run',async route=>{const response=await route.fetch();expect((await response.json()).valid).toBe(true);await db.workContainer.update({where:{id:destination.id},data:{title:'Destination changed'}});await route.fulfill({response})})
+ const count=await db.auditEvent.count();await dialog.getByRole('button',{name:'Move work',exact:true}).click();await expect(notice(page)).toContainText('changed')
+ expect(await db.auditEvent.count()).toBe(count);expect(await db.workItem.findUnique({where:{id:source.id}})).toMatchObject({containerId:null})
+ await expect(page.getByRole('button',{name:'Correct structure change',exact:true})).toBeVisible()
+})
+test('plus creates compatible container and item through the same intake lane',async({page})=>{
+ await arrange(page);await page.getByRole('button',{name:`Add child to ${ws.code}`,exact:true}).click();let dialog=page.getByRole('dialog',{name:'Add child'})
+ await dialog.getByLabel('Code',{exact:true}).fill(code);await dialog.getByLabel('Name',{exact:true}).fill('C3 added container');await dialog.getByLabel('Child type',{exact:true}).selectOption('WORK_CONTAINER');await dialog.getByLabel('Subtype',{exact:true}).selectOption('EPIC')
+ let saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await dialog.getByRole('button',{name:'Create child',exact:true}).click();expect((await (await saved).json()).committed).toBe(true)
+ const parent=await db.workContainer.findUnique({where:{code}});expect(parent).toMatchObject({subtype:'EPIC',workstreamId:ws.id})
+ await page.getByRole('button',{name:`Add child to ${code}`,exact:true}).click();dialog=page.getByRole('dialog',{name:'Add child'});await dialog.getByLabel('Code',{exact:true}).fill(code+'-item');await dialog.getByLabel('Name',{exact:true}).fill('C3 added child work')
+ saved=page.waitForResponse(r=>r.url().endsWith('/api/import/commit'));await dialog.getByRole('button',{name:'Create child',exact:true}).click();expect((await (await saved).json()).committed).toBe(true)
+ expect(await db.workItem.findUnique({where:{code:code+'-item'}})).toMatchObject({containerId:parent.id,workstreamId:ws.id,subtype:'TASK'})
+})
+test('the compatible plain read includes a third container level with the same identity',async({page})=>{
+ await arrange(page);const grandchild=await db.workContainer.create({data:{code,title:'C3 grandchild',subtype:'EPIC',workstreamId:ws.id,parentId:child.id}})
+ const response=await page.request.get(`/api/projects/${project.id}/tree`);expect(response.ok()).toBe(true)
+ const tree=await response.json(),branch=tree.workstreams.find(row=>row.id===ws.id).containers.find(row=>row.id===destination.id)
+ expect(branch.children.find(row=>row.id===child.id).children.find(row=>row.id===grandchild.id)).toMatchObject({id:grandchild.id,title:'C3 grandchild'})
+ await page.reload();await expect(page.getByText('C3 grandchild',{exact:true})).toBeVisible()
+})
+test('the accessibility tree associates nested groups with their parent treeitem',async({page})=>{
+ await arrange(page);const parent=page.locator(`[data-structure-id="${destination.id}"]`).first()
+ await expect(parent).toHaveAttribute('role','treeitem')
+ await expect(parent.locator(':scope > [role="group"]').locator(`[data-structure-id="${child.id}"]`)).toHaveCount(1)
+})
