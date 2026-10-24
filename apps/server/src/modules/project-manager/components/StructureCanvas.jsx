@@ -3,6 +3,7 @@
 // @spec ADR-035, SDD-046, NFR-008
 // @tested tests/e2e/pipeline-structure-editing.spec.js, tests/unit/pipeline-structure-interactions.test.js
 import { useEffect, useRef, useState } from 'react'
+import { Plus, Move as MoveIcon } from 'lucide-react'
 import { EXECUTION_MODES, MODE_LABELS } from '@/lib/validation/enums'
 import catalogue from '../../../../contracts/pipeline-execution-catalog.v1.json'
 import { createNodePlan, moveNodePlan } from './pipeline-structure-interactions'
@@ -101,8 +102,8 @@ export default function StructureCanvas({projectId,fallback}){
         {node.type==='WORK_ITEM'?<button className={s.itemTitle} onClick={async()=>{try{const response=await fetch(`/api/work?projectId=${projectId}&q=${encodeURIComponent(node.code)}`);if(!response.ok)throw new Error();const work=(await response.json()).items?.find(row=>row.id===node.id);if(!work)throw new Error();setItem(work)}catch{setError('Work could not be loaded. Reload the Project.')}}}>{node.label}</button>:<div className={s.title}>{node.label}</div>}
         <div className={s.badges}><span className={s.badge}>{node.code}</span>{node.executionMode&&<span className={s.badge}>{MODE_LABELS[node.executionMode]||node.executionMode}</span>}</div>
         <div className={s.actions}>
-          {mayAdd&&<button className="btn" disabled={busy||uncertain} aria-label={`Add child to ${node.code}`} data-structure-action={`add:${node.id}`} onClick={event=>beginCreate(node,event.currentTarget)}>+</button>}
-          {mayMove&&<><button className="btn" disabled={busy||uncertain} aria-label={`Move ${node.code}`} data-structure-action={`move:${node.id}`} onClick={event=>beginMove(node,event.currentTarget)}>Move to…</button><button className="btn" disabled={busy||uncertain} aria-label={`Drag ${node.code}`} data-structure-action={`drag:${node.id}`} onPointerDown={event=>startDrag(event,node)} style={{touchAction:'none'}}>↗</button></>}
+          {mayAdd&&<button className="btn" disabled={busy||uncertain} aria-label={`Add child to ${node.code}`} data-structure-action={`add:${node.id}`} onClick={event=>beginCreate(node,event.currentTarget)}><Plus size={14} aria-hidden /></button>}
+          {mayMove&&<><button className="btn" disabled={busy||uncertain} aria-label={`Move ${node.code}`} data-structure-action={`move:${node.id}`} onClick={event=>beginMove(node,event.currentTarget)}>Move to…</button><button className="btn" disabled={busy||uncertain} aria-label={`Drag ${node.code}`} data-structure-action={`drag:${node.id}`} onPointerDown={event=>startDrag(event,node)} style={{touchAction:'none'}}><MoveIcon size={14} aria-hidden /></button></>}
         </div>
       </div>
       {!!nested.length&&<div className={s.branch} role="group">{nested.map(child=><div className={s.leaf} key={child.id}>{renderNode(child)}</div>)}</div>}
