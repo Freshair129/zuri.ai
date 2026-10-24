@@ -80,6 +80,7 @@
         "evidence": [
           "apps/server/src/modules/agent/line-project-work-tools.js",
           "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+          "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
           "apps/server/tests/integration/fr072-work-service-authorization.test.js",
           "apps/server/tests/integration/line-project-work-tools.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
@@ -1058,6 +1059,7 @@
           "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
           "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
           "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+          "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
           "apps/server/tests/integration/fr072-work-service-authorization.test.js",
           "apps/server/tests/integration/line-project-work-tools.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
@@ -1473,10 +1475,11 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 19,
+          "testCount": 20,
           "evidence": [
             "apps/server/src/modules/agent/line-project-work-tools.js",
             "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
             "apps/server/tests/integration/fr072-work-service-authorization.test.js",
             "apps/server/tests/integration/line-project-work-tools.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
@@ -1885,6 +1888,7 @@
           "evidence": [
             "apps/server/src/modules/agent/line-project-work-tools.js",
             "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
             "apps/server/tests/integration/fr072-work-service-authorization.test.js",
             "apps/server/tests/integration/line-project-work-tools.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
@@ -7505,7 +7509,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 11,
-          "testCount": 19,
+          "testCount": 20,
           "evidence": [
             "apps/server/src/app/api/work/[id]/route.js",
             "apps/server/src/app/api/work/route.js",
@@ -7519,6 +7523,7 @@
             "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
             "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
             "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
             "apps/server/tests/integration/fr072-work-service-authorization.test.js",
             "apps/server/tests/integration/line-project-work-tools.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
@@ -9025,6 +9030,7 @@
             "apps/server/src/modules/project-manager/views/KanbanBoard.jsx",
             "apps/server/src/modules/project-manager/views/universal/AllWorkView.jsx",
             "apps/server/tests/e2e/pipeline-release-holds.spec.js",
+            "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
             "apps/server/tests/integration/fr072-work-service-authorization.test.js",
             "apps/server/tests/integration/line-project-work-tools.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
@@ -10088,7 +10094,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 13,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -10139,6 +10145,7 @@
         "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
         "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
+        "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/dependency-handoff.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",

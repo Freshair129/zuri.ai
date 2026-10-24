@@ -352,6 +352,31 @@ describe(`Conversation Runtime WorkToolPort against the real Core provider (${en
     ])
   })
 
+  // @req FR-085 — held status is a valid existing-protocol typed refusal, not a retryable response fault.
+  it('returns held confirmation through the real WorkToolPort without extending its rejection enum',async()=>{
+    const {ports}=build(),key=randomUUID()
+    const predecessor=await prisma.workItem.create({data:{code:'C4-P-'+key,title:'C4 port predecessor',subtype:'TASK',workstreamId:workstream.id}})
+    const item=await prisma.workItem.create({data:{code:'C4-I-'+key,title:'C4 port held',subtype:'TASK',workstreamId:workstream.id}})
+    const gate=await prisma.gate.create({data:{code:'C4-G-'+key,title:'C4 port acceptance',projectId:project.id,workstreamId:workstream.id,status:'OPEN'}})
+    const edge=await prisma.dependency.create({data:{sourceType:'WORK_ITEM',sourceId:predecessor.id,targetType:'WORK_ITEM',targetId:item.id,dependencyType:'BLOCKS',contractJson:JSON.stringify({version:1,deliverable:'Drawing',acceptance:{kind:'GATE',gateId:gate.id}})}})
+    try {
+      const proposalJobId=await admit('c4-propose-'+key,`/work-update ${item.id} {"status":"DONE"}`)
+      const proposal=await claimTurn(ports,proposalJobId,'c4-propose-'+key)
+      const request=validateWorkToolRequest({...proposal.turn.workCommand,operationId:`${proposalJobId}:work-proposal`})
+      expect((await ports.workTool.execute(proposal.claim,proposal.authority,request)).status).toBe('COMPLETED')
+      await prisma.lineConversationJob.update({where:{id:proposalJobId},data:{status:'CANCELLED',claimantId:null,leaseExpiresAt:null,version:{increment:1}}})
+      const confirmJobId=await admit('c4-confirm-'+key,`ยืนยันงาน ${proposalJobId}`)
+      const confirmation=await claimTurn(ports,confirmJobId,'c4-confirm-'+key)
+      const confirmRequest=validateWorkToolRequest({...confirmation.turn.workCommand,operationId:proposalJobId})
+      const result=await ports.workTool.execute(confirmation.claim,confirmation.authority,confirmRequest)
+      expect(result).toMatchObject({status:'REJECTED',code:'WORK_ACTION_UNAVAILABLE',result:{text:expect.stringContaining('Handoff')}})
+      expect((await prisma.workItem.findUnique({where:{id:item.id}})).status).toBe('PLANNED')
+      expect(await prisma.auditEvent.findUnique({where:{id:`line-work-executed:${proposalJobId}`}})).toBeNull()
+    } finally {
+      await prisma.dependency.delete({where:{id:edge.id}});await prisma.gate.delete({where:{id:gate.id}});await prisma.workItem.deleteMany({where:{id:{in:[item.id,predecessor.id]}}})
+    }
+  })
+
   it('fences stale, forged and expired claims before any Work side effect', async () => {
     const { ports } = build()
     const jobId = await admit('synthetic-wtp-fence', `/work-create ${workstream.id} WorkToolPort fenced task`)

@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.7"
+version: "0.1.8"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -664,3 +664,51 @@ unsuccessful Windows grep selection are not green evidence or hidden retries.
 unchanged adopted contract, records writer/authority/read-projection decisions,
 actual local qualification and independent review corrections. C4 PR/hosted and
 B4 selected-artifact/environment release gates remain distinct; production excluded.
+
+### C4 follow-up consumer and wire compatibility qualification
+
+Before closing draft PR744, the additional census of all remaining direct
+WorkService consumers found five synthetic successful-owner fixtures rejected
+by the new current-authority guard. They now use the existing persisted
+Person/Membership fixture helper. Inventory identifies its specific member by
+ID instead of assuming first-row order; the read-route fixture removes only its
+owned people/memberships. Unauthorized assertions were retained. That final
+nine-file consumer run passed65 tests; intermediate setup/assertion/cleanup
+failures are retained as diagnostics, not passes.
+
+The scoped WorkToolPort audit also caught an actual adapter compatibility bug:
+held rejection was classified as domain-level but emitted a machine code outside
+the adopted port enum. An actual Core-backed confirmation and the formatter
+regression both failed before correction. The reply now uses the existing
+`WORK_ACTION_UNAVAILABLE` code with controlled held-specific human text; no
+schema, enum, contract version or transport was extended. The WorkItem remains
+PLANNED and its unique executed audit receipt is absent on refusal.
+
+After that correction, SQLite follow-up11files/107tests and PostgreSQL5suites/
+47tests passed, including the actual held Core/Runtime port path on both engines,
+C4 runtime-role races/authority/rollback and retained C1 process recovery/C2/C3.
+These supplement, rather than relabel, the earlier SQLite232 and browser7 proofs.
+The browser and PM release-policy/UI sources are unchanged by this follow-up;
+final artifact build/governance and exact-head hosted results remain PR gates.
+
+GPT-6 Luna Max independently signed source tree `49da898d` (eight-file delta
+from initial head `8eff69bb`): five fixture migrations, two affected test files,
+and only the LINE formatter's wire-compatibility correction in application code.
+It confirmed no new C4/port blocker or weakened assertion; the reviewer did not
+run tests. Initial `8eff69bb` hosted results cannot qualify the follow-up head.
+
+0.1.7 → 0.1.8 (2026-10-24): records additional writer-consumer fixture qualification
+and the reproduced/corrected existing-port refusal mapping. Product contract,
+canonical lifecycle and production boundary are unchanged; final PR head and
+its hosted acceptance will be bound in PR744 after the actual follow-up checks complete.
+
+The initial hosted run also exposed shared-test-state pollution: the C4 missing-
+audit and malformed-contract fixtures intentionally corrupted evidence but did
+not restore/remove their owned corruption, so ordinary backup previews later
+refused the snapshot. A new end-of-suite snapshot-validity regression failed
+with `DEPENDENCY_HANDOFF_INVALID` before cleanup. Exact audit-row restoration
+and removal of only the malformed fixture edge fixed it without loosening backup
+validation. The composed nine-file run passed94 tests, including all12 C4 release
+cases, actual Core/LINE consumers, the five migrated readers and all10 standard
+Business backup cases. The initial hosted failures are retained; only fresh CI
+on the follow-up head can close the hosted gate.

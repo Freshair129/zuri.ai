@@ -147,6 +147,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/pipeline-release-holds.spec.js](../../../apps/server/tests/e2e/pipeline-release-holds.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/conversation-runtime-work-tool-port.test.js](../../../apps/server/tests/integration/conversation-runtime-work-tool-port.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr072-work-service-authorization.test.js](../../../apps/server/tests/integration/fr072-work-service-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-project-work-tools.test.js](../../../apps/server/tests/integration/line-project-work-tools.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)

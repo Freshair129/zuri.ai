@@ -48,17 +48,22 @@ it('manual decisions bind evidence, never rewrite active history, and new protec
  expect((await getWorkItemReleaseState(f.items[1].id,options(f))).held).toBe(true)
  await expect(updateItem(f.items[1].id,{status:'REVIEW'},options(f))).rejects.toMatchObject({code:'RELEASE_HELD'})
  const latest=await db.dependency.findUnique({where:{id:edge.id}}),stored=JSON.parse(latest.contractJson)
- await db.auditEvent.delete({where:{id:stored.acceptance.decisionAuditEventId}})
- expect((await getWorkItemReleaseState(f.items[1].id,options(f))).blockers[0]).toMatchObject({state:'INVALID',reason:'EVIDENCE_UNAVAILABLE'})
+ const originalAudit=await db.auditEvent.findUnique({where:{id:stored.acceptance.decisionAuditEventId}})
+ try {
+  await db.auditEvent.delete({where:{id:originalAudit.id}})
+  expect((await getWorkItemReleaseState(f.items[1].id,options(f))).blockers[0]).toMatchObject({state:'INVALID',reason:'EVIDENCE_UNAVAILABLE'})
+ } finally {await db.auditEvent.create({data:originalAudit})} // exact fixture restoration; no corrupt evidence leaks to backup suites
 })
 it('redacts every blocker for an opaque predecessor and denies unreadable target first',async()=>{
  const f=await pipelineFixture(db),foreign=await pipelineFixture(db)
- await db.dependency.create({data:{sourceType:'WORK_ITEM',sourceId:foreign.items[0].id,targetType:'WORK_ITEM',targetId:f.items[1].id,dependencyType:'BLOCKS',contractJson:'invalid'}})
+ const corrupt=await db.dependency.create({data:{sourceType:'WORK_ITEM',sourceId:foreign.items[0].id,targetType:'WORK_ITEM',targetId:f.items[1].id,dependencyType:'BLOCKS',contractJson:'invalid'}})
+ try {
  const result=await getWorkItemReleaseState(f.items[1].id,options(f))
  expect(result).toEqual({held:true,blockers:[],truncated:false,restricted:true})
  expect(JSON.stringify(result)).not.toContain(foreign.items[0].id)
  await expect(getWorkItemReleaseState(foreign.items[0].id,options(f))).rejects.toThrow()
  await expect(updateItem(f.items[1].id,{status:'DONE'},options(f))).rejects.toMatchObject({code:'SCOPE_UNAVAILABLE',status:404})
+ } finally {await db.dependency.delete({where:{id:corrupt.id}})}
 })
 it('legacy null does not hold and Gate finish-only guards only DONE, not starting',async()=>{
  const f=await pipelineFixture(db)
@@ -136,4 +141,10 @@ it('batch release projection loads the graph once for multiple authorized Projec
  const {getWorkItemReleaseStates}=await import('@/modules/project-manager/application/work-release-policy')
  const states=await getWorkItemReleaseStates([...f.items,...g.items].map(row=>row.id),{viewer:g.viewer,db:observed})
  expect(Object.keys(states)).toHaveLength(6);expect(graphReads).toBe(1)
+})
+
+it('leaves a valid recoverable snapshot after release and corruption proofs',async()=>{
+ const {exportSnapshot,previewSnapshot}=await import('@/modules/project-manager/application/backup-service')
+ const preview=previewSnapshot(await exportSnapshot())
+ expect(preview.valid,JSON.stringify(preview)).toBe(true)
 })

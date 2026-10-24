@@ -235,9 +235,12 @@ export function lineWorkConfirmText(result) {
 
 /** The legacy reply for a failed Work command. No raw database error or private target detail reaches it. */
 export function lineWorkErrorReply(error) {
-  const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'RELEASE_HELD'].includes(error?.code ?? error?.message)
-    ? error.code ?? error.message : 'WORK_ACTION_UNAVAILABLE'
-  return { text: LINE_WORK_ERROR_TEXT[code], errorCode: code }
+  const cause = error?.code ?? error?.message
+  // Preserve the adopted WorkToolPort rejection enum; held-specific wording is
+  // presentation, not a new machine code or protocol version.
+  const code = ['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT'].includes(cause)
+    ? cause : 'WORK_ACTION_UNAVAILABLE'
+  return { text: LINE_WORK_ERROR_TEXT[cause === 'RELEASE_HELD' ? 'RELEASE_HELD' : code], errorCode: code }
 }
 
 /** True for a refusal of the Work request itself, which the legacy handler answers with a fixed text. */

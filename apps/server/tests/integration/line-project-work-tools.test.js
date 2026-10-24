@@ -294,6 +294,6 @@ it('recognizes hold and opaque scope as domain refusals in every LINE executor',
  for(const code of ['RELEASE_HELD','SCOPE_UNAVAILABLE']) {
   const error=Object.assign(new Error(code),{code,status:code==='RELEASE_HELD'?409:404})
   expect(isLineWorkDomainError(error)).toBe(true)
-  const reply=lineWorkErrorReply(error);expect(reply.text).toBeTruthy();expect(reply.text).not.toContain(code)
+  const reply=lineWorkErrorReply(error);expect(reply.text).toBeTruthy();expect(reply.text).not.toContain(code);expect(reply.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
  }
 })
