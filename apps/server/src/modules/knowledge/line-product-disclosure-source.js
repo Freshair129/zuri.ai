@@ -31,6 +31,13 @@ const requiredText = (value, limit = MAX_TEXT_LENGTH) => typeof value === 'strin
   && value.length > 0 && value.length <= limit && value.trim() === value && !CONTROL_CHARACTERS.test(value)
 const safeTimestamp = (value) => value instanceof Date ? value.toISOString() : value ?? null
 const jsonHash = (value) => hashGenesisRag17Json(value)
+const sourceKindForAsset = (asset) => /^PCAT-[a-f0-9]{64}$/.test(asset?.code ?? '')
+  ? 'PCAT'
+  : typeof asset?.code === 'string' && asset.code.startsWith('FIL-') ? 'FIL' : null
+
+export function lineProductDisclosureAssetKind(asset) {
+  return sourceKindForAsset(asset)
+}
 
 const businessSelect = { id: true, tenantId: true, status: true }
 const accountSelect = {
@@ -238,6 +245,7 @@ function validateLiveScope({ business, account, product, input }) {
 }
 
 function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset, input }) {
+  const producerKind = sourceKindForAsset(asset)
   insist(source && source.id === input.sourceId && source.corpusId === manifest.corpusId
     && source.kind === 'FILE' && source.title === entry.title && source.fileAssetId === entry.fileAssetId
     && source.activeIngestionId === entry.ingestionId && source.desiredRevision === entry.revision
@@ -254,7 +262,7 @@ function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset,
   insist(asset && asset.id === entry.fileAssetId && asset.tenantId === input.tenantId
     && asset.businessId === input.businessId && asset.projectId == null && asset.workItemId == null
     && asset.storageKind === 'MANAGED_BLOB' && asset.mime === SMARTGIFT_CATALOG_CONTENT_TYPE
-    && /^PCAT-[a-f0-9]{64}$/.test(asset.code ?? '') && requiredText(asset.name, 255)
+    && producerKind && requiredText(asset.name, 255)
     && Number.isSafeInteger(asset.size) && asset.size > 0 && asset.size <= SMARTGIFT_CATALOG_MAX_FILE_BYTES
     && SHA256.test(asset.sha256 ?? '') && asset.status === 'ACTIVE' && asset.deletedAt == null
     && Number.isSafeInteger(asset.version))
@@ -275,15 +283,19 @@ function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset,
     && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
     && source.title === `ProductMaster ${descriptor.externalId}`
     && ingestion.sourceVersion === asset.sha256)
-  return { sourceMeta, descriptor }
+  return { sourceMeta, descriptor, producerKind }
 }
 
-function projectValues({ fields, product, record }) {
+function projectValues({ fields, product, record, producerKind }) {
   const commerceExternalId = `commerce-sku:${product.id}`
   const isCommerceProducer = record.externalId.startsWith('commerce-sku:')
   if (isCommerceProducer) {
     insist(record.externalId === commerceExternalId && record.code === commerceExternalId
       && requiredText(product.name) && record.nameTh === `${product.code} — ${product.name}`)
+  }
+  if (producerKind === 'FIL') {
+    insist(!isCommerceProducer && record.externalId === product.code && record.code === product.code
+      && record.provenance?.upstreamRecordId === product.id)
   }
   const byField = {
     sku: product.code,
@@ -311,7 +323,7 @@ function projectValues({ fields, product, record }) {
   })
 }
 
-function publicBinding({ input, manifest, entry, source, ingestion, asset, descriptor, record, product, business, account, projectionSha256 }) {
+function publicBinding({ input, manifest, entry, source, ingestion, asset, descriptor, record, product, business, account, projectionSha256, producerKind }) {
   return {
     schema: 'zuri.line-product-disclosure.binding.v1',
     tenantId: input.tenantId,
@@ -357,6 +369,7 @@ function publicBinding({ input, manifest, entry, source, ingestion, asset, descr
     },
     record: {
       entityType: 'ProductMaster',
+      ...(producerKind === 'FIL' ? { mappingKind: 'FIL_PRODUCT_MASTER_TO_LIVE_PRODUCT' } : {}),
       externalIdSha256: createHash('sha256').update(descriptor.externalId, 'utf8').digest('hex'),
       recordIndex: descriptor.recordIndex,
       recordCount: descriptor.recordCount,
@@ -370,7 +383,10 @@ function publicBinding({ input, manifest, entry, source, ingestion, asset, descr
       entrySha256: jsonHash(entry),
     },
     projectionSha256,
-    mappingSha256: jsonHash({ sourceId: source.id, productId: product.id, externalId: record.externalId }),
+    mappingSha256: jsonHash(producerKind === 'FIL'
+      ? { producerKind, sourceId: source.id, productId: product.id, externalId: record.externalId,
+        code: record.code, upstreamRecordId: record.provenance?.upstreamRecordId }
+      : { sourceId: source.id, productId: product.id, externalId: record.externalId }),
   }
 }
 
@@ -390,8 +406,8 @@ async function loadRows(db, input, entry, corpusId) {
     db.fileAsset.findUnique({ where: { id: entry.fileAssetId }, select: assetSelect }),
   ])
   validateLiveScope({ business, account, product, input })
-  const { sourceMeta, descriptor } = validateSourceAndIngestion({ source, ingestion, entry, manifest: { corpusId }, asset, input })
-  return { business, account, product, source, ingestion, asset, sourceMeta, descriptor }
+  const { sourceMeta, descriptor, producerKind } = validateSourceAndIngestion({ source, ingestion, entry, manifest: { corpusId }, asset, input })
+  return { business, account, product, source, ingestion, asset, sourceMeta, descriptor, producerKind }
 }
 
 /** Resolve one explicitly selected Product/source pair to selected verified values. */
@@ -409,7 +425,7 @@ export async function resolveLineProductDisclosureSource(input, options = {}) {
     const manifest = await readManifest({ businessId: input.businessId, projectId: null }, { db, viewer, env })
     const entry = validateManifest(manifest, input)
     const loaded = await loadRows(db, input, entry, manifest.corpusId)
-    const { business, account, product, source, ingestion, asset, descriptor } = loaded
+    const { business, account, product, source, ingestion, asset, descriptor, producerKind } = loaded
 
     const resolved = await fileContentResolver(asset.id, { db, visibleBusinessIds: [input.businessId] })
     insist(resolved && jsonHash(assetIdentity(asset)) === jsonHash(assetIdentity(resolved.asset)))
@@ -429,7 +445,7 @@ export async function resolveLineProductDisclosureSource(input, options = {}) {
       && admitted.contentHash === ingestion.contentHash
       && admitted.record.entityType === 'ProductMaster' && admitted.record.externalId === descriptor.externalId)
 
-    const values = projectValues({ fields, product, record: admitted.record })
+    const values = projectValues({ fields, product, record: admitted.record, producerKind })
     const projectionSha256 = jsonHash({ schema: 'zuri.line-product-disclosure.projection.v1', values })
     const [currentManifest, currentRows] = await Promise.all([
       readManifest({ businessId: input.businessId, projectId: null }, { db, viewer, env }),
@@ -449,13 +465,15 @@ export async function resolveLineProductDisclosureSource(input, options = {}) {
       }[key]
       insist(jsonHash(identity(loaded[key])) === jsonHash(identity(currentRows[key])))
     }
+    insist(loaded.producerKind === currentRows.producerKind)
 
     return {
       values,
       binding: publicBinding({ input, manifest: currentManifest, entry: currentEntry,
         source: currentRows.source, ingestion: currentRows.ingestion, asset: currentRows.asset,
         descriptor: currentRows.descriptor, record: admitted.record, product: currentRows.product,
-        business: currentRows.business, account: currentRows.account, projectionSha256 }),
+        business: currentRows.business, account: currentRows.account, projectionSha256,
+        producerKind: currentRows.producerKind }),
       projectionSha256,
       retrievalRef: {
         sourceId: source.id,

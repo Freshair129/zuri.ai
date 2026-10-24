@@ -3,6 +3,7 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { resolveFileAssetContent as defaultResolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import {
   canonicalGenesisRag17Json,
   hashGenesisRag17Json,
@@ -12,6 +13,7 @@ import {
 import { assertKnowledgeFileWritable, resolveKnowledgeScope } from './knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from './knowledge-runtime'
 import { createKnowledgeRepository } from './knowledge-repository'
+import { isKnowledgeBenchmarkRetryEligible, latestKnowledgeStageAttempt } from './knowledge-replay-contract'
 import {
   detectKnowledgeBinaryMediaType,
   encodeKnowledgeBinary,
@@ -334,7 +336,7 @@ function corpusSummary(corpus) {
   }
 }
 
-function ingestionSummary(ingestion, { corpus, source, execution } = {}) {
+function ingestionSummary(ingestion, { corpus, source, execution, retryAvailable = false } = {}) {
   if (!ingestion) return null
   return {
     id: ingestion.id,
@@ -351,6 +353,7 @@ function ingestionSummary(ingestion, { corpus, source, execution } = {}) {
     receiptHash: ingestion.receiptHash ?? null,
     attempts: ingestion.attempts ?? 0,
     failureCode: ingestion.failureCode ?? null,
+    retryAvailable: Boolean(retryAvailable),
     createdAt: ingestion.createdAt ?? null,
     updatedAt: ingestion.updatedAt ?? null,
     ...(execution ? { execution } : {}),
@@ -1061,13 +1064,32 @@ export async function readKnowledgeIngestion(id, {
     },
   }, { db, env, authorization })
   let execution = null
+  let retryAvailable = false
   if (target.ingestion.executionRunId && repository.getPipelineRun) {
-    execution = pipelineSummary(await repository.getPipelineRun(target.ingestion.executionRunId))
+    const run = await repository.getPipelineRun(target.ingestion.executionRunId)
+    execution = pipelineSummary(run)
+    if (target.ingestion.status === 'FAILED' && repository.listStageEvidence) {
+      const [stageEvidence, stageSteps] = await Promise.all([
+        repository.listStageEvidence(target.ingestion.executionRunId),
+        run?.id && repository.listPipelineStepsForStage
+          ? repository.listPipelineStepsForStage(run.id, 'DPS-KI-INDEX')
+          : [],
+      ])
+      const currentStageStep = latestKnowledgeStageAttempt(stageSteps, run)
+      retryAvailable = viewer?.isApiAccess !== true && ownsBusiness(viewer, target.corpus.businessId)
+        && isKnowledgeBenchmarkRetryEligible(
+        target.ingestion,
+        run,
+        stageEvidence,
+        { source: target.source, corpus: target.corpus, currentStageStep },
+      )
+    }
   }
   return ingestionSummary(target.ingestion, {
     corpus: target.corpus,
     source: target.source,
     execution,
+    retryAvailable,
   })
 }
 
@@ -1095,9 +1117,31 @@ export async function listKnowledgeIngestions({ businessId, projectId = null, li
   if (rows.some((row) => row.corpusId !== corpus.id || byId.get(row.sourceId)?.corpusId !== corpus.id)) {
     throw failure(404, 'KNOWLEDGE_INGESTION_NOT_FOUND', 'Knowledge ingestion not found')
   }
+  const runs = await Promise.all(rows.map((row) => row.status === 'FAILED' && row.executionRunId && repository.getPipelineRun
+    ? repository.getPipelineRun(row.executionRunId)
+    : null))
+  const evidence = await Promise.all(rows.map((row, index) => row.status === 'FAILED' && row.executionRunId && repository.listStageEvidence
+    ? repository.listStageEvidence(row.executionRunId)
+    : []))
+  const stageStepRows = await Promise.all(rows.map((row, index) => {
+    const run = runs[index]
+    return row.status === 'FAILED' && run?.id && repository.listPipelineStepsForStage
+      ? repository.listPipelineStepsForStage(run.id, 'DPS-KI-INDEX')
+      : []
+  }))
+  const stageSteps = stageStepRows.map((steps, index) => latestKnowledgeStageAttempt(steps, runs[index]))
   return {
     corpus: corpusSummary(corpus),
-    items: rows.map((row) => ingestionSummary(row, { corpus, source: byId.get(row.sourceId) })),
+    items: rows.map((row, index) => ingestionSummary(row, {
+      corpus,
+      source: byId.get(row.sourceId),
+      retryAvailable: viewer?.isApiAccess !== true && ownsBusiness(viewer, corpus.businessId)
+        && isKnowledgeBenchmarkRetryEligible(row, runs[index], evidence[index], {
+          source: byId.get(row.sourceId),
+          corpus,
+          currentStageStep: stageSteps[index],
+        }),
+    })),
     count: rows.length,
     limit: target.limit,
   }

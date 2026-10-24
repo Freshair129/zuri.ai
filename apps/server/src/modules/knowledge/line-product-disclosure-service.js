@@ -19,7 +19,7 @@ import {
   projectDisclosureFacts,
   renderDisclosureFacts,
 } from './line-product-disclosure-contract'
-import { resolveLineProductDisclosureSource } from './line-product-disclosure-source'
+import { lineProductDisclosureAssetKind, resolveLineProductDisclosureSource } from './line-product-disclosure-source'
 
 // @req FR-235 — a Business OWNER approves the exact selected ProductMaster
 //   projection for one LINE OA account; preview is non-granting and withdrawal
@@ -280,7 +280,7 @@ function isCurrentProductMasterCandidate({ source, ingestion, asset, entry, corp
     || asset.id !== entry.fileAssetId || asset.tenantId !== scope.business.tenantId
     || asset.businessId !== scope.business.id || asset.projectId != null || asset.workItemId != null
     || asset.storageKind !== 'MANAGED_BLOB' || asset.mime !== SMARTGIFT_CATALOG_CONTENT_TYPE
-    || !/^PCAT-[a-f0-9]{64}$/.test(asset.code || '') || typeof asset.name !== 'string'
+    || !lineProductDisclosureAssetKind(asset) || typeof asset.name !== 'string'
     || asset.name.length < 1 || asset.name.length > 255 || asset.name.trim() !== asset.name
     || !Number.isSafeInteger(asset.size)
     || asset.size <= 0 || asset.size > SMARTGIFT_CATALOG_MAX_FILE_BYTES || !SHA256.test(asset.sha256 || '')

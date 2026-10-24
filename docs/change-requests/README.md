@@ -1,14 +1,14 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.8.0"
+version: "1.9.0"
 updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.8.0
+**Version:** 1.9.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
@@ -20,6 +20,9 @@ version-controlled.
   (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
   verified public projection, strict model fact selection and unchanged stock/price
   authority. No real product is authorized by the proposal.
+- [LINE metadata-only ProductMaster disclosure from managed uploads](integration/line-customer-product-metadata-disclosure-20261024.md)
+  (0.2.0, approved design and implementation scope): adds a typed generic managed-file source and
+  bounded owner retry for one failed admission; FR-291 stock/price eligibility stays unchanged.
 
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](integration/line-ollama-test-only-genesisrag17-20261024.md)
   (0.1.0, bounded main-dev implementation contract approved): separately enabled
@@ -479,3 +482,5 @@ built on yet: FR-130 is declared **blocked** on CR-006's PII finding, which is
 a data-protection decision rather than an engineering task, and FR-131/FR-132
 carry their own named blockers. An id is permission to be accounted for, not
 permission to build.
+
+Version 1.9.0 records approval of the metadata-only ProductMaster disclosure and bounded Knowledge-owner retry design and implementation scope. It does not claim implementation, tests, production activation or live LINE acceptance; FR-291 eligibility is unchanged.

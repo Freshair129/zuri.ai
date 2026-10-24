@@ -25,7 +25,8 @@ import {
 } from '@/modules/knowledge/line-product-disclosure-service'
 
 const sourceMock = vi.hoisted(() => ({ resolve: vi.fn(), readManifest: vi.fn() }))
-vi.mock('@/modules/knowledge/line-product-disclosure-source', () => ({
+vi.mock('@/modules/knowledge/line-product-disclosure-source', async (importOriginal) => ({
+  ...(await importOriginal()),
   resolveLineProductDisclosureSource: sourceMock.resolve,
 }))
 vi.mock('@/modules/knowledge/knowledge-corpus-service', () => ({
@@ -491,7 +492,7 @@ describe('LINE customer product disclosure policy', () => {
     }
   })
 
-  it('returns distinct authorized source titles and pages through more than 100 catalogs', async () => {
+  it('returns distinct authorized PCAT and typed FIL source titles across pages of more than 100 catalogs', async () => {
     const count = 205
     const corpusId = 'candidate-corpus'
     const fixtures = Array.from({ length: count }, (_, index) => {
@@ -503,7 +504,8 @@ describe('LINE customer product disclosure policy', () => {
       const title = `ProductMaster ${externalId}`
       const sha = sha256(`asset:${suffix}`)
       const asset = {
-        id: assetId, code: `PCAT-${sha}`, tenantId: tenant.id, businessId: business.id, projectId: null,
+        id: assetId, code: index === count - 1 ? 'FIL-DEMO-KB-MUG-350' : `PCAT-${sha}`,
+        tenantId: tenant.id, businessId: business.id, projectId: null,
         workItemId: null, storageKind: 'MANAGED_BLOB', name: `catalog-${suffix}.json`, mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
         size: 4096, sha256: sha, status: 'ACTIVE', version: 1, deletedAt: null,
       }

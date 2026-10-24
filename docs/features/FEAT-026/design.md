@@ -28,6 +28,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 > 🟢 implemented locally (tests), not deployed — ADR-075 Phase 1 only (adapter, admission fan-out, Stage 5 Zero-PII gate); no model, no column, no migration; parser profile/`ontology_v2` remain FR-188
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](../../domains/knowledge/features/FR-188-genesisrag17-parser-2.md) — `relates` · `metadata` · `current`
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](../../domains/knowledge/features/FR-189-edge-published-generation.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
@@ -40,6 +41,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 > 🟡 implemented locally (PR #327, tests) — rollout step 3, merges after GenesisBlock#174 and Genesis-Knowledge-System#7; not deployed; four-process acceptance run pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](../../domains/knowledge/features/FR-189-edge-published-generation.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 

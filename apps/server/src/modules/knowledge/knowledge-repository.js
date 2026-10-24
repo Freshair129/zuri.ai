@@ -3,7 +3,7 @@ import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/
 
 // @req FR-173 — one persistence adapter for durable admission and immutable corpus manifests.
 // @spec ADR-072, SEC-001
-// @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js
+// @tested tests/integration/knowledge-admission.integration.test.js, tests/integration/knowledge-corpus.test.js, tests/integration/knowledge-replay.integration.test.js
 
 function mutable(data, allowed) {
   if (Object.keys(data).some((key) => !allowed.includes(key))) throw new Error('Knowledge repository refuses immutable field mutation')
@@ -134,9 +134,26 @@ export function createKnowledgeRepository(db = prisma) {
       })
       return result.count === 1 ? repository.getIngestion(id) : null
     },
+    async retryFailedIngestion(id, { expectedVersion, expectedExecutionRunId, executionRunId, now = new Date() } = {}) {
+      const data = { status: 'QUEUED', executionRunId, failureCode: null, claimToken: null, leaseExpiresAt: null }
+      mutable(data, ['status', 'executionRunId', 'failureCode', 'claimToken', 'leaseExpiresAt'])
+      const result = await db.knowledgeIngestion.updateMany({
+        where: {
+          id,
+          status: 'FAILED',
+          version: expectedVersion,
+          executionRunId: expectedExecutionRunId,
+          claimToken: null,
+          OR: [{ leaseExpiresAt: null }, { leaseExpiresAt: { lte: now } }],
+        },
+        data: { ...data, version: { increment: 1 }, updatedAt: now },
+      })
+      return result.count === 1 ? repository.getIngestion(id) : null
+    },
     getGeneration: (corpusId, number) => db.knowledgeCorpusGeneration.findUnique({ where: { corpusId_number: { corpusId, number } } }),
     createGeneration: (data) => db.knowledgeCorpusGeneration.create({ data }),
     getPipelineRun: (executionRunId) => db.pipelineRun.findUnique({ where: { executionRunId } }),
+    getPipelineRunByIdempotencyKey: (idempotencyKey) => db.pipelineRun.findUnique({ where: { idempotencyKey } }),
     getBatchForRun: (executionRunId) => db.genesisRag17Batch.findFirst({ where: { executionRunId } }),
     getParsedArtifact: (id) => db.knowledgeParsedArtifact.findUnique({ where: { id } }),
     getParsedArtifacts: (ids) => db.knowledgeParsedArtifact.findMany({ where: { id: { in: ids } } }),
@@ -147,6 +164,10 @@ export function createKnowledgeRepository(db = prisma) {
     },
     getIntentForRun: (executionRunId) => db.genesisRag17IngestionIntent.findUnique({ where: { executionRunId } }),
     listStageEvidence: (executionRunId) => db.genesisRag17StageEvidence.findMany({ where: { executionRunId }, orderBy: { stageNumber: 'asc' } }),
+    listPipelineStepsForStage: (runId, pipelineStageId) => db.pipelineStep.findMany({
+      where: { runId, pipelineStageId },
+      orderBy: [{ sequence: 'desc' }, { createdAt: 'desc' }],
+    }),
     getFileAsset: (id) => db.fileAsset.findUnique({ where: { id } }),
     async resolveLineage(reference) {
       const { resolveGenesisRag17RawLineage } = await import('@/platform/integrations/core/genesisrag17-executor')
