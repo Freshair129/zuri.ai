@@ -126,22 +126,20 @@ export async function pipelineReadableProjects(tx,state,projectIds,viewer) {
 
 }
 
-async function prepare(tx, plan, authority, projectIds) {
+export async function readPlanDeltaSnapshot(tx, plan, authority, projectIds) {
   const before = await readPipelineState(tx)
   const readableProjectIds=await pipelineReadableProjects(tx,before,projectIds,authority.viewer)
   await hydratePipelineGates(tx,before,readableProjectIds)
   const audits=await readPipelineEvidence(tx,before,plan,projectIds,authority.scopes[0].tenant.id,readableProjectIds,authority.viewer)
+  return {before,readableProjectIds,audits}
+}
+
+// @req FR-082 — target discovery shares one read snapshot and full semantic checks.
+// @tested tests/integration/plan-delta-moves.test.js
+// These options are internal read-model inputs, never request-envelope fields.
+export async function preparePlanDelta(tx, plan, authority, projectIds, {snapshot=null,validationOnly=false}={}) {
+  const {before,readableProjectIds,audits}=snapshot||await readPlanDeltaSnapshot(tx,plan,authority,projectIds)
   const compiled = await compilePlanDelta(plan, { tx, state: before, projectIds, readableProjectIds, actorPersonId: authority.viewer.principal.id, audits })
-  const first = authority.scopes[0]
-  const rows = pipelineReadRows(before, projectIds, compiled.proposedContracts)
-  const readSet = {
-    scope: { tenantId: first.tenant.id, businessId: first.business.id, workspaceId: first.workspace.id, projectId: projectIds[0] },
-    authorityHash: handoffHash('pm-authority:v1', authority.rows), catalogueHash: handoffHash('pm-execution-catalog:v1', catalogue),
-    graph: rows.filter(row => row.type === 'DEPENDENCY').map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
-    entities: rows.filter(row => !['GATE', 'DEPENDENCY'].includes(row.type)).map(row => ({ type: row.type, id: row.id, hash: entityHash(row.type, row.row) })).sort((a, b) => a.type.localeCompare(b.type) || a.id.localeCompare(b.id)),
-    gates: rows.filter(row => row.type === 'GATE' && Object.hasOwn(row.row,'status')).map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
-    evidence: audits.filter(row=>!row.locatorOnly).map(row => ({ id: row.id, hash: entityHash('AUDIT_EVENT', clonePipelineValue(row)) })), resolutions: compiled.resolutions,
-  }
   const releaseEffects = []
   for (const entry of compiled.state.values()) {
     if (entry.type !== 'WORK_ITEM' || entry.row.deletedAt || compiled.softDeletes.has(pipelineKey(entry.type, entry.id))) continue
@@ -158,6 +156,17 @@ async function prepare(tx, plan, authority, projectIds) {
   }
   releaseEffects.sort((a, b) => a.workItemId.localeCompare(b.workItemId))
   if (releaseEffects.length > 2000 || Buffer.byteLength(canonicalJSON(releaseEffects)) > 4 * 1024 * 1024) throw pipelineError('GRAPH_LIMIT')
+  if(validationOnly)return {compiled,releaseEffects}
+  const first = authority.scopes[0]
+  const rows = pipelineReadRows(before, projectIds, compiled.proposedContracts)
+  const readSet = {
+    scope: { tenantId: first.tenant.id, businessId: first.business.id, workspaceId: first.workspace.id, projectId: projectIds[0] },
+    authorityHash: handoffHash('pm-authority:v1', authority.rows), catalogueHash: handoffHash('pm-execution-catalog:v1', catalogue),
+    graph: rows.filter(row => row.type === 'DEPENDENCY').map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
+    entities: rows.filter(row => !['GATE', 'DEPENDENCY'].includes(row.type)).map(row => ({ type: row.type, id: row.id, hash: entityHash(row.type, row.row) })).sort((a, b) => a.type.localeCompare(b.type) || a.id.localeCompare(b.id)),
+    gates: rows.filter(row => row.type === 'GATE' && Object.hasOwn(row.row,'status')).map(row => ({ id: row.id, hash: entityHash(row.type, row.row) })),
+    evidence: audits.filter(row=>!row.locatorOnly).map(row => ({ id: row.id, hash: entityHash('AUDIT_EVENT', clonePipelineValue(row)) })), resolutions: compiled.resolutions,
+  }
   const preview = { commands: plan.commands, changes: compiled.changes, releaseEffects }
   const payload = payloadHash(plan, authority.viewer.principal.id, projectIds)
   const beforeHash = pipelineAggregateHash(compiled.changes, 'before'), proposedAfterHash = pipelineAggregateHash(compiled.changes, 'after')
@@ -223,7 +232,7 @@ async function run(raw, { workspaceId, viewer, db = prisma, register = false,req
         }
       }
       if(receiptOnly) throw pipelineError('IDEMPOTENCY_CONFLICT',409)
-      const prepared = await prepare(tx, plan, authority, projectIds)
+      const prepared = await preparePlanDelta(tx, plan, authority, projectIds)
       if (!commit) return { valid: true, errors: [], conflicts: [], preview: prepared.preview, previewHash: prepared.previewHash, projectId: projectIds[0] }
       requirePipelineHash(plan.expectedPreviewHash, prepared.previewHash, 'STALE_PREVIEW')
       const auditEventId = randomUUID(), actorPersonId = authority.viewer.principal.id

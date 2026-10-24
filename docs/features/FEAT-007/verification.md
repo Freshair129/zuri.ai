@@ -18,11 +18,25 @@ status: generated
 
 ### Code paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/src/app/api/projects/\[id\]/tree/route.js](../../../apps/server/src/app/api/projects/%5Bid%5D/tree/route.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/structure-canvas.js](../../../apps/server/src/modules/project-manager/application/structure-canvas.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js](../../../apps/server/src/modules/project-manager/components/pipeline-structure-interactions.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/StructureCanvas.jsx](../../../apps/server/src/modules/project-manager/components/StructureCanvas.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/import/plan-delta-service.js](../../../apps/server/src/modules/project-manager/import/plan-delta-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/views/WbsCanvas.jsx](../../../apps/server/src/modules/project-manager/views/WbsCanvas.jsx) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/tests/e2e/pipeline-structure-editing.spec.js](../../../apps/server/tests/e2e/pipeline-structure-editing.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/dependency-handoff.test.js](../../../apps/server/tests/integration/dependency-handoff.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/plan-delta-moves.test.js](../../../apps/server/tests/integration/plan-delta-moves.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/project-core.test.js](../../../apps/server/tests/integration/project-core.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/postgres/pipeline-structure-moves.test.js](../../../apps/server/tests/postgres/pipeline-structure-moves.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/pipeline-structure-interactions.test.js](../../../apps/server/tests/unit/pipeline-structure-interactions.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/project-structure-tree.test.js](../../../apps/server/tests/unit/project-structure-tree.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/wbs-structure.test.js](../../../apps/server/tests/unit/wbs-structure.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-083](requirements/FR-083.md)
 
@@ -89,6 +103,7 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/integration/pipeline-schema-mirrors.test.js](../../../apps/server/tests/integration/pipeline-schema-mirrors.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-sqlite-races.test.js](../../../apps/server/tests/integration/pipeline-sqlite-races.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-sqlite-recovery.test.js](../../../apps/server/tests/integration/pipeline-sqlite-recovery.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/plan-delta-moves.test.js](../../../apps/server/tests/integration/plan-delta-moves.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/postgres/pipeline-handoff-races.test.js](../../../apps/server/tests/postgres/pipeline-handoff-races.test.js) — `verifies` (`test-reference`)

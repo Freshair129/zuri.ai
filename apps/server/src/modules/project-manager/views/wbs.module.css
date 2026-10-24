@@ -5,6 +5,7 @@
 /* @tested tests/unit/wbs-structure.test.js */
 
 .canvas {
+  min-width: 0;
   position: relative;
   background-color: var(--surface-card);
   background-image: radial-gradient(#d7dbe2 1px, transparent 1px);
@@ -63,6 +64,8 @@
 }
 .card:hover { box-shadow: 0 6px 16px rgba(16, 24, 40, 0.10); border-color: #c3c9d4; transform: translateY(-1px); }
 .card:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.node:focus-visible { outline: none; }
+.node:focus-visible > .card { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
 
 .eyebrow { font-size: 8px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted-2); font-weight: 600; }
 .title { font-size: 12px; font-weight: 700; color: var(--text); line-height: 1.25; margin-top: 1px;
@@ -79,6 +82,19 @@
 .rootCard { border-color: #c7d2fe; box-shadow: 0 2px 10px rgba(79, 70, 229, 0.10); }
 
 .addStub { margin-top: 12px; color: var(--muted-2); font-size: 16px; line-height: 1; }
+
+/* @req FR-082 — contained accessible structure controls, pending/refusal and drop feedback. */
+/* @tested tests/e2e/pipeline-structure-editing.spec.js */
+.actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.actions button { min-height: 32px; }
+.feedback { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; min-width: 0; }
+.feedback p { flex-basis: 100%; font-size: 12px; overflow-wrap: anywhere; }
+.itemTitle { font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.dialog { width: min(32rem, calc(100% - 2rem)); max-height: 90vh; overflow: auto; border-radius: 12px; padding: 20px; }
+.dialog label { display: block; margin: 12px 0; }
+.node[data-drop-state='available'] > .card { outline: 3px solid var(--brand-primary, #E8820C); }
+.node[data-drop-state='available'] > .card::after { content: 'Available'; display: block; font-size: 12px; }
+.node[data-drop-state='unavailable'] > .card::after { content: 'Unavailable'; display: block; font-size: 12px; }
 
 @media (max-width: 640px) {
   .canvas { padding: 28px 16px 40px; border-radius: 12px; }
