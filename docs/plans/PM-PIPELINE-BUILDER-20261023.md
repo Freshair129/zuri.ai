@@ -428,3 +428,21 @@ the composed source rather than merged JSON. The C2 application files remain
 byte-identical to the reviewed local-acceptance source. Fresh adapter/browser,
 build, governance, exact-head hosted CI and review of this composed scope are
 required before integration. Production and C3–C4 remain unselected.
+
+## C2 composed verification corrections
+
+The first composed run at `12fcd8b5` exposed two gaps after the earlier local
+qualification. Hosted PostgreSQL recovery failed four tests because the extracted
+handoff schema was imported without `.js`: the bundled application accepted it,
+but the unbundled Node recovery CLI raised `ERR_MODULE_NOT_FOUND`. A child-process
+CLI-load regression failed first; both the import and re-export now use the
+explicit extension. The existing full affected recovery suites are rerun in
+addition to the canvas adapter; a canvas-only pass cannot qualify recovery.
+
+The composed browser run passed 9 of 10 cases. Its failed-refresh test installed
+the simulated 503 before the initial page graph read had settled, causing an
+initial-load refusal rather than the intended post-save refusal. Browser setup
+now waits for the rendered connection control before fault injection. This
+changes test synchronization, not product behavior. The final PR evidence
+must record fresh results and independent review for these corrections; the failed
+run is retained and is not counted as a pass. Production and C3–C4 remain excluded.

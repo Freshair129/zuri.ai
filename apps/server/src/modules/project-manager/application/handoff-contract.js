@@ -5,8 +5,8 @@ import { GATE_STATUSES } from '../../../lib/validation/enums.js'
 import { z } from 'zod'
 import { createHash } from 'node:crypto'
 
-import { zHandoffContractV1, uuid, text, gate, manual } from './handoff-contract-schema'
-export { zHandoffContractV1 } from './handoff-contract-schema'
+import { zHandoffContractV1, uuid, text, gate, manual } from './handoff-contract-schema.js'
+export { zHandoffContractV1 } from './handoff-contract-schema.js'
 const storedManual = manual.extend({
   actorPersonId: uuid, decisionAuditEventId: uuid,
   decisionAt: z.string().regex(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)

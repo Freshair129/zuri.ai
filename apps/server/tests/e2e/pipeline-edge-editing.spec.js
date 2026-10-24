@@ -16,6 +16,8 @@ async function arrange(page) {
   await page.goto(`/projects/${project.id}/dependencies`)
   graph=await (await page.request.get(`/api/projects/${project.id}/dependencies`)).json()
   source=graph.nodes.find(n=>n.code==='GATE-DATA-ID');target=graph.nodes.find(n=>n.code==='GATE-REL-12')
+  // Wait for the page's initial graph read before a test intercepts later reads.
+  await expect(page.getByLabel('Connection source',{exact:true})).toBeVisible()
 }
 async function connect(page,from=source,to=target) {
   await expect(page.getByLabel('Connection source',{exact:true})).toBeVisible();await page.getByLabel('Connection source',{exact:true}).selectOption(from.id)
