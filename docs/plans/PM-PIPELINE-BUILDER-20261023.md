@@ -3,7 +3,7 @@ id: ZAI:PM-PIPELINE-PLAN-20261023
 title: Project Manager Pipeline Builder implementation plan
 doc_type: implementation-plan
 status: approved
-version: "0.1.8"
+version: "0.1.9"
 approved_at: "2026-10-23"
 approved_plan_commit: "c291afcd601a9036a0f188656b96a233c20d4979"
 source_revision: "e1014247b01cd42bca589e679c840d2c2c8f2857"
@@ -712,3 +712,132 @@ validation. The composed nine-file run passed94 tests, including all12 C4 releas
 cases, actual Core/LINE consumers, the five migrated readers and all10 standard
 Business backup cases. The initial hosted failures are retained; only fresh CI
 on the follow-up head can close the hosted gate.
+
+
+## Pipeline Builder isolated UAT acceptance — 2026-10-25
+
+**Selection and authority:** the owner selected environment acceptance after C4
+merged via PR744. This section records executed evidence for the synthetic
+Pipeline Builder cohort, not a new requirement, canonical lifecycle promotion,
+production migration or environment-wide product certification. C1–C4 are merged
+through PR737/740/742/744. Earlier unselected/pending statements above are dated
+snapshots; the PRs record their exact-head and post-merge qualification.
+
+### Source, contract and target
+
+Before UAT writes, current source was reconciled against adopted C0 v0.1.5 D1–D6,
+canonical FR-082–085, BR-017, SDD-046, NFR-008 and sections5/7/9 of the foundation.
+The existing shared delta/graph transaction, typed direction/phase truth table,
+legacy-null exemption, opaque evidence redaction and protected recovery remain
+unchanged. No application, transport, schema, grant-policy or migration source
+was changed. No production reconciler or credentials were used.
+
+| Observation | Verified value |
+| --- | --- |
+| Selected source / tree | `33e5616d80d397c1f5948a7b35768868d171ead0` / `502dd3664e5b6070e9b5622919fc8bcde0182628`, actual PR744 merge |
+| Exact-source hosted evidence | Post-merge governance40108363997, Edge/Desktop40108363996 and Docker build-only40108363969 passed before this UAT; not rerun or relabeled as live acceptance |
+| New Compose project | `zuri-pm-pipeline-uat-20261025` |
+| Source database | `pm_pipeline_uat`, DB container suffix `-db-1`, loopback55457, volume `_pm-db` |
+| Restore target | Separate `-restore-db-1`, loopback55458, volume `_pm-restore`; baseline/final/JSON/negative databases use the `pm_pipeline_restore` prefix |
+| Source / recovered app | Local HTTPS `https://127.0.0.1:3167` / `https://127.0.0.1:3177`, proxy to loopback3168/3178; same immutable image, separate databases |
+| Image | `zuri-pm-pipeline-uat:33e5616d`, `sha256:25e76614cf03b8d49f586d782e0230886015d49987092f9ad93d6546562fc133`; Compose pins the immutable ID, source revision label checked |
+| Role | `zuri_web_login` inherits `zuri_app_runtime`; both non-superuser/non-bypass/no CREATEDB/no CREATEROLE; no owner membership or schema ownership. Web environments contain only runtime credentials |
+| Isolation | Fresh project, DBs, volumes and generated credentials. Dedicated bridge `10.249.87.0/24`, loopback ingress, no tunnel; outbound networking allowed, **not an air gap** |
+| TLS/configuration | New self-signed UAT certificate; test clients ignore its trust only. No system trust-store modification. Recovered app starts from this UAT's own copied configuration |
+
+Primary dev, Knowledge Studio, earlier UAT and production were not application
+or database targets. Docker inventory was read only to identify isolation and
+free subnet space. The fresh image is local-only and was not published.
+
+### Migration/recovery boundary
+
+The bootstrap derives current provider DDL, removes the previous 17-table cohort,
+its provision fields and `Dependency.contractJson`, and produces a fresh193-table
+pre-column target. This is a synthetic baseline, not historical production
+lineage. There is no Prisma/Supabase migration ledger and no fabricated historical
+ledger row. Nine unchanged issued SQL files were hashed and executed:
+
+| Issued SQL file | SHA-256 |
+| --- | --- |
+| `20260917041000_add_phase_b_feature_authority.sql` | `9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3` |
+| `20260922120000_pm_execution_trace_replay.sql` | `7ae1116ed7fe966c5bdfd2dab9c5b74fadc4ff4fa1d7fb1ad9e69133de5337ec` |
+| `20260922130000_business_key_results.sql` | `46c20760a6f6a12ab8c5c791427034cdb08c5bcad851c32346992092b93cabb4` |
+| `20260923010000_pm_approval_gateway_admission.sql` | `a2edb856eb1a281cfad9ba37fa813c438716c4a23e72d02f7459a1b42d2e7d3c` |
+| `20260923020000_pm_trace_and_iam_rls_hardening.sql` | `a9efd89d08f624da16f3785ae6bcc40274ec261c6d5d448eabd6ce3339506fcf` |
+| `20261012120000_business_kpis.sql` | `332e6b42f20bbb134bf8645890f0170240d4ab7b8f706a7680df9366eb9e8be5` |
+| `20261012162000_business_wig_execution.sql` | `b0c57b3c28a80655cc823fccf83524e1078a882731c465c0bd7fb2bd07a1d6b7` |
+| `20261015010000_standard_business_provisioning.sql` | `09617043cb18f365216b2fcd372d118c8e469c3ac127d39fcdee1231a3328cce` |
+| `20261024010000_dependency_handoff.sql` | `7ebd65cccbb049f92a8e0c246b7866888f65e39958b855ae43ffbb704e965d19` |
+
+A retained pre-column legacy Dependency fixture is inserted before the enclosing
+dry-run transaction. Dry run proves exact **catalog/schema rollback**, not an
+absence of fixture data changes or all-row rollback. Baseline snapshot taken
+after this fixture was restored separately with all193 table row hashes and
+catalog/security equal. Applying the issued cohort yields210 tables and17
+forced-RLS cohort tables; legacy contract remains SQL NULL. No contract backfill,
+down migration, production lineage adoption or runtime grant weakening occurs.
+
+### Executed verification
+
+| Check | Result and limit |
+| --- | --- |
+| UAT runtime identity | PASS: deployed source/recovered web use exact image ID and runtime-only credentials; current_user/session_user `zuri_web_login`, role attributes and no owner membership checked; attempted runtime ALTER TABLE refused42501 |
+| Authenticated deployed API | PASS: node creation, edge preview/commit, identical replay with same audit, cycle422/no writes, foreign404, compiler-approved move and guarded undo; held protected entry409 leaves status/version/audit/receipt counts unchanged |
+| Release behavior | PASS: FINISH_BEFORE permits start but refuses DONE until Gate passes; reopening Gate does not rewrite historical DONE. Legacy-null edge produces no hold and permits entry |
+| Browser against deployed PG app | PASS: Chromium390x844/reduced motion, owned Project Board, held reason and predecessor link visible before keyboard-opened modal; actual HTTPS/session/runtime path. Additional restored-app Chromium journey proves mandatory edge-dialog cancel/no edge, edge create/undo, keyboard add-child cancel/focus, stream create/undo/reload. This is a scoped journey, not an exhaustive AA or drag matrix |
+| Fresh source regressions | PASS: actual-role disposable PostgreSQL4files/23tests, zero-test guard; C1 races/process recovery, C2/C3 and C4. These are separate embedded clusters, **not the Docker UAT database** |
+| Full PostgreSQL recovery | PASS: all210 table row hashes/counts, catalog/columns/constraints/indexes/owners/ACL/RLS/policies equal on separate restore volume; role attributes and memberships recreated/compared independently |
+| Protected JSON recovery | PASS: runtime export refused; maintenance process EXPORTED; checksum refusal, clean-target READY then RESTORED, nonempty reapply refused. All210 table hashes / 286 rows equal; 3 legacy-null and 8 declared edges retained |
+| Negative protected recovery | PASS: missing contract column refuses TARGET_SCHEMA_UNVERIFIED; recomputed-checksum unknown declared contract refuses before mutation, target stays empty; validation unchanged |
+| Restored application | PASS: same immutable image and copied UAT config; fresh HTTPS login, held/DONE preserved, held entry refused, actual title write succeeds through runtime HTTP API |
+| Image/config reconstruction | PASS: image archive save/load returns same immutable ID; configuration-copy hashes equal; container domain-state SHA-256 equals selected source |
+| Documentary governance/review | Serial governance PASS0critical/0warning/43info and corpus/check PASS on the evidence branch. GPT-6 Luna Max final bounded-UAT review PASS/no material blocker; final composed wording is revalidated before commit, with command/result retained in ignored final-govern.log |
+
+The SQL/bootstrap, TLS/Compose, API/browser, recovery and artifact wrappers plus
+fresh JSON results and hashes are retained locally under ignored
+`.local/pm-pipeline-uat-20261025/`. They are execution diagnostics, not a DDC
+packet, replacement admission system, canonical authority or portable credentials.
+Image archive SHA-256: `72009eba8eb8eed6c22de00a312fc1b4d4dce816a73cfebe80312862595c1b23`.
+Runtime projection SHA-256: `24acccefd9d51492b0e566f97e8e9ab847b298934966bd77768a9320e8c60a2f`.
+
+### Failed attempts, review corrections and acceptance limits
+
+First Compose creation failed because automatic address pools were exhausted;
+only the new UAT received a verified unused subnet. First DB probe preceded
+health readiness; the harness then waited for the owned DB health checks. Old
+seed-wrapper relative imports were corrected to absolute selected-source URLs.
+Initial API assertions incorrectly expected cycle409 (contract is422), omitted
+the optional body argument on foreign GET, and assumed seed Business2 had a
+Project. The added restored-canvas browser wrapper initially used a nonexistent submit label, corrected against current component source. Corrected wrappers retain real negative assertions and arrange only
+synthetic UAT rows. Initial browser direct navigation omitted the selected
+Business context; the final run performs the actual Business selection.
+These failed attempts are not passes or product fixes; earlier partial synthetic
+Projects/audits remain part of the retained snapshot, not hidden cleanup.
+
+GPT-6 Luna Max pre-run harness review identified target-port clamping, stale
+export reuse and mutable image identity risks. Four invalid role/port/database
+targets now fail before connecting, export requires a fresh output/source-bound
+state, and both web containers are verified against the immutable image ID.
+The corrupted-contract check now asserts exact PHASE_B_SNAPSHOT_INVALID; a fresh CLI recheck reproduced it with the target still empty. Reviewer also identified dry-run data-proof and bridge-egress limits, recorded
+explicitly above. Final independent GPT-6 Luna Max review: **bounded UAT PASS**, no remaining material blocker in target isolation, runtime role, migration/recovery or exercised API/browser behavior. Review was read-only against the pinned app and safe manifest; reviewer did not rerun tests or grant a formal GitHub approval. This verdict does not promote canonical lifecycle or production acceptance.
+
+Full and protected table hashes qualify the frozen final snapshot before any
+post-restore application mutation. Subsequent title-write and canvas
+create/undo browser journeys deliberately add/change rows only in the recovered
+final database; they do not claim that mutated target remains byte-identical to
+the source snapshot. The separate protected JSON target retains all210 hashes.
+
+This fresh UAT had no previous web image. Restoring baseline DB plus retained
+current image/config proves the selected rehearsal, not production downgrade,
+production migration rollback, maximum capacity, native device acceptance,
+off-host disaster recovery or arbitrary object/provider restoration. Binary/object
+custody fixtures are empty. Canonical FR-082–085 delivery cells remain unchanged;
+any lifecycle adoption uses its separate reviewed migration workflow. Production
+remains untouched; this UAT performed no further push, PR, merge or production release action.
+
+0.1.8 → 0.1.9 (2026-10-25): selects the owner-requested Pipeline Builder isolated
+UAT after C4 merge, records exact artifact/role/migration/recovery/API/browser
+scope and retained failures, and keeps canonical lifecycle/production authority
+separate. The historical B4 artifact is not relabeled as this newer acceptance.
+
+Safe local evidence/harness manifest SHA-256: `3cd9e3f89b7779ea24001c799823b86d9bd9a86ca31b8af5a357cb1c5aad6147`. Secrets, data dumps/snapshots and image bytes are excluded from this public inventory; their selected artifact hashes are recorded separately above.
