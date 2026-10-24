@@ -34,6 +34,6 @@ export async function GET(request, { params }) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     await assertProjectVisible(params.id, viewer)
-    return getProjectDependencyGraph(params.id)
+    return getProjectDependencyGraph(params.id, { viewer })
   })
 }

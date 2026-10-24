@@ -2,9 +2,10 @@
 /* @spec SDD-019, ADR-012 */
 /* @tested tests/unit/dependency-map-view.test.js */
 
-.wrapper { display: grid; gap: 16px; }
+.wrapper { min-width: 0; display: grid; gap: 16px; }
 .graphPanel,
 .edgeList {
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
   background: var(--surface-card);
@@ -15,8 +16,9 @@
 .edge { stroke: var(--action-primary); stroke-width: 2; stroke-opacity: 0.6; }
 .nodes { position: absolute; inset: 0; }
 .node {
-  position: absolute;
   display: flex;
+  width: 100%;
+  min-height: 88px;
   align-items: flex-start;
   gap: 8px;
   padding: 10px;
@@ -47,3 +49,17 @@
   .node { transition: none; }
   .node:hover { transform: none; }
 }
+
+/* @req FR-083 — handles and alternatives remain reachable at narrow widths. */
+/* @spec NFR-008, ADR-035 */
+/* @tested tests/e2e/pipeline-edge-editing.spec.js */
+.nodeGroup { position: absolute; }
+.handle { position: absolute; right: -12px; top: 30px; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-card); color: var(--action-primary); border: 2px solid currentColor; touch-action: none; }
+.handle:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+.connectionControls { display: flex; align-items: end; flex-wrap: wrap; gap: 12px; }
+.connectionControls label { flex: 1 1 180px; min-width: 0; font-size: 12px; }
+.connectionControls select { width: 100%; }
+.pendingEdge { stroke: var(--text-primary); stroke-width: 3; stroke-dasharray: 6 4; }
+.refusal { border: 2px dashed var(--danger); border-radius: var(--radius-md); padding: 12px; font-size: 12px; }
+
+.edgeLabel { font-size: 11px; fill: var(--text-primary); paint-order: stroke; stroke: var(--surface-card); stroke-width: 4px; }

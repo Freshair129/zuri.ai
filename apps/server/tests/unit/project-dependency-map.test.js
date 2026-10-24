@@ -58,3 +58,18 @@ describe('projectDependencyGraph', () => {
     expect(() => projectDependencyGraph({ projectId: PROJECT_A.id, dependencies: [], entityKeys: [] })).toThrow('entityKeys must be a Set')
   })
 })
+
+// C2 must allow the first edge without exposing unrelated or stored evidence.
+it('includes isolated authorized nodes and only projected contract state', () => {
+  const graph = projectDependencyGraph({ projectId: PROJECT_A.id,
+    entityKeys: PROJECT_A.entityKeys,
+    endpoints: [{ type: 'WORK_ITEM', id: 'item-a-1', code: 'WI-A1', title: 'Design' },
+      { type: 'WORK_ITEM', id: 'foreign', title: 'Private' }],
+    dependencies: PROJECT_DEPENDENCY_FIXTURES.map(row => ({ ...row, contractState: 'UNDECLARED', contractJson: 'secret' })) })
+  expect(graph.nodes.some(node => node.title === 'Private')).toBe(false)
+  expect(graph.edges[0].contractState).toBe('UNDECLARED')
+  expect(JSON.stringify(graph)).not.toContain('secret')
+  const empty = projectDependencyGraph({ projectId: PROJECT_A.id, entityKeys: PROJECT_A.entityKeys,
+    dependencies: [], endpoints: [{ type: 'WORK_ITEM', id: 'item-a-1', code: 'WI-A1', title: 'Design' }] })
+  expect(empty.nodes).toEqual([{ type:'WORK_ITEM', id:'WORK_ITEM:item-a-1', code:'WI-A1', title:'Design', status:null }])
+})

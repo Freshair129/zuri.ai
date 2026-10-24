@@ -41,8 +41,8 @@
     "readyFeatureCount": 121,
     "requirementCount": 279,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.2,
-    "gapCount": 75,
+    "progressPercent": 93.5,
+    "gapCount": 76,
     "gaps": [
       {
         "domain": "agent",
@@ -218,6 +218,7 @@
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
           "apps/server/tests/unit/handoff-contract.test.js",
           "apps/server/tests/unit/handoff-migration.test.js",
+          "apps/server/tests/unit/pipeline-edge-interactions.test.js",
           "apps/server/tests/unit/pipeline-finite-progress.test.js",
           "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
           "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -900,6 +901,27 @@
       },
       {
         "domain": "project-manager",
+        "id": "REQ-FR-083",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-083 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/dependency-service.js",
+          "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+          "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
+          "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
+          "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+          "apps/server/tests/integration/fr072-dependency-authorization.test.js",
+          "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
+          "apps/server/tests/integration/project-core.test.js",
+          "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
+          "apps/server/tests/unit/dependency-map-view.test.js",
+          "apps/server/tests/unit/pipeline-edge-interactions.test.js",
+          "apps/server/tests/unit/project-dependency-service.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
         "id": "REQ-FR-084",
         "severity": "medium",
         "check": "requirements",
@@ -908,6 +930,7 @@
           "apps/server/src/app/api/resolve/route.js",
           "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
           "apps/server/src/modules/project-manager/application/file-asset-service.js",
+          "apps/server/src/modules/project-manager/application/handoff-contract-schema.js",
           "apps/server/src/modules/project-manager/application/handoff-contract.js",
           "apps/server/src/modules/project-manager/application/handoff-evidence.js",
           "apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js",
@@ -950,6 +973,7 @@
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
           "apps/server/tests/unit/handoff-contract.test.js",
           "apps/server/tests/unit/handoff-migration.test.js",
+          "apps/server/tests/unit/pipeline-edge-interactions.test.js",
           "apps/server/tests/unit/pipeline-finite-progress.test.js",
           "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
           "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -1330,7 +1354,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 74
+          "testCount": 75
         },
         {
           "id": "FR-079",
@@ -1844,7 +1868,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 34,
+          "testCount": 35,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -1873,6 +1897,7 @@
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -2094,6 +2119,7 @@
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -6733,7 +6759,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-008",
@@ -6933,7 +6959,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 17
         },
         {
           "id": "FR-041",
@@ -7109,7 +7135,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 74
+          "testCount": 75
         },
         {
           "id": "FR-073",
@@ -7184,16 +7210,39 @@
           "testCount": 0
         },
         {
+          "id": "FR-083",
+          "title": "Edge creation by direct manipulation",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/dependency-service.js",
+            "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+            "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
+            "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
+            "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+            "apps/server/tests/integration/fr072-dependency-authorization.test.js",
+            "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
+            "apps/server/tests/unit/dependency-map-view.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
+            "apps/server/tests/unit/project-dependency-service.test.js"
+          ]
+        },
+        {
           "id": "FR-084",
           "title": "Handoff Contract on a dependency edge",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 19,
-          "testCount": 34,
+          "codeCount": 20,
+          "testCount": 35,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
+            "apps/server/src/modules/project-manager/application/handoff-contract-schema.js",
             "apps/server/src/modules/project-manager/application/handoff-contract.js",
             "apps/server/src/modules/project-manager/application/handoff-evidence.js",
             "apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js",
@@ -7236,6 +7285,7 @@
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -8604,6 +8654,26 @@
           "evidence": []
         },
         {
+          "id": "REQ-FR-083",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-083 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/dependency-service.js",
+            "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+            "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
+            "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
+            "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
+            "apps/server/tests/integration/fr072-dependency-authorization.test.js",
+            "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
+            "apps/server/tests/integration/project-core.test.js",
+            "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
+            "apps/server/tests/unit/dependency-map-view.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
+            "apps/server/tests/unit/project-dependency-service.test.js"
+          ]
+        },
+        {
           "id": "REQ-FR-084",
           "severity": "medium",
           "check": "requirements",
@@ -8612,6 +8682,7 @@
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
+            "apps/server/src/modules/project-manager/application/handoff-contract-schema.js",
             "apps/server/src/modules/project-manager/application/handoff-contract.js",
             "apps/server/src/modules/project-manager/application/handoff-evidence.js",
             "apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js",
@@ -8654,6 +8725,7 @@
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
+            "apps/server/tests/unit/pipeline-edge-interactions.test.js",
             "apps/server/tests/unit/pipeline-finite-progress.test.js",
             "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
             "apps/server/tests/unit/pipeline-http-response.test.js",
@@ -8961,7 +9033,7 @@
       ],
       "featureCount": 53,
       "readyFeatureCount": 48,
-      "progressPercent": 95.8
+      "progressPercent": 96.9
     }
   },
   "features": [
@@ -9652,13 +9724,13 @@
         "project-manager"
       ],
       "useCase": "PM ลากโครงสร้างงาน เชื่อม dependency พร้อม Handoff Contract และให้ Board ถือรายการจน Gate ผ่าน",
-      "progressPercent": 40,
+      "progressPercent": 60,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
         "FEAT-007 registry status is proposed",
         "FR-082 is planned",
-        "FR-083 is planned",
+        "FR-083 is partial",
         "FR-084 is partial",
         "FR-085 is partial"
       ],
@@ -9674,18 +9746,18 @@
         {
           "id": "FR-083",
           "title": "Edge creation by direct manipulation",
-          "status": "planned",
-          "progressPercent": 0,
-          "codeCount": 0,
-          "testCount": 0
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 8
         },
         {
           "id": "FR-084",
           "title": "Handoff Contract on a dependency edge",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 22,
-          "testCount": 34
+          "codeCount": 23,
+          "testCount": 35
         },
         {
           "id": "FR-085",
@@ -9702,7 +9774,9 @@
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
         "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
+        "apps/server/src/modules/project-manager/application/dependency-service.js",
         "apps/server/src/modules/project-manager/application/file-asset-service.js",
+        "apps/server/src/modules/project-manager/application/handoff-contract-schema.js",
         "apps/server/src/modules/project-manager/application/handoff-contract.js",
         "apps/server/src/modules/project-manager/application/handoff-evidence.js",
         "apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js",
@@ -9713,19 +9787,25 @@
         "apps/server/src/modules/project-manager/application/progress-service.js",
         "apps/server/src/modules/project-manager/application/project-feature-repository.js",
         "apps/server/src/modules/project-manager/application/project-file-service.js",
+        "apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx",
+        "apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js",
         "apps/server/src/modules/project-manager/import/bundle/bundle-handoff-service.js",
         "apps/server/src/modules/project-manager/import/pipeline-preview-db.js",
         "apps/server/src/modules/project-manager/import/plan-delta-operations.js",
         "apps/server/src/modules/project-manager/import/plan-delta-schema.js",
         "apps/server/src/modules/project-manager/import/plan-delta-service.js",
+        "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
         "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
         "apps/server/tests/e2e/dependency-handoff.spec.js",
+        "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
         "apps/server/tests/integration/dependency-handoff.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
+        "apps/server/tests/integration/fr072-dependency-authorization.test.js",
         "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
         "apps/server/tests/integration/fr072-files-migrate-authorization.test.js",
         "apps/server/tests/integration/fr072-project-file-authorization.test.js",
         "apps/server/tests/integration/pipeline-bundle-handoff.test.js",
+        "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
         "apps/server/tests/integration/pipeline-private-evidence.test.js",
@@ -9735,22 +9815,27 @@
         "apps/server/tests/integration/pipeline-sqlite-races.test.js",
         "apps/server/tests/integration/pipeline-sqlite-recovery.test.js",
         "apps/server/tests/integration/plan-delta.test.js",
+        "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/postgres/pipeline-canvas-adapter.test.js",
         "apps/server/tests/postgres/pipeline-handoff-races.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/dependency-handoff-form.test.js",
+        "apps/server/tests/unit/dependency-map-view.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
         "apps/server/tests/unit/handoff-contract.test.js",
         "apps/server/tests/unit/handoff-migration.test.js",
+        "apps/server/tests/unit/pipeline-edge-interactions.test.js",
         "apps/server/tests/unit/pipeline-finite-progress.test.js",
         "apps/server/tests/unit/pipeline-handoff-recovery.test.js",
         "apps/server/tests/unit/pipeline-http-response.test.js",
         "apps/server/tests/unit/pipeline-validation-paths.test.js",
         "apps/server/tests/unit/pipeline-writer-census.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
+        "apps/server/tests/unit/project-dependency-service.test.js",
         "apps/server/tests/unit/project-feature-repository.test.js",
         "apps/server/tests/unit/project-file-service.test.js"
       ]
@@ -14574,7 +14659,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -14587,6 +14672,7 @@
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
         "apps/server/tests/integration/fr072-work-service-authorization.test.js",
+        "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
@@ -16031,7 +16117,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -16047,10 +16133,13 @@
         "apps/server/src/modules/project-manager/views/DependencyMap.jsx",
         "apps/server/src/modules/project-manager/views/WbsCanvas.jsx",
         "apps/server/tests/e2e/fr040-project-work.spec.js",
+        "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
         "apps/server/tests/integration/fr072-dependency-authorization.test.js",
+        "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/dependency-map-view.test.js",
+        "apps/server/tests/unit/pipeline-edge-interactions.test.js",
         "apps/server/tests/unit/project-dependency-map.test.js",
         "apps/server/tests/unit/project-dependency-route.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
@@ -17447,7 +17536,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 74
+          "testCount": 75
         }
       ],
       "evidence": [
@@ -17533,6 +17622,7 @@
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
+        "apps/server/tests/integration/pipeline-canvas-adapter.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
@@ -21014,8 +21104,8 @@
       "id": "NFR-008",
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
-      "codeCount": 14,
-      "testCount": 23,
+      "codeCount": 17,
+      "testCount": 26,
       "domains": [
         "knowledge",
         "platform-control",

@@ -25,7 +25,7 @@ const endpointLabel = (endpoint, type, id) => ({
  * endpoint keys owned by the opened Project. Both edge endpoints must be in that
  * set; this is deliberately stricter than the global dependency list filter.
  */
-export function projectDependencyGraph({ projectId, dependencies = [], entityKeys }) {
+export function projectDependencyGraph({ projectId, dependencies = [], entityKeys, endpoints = [] }) {
   if (!projectId) throw new Error('projectId is required')
   if (!(entityKeys instanceof Set)) throw new Error('entityKeys must be a Set')
 
@@ -33,7 +33,10 @@ export function projectDependencyGraph({ projectId, dependencies = [], entityKey
     .filter((dependency) => isProjectContainedDependency(dependency, entityKeys))
     .sort(compareDependencies)
 
-  const nodes = new Map()
+  const nodes = new Map(endpoints.filter(endpoint => entityKeys.has(dependencyNodeKey(endpoint.type, endpoint.id)))
+    .map(endpoint => [dependencyNodeKey(endpoint.type, endpoint.id), {
+      ...endpointLabel(endpoint, endpoint.type, endpoint.id), id: dependencyNodeKey(endpoint.type, endpoint.id),
+    }]))
   const edges = contained.map((dependency) => {
     const sourceId = dependencyNodeKey(dependency.sourceType, dependency.sourceId)
     const targetId = dependencyNodeKey(dependency.targetType, dependency.targetId)
@@ -50,6 +53,7 @@ export function projectDependencyGraph({ projectId, dependencies = [], entityKey
       source: sourceId,
       target: targetId,
       dependencyType: dependency.dependencyType,
+      ...(dependency.contractState ? { contractState: dependency.contractState } : {}),
       label: dependency.dependencyType.replace(/_/g, ' '),
     }
   })

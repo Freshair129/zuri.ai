@@ -3,7 +3,8 @@ import { pipelineError } from './pipeline-transaction'
 import { dependencyHash } from './handoff-contract'
 import prisma from '@/lib/db'
 import { zDependencyInput } from '@/lib/validation/entities'
-import { projectDependencyGraph } from './project-dependency-map'
+import { projectDependencyGraph, PROJECT_DEPENDENCY_ENDPOINT_TYPES } from './project-dependency-map'
+import { assertProjectReadable } from './project-inventory-read-model'
 import { assertEndpointWritable } from './project-authorization'
 
 // @req FR-007 — dependencies with self/cycle rejection + blocked evaluation
@@ -155,7 +156,10 @@ export async function listDependencies({ projectId, businessId } = {}, { viewer 
  * owned by the Project. The pure graph mapper owns deterministic ordering and
  * the stable node/edge DTO shape.
  */
-export async function getProjectDependencyGraph(projectId) {
+// @req FR-083 — authenticated canvas includes isolated nodes and safe handoff states.
+// @tested tests/integration/pipeline-canvas-adapter.test.js
+export async function getProjectDependencyGraph(projectId, { viewer, db = prisma } = {}) {
+  if (viewer) return getCanvasGraph(projectId, viewer, db)
   if (!projectId) throw new Error('projectId is required')
 
   const project = await prisma.project.findUnique({ where: { id: projectId }, select: { id: true } })
@@ -167,6 +171,43 @@ export async function getProjectDependencyGraph(projectId) {
   ])
 
   return projectDependencyGraph({ projectId, dependencies, entityKeys })
+}
+
+async function getCanvasGraph(projectId, viewer, db) {
+  const project = await db.project.findUnique({ where: { id: projectId }, include: { business: true, workspace: true } })
+  if (!project || project.deletedAt) throw new Error('Project not found')
+  await assertProjectReadable(viewer, project, { db })
+  const streams = await db.workstream.findMany({ where: { projectId, deletedAt: null } })
+  const streamIds = streams.map(row => row.id)
+  const [containers, items, milestones, gates] = await Promise.all([
+    db.workContainer.findMany({ where: { workstreamId: { in: streamIds } } }),
+    db.workItem.findMany({ where: { workstreamId: { in: streamIds }, deletedAt: null } }),
+    db.milestone.findMany({ where: { projectId } }),
+    db.gate.findMany({ where: { projectId } }),
+  ])
+  const rowsByModel = { project: [project], workstream: streams, workContainer: containers,
+    workItem: items, milestone: milestones, gate: gates }
+  const endpoints = PROJECT_DEPENDENCY_ENDPOINT_TYPES
+    .flatMap(type => rowsByModel[ENDPOINT_MODEL[type]].filter(row => !row.workstreamId || streamIds.includes(row.workstreamId))
+      .map(row => ({ ...endpointLabelForCanvas(row), type, id: row.id })))
+  const entityKeys = new Set(endpoints.map(row => nodeKey(row.type, row.id)))
+  // Filter containment before reading either endpoint or any acceptance evidence.
+  const dependencies = await db.dependency.findMany({ orderBy: { id: 'asc' } })
+  const safe = []
+  const byKey = new Map(endpoints.map(row => [nodeKey(row.type, row.id), row]))
+  for (const edge of dependencies) {
+    const source = byKey.get(nodeKey(edge.sourceType, edge.sourceId)), target = byKey.get(nodeKey(edge.targetType, edge.targetId))
+    if (!source || !target) continue
+    const scopes = await authorizeDependencyRead(db, edge, viewer)
+    if (!scopes) continue
+    safe.push({ id: edge.id, sourceType: edge.sourceType, sourceId: edge.sourceId,
+      targetType: edge.targetType, targetId: edge.targetId, dependencyType: edge.dependencyType,
+      source, target, contractState: await dependencyEvidenceState(db, edge, scopes) })
+  }
+  return projectDependencyGraph({ projectId, dependencies: safe, entityKeys, endpoints })
+}
+function endpointLabelForCanvas(row) {
+  return { code: row.code || null, title: row.title || row.name || row.code, status: row.status || null }
 }
 
 async function projectEntityIds(projectId) {
