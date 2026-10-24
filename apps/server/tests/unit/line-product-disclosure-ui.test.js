@@ -1,19 +1,38 @@
-import { readFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
-const accountConsole = readFileSync(
-  resolve(process.cwd(), 'src/modules/line-oa-studio/ui/LineStudioAccountConsole.jsx'),
-  'utf8',
-)
+globalThis.React = React
 
 describe('LINE customer product disclosure UI mount', () => {
-  it('mounts the disclosure card with the selected Business for active accounts', () => {
-    expect(accountConsole).toContain('LineProductDisclosureCard')
-    expect(accountConsole).toContain('businessId={business?.id}')
-    expect(accountConsole).toContain('account.status === "ACTIVE"')
+  const renderAccount = async (status, overrides = {}) => {
+    const { AccountCard } = await import('@/modules/line-oa-studio/ui/LineStudioAccountConsole')
+    return renderToStaticMarkup(createElement(AccountCard, {
+      businessId: 'business-1',
+      account: { id: 'account-1', businessId: 'business-1', status,
+        displayName: 'Test OA', effectiveStatus: status, knowledgeGrounding: 'GKS_CORPUS',
+        executionMode: 'SERVER', runtimeOwner: 'SERVER', serverEnabled: true,
+        transportMode: 'CLOUD', archivedAt: null, ...overrides },
+    }))
+  }
+
+  it('shows product selection and unchecked fields for the stored CONNECTED OA status', async () => {
+    const html = await renderAccount('CONNECTED')
+    expect(html).toContain('ข้อมูลสินค้าที่อนุญาตให้ลูกค้าเห็น')
+    expect(html).toContain('product-disclosure-title-account-1')
+    expect(html.match(/<input[^>]*type="checkbox"/g)?.length).toBeGreaterThanOrEqual(8)
+  })
+
+  it.each(['DRAFT', 'PAUSED', 'ARCHIVED'])('does not mount approval controls for %s accounts', async (status) => {
+    expect(await renderAccount(status)).not.toContain('product-disclosure-title-account-1')
+  })
+
+  it.each([
+    { serverEnabled: false },
+    { transportMode: 'EDGE' },
+    { archivedAt: '2026-10-24T00:00:00Z' },
+  ])('does not offer approval when the connected account is ineligible: %j', async (overrides) => {
+    expect(await renderAccount('CONNECTED', overrides)).not.toContain('product-disclosure-title-account-1')
   })
 })
 
