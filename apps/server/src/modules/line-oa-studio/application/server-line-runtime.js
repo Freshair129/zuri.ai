@@ -35,7 +35,7 @@ export function createServerLineThreadMemory(env, { strict = false, db = prisma 
   if (!transport) return null
   return createMspThreadMemoryPort({
     transport,
-    maintenanceGate: env.ZURI_MSP_RETENTION_TENANTS !== undefined ? createMspRetentionGate(db) : null,
+    maintenanceGate: createMspRetentionGate(db),
     actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
     agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
     workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,

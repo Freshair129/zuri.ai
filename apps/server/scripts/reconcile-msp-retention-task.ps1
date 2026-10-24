@@ -14,6 +14,7 @@ $dockerPath = (Get-Command docker -ErrorAction Stop).Source
 $shellPath = (Get-Process -Id $PID).Path
 $target = Get-Content -LiteralPath $TargetFile -Raw | ConvertFrom-Json
 if ($target.ReconcileScriptSha256 -ne (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()) { throw 'MSP_RETENTION_RECOVERY_SCRIPT_MISMATCH' }
+if ($target.ScriptSha256 -ne (Get-FileHash -LiteralPath $ActionScript -Algorithm SHA256).Hash.ToLowerInvariant()) { throw 'MSP_RETENTION_RECOVERY_ACTION_MISMATCH' }
 & $shellPath -NoProfile -NonInteractive -File $ActionScript -TargetFile $TargetFile -DockerExecutable $dockerPath -CheckOnly
 if ($LASTEXITCODE) { throw 'MSP_RETENTION_RECOVERY_TARGET_INVALID' }
 $oldJson = & $dockerPath inspect $StoppedContainerId 2>$null

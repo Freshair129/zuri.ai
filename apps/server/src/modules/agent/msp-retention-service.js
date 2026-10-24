@@ -85,25 +85,18 @@ export async function runMspRetentionSweep({ db = prisma, env = process.env, dry
     }
     try {
       outcome = await withFence(db, env, provider, async tx => {
-        const finish = async value => {
-          // PostgreSQL may lose its lock session during a provider call. Do
-          // not publish a terminal audit until withFence confirms its COMMIT.
-          if (provider === 'postgresql') return value
-          const event = await audit(tx, value.status, value)
-          return { ...value, auditEventId: event.id }
-        }
         try { await createMspRetentionGate(tx, { excludeRunId: runId })({ tenantId }) }
         catch (error) {
           if (error.message !== 'MSP_RETENTION_IN_PROGRESS') throw error
           const value = { tenantId, status: 'DEFERRED', reason: 'PRIOR_RUN_UNSETTLED', tablesAffected: totals }
-          return finish(value)
+          return value
         }
         const pendingJobs = await tx.lineConversationJob.count({ where: { tenantId, OR: [
           { status: { notIn: TERMINAL } }, { memoryDeliveryState: { notIn: ['NONE', 'ACKNOWLEDGED', 'CLOSED'] } },
         ] } })
         if (pendingJobs) {
           const value = { tenantId, status: 'DEFERRED', pendingJobs, tablesAffected: totals }
-          return finish(value)
+          return value
         }
         const override = await tx.tenantRetentionOverride.findUnique({ where: { tenantId_dataClass: { tenantId, dataClass: 'MSP_SESSION_CONTENT' } } })
         if (override && (!Number.isInteger(override.windowDays) || override.windowDays < 1)) throw new Error('MSP_RETENTION_OVERRIDE_INVALID')
@@ -121,16 +114,17 @@ export async function runMspRetentionSweep({ db = prisma, env = process.env, dry
         } while (!dryRun && saturated && batches < MAX_BATCHES && Date.now() + 8000 < deadline)
         const status = dryRun ? 'DRY_RUN' : saturated ? 'PARTIAL' : 'COMPLETE'
         const value = { tenantId, status, retentionDays, cutoff: last.cutoff, batches, tablesAffected: totals }
-        return finish(value)
+        return value
       })
-      if (!outcome.auditEventId) outcome.auditEventId = (await audit(db, outcome.status, outcome)).id
     } catch {
       // MSP may already have committed; never describe an uncertain call as zero.
       const status = attemptedProvider ? 'UNKNOWN' : 'FAILED'
       outcome = { tenantId, status, acknowledgedCounts: totals, reconciliationRequired: attemptedProvider }
-      const event = await audit(db, status, outcome)
-      outcome.auditEventId = event.id
     }
+    // Publish exactly one chosen terminal status after the fence settles.
+    // An ambiguous audit INSERT acknowledgement fails the caller closed; it
+    // must never be reclassified into a second, contradictory terminal event.
+    outcome.auditEventId = (await audit(db, outcome.status, outcome)).id
     tenants.push(outcome)
   }
   return { ok: tenants.every(t => ['COMPLETE', 'DRY_RUN'].includes(t.status)), runId, dryRun, observedAt: now.toISOString(), tenants }

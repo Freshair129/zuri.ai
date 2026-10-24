@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { readFileSync, writeFileSync, mkdtempSync, rmSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdtempSync, rmSync, existsSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { createHash, generateKeyPairSync, verify } from 'node:crypto'
@@ -8,6 +8,20 @@ import { buildCommands, releaseNames } from '../../scripts/build-ki17-overlay-re
 // @req FR-230 — shipped worker and guarded daily OS scheduling.
 // @spec SEC-031, ADR-091
 describe('MSP scheduler delivery', () => {
+  it.runIf(process.platform === 'win32')('refuses an alternate recovery action before executing it', () => {
+    const root = mkdtempSync(path.join(tmpdir(), 'msp-recovery-action-'))
+    const recovery = path.resolve('scripts/reconcile-msp-retention-task.ps1'), action = path.resolve('scripts/invoke-msp-retention-task.ps1')
+    const target = path.join(root, 'target.json'), stub = path.join(root, 'stub.ps1'), marker = path.join(root, 'executed')
+    const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
+    writeFileSync(stub, `Set-Content -LiteralPath '${marker.replaceAll("'", "''")}' -Value 'unexpected'; exit 0`)
+    writeFileSync(target, JSON.stringify({ ReconcileScriptSha256: sha(recovery), ScriptSha256: sha(action) }))
+    try {
+      const result = spawnSync('pwsh', ['-NoProfile', '-NonInteractive', '-File', recovery, '-TargetFile', target, '-ActionScript', stub,
+        '-RunId', '00000000-0000-4000-8000-000000000001', '-StoppedContainerId', 'a'.repeat(64)], { encoding: 'utf8', timeout: 15000 })
+      expect(result.status).toBe(1)
+      expect(existsSync(marker)).toBe(false)
+    } finally { rmSync(root, { recursive: true, force: true }) }
+  }, 20000)
   it('signs recovery claims on the host without emitting the private key', () => {
     const root = mkdtempSync(path.join(tmpdir(), 'msp-host-sign-'))
     const { privateKey, publicKey } = generateKeyPairSync('ed25519')

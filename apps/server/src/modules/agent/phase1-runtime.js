@@ -189,7 +189,7 @@ function composeMspMemoryPorts(ports, env, mspTransport, db = prisma) {
     if (threadMemoryEnabled) {
       ports.threadMemory = createMspThreadMemoryPort({
         transport,
-        maintenanceGate: env.ZURI_MSP_RETENTION_TENANTS !== undefined ? createMspRetentionGate(db) : null,
+        maintenanceGate: createMspRetentionGate(db),
         actor: env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
         agentId: env.ZURI_MSP_THREAD_AGENT_ID ?? env.ZURI_MSP_THREAD_MEMORY_ACTOR ?? 'zuri-line-agent',
         workspaceId: env.ZURI_MSP_THREAD_WORKSPACE_ID,

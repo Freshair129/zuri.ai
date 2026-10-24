@@ -40,6 +40,14 @@ beforeEach(() => {
 })
 
 describe('serverLinePorts private-memory composition', () => {
+  it('keeps the durable gate when the retention mapping is absent after restart', async () => {
+    mocks.createMspTransport.mockReturnValue(vi.fn())
+    const db = { $queryRaw: vi.fn(async () => [{ id: 'prior-started' }]) }
+    serverLinePorts({ ZURI_LINE_SERVER_ENABLED: 'true', ZURI_MSP_THREAD_SERVICE_KEY: 'k'.repeat(40), ZURI_MSP_THREAD_WORKSPACE_ID: 'workspace' }, db)
+    const gate = mocks.createMspThreadMemoryPort.mock.calls[0][0].maintenanceGate
+    expect(gate).toBeTypeOf('function')
+    await expect(gate({ tenantId: 'tenant' })).rejects.toThrow('MSP_RETENTION_IN_PROGRESS')
+  })
   it('passes the canary workspace and agent identity to the delivery scanner port', () => {
     const transport = vi.fn()
     const threadMemory = { recordDelivery: vi.fn() }

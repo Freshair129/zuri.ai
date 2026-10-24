@@ -27,6 +27,16 @@ function fixture({ provider = 'sqlite', jobs = 0, override = null } = {}) {
   return { db, tx, order, audits }
 }
 describe('MSP maintenance authority', () => {
+  it('never appends a contradictory UNKNOWN after a terminal audit commits but loses its acknowledgement', async () => {
+    const f = fixture(), create = f.tx.auditEvent.create.getMockImplementation()
+    f.tx.auditEvent.create.mockImplementation(async input => {
+      const event = await create(input)
+      if (input.data.action === 'MSP_RETENTION_COMPLETE') throw new Error('AUDIT_ACK_LOST')
+      return event
+    })
+    await expect(runMspRetentionSweep({ db: f.db, env: env(), portFactory: () => ({ tick: async () => result() }) })).rejects.toThrow('AUDIT_ACK_LOST')
+    expect(f.audits.map(e => e.action)).toEqual(['MSP_RETENTION_STARTED', 'MSP_RETENTION_COMPLETE'])
+  })
   it('defers a later sweep while a prior run remains unsettled', async () => {
     const f = fixture(), portFactory = vi.fn()
     f.tx.$queryRaw.mockResolvedValue([{ id: 'prior-started' }])
