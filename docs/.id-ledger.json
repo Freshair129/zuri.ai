@@ -2465,9 +2465,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "30b829d45a5e9dd3543fd0868d8cdf2994499d1639dae631dbb8edbfdf4bed8d",
-      "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Owner approved explicit customer-product GenesisRAG17 projection with unchanged TEST ONLY, MSP and commercial authority; proposal 0.2.0."
+      "statement_digest": "858ceaf365f4aa2aecd90e1378fcbe522fa4fb7e8975d5e5f90141116624ccc8",
+      "statement_digest_reviewed_at": "2026-10-24",
+      "statement_digest_reason": "Approved metadata-only ProductMaster contract v0.2.0 extends the existing Phase 1 LINE subject while preserving its ID, anchor and credential guards."
     },
     "FR-080": {
       "family": "FR",
@@ -3787,14 +3787,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "b40eb324b84a513acbddbb17be1a07067e56ea78403793ac7f8d0e46a5a63925",
+      "statement_digest": "2d2f849b7b910b8fbe001060263b816fae1095e5dd2c87c0ecbd4426312e1124",
       "history": [
         {
           "anchor": "knowledge source admission and corpus publication",
           "since": "2026-09-08",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-10-24",
+      "statement_digest_reason": "Reviewed metadata disclosure contract v0.2.0 adds the bounded owner retry to the existing Knowledge admission subject without changing source identity or publication gates."
     },
     "FR-174": {
       "family": "FR",
@@ -4633,7 +4635,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "bf0ce6e5f1b23a7c262a6ed76e144f073dd5d6cb2e72ccd70487667ae114ca61",
+      "statement_digest": "d2056f96965407424414c9e1268377acdf85cc9c3ab34a913f9e2d9c7f170eb6",
       "history": [
         {
           "anchor": "line answer grounding from the published knowledge corpus",
@@ -4641,8 +4643,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-10-23",
-      "statement_digest_reason": "Clarify inference skip versus rejection of a model response and the serialized SENDING cutoff"
+      "statement_digest_reviewed_at": "2026-10-24",
+      "statement_digest_reason": "Approved metadata-only ProductMaster contract v0.2.0 preserves the published-corpus grounding subject and final-send checks while adding exact UUID and SKU mapping."
     },
     "FR-236": {
       "family": "FR",

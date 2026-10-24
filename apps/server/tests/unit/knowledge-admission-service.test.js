@@ -5,8 +5,10 @@
 import { createHash } from 'node:crypto'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
+import { resolveApiAccessViewer } from '@/modules/identity/api-access-auth'
 import { hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_MAX_BYTES, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
+import { KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import {
   admitKnowledge,
   listKnowledgeIngestions,
@@ -25,7 +27,7 @@ const scope = {
 const policy = { allowEmbedding: true, allowPublication: true }
 
 function fakeRepository({ fileAsset } = {}) {
-  const state = { corpus: null, sources: [], ingestions: [], runs: [], audits: [] }
+  const state = { corpus: null, sources: [], ingestions: [], runs: [], stageEvidence: [], stageSteps: [], audits: [] }
   const repository = {
     state,
     transaction: async (callback) => callback(repository),
@@ -58,6 +60,10 @@ function fakeRepository({ fileAsset } = {}) {
     },
     listIngestions: async ({ corpusId, limit }) => state.ingestions.filter((row) => row.corpusId === corpusId).slice(0, limit),
     getPipelineRun: async (executionRunId) => state.runs.find((run) => run.executionRunId === executionRunId) || null,
+    listStageEvidence: async (executionRunId) => state.stageEvidence.filter((row) => row.executionRunId === executionRunId),
+    listPipelineStepsForStage: async (runId, pipelineStageId) => state.stageSteps
+      .filter((step) => step.runId === runId && step.pipelineStageId === pipelineStageId)
+      .sort((left, right) => right.sequence - left.sequence || right.createdAt - left.createdAt),
     audit: async (event) => { state.audits.push(event); return event },
     getFileAsset: async (id) => fileAsset?.id === id ? fileAsset : null,
   }
@@ -307,5 +313,111 @@ describe('knowledge admission service', () => {
     expect(read).toMatchObject({ id: 'admission-1', executionRunId: 'native-1', execution: { status: 'RUNNING', currentStageId: 'stage-9' } })
     expect(read).not.toHaveProperty('claimToken')
     expect(authorization).toHaveBeenCalledWith(expect.objectContaining({ operation: 'read', businessId: 'b-1' }), expect.anything())
+  })
+
+  it('shows retry availability only for the exact terminal Stage 16 benchmark failure', async () => {
+    await admitKnowledge({ businessId: 'b-1', idempotencyKey: 'request-1', source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', content: 'one' } }, options(repository))
+    const ingestion = repository.state.ingestions[0]
+    ingestion.status = 'FAILED'
+    ingestion.executionRunId = 'failed-run-1'
+    repository.state.runs.push({
+      id: 'pipeline-1', executionRunId: 'failed-run-1', dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      status: 'FAILED', currentStageId: 'DPS-KI-INDEX', primaryFailureCode: 'GENESISRAG17_EXTERNAL_STAGE_FAILED',
+    })
+    repository.state.stageEvidence.push({
+      runId: 'pipeline-1', executionRunId: 'failed-run-1', stageNumber: 16,
+      pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'step-stage-16', attemptId: 'attempt-stage-16', outcome: 'FAILED',
+      detailsJson: JSON.stringify({ error: { code: 'BENCHMARK_NO_APPLICABLE_QUERIES' } }),
+    })
+    repository.state.stageSteps.push({
+      id: 'step-row-16', runId: 'pipeline-1', pipelineStageId: 'DPS-KI-INDEX',
+      executionStepId: 'step-stage-16', attemptId: 'attempt-stage-16', sequence: 16, status: 'FAILED',
+      createdAt: new Date('2026-09-08T10:00:00.000Z'),
+    })
+    const authorization = vi.fn(async () => ({ authorized: true }))
+
+    const eligible = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository, { authorization }))
+    expect(eligible.items[0].retryAvailable).toBe(true)
+
+    const member = makeViewer({ role: 'MEMBER', visibleBusinessIds: ['b-1'], ownedBusinessIds: [] })
+    const memberQueue = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository, {
+      viewer: member,
+      authorization: vi.fn(async () => ({ authorized: true })),
+    }))
+    const apiViewer = await resolveApiAccessViewer({ headers: { get: () => 'Bearer apik_knowledge-list-test' } }, {
+      db: { apiAccessKey: {
+        findUnique: async () => ({ id: 'api-1', tenantId: 'tenant-1', status: 'ACTIVE' }),
+        updateMany: async () => ({ count: 1 }),
+      } },
+    })
+    const apiQueue = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository, {
+      viewer: apiViewer,
+      authorization: vi.fn(async () => ({ authorized: true })),
+    }))
+    expect(memberQueue.items[0].retryAvailable).toBe(false)
+    expect(apiQueue.items[0].retryAvailable).toBe(false)
+
+    repository.state.stageEvidence[0].detailsJson = JSON.stringify({ error: { code: 'OTHER_FAILURE' } })
+    const refused = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository, { authorization }))
+    expect(refused.items[0].retryAvailable).toBe(false)
+  })
+
+  it('does not expose retry for an older matching Stage 16 attempt after a different latest failure', async () => {
+    await admitKnowledge({ businessId: 'b-1', idempotencyKey: 'request-1', source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', content: 'one' } }, options(repository))
+    const ingestion = repository.state.ingestions[0]
+    ingestion.status = 'FAILED'
+    ingestion.executionRunId = 'failed-run-1'
+    repository.state.runs.push({
+      id: 'pipeline-1', executionRunId: 'failed-run-1', dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      status: 'FAILED', currentStageId: 'DPS-KI-INDEX', primaryFailureCode: 'GENESISRAG17_EXTERNAL_STAGE_FAILED',
+    })
+    repository.state.stageEvidence.push(
+      {
+        runId: 'pipeline-1', executionRunId: 'failed-run-1', stageNumber: 16,
+        pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'old-stage-16', attemptId: 'old-attempt', outcome: 'FAILED',
+        detailsJson: JSON.stringify({ error: { code: 'BENCHMARK_NO_APPLICABLE_QUERIES' } }),
+      },
+      {
+        runId: 'pipeline-1', executionRunId: 'failed-run-1', stageNumber: 16,
+        pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'new-stage-16', attemptId: 'new-attempt', outcome: 'FAILED',
+        detailsJson: JSON.stringify({ error: { code: 'OTHER_FAILURE' } }),
+      },
+    )
+    repository.state.stageSteps.push({
+      id: 'latest-stage-16', runId: 'pipeline-1', pipelineStageId: 'DPS-KI-INDEX',
+      executionStepId: 'new-stage-16', attemptId: 'new-attempt', sequence: 16, status: 'FAILED',
+      createdAt: new Date('2026-09-08T10:01:00.000Z'),
+    })
+
+    const listed = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository))
+    const read = await readKnowledgeIngestion(ingestion.id, options(repository))
+
+    expect(listed.items[0].retryAvailable).toBe(false)
+    expect(read.retryAvailable).toBe(false)
+  })
+
+  it('fails closed when Stage 16 has two attempts with the same latest position', async () => {
+    await admitKnowledge({ businessId: 'b-1', idempotencyKey: 'request-1', source: { kind: 'TEXT', sourceKey: 'policy', version: 'v1', content: 'one' } }, options(repository))
+    const ingestion = repository.state.ingestions[0]
+    ingestion.status = 'FAILED'
+    ingestion.executionRunId = 'failed-run-1'
+    repository.state.runs.push({
+      id: 'pipeline-1', executionRunId: 'failed-run-1', dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      status: 'FAILED', currentStageId: 'DPS-KI-INDEX', primaryFailureCode: 'GENESISRAG17_EXTERNAL_STAGE_FAILED',
+    })
+    const sameTime = new Date('2026-09-08T10:00:00.000Z')
+    repository.state.stageEvidence.push({
+      runId: 'pipeline-1', executionRunId: 'failed-run-1', stageNumber: 16,
+      pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'step-a', attemptId: 'attempt-a', outcome: 'FAILED',
+      detailsJson: JSON.stringify({ error: { code: 'BENCHMARK_NO_APPLICABLE_QUERIES' } }),
+    })
+    repository.state.stageSteps.push(
+      { id: 'step-a-row', runId: 'pipeline-1', pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'step-a', attemptId: 'attempt-a', sequence: 16, status: 'FAILED', createdAt: sameTime },
+      { id: 'step-b-row', runId: 'pipeline-1', pipelineStageId: 'DPS-KI-INDEX', executionStepId: 'step-b', attemptId: 'attempt-b', sequence: 16, status: 'FAILED', createdAt: sameTime },
+    )
+
+    const listed = await listKnowledgeIngestions({ businessId: 'b-1' }, options(repository))
+
+    expect(listed.items[0].retryAvailable).toBe(false)
   })
 })

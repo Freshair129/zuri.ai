@@ -8,6 +8,7 @@ import {
   splitSmartGiftCatalogRecords,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
+import { projectDisclosureFacts, renderDisclosureFacts } from '@/modules/knowledge/line-product-disclosure-contract'
 
 const modulePath = '@/modules/knowledge/line-product-disclosure-source'
 const sourcePromise = import(modulePath).catch(() => null)
@@ -118,7 +119,134 @@ function fixture({ multipleRows = false } = {}) {
   }
 }
 
+function filFixture({ sku = 'DEMO-KB-MUG-350-001', liveSku = 'DEMO-KB-MUG-350-001', upstreamRecordId = productId } = {}) {
+  const f = fixture()
+  const record = productRecord(sku, {
+    nameTh: 'แก้วมัคข้อมูลสินค้า',
+    priceTiersThb: [{ minQty: 12, unitPriceThb: 24680 }],
+    provenance: { upstreamFile: 'product-master.csv', upstreamRecordId },
+  })
+  const fileName = 'demo-kb-product-master.json'
+  const content = JSON.stringify([record])
+  const assetSha256 = sha256(content)
+  const split = splitSmartGiftCatalogRecords({
+    content, fileAssetId: f.asset.id, fileSha256: assetSha256, fileName,
+  })
+  const admitted = split.records[0]
+  const sourceKey = smartGiftSourceKey({ fileName, recordCode: sku })
+  const title = `ProductMaster ${sku}`
+
+  Object.assign(f.asset, {
+    code: 'FIL-DEMO-KB-MUG-350', name: fileName, mime: 'application/json',
+    size: Buffer.byteLength(content), sha256: assetSha256,
+  })
+  Object.assign(f.source, { sourceKey, title, fileAssetId: f.asset.id })
+  const structured = {
+    format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
+    entityType: 'ProductMaster', contentType: 'application/json',
+    externalId: sku, recordIndex: 0, recordCount: split.recordCount, fileSha256: assetSha256,
+  }
+  const sourceMeta = {
+    kind: 'FILE', title, sourceKey, fileAssetId: f.asset.id,
+    fileAssetVersion: f.asset.version, mime: f.asset.mime, size: Buffer.byteLength(admitted.content),
+    storageKind: f.asset.storageKind, sourceVersion: assetSha256, contentHash: admitted.contentHash,
+    structured,
+  }
+  Object.assign(f.ingestion, {
+    sourceVersion: assetSha256, contentHash: admitted.contentHash, content: admitted.content,
+    sourceMetaJson: JSON.stringify(sourceMeta),
+  })
+  Object.assign(f.entry, {
+    title, sourceVersion: assetSha256, contentHash: admitted.contentHash,
+  })
+  f.manifest.entries = [f.entry]
+  f.product.code = liveSku
+  f.input.fields = ['sku', 'nameTh', 'nameEn', 'unit', 'category', 'productFamily', 'dimensionsCm', 'unitWeightKg']
+  f.content = content
+  f.sourceRecord = record
+  f.options.fileContentResolver.mockImplementation(async () => ({
+    asset: f.asset, content: Buffer.from(f.content),
+  }))
+  return f
+}
+
 describe('verified LINE product disclosure source', () => {
+  it('binds a FIL ProductMaster to the exact live Product and projects metadata without price or provenance', async () => {
+    const f = filFixture()
+    const resolve = requireResolver(await sourcePromise)
+    const result = await resolve(f.input, f.options)
+
+    expect(result.values).toEqual([
+      { field: 'sku', value: 'DEMO-KB-MUG-350-001' },
+      { field: 'nameTh', value: 'แก้วมัคข้อมูลสินค้า' },
+      { field: 'nameEn', value: 'Mug' },
+      { field: 'unit', value: 'EA' },
+      { field: 'category', value: 'Drinkware' },
+      { field: 'productFamily', value: 'Ceramic' },
+      { field: 'dimensionsCm', value: { height: 10, length: 20, width: 3 } },
+      { field: 'unitWeightKg', value: 0.25 },
+    ])
+    expect(result.binding).toMatchObject({
+      record: { entityType: 'ProductMaster', externalIdSha256: sha256('DEMO-KB-MUG-350-001'), recordIndex: 0, recordCount: 1 },
+      product: { id: productId },
+      mappingSha256: expect.any(String),
+    })
+    const facts = projectDisclosureFacts(result.values)
+    expect(renderDisclosureFacts(facts, ['f2', 'f1'])).toBe('รหัสสินค้า: DEMO-KB-MUG-350-001\nชื่อสินค้า: แก้วมัคข้อมูลสินค้า')
+    expect(JSON.stringify(result)).not.toMatch(/98765|24680|srpPriceThbQty1|priceTiersThb|minQty|unitPriceThb|flowaccountModelCode|provenance|upstreamFile|upstreamRecordId|private-provenance|private-source-record|private-model-code/)
+  })
+
+  it('projects only the fields selected for a FIL ProductMaster', async () => {
+    const f = filFixture()
+    f.input.fields = ['nameTh', 'unit']
+    const resolve = requireResolver(await sourcePromise)
+    const result = await resolve(f.input, f.options)
+
+    expect(result.values).toEqual([
+      { field: 'nameTh', value: 'แก้วมัคข้อมูลสินค้า' },
+      { field: 'unit', value: 'EA' },
+    ])
+    expect(JSON.stringify(result)).not.toMatch(/DEMO-KB-MUG|Mug|Drinkware|Ceramic|dimensionsCm|unitWeightKg|98765|24680|minQty|unitPriceThb|provenance/)
+  })
+
+  it.each([
+    ['a different ProductMaster SKU', { sku: 'DEMO-KB-MUG-OTHER-001', liveSku: 'DEMO-KB-MUG-350-001' }],
+    ['a forged upstream Product UUID', { upstreamRecordId: id(99) }],
+  ])('refuses a FIL source bound by %s', async (_name, options) => {
+    const f = filFixture(options)
+    const resolve = requireResolver(await sourcePromise)
+    await expect(resolve(f.input, f.options)).rejects.toMatchObject({
+      code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE',
+    })
+  })
+
+  it('refuses a FIL source when the live Product crosses the requested Business scope', async () => {
+    const f = filFixture()
+    f.product.businessId = id(99)
+    const resolve = requireResolver(await sourcePromise)
+    await expect(resolve(f.input, f.options)).rejects.toMatchObject({
+      code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE',
+    })
+  })
+
+  it('refuses a revoked FIL source even when its old publication receipt is still present', async () => {
+    const f = filFixture()
+    f.source.revokedAt = new Date('2026-10-24T00:00:00.000Z')
+    const resolve = requireResolver(await sourcePromise)
+    await expect(resolve(f.input, f.options)).rejects.toMatchObject({
+      code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE',
+    })
+  })
+
+  it('refuses a FIL publication whose current manifest receipt tuple is stale', async () => {
+    const f = filFixture()
+    f.manifest.entries[0].receiptHash = 'f'.repeat(64)
+    const resolve = requireResolver(await sourcePromise)
+    await expect(resolve(f.input, f.options)).rejects.toMatchObject({
+      code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE',
+    })
+  })
+
   it('projects only selected public fields and binds the explicit Product/source pair', async () => {
     const f = fixture()
     const resolve = requireResolver(await sourcePromise)

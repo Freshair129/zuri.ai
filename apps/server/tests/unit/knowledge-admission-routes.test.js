@@ -5,18 +5,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { makeViewer } from '../factories/viewer'
 
-const { admitKnowledge, listKnowledgeIngestions, readKnowledgeIngestion, resolveViewer } = vi.hoisted(() => ({
+const { admitKnowledge, listKnowledgeIngestions, readKnowledgeIngestion, retryKnowledgeIngestion, resolveViewer } = vi.hoisted(() => ({
   admitKnowledge: vi.fn(),
   listKnowledgeIngestions: vi.fn(),
   readKnowledgeIngestion: vi.fn(),
+  retryKnowledgeIngestion: vi.fn(),
   resolveViewer: vi.fn(),
 }))
 
 vi.mock('@/modules/knowledge/knowledge-admission-service', () => ({ admitKnowledge, listKnowledgeIngestions, readKnowledgeIngestion }))
+vi.mock('@/modules/knowledge/knowledge-replay-service', () => ({ retryKnowledgeIngestion }))
 vi.mock('@/modules/knowledge/knowledge-http', () => ({ resolveKnowledgeRequestViewer: resolveViewer, readRouteParams: async (context) => context.params || {} }))
 
 const { GET: LIST, POST: ADMIT } = await import('@/app/api/knowledge/ingestions/route')
 const { GET: STATUS } = await import('@/app/api/knowledge/ingestions/[runId]/route')
+const { POST: REPLAY } = await import('@/app/api/knowledge/ingestions/[runId]/replay/route')
 
 const viewer = makeViewer({ role: 'OWNER', visibleBusinessIds: ['b-1'], ownedBusinessIds: ['b-1'] })
 const request = (url, method = 'GET', body) => new Request(url, {
@@ -60,5 +63,24 @@ describe('knowledge ingestion HTTP routes', () => {
 
     expect(readKnowledgeIngestion).toHaveBeenCalledWith('admission-1', { viewer })
     await expect(response.json()).resolves.toMatchObject({ id: 'admission-1', admissionId: 'admission-1', executionRunId: 'native-1' })
+  })
+
+  it('retries through the Knowledge owner service with the admission id and idempotency key', async () => {
+    const body = { idempotencyKey: 'retry-once' }
+    retryKnowledgeIngestion.mockResolvedValue({ id: 'admission-1', status: 'QUEUED', executionRunId: 'child-run', unchanged: false })
+    const response = await REPLAY(request('http://local/api/knowledge/ingestions/admission-1/replay', 'POST', body), {
+      params: { runId: 'admission-1' },
+    })
+
+    expect(retryKnowledgeIngestion).toHaveBeenCalledWith('admission-1', body, { viewer })
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({ id: 'admission-1', status: 'QUEUED', executionRunId: 'child-run' })
+
+    resolveViewer.mockRejectedValue(Object.assign(new Error('AUTH_REQUIRED'), { status: 401 }))
+    const denied = await REPLAY(request('http://local/api/knowledge/ingestions/admission-1/replay', 'POST', body), {
+      params: { runId: 'admission-1' },
+    })
+    expect(denied.status).toBe(401)
+    expect(retryKnowledgeIngestion).toHaveBeenCalledTimes(1)
   })
 })

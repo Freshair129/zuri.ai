@@ -46,6 +46,17 @@ function currentRouteInventory() {
 const routeInventory = currentRouteInventory()
 
 describe('OpenAPI document', () => {
+  it('documents the owner-only immutable Knowledge retry and its strict idempotency request', () => {
+    const operation = doc.paths['/api/knowledge/ingestions/{runId}/replay']?.post
+    expect(operation).toBeTruthy()
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBe('knowledge-admission-replay/v1')
+    const schema = operation.requestBody.content['application/json'].schema
+    expect(schema.additionalProperties).toBe(false)
+    expect(schema.required).toEqual(['idempotencyKey'])
+    expect(schema.properties.idempotencyKey).toMatchObject({ type: 'string', minLength: 1, maxLength: 200 })
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '409', '500', '503'])
+  })
   it('documents Knowledge Studio reads with session authorization and unavailable states', () => {
     const graph = doc.paths['/api/control/knowledge-studio/graph'].get
     const source = doc.paths['/api/control/knowledge-studio/document'].get
@@ -342,8 +353,10 @@ describe('OpenAPI document', () => {
       // FR-079/FR-080 add the default-off local Ollama model inventory and
       // selection routes: two paths and two operations.
 // FR-230 retention and FR-235 product disclosure compose with prior inventory.
-      pathCount: 356,
-      operationCount: 469,
+      // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
+      // FR-235 adds owner-only product disclosure GET/POST on one path.
+      pathCount: 357,
+      operationCount: 470,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

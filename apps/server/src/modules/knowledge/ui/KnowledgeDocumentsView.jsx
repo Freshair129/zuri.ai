@@ -2,7 +2,7 @@
 
 // @req FR-173, FR-254 — Knowledge source admission, queue monitor and corpus query in the Knowledge (GKS) slot
 // @spec ADR-072, ADR-073, ADR-085, SEC-001, SEC-008
-// @tested tests/unit/knowledge-documents-ui.test.js
+// @tested tests/unit/knowledge-documents-ui.test.js, tests/unit/knowledge-documents-withdrawal.test.js
 
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
@@ -829,6 +829,8 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
 function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
   const [filterStatus, setFilterStatus] = useState('ALL')
   const [withdrawingId, setWithdrawingId] = useState(null)
+  const [retryingId, setRetryingId] = useState(null)
+  const retryKeys = useRef(new Map())
 
   const items = admissions.data?.items || []
 
@@ -862,6 +864,30 @@ function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
       if (err.status === 409) onReload()
     } finally {
       setWithdrawingId(null)
+    }
+  }
+
+  const handleRetry = async (item) => {
+    if (!item.id) return
+    let idempotencyKey = retryKeys.current.get(item.id)
+    if (!idempotencyKey) {
+      const nonce = globalThis.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`
+      idempotencyKey = `knowledge-ui-retry:${item.id}:${nonce}`
+      retryKeys.current.set(item.id, idempotencyKey)
+    }
+    setRetryingId(item.id)
+    try {
+      await api(`/api/knowledge/ingestions/${encodeURIComponent(item.id)}/replay`, {
+        method: 'POST',
+        body: { idempotencyKey },
+      })
+      await onReload()
+      retryKeys.current.delete(item.id)
+    } catch (err) {
+      onError(err.message)
+      if (err.status === 409) onReload()
+    } finally {
+      setRetryingId(null)
     }
   }
 
@@ -925,6 +951,7 @@ function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
                 const isPublished = item.status === 'PUBLISHED'
                 const isWithdrawn = item.status === 'WITHDRAWN'
                 const canWithdraw = item.source?.id && !item.source?.revoked && !isWithdrawn
+                const canRetry = isFailed && item.retryAvailable === true
 
                 return (
                   <div
@@ -962,6 +989,18 @@ function QueueTabPanel({ admissions, onReload, onWithdrawSuccess, onError }) {
                     </div>
 
                     <div className="flex items-center gap-2 shrink-0">
+                      {canRetry && (
+                        <button
+                          type="button"
+                          className="btn px-2.5 py-1 text-[11px] flex items-center gap-1"
+                          onClick={() => handleRetry(item)}
+                          disabled={retryingId === item.id}
+                          data-testid={`retry-${item.id}`}
+                        >
+                          <RefreshCw size={12} />
+                          {retryingId === item.id ? 'กำลังส่งซ้ำ...' : 'Retry ingestion'}
+                        </button>
+                      )}
                       {canWithdraw && (
                         <button
                           type="button"
