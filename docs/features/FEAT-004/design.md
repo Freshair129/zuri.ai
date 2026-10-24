@@ -36,7 +36,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🟠 approved design; implementation, tests, main-dev actual-RAG and LINE-send evidence pending; the separate customer-product mode is approved design only, with implementation, tests, parity, main-dev RAG and LINE-send evidence pending
+> 🟠 Phase 1 and TEST ONLY implementation present; customer-product mode implementation present, default OFF; main-dev activation and live customer-product RAG/LINE acceptance pending. MSP memory acceptance is tracked separately.
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE customer product disclosure from GenesisRAG17](../../change-requests/integration/line-customer-product-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) — `references` · `metadata` · `current`

@@ -26,7 +26,7 @@ Feature record: [ZAI:FEAT-038 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> ✅ merged #407 2026-09-14 (main af3f7822; not deployed; TASK-ZAI-093, ADR-090 D1–D5, FEAT-038) — `LineOaAccount.knowledgeGrounding`, the in-process `knowledge.query` reader and the traced mode-gated fallback; the SmartGift switch itself is TASK-ZAI-095, blocked on ADR-075 Phase 3; the separate customer-product path is approved design only; implementation, tests, parity, main-dev and LINE acceptance remain pending
+> ✅ merged #407 2026-09-14 (main af3f7822; not deployed; TASK-ZAI-093, ADR-090 D1–D5, FEAT-038) — `LineOaAccount.knowledgeGrounding`, the in-process `knowledge.query` reader and the traced mode-gated fallback; the SmartGift switch itself is TASK-ZAI-095, blocked on ADR-075 Phase 3; the separate customer-product path is implemented, default OFF; main-dev activation and live customer-product RAG/LINE acceptance remain pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE customer product disclosure from GenesisRAG17](../../change-requests/integration/line-customer-product-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](../../change-requests/integration/line-ollama-test-only-genesisrag17-20261024.md) — `references` · `metadata` · `current`

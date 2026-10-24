@@ -17,7 +17,7 @@ version-controlled.
 ## Current contract proposals
 
 - [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
-  (0.2.0, design and bounded implementation approved): per-product/per-field owner preview and approval,
+  (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
   verified public projection, strict model fact selection and unchanged stock/price
   authority. No real product is authorized by the proposal.
 
