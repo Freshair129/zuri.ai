@@ -28,11 +28,21 @@ No current binding of this type is present in the frozen graph.
 
 ### Code paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/src/modules/project-manager/application/dependency-service.js](../../../apps/server/src/modules/project-manager/application/dependency-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx](../../../apps/server/src/modules/project-manager/components/HandoffContractDialog.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js](../../../apps/server/src/modules/project-manager/components/pipeline-edge-interactions.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/views/DependencyMap.jsx](../../../apps/server/src/modules/project-manager/views/DependencyMap.jsx) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-No current binding of this type is present in the frozen graph.
+- [apps/server/tests/e2e/pipeline-edge-editing.spec.js](../../../apps/server/tests/e2e/pipeline-edge-editing.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr072-dependency-authorization.test.js](../../../apps/server/tests/integration/fr072-dependency-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/pipeline-canvas-adapter.test.js](../../../apps/server/tests/integration/pipeline-canvas-adapter.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/project-core.test.js](../../../apps/server/tests/integration/project-core.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/postgres/pipeline-canvas-adapter.test.js](../../../apps/server/tests/postgres/pipeline-canvas-adapter.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/dependency-map-view.test.js](../../../apps/server/tests/unit/dependency-map-view.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/pipeline-edge-interactions.test.js](../../../apps/server/tests/unit/pipeline-edge-interactions.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/project-dependency-service.test.js](../../../apps/server/tests/unit/project-dependency-service.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-084](requirements/FR-084.md)
 
@@ -44,6 +54,7 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/src/modules/asset-management/application/asset-lifecycle-service.js](../../../apps/server/src/modules/asset-management/application/asset-lifecycle-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/pipeline-contract.js](../../../apps/server/src/modules/project-manager/api-docs/pipeline-contract.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/file-asset-service.js](../../../apps/server/src/modules/project-manager/application/file-asset-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/application/handoff-contract-schema.js](../../../apps/server/src/modules/project-manager/application/handoff-contract-schema.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/handoff-contract.js](../../../apps/server/src/modules/project-manager/application/handoff-contract.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/handoff-evidence.js](../../../apps/server/src/modules/project-manager/application/handoff-evidence.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js](../../../apps/server/src/modules/project-manager/application/pipeline-handoff-recovery.js) — `implements` (`annotation`)
@@ -89,6 +100,7 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/unit/fr045-file-asset-service.test.js](../../../apps/server/tests/unit/fr045-file-asset-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/handoff-contract.test.js](../../../apps/server/tests/unit/handoff-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/handoff-migration.test.js](../../../apps/server/tests/unit/handoff-migration.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/pipeline-edge-interactions.test.js](../../../apps/server/tests/unit/pipeline-edge-interactions.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pipeline-finite-progress.test.js](../../../apps/server/tests/unit/pipeline-finite-progress.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-handoff-recovery.test.js](../../../apps/server/tests/unit/pipeline-handoff-recovery.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-http-response.test.js](../../../apps/server/tests/unit/pipeline-http-response.test.js) — `verifies` (`test-reference`)

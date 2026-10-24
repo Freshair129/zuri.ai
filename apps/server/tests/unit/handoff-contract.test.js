@@ -3,12 +3,17 @@
 import { describe, it, expect } from 'vitest'
 import { existsSync } from 'node:fs'
 import { randomUUID } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 const load = async () => {
   expect(existsSync('src/modules/project-manager/application/handoff-contract.js'), 'C1 handoff implementation exists').toBe(true)
   return import('@/modules/project-manager/application/handoff-contract')
 }
 const client = () => ({ version: 1, deliverable: '  Signed drawing  ', acceptance: { kind: 'MANUAL', satisfied: false } })
 describe('adopted HandoffContractV1', () => {
+  it('loads the shared contract in the unbundled recovery CLI process', () => {
+    const stdout = execFileSync(process.execPath, ['scripts/phase-b-protected-export.mjs', '--help'], { encoding: 'utf8', windowsHide: true })
+    expect(stdout).toContain('Usage: node apps/server/scripts/phase-b-protected-export.mjs')
+  })
   it('normalizes deliverable and refuses forged/unknown client fields', async () => {
     const { zHandoffContractV1 } = await load()
     expect(zHandoffContractV1.parse(client()).deliverable).toBe('Signed drawing')
