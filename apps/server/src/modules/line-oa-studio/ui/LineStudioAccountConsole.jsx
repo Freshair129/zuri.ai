@@ -301,7 +301,7 @@ export default function LineStudioAccountConsole() {
   );
 }
 
-function AccountCard({ account, businessId, modelCredential, onAction, onRefresh, busy }) {
+export function AccountCard({ account, businessId, modelCredential, onAction, onRefresh, busy }) {
   const [push, setPush] = useState(account.allowDelayedPush);
   const [runtimeOwner, setRuntimeOwner] = useState(account.runtimeOwner ?? "SERVER");
   const [grounding, setGrounding] = useState(account.knowledgeGrounding);
@@ -403,7 +403,8 @@ function AccountCard({ account, businessId, modelCredential, onAction, onRefresh
       <LineOaCredentialMigrationCard account={account} onMigrated={onRefresh} />
       <LineOaReadinessJourney key={account.id} account={account} modelCredential={modelCredential}
         onAction={onAction} onLoadJobs={() => loadJobs()} busy={busy} />
-      {account.status === "ACTIVE" && (
+      {account.status === "CONNECTED" && account.serverEnabled === true
+        && account.transportMode === "CLOUD" && account.archivedAt == null && (
         <LineProductDisclosureCard businessId={businessId} accountId={account.id} />
       )}
 

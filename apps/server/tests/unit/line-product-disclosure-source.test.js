@@ -90,7 +90,7 @@ function fixture({ multipleRows = false } = {}) {
   const business = { id: businessId, tenantId, status: 'ACTIVE', deletedAt: null }
   const account = {
     id: accountId, tenantId, businessId, status: 'CONNECTED', transportMode: 'CLOUD',
-    serverEnabled: false, archivedAt: null, version: 6,
+    serverEnabled: true, archivedAt: null, version: 6,
   }
   const product = {
     id: productId, tenantId, businessId, code: 'SKU-42', name: 'Live mug', unit: 'EA',
@@ -104,7 +104,9 @@ function fixture({ multipleRows = false } = {}) {
     product: { findFirst: vi.fn(async () => structuredClone(product)) },
     knowledgeSource: { findUnique: vi.fn(async () => structuredClone(source)) },
     knowledgeIngestion: { findUnique: vi.fn(async () => structuredClone(ingestion)) },
-    fileAsset: { findUnique: vi.fn(async () => structuredClone(asset)) },
+    fileAsset: { findUnique: vi.fn(async ({ select }) => Object.fromEntries(
+      Object.entries(select).filter(([, enabled]) => enabled).map(([key]) => [key, structuredClone(asset[key])]),
+    )) },
   }
   const readManifest = vi.fn(async () => manifest)
   const fileContentResolver = vi.fn(async () => ({ asset, content: Buffer.from(content) }))
@@ -168,6 +170,7 @@ describe('verified LINE product disclosure source', () => {
     ['custom component', (f) => { f.product.itemKind = 'CUSTOM_COMPONENT' }],
     ['wrong tenant account', (f) => { f.account.tenantId = id(44) }],
     ['disconnected account', (f) => { f.account.status = 'DRAFT' }],
+    ['server-disabled account', (f) => { f.account.serverEnabled = false }],
     ['wrong business', (f) => { f.business.status = 'INACTIVE' }],
   ])('refuses an %s binding', async (_name, mutate) => {
     const f = fixture()
@@ -231,5 +234,20 @@ describe('verified LINE product disclosure source', () => {
       return { asset: changedProduct.asset, content: Buffer.from(changedProduct.content) }
     })
     await expect(resolve(changedProduct.input, changedProduct.options)).rejects.toMatchObject({ code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE' })
+  })
+
+  it('keeps the approved source binding stable across version-only account fences', async () => {
+    const f = fixture()
+    const resolve = requireResolver(await sourcePromise)
+    const initial = await resolve(f.input, f.options)
+    f.account.version += 1 // policy writers and send claims both advance this counter.
+    expect((await resolve(f.input, f.options)).binding).toEqual(initial.binding)
+    f.fileContentResolver.mockImplementation(async () => {
+      f.account.version += 1
+      return { asset: f.asset, content: Buffer.from(f.content) }
+    })
+    expect((await resolve(f.input, f.options)).binding).toEqual(initial.binding)
+    f.account.status = 'PAUSED'
+    await expect(resolve(f.input, f.options)).rejects.toMatchObject({ code: 'LINE_PRODUCT_DISCLOSURE_SOURCE_UNAVAILABLE' })
   })
 })

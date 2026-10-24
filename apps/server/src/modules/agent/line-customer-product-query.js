@@ -7,17 +7,22 @@ export function parseCustomerProductQuestion(question) {
     || /[\p{Cc}\p{Cf}]|[{}\[\]`=<>\\]|https?:|(?:\s|^)(?:and|or)(?:\s|$)|และ|หรือ/iu.test(question)
     || parseNaturalProductFacts(question) !== null || question.trimStart().startsWith('#')) return null
   const text = question.normalize('NFC').trim()
-  const fields = /น้ำหนัก|\bweight\b/iu.test(text) ? ['unitWeightKg']
-    : /ขนาด|มิติ|\bdimensions?\b/iu.test(text) ? ['dimensionsCm']
-    : /หมวด|\bcategory\b/iu.test(text) ? ['category']
-    : /กลุ่มสินค้า|\bfamily\b/iu.test(text) ? ['productFamily']
-    : /หน่วย|\bunit\b/iu.test(text) ? ['unit']
-    : /ชื่อ|\bname\b/iu.test(text) ? ['nameTh','nameEn']
-    : /รหัส|\bsku\b/iu.test(text) ? ['sku'] : null
-  let alias = text.replace(/^(?:ขอ)?(?:ทราบ)?(?:ข้อมูล|รายละเอียด|ชื่อ|น้ำหนัก|ขนาด|มิติ|หมวด|กลุ่ม|หน่วย|รหัส)?\s*(?:สินค้า|ผลิตภัณฑ์)\s*/u, '')
-  alias = alias.replace(/^(?:product|item|sku)\s+/iu, '')
-    .replace(/\s+(?:ชื่ออะไร|คืออะไร|ขนาด|น้ำหนัก|หมวด|หน่วย|รหัส|name|weight|dimensions?)\s*[?？]?$/iu, '')
+  const prefix = text.match(/^(?:ขอ)?(?:ทราบ)?(?:ข้อมูล|รายละเอียด|ชื่อ|น้ำหนัก|ขนาด|มิติ|หมวด|กลุ่ม|หน่วย|รหัส)?\s*(?:สินค้า|ผลิตภัณฑ์)\s*/u)?.[0] ?? ''
+  let alias = text.slice(prefix.length)
+  const englishPrefix = alias.match(/^(?:product|item|sku)\s+/iu)?.[0] ?? ''
+  alias = alias.slice(englishPrefix.length)
+  const suffix = alias.match(/\s+(?:ชื่ออะไร|คืออะไร|ขนาด|น้ำหนัก|หมวด|หน่วย|รหัส|name|weight|dimensions?)\s*[?？]?$/iu)?.[0] ?? ''
+  alias = (suffix ? alias.slice(0, -suffix.length) : alias)
     .replace(/[?？]$/u,'').trim()
   if (!alias || alias.length > 500 || !/^[\p{L}\p{M}\p{N} .,_()/-]+$/u.test(alias)) return null
+  // Only question syntax chooses fields; SKU/name text is an opaque exact alias.
+  const intent = `${prefix} ${englishPrefix} ${suffix}`
+  const fields = /น้ำหนัก|\bweight\b/iu.test(intent) ? ['unitWeightKg']
+    : /ขนาด|มิติ|\bdimensions?\b/iu.test(intent) ? ['dimensionsCm']
+    : /หมวด|\bcategory\b/iu.test(intent) ? ['category']
+    : /กลุ่มสินค้า|\bfamily\b/iu.test(intent) ? ['productFamily']
+    : /หน่วย|\bunit\b/iu.test(intent) ? ['unit']
+    : /ชื่อ|\bname\b/iu.test(intent) ? ['nameTh','nameEn']
+    : /รหัส|\bsku\b/iu.test(intent) ? ['sku'] : null
   return { alias, fields }
 }
