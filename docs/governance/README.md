@@ -39,6 +39,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Retire Developer Delivery Control](../change-requests/engineering/RETIRE-DEVELOPER-DELIVERY-CONTROL-20261022.md)
 - [Platform Control login and forbidden response](../change-requests/identity/CONTROL-ACCESS-RESPONSE-20261015.md)
 - [LINE agent: stock availability and published sell-price facts](../change-requests/integration/line-agent-stock-price-facts-20261023.md)
+- [LINE customer product disclosure from GenesisRAG17](../change-requests/integration/line-customer-product-disclosure-20261024.md)
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md)
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](../change-requests/integration/line-ollama-test-only-genesisrag17-20261024.md)
 - [TEST ONLY natural-language LINE stock and published price](../change-requests/integration/line-product-facts-natural-language-20261024.md)

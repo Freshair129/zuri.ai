@@ -31,6 +31,10 @@ const LOCAL_PROVIDER_CAPABILITIES = Object.freeze({
   mainDevLocalOllama: true,
 })
 const LOCAL_SELECTION_NAME = 'Main-dev local Ollama (TEST ONLY)'
+const GKS_KNOWLEDGE_SOURCES = new Set([
+  'GENESISRAG17_TEST_ONLY',
+  'GENESISRAG17_CUSTOMER_PRODUCTS',
+])
 
 const zSelection = z.object({
   modelId: z.string().trim().regex(MODEL_ID_PATTERN),
@@ -80,7 +84,7 @@ function isEligibleAccount(row, profile) {
     && row.serverEnabled === true
     && row.executionMode === 'SERVER'
     && row.runtimeOwner === 'SERVER'
-    && row.knowledgeGrounding === (profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
+    && row.knowledgeGrounding === (GKS_KNOWLEDGE_SOURCES.has(profile.knowledgeSource) ? 'GKS_CORPUS' : 'BUSINESS_KNOWLEDGE')
     && row.knowledgeGroundingShadow === false
     && (row.memoryPolicy ?? 'OFF') === 'OFF'
     && row.memoryProjectId == null
@@ -225,7 +229,7 @@ export async function listMainDevLocalOllamaModels({
     accountName: context.account.displayName,
     models,
     selectedModelId: primary?.provider?.code === LOCAL_PROVIDER_CODE ? parseModelId(primary) : null,
-    ...(profile.knowledgeSource === 'GENESISRAG17_TEST_ONLY' ? { knowledgeSource: profile.knowledgeSource } : {}),
+    ...(GKS_KNOWLEDGE_SOURCES.has(profile.knowledgeSource) ? { knowledgeSource: profile.knowledgeSource } : {}),
   }
 }
 

@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { isLineCustomerProductSourceRequested } from '@/modules/agent/main-dev-local-ollama'
 import { LINE_OA_ACCOUNT_ACTIONS, LINE_OA_ACCOUNT_STATUSES } from '@/lib/validation/enums'
 import { listLineMemoryProjects, resolveLineMemoryProject } from './line-memory-scope'
 import { resolveServerLineAccount } from '@/platform/integrations/providers/line/server-line-transport'
@@ -543,7 +544,7 @@ export async function getLineOaAccount(id, { viewer, db = prisma, ports } = {}) 
  * the update is a compare-and-swap on (id, version), so two publishers acting
  * at once produce one success and one 409, never two overlapping writes.
  */
-export async function applyLineOaAccountAction(id, input, { viewer, db = prisma, ports } = {}) {
+export async function applyLineOaAccountAction(id, input, { viewer, db = prisma, ports, env = process.env } = {}) {
   const accountId = typeof id === 'string' ? id.trim() : ''
   if (!accountId) throw notFound()
   const data = zLineOaAccountAction.parse(input)
@@ -593,6 +594,9 @@ export async function applyLineOaAccountAction(id, input, { viewer, db = prisma,
       // and serialize with admission; only delivery-policy changes fence work.
       case 'CONFIGURE_EXECUTION': {
         if (row.status === 'ARCHIVED') throw failure(409, 'LINE_OA_ACCOUNT_ARCHIVED')
+        if (data.runtimeOwner === 'CONVERSATION_RUNTIME' && isLineCustomerProductSourceRequested(env)) {
+          throw failure(409, 'LINE_OA_RUNTIME_GROUNDING_MODE_UNSUPPORTED')
+        }
         change.allowDelayedPush = data.allowDelayedPush
         payload.from.allowDelayedPush = row.allowDelayedPush
         payload.to.allowDelayedPush = data.allowDelayedPush

@@ -151,6 +151,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // read and versioned actions (pause, resume, archive, set default, switch
   // transport mode) on the item. Archive is a PATCH action, never a DELETE.
   ['/api/line-oa/accounts', ['GET', 'POST']], ['/api/line-oa/accounts/{id}', ['GET', 'PATCH']],
+  // @req FR-235 — owner-scoped per-account product disclosure chooser and policy actions.
+  ['/api/line-oa/accounts/{id}/product-disclosure', ['GET', 'POST']],
   ['/api/line-oa/rich-menus', ['GET', 'POST']], ['/api/line-oa/rich-menus/{id}', ['GET', 'PATCH']],
   ['/api/line-oa/rich-menus/{id}/jobs', ['GET', 'POST', 'PATCH']], ['/api/line-oa/rich-menu-worker', ['POST']], ['/api/platform/programme-usage-reports', ['POST']], ['/api/platform/task-usage-ledger', ['GET']],
   // @req FR-247 — the deduplicated error list (GET) and resolving one (PATCH).

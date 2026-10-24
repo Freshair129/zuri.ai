@@ -198,6 +198,21 @@ describe('main-dev local Ollama owner selection', () => {
     await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env, fetchFn })).rejects.toMatchObject({ status: 404 })
   })
 
+  it('reports the owner-selected customer product source and requires its matching GKS account', async () => {
+    db.state.accounts = [account({ knowledgeGrounding: 'GKS_CORPUS' })]
+    const env = enabledEnv({ ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_CUSTOMER_PRODUCTS' })
+
+    await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env, fetchFn }))
+      .resolves.toMatchObject({
+        accountId: ACCOUNT_ID,
+        knowledgeSource: 'GENESISRAG17_CUSTOMER_PRODUCTS',
+      })
+
+    db.state.accounts = [account({ knowledgeGrounding: 'BUSINESS_KNOWLEDGE' })]
+    await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env, fetchFn }))
+      .rejects.toMatchObject({ status: 404 })
+  })
+
   it('lists installed models only for the unique owned Business and connected server OA in the actual main-dev database', async () => {
     await expect(listMainDevLocalOllamaModels({ viewer: owner(), db, env: enabledEnv(), fetchFn })).resolves.toEqual({
       businessId: BUSINESS_ID,

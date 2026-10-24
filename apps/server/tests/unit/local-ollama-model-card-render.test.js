@@ -39,6 +39,22 @@ describe('main-dev local Ollama model card', () => {
     expect(html).toContain('GenesisRAG17')
     expect(html).not.toMatch(/sourceId|ingestionId|fileSha256|host\.docker/)
   })
+  it('shows the owner-approved public product source only for its exact GKS account', () => {
+    const productsStatus = { ...status, knowledgeSource: 'GENESISRAG17_CUSTOMER_PRODUCTS' }
+    const gksAccount = { ...account, knowledgeGrounding: 'GKS_CORPUS' }
+
+    expect(findEligibleLocalOllamaAccount({ business, accounts: [gksAccount], status: productsStatus })).toBe(gksAccount)
+    expect(findEligibleLocalOllamaAccount({ business, accounts: [account], status: productsStatus })).toBeNull()
+
+    const html = renderToStaticMarkup(createElement(LocalOllamaModelCard, {
+      account: gksAccount,
+      status: productsStatus,
+      api: vi.fn(),
+    }))
+    expect(html).toContain('ข้อมูลสาธารณะของสินค้าที่เจ้าของธุรกิจเลือกและอนุมัติ')
+    expect(html).toContain('ราคา สต็อก การจัดส่ง และคำมั่นสัญญาต้องตรวจสอบตามกติกาแยกต่างหาก')
+    expect(html).not.toMatch(/sourceId|ingestionId|fileSha256|<input/i)
+  })
   it('is eligible only for the exact active Business and connected server-owned test OA', () => {
     expect(findEligibleLocalOllamaAccount({ business, accounts: [account], status })).toBe(account)
     expect(findEligibleLocalOllamaAccount({ business: { id: 'other-business' }, accounts: [account], status })).toBeNull()
