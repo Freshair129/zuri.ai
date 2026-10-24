@@ -1055,6 +1055,10 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // worker and the programme usage reports endpoint above. Proven by
       // tests/unit/crm-retention-sweep-route.test.js.
       rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
+      // FR-230 / ADR-091: owner-requested MSP maintenance counterpart. Separate
+      // deployment bearer is checked before work; no browser/model authority.
+      // tests/unit/msp-retention-route-worker.test.js proves refusal and scope.
+      rel(file) === 'src/app/api/agent/memory-retention/route.js' ||
       // ADR-095 D3 / FR-249, NFR-023: the usage-event rollup's scheduled entry point, called
       // once a day under the deployment bearer ZURI_USAGE_ROLLUP_TOKEN, checked in constant time
       // before any work happens — same class as the retention sweep above, same reason. Proven

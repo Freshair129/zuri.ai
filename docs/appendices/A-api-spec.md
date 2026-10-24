@@ -1,5 +1,13 @@
 # Appendix A — API Specification
 
+Version diff 1.114.0b to 1.115.0b (2026-10-24): FR-230 adds deployment-authenticated MSP session retention. Inventory: 355 route handlers. Scheduler qualification and production memory activation are separate.
+
+## MSP session retention maintenance
+
+| Method | Path | Behavior | Errors |
+|---|---|---|---|
+| POST | `/api/agent/memory-retention` | FR-230: separate timing-safe deployment bearer `ZURI_MSP_RETENTION_SWEEP_TOKEN`, minimum 32 characters; no viewer/model-selected scope. Bodyless sweep permits exact `dry_run=true` or `false` query only. Uses the protected single Tenant/Workspace/key matching normal LINE composition and signed API-011 operator grants. Downward-only windows, live-job fence, bounded counts and durable pending-access guard. COMPLETE/DRY_RUN are success; DEFERRED/PARTIAL/UNKNOWN/FAILED are incomplete. Dry-run journals/audits. Recovery instead accepts exactly `{reconcileRunId, stoppedContainerId, proof}` with no query: an expiring host-only Ed25519 stopped-container attestation, validated against exact environment/run/old+current IDs and persisted STARTED origin before an idempotent reconciliation audit. Only its public key exists on web. | `400 MSP_RETENTION_REQUEST_INVALID`; `401 MSP_RETENTION_CREDENTIAL_REQUIRED`; `503` incomplete results, invalid recovery proof or `MSP_RETENTION_UNAVAILABLE` |
+
 Version diff 1.113.0b to 1.114.0b (2026-10-24): FR-235 adds owner-only customer product disclosure listing, preview, approve and withdraw. Inventory: 354 route handlers. No product grant or deployment is implied.
 
 Version diff 1.112.0b to 1.113.0b (2026-10-23): FR-079/FR-080 add default-off main-dev-only installed Ollama model discovery and selection. Inventory: 353 route handlers. These owner-scoped test endpoints do not change public provider, credential, or production activation policy.
@@ -161,7 +169,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=354 -->
+<!-- api-spec-counts: route_handlers=355 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

@@ -13,6 +13,16 @@ import { createOpenRouterAuthorization, exchangeOpenRouterCode } from '@/modules
 // @tested tests/unit/phase1-business-agent-runtime.test.js
 
 describe('Phase 1 business-agent runtime', () => {
+  it('blocks signed thread calls after a crash even if retention mapping was removed', async () => {
+    const mspTransport = vi.fn(), db = { $queryRaw: vi.fn(async () => [{ id: 'prior-started' }]) }
+    const ports = createPhase1BusinessAgentPortsFromEnv({ ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true',
+      ZURI_LINE_DB_URL: 'postgresql://zuri_line_smartgift_login:password@db.qcnmhyglarzcpudjorzc.supabase.co:5432/postgres',
+      ZURI_LINE_BINDING_HASH_PEPPER: 'p'.repeat(32), ZURI_MODEL_PROVIDER: 'groq', ZURI_MODEL_NAME: 'llama-test', ZURI_MODEL_CREDENTIAL: 'provider-secret',
+      ZURI_MSP_THREAD_MEMORY_ENABLED: 'true', ZURI_MSP_THREAD_SERVICE_KEY: 'k'.repeat(40), ZURI_MSP_THREAD_WORKSPACE_ID: 'workspace',
+    }, { queryFn: vi.fn(), mspTransport, integrationDb: db })
+    await expect(ports.threadMemory.resolveThread({ tenantId: 'tenant', threadKind: 'DIRECT', channelType: 'LINE', channelAccountId: 'oa', externalRoomRef: 'room' })).rejects.toThrow('MSP_RETENTION_IN_PROGRESS')
+    expect(mspTransport).not.toHaveBeenCalled()
+  })
   it('is off by default and fails closed when enabled without required server secrets', () => {
     expect(createPhase1BusinessAgentPortsFromEnv({})).toBeNull()
     expect(() => createPhase1BusinessAgentPortsFromEnv({ ZURI_LINE_BUSINESS_AGENT_ENABLED: 'true' })).toThrow(/configuration/i)

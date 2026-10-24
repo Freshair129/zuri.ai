@@ -341,12 +341,13 @@ describe('OpenAPI document', () => {
       // and explicit owner-managed stock-disclosure grant (POST):
       // FR-079/FR-080 add the default-off local Ollama model inventory and
       // selection routes: two paths and two operations.
-      // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
-      // FR-235 adds owner-only product disclosure GET/POST on one path.
-      pathCount: 355,
-      operationCount: 468,
+// FR-230 retention and FR-235 product disclosure compose with prior inventory.
+      pathCount: 356,
+      operationCount: 469,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
+    expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])
+    expect(doc.paths['/api/agent/memory-retention'].post.requestBody.required).toBe(false)
     const approvalQueue = doc.paths['/api/agent/approval-requests'].get
     const approvalDecision = doc.paths['/api/agent/approval-requests/{id}/decision'].post
     expect(approvalQueue.security).toEqual([{ SessionAuth: [] }])

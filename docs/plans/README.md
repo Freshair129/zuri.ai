@@ -48,6 +48,7 @@ implementation or runtime acceptance has occurred.
 | Plan | Scope |
 |---|---|
 | [Main-dev LINE local Ollama](LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) | Approved default-off, allowlisted keyless Ollama selection for the isolated main-dev LINE test, with production provider denials preserved; implementation and runtime acceptance remain pending. |
+| [MSP retention scheduler](MSP-RETENTION-SCHEDULER-20261024.md) | Owner-requested nightly API-011 maintenance and qualification; production memory activation waits for retention acceptance and real LINE UAT. |
 
 ## Retained files
 
