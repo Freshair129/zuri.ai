@@ -62,7 +62,7 @@ function toolErrorCode(message, envelope) {
  * when an HTTP-mode secret file is unreadable or empty — "unavailable", like a
  * missing command, not a server fault.
  */
-export function createMspTransportFromEnvironment(env = process.env) {
+export function createMspTransportFromEnvironment(env = process.env, { awaitChildExit = false } = {}) {
   const command = env.ZURI_MSP_COMMAND?.trim()
   if (!command) return null
   return createMspStdioTransport({
@@ -71,6 +71,7 @@ export function createMspTransportFromEnvironment(env = process.env) {
     cwd: env.ZURI_MSP_CWD?.trim() || undefined,
     env: buildMspChildEnvironment(env),
     timeoutMs: Number(env.ZURI_MSP_TIMEOUT_MS) > 0 ? Number(env.ZURI_MSP_TIMEOUT_MS) : DEFAULT_TIMEOUT_MS,
+    awaitChildExit,
   })
 }
 
@@ -84,12 +85,29 @@ export function createMspTransportFromEnvironment(env = process.env) {
  * filtered through the allowlist — also when a caller passes one explicitly —
  * so no path spawns MSP holding a variable MSP does not read.
  */
-export function createMspStdioTransport({ command, args = [], cwd, env = process.env, timeoutMs = DEFAULT_TIMEOUT_MS }) {
+export function createMspStdioTransport({ command, args = [], cwd, env = process.env, timeoutMs = DEFAULT_TIMEOUT_MS, awaitChildExit = false }) {
   if (typeof command !== 'string' || !command.trim()) throw new Error('createMspStdioTransport requires a command')
   const childEnv = buildMspChildEnvironment(env)
 
   return async function callMspTool(name, input) {
     const child = spawn(command, args, { cwd, env: childEnv, stdio: ['pipe', 'pipe', 'pipe'], shell: false })
+    let childClosed = false
+    const childExit = new Promise(resolve => {
+      child.once('exit', () => { childClosed = true; resolve() })
+      // A failed spawn has no PID/exit event and cannot retain mutation access.
+      child.once('error', () => { if (!child.pid) { childClosed = true; resolve() } })
+    })
+    const waitForExit = async () => {
+      const boundedWait = () => new Promise(resolve => {
+        const timer = setTimeout(resolve, 1000)
+        childExit.then(() => { clearTimeout(timer); resolve() })
+      })
+      await boundedWait()
+      if (!childClosed) child.kill('SIGKILL')
+      // Fail closed: the maintenance fence has no shorter PostgreSQL lease.
+      // Never unwind it merely because a termination deadline elapsed.
+      await childExit
+    }
     let buffer = Buffer.alloc(0)
     let stderrTail = ''
     let nextId = 1
@@ -168,6 +186,9 @@ export function createMspStdioTransport({ command, args = [], cwd, env = process
       return result?.structuredContent ?? {}
     } finally {
       close()
+      // @req FR-230 — maintenance holds its DB fence until the child is gone,
+      // including timeout/error paths. Other callers retain existing behavior.
+      if (awaitChildExit) await waitForExit()
     }
   }
 }

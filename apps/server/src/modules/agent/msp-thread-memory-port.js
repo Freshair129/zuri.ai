@@ -176,6 +176,7 @@ export function createMspThreadMemoryPort({
   recentExchangeCount = DEFAULT_RECENT_EXCHANGES,
   serviceKey = null,
   maxContextBytes = 24000,
+  maintenanceGate = null,
 } = {}) {
   const rawCall = resolveCaller(transport)
   if (serviceKey && !optional(workspaceId)) throw new Error('MSP_THREAD_WORKSPACE_REQUIRED')
@@ -185,6 +186,7 @@ export function createMspThreadMemoryPort({
     const payload = JSON.parse(JSON.stringify(input))
     if (!serviceKey) return rawCall(name, payload) // injected test transport only; server rejects unsigned requests
     if (serviceKey.length < 32) throw new Error('MSP_THREAD_SERVICE_KEY_REQUIRED')
+    if (maintenanceGate) await maintenanceGate({ tenantId: claims.tenantId, operation: name })
     const grant = { agentId: required(agentId, 'agentId'), workspaceId, nonce: randomUUID(),
       ...claims, operation: name, expiresAt: Date.now() + 60_000,
       payloadHash: createHash('sha256').update(JSON.stringify(payload)).digest('hex') }

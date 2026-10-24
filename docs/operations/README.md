@@ -53,6 +53,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [P3 MemoryOS and CIN: local evidence](../plans/LINE-OA-P3-MEMORYOS-CIN-EVIDENCE.md)
 - [P5 local console durability evidence](../plans/LINE-OA-P5-DURABLE-CONSOLE-EVIDENCE.md)
 - [LINE OA flow → GKS: pipeline analysis and integration design](../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md)
+- [MSP retention scheduler implementation plan](../plans/MSP-RETENTION-SCHEDULER-20261024.md)
 - [PM Approval Gateway Verification Implementation Plan](../plans/PM-APPROVAL-VERIFICATION-20261023.md)
 - [Existing PM Delivery Qualification Implementation Plan](../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md)
 - [Project Manager Pipeline Builder Implementation Plan](../plans/PM-PIPELINE-BUILDER-20261023.md)

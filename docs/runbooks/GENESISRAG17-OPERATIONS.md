@@ -138,7 +138,125 @@ access, where backup/restore evidence lives, compatible rollback steps and which
 operations require a deliberate maintenance window. Explicitly record no staffed
 backup; a recovery document or AI session is not an independent operator.
 
-## Version diff
+## Nightly MSP session-content retention
+
+The [retention implementation plan](../plans/MSP-RETENTION-SCHEDULER-20261024.md)
+closes the API-011 invocation gap under ZAI:FR-230 and ZAI:SEC-031. MSP owns
+tombstones and its journal; Agent owns the signed maintenance caller. This is
+separate from CRM's existing retention task and from enabling conversational
+memory. A successful nightly session sweep does not establish legacy API-009
+vault/passport TTL, raw LINE or execution-trace retention.
+
+Use a qualified KI17 overlay built by
+`apps/server/scripts/build-ki17-overlay-release.mjs`; it carries
+`org.opencontainers.image.revision`. An unlabeled ordinary Docker build is
+deliberately refused by this scheduler. Qualify the exact candidate before
+changing a target file or replacing an image.
+
+1. In protected, untracked deployment configuration, provide a separate
+   `ZURI_MSP_RETENTION_SWEEP_TOKEN` (at least 32 random characters),
+   `ZURI_MSP_RETENTION_TENANTS` (JSON object mapping exactly one Tenant UUID to
+   its Workspace UUID), and positive `MSP_THREAD_RETENTION_DAYS`. This must match
+   the normal LINE singleton Workspace/service key; multiple Tenants are refused.
+   The web already needs the matching Tenant entry in
+   `MSP_THREAD_SERVICE_KEYRING`, identity keys and persistent MSP state. Bind
+   maintenance configuration to web only. Never copy keys to the host task,
+   LINE poller or Genesis worker. Memory flags may remain OFF.
+2. Validate Workspace and Business ancestry, keyring and database scope. The
+   effective horizon is the shortest of 90 days, the deployment setting and
+   the Tenant's `MSP_SESSION_CONTENT` override. The child receives that setting
+   per Tenant; no wire-schema change or caller-supplied clock is accepted.
+3. On the qualified artifact, run `node scripts/server-msp-retention-worker.mjs
+   --dry-run` inside the web container. Dry-run writes audit/journal counts but
+   no content tombstones. Verify the response and actual audit. Then run once
+   without the switch against approved data. Never use production as a fixture.
+4. Store a protected target JSON with `SchemaVersion: 1`, `Project`,
+   `ContainerName`, full `AppRevision`, exact `StateVolume`, `DatabaseName`,
+   `DatabasePoolMode`, `DatabaseIdentityHash`, `TenantScopeHash`, and `ScriptSha256`. The three
+   hashes are SHA-256 of the exact raw selected PostgreSQL environment value,
+   exact `ZURI_MSP_RETENTION_TENANTS` value, and reviewed host action bytes.
+   Compute in memory without printing connection strings or tokens. The DB
+   digest binds configured host, port, database, options and credential identity;
+   the revision binds `resolvePostgresUrl` normalization (including pooler mode).
+   A value with different bytes is refused even if it would normalize equally. Rotation
+   requires requalification and a target update. Volume is the named
+   `<Project>_ki17-state` mounted at `/var/lib/zuri-ki17/state`.
+5. Copy the reviewed `invoke-msp-retention-task.ps1` and registration script
+   to a protected stable release location. Use the installed PowerShell 7
+   (`pwsh`); Windows PowerShell's default policy can refuse script files. No
+   machine-wide execution policy change is needed. Run registration with `-WhatIf`,
+   then register using `-TargetFile`, `-ActionScript`, and a unique `-TaskName`.
+   The script refuses replacing an existing task. No credential is placed in
+   the scheduled command. Check timezone before retaining the 03:00 default;
+   this machine uses SE Asia Standard Time (Asia/Bangkok).
+6. Invoke the task once, check `LastTaskResult`, actual `MSP_RETENTION_*`
+   audits, provider counts and `NextRunTime`. The task uses Interactive logon:
+   the operator must be logged in and Docker available. `StartWhenAvailable`
+   catches a missed run; `IgnoreNew` avoids overlapping host instances. This
+   is not a claim that an offline/logged-out machine runs maintenance.
+
+The normal database fence blocks new LINE admissions and updates during each bounded
+Tenant pass. Any nonterminal/unknown LINE status or unsettled memory delivery
+defers the whole Tenant. The PostgreSQL fence also prevents a Tenant retention
+override changing mid-pass. Windows retries once after five minutes; persistent
+DEFERRED, PARTIAL or UNKNOWN results require operator attention, never a green
+retention assertion. Each provider batch is bounded to 200 rows per table,
+up to ten calls and a 75-second run budget. UNKNOWN means external effects may
+have committed; STARTED audit survives rollback and counts are acknowledgements,
+not proof of reversal. Inspect persisted receipts before retrying with fresh
+nonces. No customer content or raw provider errors belong in task logs.
+Validated per-Tenant outcome labels and run IDs are appended to
+`msp-retention-runs.jsonl` beside the protected target file. Actual counts remain
+in the correlated immutable audit events. DB session loss can release its lock;
+the separately committed STARTED gate then denies affected MSP thread calls,
+including on a new process or a failed gate lookup. CRM ingress need not stop.
+
+The production fence uses its own PostgreSQL connection; an HTTP timeout never
+releases it while an MSP PID's exit remains unconfirmed. A one-second SIGTERM
+grace escalates to SIGKILL and waits for actual exit. If that exceptional wait
+does not settle, stop the affected web container and its dependent workers in a
+deliberate maintenance window, confirming all contained PIDs have ended before
+recovery. Do not terminate just the fence's database session to unblock traffic.
+FAILED means no provider call was attempted; UNKNOWN requires reconciliation.
+
+### Recover an unsettled STARTED
+
+A later sweep never clears an unrelated STARTED. In a deliberate maintenance
+window, stop the exact old web container and its dependent workers and retain
+the stopped container for inspection. Prepare a qualified replacement web with
+memory still OFF. Generate an Ed25519 recovery keypair in protected host storage;
+only the base64 SPKI public PEM goes to web as
+`ZURI_MSP_RETENTION_RECOVERY_PUBLIC_KEY`, alongside
+`ZURI_MSP_RETENTION_PROJECT` and full `ZURI_MSP_RETENTION_APP_REVISION`.
+Never mount the private key or host signing helper into web.
+
+The protected target also records `ReconcileScriptSha256`,
+`RecoverySignerScript`, `RecoverySignerScriptSha256` and
+`RecoveryPrivateKeyFile`. Keep the private-key ACL limited to the operator,
+SYSTEM and Administrators. Invoke the reviewed host
+`scripts/reconcile-msp-retention-task.ps1` with `-TargetFile`, `-ActionScript`,
+the exact audit `-RunId` and full `-StoppedContainerId`; use `-WhatIf` first.
+It validates the current target and inspects the old exact container ID,
+project/service, volume, `Running=false` and `Pid=0` before signing a 60-second
+proof with issue/expiry time and nonce. Only proof bytes reach the replacement.
+Web verifies the public signature, current/old container identity, environment,
+Tenant/run and persisted STARTED origin, then uses `recordAudit` to append an
+idempotent RECONCILED event. The ordinary sweep bearer cannot forge this proof.
+Inspect that audit and rerun maintenance before enabling memory; recovery does
+not invent counts for the interrupted provider operation. No manual SQL update
+or deletion of audit history is part of this procedure.
+
+For rollback, disable this exact task and restore the qualified image/config
+with memory OFF. Do not reverse provider tombstones or replace the state volume.
+Backup recovery must reapply due retention before making recovered content
+available. Keep task registration, artifact checks and actual runtime results
+separate from source/test evidence.
+
+## Version diff (retention follow-up)
+
+2026-10-24: documents the owner-requested signed maintenance caller, strict
+deployment target and scheduler qualification. Production memory activation and
+real LINE UAT remain separate gates.
 
 0.1.0: adopts approved capability accountability and documents bounded local
 scheduling/recovery. No deployment, new wire, authority transfer or live SLO

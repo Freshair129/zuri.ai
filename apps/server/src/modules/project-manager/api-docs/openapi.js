@@ -255,6 +255,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.
   ['/api/crm/retention-sweep', ['POST']],
+  // @req FR-230 — separate Agent-owned MSP maintenance/recovery endpoint.
+  ['/api/agent/memory-retention', ['POST']],
   // @req FR-161 — sales tasks: the collection (list + create) and the item
   // (read + versioned action; cancel is an action, never a DELETE).
   ['/api/crm/sales-tasks', ['GET', 'POST']], ['/api/crm/sales-tasks/{id}', ['GET', 'PATCH']],
@@ -616,6 +618,7 @@ function registerInventoryOperations(registry) {
   detailedOperations.add('post /api/growth/external-marketing-reports')
   detailedOperations.add('get /api/integration/local-ollama/models')
   detailedOperations.add('post /api/integration/local-ollama/selection')
+  detailedOperations.add('post /api/agent/memory-retention')
   for (const route of FEATURE_MUTATIONS) detailedOperations.add(`${route.method} ${route.path}`)
   for (const [path, methods] of CURRENT_API_ROUTE_INVENTORY) {
     for (const method of methods) {
@@ -804,6 +807,10 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.registerComponent('securitySchemes', 'ConversationRuntimeService', {
     type: 'http', scheme: 'bearer', bearerFormat: 'opaque service token',
     description: 'Authenticates the Conversation Runtime process only. Core derives actor and Business authority from the claimed job and authoritative state.',
+  })
+  registry.registerComponent('securitySchemes', 'MspRetentionOperator', {
+    type: 'http', scheme: 'bearer', bearerFormat: 'opaque maintenance token',
+    description: 'ZURI_MSP_RETENTION_SWEEP_TOKEN authenticates the deployment maintenance caller. Recovery additionally requires an expiring host-only Ed25519 stopped-container attestation.',
   })
   registry.register('Error', zError)
   registry.register('LocalOllamaModelListResponse', zLocalOllamaModelListResponse)
@@ -1133,6 +1140,19 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   })
 
   registerLocalOllamaOperations(registry)
+  registry.registerPath({
+    method: 'post', path: '/api/agent/memory-retention', operationId: 'runMspSessionRetention',
+    tags: ['Memory maintenance'], summary: 'Sweep MSP session retention or reconcile a stopped-container run',
+    description: 'Bodyless sweep uses only server-configured single Tenant/Workspace/key; optional dry_run=true journals counts without tombstoning. Pending LINE/memory delivery defers the Tenant. Recovery requires exactly reconcileRunId, stoppedContainerId and proof (Ed25519 claims/signature); no Tenant or clock is caller-selectable. Host inspects the exact stopped container with PID zero before signing; only its public verifier key is installed on web. Matching run, old/current container, project/revision and <=60s expiry are verified before immutable reconciliation audit.',
+    security: [{ MspRetentionOperator: [] }],
+    request: { query: z.object({ dry_run: z.enum(['true', 'false']).optional() }).strict(),
+      body: { required: false, content: { 'application/json': { schema: z.object({ reconcileRunId: z.string().uuid(), stoppedContainerId: z.string().regex(/^[0-9a-f]{64}$/),
+        proof: z.object({ claims: z.object({ runId: z.string().uuid(), stoppedContainerId: z.string(), currentContainerId: z.string(), project: z.string(), appRevision: z.string(),
+          issuedAt: z.number().int(), expiresAt: z.number().int(), nonce: z.string().uuid() }).strict(), signature: z.string().regex(/^[A-Za-z0-9_-]{86}$/) }).strict() }).strict() } } } },
+    responses: { 200: json(z.record(z.string(), z.unknown()), 'Completed bounded sweep/dry-run or correlated reconciliation audit; counts/IDs only.'),
+      400: json(zError, 'Invalid query or recovery body.'), 401: json(zError, 'Maintenance credential required.'),
+      503: json(z.record(z.string(), z.unknown()), 'DEFERRED/PARTIAL/UNKNOWN/FAILED or unavailable; not a retention success.') },
+  })
   registerInventoryOperations(registry)
 
   const generator = new OpenApiGeneratorV3(registry.definitions)

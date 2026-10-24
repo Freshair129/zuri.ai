@@ -5,6 +5,7 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import addFormats from 'ajv-formats'
 import {
   buildDomainState,
+  collectDomainObservations,
   parseFeaturePresentation,
   PROGRESS_METHODOLOGY,
   STATUS_VALUES,
@@ -32,6 +33,16 @@ const edges = [
 ]
 
 describe('domain state projection', () => {
+  it('recognizes the exact deployment-authenticated MSP retention route without widening other routes', () => {
+    const api = { id: 'route:api:/api/agent/memory-retention', type: 'route', kind: 'api', route: '/api/agent/memory-retention', path: 'src/app/api/agent/memory-retention/route.js' }
+    const observe = route => { const input = { nodes: [...nodes, route], edges: [...edges, { from: route.id, to: 'domain:project-manager', type: 'owned_by' }] }
+      return buildDomainState({ ...input, observations: collectDomainObservations({ ...input, root: process.cwd(), featureRequirements: new Map() }) }) }
+    const state = observe(api)
+    expect(state.domains['project-manager'].checks.authorization.status).toBe('verified')
+    const other = { ...api, route: '/api/untrusted' }
+    const denied = observe(other)
+    expect(denied.domains['project-manager'].checks.authorization.status).toBe('partial')
+  })
   it('serializes identical source inputs identically across different generation times', () => {
     vi.useFakeTimers()
     try {
