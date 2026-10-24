@@ -843,20 +843,28 @@ function matchingRecordRows(rows, value) {
   return []
 }
 
-export async function requestPipelineReplay(executionRunId, input, {
+async function createPipelineReplayRun(executionRunId, input, {
   db = prisma,
   viewer,
   now = () => new Date(),
   idFactory = defaultIdFactory,
+  knowledgeScoped = false,
 } = {}) {
-  requireOperator(viewer)
   const value = parseReplayInput(input)
+  if (knowledgeScoped && value.scope !== 'FULL_RUN') {
+    throw serviceError(403, 'Knowledge admission retries require a full-run replay')
+  }
   const requestHash = hashContractPayload({ executionRunId, ...value })
   const at = resolveNow(now)
 
   return transaction(db, async (tx) => {
     const source = await tx.pipelineRun.findUnique({ where: { executionRunId } })
     if (!source) throw serviceError(404, 'Pipeline run not found')
+    if (knowledgeScoped) {
+      if (!hasKnowledgeRunAuthority(viewer, source)) throw serviceError(403, 'Knowledge replay requires exact source-run authority')
+    } else {
+      requireOperator(viewer)
+    }
     const existing = await tx.pipelineRun.findUnique({ where: { idempotencyKey: value.idempotencyKey } })
     if (existing) {
       if (existing.requestHash !== requestHash) throw serviceError(409, 'Replay idempotency key was reused with different input')
@@ -966,7 +974,7 @@ export async function requestPipelineReplay(executionRunId, input, {
       entityType: 'PIPELINE_RUN',
       entityId: replay.executionRunId,
       action: 'PIPELINE_REPLAY_REQUESTED',
-      actorType: 'PIPELINE_OPERATOR',
+      actorType: knowledgeScoped ? 'KNOWLEDGE_SOURCE_RUNTIME' : 'PIPELINE_OPERATOR',
       actorId: viewer?.principal?.id || null,
       payload: {
         executionRunId: replay.executionRunId,
@@ -988,6 +996,19 @@ export async function requestPipelineReplay(executionRunId, input, {
       selectedRecordCount: selectedRecords.length,
     }
   })
+}
+
+export async function requestPipelineReplay(executionRunId, input, options = {}) {
+  requireOperator(options.viewer)
+  return createPipelineReplayRun(executionRunId, input, options)
+}
+
+// Knowledge admission retries are initiated only after the Knowledge service
+// has rechecked current Business/source authority. This internal boundary still
+// requires the unforgeable runtime capability bound to the exact failed run;
+// the public operator-only replay route above is unchanged.
+export async function requestKnowledgePipelineReplay(executionRunId, input, options = {}) {
+  return createPipelineReplayRun(executionRunId, input, { ...options, knowledgeScoped: true })
 }
 
 const SOURCE_BUSINESS_TO_ZURI_CODE = Object.freeze({

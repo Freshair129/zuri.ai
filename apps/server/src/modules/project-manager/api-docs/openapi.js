@@ -23,6 +23,7 @@ import { EXECUTION_MODES, MODEL_ID_PATTERN, PROGRESS_STRATEGIES } from '@/lib/va
 import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-intake'
 import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 import { zApiWriteCsrfToken, zApiWriteCsrfError } from '@/modules/identity/api-write-csrf'
+import { knowledgeReplayInput } from '@/modules/knowledge/knowledge-replay-contract'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -75,6 +76,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/commerce/pricing-rules/catalog', ['POST']],
   // @req FR-173 — shared source admission and scoped corpus retrieval.
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
+  ['/api/knowledge/ingestions/{runId}/replay', ['POST']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
   ['/api/knowledge/catalog-files', ['POST']],
   // @req FR-254 — enumerate the Console read contracts alongside existing admission.
@@ -439,6 +441,9 @@ function pathParameters(path) {
 }
 
 function genericRequest(path, method) {
+  if (path === '/api/knowledge/ingestions/{runId}/replay' && method === 'post') {
+    return { body: { required: true, content: { 'application/json': { schema: knowledgeReplayInput } } } }
+  }
   if (path === '/api/inventory/line-stock-disclosure' && method === 'post') {
     return { body: { required: true, content: { 'application/json': { schema: zLineStockDisclosureRequest } } } }
   }
@@ -477,6 +482,16 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path === '/api/knowledge/ingestions/{runId}/replay' && method === 'post') return {
+    200: json(zRouteInventoryResponse, 'Current admission and attached full-run child identity; repeated keys return the same child. No raw source content or publication success is implied.'),
+    400: json(zError, 'Strict idempotencyKey request is invalid.'),
+    401: json(zError, 'Authenticated session required.'),
+    403: json(zError, 'The associated Project no longer has a governed Business scope.'),
+    404: json(zError, 'Admission or current same-Business OWNER authority not found; Enterprise API grants are not accepted.'),
+    409: json(zError, 'Not the current terminal benchmark-coverage failure, stale source/file, active lease or concurrent retry conflict; no new source version is created.'),
+    500: json(zError, 'Unexpected retry failure.'),
+    503: json(zError, 'Configured Knowledge runtime is unavailable.'),
+  }
   if (path === '/api/inventory/line-stock-disclosure' && method === 'post') return {
     200: json(zRouteInventoryResponse, 'Current per-LINE-account, per-product stock-disclosure grant and version. This grant covers availability only; it does not grant price disclosure.'),
     400: json(zError, 'The strict request body is malformed or invalid.'),
@@ -631,6 +646,7 @@ function registerInventoryOperations(registry) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
       const knowledgeStudio = path.startsWith('/api' + '/control/knowledge-studio' + '/')
+      const knowledgeReplay = path === '/api/knowledge/ingestions/{runId}/replay'
       const conversationRuntime = CONVERSATION_RUNTIME_PATHS.has(path)
       const lineStockDisclosure = path === '/api/inventory/line-stock-disclosure' && methodName === 'post'
       const runtimeContractVersion = conversationRuntime ? conversationRuntimeVersion(path) : null
@@ -640,11 +656,14 @@ function registerInventoryOperations(registry) {
         method: methodName,
         path,
         summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter`
+          : knowledgeReplay ? 'Retry one owner-authorized immutable Knowledge admission'
           : lineStockDisclosure ? 'Set explicit LINE stock-disclosure grant'
           : knowledgeStudio ? `Knowledge Studio ${method} read`
             : `Route inventory: ${method} ${path}`,
         description: conversationRuntime
           ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed ${runtimeContractVersion} operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state.${runtimeContractVersion === 'conversation-runtime.v2' ? ' v2 adds only the typed PRODUCT_FACTS deterministic turn; it does not expose general inventory access.' : ''} Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/${runtimeContractVersion.endsWith('.v2') ? 'v2' : 'v1'}/operation.schema.json.`
+          : knowledgeReplay
+            ? 'An authenticated same-Business OWNER retries only the current terminal Stage 16 benchmark-coverage failure. Revalidate exact source, file bytes and scope; attach one immutable FR-071 FULL_RUN child with CAS and audit. Keep the original source version and failed parent. The normal 17-stage and publication receipt gates still apply. An Enterprise API grant is not OWNER authority.'
           : lineStockDisclosure
             ? 'A session-authenticated active OWNER of the exact Business explicitly enables or disables stock availability disclosure for one LINE OA account and Product. The strict body is businessId, lineOaAccountId, productId, enabled, expectedVersion and reason. expectedVersion 0 creates the initial version; later writes use compare-and-swap. The default is disabled. Enabling requires an active Business, connected cloud LINE account and active Product; scope and OWNER failures are hidden as not found. This policy grants stock availability only, not price disclosure.'
           : approvalDecision
@@ -677,6 +696,8 @@ function registerInventoryOperations(registry) {
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': runtimeContractVersion }
           : lineStockDisclosure
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
+          : knowledgeReplay
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'knowledge-admission-replay/v1' }
           : knowledgeStudio
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'knowledge-studio/v1' }
           : path === '/api/businesses/{id}/agent-template'

@@ -9,7 +9,7 @@ import { ingestGenesisRag17Raw, resolveRuntimeCredential } from '@/platform/inte
 import { createGenesisRag17SourceWorker, queryGenesisRag17 } from '@/platform/integrations/core/genesisrag17-worker'
 import { createKnowledgeRuntimeLoop, notifyKnowledgeWorkerObserver } from '@/platform/integrations/core/knowledge-runtime-loop.mjs'
 import { finishKnowledgeIngestionRun, recordKnowledgeStageReport } from '@/platform/integrations/core/knowledge-ingestion-executor'
-import { KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS } from '@/platform/integrations/core/pipeline-tracking-contract'
+import { KNOWLEDGE_INGESTION_CONTRACT_ID, KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_EXTERNAL_STAGE_IDS } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-transport'
 import {
   decodeKnowledgeBinary,
@@ -22,7 +22,7 @@ import {
 // @req FR-187 — a structured record carries its provider, entity type and
 // content type from the admitted row, so the Stage 5 Zero-PII gate can see it.
 // @spec ADR-072, ADR-073, ADR-075
-// @tested tests/unit/knowledge-runtime.test.js, tests/acceptance/knowledge-admission-native.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @tested tests/unit/knowledge-runtime.test.js, tests/integration/knowledge-replay.integration.test.js, tests/acceptance/knowledge-admission-native.test.js, tests/integration/smartgift-catalog-admission.test.js
 const unavailable = () => Object.assign(new Error('Knowledge runtime is unavailable for this Business'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
 const date = (now) => typeof now === 'function' ? now() : now || new Date()
 
@@ -405,7 +405,33 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
       const connectionId = await ensureAdmissionConnection(db, binding.scope)
       const viewer = createKnowledgeExecutionAuthority(binding.scope, 'execute', job.executionRunId)
       executionOptions = { db, viewer, env, transport, now, scope: binding.scope }
-      if (!job.executionRunId) {
+      const attachedRun = job.executionRunId ? await repository.getPipelineRun(job.executionRunId) : null
+      if (attachedRun?.replayOfExecutionRunId) {
+        const originalRun = await repository.getPipelineRun(attachedRun.replayOfExecutionRunId)
+        if (
+          attachedRun.replayScope !== 'FULL_RUN'
+          || attachedRun.dataPipelineDefinitionId !== KNOWLEDGE_INGESTION_DEFINITION_ID
+          || attachedRun.executionContractId !== KNOWLEDGE_INGESTION_CONTRACT_ID
+          || attachedRun.tenantId !== corpus.tenantId || attachedRun.businessId !== corpus.businessId
+          || attachedRun.sourceRef !== `knowledge-source:${source.id}`
+          || attachedRun.sourceSha256 !== job.contentHash || attachedRun.artifactSha256 !== job.contentHash
+          || attachedRun.artifactRef !== job.rawArtifactId
+          || !originalRun || originalRun.status !== 'FAILED'
+          || originalRun.dataPipelineDefinitionId !== KNOWLEDGE_INGESTION_DEFINITION_ID
+          || originalRun.executionContractId !== KNOWLEDGE_INGESTION_CONTRACT_ID
+          || originalRun.tenantId !== corpus.tenantId || originalRun.businessId !== corpus.businessId
+          || originalRun.sourceRef !== `knowledge-source:${source.id}`
+          || originalRun.sourceSha256 !== job.contentHash || originalRun.artifactSha256 !== job.contentHash
+          || originalRun.artifactRef !== job.rawArtifactId
+        ) {
+          throw Object.assign(new Error('Knowledge full-run replay lineage is unavailable'), { status: 409, code: 'KNOWLEDGE_REPLAY_LINEAGE_INVALID' })
+        }
+      }
+      const isResumableFullRunReplay = Boolean(
+        attachedRun?.replayOfExecutionRunId && attachedRun.replayScope === 'FULL_RUN'
+        && ['QUEUED', 'RUNNING'].includes(attachedRun.status),
+      )
+      if (!job.executionRunId || isResumableFullRunReplay) {
         // FR-238 studio descriptions keep their own provider (absent from
         // Stage 5's Zero-PII map, ADR-090 D7). The admission service writes
         // that descriptor into sourceMetaJson, but an ingestion admitted
@@ -413,16 +439,18 @@ export function createKnowledgeAdmissionRuntime({ db = prisma, env = process.env
         const structured = structuredSourceDescriptor(job.sourceMetaJson)
           || (source.kind === 'LINE_STUDIO_DESCRIPTION' ? { provider: 'LINE_STUDIO_DESCRIPTION', entityType: 'KNOWLEDGE_DOCUMENT', contentType: 'text/plain' } : null)
         const contentType = binary?.mediaType || admittedSourceContentType(job.sourceMetaJson, structured)
-        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, ...(binary ? { contentHash: job.contentHash, binaryProfile: binary.binaryProfile, binaryEncoding: binary.binaryEncoding, rawByteLength: binary.rawByteLength } : {}), sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}` } }, { db, viewer, env, transport, now,
-          onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {
+        const result = await ingest({ scope: binding.scope, policy: binding.policy, source: { sourceId: source.id, documentId: source.id, version: job.sourceVersion, content: job.content, connectionId, provider: structured?.provider || 'KNOWLEDGE_ADMISSION', entityType: structured?.entityType || 'KNOWLEDGE_DOCUMENT', contentType, ...(binary ? { contentHash: job.contentHash, binaryProfile: binary.binaryProfile, binaryEncoding: binary.binaryEncoding, rawByteLength: binary.rawByteLength } : {}), sourceType: source.kind === 'FILE' ? 'FILE' : 'MANUAL', sourceUri: `knowledge-source:${source.id}`, externalId: `${source.id}:${job.sourceVersion}`, ...(isResumableFullRunReplay ? { replayRunId: attachedRun.executionRunId } : {}) } }, { db, viewer, env, transport, now,
+          ...(!isResumableFullRunReplay ? { onRunCreated: async ({ db: tx, run: createdRun, rawArtifactId, parsedArtifactId }) => {
             const linked = await createKnowledgeRepository(tx).updateIngestion(job.id, { executionRunId: createdRun.executionRunId, rawArtifactId, parsedArtifactId }, { claimToken: token })
             if (!linked) throw Object.assign(new Error('Knowledge admission lease was lost'), { status: 409 })
-          },
+          } } : {}),
         })
-        job = await repository.updateIngestion(job.id, { executionRunId: result.run.executionRunId, rawArtifactId: result.source.rawArtifactId, parsedArtifactId: result.source.parsedArtifactId }, { claimToken: token })
+        job = await repository.updateIngestion(job.id, { ...(!isResumableFullRunReplay ? { executionRunId: result.run.executionRunId } : {}), rawArtifactId: result.source.rawArtifactId, parsedArtifactId: result.source.parsedArtifactId }, { claimToken: token })
         if (!job) return
       }
-      await sourceWorkerFactory({ db, viewer, env, transport, now, scope: binding.scope, runId: job.executionRunId }).runOnce()
+      if (!['SUCCEEDED', 'FAILED', 'CANCELLED'].includes(attachedRun?.status)) {
+        await sourceWorkerFactory({ db, viewer, env, transport, now, scope: binding.scope, runId: job.executionRunId }).runOnce()
+      }
       const run = await repository.getPipelineRun(job.executionRunId)
       if (run?.status === 'SUCCEEDED') {
         const publisher = publish || (await import('./knowledge-corpus-service')).publishVerifiedKnowledgeIngestion

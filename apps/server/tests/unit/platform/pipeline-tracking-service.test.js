@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { makeOperatorViewer, makeViewer } from '../../factories/viewer'
+import { createKnowledgeExecutionAuthority } from '@/modules/knowledge/knowledge-execution-authority'
 import {
   DATA_PIPELINE_DEFINITION_ID,
   EXECUTION_CONTRACT_ID,
@@ -15,6 +16,7 @@ import {
   getPipelineMonitor,
   listPipelineRuns,
   recordPipelineEvent,
+  requestKnowledgePipelineReplay,
   requestPipelineReplay,
 } from '@/platform/integrations/core/pipeline-tracking-service'
 
@@ -598,6 +600,33 @@ describe('FR-071 pipeline tracking service', () => {
     expect(replay.workerExecution).toBe('PENDING')
     expect(duplicate.status).toBe('UNCHANGED')
     expect(replay.run.executionRunId).not.toBe(source.run.executionRunId)
+  })
+
+  it('allows the internal Knowledge replay helper only with exact source-run authority and FULL_RUN scope', async () => {
+    const source = await createPipelineRun(runInput({
+      dataPipelineDefinitionId: KNOWLEDGE_INGESTION_DEFINITION_ID,
+      executionContractId: KNOWLEDGE_INGESTION_CONTRACT_ID,
+      sourceRef: 'knowledge-source:source-1',
+      artifactRef: 'knowledge-raw:source-1',
+      idempotencyKey: 'knowledge-replay-source',
+    }), { db, viewer, idFactory: ids })
+    const scope = { portfolioId: 'p-1', tenantId: BUSINESS.tenantId, businessId: BUSINESS.id, workspaceId: '', agentId: '', visibility: 'private' }
+    const input = { scope: 'FULL_RUN', correlationId: 'knowledge-retry-correlation', idempotencyKey: 'knowledge-retry-key', sourceSha256: HASH, artifactSha256: HASH }
+
+    await expect(requestKnowledgePipelineReplay(source.run.executionRunId, input, {
+      db, viewer: makeViewer({ visibleBusinessIds: [BUSINESS.id], ownedBusinessIds: [BUSINESS.id] }), idFactory: ids,
+    })).rejects.toMatchObject({ status: 403 })
+    await expect(requestKnowledgePipelineReplay(source.run.executionRunId, input, {
+      db, viewer: createKnowledgeExecutionAuthority(scope, 'execute', 'another-run'), idFactory: ids,
+    })).rejects.toMatchObject({ status: 403 })
+    await expect(requestKnowledgePipelineReplay(source.run.executionRunId, { ...input, scope: 'FAILED_STAGE', executionStepId: 'step-1' }, {
+      db, viewer: createKnowledgeExecutionAuthority(scope, 'execute', source.run.executionRunId), idFactory: ids,
+    })).rejects.toMatchObject({ status: 403 })
+
+    const exactAuthority = createKnowledgeExecutionAuthority(scope, 'execute', source.run.executionRunId)
+    const replay = await requestKnowledgePipelineReplay(source.run.executionRunId, input, { db, viewer: exactAuthority, idFactory: ids })
+    expect(replay).toMatchObject({ status: 'CREATED', run: { status: 'QUEUED', replayOfExecutionRunId: source.run.executionRunId }, workerExecution: 'PENDING' })
+    await expect(requestPipelineReplay(source.run.executionRunId, input, { db, viewer: exactAuthority, idFactory: ids })).rejects.toMatchObject({ status: 403 })
   })
 
   it('lists only visible Business runs', async () => {

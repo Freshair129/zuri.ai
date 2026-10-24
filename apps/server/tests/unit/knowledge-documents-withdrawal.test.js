@@ -60,6 +60,20 @@ function buildWithdrawButton(item, overrides = {}) {
   return button
 }
 
+function buildRetryButton(item, overrides = {}) {
+  const view = KnowledgeDocumentsView({ initialTab: 'queue' })
+  const queuePanel = findElement(view, (element) => element.type?.name === 'QueueTabPanel')
+  if (!queuePanel) throw new Error('Knowledge Documents view did not render the queue panel')
+  const panel = queuePanel.type({
+    ...queuePanel.props,
+    admissions: { data: { items: [item] }, loading: false, error: null },
+    onReload: overrides.onReload || vi.fn(),
+    onWithdrawSuccess: vi.fn(),
+    onError: overrides.onError || vi.fn(),
+  })
+  return findElement(panel, (element) => element.props?.['data-testid'] === `retry-${item.id}`)
+}
+
 describe('Knowledge Documents source withdrawal', () => {
   let confirmMock
 
@@ -129,5 +143,42 @@ describe('Knowledge Documents source withdrawal', () => {
     expect(onError).toHaveBeenCalledWith('source version changed')
     expect(onReload).toHaveBeenCalledTimes(1)
     expect(onWithdrawSuccess).not.toHaveBeenCalled()
+  })
+})
+
+describe('Knowledge Documents benchmark retry', () => {
+  beforeEach(() => apiMock.mockReset())
+
+  it('shows retry only when the server marks the failed admission eligible and posts an idempotency key', async () => {
+    const item = { id: 'admission-a', status: 'FAILED', retryAvailable: true }
+    const onReload = vi.fn()
+    apiMock.mockResolvedValue({ status: 'QUEUED' })
+    const button = buildRetryButton(item, { onReload })
+
+    expect(button).not.toBeNull()
+    await button.props.onClick()
+
+    expect(apiMock).toHaveBeenCalledTimes(1)
+    const [path, options] = apiMock.mock.calls[0]
+    expect(path).toBe('/api/knowledge/ingestions/admission-a/replay')
+    expect(options.method).toBe('POST')
+    expect(options.body.idempotencyKey).toEqual(expect.stringContaining('knowledge-ui-retry:admission-a:'))
+    expect(onReload).toHaveBeenCalledTimes(1)
+  })
+
+  it('reuses the same idempotency key after an uncertain request failure', async () => {
+    apiMock.mockRejectedValueOnce(new Error('reply lost')).mockResolvedValueOnce({ status: 'QUEUED' })
+    const button = buildRetryButton({ id: 'admission-a', status: 'FAILED', retryAvailable: true })
+
+    await button.props.onClick()
+    await button.props.onClick()
+
+    expect(apiMock).toHaveBeenCalledTimes(2)
+    expect(apiMock.mock.calls[1][1].body.idempotencyKey).toBe(apiMock.mock.calls[0][1].body.idempotencyKey)
+  })
+
+  it('does not show retry for failed admissions without server-confirmed eligibility', () => {
+    expect(buildRetryButton({ id: 'admission-a', status: 'FAILED', retryAvailable: false })).toBeNull()
+    expect(buildRetryButton({ id: 'admission-b', status: 'QUEUED', retryAvailable: true })).toBeNull()
   })
 })

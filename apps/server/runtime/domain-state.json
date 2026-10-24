@@ -1657,7 +1657,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -2315,7 +2315,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -3405,7 +3405,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 1
           }
         },
@@ -3687,7 +3687,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 28
+          "testCount": 32
         },
         {
           "id": "FR-079",
@@ -3847,7 +3847,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 56
+          "testCount": 58
         },
         {
           "id": "FR-187",
@@ -3855,7 +3855,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-188",
@@ -3993,7 +3993,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -4456,7 +4456,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -4670,8 +4670,8 @@
           "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 28
+          "codeCount": 3,
+          "testCount": 32
         },
         {
           "id": "FR-079",
@@ -4782,8 +4782,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 56
+          "codeCount": 13,
+          "testCount": 58
         },
         {
           "id": "FR-187",
@@ -4791,7 +4791,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-188",
@@ -5592,7 +5592,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -5831,7 +5831,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -6072,7 +6072,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -6449,7 +6449,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -6674,7 +6674,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 356,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -7179,8 +7179,8 @@
           "title": "Supabase data pipeline monitor and replay",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 28
+          "codeCount": 9,
+          "testCount": 32
         },
         {
           "id": "FR-072",
@@ -7789,8 +7789,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 56
+          "codeCount": 10,
+          "testCount": 58
         },
         {
           "id": "FR-174",
@@ -7870,7 +7870,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-191",
@@ -8545,9 +8545,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 184,
-            "inventoried": 184,
-            "openApiPaths": 356,
+            "routes": 185,
+            "inventoried": 185,
+            "openApiPaths": 357,
             "missingFromOpenApi": 0
           }
         },
@@ -8612,8 +8612,8 @@
             }
           ],
           "details": {
-            "mutations": 141,
-            "guardedMutations": 140,
+            "mutations": 142,
+            "guardedMutations": 141,
             "reads": 84,
             "unguardedReads": 11
           }
@@ -9070,8 +9070,8 @@
         }
       ],
       "details": {
-        "routes": 232,
-        "apiRoutes": 184,
+        "routes": 233,
+        "apiRoutes": 185,
         "pageRoutes": 48,
         "ownedModels": 48,
         "featureNotes": 45
@@ -10550,8 +10550,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 27,
-          "testCount": 56
+          "codeCount": 30,
+          "testCount": 58
         },
         {
           "id": "FR-254",
@@ -10571,6 +10571,7 @@
         "apps/server/src/app/api/knowledge/console/runs/route.js",
         "apps/server/src/app/api/knowledge/corpora/[corpusId]/generations/route.js",
         "apps/server/src/app/api/knowledge/corpora/route.js",
+        "apps/server/src/app/api/knowledge/ingestions/[runId]/replay/route.js",
         "apps/server/src/app/api/knowledge/ingestions/[runId]/route.js",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/app/api/knowledge/queries/route.js",
@@ -10602,6 +10603,8 @@
         "apps/server/src/modules/knowledge/knowledge-document-zero-pii.js",
         "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
         "apps/server/src/modules/knowledge/knowledge-http.js",
+        "apps/server/src/modules/knowledge/knowledge-replay-contract.js",
+        "apps/server/src/modules/knowledge/knowledge-replay-service.js",
         "apps/server/src/modules/knowledge/knowledge-repository.js",
         "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/pipeline-map/KnowledgeDashboard.jsx",
@@ -10650,6 +10653,7 @@
         "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus-prisma.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
+        "apps/server/tests/integration/knowledge-replay.integration.test.js",
         "apps/server/tests/integration/knowledge-storage-ingestion.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
@@ -10706,6 +10710,7 @@
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-replay-service.test.js",
         "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
         "apps/server/tests/unit/knowledge-runtime-loop.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
@@ -12401,7 +12406,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-188",
@@ -12453,6 +12458,7 @@
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
+        "apps/server/tests/integration/knowledge-replay.integration.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
@@ -17627,18 +17633,21 @@
           "title": "Supabase data pipeline monitor and replay",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 28
+          "codeCount": 17,
+          "testCount": 32
         }
       ],
       "evidence": [
         "apps/server/src/app/api/ingest/documents/route.js",
+        "apps/server/src/app/api/knowledge/ingestions/[runId]/replay/route.js",
         "apps/server/src/app/api/mcp/route.js",
         "apps/server/src/app/api/pipelines/runs/[executionRunId]/events/route.js",
         "apps/server/src/app/api/pipelines/runs/[executionRunId]/replay/route.js",
         "apps/server/src/app/api/pipelines/runs/[executionRunId]/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
+        "apps/server/src/modules/knowledge/knowledge-replay-contract.js",
+        "apps/server/src/modules/knowledge/knowledge-replay-service.js",
         "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/modules/project-manager/views/execution/mode-bodies.jsx",
         "apps/server/src/platform/integrations/core/cloud-sot-agent.js",
@@ -17653,14 +17662,18 @@
         "apps/server/tests/integration/fr129-catalog-publication-gate.test.js",
         "apps/server/tests/integration/fr254-knowledge-console.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
+        "apps/server/tests/integration/knowledge-replay.integration.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
         "apps/server/tests/unit/document-intake-ui.test.js",
         "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+        "apps/server/tests/unit/knowledge-admission-routes.test.js",
+        "apps/server/tests/unit/knowledge-admission-service.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
+        "apps/server/tests/unit/knowledge-replay-service.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/pipeline-mcp-transport.test.js",
         "apps/server/tests/unit/pipeline-monitor-ui.test.js",

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.115.0b to 1.116.0b (2026-10-24): FR-173/FR-071 add the session OWNER-only exact-source Knowledge replay command. Inventory: 356 route handlers. Retry queues a new full-run child, not a publication or disclosure grant.
+
 Version diff 1.114.0b to 1.115.0b (2026-10-24): FR-230 adds deployment-authenticated MSP session retention. Inventory: 355 route handlers. Scheduler qualification and production memory activation are separate.
 
 ## MSP session retention maintenance
@@ -169,7 +171,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=355 -->
+<!-- api-spec-counts: route_handlers=356 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1473,6 +1475,7 @@ Five paths / six operations share the [admission contract](../plans/KNOWLEDGE-AD
 | POST | `/api/knowledge/ingestions` | `{businessId,projectId?,idempotencyKey,source}`; TEXT contains sourceKey/version/content and optional title; FILE names an existing readable text/Markdown fileAssetId. Returns durable QUEUED identity, never synthetic stage success. |
 | GET | `/api/knowledge/ingestions` | Business/optional Project list with limit; job/source/publication metadata, no raw content. |
 | GET | `/api/knowledge/ingestions/[runId]` | Authorized admission state and separate executionRunId when attached. |
+| POST | `/api/knowledge/ingestions/[runId]/replay` | Current same-Business session OWNER only; Enterprise API grants are refused. Strict body `{idempotencyKey}` (trimmed, 1–200 characters). Only the current terminal Stage 16 `BENCHMARK_NO_APPLICABLE_QUERIES` attempt is eligible. Current source revision, corpus, lease and immutable file bytes are revalidated. CAS attaches one immutable FR-071 FULL_RUN child and audits its parent; source version/content/hash and failed parent evidence stay unchanged. Repeated keys return the same current child; competing retries conflict without an orphan child. Returns admission/child IDs, status, revision, sourceVersion, contentHash, attempts, failureCode and unchanged; no raw content. Errors: 400 validation, 401 session, 403 ungoverned Project scope, 404 missing admission/OWNER authority, 409 stale/ineligible/conflicting request, 503 unavailable runtime, 500 unexpected failure. Normal Stage 16/17 and receipt/manifest gates still determine publication. |
 | POST | `/api/knowledge/catalog-files` | `{businessId,projectId?,name,contentBase64}`; `name` must end in `.json`. Validates the bytes as a SmartGift catalog before storing anything, stores them on the private knowledge store (MinIO) at `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json` as a `MANAGED_BLOB` FileAsset (identical bytes reuse the existing asset), then admits it with `format: SMARTGIFT_CATALOG_V1`. Returns HTTP 200 `{fileAssetId,fileName,sha256,recordCount,reused,fileStatus,knowledgeStatus,knowledgeCode?,admission?}`, reporting the stored file and the Knowledge admission separately: `fileStatus` is `STORED` or `REUSED`; `knowledgeStatus` is `ADMITTED` (with `admission`), `UNAVAILABLE` (typed `KNOWLEDGE_RUNTIME_UNAVAILABLE`) or `FAILED` (any other typed `KNOWLEDGE_*` error except a 401/403/404 authorization or scope refusal, which still fails the request), with the code in `knowledgeCode` and `admission` omitted. A stored file whose admission failed is therefore a 200 partial outcome, not an error; callers must read `knowledgeStatus`. 422 for a non-catalog file and 503 when the private store is not enabled (both before anything is stored); an untyped admission error still fails the request. |
 | POST | `/api/knowledge/queries` | `{businessId,projectId?,query,topK?}`; pins one corpus manifest, queries explicit native snapshots through MSP, checks lineage and current access, returns ranked results and citationId. |
 | GET | `/api/knowledge/citations/[citationId]` | Resolves a historical source/version/chunk only while current corpus/source/file/project access permits it. |
