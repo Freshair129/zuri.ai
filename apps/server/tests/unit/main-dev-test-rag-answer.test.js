@@ -103,7 +103,12 @@ describe('LINE test RAG composition', () => {
       purpose: 'PHASE1_LINE_LLM', role: 'PRIMARY', status: 'ACTIVE',
       metadataJson: JSON.stringify({ model: 'fixture' }), provider: { code: 'ollama', status: 'ACTIVE' }, credential: null }
     const integrationDb = {
-      $queryRaw: vi.fn(async () => [{ databaseName: 'unit_rag' }]),
+      $queryRaw: vi.fn(async strings => {
+        const sql = strings.join('')
+        if (sql.includes('current_database()')) return [{ databaseName: 'unit_rag' }]
+        if (sql.includes('FROM "AuditEvent"')) return []
+        throw new Error('UNEXPECTED_RAG_FIXTURE_QUERY')
+      }),
       integrationConnection: { findMany: vi.fn(async () => []) },
     }
     const connectionResolver = vi.fn(async () => connection)
