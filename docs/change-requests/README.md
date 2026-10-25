@@ -1,20 +1,37 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.9.0"
-updated_at: "2026-10-24"
+version: "1.22.0"
+updated_at: "2026-10-25"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.9.0
+**Version:** 1.22.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
 
 ## Current contract proposals
+
+- [File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent flow](integration/line-knowledge-memory-unified-flow-20261024.md)
+  (0.15.0, proposed): local uploads, Vault source/grant selection, customer/staff
+  audience checks and storage/retrieval boundaries with unchanged price/stock authority.
+  Separates ingestion and Agent query sequences, passive GKS authority, MSP relay,
+  worker retrieval and GenesisBlockDB from the GenesisRAG17 workflow.
+  Section 11.2 adds local Thai/table parser alternatives on the same frozen corpus.
+  Section 11.3 adds public real Thai documents and isolated native retrieval/resource evaluation.
+  Section 11.5 links the Hyper-Extract relation-evidence diagnosis and bounded native TEXT result; no retrieval improvement or graph adoption.
+  Section 11.6 links the all-115 held-fact source audit and geometry-derived native TEXT recheck; semantics remain unassessed and production authority is unchanged.
+  Section 11.7 links the all-packet deterministic source-native extraction and same-run current table-baseline comparison; row hit@5 did not improve, candidate semantics remain unassessed, and production authority is unchanged.
+  Section 11.8 links the all-972 held-cell audit and PDF-derived overlay comparison; it separates the legacy row-format metric from a post-hoc complete-row evidence union, leaves 87 cells held, and changes no semantic or production authority.
+  Section 11.9 links the separate economy PDF-native row follow-up: 37 new source-derived rows are measured with the preserved population overlay, while all 87 historical held OCR records remain unchanged; no semantic or production authority changes.
+  Section 11.10 links the paired global versus fixed32 E5 resource experiment on the same frozen native input; vectors and retrieval rows match, and no application or production change is made.
+  Section 11.1 records the isolated Thai parser/chunking experiment and its dated outcome.
+  Includes setup/runtime/data-flow diagrams and acceptance; canonical amendments and
+  implementation are not approved by this draft.
 
 - [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
   (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
@@ -49,6 +66,10 @@ version-controlled.
   (0.2.0, bounded main-dev implementation approved): isolated model
   discovery/selection and same-ID FR-079/FR-080/FEAT-045 migration; no production
   provider change, implementation evidence, or production activation.
+
+Version 1.10.0 (2026-10-24–25) adds the proposed unified Knowledge/Memory flow,
+including File Manager/Vault sources and customer/staff audiences. It changes
+navigation only and grants no implementation or disclosure authority.
 
 Version 1.2.0 records design approval of this intake, separate from a canonical
 requirement migration, implemented behavior or production activation.
@@ -484,3 +505,20 @@ carry their own named blockers. An id is permission to be accounted for, not
 permission to build.
 
 Version 1.9.0 records approval of the metadata-only ProductMaster disclosure and bounded Knowledge-owner retry design and implementation scope. It does not claim implementation, tests, production activation or live LINE acceptance; FR-291 eligibility is unchanged.
+
+Version 1.11.0 links unified-flow proposal v0.3.0 with explicit ingestion/query
+sequences and component ownership. It grants no new runtime authority.
+
+Version 1.12.0 links proposal v0.4.0 and its isolated Thai parser/chunking experiment; no adoption or production activation.
+
+Version 1.13.0 links proposal v0.5.0 with the local Thai parser comparison; no adoption or activation.
+
+Version 1.14.0 links proposal v0.6.0 with the public real-document/native comparison; no production adoption.
+
+Version 1.15.0 links unified-flow proposal v0.8.0 §11.4: frozen-OCR table-preserving segmentation and native comparison, no production adoption.
+
+Version 1.16.0 links unified-flow proposal v0.9.0 §11.4 and the Hyper-Extract v1 native TEXT subset experiment; graph candidates remain sidecar-only, with no production adoption.
+
+Version 1.21.0 links unified-flow proposal v0.14.0 §11.9 and the economy PDF-native row follow-up. It preserves the old held OCR records, separates the strict legacy result from exploratory source-row retrieval, and grants no semantic or production authority.
+
+Version 1.22.0 links unified-flow proposal v0.15.0 §11.10 and the paired E5 fixed-batch resource experiment. It records exact embedding/retrieval parity and an experiment-only resource result; no application or production authority changes.

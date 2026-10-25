@@ -42,6 +42,7 @@ Feature record: [ZAI:FEAT-019 canonical record](feature.md).
 
 > 🟠 implementing ADR-061
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Proposed File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent specification](../../change-requests/integration/line-knowledge-memory-unified-flow-20261024.md) — `relates` · `metadata` · `current`
 - [ADR-070 — Execution Trace & Replay v0.3](../../decisions/ADR-070-EXECUTION-TRACE-AND-REPLAY-V03.md) — `relates` · `metadata` · `current`
 - [ADR-106 — Conversation Runtime service extraction](../../decisions/ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) — `relates` · `metadata` · `current`
 - [FR-171 — Execution Trace & Replay v0.3](../../domains/agent/features/FR-171-execution-trace-and-replay.md) — `relates` · `metadata` · `current`

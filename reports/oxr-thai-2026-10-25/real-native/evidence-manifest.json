@@ -1,0 +1,1213 @@
+{
+  "schema": "thai-native-evidence.v1",
+  "rawRoot": ".local/thai-native-20261025",
+  "revision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "caveat": "Working-tree experiment patch; hashes prove artifact identity, not correctness. Local raw data is not bundled.",
+  "unchangedModelFiles": 63,
+  "packagesIdenticalToPrior": true,
+  "executedHarnessMatches": true,
+  "frozen": {
+    "independentGoldReview": "GPT-6 Luna Max; all 63 numeric cells,9 labels,12 text checks,16 question mappings verified before inference",
+    "files": {
+      "population.pdf": "E9AB4EDC753A899D48F4D0105996C6A4B573C68BA782D04D3DA7B76AE78FD3D1",
+      "economy.pdf": "63F0ACF6D225CC8D2797EB8204D453A6091989AA0B94167F8F04ABF7AE793D40"
+    },
+    "goldSha256": "976E843A970065B31B984F11FA933434A38A3F824F27B34117B333EB85789303",
+    "frozenAt": "2026-10-25T04:27:15.4675170+07:00"
+  },
+  "host": {
+    "cpu": [
+      {
+        "Name": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
+        "NumberOfCores": 6,
+        "NumberOfLogicalProcessors": 12
+      }
+    ],
+    "physicalMemoryBytes": 34317889536,
+    "docker": {
+      "ServerVersion": "29.9.2",
+      "OSType": "linux",
+      "Architecture": "x86_64",
+      "NCPU": 12,
+      "MemTotal": 16750788608
+    },
+    "measurement": "Serial CPU-only runs; host background load uncontrolled"
+  },
+  "dockerRuns": [
+    {
+      "name": "zuri-thai-real-baseline-1",
+      "image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "command": [
+        "/harness/parse-baseline.mjs"
+      ],
+      "entrypoint": [
+        "node"
+      ],
+      "workingDir": "/app",
+      "environment": [
+        "KI17_NODE=/opt/ki17/node/bin/node",
+        "KI17_MSP_ROOT=/opt/ki17/msp",
+        "KI17_GKS_ROOT=/opt/ki17/gks",
+        "KI17_GENESIS_ROOT=/opt/ki17/genesisblock",
+        "KI17_MODEL_DIR=/model"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/baseline-1",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/input",
+          "destination": "/input",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/apps/server/src",
+          "destination": "/app/src",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 10737418240,
+      "memorySwap": 10737418240,
+      "readOnlyRoot": true,
+      "tmpfs": {
+        "/tmp": "rw,size=2g"
+      },
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:39:30.837086507Z",
+        "FinishedAt": "2026-10-24T21:39:32.956452801Z"
+      }
+    },
+    {
+      "name": "zuri-thai-real-baseline-2",
+      "image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "command": [
+        "/harness/parse-baseline.mjs"
+      ],
+      "entrypoint": [
+        "node"
+      ],
+      "workingDir": "/app",
+      "environment": [
+        "KI17_NODE=/opt/ki17/node/bin/node",
+        "KI17_MSP_ROOT=/opt/ki17/msp",
+        "KI17_GKS_ROOT=/opt/ki17/gks",
+        "KI17_GENESIS_ROOT=/opt/ki17/genesisblock",
+        "KI17_MODEL_DIR=/model"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/baseline-2",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/input",
+          "destination": "/input",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/apps/server/src",
+          "destination": "/app/src",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 10737418240,
+      "memorySwap": 10737418240,
+      "readOnlyRoot": true,
+      "tmpfs": {
+        "/tmp": "rw,size=2g"
+      },
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:39:33.575621448Z",
+        "FinishedAt": "2026-10-24T21:39:35.425075755Z"
+      }
+    },
+    {
+      "name": "zuri-thai-real-paddle-1",
+      "image": "sha256:79397a0f5fea3a2445a1a15a684f67948211f5b369f055e054e8c531df4a3e34",
+      "command": [
+        "python",
+        "/harness/parse-paddle.py"
+      ],
+      "entrypoint": null,
+      "workingDir": "/bench",
+      "environment": [
+        "HOME=/cache/home",
+        "HF_HOME=/cache/hf",
+        "PADDLE_PDX_CACHE_HOME=/cache/paddlex",
+        "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True",
+        "HF_HUB_DISABLE_XET=1",
+        "OMP_NUM_THREADS=2",
+        "MKL_NUM_THREADS=2"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/paddle-1",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-parser-alternatives-20261025/cache",
+          "destination": "/cache",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/input",
+          "destination": "/input",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 10737418240,
+      "memorySwap": 10737418240,
+      "readOnlyRoot": true,
+      "tmpfs": {
+        "/tmp": "rw,size=2g"
+      },
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:27:33.905733876Z",
+        "FinishedAt": "2026-10-24T21:33:36.728819662Z"
+      }
+    },
+    {
+      "name": "zuri-thai-real-paddle-2",
+      "image": "sha256:79397a0f5fea3a2445a1a15a684f67948211f5b369f055e054e8c531df4a3e34",
+      "command": [
+        "python",
+        "/harness/parse-paddle.py"
+      ],
+      "entrypoint": null,
+      "workingDir": "/bench",
+      "environment": [
+        "PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True",
+        "HF_HUB_DISABLE_XET=1",
+        "HOME=/cache/home",
+        "HF_HOME=/cache/hf",
+        "PADDLE_PDX_CACHE_HOME=/cache/paddlex",
+        "OMP_NUM_THREADS=2",
+        "MKL_NUM_THREADS=2"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/paddle-2",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-parser-alternatives-20261025/cache",
+          "destination": "/cache",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "<repo>/.local/thai-native-20261025/input",
+          "destination": "/input",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 10737418240,
+      "memorySwap": 10737418240,
+      "readOnlyRoot": true,
+      "tmpfs": {
+        "/tmp": "rw,size=2g"
+      },
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:33:37.601163293Z",
+        "FinishedAt": "2026-10-24T21:39:30.172715499Z"
+      }
+    },
+    {
+      "name": "zuri-thai-native-baseline",
+      "image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "command": [
+        "/harness/launch-native.mjs"
+      ],
+      "entrypoint": [
+        "node"
+      ],
+      "workingDir": "/app",
+      "environment": [
+        "BENCH_ARM=baseline",
+        "KI17_MODEL_DIR=/model/614241f622f53c4eeff9890bdc4f31cfecc418b3",
+        "KI17_NODE=/opt/ki17/node/bin/node",
+        "KI17_MSP_ROOT=/opt/ki17/msp",
+        "KI17_GKS_ROOT=/opt/ki17/gks",
+        "KI17_GENESIS_ROOT=/opt/ki17/genesisblock"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/.local/thai-native-20261025/native-baseline",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "volume",
+          "source": "zuri-main-dev-20261020_ki17-model",
+          "destination": "/model",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/scripts",
+          "destination": "/app/scripts",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/src",
+          "destination": "/app/src",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/tests",
+          "destination": "/app/tests",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/.local/thai-native-20261025/native-input.json",
+          "destination": "/input/native-input.json",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/prisma/schema.prisma",
+          "destination": "/app/prisma/schema.prisma",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 6442450944,
+      "memorySwap": 6442450944,
+      "readOnlyRoot": false,
+      "tmpfs": null,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:39:51.279795124Z",
+        "FinishedAt": "2026-10-24T21:40:59.841930304Z"
+      }
+    },
+    {
+      "name": "zuri-thai-native-paddle",
+      "image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "command": [
+        "/harness/launch-native.mjs"
+      ],
+      "entrypoint": [
+        "node"
+      ],
+      "workingDir": "/app",
+      "environment": [
+        "BENCH_ARM=paddle",
+        "KI17_MODEL_DIR=/model/614241f622f53c4eeff9890bdc4f31cfecc418b3",
+        "KI17_NODE=/opt/ki17/node/bin/node",
+        "KI17_MSP_ROOT=/opt/ki17/msp",
+        "KI17_GKS_ROOT=/opt/ki17/gks",
+        "KI17_GENESIS_ROOT=/opt/ki17/genesisblock"
+      ],
+      "mounts": [
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/.local/thai-native-20261025/native-paddle",
+          "destination": "/bench",
+          "writable": true
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/reports/oxr-thai-2026-10-25/real-native",
+          "destination": "/harness",
+          "writable": false
+        },
+        {
+          "type": "volume",
+          "source": "zuri-main-dev-20261020_ki17-model",
+          "destination": "/model",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/scripts",
+          "destination": "/app/scripts",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/src",
+          "destination": "/app/src",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/tests",
+          "destination": "/app/tests",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/.local/thai-native-20261025/native-input.json",
+          "destination": "/input/native-input.json",
+          "writable": false
+        },
+        {
+          "type": "bind",
+          "source": "/run/desktop/mnt/host/c/Users/suanr/workspace/zuri.ai/apps/server/prisma/schema.prisma",
+          "destination": "/app/prisma/schema.prisma",
+          "writable": false
+        }
+      ],
+      "network": "none",
+      "nanoCpus": 2000000000,
+      "memory": 6442450944,
+      "memorySwap": 6442450944,
+      "readOnlyRoot": false,
+      "tmpfs": null,
+      "state": {
+        "Status": "exited",
+        "Running": false,
+        "Paused": false,
+        "Restarting": false,
+        "OOMKilled": false,
+        "Dead": false,
+        "Pid": 0,
+        "ExitCode": 0,
+        "Error": "",
+        "StartedAt": "2026-10-24T21:41:00.506293516Z",
+        "FinishedAt": "2026-10-24T21:41:59.758576142Z"
+      }
+    }
+  ],
+  "nativeModels": [
+    {
+      "path": "config.json",
+      "bytes": 655,
+      "sha256": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959"
+    },
+    {
+      "path": "onnx/model.onnx",
+      "bytes": 470268510,
+      "sha256": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665"
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 167,
+      "sha256": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7"
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 17082730,
+      "sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39"
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 443,
+      "sha256": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+    }
+  ],
+  "tokenAudit": {
+    "baseline": {
+      "chunkCount": 35,
+      "maxTokens": 309,
+      "over512": 0,
+      "tokenCounts": [
+        11,
+        9,
+        12,
+        10,
+        11,
+        9,
+        10,
+        9,
+        171,
+        167,
+        184,
+        198,
+        196,
+        194,
+        159,
+        127,
+        129,
+        141,
+        154,
+        116,
+        309,
+        245,
+        229,
+        194,
+        213,
+        228,
+        217,
+        221,
+        221,
+        232,
+        236,
+        228,
+        244,
+        263,
+        6
+      ]
+    },
+    "paddle": {
+      "chunkCount": 35,
+      "maxTokens": 310,
+      "over512": 0,
+      "tokenCounts": [
+        11,
+        9,
+        12,
+        10,
+        11,
+        9,
+        10,
+        9,
+        96,
+        184,
+        171,
+        182,
+        185,
+        183,
+        182,
+        152,
+        111,
+        169,
+        160,
+        97,
+        128,
+        254,
+        298,
+        290,
+        295,
+        275,
+        269,
+        264,
+        298,
+        303,
+        279,
+        30,
+        247,
+        310,
+        76
+      ]
+    }
+  },
+  "sources": [
+    {
+      "path": "evaluate.mjs",
+      "sha256": "b273858592cf0d273bc1f3c61fd44fd4061bb4994f19528029985723e0008e0e"
+    },
+    {
+      "path": "evaluate.test.mjs",
+      "sha256": "9ddd55a2c30fa72a79d7f8552a1a3cfa8627a3c643cfb2cf22fa6eb02da8ea3a"
+    },
+    {
+      "path": "fingerprint-native.py",
+      "sha256": "33ba62bf7cc708959742fb5b04abf660cff11d8927195e9eb34162431ab748ce"
+    },
+    {
+      "path": "gold.json",
+      "sha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303"
+    },
+    {
+      "path": "launch-native.mjs",
+      "sha256": "287ea80dffd0d6bbd16d26d64462d779070398205e51498aac124c5606bf06d0"
+    },
+    {
+      "path": "measurement-summary.json",
+      "sha256": "a8a9a7203edd73dea41ca5f6eb4b5229fd75fc9edb89e881564761a14516e8bf"
+    },
+    {
+      "path": "metrics.mjs",
+      "sha256": "d7c1740f964d70bb1e04a6d3767aaadd683660443a1b0b240d434d1fb2718180"
+    },
+    {
+      "path": "metrics.test.mjs",
+      "sha256": "6268d1ba7e7d1386c993cde0921cca520788c157195e405d339246eab136792c"
+    },
+    {
+      "path": "native.config.mjs",
+      "sha256": "584914fd5db3b8de3cd3cd804d6daa3cbf52d5b3c49c3145c996378dfbfbb5fb"
+    },
+    {
+      "path": "native.test.js",
+      "sha256": "093efa3f90a09af3daa5d87700b76bb0170f5ae96a41fa0e8c4f2b6dfc8a4929"
+    },
+    {
+      "path": "parse-baseline.mjs",
+      "sha256": "9ea3b1434f01e68234c7b95533c233955794625d1e07627cc5a93b7acdd595d7"
+    },
+    {
+      "path": "parse-paddle.py",
+      "sha256": "4ebe64d196c4b0792806b29f4c30621c7369a553e64e053147e6c5cbfb2d06d3"
+    },
+    {
+      "path": "prepare.mjs",
+      "sha256": "6583138c201cf78cf9801e39476a5ad66d8d95a7d6eb6998067ab011d0cc1db8"
+    },
+    {
+      "path": "seal-evidence.mjs",
+      "sha256": "df6a63cfdd3fdc789be75a4ea699883bc817ff38d74bfc050dbfe77b7ed3562c"
+    },
+    {
+      "path": "token-audit.py",
+      "sha256": "17bd4b8186ef2a13683a949d25104067620ab72fa338963207cf8a6256e076c7"
+    }
+  ],
+  "raw": [
+    {
+      "path": "input/economy.pdf",
+      "bytes": 124802,
+      "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40"
+    },
+    {
+      "path": "input/population.pdf",
+      "bytes": 79599,
+      "sha256": "e9ab4edc753a899d48f4d0105996c6a4b573c68ba782d04d3da7b76ae78fd3d1"
+    },
+    {
+      "path": "rendered/economy-1.png",
+      "bytes": 417025,
+      "sha256": "bf8238c48ca414ce40ea9ce241407ac9d10579ee20bc96767532a0383ba72f78"
+    },
+    {
+      "path": "rendered/population-1.png",
+      "bytes": 322089,
+      "sha256": "7cf5ca097dd7436bc041926e6136b0f75104f38515a00a2f93ddd96804516971"
+    },
+    {
+      "path": "rendered/population-2.png",
+      "bytes": 334447,
+      "sha256": "ba40b6c1f9a6ecadc8c7435595213b42f5b465e627ccacc3f5b258f2d67214c2"
+    },
+    {
+      "path": "rendered/population-3.png",
+      "bytes": 167598,
+      "sha256": "a7f096f1ea32e7132f1f27927d689dd9bcc8a8b03571fd90685bce9564e84f74"
+    },
+    {
+      "path": "baseline-1/economy.json",
+      "bytes": 41735,
+      "sha256": "fb1afe969282ef1fc7e0d10c64f03b68973c16a0d6c3f7f5fba9b0c755b0c6b4"
+    },
+    {
+      "path": "baseline-1/population.json",
+      "bytes": 37109,
+      "sha256": "a004c2e5f657e794037b47779988358e046368dbbbd422788fa9c49a10835e92"
+    },
+    {
+      "path": "baseline-1/resources.json",
+      "bytes": 34,
+      "sha256": "282cacabaa771b851cfcff41be42fad8b44586537bfacdfa3fdf43f69c8ade41"
+    },
+    {
+      "path": "baseline-1/runtime.json",
+      "bytes": 99,
+      "sha256": "e384eaae1713acecb850b4fd41cc455f339c93c34f0f236bf50af03955f49c71"
+    },
+    {
+      "path": "baseline-2/economy.json",
+      "bytes": 41728,
+      "sha256": "448d8efc772c04c92cb2cf66342e8cc1e50fbb3345a68cf5c1034aa5609558ab"
+    },
+    {
+      "path": "baseline-2/population.json",
+      "bytes": 37116,
+      "sha256": "08e08b691e6501bb1ff5f1f89b01b8888058d3f8fe2ce83b66356c407b23003b"
+    },
+    {
+      "path": "baseline-2/resources.json",
+      "bytes": 34,
+      "sha256": "b9244c481ba5aee19e23101753ea9ba4fd45e7d354a6e2ed0c6f0ebd36a651fd"
+    },
+    {
+      "path": "baseline-2/runtime.json",
+      "bytes": 99,
+      "sha256": "e384eaae1713acecb850b4fd41cc455f339c93c34f0f236bf50af03955f49c71"
+    },
+    {
+      "path": "paddle-1/economy.json",
+      "bytes": 603791,
+      "sha256": "d3e9b8d5b57cdd54126dbfbe3d389f8fcd9291920679579f6e3e060b0752d5e3"
+    },
+    {
+      "path": "paddle-1/population.json",
+      "bytes": 1258520,
+      "sha256": "5d3b53234bba2cbb6396f2d5e58cf7ca0239fe8965816173876d92736cf9ec32"
+    },
+    {
+      "path": "paddle-1/resolved.yaml",
+      "bytes": 5764,
+      "sha256": "bf981dc69131f4d4be928a8167f63ced026d7bbbcd0be49e8b65fc01bfd4f665"
+    },
+    {
+      "path": "paddle-1/resources.json",
+      "bytes": 35,
+      "sha256": "7da0147bfad42306913dd3ad7534ca831d294db2e74eefbd2293a4baa1b90359"
+    },
+    {
+      "path": "paddle-1/runtime.json",
+      "bytes": 861,
+      "sha256": "af5b7c9a480cd1b959f8082d3e8914649bb8658e2bac3280687ca1eefb6aecd1"
+    },
+    {
+      "path": "paddle-2/economy.json",
+      "bytes": 603791,
+      "sha256": "a97f8805f626efcc1ba2715aa4fe44c09092b7654f153b0cd8be3ec343375b12"
+    },
+    {
+      "path": "paddle-2/population.json",
+      "bytes": 1258521,
+      "sha256": "c0feda07b05e0ab6835c8b9350a2962a5096d2f987a2cc753c6089c294f16e1a"
+    },
+    {
+      "path": "paddle-2/resolved.yaml",
+      "bytes": 5764,
+      "sha256": "bf981dc69131f4d4be928a8167f63ced026d7bbbcd0be49e8b65fc01bfd4f665"
+    },
+    {
+      "path": "paddle-2/resources.json",
+      "bytes": 35,
+      "sha256": "4f0f868506efc8dafd5703d467891b50491b161e2bdba4920b77926177c63dfd"
+    },
+    {
+      "path": "paddle-2/runtime.json",
+      "bytes": 862,
+      "sha256": "2eb41ecbb04a4050eca7b685e16c97a366b2d6cb1aa982050de86572e27e7c9e"
+    },
+    {
+      "path": "native-baseline/chunks.json",
+      "bytes": 31456,
+      "sha256": "4227d38e043717487e305e4ca2b10d2ac03797578362a1e1eece28c6c76bd5c4"
+    },
+    {
+      "path": "native-baseline/executed-native.test.js",
+      "bytes": 8129,
+      "sha256": "093efa3f90a09af3daa5d87700b76bb0170f5ae96a41fa0e8c4f2b6dfc8a4929"
+    },
+    {
+      "path": "native-baseline/native-results.json",
+      "bytes": 454845,
+      "sha256": "837a22d1f72baa9a66485d89cf219bca7c431a1b283ad536291c661b18099d99"
+    },
+    {
+      "path": "native-baseline/publication.json",
+      "bytes": 378,
+      "sha256": "b30b7f1c45eea6b0ca22a57d0abc416e66b2b1d17681a5ad4742ec184be9fd76"
+    },
+    {
+      "path": "native-baseline/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": "native-baseline/stages.json",
+      "bytes": 48459,
+      "sha256": "93c5b636377f69c470d0d14fc66a96c13f2c278a4dc565b144276b5d793ea3b4"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/edges.bin",
+      "bytes": 131298,
+      "sha256": "cb038a93e9243333fb27eb58bc4cc130a0788b64fe1f7faea885464f9a5baa1f"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesisrag17/decisions/gks_decision_8fc22f56ceb63baefd5647df3538562a.json",
+      "bytes": 74675,
+      "sha256": "11e745c1fc0e2066c43d48d020375aced09cc2820f96a32de1bdc89d74b61a66"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 163840,
+      "sha256": "d1b996ba091c1d681cc9740d47cfa768957ac4b7476796b4eda3a59beb197dea"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "a2b54d5c92416926a48ef98792df68da233dcb291f609a49087d730094aad2f5"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesisrag17/snapshots/snap-6e95aec39532e5470745b2c48770e855.json",
+      "bytes": 2985,
+      "sha256": "816e04f4c0ca5f4264480595ce8cfca86def713620367a06e77b1a423f09c00b"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/genesisrag17/state.json",
+      "bytes": 21074,
+      "sha256": "f27402f7c940aca9018ebaf247684a1ca17125989ac0812d24da63a012a1fe51"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "eb49d8d8ec1956fecbee80540a63f65dabff2008e8092a04530cf297fdcff6e8"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/journal/B000000000000.gseg",
+      "bytes": 680,
+      "sha256": "8b826b7d4cba0638cb8247d517ff4827a733f090d65cb895cc809a888b3e1c1c"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/meta_genesisrag17_e5_6e95aec39532e5470745b2c48770e855.bin",
+      "bytes": 634,
+      "sha256": "6d94b758f92b4d8431d44cb46d027b551d1eec225e28939b4628b2c8f6576994"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/nodes.bin",
+      "bytes": 21198,
+      "sha256": "59e5f53764602155be4909a3d87ea899e5cb9bd0420a8f36ae5cc5c0634c3b7b"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/projection.sqlite",
+      "bytes": 757760,
+      "sha256": "c0b246aad5ee4670765051995751060607648189f58cb108827dbaee4dfc9854"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "328d1612e26ad75b2ab04b268a998244a013c293c8866596fe162a5db0786801"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/projection.sqlite-wal",
+      "bytes": 646872,
+      "sha256": "3ecc02322d21be60fb8b92fa60cd5989514a5fb18f6e2b0382fa9e65510578dc"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "567dfdd3f2c81561dce679a2714158fd48953981245941ccc2cf34589f1a5c53"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/vec_genesisrag17_e5_6e95aec39532e5470745b2c48770e855.bin",
+      "bytes": 53760,
+      "sha256": "0876f80798a783dbf78a3f90f0a200a55cc390d2eb5ef23837790688bce4720c"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/genesis-store/wal/active.gwal",
+      "bytes": 550018,
+      "sha256": "3a6c71bd85911cd15aa243a70b70d1b2ca440d58ea61cc97e8f30019ba3ea004"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "5fbe1f38b35dffae75ff4994ae034e6ed03795657d7dd6e120046820731c7c75"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/gks.sqlite-wal",
+      "bytes": 1219552,
+      "sha256": "cd63a2e788d97e466321474dc4357a9b10ebe47ce5a262e39c6a51824207a229"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "81981fe48439e9ea276c9d3f3cb4cbfa834f2714280d794ae42dbef3660ecba7"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "caddd8b580ea89b3d02f2fa3abd05cc1267a6a7cb172a75769c5dde64152a49a"
+    },
+    {
+      "path": "native-baseline/state-ySOh8m/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": "native-baseline/zuri-evidence.sqlite",
+      "bytes": 4956160,
+      "sha256": "a9de1b30b5891b6ca1c989e5774a2a33029b4975fa170e5c141f61d7642dbc74"
+    },
+    {
+      "path": "native-paddle/chunks.json",
+      "bytes": 35348,
+      "sha256": "a6d9ea84bb53703910ec2c00f3e746b8b9342049fd6ae8d764a1cbadc8a0dd4f"
+    },
+    {
+      "path": "native-paddle/executed-native.test.js",
+      "bytes": 8129,
+      "sha256": "093efa3f90a09af3daa5d87700b76bb0170f5ae96a41fa0e8c4f2b6dfc8a4929"
+    },
+    {
+      "path": "native-paddle/native-results.json",
+      "bytes": 474197,
+      "sha256": "70ff7e4fb18c7b37cbdbd2990b8fa2bbbe352c60a03284aa55c3210334bd3cf7"
+    },
+    {
+      "path": "native-paddle/publication.json",
+      "bytes": 378,
+      "sha256": "e727f5388ab54d4846a83422152c121d39605c9f00547021167d283d89c54bd3"
+    },
+    {
+      "path": "native-paddle/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": "native-paddle/stages.json",
+      "bytes": 48453,
+      "sha256": "864a386779438d30a6e9c18a0462cd960a63a0998c4504b2d8fd94504b71abd1"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/edges.bin",
+      "bytes": 131087,
+      "sha256": "d38cdeeb01db350876f2073c71dba85a3ef45c9124b6bff5f3e9fda3ec922f02"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesisrag17/decisions/gks_decision_d874cd9445e40f8a1f78bd6d5119ce7d.json",
+      "bytes": 82621,
+      "sha256": "101373d7f0f3342dc1c37bc780d589a3d08dfccf290d187c9c1436342d452794"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 192512,
+      "sha256": "f77603b89099714797d62a30c35f00daa40a5aac5384345b3eff26487da4183b"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "c02c4d53904ff3ad9c546848bfe56dda0685c02ed444485c8401b5fce097e63b"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesisrag17/snapshots/snap-06138a7f64f64aa61a009b92c3c31c29.json",
+      "bytes": 2983,
+      "sha256": "b991e087d3fa9c2ed85ff785462331f5239cd652e46342ab79f014b39c47481f"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/genesisrag17/state.json",
+      "bytes": 21041,
+      "sha256": "2772164decffecce34c7154d240562ab34893809af5bd060a33c0580f50da046"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "ea6560591b3de9172100bfbc1306ef3e8575356132a722ed4a98f340101db337"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/journal/B000000000000.gseg",
+      "bytes": 675,
+      "sha256": "67e28512d14da51b40af10548139522b97c72f2dd25194aa90c3b78df2b8954b"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/meta_genesisrag17_e5_06138a7f64f64aa61a009b92c3c31c29.bin",
+      "bytes": 634,
+      "sha256": "4d7b2bc28bcf1fd8b409e1df14d80dc2e448d1729f86d5eab04018c34ddfe75e"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/nodes.bin",
+      "bytes": 21198,
+      "sha256": "5da82253dbb02bd2ed102fbaf5a101a09fdbd37d671446a184c5196122ab82a9"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/projection.sqlite",
+      "bytes": 802816,
+      "sha256": "80a6d25905530d6839c13514984c8ff17aea2f12c417b9fd89f7b56ca3b6043f"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "90480ac37422ecbd2f0e5d1013e388dbd85ac4a524087d7dfc041bad2fca6b16"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/projection.sqlite-wal",
+      "bytes": 655112,
+      "sha256": "1ae605b834a40c151bcd2248b8bbafec82aa7958448fcff7517daff6e3c10594"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "d37f2a68ce39aed16efcf9e40635d6cbe23acd99a8846cd6cf38da2837c5f83a"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/vec_genesisrag17_e5_06138a7f64f64aa61a009b92c3c31c29.bin",
+      "bytes": 53760,
+      "sha256": "5dc6e76b49fcff0ebdf2d49ab0c8d733af06759938e3cac8edf37d787eb9788f"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/genesis-store/wal/active.gwal",
+      "bytes": 557691,
+      "sha256": "586bd019145eca14d81c266c4482181f30e5c52c708a358ebab80275dc9527f0"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "b2ce10bbb897717e8c01b2c9d01e4cbb45b1ec857421bc651687664cc69808c1"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/gks.sqlite-wal",
+      "bytes": 1285472,
+      "sha256": "014820666171f3a73f7a3e1a0c812be187eb8ab528ee15d886bb97fe4c6d78c9"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "864e05e7ad9e43cdade38fbc1db5e4b3433af028e174c226e0cfd9c2b1d25bb4"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "4f629ff3e224e3d4e37621ee47c6f2d54b5d7f06c7dacee99d22bd3d66bfc49e"
+    },
+    {
+      "path": "native-paddle/state-sWgmjf/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": "native-paddle/zuri-evidence.sqlite",
+      "bytes": 4993024,
+      "sha256": "93dbefe6c5f5b4d156f6fa7a2418db9f890ff3863d9a589e1ab960ed6e4e6ef2"
+    },
+    {
+      "path": "frozen-inputs.json",
+      "bytes": 479,
+      "sha256": "9b910ce59f01bc04834149b5a55223672fec8441400e0aa579bf95fdbd339036"
+    },
+    {
+      "path": "projected.json",
+      "bytes": 254257,
+      "sha256": "bb1cd0cc36ac7681f03bf603fbd4fc369795bb093d520f6e141325909b4e232c"
+    },
+    {
+      "path": "native-input.json",
+      "bytes": 44033,
+      "sha256": "3232658fa999ac275eef10b8d47163fb45ebc3bd28802fcbcd5f36244198822a"
+    },
+    {
+      "path": "models-after.json",
+      "bytes": 16761,
+      "sha256": "5996dc46712f1d4098cf563f5193581512d6234aeab477166e3575843ff673ee"
+    },
+    {
+      "path": "native-models.json",
+      "bytes": 717,
+      "sha256": "bbea2d7600cb815966046e43d6cb6927704fad30d574607a1767a59c0b808be2"
+    },
+    {
+      "path": "token-audit.json",
+      "bytes": 960,
+      "sha256": "badd6071c16a1e69d2f64fd016280bbf04afc097b596f443e5ee429f43e5638d"
+    },
+    {
+      "path": "docker-runs.json",
+      "bytes": 12655,
+      "sha256": "c0cfbb379d1d357b971e18c73dd08b21bd593fff86485c365ee519cd728257cc"
+    },
+    {
+      "path": "host-summary.json",
+      "bytes": 432,
+      "sha256": "3cd7a06e1d58664e9ed2b06c613dd5948d7bf018a350ba5e3528c2f23eeb72b1"
+    },
+    {
+      "path": "baseline-1-state.json",
+      "bytes": 224,
+      "sha256": "293e3c5d15596a09e4374e0a4238c47467a2d3a3edbc7e93bf45b50cadaf46c7"
+    },
+    {
+      "path": "baseline-1.log",
+      "bytes": 481,
+      "sha256": "0dc6c07b487b50d08e80e54fb3bbb9b92175b77dc80c44abd19ac8e204792bc3"
+    },
+    {
+      "path": "baseline-2-state.json",
+      "bytes": 224,
+      "sha256": "60da94d1bc5be711a9b8b95b74b3284d682754e5cc65a669b9b306375e3c0c5c"
+    },
+    {
+      "path": "baseline-2.log",
+      "bytes": 481,
+      "sha256": "9bdde1359ddff8acaa9095ffa54950f885c69461df1f0fb8d44e63669bb4e785"
+    },
+    {
+      "path": "native-baseline-state.json",
+      "bytes": 224,
+      "sha256": "495a3db47b61a7cb62860b9b8c86d505e826e3c2114c869a4f9cdd4fdc80ef9f"
+    },
+    {
+      "path": "native-baseline.log",
+      "bytes": 1190,
+      "sha256": "3c1245a5a75d5da1b222be0767055b3bd44e9c5613cbb0322ba7f987dcfcf839"
+    },
+    {
+      "path": "native-paddle-state.json",
+      "bytes": 224,
+      "sha256": "3f344f46dc21064269d09ada4febecca0b31eda1a477e3a61653a27eb14e5e25"
+    },
+    {
+      "path": "native-paddle.log",
+      "bytes": 1189,
+      "sha256": "463bb9b83a24b7dba80c89efd259309d40a45165cb5b2edc608766ee24d95272"
+    },
+    {
+      "path": "paddle-1-state.json",
+      "bytes": 224,
+      "sha256": "261c632ea77f7d39faa68022c9eb66cee423f2f4232a82cbbd8293049210ff6b"
+    },
+    {
+      "path": "paddle-1.log",
+      "bytes": 2739,
+      "sha256": "229f4acc9de40f9a5e86613e7f5f3b0124acecdd37a1a92bfb02e32724fe1a46"
+    },
+    {
+      "path": "paddle-2-state.json",
+      "bytes": 224,
+      "sha256": "53fac50ff1615ce944568d23d6eca02354d8da7e05db3689605ca6c2f9dc5f0c"
+    },
+    {
+      "path": "paddle-2.log",
+      "bytes": 2739,
+      "sha256": "839a68beaa992a51e800f7698c785f18c71ec5512da7d9f98298b198c947e553"
+    }
+  ]
+}

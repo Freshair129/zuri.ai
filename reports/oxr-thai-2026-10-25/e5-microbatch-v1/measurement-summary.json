@@ -1,0 +1,92 @@
+{
+  "schema": "e5-microbatch-native-pair-summary-v1",
+  "status": "PASS",
+  "sourceInput": {
+    "nativeInputSha256": "b71bdc93b5175bf760cfb5d669dc2f8cc06e4c4a72c65ecb7c43368eaaf9f06c",
+    "contentHash": "a6259e7e4f0f84d2e54f8fddf952eeb214a31f20502b6c7b8515d1dfdf1246d9",
+    "chunkCount": 302,
+    "sameInputAcrossArms": true
+  },
+  "runtime": {
+    "pinnedImage": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+    "sameResourceProfile": true,
+    "samePinnedImageAndModelRevision": true,
+    "sameFrozenProfile": true,
+    "globalBatchSize": 0,
+    "candidateBatchSize": 32,
+    "helperOverrideSha256": "ef9935362c9a03184b6465c3c7c5c731c23a8030e48ea852069a08700aae68da",
+    "helperHashEqualAcrossArms": true,
+    "baseImageHelperSha256": "dd7e9e51f61faf5a3d6d0bbe894c8c75b235f589c0906ca952c790afeb555e35"
+  },
+  "native": {
+    "global": {
+      "status": "COMPLETED",
+      "successfulStages": 17,
+      "queryRows": 48,
+      "totalMs": 144411.32754,
+      "memoryPeakBytes": 4509458432,
+      "oomKilled": false,
+      "exitCode": 0,
+      "embedStage": {
+        "recordedStart": "2026-10-25T16:19:58.965Z",
+        "recordedFinish": "2026-10-25T16:21:35.234Z",
+        "elapsedMsFromTimestamps": 96269
+      }
+    },
+    "batch32": {
+      "status": "COMPLETED",
+      "successfulStages": 17,
+      "queryRows": 48,
+      "totalMs": 113925.867481,
+      "memoryPeakBytes": 2152587264,
+      "oomKilled": false,
+      "exitCode": 0,
+      "embedStage": {
+        "recordedStart": "2026-10-25T16:22:55.999Z",
+        "recordedFinish": "2026-10-25T16:23:52.202Z",
+        "elapsedMsFromTimestamps": 56203
+      }
+    },
+    "retrievalRowsExactAfterRunLocalIdNormalization": true,
+    "exactQueryAndTopKRows": 48
+  },
+  "vectorParity": {
+    "sha256": "425af378986eed49eeef84e0619e50a729a9715149214111aa100c0c5d783b41",
+    "status": "PASS",
+    "outerSidecarRequests": 60,
+    "orderedRequestSignaturesEqual": true,
+    "queryVectorCount": 59,
+    "passage": {
+      "vectorCount": 302,
+      "dimension": 384,
+      "maxAbsDifference": 0,
+      "minCosine": 0.9999999999999987,
+      "maxAbsTolerance": 0.00001,
+      "minCosineThreshold": 0.999999,
+      "pass": true,
+      "requestCount": 1,
+      "globalCaptureSessions": 1,
+      "batch32CaptureSessions": 1
+    },
+    "query": {
+      "vectorCount": 59,
+      "dimension": 384,
+      "maxAbsDifference": 0,
+      "minCosine": 0.9999999999999991,
+      "maxAbsTolerance": 0.00001,
+      "minCosineThreshold": 0.999999,
+      "pass": true,
+      "requestCount": 59,
+      "globalCaptureSessions": 2,
+      "batch32CaptureSessions": 2
+    },
+    "rawTextStored": false
+  },
+  "claims": {
+    "embeddingBatchControlOnly": true,
+    "nativeInputChanged": false,
+    "modelRevisionChanged": false,
+    "queryOrGoldUsedToSelectBatchSize": false,
+    "productionChanged": false
+  }
+}

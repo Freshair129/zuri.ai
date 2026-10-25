@@ -1,0 +1,406 @@
+{
+  "schema": "zuri.hyper-economy-cell-repair-evidence-manifest.v1",
+  "status": "SEALED",
+  "baseRevision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "measuredBaselineAttempt": "native-table-current-attempt-1",
+  "historicalReferenceAttempt": "native-source-pdf-repair-v1-attempt-2",
+  "measuredTreatmentAttempt": "native-combined-attempt-1",
+  "combinedNativeInputSha256": "b71bdc93b5175bf760cfb5d669dc2f8cc06e4c4a72c65ecb7c43368eaaf9f06c",
+  "combinedNativeFreezeSha256": "8db7f4ec59731f17c60c8d0191ce719fb9eb59d9be7101b6609eeaabcfde4e41",
+  "noQaChunkerProbeSha256": "8eaa23ce3366d96d65b91faaf94b0159241345e234236a73ed86a967fa623d53",
+  "hostPreflightSha256": "cf947df11acba4538af673f26ea3c3433d3ce363a00e07d9cffdd1135fb996a0",
+  "nativeResultsSha256": "035f6db1f558dd58ec5220abfff3357dba6c31e7ba626d7889a06a02be6337ea",
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "entries": [
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/economy-delta-row-crop.png",
+      "bytes": 177097,
+      "sha256": "ed0ffc59a5ed68ca137c02e7b2985ac053ab378895aa16d5571649ddfadbff5d"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/economy-header-crop.png",
+      "bytes": 132686,
+      "sha256": "358c9100850c81eb122857ff19550174675a215d1189f4252928cb3be83e76d0"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/independent-source-geometry-evidence.json",
+      "bytes": 272381,
+      "sha256": "7272ec355d68bcea82e05018fd47577703045b20642b468c1ae7a11ab6052036"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-chunker-probe-v1.json",
+      "bytes": 25773,
+      "sha256": "8eaa23ce3366d96d65b91faaf94b0159241345e234236a73ed86a967fa623d53"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/chunks.json",
+      "bytes": 246820,
+      "sha256": "f51f8ae2c3673782d54a1ccf936e00761c4eb3e32c7a42c3731f69057327f95b"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/native-command.json",
+      "bytes": 1848,
+      "sha256": "1e454147497b76d36ec7eb69a846bf8478a28fdef848f388560cbe3c4076170e"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/native-launch-profile.json",
+      "bytes": 2301,
+      "sha256": "ab3b9ab45e29fcc1d813f4afd53c6d466e650c6b4d3a1506241e41dcf1a76d4d"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/native-results.json",
+      "bytes": 437976,
+      "sha256": "035f6db1f558dd58ec5220abfff3357dba6c31e7ba626d7889a06a02be6337ea"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/native-run.log",
+      "bytes": 1193,
+      "sha256": "c02a540023392ce1b0e15a0d6d391e8975c9e0806da3c8282c2bc72cb7984b86"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/native-state.json",
+      "bytes": 225,
+      "sha256": "90b6779f04455cccf292aeda0ed4f0c811c9bee0df37a769efedbbef2e99a4cd"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/publication.json",
+      "bytes": 378,
+      "sha256": "52947e94407b730e7035c39a83049399c28d6689311113371b9ef75c6f21922b"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/runtime-provenance.json",
+      "bytes": 3531,
+      "sha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/stages.json",
+      "bytes": 66380,
+      "sha256": "da7b25b56a06c7b0b6924fba7af07362a3f8139d25b7af303fc20c18f56c6594"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/edges.bin",
+      "bytes": 475926,
+      "sha256": "d04708cde3c4fb543e11b67fb77157b8234459b7c991071d743f262a259a5038"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesisrag17/decisions/gks_decision_9248204bb6d56036a98d623d45a0f1b7.json",
+      "bytes": 417270,
+      "sha256": "7a12108e1465e60507468a95d3bea01758fbbca8c8474add9d9deaf827e023dd"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 1175552,
+      "sha256": "cf0b50c1ba7623a688219ab4590a5687dfe85d488ccef94197d5fadd0c4e42ca"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "84dcca7854ef8495436353d4d1d1102da8fc4225d3e8db87343324b1f4c981b1"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesisrag17/snapshots/snap-f337a3adc7e9a1062b5c1c2ab3c52b83.json",
+      "bytes": 20305,
+      "sha256": "94c18d04f32fcae65b0c4ee06dffc34c62931624f2dd13fc5cadd72162e6c17d"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/genesisrag17/state.json",
+      "bytes": 21578,
+      "sha256": "a2fd3fc00aead6cee58f1d78dd719553c995add0919b74adf901240fc4f4dd9a"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "cf4a0bb340f3fa3a07ada2aaec3d7d3a0b7a114e1bceaa6890ff53934d792ab2"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/journal/B000000000000.gseg",
+      "bytes": 679,
+      "sha256": "3705d75ace1e38cf5c2aa4e27fe415f44800352508d6e8048c12f85148326f20"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/meta_genesisrag17_e5_f337a3adc7e9a1062b5c1c2ab3c52b83.bin",
+      "bytes": 6224,
+      "sha256": "d52e1972f08210ef97605b24adc4f50f51f76a0f525ac52f43db5a8caa2f02fc"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/nodes.bin",
+      "bytes": 102026,
+      "sha256": "00c30d8782bf96a6a442bc82fa8ab48659dd22de88859e6c708c8f1c69779117"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/projection.sqlite",
+      "bytes": 3301376,
+      "sha256": "e97b97d84221f4100d51a514bf8ccfdc00d898f186cd84bdad0aad8501e7c08e"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "e0d202114e06e99112ed6f41b0d2f5c47f8ae5245053fecaddc203fe87da8537"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/projection.sqlite-wal",
+      "bytes": 3127112,
+      "sha256": "6f93bdf4065c2cddb66ee615cab0b41e464bceb73d2e96f0865522d9b55491f0"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/state.json",
+      "bytes": 1273,
+      "sha256": "9941e81992a54c9ff19c84daf8cc88007887181b9a6fd3fb63c7011ef42335e0"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/vec_genesisrag17_e5_f337a3adc7e9a1062b5c1c2ab3c52b83.bin",
+      "bytes": 463872,
+      "sha256": "931252ae1e59903080e89983424d470697c3bc592b220c977523b9ab398232ee"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/genesis-store/wal/active.gwal",
+      "bytes": 3756555,
+      "sha256": "240a85aaee1ae299e2c1452ea94c1978b0775fdc899d0b8d253ae53cb6b6ec53"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "760f49ab046c01043eac2f10a7968663a8d9bc37920ca1afc2ae0f04ae17d8c9"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/gks.sqlite-wal",
+      "bytes": 3971712,
+      "sha256": "978fe4269ec336324a6d7991881a6b29ecd5edb7aa5b0c218b3bf71f489bfa18"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "71d28276ff452426c17277e7692841ba872181623c2b5a3175e85fc125eba46e"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "133dfa350f8f75d5da0c6a7c2a1c26b4e19607b1a3a7f74149b9ae39e3290fcb"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/state-Qdwmtx/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/zuri-evidence.sqlite",
+      "bytes": 6848512,
+      "sha256": "806da150a60ceac976573b8f26b6b859a2b19d39920cbb311bcd92228cbe7e25"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-host-preflight-combined-v1.json",
+      "bytes": 2302,
+      "sha256": "cf947df11acba4538af673f26ea3c3433d3ce363a00e07d9cffdd1135fb996a0"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-input-economy-pdf-rows-freeze-v1.json",
+      "bytes": 2618,
+      "sha256": "8db7f4ec59731f17c60c8d0191ce719fb9eb59d9be7101b6609eeaabcfde4e41"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/native-input-economy-pdf-rows-v1.json",
+      "bytes": 2755315,
+      "sha256": "b71bdc93b5175bf760cfb5d669dc2f8cc06e4c4a72c65ecb7c43368eaaf9f06c"
+    },
+    {
+      "path": ".local/hyper-economy-cell-repair-20261025/pdf-baseline-rows-v1.json",
+      "bytes": 415138,
+      "sha256": "3ee9810d904715f0479f2c525634707b25b6c78f483fb04249c2aceef743f512"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-enumeration-v1.json",
+      "bytes": 4264206,
+      "sha256": "dee9db4198844c26ce4cc4c92f216d2e5b2114c5bb0940a2cdd6fd1ffc09a4e1"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-freeze-v1.json",
+      "bytes": 4955,
+      "sha256": "f2ff12f199b9c0dfba6eaae37d0a8dc0b5bea30a5b79fd7f90d62f5ece166975"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-repair-projection-layout-v2-freeze.json",
+      "bytes": 4272,
+      "sha256": "e284e70e334eda4b7ee221eb59d486a88da40e1b104baf5740f54705d9a273a9"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-repair-projection-layout-v2.json",
+      "bytes": 2385854,
+      "sha256": "5270949da446c1166dbed3690c38710ed9021e8e16bf718946ad14c7a56c5a95"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-input-held-cell-repair-layout-v2-freeze.json",
+      "bytes": 2428,
+      "sha256": "3928a0a3510188c52572f8881d3bd49534e624e3831a3e1863d440bb23d902ae"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-input-held-cell-repair-layout-v2.json",
+      "bytes": 2510875,
+      "sha256": "8b8ad3517d5b445d33de01b61c3c98f1c1f9e939fb232d1da1df0eb2a075caa2"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/chunks.json",
+      "bytes": 225264,
+      "sha256": "9a2cb346be0a5f657fe90c2b0fffeddc1ecbfd8ef2bbf84b4373151158863709"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-results.json",
+      "bytes": 427533,
+      "sha256": "afa837831ea73aa840f121a9d7834e5d22f28e3fb5845dc48add24270b467736"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/chunks.json",
+      "bytes": 125161,
+      "sha256": "fcad378eeb5be67db84fa069610b1cb5434bd733a9a61e1c5c3b630a0f9b5287"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-results.json",
+      "bytes": 399014,
+      "sha256": "86e7b4c023c37e4e00c6aeeb1079c952c8cf4863ddb360df3b1e9bbd68ac8767"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-cell-value-evidence-v1.json",
+      "bytes": 2129373,
+      "sha256": "f96f34a64473ecc5ad57a9f03e24cecc23f07b0fef60bca69cbcd9e5578dbdfa"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-cell-value-freeze-v1.json",
+      "bytes": 2250,
+      "sha256": "77646c977d7584126f3665d007ff45bf90e329dc89ec0068380d7709c5862ca4"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-vector-geometry-v1.json",
+      "bytes": 767132,
+      "sha256": "891db44b99c55f69eccb62393fde76dc1e498f41a3b8c9487024b1d6fcf1a51d"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/thai-native-20261025/input/economy.pdf",
+      "bytes": 124802,
+      "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40"
+    },
+    {
+      "path": ".local/thai-native-20261025/paddle-2/economy.json",
+      "bytes": 603791,
+      "sha256": "a97f8805f626efcc1ba2715aa4fe44c09092b7654f153b0cd8be3ec343375b12"
+    },
+    {
+      "path": ".local/thai-table-chunking-20261025/run-v2/native-input.json",
+      "bytes": 1129252,
+      "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/build_native_input.py",
+      "bytes": 14524,
+      "sha256": "071c364a33d6dc93438354757c53839c3e5cbfd082ea390184d941692544d5cb"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/build_pdf_baseline_rows.py",
+      "bytes": 15466,
+      "sha256": "6b022b85dadcf43541010b90df2e5573d8d3a1a92d2da1b4d551a8f27ccb1654"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/evaluate-combined.mjs",
+      "bytes": 22497,
+      "sha256": "5404399d7b91f5a445c3d1efb108301428f49abda223bc11991128da5ea62c1d"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/measurement-summary.json",
+      "bytes": 113581,
+      "sha256": "529ddeaca490c209b24d86d8beedaa6209d5cfe8e563ab53e1bf7cd6d73916aa"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/native_chunker_probe.mjs",
+      "bytes": 8906,
+      "sha256": "b753aab88316e397012b547f2c7bd5139da6fffcbb788125d25a06eeadfa1456"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/pdf_baseline_rows.py",
+      "bytes": 24276,
+      "sha256": "939d1d5cca23627eac07f0358f44fefcad653b9cc56fcf11631336e13debc0e8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/README.md",
+      "bytes": 7340,
+      "sha256": "57a93d2cc8b96b3442dc7bece11c9a36e0f5df6a05b92c0e718b0e5b4e84800e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/run-native-combined.ps1",
+      "bytes": 16941,
+      "sha256": "0ad6e9c64c919a697065c04d2e490c6cf7f26c03cce6189eea63646eecd85ed1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/seal-evidence.mjs",
+      "bytes": 4066,
+      "sha256": "d4916fb260c439cc22eefad5ece8fd697561c3ddb832c238c323b93e46cd1772"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/source-audit.json",
+      "bytes": 267003,
+      "sha256": "190c8f009f8a49013bcc96f2b03139a53b30f8766a157b7ef24cef1c9674822a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/source-audit.md",
+      "bytes": 6159,
+      "sha256": "07ebcf4e619e3bd9e7fed2d8dae05b5bdce545f1226eb1ae9e4e43de0152703b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/test_native_input.py",
+      "bytes": 3201,
+      "sha256": "af1649fb29c8e1b080db6f351aff25ee4794bbf651ba8b7d4f80035d522326c5"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/test_pdf_baseline_rows.py",
+      "bytes": 16014,
+      "sha256": "ec6b13b4a25c65f1167d55b11b769ab12587cb9cef044e73443660ee73356d45"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/verification-receipt.json",
+      "bytes": 4422,
+      "sha256": "d04c97b6847610f6eae2c06f8b4d5553d7ca19e7465f4a2055d92d0c055826fe"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/real-native/evidence-manifest.json",
+      "bytes": 38198,
+      "sha256": "88d9159f98e86a8e068c6ef46de2a259a3cfb1a496acc9c3e06e6fd1b40c0913"
+    }
+  ]
+}

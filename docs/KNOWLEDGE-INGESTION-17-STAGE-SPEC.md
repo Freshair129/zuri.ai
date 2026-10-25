@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-SPEC
 title: Zuri 17-Stage Knowledge Ingestion and GraphRAG Preparation Pipeline Specification
-version: "1.4.7b"
+version: "1.4.20b"
 status: beta
 created_at: "2026-08-27T00:00:00+07:00,Boss"
-last_update: "2026-09-25T12:00:00+07:00,Claude Opus 5.5"
+last_update: "2026-10-25,Codex"
 relations:
   - type: references
     target: ZAI:ADR-050
@@ -43,13 +43,32 @@ The approved [ADR-072 admission/corpus contract](decisions/ADR-072-KNOWLEDGE-ADM
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.4.0b |
+| **Version** | 1.4.20b |
 | **Status** | Beta — product specification with verified isolated execution profile |
 | **Author** | Boss |
 | **Created** | 2026-08-27 |
-| **Last Updated** | 2026-09-08 |
+| **Last Updated** | 2026-10-25 |
 
 ## Reading and extension guide
+
+For the proposed File Manager → Knowledge Vault → GenesisRAG17 → Agent experience,
+read the [existing unified-flow proposal v0.13.0](change-requests/integration/line-knowledge-memory-unified-flow-20261024.md).
+Its §11.1 links the [isolated Thai parser/chunking assessment](../reports/oxr-thai-2026-10-25/README.md); results do not adopt a parser or alter production.
+Its §11.2 extends that comparison to local Thai/table parser alternatives using the same corpus and unchanged retrieval scoring.
+Its §11.3 adds public real Thai documents and isolated native execution with resource measurements; this is an experiment, not parser adoption.
+Its §11.4 records the frozen-OCR table projection/segmentation experiment. The [PaddleOCR-VL v1 follow-up](../reports/oxr-thai-2026-10-25/paddleocr-vl-v1/README.md) crosses parser with the same plain/table-preserving profiles and actual native path; this two-PDF result does not adopt a parser or change production. The [Hyper-Extract v1 follow-up](../reports/oxr-thai-2026-10-25/hyper-extract-v1/README.md) checks candidate evidence and one selected source-text subset through the same native TEXT path; it admits no graph facts and reports no production change. The [relation-evidence audit and companion pass](../reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/README.md) diagnoses the 0/85 quote-contract mismatch and tests a narrow source-bound table-fact subset; retrieval did not improve and no stage or graph contract changed. Its §11.6 follow-up audits the held facts against source pages and frozen OCR geometry, then retests an exact source-text subset without changing stage, graph or production contracts. Its §11.8 adds the held-cell source audit and PDF-derived TEXT overlay: original Paddle OCR remains intact, ambiguous cells remain held, and the primary legacy-format metric is separated from a post-hoc complete-row evidence union; no semantic, stage, graph or production contract changes.
+Its §11.9 adds a separate economy PDF-native row follow-up for the 87 previously held OCR cells: 37 source-derived rows are measured alongside the preserved 59-row population overlay, while the old held records remain unchanged. The strict legacy row@5 score ties the current table baseline; meanings remain unassessed and production is unchanged.
+Its §3.4 distinguishes component ownership from the GenesisRAG17 workflow;
+§4.1 shows ingestion and §5.1 shows Agent queries against published snapshots.
+GKS is the passive semantic/quality authority; MSP relays the accepted snapshot
+query to the GenesisBlock worker, which executes retrieval using GenesisBlockDB.
+Vault is a proposed Knowledge policy view, not another retrieval service.
+It separates raw object storage, Knowledge-owned metadata and native retrieval,
+and defines proposed customer/staff audience checks. This is navigation to a
+proposal, not an amendment to the adopted stages, canonical permissions or
+implementation status. RustFS activation, Vault binding and group authorization
+still need their concrete contract and environment evidence; price/stock authority
+is unchanged.
 
 **จะเพิ่มอะไร ให้เริ่มที่ [17-stage flow และ extension map](KNOWLEDGE-INGESTION-17-STAGE-FLOW.md).**
 หน้านั้นระบุ stage, input/output, terminal condition, เจ้าของ repo, ไฟล์ code/tests
@@ -2102,6 +2121,18 @@ Zuri
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.4.19b → 1.4.20b (2026-10-25) | Link the separate 37-row economy PDF-native follow-up, preserving the prior overlay and historical held OCR statuses; report strict and exploratory retrieval measures separately | Experiment only; no semantic, stage, graph or production contract change |
+| 1.4.18b → 1.4.19b (2026-10-25) | Link the 239-cell held-source audit, geometry/text-layer repair overlay and actual native comparison; distinguish the legacy row-format metric from the post-hoc complete-row evidence union | Experiment only; OCR source, stage, graph and production contracts unchanged |
+| 1.4.17b → 1.4.18b (2026-10-25) | Link the all-row source-native extraction audit and same-run native comparison; keep structural cell candidates `NOT_ASSESSED` | Experiment only; no stage, graph or production contract change |
+| 1.4.16b → 1.4.17b (2026-10-25) | Link the all-115 held-fact audit and geometry-derived native TEXT recheck; keep candidate semantics unassessed | Experiment only; no stage, graph or production contract change |
+| 1.4.15b → 1.4.16b (2026-10-25) | Link the Hyper-Extract relation-evidence diagnosis, bounded companion extraction and v6 source-bound table-fact subset result | Experiment only; no stage, graph or production contract change |
+| 1.4.14b → 1.4.15b (2026-10-25) | Link Hyper-Extract v1 candidate evidence and its selected source-text subset through the native TEXT path | Experiment only; current stage contracts unchanged |
+| 1.4.13b → 1.4.14b (2026-10-25) | Link PaddleOCR-VL v1 as a same-corpus parser-by-projection native comparison under proposal §11.4 | Experiment only; no parser or production adoption |
+| 1.4.10b → 1.4.11b (2026-10-25) | Link local Thai parser alternatives on the frozen experiment corpus | Navigation only; no adoption or activation |
+| 1.4.11b → 1.4.12b (2026-10-25) | Link real Thai/complex-table native experiment and repeated resource evidence | Experiment only; no production parser or authority change |
+| 1.4.9b → 1.4.10b (2026-10-25) | Link isolated Thai OXR/parser/chunking experiment and negative hosted OXR result | Navigation only; no parser, stage or permission adoption |
+| 1.4.8b → 1.4.9b (2026-10-25) | Link v0.3.0 responsibility matrix and separate ingestion/query sequences; distinguish passive GKS, workflow and worker retrieval | Explanatory navigation only; existing stages, rights and runtime contracts unchanged |
+| 1.4.7b → 1.4.8b (2026-10-25) | Link the existing proposed File Manager/Vault/Agent contract and its storage/audience boundaries; preserve stage identities and source authority | Navigation only; no runtime, permission or provider activation |
 | 1.4.6b → 1.4.7b (2026-09-25) | Corrects the sliver claims of 1.4.4b/1.4.6b: two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | No stage ownership or IDs changed; Stage 7 boundaries change for new TEXT-profile ingestions (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
 | 1.4.5b → 1.4.6b (2026-09-25) | Closes three gaps an Opus gate review found in the 1.4.3b Thai-safe-chunker remediation (see `docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b for the full arithmetic): (1) the 480-character budget arithmetic assumed at most one tokenizer token per raw character, but the pinned tokenizer's NFKC normalization step can expand some Unicode compatibility characters far past that (measured: 480 x U+FDFA -> 8,640 normalized characters) — every window is now also bounded so `text.normalize('NFKC').length <= 480`; (2) the overlap boundary search could still land on the exact boundary that produced the cut, delivering zero overlap on most sentence/whitespace cuts — fixed by requiring it strictly earlier; (3) with no safe grapheme boundary anywhere before a section's end, the forward safety-nudge used to extend a chunk without bound (measured: single 1,001/1,500-character chunks) — fixed by capping it to the character budget. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; parser-2 unaffected | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions tightened only for the pathological cases above — ordinary prose output (including the DoD Thai-paragraph case) is unchanged (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
 | 1.4.4b → 1.4.5b (2026-09-25) | Correction to 1.4.3b/1.4.4b: "resumes/replays unchanged instead of 400/409ing" was only true of the input-value 400 — Stage 2's `ensureParsedArtifact` separately 409'd (`GENESISRAG17_PARSED_IDENTITY_CONFLICT`) on the same resume/replay, because the legacy parse path nulled rather than omitted `metadata.maxChars`/`overlapChars`, and that field is hashed for the content-identity check. Fixed by omitting both keys for a legacy request, matching the pre-remediation metadata shape exactly (byte-for-byte, pinned by test). A `splitRange` overlap corner case on malformed input (a paragraph break directly followed by a combining mark) also closed. Proven by a real ingest -> FR-071 replay -> Stage 2 integration test and a pinned-hash regression unit test | No stage ownership or IDs changed; Stage 7 chunking behavior for new TEXT-profile ingestions unaffected — only the legacy metadata shape and the overlap corner case changed (`apps/server/src/modules/knowledge/genesisrag17-source.js`) |
@@ -2113,3 +2144,5 @@ Zuri
 | 1.2.0b → 1.3.0b | Link enumerated endpoint inventory and detailed source/user flows; separate existing staging/files from proposed admission and sharing | None; documentation only |
 | 1.1.0b → 1.2.0b | Approved code-audit remediation and explicit supported-input/publication boundaries | Source durability, semantic/temporal correctness and physical recovery repairs; see remediation evidence |
 | 1.0.0 → 1.1.0b | Current isolated profile and extension navigation; stable stage/requirement IDs and original section numbers preserved | None; historical acceptance evidence unchanged |
+
+Version diff 1.4.18b → 1.4.19b (2026-10-25): links the held-cell source audit and separately sourced PDF-derived overlay through actual GenesisRAG17; candidate meanings remain unassessed and no stage, graph or production contract changes.

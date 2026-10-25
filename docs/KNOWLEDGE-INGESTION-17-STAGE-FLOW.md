@@ -1,10 +1,10 @@
 ---
 id: ZAI:KNOWLEDGE-INGESTION-17-STAGE-FLOW
 title: GenesisRAG17 execution flow and extension map
-version: "1.4.10b"
+version: "1.4.23b"
 status: beta
 created_at: "2026-09-08T00:51:36+07:00,RWANG,base b64b46df"
-last_update: "2026-10-23,Codex"
+last_update: "2026-10-25,Codex"
 relations:
   - type: references
     target: ZAI:ADR-073
@@ -22,6 +22,39 @@ Version 1.4.10b adopts the approved Knowledge capability accountability and
 solo-operator staffing clarification. Current component, stage, wire and
 publication authority remain unchanged; operational scheduling guidance is
 linked from the ownership section.
+
+Version 1.4.11b links the [proposed File Manager → Knowledge Vault → GenesisRAG17 →
+Agent flow](change-requests/integration/line-knowledge-memory-unified-flow-20261024.md).
+The proposal owns the new source-selection, storage-stack and customer/staff
+audience design; this execution map retains the existing stages and receipt
+contracts. A ready snapshot is not a disclosure grant. No Vault UI, RustFS
+deployment, unrestricted graph traversal or staff-group activation is claimed.
+
+Version 1.4.12b points to the same proposal v0.3.0: §3.4 separates component
+ownership from workflow; §4.1 details ingestion and §5.1 details Agent queries.
+GKS remains passive: the worker claims decisions through MSP. Published-snapshot
+queries use MSP's worker query relay, not a synchronous GKS-to-database call.
+Vault is a logical policy view in Knowledge, and GenesisRAG17 is the distributed
+17-stage workflow, not an extra service. This clarification changes no wire contract.
+
+Version 1.4.13b links proposal v0.4.0 §11.1 and the [Thai parser/chunking experiment](../reports/oxr-thai-2026-10-25/README.md). This is isolated evidence, not a change to Stage 2, Stage 7 or production.
+
+Version 1.4.14b links proposal v0.5.0 §11.2: local Thai/table parser alternatives reuse the frozen comparison corpus; execution and permission contracts stay unchanged.
+Version 1.4.15b links proposal v0.6.0 §11.3: public real Thai documents and isolated native ingestion/query evaluation, with unchanged production and commercial authority.
+
+Version 1.4.16b links proposal v0.8.0 §11.4 and the [PaddleOCR-VL v1 follow-up](../reports/oxr-thai-2026-10-25/paddleocr-vl-v1/README.md): the same two PDFs, frozen gold and actual native path show weaker sampled table/retrieval results than the existing Paddle arms. The comparison is not parser adoption or production evidence.
+
+Version 1.4.18b links proposal v0.9.0 §11.4 and the [Hyper-Extract v1 follow-up](../reports/oxr-thai-2026-10-25/hyper-extract-v1/README.md): its source-text subset completed actual native TEXT ingestion, but candidate graph fields stayed outside GKS and row retrieval did not improve over the Paddle/plain arm.
+
+Version 1.4.19b links proposal v0.10.0 §11.5 and the [Hyper-Extract relation-evidence audit](../reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/README.md): it identifies a generated-description/quote-check mismatch, then tests bounded source-bound table facts through an isolated TEXT arm. The subset produced no row hits and no relation candidates; stage and graph contracts remain unchanged.
+
+Version 1.4.20b links proposal v0.11.0 §11.6 and the [held-fact source audit](../reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/README.md): 10 of 115 previously held facts gain unique source-cell/header/OCR-box bindings; all 120 facts are rechecked and one source-only arm is retested through the existing 17-stage workflow. Candidate semantics remain unassessed; no stage, graph or production contract changes.
+
+Version 1.4.21b links proposal v0.12.0 §11.7 and the [source-native extraction comparison](../reports/oxr-thai-2026-10-25/hyper-extraction-repair-v1/README.md): deterministic cell references are derived over all frozen table packets and compared with the unchanged table-preserving arm. Both actual native arms complete 17 stages; row hit@5 is 4/16 in both, while the source-native arm uses more chunks and resources. Structural candidates remain `NOT_ASSESSED`; no stage, graph or production contract changes.
+
+Version 1.4.22b links proposal v0.13.0 §11.8 and the [held-cell source audit](../reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/README.md). It re-evaluates all 972 records, retains 87 ambiguous cells, and tests a provenance-separated PDF-derived TEXT overlay. The legacy row-format metric and post-hoc complete-row evidence union are reported separately; no stage, graph or production contract changes.
+
+Version 1.4.23b links proposal v0.14.0 §11.9 and the [economy PDF-native row follow-up](../reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/README.md): 37 separate PDF-derived rows are compared with the current table baseline while the 87 historical held OCR records remain unchanged. The strict legacy row@5 metric ties; the post-freeze union is exploratory. No stage, graph or production contract changes.
 
 Isolated acceptance: Business owner Files browser admission and session HTTP/MCP reached the real native pipeline; four document runs each have 17 successful evidence rows, four native snapshots and five corpus generations. Project-scoped and bearer/API-grant paths have unit/Prisma authorization evidence, not native browser proof. Browser query controls and production activation are not claimed. See the [phase report](../.brain/reports/2026-09-08-knowledge-admission-phase0-4.md) for versions, test counts and limits.
 
@@ -247,6 +280,12 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 
 ## CHANGELOG
 
+1.4.11b → 1.4.12b (2026-10-25): point to v0.3.0 ownership and separate ingestion/query
+sequences; clarify worker-pulled decisions and MSP query relay without changing contracts.
+
+1.4.10b → 1.4.11b (2026-10-25): add navigation to the existing proposed Vault/Agent
+contract; no change to the execution diagram, stage ownership, wire or acceptance.
+
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 1.4.9b | 2026-09-25 | beta | Corrects the sliver claims of 1.4.6b/1.4.8b: two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.8b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | working-tree | Claude Opus 5.5 |
@@ -264,3 +303,5 @@ Engine source pin `e15e35b0093394e0a8880af7f4e6f63cf81223b7`; model `intfloat/mu
 | 1.2.0b | 2026-09-08 | beta | Link audited endpoint/surface inventory and user journeys; clarify unconnected UI and connector boundaries | base dfdbaf11 | RWANG |
 | 1.1.0b | 2026-09-08 | beta | Audit remediation: pre-stage intent, exact transaction retry, PASS-only publication and safe pointer replacement | working-tree | RWANG |
 | 1.0.0b | 2026-09-08 | beta | Actual 17-stage sequence, owner/input/output/terminal contracts, extension routing and proof map | base b64b46df | RWANG |
+
+Version diff 1.4.22b → 1.4.23b (2026-10-25): links the separate 37-row economy PDF-native follow-up; prior overlay and held OCR records remain unchanged, with no stage, graph or production change.

@@ -40,6 +40,7 @@ Feature record: [ZAI:FEAT-004 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE customer product disclosure from GenesisRAG17](../../change-requests/integration/line-customer-product-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
+- [Proposed File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent specification](../../change-requests/integration/line-knowledge-memory-unified-flow-20261024.md) — `relates` · `metadata` · `current`
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) — `references` · `metadata` · `current`
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](../../change-requests/integration/line-ollama-test-only-genesisrag17-20261024.md) — `references` · `metadata` · `current`
 - [TEST ONLY natural-language LINE stock and published price](../../change-requests/integration/line-product-facts-natural-language-20261024.md) — `references` · `metadata` · `current`

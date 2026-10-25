@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-before-model-bootstrap-and-inference",
+  "frozenAt": "2026-10-24T22:39:11.761Z",
+  "repository": {
+    "head": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+    "branch": "codex/knowledge-vault-spec-20261025"
+  },
+  "candidate": {
+    "name": "PaddleOCR-VL original pipeline v1",
+    "upstream": "PaddlePaddle/PaddleOCR",
+    "release": "v3.6.0",
+    "releaseCommit": "0006f7874c334ce9c0f497d8b6cce9cdc0b7363d",
+    "container": "ccr-2vdh3abv-pub.cnc.bj.baidubce.com/paddlepaddle/paddleocr-vl@sha256:ad0b1f056a76967f9191cd06398e8babb21b49a4673a28c3de5fd31f481884db",
+    "containerManifestSha256": "ad0b1f056a76967f9191cd06398e8babb21b49a4673a28c3de5fd31f481884db",
+    "pipelineVersion": "v1",
+    "componentModel": "PaddleOCR-VL-0.9B",
+    "inferenceEngine": "PaddlePaddle",
+    "invocation": "PaddleOCRVL(pipeline_version=\"v1\").predict(local_pdf)",
+    "officialDefaults": true,
+    "customPrompt": null,
+    "customPostprocessing": null,
+    "repetitions": 2,
+    "output": "Preserve every returned per-page JSON and Markdown file; run the same PDF order in both repetitions."
+  },
+  "officialSources": [
+    "https://github.com/PaddlePaddle/PaddleOCR/releases/tag/v3.6.0",
+    "https://github.com/PaddlePaddle/PaddleOCR/blob/v3.6.0/docs/version3.x/pipeline_usage/PaddleOCR-VL.en.md",
+    "https://github.com/PaddlePaddle/PaddleOCR/blob/v3.6.0/docs/version3.x/installation.en.md",
+    "https://huggingface.co/PaddlePaddle/PaddleOCR-VL"
+  ],
+  "inputs": {
+    "pdfs": [
+      {
+        "id": "economy",
+        "path": ".local/thai-native-20261025/input/economy.pdf",
+        "bytes": 124802,
+        "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40"
+      },
+      {
+        "id": "population",
+        "path": ".local/thai-native-20261025/input/population.pdf",
+        "bytes": 79599,
+        "sha256": "e9ab4edc753a899d48f4d0105996c6a4b573c68ba782d04d3da7b76ae78fd3d1"
+      }
+    ],
+    "hostMount": "/input (read-only; contains only these two PDFs)"
+  },
+  "comparison": {
+    "design": "2x2 OCR parser by projection profile",
+    "fixedGoldAndQuestions": "Existing reports/oxr-thai-2026-10-25/real-native/gold.json and unchanged common scorer are mounted only in the native evaluation container after candidate OCR output is frozen.",
+    "existingPaddleArms": {
+      "rawInput": ".local/thai-table-chunking-20261025/run-v2/native-input.json",
+      "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120",
+      "arms": [
+        {
+          "arm": "plain",
+          "contentSha256": "bf23780a00a5e131ea2008e9cfe6a31bf4add6770b2c63ffe28ae5bb8cd5da9e"
+        },
+        {
+          "arm": "table",
+          "contentSha256": "f9fd6dc1eba181abd08c372970088cdda1d1b7572114140c7d93f8076f0aff60"
+        }
+      ]
+    },
+    "candidateArms": [
+      "VL/plain",
+      "VL/table"
+    ],
+    "projectionProfile": "reports/oxr-thai-2026-10-25/table-chunking/table-profile.mjs",
+    "projectionProfileSha256": "e61ab0b8e4606d0deb38c2bb0415b7b97899e762a7f8d1912ed2903ecbae9252",
+    "nativeAcceptance": "Actual isolated GenesisRAG17 17-stage publication, 48 queries, scope denial, citations, and restart checks; same pinned native image/E5 model and CPU2/RAM6GiB profile as the existing table-chunking comparison.",
+    "endpoints": "Existing exact-string/table-cell/ordered-row metrics and native hit@1/hit@5; parser, projection, and native costs are reported separately."
+  },
+  "isolation": {
+    "parserInputContains": [
+      "economy.pdf",
+      "population.pdf"
+    ],
+    "parserInputExcludes": [
+      "gold.json",
+      "questions",
+      "answers",
+      "scorer",
+      "baseline OCR text",
+      "native-query results"
+    ],
+    "modelBootstrapHasNoPdfMount": true,
+    "inferenceNetwork": "none",
+    "modelCache": "Frozen after bootstrap, hashed before inference, mounted read-only to the inference container.",
+    "sourceMountReadOnly": true,
+    "freshOutputRoot": true,
+    "noCorrections": true
+  },
+  "host": {
+    "gpu": "NVIDIA GeForce RTX 3060 12GB",
+    "driver": "610.88",
+    "gpuDevice": "0",
+    "parserCpuLimit": 6,
+    "parserMemoryLimitBytes": 12884901888,
+    "resourceCapture": [
+      "container cgroup memory peak",
+      "host nvidia-smi GPU memory samples at 1-second intervals",
+      "per-PDF and total wall time"
+    ]
+  },
+  "priorPaddleRun": "reports/oxr-thai-2026-10-25/real-native/README.md and reports/oxr-thai-2026-10-25/table-chunking/README.md; parser-device and pipeline-version differences are explicit and parser-time cross-device speed claims are disallowed."
+}

@@ -1,0 +1,1298 @@
+{
+  "schemaVersion": 1,
+  "status": "sealed-nonproduction-experiment",
+  "generatedAt": "2026-10-24T23:36:32.359Z",
+  "protocol": {
+    "sha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032",
+    "amendmentSha256": "457be7cafbde8fd1c6e3307d5f1fed1f699699d63df59d1bc686479d3c34be0c",
+    "harnessLockSha256": "6f97ba947461800a28c9fe6ca3c3c66b11f98ee6ed0099fb16a91f8c8ccfb777",
+    "nativeEvaluationLockSha256": "6ac768b38a4dfed30252d676d63fb76a9e9769a648bc028fb3b848ea17e1432f"
+  },
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "modelCacheManifestSha256": "53bd317223e13d405c6b42c60e6e95508a6fd336efa7b0afc023042d384e5d60",
+  "modelCacheFiles": 64,
+  "rawArtifacts": [
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/adapter-parity.log",
+      "bytes": 122,
+      "sha256": "ed30fee758ad998a4f9a4a0aea5e0614f62eb321c660d10d3c4270c311bfe7c4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-1/docker-arguments.json",
+      "bytes": 860,
+      "sha256": "e58772212788b7feb1c1007462e141f3bede2f80d44f6717f83e181f49508a74"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-1/gpu-samples.csv",
+      "bytes": 78,
+      "sha256": "ea7cb2563f2e2d63eb905e8bd9bb7729e8f965e363dd2eb50a4fab76152dd530"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-1/image-inspect.log",
+      "bytes": 3863,
+      "sha256": "c46f5aa747b5c756445c2a4fa67e4c857eb5908f6859d2cee205c0c41ea4b3ed"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-1/launcher-failure.json",
+      "bytes": 385,
+      "sha256": "a3165930a111f6af5242a91c1f818705c75e1990634c9a429b381b6a19d5c71f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/bootstrap.json",
+      "bytes": 423,
+      "sha256": "a3c1ada578a0788638411f96a363e90c15d0c586d350c707857e27f4918b1c1c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/container-state.json",
+      "bytes": 225,
+      "sha256": "42260b6bf16a8e6e8e05fa69938ebe7de6814918dc72f7be148356e3a38de434"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/docker-arguments.json",
+      "bytes": 860,
+      "sha256": "7db76f8535ac72666e7b05978924cf96665ad05541b7da0d535c9f7c5acbbce4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/gpu-samples.csv",
+      "bytes": 16084,
+      "sha256": "00cdd5b2e7a522f5efb8c6f6fe0bf7a1513e2a8cf40c1ee0536760fa99c97191"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/image-inspect.log",
+      "bytes": 3863,
+      "sha256": "c46f5aa747b5c756445c2a4fa67e4c857eb5908f6859d2cee205c0c41ea4b3ed"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/image-pinned.json",
+      "bytes": 224,
+      "sha256": "e5e8a684cb7b707029e52865cb3ebbfb9eab6233706c34aa35fd2465e3abebd4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/network-snapshots.csv",
+      "bytes": 1043,
+      "sha256": "cc2628da1c2043c3cb0ccc6f695144c7e8ee6267d96d1cf12a72d57ba059260c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/run-state.json",
+      "bytes": 498,
+      "sha256": "f7d6d01a5d05a2bf1764dcc93f27e3398cdcd511515b9b83a7bdeb8986058d41"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/stderr.log",
+      "bytes": 3928,
+      "sha256": "2800843496aa871634b3a406e1704e9e83948e4cce68f7e6c4432ce69c9d5495"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/stdout.log",
+      "bytes": 423,
+      "sha256": "a3c1ada578a0788638411f96a363e90c15d0c586d350c707857e27f4918b1c1c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/bootstrap/attempt-2/wrapper-postprocess-error.txt",
+      "bytes": 296,
+      "sha256": "30d8769497d1644b2cb002babcb6e5d3617279355f7c2177b6900d9f8734a5af"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/evaluation-attempt-1.json",
+      "bytes": 545,
+      "sha256": "31c4b2b876b0d99c7b9e7577d356dac1470c2c8fa715ba57ed87f95987a59839"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/evaluation-script.sha256",
+      "bytes": 81,
+      "sha256": "5bb362d14c4964d7d5df3040674a8bbd57e759b4d0dfe779f1b6af8086614d5b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/evidence-manifest-pre-review.json",
+      "bytes": 58440,
+      "sha256": "a329898b6cf290788e057be8079a89b9ee0ab036c73d822bd0ab9c7709ed63fc"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/harness-lock.json",
+      "bytes": 3636,
+      "sha256": "6f97ba947461800a28c9fe6ca3c3c66b11f98ee6ed0099fb16a91f8c8ccfb777"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/harness-lock.sha256",
+      "bytes": 84,
+      "sha256": "8aa89b70284b34cf2ac09239683273fa2c0f2d9f5466f75f9cffef5443abfcce"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/container-state.json",
+      "bytes": 225,
+      "sha256": "f07fec4fd0d1f56d2198b577f11f1ab2f8c547c07702a04b08c64bd6c736965d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/docker-arguments.json",
+      "bytes": 1192,
+      "sha256": "a2a1b1f3c1ab786231d494fbf9f425ff3df831f653b5e53e166db977c3d230ad"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/gpu-samples.csv",
+      "bytes": 457,
+      "sha256": "9710d00be0f71e16df2020b6c63d6df4184fc2a9236dbbfc8127daa0d1fc2cfd"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/image-inspect.log",
+      "bytes": 3863,
+      "sha256": "c46f5aa747b5c756445c2a4fa67e4c857eb5908f6859d2cee205c0c41ea4b3ed"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/image-pinned.json",
+      "bytes": 224,
+      "sha256": "e5e8a684cb7b707029e52865cb3ebbfb9eab6233706c34aa35fd2465e3abebd4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/run-state.json",
+      "bytes": 673,
+      "sha256": "8709762031b632d83e153c50fb58e212e8bc02d92a7618882ff491a601ff2f99"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/stderr.log",
+      "bytes": 195,
+      "sha256": "9eb7a9b5522e4293b3e96468c88189d970a71bdf20e6e4c5cb3c220256f432f2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-1/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/container-state.json",
+      "bytes": 225,
+      "sha256": "4a7952439ad970826ccc39798271a7c7827d46379335430ad5e7384a6a970db1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/docker-arguments.json",
+      "bytes": 1206,
+      "sha256": "be03a337f5169c4905d360746fb7d455fc6dfeec8cb9cf738e150d89b27b65ec"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/gpu-samples.csv",
+      "bytes": 106345,
+      "sha256": "1c12df45a083f6b5e79801b9a7ae5516920403d64272c28c9df4f4831d464f74"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/image-inspect.log",
+      "bytes": 3863,
+      "sha256": "c46f5aa747b5c756445c2a4fa67e4c857eb5908f6859d2cee205c0c41ea4b3ed"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/image-pinned.json",
+      "bytes": 224,
+      "sha256": "e5e8a684cb7b707029e52865cb3ebbfb9eab6233706c34aa35fd2465e3abebd4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/economy/economy_0.md",
+      "bytes": 27771,
+      "sha256": "8e8dc737f90febe0d2935ac502ac5eabf389c21e95b2a37eab76ab1e9a646727"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/economy/economy_0_res.json",
+      "bytes": 10658,
+      "sha256": "33141b7a54710fccf2127245779be93baabad3db5a9ed7d2cf70bf1a94439460"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/economy/imgs/img_in_header_image_box_62_38_199_116.jpg",
+      "bytes": 5641,
+      "sha256": "3ac7b9a595d6b6d49908713f08e4e4cdcc35bcf92fde03c0bd3cf8b10713d5a4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_0.md",
+      "bytes": 18839,
+      "sha256": "2a86d684c1f3ac15d5cdedbec05292a0e00f758d220d81f44ccf8ba80dbcbc90"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_0_res.json",
+      "bytes": 12638,
+      "sha256": "bf7d25bc0d0775b710d9b4d2f10b4f0d043a9abd936c06898d779c6813a03a88"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_1.md",
+      "bytes": 18572,
+      "sha256": "3bad437098d49a7694568cb3e814672757d95e81055a74945540f8efbde514d1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_1_res.json",
+      "bytes": 10679,
+      "sha256": "7e28f072ecc9e2da070fdaa5a28aa43b1e13e90d18f59af3b18a4933e9ab38bb"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_2.md",
+      "bytes": 4480,
+      "sha256": "48cecc68043e5d4c4a164f57eb7daad16ea73c62dd6c86a2c1abded80ecf7f28"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1/population/population_2_res.json",
+      "bytes": 6737,
+      "sha256": "e5f931d8e2e922571a7d975ba93d1357b8f1ead638462d3cda1f6fddca8528ae"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1-economy-receipt.json",
+      "bytes": 246,
+      "sha256": "b248e364ee4236a820c726c76981ada71c8ffd398da995485379185307c703f5"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-1-population-receipt.json",
+      "bytes": 358,
+      "sha256": "4d714ea1060d09446463eb4867875fa16cb02ca8c5466a1300307db3befe6b3b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/economy/economy_0.md",
+      "bytes": 27771,
+      "sha256": "8e8dc737f90febe0d2935ac502ac5eabf389c21e95b2a37eab76ab1e9a646727"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/economy/economy_0_res.json",
+      "bytes": 10658,
+      "sha256": "33141b7a54710fccf2127245779be93baabad3db5a9ed7d2cf70bf1a94439460"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/economy/imgs/img_in_header_image_box_62_38_199_116.jpg",
+      "bytes": 5641,
+      "sha256": "3ac7b9a595d6b6d49908713f08e4e4cdcc35bcf92fde03c0bd3cf8b10713d5a4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_0.md",
+      "bytes": 18839,
+      "sha256": "2a86d684c1f3ac15d5cdedbec05292a0e00f758d220d81f44ccf8ba80dbcbc90"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_0_res.json",
+      "bytes": 12638,
+      "sha256": "bf7d25bc0d0775b710d9b4d2f10b4f0d043a9abd936c06898d779c6813a03a88"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_1.md",
+      "bytes": 18572,
+      "sha256": "3bad437098d49a7694568cb3e814672757d95e81055a74945540f8efbde514d1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_1_res.json",
+      "bytes": 10679,
+      "sha256": "7e28f072ecc9e2da070fdaa5a28aa43b1e13e90d18f59af3b18a4933e9ab38bb"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_2.md",
+      "bytes": 4480,
+      "sha256": "48cecc68043e5d4c4a164f57eb7daad16ea73c62dd6c86a2c1abded80ecf7f28"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2/population/population_2_res.json",
+      "bytes": 6737,
+      "sha256": "e5f931d8e2e922571a7d975ba93d1357b8f1ead638462d3cda1f6fddca8528ae"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2-economy-receipt.json",
+      "bytes": 246,
+      "sha256": "80021230bb6c7043c904cb83afc1a44af8ddfe0581c8abf23af4a36c36013255"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/repeat-2-population-receipt.json",
+      "bytes": 358,
+      "sha256": "92c59808906773900c059d6832aec49ab936bcf6b29b3176089605e3fd59e7d4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/run-result.json",
+      "bytes": 2239,
+      "sha256": "d83fbdc0f88b0a2f6eb6258b3daa43fb9a7dc6073440e9d20eac437efd83e792"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/model-output/run-start.json",
+      "bytes": 589,
+      "sha256": "a566955539b3d835b7bfb5885627e6f07573bad307733719a292fa1915814dc0"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/run-state.json",
+      "bytes": 679,
+      "sha256": "0148fc5bf6cc074639a74cce732968371b179f6cc9770c0786e1f174bbe9cad7"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/stderr.log",
+      "bytes": 3561,
+      "sha256": "305ffacf1ad17dc1e8cd95bca28888f683d9b550d8a1840863929375872060a7"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference/attempt-2/stdout.log",
+      "bytes": 2239,
+      "sha256": "d83fbdc0f88b0a2f6eb6258b3daa43fb9a7dc6073440e9d20eac437efd83e792"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/inference-freeze.json",
+      "bytes": 4924,
+      "sha256": "5c9825a6181f0d058b55b8ea35c5fe21ca317400b4407ed68d26dd3e7da1c700"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/launcher-layout-check/gpu-samples.csv",
+      "bytes": 17,
+      "sha256": "6b815cc3677ed4b425517bbe9e01c0ddca8523b931212bfdb636db8b8b74555d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/launcher-layout-check/stdout.log",
+      "bytes": 11,
+      "sha256": "4d5a1e6f1f7f147671bf4d8358d18f2a0113af3eb7b722fdad9bb87177a1f40e"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/launcher-layout-check.json",
+      "bytes": 503,
+      "sha256": "3b8b99b6aa030fd9ad7eb3046d18eb2feaf09ca04dac4445636680692cafdedd"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/measurement-summary.json",
+      "bytes": 80602,
+      "sha256": "8c16e1bb2f7a545b972943e2b7b203e274b1f9def0b2bc5d38b1781f6ba8764a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/model-cache-manifest.json",
+      "bytes": 13585,
+      "sha256": "53bd317223e13d405c6b42c60e6e95508a6fd336efa7b0afc023042d384e5d60"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-evaluation-lock.json",
+      "bytes": 6886,
+      "sha256": "6ac768b38a4dfed30252d676d63fb76a9e9769a648bc028fb3b848ea17e1432f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-evaluation-lock.sha256",
+      "bytes": 94,
+      "sha256": "ff2b3af83ca6e92d915cd2f6960276d01b96f4ff1ec8bec63f6acfebe8c11225"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-gold-verification.json",
+      "bytes": 438,
+      "sha256": "9e34011a562215409a749c811dc235726e0ac7c4aabf31d7b599c05d88e1be34"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-input.json",
+      "bytes": 2128518,
+      "sha256": "34ff5bfb7ba2ba938b76ba6b4e5383538ada3f7296713a2612e46be0af1e93aa"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/chunks.json",
+      "bytes": 27548,
+      "sha256": "a2656b57bff377a24260cc1cbed52aa85312895e6fa7598335584560c3f11115"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/container-state.json",
+      "bytes": 225,
+      "sha256": "c09d0d47eecb8a4878257d0e64e85727fcf83a11125de40e0a4a60c912d59cda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/docker-arguments.json",
+      "bytes": 1557,
+      "sha256": "85227240b06df765328d02f57bbcf26da5bb15f565547be324643048a8e4233a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/executed-native.test.js",
+      "bytes": 8643,
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/native-results.json",
+      "bytes": 520935,
+      "sha256": "2e5139de4e4733a1598f912f4d2be47659396ac36ff51d9d5e5a65559ae806ec"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/native-run.log",
+      "bytes": 1190,
+      "sha256": "4d89765a126ab73d08962e6ebea757e62b3494e76ed102ddbe8bca839629ec68"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/publication.json",
+      "bytes": 378,
+      "sha256": "db3be37a034df974f77175c626d4d21b2e6491bd304de33dea2dfaee6ebe26f1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/run-state.json",
+      "bytes": 868,
+      "sha256": "0c2f073f7de3814327f82c709185ba123f4a6d590fc9b47c98fed9661a859e6c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/stages.json",
+      "bytes": 47924,
+      "sha256": "bfcf0ff51d29b433355330419f4e7876f5e2c320dc11ee6b17ba2353dcb349ee"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/edges.bin",
+      "bytes": 121028,
+      "sha256": "854a3aa1996ef09f7ffac6d8cd8b031728fae81d4861cbc407b31005939925f2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesisrag17/decisions/gks_decision_940575e82499d5c0e6833a168edab76a.json",
+      "bytes": 70366,
+      "sha256": "1fc374aaf980b7b80ad63d5e81d033b0a5ecba7af93f73a75597dfd1811035f4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 139264,
+      "sha256": "c8c795e05fea2c33e3b03585c6e29845ec1c0cd823c875dfea7281fbd3777166"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "cc0edeacc5c849a679883a3db388871a76b9aaec09f899f698b3f4012fbb161f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesisrag17/snapshots/snap-0248d2da7bf9ef99776a6a86941825ab.json",
+      "bytes": 2470,
+      "sha256": "ba0d0f14e007748580c00532d6b88af8ca16d9e866e525dcb3a10496aa5b4b02"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/genesisrag17/state.json",
+      "bytes": 21026,
+      "sha256": "0bcb87a26834c04c89a2cfa7d3373855672b97af62d353ff4accc6de5c2a7aaa"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "cb8d6b787616a5084c95589c89b022d9c1916657cab057209dd359139d17b3e8"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/journal/B000000000000.gseg",
+      "bytes": 674,
+      "sha256": "56664d26f71cf3a63cd52446bd6c376b87122a12660d3eed1fdd92d2fb8503a6"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/meta_genesisrag17_e5_0248d2da7bf9ef99776a6a86941825ab.bin",
+      "bytes": 490,
+      "sha256": "bc74601e9cc1cad6af7bd39cd604d0af69ca331abc8c315076d4a1fbb51635c7"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/nodes.bin",
+      "bytes": 18790,
+      "sha256": "23337e73e27d84708ca025142159dd1de80acb212ff0d99e547f72473d5dcdfc"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/projection.sqlite",
+      "bytes": 720896,
+      "sha256": "009db70cf0c56b0970e79961487850eac02b452959c455debbe99ba61016fea4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "94d5936adb1526bb2f9a09e1fed532e14b6bc8e5f6c7c729745453a7a633b077"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/projection.sqlite-wal",
+      "bytes": 626272,
+      "sha256": "0ad3cfd961942668979005aba414da4b4d2e65443a8508e225c2db3b9e72b951"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "a28c7422541a63e1d32472889ed345cb799516267922ded9d0d57b13810015b9"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/vec_genesisrag17_e5_0248d2da7bf9ef99776a6a86941825ab.bin",
+      "bytes": 41472,
+      "sha256": "fe1f6ca9a96238a450c2cca760e592ad8f60a894ff4c59ae76af2fec2cf96608"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/genesis-store/wal/active.gwal",
+      "bytes": 460536,
+      "sha256": "b881dbe2ab155667ca467956750f4ec2123cc037064b5edfe32e7523fe10483c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "ccf5c9ceb633b4cfb86bdc65cfa57c57d2496e74cc825f6505c204fe3530e37c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/gks.sqlite-wal",
+      "bytes": 1186592,
+      "sha256": "910afb170ae05296f43cd931f25afdfedd2ab813c6d53f85e20e734cfc87f639"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "27260e9ceca27c6b8243d66879a5460bf17611e0fa2b82bcfe3d769dba00c529"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "104a9ca0ce230eb660e5309fdf59fbb375fe37a12613fb32e0f03447a5d708ba"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/state-C0RGp9/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-plain/zuri-evidence.sqlite",
+      "bytes": 4943872,
+      "sha256": "90ce10bfe04ebfa74f33e0efb539a9ec1d284327d9449da8e286e94a24a438a1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/chunks.json",
+      "bytes": 83132,
+      "sha256": "052fd5337240a2087d29807e208dc6dacc0e4ed8cbc1cc820612252a2844e097"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/container-state.json",
+      "bytes": 225,
+      "sha256": "8cf9caa394a8c043912590d8236c604b410287e6036f82669931e1fca77f6090"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/docker-arguments.json",
+      "bytes": 1557,
+      "sha256": "c1974bbfae8a5fd9dad5d3e1cf567463ffe30eee0d46e06e9abd4fe13a9ecbb1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/executed-native.test.js",
+      "bytes": 8643,
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/native-results.json",
+      "bytes": 305549,
+      "sha256": "30a39ba003f6b70575118d19aadaf29cd82aaa40671c3e5eb38b4e35e8f23c0e"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/native-run.log",
+      "bytes": 1189,
+      "sha256": "5ff8a9cc90eab30b337d2537806d0f9be2e56920a0fdc033744ff98b5695347f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/packet-audit.json",
+      "bytes": 16594,
+      "sha256": "f9b467de3fad9f604f1a69a827754268f252ca9be55bfc8a585ec52a294a7df3"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/publication.json",
+      "bytes": 378,
+      "sha256": "4816aa24909eec8a306182ccd23dc300b67b1c08001ca5f9e266f746dadeaf5d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/run-state.json",
+      "bytes": 869,
+      "sha256": "b7594251e42341d4a0a200e24b399e1fd4f2d154e25d50f8484202dc8239f4e1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/stages.json",
+      "bytes": 55256,
+      "sha256": "1bdf50ef649a23289ae5bc0113264c3950fc30e19109fb8fed268557b19c07c1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/edges.bin",
+      "bytes": 258077,
+      "sha256": "b5b77c69aceecd751ae21814f0357b3ad7636764d71df74f65147afcc7450073"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesisrag17/decisions/gks_decision_f1d3cadba2f6d6366cb34483e77745b8.json",
+      "bytes": 143382,
+      "sha256": "264f031adcb8f9265fe59c78ff5f770fd6c8be4bb5fcef0a52f381430a7a9884"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 393216,
+      "sha256": "877c06026701cd3614e930d5fdf86b711c0c71e3111f0e23ed84045a0af68169"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "f9eb2dade82468ade911fac4961409d1e6f84162a8008847491846142e7911af"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesisrag17/snapshots/snap-48f09e7c1bae5d1a3789f7528b331b08.json",
+      "bytes": 9547,
+      "sha256": "1d754e2657e48eff137d06f51c1ceaf993f19c57db7243866c2369738d7b9a60"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/genesisrag17/state.json",
+      "bytes": 21048,
+      "sha256": "dcfda5f802c9adf9889e66ee9ff2fa6e9cbf72880115d30059634bec69e3c4d8"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "01384c1b640d6c4ead34c3e084a80484b4980fcb03c39b951174314ee1fa69a4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/journal/B000000000000.gseg",
+      "bytes": 672,
+      "sha256": "ba357a5656e9ea8667cf34304734b38b547e6f0c1a7d79d0d918bda931d394ef"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/meta_genesisrag17_e5_48f09e7c1bae5d1a3789f7528b331b08.bin",
+      "bytes": 2594,
+      "sha256": "c89c84e035732c373a235484a3f34812444090a3cbba28b9cb2e2003af7eda05"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/nodes.bin",
+      "bytes": 52031,
+      "sha256": "77d67e607beb2d3b71118ad5c2d20931cc517883f0fb9bdac8363f4e623bffd3"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/projection.sqlite",
+      "bytes": 1572864,
+      "sha256": "9570becdfa7e57f19d41546844fedd84685095080247395ed68225986ef4777e"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "f3c69c9252f9225027e0044c1580e4e468d3b57794d46adf7f84d6a290a6b5d5"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/projection.sqlite-wal",
+      "bytes": 1392592,
+      "sha256": "abe16ca1801e63f7928e54f36234d1e34196dfa37830e092264ea771fb78e45c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "ecbec8b9ec04b0c50e024518b99a87cc6986003e1088de5924c233eb6846670b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/vec_genesisrag17_e5_48f09e7c1bae5d1a3789f7528b331b08.bin",
+      "bytes": 210432,
+      "sha256": "3e38b3ea33abf8e69337f1463526499de60851b349f14669b3375f134c8b96a3"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/genesis-store/wal/active.gwal",
+      "bytes": 1699727,
+      "sha256": "21703dea7c7d560604cce8e285e09ea383453b193949d49b12ffd0cbb0b80944"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "d93a3a431e5ae2adc10b5c66030023e52b4ce7f63d12de9b78eb35e220b1db12"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/gks.sqlite-wal",
+      "bytes": 1763392,
+      "sha256": "1b04cf42090cfc67dcdb2a66bbe2c454f9e213dea1b25f416d7edd85ad956030"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "0b842238d02f4601960d29db3dc2180737f669ad2a736b13e3fcbf89bb1c0594"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "213a68978be8e2e530c84b5e2d1dbf42b126fbc43dac286978d3df7891d116c1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/state-tf1JaS/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/native-vl-table/zuri-evidence.sqlite",
+      "bytes": 5328896,
+      "sha256": "49a17446b8b59990c5f9ff9e9d80bd4f118b963fbcd2a774ca6d7148392e35fa"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/paddle-image-pull.log",
+      "bytes": 1971,
+      "sha256": "2da3458797975de44ee0bbe4baaa07fb6eafbf502d2473e55054e2060c026859"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/pdfinfo-economy.txt",
+      "bytes": 607,
+      "sha256": "b172e1d71fe8e4801f1022dcec33fb00fc65055c5ace8f3b212816e72c274dec"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/pdfinfo-population.txt",
+      "bytes": 511,
+      "sha256": "06e1fbdd581e8368096a649d22fba39787208c1dbc6010ade66b1ba67501309d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-1/failure.txt",
+      "bytes": 323,
+      "sha256": "cc82b37c06cb0842694b36893f8d6340b461a2f686fadf136da6d3d7161af44a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-1/harness-lock.json",
+      "bytes": 3636,
+      "sha256": "2ca51964f3b560511b3efa4cfbf9b20f4d98150a23a3b3d5eb9ff061b5ea8fa9"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-1/harness-lock.sha256",
+      "bytes": 84,
+      "sha256": "8a1160249f14571a20fa69be7ca681c78ad1c01a9e5595d0990e96323f3625cc"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-2/harness-lock.json",
+      "bytes": 3636,
+      "sha256": "fd5450e28f93671e7ee1a387349100c3e5c88a33fb74e1119f0dd24154369d06"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-2/harness-lock.sha256",
+      "bytes": 84,
+      "sha256": "0dcec3b3e0e5987cffd74b680906d8d977c2a7fec01961e2dd20093b5aa5841e"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-2/protocol-amendment.json",
+      "bytes": 4647,
+      "sha256": "43391a35e8ca9a8e54e8719fda2deb677db07da38cce91df92907799779a28a2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/preflight-attempt-2/protocol-amendment.sha256",
+      "bytes": 90,
+      "sha256": "5d557be1a5c0ace075e40e9e1f5138a4f3b2733664bdb3194a4e390b629526d7"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/projected.json",
+      "bytes": 166685,
+      "sha256": "f97ac43d8e4d5aca73d3df96273cd988f28597719a140a40d5fa77b8b3dbbd98"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/protocol-amendment.json",
+      "bytes": 5302,
+      "sha256": "457be7cafbde8fd1c6e3307d5f1fed1f699699d63df59d1bc686479d3c34be0c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/protocol-amendment.sha256",
+      "bytes": 90,
+      "sha256": "da28d9b50a7c930312dc18e96ec1784fdf9f7d4c72e23d99e2d4b072012a179c"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/protocol.json",
+      "bytes": 4612,
+      "sha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/protocol.sha256",
+      "bytes": 80,
+      "sha256": "3467098bb183a27d300e894a4d8ba99e6933ab3df38470d99d6f451e3e7a940f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/__future__.cpython-314.pyc",
+      "bytes": 4817,
+      "sha256": "e1818f0caf74b3406f4b83de447c26e24c8007a58c18de497f044900de68eb85"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/_colorize.cpython-314.pyc",
+      "bytes": 18556,
+      "sha256": "50bf72e14f7daca227881da87b4b6df85fda79919c34b05121845a8d897b7363"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/_opcode_metadata.cpython-314.pyc",
+      "bytes": 10441,
+      "sha256": "742293356f1fa117e2feacaa56fbe2d55b4c0d611af600844f03dfd8561457f6"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/_py_warnings.cpython-314.pyc",
+      "bytes": 37019,
+      "sha256": "695209f7cbf7aa27430e11c6bbb13cc3ee17d217dab1d4a00864941758093e43"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/_weakrefset.cpython-314.pyc",
+      "bytes": 9440,
+      "sha256": "3ea8bcc0d764beb97924b3c63b58c88d3f9d9be0b00127747fb42e15c2d09df1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/annotationlib.cpython-314.pyc",
+      "bytes": 49695,
+      "sha256": "988708d4bc3f1f100a8356266f521797cfc31b322aef86f62ff0fecb4c49a3cc"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/argparse.cpython-314.pyc",
+      "bytes": 113598,
+      "sha256": "4fc6f4c2f5f19203142b3be349d1585ff818fc8ae7f31f93cfd608c3d2a174ff"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/ast.cpython-314.pyc",
+      "bytes": 31633,
+      "sha256": "97ff4077a50267ac405d0bc0064280268815db8b64220ccfab5cd6d57e71ddca"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/bz2.cpython-314.pyc",
+      "bytes": 15320,
+      "sha256": "ace12db6a256d75b7693a72e82bb5e17d0eb7fbec212c2f66e445c42f77fda10"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/codeop.cpython-314.pyc",
+      "bytes": 6997,
+      "sha256": "3c695a415abcdeb73f0cd25fe503257d0ea7f60624264eaeb3aacfad5ead893a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/collections/__init__.cpython-314.pyc",
+      "bytes": 74908,
+      "sha256": "688ff800a8dee5e0820c787638c42f2e1c5b2b474294fe129e26d2dc0e8adc75"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/compression/__init__.cpython-314.pyc",
+      "bytes": 181,
+      "sha256": "2f550bcc437a2abafdbfe07272974b435f8bd778aaf763db551042fb81ebace0"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/compression/_common/__init__.cpython-314.pyc",
+      "bytes": 189,
+      "sha256": "a6987c0b80783125db71037c30e8da9bf287e0e8350b29ff457797ad332893e3"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/compression/_common/_streams.cpython-314.pyc",
+      "bytes": 7842,
+      "sha256": "b0c7179ecb70d454903dfc0b0a3cf7590270054dc27cd439b36b09fd624b3a26"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/compression/zstd/__init__.cpython-314.pyc",
+      "bytes": 11762,
+      "sha256": "603bbefbe5f14f7c08cdf5b5af3b22a0c055816dd3e606fe8440326fac4ba622"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/compression/zstd/_zstdfile.cpython-314.pyc",
+      "bytes": 15822,
+      "sha256": "31793bfad4675e5f0b9bdc9957bef0b3f60228c2424dc69fa035a400b7c1e46d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/contextlib.cpython-314.pyc",
+      "bytes": 31175,
+      "sha256": "b7648b4c060269998ba637b145f5230bd3a32cf18db70f82e9d9d5607b9a9fa6"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/copy.cpython-314.pyc",
+      "bytes": 10151,
+      "sha256": "018b8edf7e2d4e1ac3427b07dbcb4a20c6f5ac99f61ed221c117626508b94acd"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/copyreg.cpython-314.pyc",
+      "bytes": 7955,
+      "sha256": "2980a09326a8c0d358803144cb011ebaa2df73027d5b37417ff636c0527376b4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/dataclasses.cpython-314.pyc",
+      "bytes": 54931,
+      "sha256": "7f2cda6a2f7863cba08e82b41de6e8193b19e3bc50fc90a90d67305d6c754674"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/dis.cpython-314.pyc",
+      "bytes": 54263,
+      "sha256": "481df19a25634ff4c22a9f7a67eec5242ef8a1fb30f93d4897ad4afdd3ea25d4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/encodings/__init__.cpython-314.pyc",
+      "bytes": 6777,
+      "sha256": "fb96667cff8445e48ab6209e18e80a298015b14b30ce6aa6edbc22382aa6d59a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/encodings/_win_cp_codecs.cpython-314.pyc",
+      "bytes": 3354,
+      "sha256": "a7c204126e2539611338615adff4a8663c81c8d9d46ab70a6bf227dc0ef6a852"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/encodings/aliases.cpython-314.pyc",
+      "bytes": 13006,
+      "sha256": "5a08f0f589d53d82589f9c7f9c8ec1c46c456b3d58b0f959c98bc3b7d30cc5c2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/encodings/utf_8.cpython-314.pyc",
+      "bytes": 2369,
+      "sha256": "d1823312bcff208b94bd504d5464fdd373dd51b47d49214aa26f679db01a89e9"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/enum.cpython-314.pyc",
+      "bytes": 88065,
+      "sha256": "050da6c8ef4d1c5d7fc202a2f5bcb779ad23aec71f6e46184370d6ee87e2bd3b"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/fnmatch.cpython-314.pyc",
+      "bytes": 7901,
+      "sha256": "af49acabd836f80eccb51856d01def2e840afaf49a062b2442e7d8981f656f95"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/functools.cpython-314.pyc",
+      "bytes": 48031,
+      "sha256": "3b8e2a1c39c07c2616a5e6ae57f77fbf837b11fa3f2554536341c46f19239775"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/gettext.cpython-314.pyc",
+      "bytes": 23193,
+      "sha256": "6f89a6e01f079f5d448081a4971f0026cc98bc1bbd0349fcc09b8d883ab5dae1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/importlib/__init__.cpython-314.pyc",
+      "bytes": 4654,
+      "sha256": "b6cc2800f02c6aa78f5d67627e3af8717b3ee257eef253f98a5083231a5faec2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/importlib/_abc.cpython-314.pyc",
+      "bytes": 1706,
+      "sha256": "0ba1df6e5fee5bdc2d996e2de0c69cb473da623a17eebb6f09d4fbe277c7a6c2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/inspect.cpython-314.pyc",
+      "bytes": 139808,
+      "sha256": "58ae5d5ca386ea0863c97c3dd4fbdb7ce1a5187ea71ffc5ebd9bbfd949efb003"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/keyword.cpython-314.pyc",
+      "bytes": 1570,
+      "sha256": "a9aa2a54d71b3f6cb31fc63fb9a9f668e5abb0c62171b6a73406a079d6217069"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/linecache.cpython-314.pyc",
+      "bytes": 9537,
+      "sha256": "177a8e7d272e240817d414ddf09d4af2dd84948b2bf3d5a35fcebd295d6592e2"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/locale.cpython-314.pyc",
+      "bytes": 65602,
+      "sha256": "83697ce9edc395f9d17f3df1f60d9518b0f5e7e609f80a0d4861cc574d2bcea6"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/lzma.cpython-314.pyc",
+      "bytes": 16500,
+      "sha256": "241ac0890e59e21a4a7ea9fd5b7ece48628698f45e11ae18ba1daf585e177323"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/opcode.cpython-314.pyc",
+      "bytes": 4527,
+      "sha256": "bdbdb9800f1f763175fbf4d579178747cbee6dd77c31ab331d6cabfb27212399"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/operator.cpython-314.pyc",
+      "bytes": 19035,
+      "sha256": "c8f1db71c7e611836606387e04a14a7b3b5dde941c914d071b261db43be860c3"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/py_compile.cpython-314.pyc",
+      "bytes": 10269,
+      "sha256": "a217bf256525e022da21234fa9f32b56fb3622ace4dabba86674a8a6cf3c313d"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/re/__init__.cpython-314.pyc",
+      "bytes": 20004,
+      "sha256": "02f1e090ead02cda2d5078dde62c2b6dcf31ac2ee3a7013bea4fadb4acab93fa"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/re/_casefix.cpython-314.pyc",
+      "bytes": 1847,
+      "sha256": "8013384ba20202559d5978d22f936ccfc7a3bf91db784c8a2d41af70882ef679"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/re/_compiler.cpython-314.pyc",
+      "bytes": 29702,
+      "sha256": "ad72f7aa3480edc30759391e414e7c06ec287d9ffa1ddf57a71e26b161f4ddd4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/re/_constants.cpython-314.pyc",
+      "bytes": 5662,
+      "sha256": "d69856424abc0ad8e1fe5c96016835d7595f2bb41fe2c3a977beecf15a66bc80"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/re/_parser.cpython-314.pyc",
+      "bytes": 45292,
+      "sha256": "ee87c8001c111dc76de259556fc830f01ac2fb04f0ee0bc3a0336dd54832cfda"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/reprlib.cpython-314.pyc",
+      "bytes": 11719,
+      "sha256": "60002019003c31ec6917f55477659fce683ce8c11d2d71c07f5449dbfb879354"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/shutil.cpython-314.pyc",
+      "bytes": 71629,
+      "sha256": "25b641dcc4f4e0c47c967e4c6b9460560b839482e09b6565ceede175a9318703"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/textwrap.cpython-314.pyc",
+      "bytes": 18473,
+      "sha256": "dd16df22f5b6e20d863f5504a216e88a091185e44a491ac3f55b5c21b7476f6a"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/token.cpython-314.pyc",
+      "bytes": 3913,
+      "sha256": "9a6393a04bb18692486ca65c97613f3c078a37428c67d131f71bd7761e39345f"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/tokenize.cpython-314.pyc",
+      "bytes": 26983,
+      "sha256": "208c01a78e5c8bebadbc46584e3b7e9dad591af7c1d2c5e3b71e4c05c4211bc1"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/traceback.cpython-314.pyc",
+      "bytes": 78645,
+      "sha256": "d0d8787c9a1396cd0bf5213c44a637e4ec5fd7a668cf24cd0f05b96efb59d936"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/types.cpython-314.pyc",
+      "bytes": 15880,
+      "sha256": "decbef6158cad558f758e70662eec99b42070655b7c3eb32d25dc32f8020b0ab"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/warnings.cpython-314.pyc",
+      "bytes": 2535,
+      "sha256": "ffa6df60e6d3ac6a9bd217c8c5ea6d0cf9c902428641aba77c4f1856f3526cd0"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/AppData/Local/Programs/Python/Python314/Lib/weakref.cpython-314.pyc",
+      "bytes": 27658,
+      "sha256": "9a975e56e4b0a6c29163805982c4bc2bb4bd75c9652428d63ad63bab253f83a4"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/workspace/zuri.ai/reports/oxr-thai-2026-10-25/paddleocr-vl-v1/bootstrap-vl.cpython-314.pyc",
+      "bytes": 2751,
+      "sha256": "f8d985579aa7b2513026eed551eb2b57c037121225182e21c54c6b5537b2c732"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/python-bytecode-cache/Users/suanr/workspace/zuri.ai/reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-vl.cpython-314.pyc",
+      "bytes": 9666,
+      "sha256": "7f158009a605d4be23d7f9ba88d99b6a51845f6897ae8b31ebcca43c54f50599"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/repeat-consistency.json",
+      "bytes": 4238,
+      "sha256": "3436458dc348926af18090ecb82ee10c27ab58c33e9345aaf07039b8fd3f5629"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/source-page-counts.json",
+      "bytes": 1085,
+      "sha256": "dbbacc6c8aa7c9da858e6481253b5b00c7b7cdfa640f6d4379c0ef0465a74fae"
+    },
+    {
+      "path": ".local/thai-paddleocr-vl-20261025/table-sidecar.json",
+      "bytes": 2840760,
+      "sha256": "cfe58bd25ed9a81d71a6db85cf65a7a9451847d421cf0ca43b94af16d01ee6f9"
+    }
+  ],
+  "reportArtifacts": [
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/README.md",
+      "bytes": 10192,
+      "sha256": "e30510cb0957179dd1ab0aa68dcdd600435c433d5c88dd062143640b8b5a9aaf"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/adapter.test.mjs",
+      "bytes": 1594,
+      "sha256": "ac9c129f9b86d6b28f6e4e8cecb1751d9d3362e3ecb956c51e948760b3aae860"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/bootstrap-vl.py",
+      "bytes": 1487,
+      "sha256": "8d7f86b5df4fb765eef9bbacfdf6644aa75bf07983c078b7c83bf8320e832468"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/compare-repetitions.mjs",
+      "bytes": 4546,
+      "sha256": "c21bb8db4e7186d498efb0fd04e49a2152c50f8c0377e873f8b79a733a7cecd1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/evaluate-vl.mjs",
+      "bytes": 15149,
+      "sha256": "5d933a1e7c3c0224564fc56c3e0da2fceae5ad7be01d79ed94d84d3198322a9c"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/evaluation-script.sha256",
+      "bytes": 81,
+      "sha256": "5bb362d14c4964d7d5df3040674a8bbd57e759b4d0dfe779f1b6af8086614d5b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/evidence-manifest-pre-review.json",
+      "bytes": 58440,
+      "sha256": "a329898b6cf290788e057be8079a89b9ee0ab036c73d822bd0ab9c7709ed63fc"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-model-cache.mjs",
+      "bytes": 2149,
+      "sha256": "245738084a46c1eb2aed0ebb37050bee3768a4e9c9ae2a191d84e33a599ad0fe"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-native-evaluation.mjs",
+      "bytes": 5799,
+      "sha256": "dd7887e8649db880ee65b6ee871a4af0db7e1877151b9cc6bab14c24baec7084"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-protocol.mjs",
+      "bytes": 5467,
+      "sha256": "ad0fff1fbc98461503cae8af6861358cca0836d9800e7935829535f073838271"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock-preflight-attempt-1.json",
+      "bytes": 3636,
+      "sha256": "2ca51964f3b560511b3efa4cfbf9b20f4d98150a23a3b3d5eb9ff061b5ea8fa9"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock-preflight-attempt-1.sha256",
+      "bytes": 84,
+      "sha256": "8a1160249f14571a20fa69be7ca681c78ad1c01a9e5595d0990e96323f3625cc"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock-preflight-attempt-2.json",
+      "bytes": 3636,
+      "sha256": "fd5450e28f93671e7ee1a387349100c3e5c88a33fb74e1119f0dd24154369d06"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock-preflight-attempt-2.sha256",
+      "bytes": 84,
+      "sha256": "0dcec3b3e0e5987cffd74b680906d8d977c2a7fec01961e2dd20093b5aa5841e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock.json",
+      "bytes": 3636,
+      "sha256": "6f97ba947461800a28c9fe6ca3c3c66b11f98ee6ed0099fb16a91f8c8ccfb777"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/harness-lock.sha256",
+      "bytes": 84,
+      "sha256": "8aa89b70284b34cf2ac09239683273fa2c0f2d9f5466f75f9cffef5443abfcce"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/lock-harness.mjs",
+      "bytes": 2168,
+      "sha256": "796187eb8b94903e4a844a17ad24dbbf2f201cc9cfa7355a2ed0d7dff048df0e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/measurement-summary.json",
+      "bytes": 80602,
+      "sha256": "8c16e1bb2f7a545b972943e2b7b203e274b1f9def0b2bc5d38b1781f6ba8764a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/native-evaluation-lock.json",
+      "bytes": 6886,
+      "sha256": "6ac768b38a4dfed30252d676d63fb76a9e9769a648bc028fb3b848ea17e1432f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/native-evaluation-lock.sha256",
+      "bytes": 94,
+      "sha256": "ff2b3af83ca6e92d915cd2f6960276d01b96f4ff1ec8bec63f6acfebe8c11225"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/native-gold-verification.json",
+      "bytes": 438,
+      "sha256": "9e34011a562215409a749c811dc235726e0ac7c4aabf31d7b599c05d88e1be34"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/paddle-html-adapter.mjs",
+      "bytes": 2743,
+      "sha256": "6638dd5c153ffc568a47205a1adf30b626d8dcb8ef652943449ecd991a00b8b1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/prepare-vl.mjs",
+      "bytes": 9248,
+      "sha256": "4b89632a68debcbe104ff7496f994dca459e7e5f4f3e55aaa53ddea82cb7ae1e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment-preflight-attempt-1.json",
+      "bytes": 4647,
+      "sha256": "43391a35e8ca9a8e54e8719fda2deb677db07da38cce91df92907799779a28a2"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment-preflight-attempt-1.sha256",
+      "bytes": 90,
+      "sha256": "5d557be1a5c0ace075e40e9e1f5138a4f3b2733664bdb3194a4e390b629526d7"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment.json",
+      "bytes": 5302,
+      "sha256": "457be7cafbde8fd1c6e3307d5f1fed1f699699d63df59d1bc686479d3c34be0c"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment.mjs",
+      "bytes": 8247,
+      "sha256": "e82d2d4d12f57924a81d5b3415cacc3f4b2d11896e762855659b37d0a23b7c6d"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment.sha256",
+      "bytes": 90,
+      "sha256": "da28d9b50a7c930312dc18e96ec1784fdf9f7d4c72e23d99e2d4b072012a179c"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol.json",
+      "bytes": 4612,
+      "sha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol.sha256",
+      "bytes": 80,
+      "sha256": "3467098bb183a27d300e894a4d8ba99e6933ab3df38470d99d6f451e3e7a940f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-native-vl.ps1",
+      "bytes": 6365,
+      "sha256": "284fdfc0d2e5d888aac8de8ae3ea46ca0368b17c68aa401d5cce4d787d0ca95b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-vl.ps1",
+      "bytes": 8542,
+      "sha256": "57b6e83760139bccb429a500cd6b1d37dadf123f3648af877040c0419bac15e8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-vl.py",
+      "bytes": 5448,
+      "sha256": "29a6da97e47e92d123ae791ec3bb16dc422f9f9e05e32ae147abe4c2b60e9e59"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/seal-evidence.mjs",
+      "bytes": 3462,
+      "sha256": "12f886e0a614fc7dd04261b20ef2ef643e22e7648ebfb73476b452712b344147"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/source-page-counts.json",
+      "bytes": 1085,
+      "sha256": "dbbacc6c8aa7c9da858e6481253b5b00c7b7cdfa640f6d4379c0ef0465a74fae"
+    }
+  ]
+}

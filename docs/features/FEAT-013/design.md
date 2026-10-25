@@ -56,6 +56,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 
 > ✅ implemented 2026-08-27 — lattice, the four policy fields, classify-before-index and per-object execution location; 24 unit tests. AC-111.5 waits on an all-seventeen-stage executor consulting `resolveExecutionLocation` — wider than FR-118 (2026-08-28), whose seven-stage composition runs unconditionally and never calls it — AC-111.7 on Stage 15 embedding, AC-111.8 on Stage 6 dedup, AC-111.10 on the Stage 17 gate — each named rather than left as pending
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Proposed File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent specification](../../change-requests/integration/line-knowledge-memory-unified-flow-20261024.md) — `relates` · `metadata` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
@@ -68,6 +69,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 > Phases 0–4 implemented; isolated Business browser/session HTTP/MCP native acceptance passed; Project/API-grant authorization covered by unit/Prisma tests; the bounded Stage 16 owner retry implementation candidate is present; hosted checks and main-dev replay acceptance pending; retry does not certify benchmark readiness or bypass Stage 16; no production activation claim
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
+- [Proposed File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent specification](../../change-requests/integration/line-knowledge-memory-unified-flow-20261024.md) — `relates` · `metadata` · `current`
 - [ADR-072 — Knowledge admission and corpus publication](../../decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md) — `relates` · `metadata` · `current`
 - [FR-173 — Source admission and corpus serving](../../domains/knowledge/features/FR-173-knowledge-admission-and-corpus.md) — `relates` · `metadata` · `current`
 - [FR-187 — SmartGift structured-record source adapter (Phase 1)](../../domains/knowledge/features/FR-187-smartgift-catalog-adapter.md) — `relates` · `metadata` · `current`

@@ -1,0 +1,670 @@
+{
+  "schema": "zuri.hyper-extract-native-evaluation.v1",
+  "status": "COMPLETED",
+  "claimBoundary": "One Hyper-guided source-zone subset with actual native TEXT ingestion/retrieval. Candidate nodes/edges remain sidecar-only; no Stage 9/10/GKS graph admission is claimed.",
+  "inputs": {
+    "freezeSha256": "9316805b81b03d95a43727dccb01beaabf9d27e87ee4c952494a5f136361c43a",
+    "sourceBundleSha256": "e0699864289fa151385590b002ee87048e955890ea0b7c4c9c2ffc7380714d49",
+    "candidateReceiptSha256": "bca60e7e8dc7e19d1640a16ca97d6f0833f77331290a6f0c08c1b587f31ff4d9",
+    "validationSha256": "7a5494396ce73be832795e96fc4a793867aa0d958befa7c8f94052d5d8912741",
+    "nativeInputSha256": "49861b5ae523f46f23087e380eee74e5487d9cc6acbe23bce065aa2e4c9f89ad",
+    "nativeArmSha256": "855362b9081d8d441f108b552d2970f7d9c7605188515038a0a012aa81993f75",
+    "nativeResultsSha256": "8e932f0c8ec29332ab82e1ab26546152435efc1b3d6f8dfd59a639f0ef686ea0",
+    "runtimeProvenanceSha256": "763f814fac4112fa22cc14812c56b49cc9889f4a20408e5762926249b05c71d3",
+    "nativeHarnessSha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000",
+    "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+    "frozenGoldSha256": "976E843A970065B31B984F11FA933434A38A3F824F27B34117B333EB85789303"
+  },
+  "extraction": {
+    "package": {
+      "version": "0.10.5",
+      "editable": true,
+      "sourceCommit": "a8e27199ffd3984042e870d0b6963810a0d70f5d",
+      "sourceTreeSha256": "c07a004863ff47db1415201a739939771fb9ba79b2506edaf185a3937804ee7f",
+      "sourceRootRelative": ".local/hyper-extract-20261025/upstream/hyperextract",
+      "inspectedRelease": {
+        "tag": "v0.10.5",
+        "commit": "0dc002bb1029fd34b21e47602e406ef7880c8673"
+      }
+    },
+    "model": {
+      "tag": "qwen3.5:9b",
+      "digest": "bb0c43f2ae93339a21a67576441645ad0fd5696a259c250bfe4af7462c528cb2",
+      "ollamaVersion": "0.40.9",
+      "contextLengthObserved": 4096,
+      "contextLengthAfterExtraction": 4096,
+      "requestedReasoningEffort": "none",
+      "reasoningFieldObserved": false,
+      "coldLoadMs": null,
+      "coldLoadNotMeasured": "model was already resident; it was not unloaded to avoid disturbing runtime state"
+    },
+    "settings": {
+      "chunkSizeChars": 2048,
+      "chunkOverlapChars": 256,
+      "maxWorkers": 1,
+      "temperature": 0,
+      "maxOutputTokens": 2048,
+      "structuredOutputMethod": "json_schema",
+      "legacyMaxTokensFieldSent": 2048,
+      "expectedContextLength": 4096,
+      "perCallTimeoutSeconds": 120,
+      "maxRetries": 0,
+      "plannedChunks": 23,
+      "plannedBaseStructuredCalls": 46,
+      "actualStructuredCallStarts": 55,
+      "actualStructuredCallResponses": 55,
+      "actualStructuredCallErrors": 0,
+      "embeddingCalls": 0,
+      "actualStructuredCallRequestBodies": 55,
+      "requestConfigurationsMatchFreeze": true
+    },
+    "requests": 55,
+    "callLatencyMs": {
+      "count": 55,
+      "min": 1162.417,
+      "median": 5522.729,
+      "max": 27133.096
+    },
+    "tokenTotals": {
+      "promptTokens": 60006,
+      "completionTokens": 19158,
+      "totalTokens": 79164
+    },
+    "candidateOutputCounts": {
+      "nodeOccurrencesAcrossChunks": 187,
+      "uniqueLiteralCandidateNameStrings": 153,
+      "edgeOccurrencesAcrossChunks": 85,
+      "uniqueExactParticipantDescriptionStrings": 85,
+      "interpretation": "Per-chunk output occurrences; exact string dedup is descriptive only and does not assert canonical identity."
+    },
+    "ollamaResources": {
+      "beforeExtraction": [
+        {
+          "name": "qwen3.5:9b",
+          "contextLength": 4096,
+          "sizeBytes": 5506859006,
+          "sizeVramBytes": 5506859006
+        }
+      ],
+      "afterExtraction": [
+        {
+          "name": "qwen3.5:9b",
+          "contextLength": 4096,
+          "sizeBytes": 5506859006,
+          "sizeVramBytes": 5506859006
+        }
+      ]
+    },
+    "clientProcessRss": "not measured; no total-memory estimate is made from client runtime",
+    "sourceTextChars": 41323,
+    "selectedSourceChars": 22569,
+    "omittedSourceChars": 18754,
+    "totalZones": 151,
+    "selectedZones": 79,
+    "omittedZones": 72,
+    "sourceCharCoveragePercent": 54.62,
+    "zoneCoveragePercent": 52.32,
+    "candidateQuality": {
+      "nodeCandidates": 187,
+      "mentionAnchoredNodes": 82,
+      "ungroundedNodeNames": 105,
+      "nodeDescriptionsWithLiteralQuote": 72,
+      "edgeCandidates": 85,
+      "exactSameZoneRelationCandidates": 0,
+      "heldOrRejectedEdges": 85,
+      "projectedZones": 79
+    },
+    "extractionWallMs": 447900.666,
+    "coldLoadProbe": null,
+    "coldLoadNotMeasured": "model was already resident; it was not unloaded to avoid disturbing runtime state",
+    "reasoningFieldObserved": false
+  },
+  "native": {
+    "status": "COMPLETED",
+    "successfulStages": 17,
+    "queryCountPerPass": 16,
+    "totalQueries": 48,
+    "rowHit1": 3,
+    "rowHit5": 3,
+    "rowAndHeaderTokenHit5": 3,
+    "documentHit5": 16,
+    "stableMetricRanks": 16,
+    "chunkCount": 87,
+    "initializationMs": 567.4731839999995,
+    "ingestionToPublishedMs": 26787.871273,
+    "submissionMs": 3661.820242,
+    "workerMs": 21874.469278000004,
+    "pullFinishMs": 1244.5261060000012,
+    "memoryPeakBytes": 1814032384,
+    "containerWallMs": 69301,
+    "firstPassLatency": {
+      "count": 16,
+      "minMs": 345.7776389999999,
+      "medianMs": 380.7284165000019,
+      "maxMs": 492.124367000004
+    },
+    "repeatPassLatency": {
+      "count": 32,
+      "minMs": 325.48984400000336,
+      "medianMs": 383.1965369999998,
+      "maxMs": 631.8876750000054
+    },
+    "scopeDenial": {
+      "denied": true,
+      "error": "vault_scope_denied: pipeline credential does not grant this role and scope"
+    },
+    "restart": {
+      "snapshotId": "snap-f1ddd23330cc817e0ac8608d0c1ab948",
+      "generation": "g17-509682b52a7faf215982677deff2eab8",
+      "verifiedCitations": 5
+    },
+    "gateProbe": {
+      "fixtureVersion": "ki17-corpus-v1",
+      "queryCount": 5,
+      "recallAt5": 1,
+      "mrr": 1,
+      "citationCorrectness": 1,
+      "crossTenantLeaks": 0
+    }
+  },
+  "priorArmComparisons": [
+    {
+      "arm": "Paddle / plain",
+      "report": "../paddleocr-vl-v1/README.md",
+      "sameRun": false,
+      "queryCountPerPass": 16,
+      "successfulStages": 17,
+      "chunkCount": 35,
+      "rowHit1": 3,
+      "rowHit5": 3,
+      "rowAndHeaderTokenHit5": 2,
+      "documentHit5": 16,
+      "columnBindingHit5": null,
+      "medianFirstPassQueryMs": 380.4118529999978,
+      "ingestionToPublishedMs": 17802.327882,
+      "memoryPeakBytes": 1697816576
+    },
+    {
+      "arm": "PaddleOCR-VL v1 / vl-plain",
+      "report": "../paddleocr-vl-v1/README.md",
+      "sameRun": false,
+      "queryCountPerPass": 16,
+      "successfulStages": 17,
+      "chunkCount": 27,
+      "rowHit1": 0,
+      "rowHit5": 0,
+      "rowAndHeaderTokenHit5": 0,
+      "documentHit5": 16,
+      "columnBindingHit5": null,
+      "medianFirstPassQueryMs": 448.00257500000225,
+      "ingestionToPublishedMs": 27845.529588,
+      "memoryPeakBytes": 1916346368
+    },
+    {
+      "arm": "Paddle / table-preserving",
+      "report": "../paddleocr-vl-v1/README.md",
+      "sameRun": false,
+      "queryCountPerPass": 16,
+      "successfulStages": 17,
+      "chunkCount": 156,
+      "rowHit1": 4,
+      "rowHit5": 4,
+      "rowAndHeaderTokenHit5": 4,
+      "documentHit5": 16,
+      "columnBindingHit5": 2,
+      "medianFirstPassQueryMs": 351.71998000000167,
+      "ingestionToPublishedMs": 35815.078016,
+      "memoryPeakBytes": 2707439616
+    },
+    {
+      "arm": "PaddleOCR-VL v1 / vl-table",
+      "report": "../paddleocr-vl-v1/README.md",
+      "sameRun": false,
+      "queryCountPerPass": 16,
+      "successfulStages": 17,
+      "chunkCount": 137,
+      "rowHit1": 0,
+      "rowHit5": 0,
+      "rowAndHeaderTokenHit5": 0,
+      "documentHit5": 13,
+      "columnBindingHit5": 0,
+      "medianFirstPassQueryMs": 469.7149575000003,
+      "ingestionToPublishedMs": 37108.124667000004,
+      "memoryPeakBytes": 2322534400
+    }
+  ],
+  "queries": [
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 445.6227390000022,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 491.20710699999836,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 376.7113610000015,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 387.91222500000003,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 420.6276100000032,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 405.0966200000039,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 370.7143290000022,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 492.124367000004,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 364.82365299999947,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 379.4613860000027,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 369.15002800000366,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 375.5786389999994,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 381.99544700000115,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 345.7776389999999,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 388.17554100000416,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 377.9973919999975,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 383.7095560000016,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 480.0531970000011,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 631.8876750000054,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 490.3081510000047,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 472.9348109999992,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 412.56998600000225,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 382.683517999998,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 350.44030299999577,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 399.4844680000024,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 362.8912810000038,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 384.39872599999944,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 374.20008800000505,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 377.7345090000017,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 402.72597099999984,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 496.8592539999954,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 376.4899310000037,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 394.04862899999716,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 371.998351000002,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 388.38137399999687,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 380.7112949999937,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 364.5361850000045,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 375.3460600000035,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 335.6514790000001,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 325.48984400000336,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 337.5934320000015,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 389.46647900000244,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 379.4998560000022,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 379.8327760000029,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 482.0447739999945,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 470.6920640000026,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 372.9722469999979,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 386.03506400000333,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    }
+  ]
+}

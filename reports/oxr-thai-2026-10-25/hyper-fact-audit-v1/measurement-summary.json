@@ -1,0 +1,558 @@
+{
+  "schema": "zuri.hyper-fact-audit-native-evaluation.v1",
+  "status": "COMPLETED",
+  "claimBoundary": "One geometry-derived, source-text-only candidate subset was ingested by the existing native GenesisRAG17 TEXT workflow. Candidate descriptions, predicates, relations, and graph fields were not ingested; source-grounding does not establish semantic correctness.",
+  "inputs": {
+    "factAuditFreezeSha256": "e4d922e7809546f93d29819dc5f312617e292e16610d246270a68f2c7b597c29",
+    "candidateReceiptSha256": "90371d0b3d48aa224e724d63714f9810518003f3d6eafa53992ffce7697e746a",
+    "validationSha256": "2fe0e6e0f3a8c14b8f92a0dcd8f0a175d30421bb6eb5259cb3e52e5c412b1606",
+    "projectionSha256": "7abb788a814fd4a9dbf5889ca055d924f5ef670b7a4fe0757307339421b1f403",
+    "nativeInputSha256": "0d39bc2900b1c8b53e382da6e6ab76004aa8c335dc1e0f4e93662d070da28f5b",
+    "nativeArm": "hyper-fact-geometry-v1",
+    "nativeArmSha256": "2c646ff47bb18526fa239143fcb48f15ceb34187d3f28119f7d9aa8fae3db894",
+    "nativeResultsSha256": "48e7ee6830a445984702c158ff7fa9c153f50cdf3d236de5a3735e48f00e44af",
+    "runtimeProvenanceSha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7",
+    "executedHarnessSha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000",
+    "priorV6SummarySha256": "4db795c0d2dcdf65d9272a69dd5acd6b7851b97b83f6f3083633d734a016fbee",
+    "historicalTableBaselineSummarySha256": "8c16e1bb2f7a545b972943e2b7b203e274b1f9def0b2bc5d38b1781f6ba8764a",
+    "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+    "frozenGoldSha256": "976E843A970065B31B984F11FA933434A38A3F824F27B34117B333EB85789303"
+  },
+  "audit": {
+    "heldRun5CandidatesAudited": 115,
+    "primaryCauseCounts": {
+      "upstream_Paddle_table_grid_header_offset": 10,
+      "model_wrong_month_value_selection": 1,
+      "model_subject_not_exact_source_cell": 4,
+      "model_subject_or_predicate_extraction_error": 4,
+      "upstream_OCR_lost_subject_and_model_emitted_blank": 1,
+      "model_duplicate_emission": 7,
+      "upstream_OCR_missing_or_invalid_subject_box": 3,
+      "model_output_not_grounded_in_emitting_chunk": 4,
+      "model_description_entity_mismatch": 5,
+      "model_population_metric_or_value_column_omission": 34,
+      "model_non_atomic_multi_cell_value": 7,
+      "model_population_metric_omission": 8,
+      "model_subject_combines_ordinal_and_entity": 7,
+      "model_subject_uses_ordinal_instead_of_entity": 1,
+      "candidate_exact_token_or_column_metadata_mismatch": 2,
+      "upstream_Paddle_page2_group_header_conflict_with_PDF": 6,
+      "model_subject_value_role_inversion": 7,
+      "model_subject_column_metadata_mismatch": 4
+    },
+    "causeAuditIsDiagnosticOnly": true,
+    "mechanicallyRecheckedFacts": 120,
+    "uniqueGeometryBoundCandidateClaims": 15,
+    "duplicateModelEmissionsHeld": 7,
+    "semanticStatus": "NOT_ASSESSED"
+  },
+  "native": {
+    "status": "COMPLETED",
+    "successfulStages": 17,
+    "queryCountPerPass": 16,
+    "totalQueries": 48,
+    "rowHit1": 2,
+    "rowHit5": 2,
+    "rowAndHeaderTokenHit5": 2,
+    "documentHit5": 6,
+    "stableMetricRanks": 16,
+    "chunkCount": 23,
+    "initializationMs": 653.3418299999994,
+    "ingestionToPublishedMs": 21196.566272,
+    "submissionMs": 2640.732358,
+    "workerMs": 17833.179759000002,
+    "pullFinishMs": 716.1800570000014,
+    "memoryPeakBytes": 1671675904,
+    "containerWallMs": 74998,
+    "firstPassLatency": {
+      "count": 16,
+      "minMs": 385.7959149999988,
+      "medianMs": 405.9535599999999,
+      "maxMs": 508.23312299999816
+    },
+    "repeatPassLatency": {
+      "count": 32,
+      "minMs": 377.50464600000123,
+      "medianMs": 446.7392970000001,
+      "maxMs": 700.7000270000062
+    },
+    "scopeDenial": {
+      "denied": true,
+      "error": "vault_scope_denied: pipeline credential does not grant this role and scope"
+    },
+    "restart": {
+      "snapshotId": "snap-be87595940d496717b173802382058a2",
+      "generation": "g17-190d6f9a725bb424ecd8da07812da970",
+      "verifiedCitations": 5
+    },
+    "gateProbe": {
+      "fixtureVersion": "ki17-corpus-v1",
+      "queryCount": 5,
+      "recallAt5": 1,
+      "mrr": 1,
+      "citationCorrectness": 1,
+      "crossTenantLeaks": 0
+    }
+  },
+  "historicalComparisons": {
+    "sameCorpusButSeparateRuns": true,
+    "priorV6FiveZoneArm": {
+      "source": "../hyper-relation-audit-v1/measurement-summary.json",
+      "rowHit5": 0,
+      "rowAndHeaderTokenHit5": 0,
+      "documentHit5": 6
+    },
+    "tablePreservingBaseline": {
+      "source": "../paddleocr-vl-v1/measurement-summary.json#native.arms[table]",
+      "rowHit1": 4,
+      "rowHit5": 4,
+      "rowAndHeaderTokenHit5": 4,
+      "documentHit5": 16
+    }
+  },
+  "projection": {
+    "selectedZones": 15,
+    "totalZones": 151,
+    "selectedSourceChars": 6390,
+    "totalSourceChars": 41323,
+    "coveragePct": 15.46,
+    "inputWasFrozenOcrText": true,
+    "plainAndTableArmsUnchanged": true,
+    "graphIncluded": false,
+    "semanticStatus": "NOT_ASSESSED"
+  },
+  "queries": [
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 495.7298779999983,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 396.24207099999694,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 385.7959149999988,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 385.86011999999755,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 393.1026839999977,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 394.8947479999988,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 488.2736960000002,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 397.659001,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 414.16221099999893,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 1,
+      "elapsedMs": 508.23312299999816,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 478.2637790000008,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 413.2671300000002,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 398.63998999999967,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 391.3810259999991,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 482.0869359999997,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 1,
+      "elapsedMs": 475.4523659999977,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 700.7000270000062,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 493.3339460000061,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 465.5316329999987,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 418.6460290000032,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 679.6151449999961,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 493.9860069999995,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 405.6558079999959,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 396.39373799999885,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 396.7007680000024,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 2,
+      "elapsedMs": 486.81153300000005,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 516.1237860000037,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 406.7669129999995,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 506.7534069999965,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 503.9635269999999,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 389.53097600000183,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 2,
+      "elapsedMs": 408.9902030000012,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "pop1",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 436.093746999999,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop2",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 498.7366299999994,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop3",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 400.76082999999926,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop4",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 407.859795999997,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop5",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 377.50464600000123,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop6",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 589.9668960000054,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop7",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 460.8467710000041,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop8",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 390.83849799999734,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop9",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 479.6793400000024,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "pop10",
+      "doc": "population",
+      "repetition": 3,
+      "elapsedMs": 517.2169650000069,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": null
+    },
+    {
+      "id": "eco1",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 500.329479,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    },
+    {
+      "id": "eco2",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 457.3848470000012,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco3",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 396.91906899999594,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco4",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 403.95162900000287,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco5",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 420.54651100000046,
+      "rowRank": null,
+      "rowHeaderTokenRank": null,
+      "documentRank": 1
+    },
+    {
+      "id": "eco6",
+      "doc": "economy",
+      "repetition": 3,
+      "elapsedMs": 420.7676319999955,
+      "rowRank": 1,
+      "rowHeaderTokenRank": 1,
+      "documentRank": 1
+    }
+  ]
+}

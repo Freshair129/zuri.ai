@@ -1,0 +1,154 @@
+{
+  "reportSubtreeAttributes": {
+    "purpose": "Preserve existing evidence-report bytes across Git clean and checkout; does not change canonical docs outside the subtree.",
+    "rules": [
+      "* -text -eol",
+      "* whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+      "*.bytes -diff",
+      "hyper-extraction-repair-v1/source_native.py whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+      "hyper-relation-audit-v1/evidence-adapter-v2.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol",
+      "hyper-relation-audit-v1/evidence-adapter-v2.test.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol",
+      "hyper-relation-audit-v1/evidence-adapter-v3.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol",
+      "hyper-relation-audit-v1/evidence-adapter.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol",
+      "hyper-relation-audit-v1/evidence-adapter.test.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol"
+    ],
+    "defaultWhitespacePolicy": "blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol",
+    "whitespaceExceptions": [
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-extraction-repair-v1/source_native.py",
+        "disabledCheck": "blank-at-eol",
+        "existingFinding": "Line 349 contains the sealed source's existing trailing spaces."
+      },
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v2.mjs",
+        "disabledCheck": "blank-at-eof",
+        "existingFinding": "Line 422 contains the sealed source's existing extra blank line at EOF."
+      },
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v2.test.mjs",
+        "disabledCheck": "blank-at-eof",
+        "existingFinding": "Line 374 contains the sealed source's existing extra blank line at EOF."
+      },
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v3.mjs",
+        "disabledCheck": "blank-at-eof",
+        "existingFinding": "Line 497 contains the sealed source's existing extra blank line at EOF."
+      },
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter.mjs",
+        "disabledCheck": "blank-at-eof",
+        "existingFinding": "Line 411 contains the sealed source's existing extra blank line at EOF."
+      },
+      {
+        "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter.test.mjs",
+        "disabledCheck": "blank-at-eof",
+        "existingFinding": "Line 357 contains the sealed source's existing extra blank line at EOF."
+      }
+    ],
+    "path": "reports/oxr-thai-2026-10-25/.gitattributes"
+  },
+  "sources": [
+    {
+      "rawLineEndings": {
+        "crlfPairs": 166,
+        "loneLf": 1
+      },
+      "gitClean": {
+        "bytes": 10387,
+        "blobSha1": "64f533b88c87a6d0f64a40fb1ea89fe455b6d082",
+        "normalization": "CRLF pairs become LF; pre-existing lone LF bytes are retained",
+        "sha256": "d2a8d319b9661e37e3146146311b64a16048952bb3f40b3b0ea6b2e32328d326"
+      },
+      "snapshotPath": "reports/oxr-thai-2026-10-25/transport/snapshots/sha256-a828c65e016e88e82789e711ac626d079c8392f69203c43644a9835512a391f5-docs-README.md.bytes",
+      "raw": {
+        "sha256": "a828c65e016e88e82789e711ac626d079c8392f69203c43644a9835512a391f5",
+        "bytes": 10553
+      },
+      "sourceAttributes": {
+        "text": "set",
+        "eol": "lf"
+      },
+      "path": "docs/README.md"
+    },
+    {
+      "rawLineEndings": {
+        "crlfPairs": 523,
+        "loneLf": 1
+      },
+      "gitClean": {
+        "bytes": 33252,
+        "blobSha1": "745a841fd6f55e7e417b43b33aa8fcfab3a1efad",
+        "normalization": "CRLF pairs become LF; pre-existing lone LF bytes are retained",
+        "sha256": "1d12ed2e74f27bd1227578dd51b8668169ae684e09e80f2361090b8c40827eb5"
+      },
+      "snapshotPath": "reports/oxr-thai-2026-10-25/transport/snapshots/sha256-abbd68e63d5626713d6b474403c8121061fb95b45bb2188db4819f2496052f00-change-requests-README.md.bytes",
+      "raw": {
+        "sha256": "abbd68e63d5626713d6b474403c8121061fb95b45bb2188db4819f2496052f00",
+        "bytes": 33775
+      },
+      "sourceAttributes": {
+        "text": "set",
+        "eol": "lf"
+      },
+      "path": "docs/change-requests/README.md"
+    },
+    {
+      "rawLineEndings": {
+        "crlfPairs": 906,
+        "loneLf": 16
+      },
+      "gitClean": {
+        "bytes": 90086,
+        "blobSha1": "97560b7615e4afa1a6316541082ee6103e6da418",
+        "normalization": "CRLF pairs become LF; pre-existing lone LF bytes are retained",
+        "sha256": "602f9061f44841dfa440c851c295e748485b5244718c4aa1a2dd0024a73d2f40"
+      },
+      "snapshotPath": "reports/oxr-thai-2026-10-25/transport/snapshots/sha256-da76ef2d4a587fbd5ffb6f7cc9c823630be35b0af6e8c1da22e1e0478b4a9ab4-unified-flow.md.bytes",
+      "raw": {
+        "sha256": "da76ef2d4a587fbd5ffb6f7cc9c823630be35b0af6e8c1da22e1e0478b4a9ab4",
+        "bytes": 90992
+      },
+      "sourceAttributes": {
+        "text": "set",
+        "eol": "lf"
+      },
+      "path": "docs/change-requests/integration/line-knowledge-memory-unified-flow-20261024.md"
+    },
+    {
+      "rawLineEndings": {
+        "crlfPairs": 38,
+        "loneLf": 1
+      },
+      "gitClean": {
+        "bytes": 4964,
+        "blobSha1": "026451d472e92574f8fed7747d8b3e667f1b4de5",
+        "normalization": "CRLF pairs become LF; pre-existing lone LF bytes are retained",
+        "sha256": "c40c3a32057267740ea94a7214e3419fd6f5d16b60ad39e112a74aa0f8485038"
+      },
+      "snapshotPath": "reports/oxr-thai-2026-10-25/transport/snapshots/sha256-c78249eb7959b4d7148f1aed8f6140dd58ad2f28e2da7987ac32d50343217459-reports-README.md.bytes",
+      "raw": {
+        "sha256": "c78249eb7959b4d7148f1aed8f6140dd58ad2f28e2da7987ac32d50343217459",
+        "bytes": 5002
+      },
+      "sourceAttributes": {
+        "text": "set",
+        "eol": "lf"
+      },
+      "path": "reports/README.md"
+    }
+  ],
+  "portableScope": {
+    "localEvidencePolicy": "Missing .local entries are reported as INCOMPLETE_LOCAL_EVIDENCE; they are never treated as a full original-seal pass.",
+    "portableEntryCount": 18,
+    "localEntryCount": 44,
+    "sealEntryCount": 62
+  },
+  "status": "PROVENANCE_TRANSPORT",
+  "schema": "zuri.e5-byte-transport.v1",
+  "originalSeal": {
+    "bytes": 13867,
+    "sha256": "879f517b5623411ee086d4b0dff912a888dbce297d8537cc8f4580c40ca85332",
+    "baseRevision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+    "path": "reports/oxr-thai-2026-10-25/e5-microbatch-v1/evidence-manifest.json"
+  }
+}

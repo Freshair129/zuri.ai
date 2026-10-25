@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-before-inference",
+  "protocolSha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032",
+  "modelCacheManifestSha256": "53bd317223e13d405c6b42c60e6e95508a6fd336efa7b0afc023042d384e5d60",
+  "upstreamReleaseCommit": "0006f7874c334ce9c0f497d8b6cce9cdc0b7363d",
+  "container": "ccr-2vdh3abv-pub.cnc.bj.baidubce.com/paddlepaddle/paddleocr-vl@sha256:ad0b1f056a76967f9191cd06398e8babb21b49a4673a28c3de5fd31f481884db",
+  "scripts": [
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-protocol.mjs",
+      "sha256": "ad0fff1fbc98461503cae8af6861358cca0836d9800e7935829535f073838271"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-model-cache.mjs",
+      "sha256": "245738084a46c1eb2aed0ebb37050bee3768a4e9c9ae2a191d84e33a599ad0fe"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/lock-harness.mjs",
+      "sha256": "796187eb8b94903e4a844a17ad24dbbf2f201cc9cfa7355a2ed0d7dff048df0e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/protocol-amendment.mjs",
+      "sha256": "e82d2d4d12f57924a81d5b3415cacc3f4b2d11896e762855659b37d0a23b7c6d"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/bootstrap-vl.py",
+      "sha256": "8d7f86b5df4fb765eef9bbacfdf6644aa75bf07983c078b7c83bf8320e832468"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-vl.py",
+      "sha256": "29a6da97e47e92d123ae791ec3bb16dc422f9f9e05e32ae147abe4c2b60e9e59"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-vl.ps1",
+      "sha256": "57b6e83760139bccb429a500cd6b1d37dadf123f3648af877040c0419bac15e8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/freeze-native-evaluation.mjs",
+      "sha256": "dd7887e8649db880ee65b6ee871a4af0db7e1877151b9cc6bab14c24baec7084"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-native-vl.ps1",
+      "sha256": "284fdfc0d2e5d888aac8de8ae3ea46ca0368b17c68aa401d5cce4d787d0ca95b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/paddle-html-adapter.mjs",
+      "sha256": "6638dd5c153ffc568a47205a1adf30b626d8dcb8ef652943449ecd991a00b8b1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/prepare-vl.mjs",
+      "sha256": "4b89632a68debcbe104ff7496f994dca459e7e5f4f3e55aaa53ddea82cb7ae1e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/compare-repetitions.mjs",
+      "sha256": "c21bb8db4e7186d498efb0fd04e49a2152c50f8c0377e873f8b79a733a7cecd1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/adapter.test.mjs",
+      "sha256": "ac9c129f9b86d6b28f6e4e8cecb1751d9d3362e3ecb956c51e948760b3aae860"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/table-chunking/table-profile.mjs",
+      "sha256": "e61ab0b8e4606d0deb38c2bb0415b7b97899e762a7f8d1912ed2903ecbae9252"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/table-chunking/native.test.js",
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/table-chunking/launch-native.mjs",
+      "sha256": "cee30e2c0d91d2c913329ce5690438c835f50c7b340d1c9811687271f9ae4e12"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/real-native/native.config.mjs",
+      "sha256": "584914fd5db3b8de3cd3cd804d6daa3cbf52d5b3c49c3145c996378dfbfbb5fb"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/real-native/metrics.mjs",
+      "sha256": "d7c1740f964d70bb1e04a6d3767aaadd683660443a1b0b240d434d1fb2718180"
+    }
+  ]
+}

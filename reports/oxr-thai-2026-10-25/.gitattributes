@@ -1,0 +1,14 @@
+# Preserve this sealed evidence subtree byte-for-byte in the Git object and checkout.
+# Canonical documents outside this subtree retain the repository LF policy.
+* -text -eol
+* whitespace=blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+*.bytes -diff
+
+# Preserve six pre-existing whitespace findings in sealed evidence sources.
+# Disable only the reported detector for each exact file; retain all other checks.
+hyper-extraction-repair-v1/source_native.py whitespace=-blank-at-eol,blank-at-eof,space-before-tab,cr-at-eol
+hyper-relation-audit-v1/evidence-adapter-v2.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+hyper-relation-audit-v1/evidence-adapter-v2.test.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+hyper-relation-audit-v1/evidence-adapter-v3.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+hyper-relation-audit-v1/evidence-adapter.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol
+hyper-relation-audit-v1/evidence-adapter.test.mjs whitespace=blank-at-eol,-blank-at-eof,space-before-tab,cr-at-eol

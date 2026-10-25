@@ -1,0 +1,24 @@
+{
+  "tool": "Poppler pdfinfo",
+  "version": "26.07.0",
+  "executablePath": "C:\\Users\\suanr\\.cache\\codex-runtimes\\codex-primary-runtime\\dependencies\\native\\poppler\\Library\\bin\\pdfinfo.exe",
+  "executableSha256": "07a5551df8cbcaadcdd24802dbc149cc1c7df206e86a9c53e0410a1e4543c84d",
+  "entries": [
+    {
+      "stdoutPath": ".local/thai-paddleocr-vl-20261025/pdfinfo-economy.txt",
+      "stdoutSha256": "b172e1d71fe8e4801f1022dcec33fb00fc65055c5ace8f3b212816e72c274dec",
+      "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40",
+      "pageCount": 1,
+      "id": "economy",
+      "path": ".local/thai-native-20261025/input/economy.pdf"
+    },
+    {
+      "stdoutPath": ".local/thai-paddleocr-vl-20261025/pdfinfo-population.txt",
+      "stdoutSha256": "06e1fbdd581e8368096a649d22fba39787208c1dbc6010ade66b1ba67501309d",
+      "sha256": "e9ab4edc753a899d48f4d0105996c6a4b573c68ba782d04d3da7b76ae78fd3d1",
+      "pageCount": 3,
+      "id": "population",
+      "path": ".local/thai-native-20261025/input/population.pdf"
+    }
+  ]
+}

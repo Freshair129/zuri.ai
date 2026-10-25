@@ -1,0 +1,708 @@
+{
+  "schema": "zuri.hyper-relation-evidence-audit.v1",
+  "status": "sealed-nonproduction-experiment",
+  "baseRevision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "rawRoot": ".local/hyper-relation-audit-20261025",
+  "caveat": "Hashes bind artifact identity and provenance; they do not establish semantic correctness. The candidate graph remains a sidecar and semantic status is NOT_ASSESSED.",
+  "inferenceFreezeSha256": "2e29879e46a8c5029dd9b410902b7339248f9e3d69bbf6eb027b706126e3bee3",
+  "validatorFreezeSha256": "e9fe48e936807296982f47b4b9435aaad6f0679d49c317748949f618d2d20753",
+  "sourceBundleSha256": "e0699864289fa151385590b002ee87048e955890ea0b7c4c9c2ffc7380714d49",
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "completedRun": {
+    "runId": "run-5",
+    "extractionStatus": "COMPLETED",
+    "chunks": 23,
+    "factOccurrences": 120,
+    "relationOccurrences": 0,
+    "nativeStatus": "COMPLETED",
+    "nativeStages": 17,
+    "fixedQueries": 48
+  },
+  "files": [
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/__pycache__/diagnose-native-api.cpython-311.pyc",
+      "bytes": 14432,
+      "sha256": "c8d19bda11a60d87a3c526c1b7ba1940b5f74c408dcff81a1114bb81faf297d8"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/__pycache__/diagnose.cpython-311.pyc",
+      "bytes": 18000,
+      "sha256": "cc1098804560a373c4340bfd60a818d8c6c436ec4dbb884ce7cfb087f59f2cec"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/diagnose-native-api.py",
+      "bytes": 9167,
+      "sha256": "5d479982541ca23c87d64d020068f83893d2505cec25664debddaf269424f144"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/diagnose.py",
+      "bytes": 10373,
+      "sha256": "9a4bf7887887a0798146c0d68a81dcf14700b0df72ecf121cd97941fcc0fe556"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/native-api-receipt.json",
+      "bytes": 4973,
+      "sha256": "625352f3361d0a726ce7c6ccf8f1a4cc4387fb09b379771ecbb03c4c6371a763"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/chunk5-diagnostic/receipt.json",
+      "bytes": 3693,
+      "sha256": "2ed051ec349900747f3d5dc828b85c238d89ec8a62c7c434ec5673dea1d6091b"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/dry-contract/contract-check.json",
+      "bytes": 300,
+      "sha256": "af78741f5c0e6c4c86190a8804a9b355ba11e0c30b3bd91fa0e6918988783199"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/dry-contract/native-input.json",
+      "bytes": 1131289,
+      "sha256": "a39850012c3522f629a6d582799e12fbf4279a72a103ff03a472cda60e2d2b8e"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/population-chunk2-budget/__pycache__/diagnose.cpython-311.pyc",
+      "bytes": 15659,
+      "sha256": "4dc690bb7bf229f00419dfe64ffb7da0ff7ae4acac638ef9caf6fcd551ddc665"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/population-chunk2-budget/diagnose.py",
+      "bytes": 10324,
+      "sha256": "da9d67ec6f5ff97e230287060796b53981f81fcbb9724a163691eabd86d6e53d"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/population-chunk2-budget/receipt.json",
+      "bytes": 11299,
+      "sha256": "bb96fbff8ec62441f26ed8cccfa70c11f264e7a563bdca1fbaa15aad004d8c1e"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-1/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-1/evidence-candidates.json",
+      "bytes": 121706,
+      "sha256": "10699c69f8e5a884e3881edcc0b78ee91d637a7aa4f6c38927dd152422a0a458"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-1/freeze.json",
+      "bytes": 8986,
+      "sha256": "2b38837ca1291f6f15144abab9d495cdf852a441a3179fe76538128fbcc35b00"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-1/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-2/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-2/evidence-candidates.json",
+      "bytes": 135231,
+      "sha256": "fb61136262faa1d0c48dd79ae9ee7c2630b94fb48d405fe540ea05702646a4b0"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-2/freeze.json",
+      "bytes": 9273,
+      "sha256": "ff02200ead727d29f44d6d5be93dad831d46b0e573b51bb1e2e09210385af135"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-2/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-3/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-3/evidence-candidates.json",
+      "bytes": 101622,
+      "sha256": "c1e0c3fed5d921033668273a7b98209997b5db2084977e73e3ad44d4b6208c69"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-3/freeze.json",
+      "bytes": 8933,
+      "sha256": "5aaf0d5ce25d813e7084b4aa17e61a362904b6db5ec0fb5d9839e519b1e16a6c"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-3/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-4/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-4/evidence-candidates.json",
+      "bytes": 183000,
+      "sha256": "a7b074443bff8cc222d2cdeee7644aa16cde41f936770ea6783a8d6554853af2"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-4/freeze.json",
+      "bytes": 9217,
+      "sha256": "8f63f0d7611f970626eecc724e7a743177a5c5bd6edb3fa799b7a0e0e27db815"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-4/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/build-summary.json",
+      "bytes": 977,
+      "sha256": "59f4c537faa7b41eb07d410c0e18a15779742d436a21493632eb45c787a3a07d"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-attempt-2.log",
+      "bytes": 1189,
+      "sha256": "60e077e93ec80067349b07664de134666b3585dfff6992b55a410bc7aa0b7914"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-command-attempt-2.json",
+      "bytes": 1835,
+      "sha256": "78a9fade14b804ec38f12b5af9524e042085189d0bf927b99531b2a2aabdd400"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-command.json",
+      "bytes": 1620,
+      "sha256": "55cdc34bd6febb399bdd6c42e6a99c26f3d85a039f239cc6b6448fce42790c77"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-state-attempt-2.json",
+      "bytes": 225,
+      "sha256": "004d463741ab89adae062160a1d9b3c1c90c311e439864c394c3b87e28866a34"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-state.json",
+      "bytes": 225,
+      "sha256": "fc3e6a5861b3fc4f6c4e608b2b4d0a1bed79fd41ee76769a274a9ce2e7767149"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/chunks.json",
+      "bytes": 8014,
+      "sha256": "4442dfa01981668fc7c30eaf6cc43838ca87fe55386e7adbf71a0d08526ab237"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/native-results.json",
+      "bytes": 440275,
+      "sha256": "64fd34a5b5a5fac6b761502d6222ee94dad8ff94d1fa3621302702d6fb59092e"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/publication.json",
+      "bytes": 378,
+      "sha256": "045977185024670ca2ecf4153f02acb19b5ce2b961c72a42464b2ff845b991e5"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/runtime-provenance.json",
+      "bytes": 3531,
+      "sha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/stages.json",
+      "bytes": 47021,
+      "sha256": "64f75fc2b2b67e9e185e7992243792692b42faf9ab883c71f2e748fc0b50267a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/edges.bin",
+      "bytes": 104545,
+      "sha256": "e61ca6652f0989afc7c1b0bd1a421d966e1f410aa4d7e6e86e0dd428f5d43120"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesisrag17/decisions/gks_decision_005c363592a9fa857d214837e4c788c6.json",
+      "bytes": 37322,
+      "sha256": "8643ddc0ba52c4ff2ed4d7ab6108faf1a994d566ea0c3a63becc718bd955479b"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 73728,
+      "sha256": "7dd6bfd756203b72162f39e3a582dba59ec797740b652b7089bc18c3cf0a882f"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "0f1130c3cbd3d70f2a590a1c3f4150b21ed4cb33454151c03d2f2e025a9f55dd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesisrag17/snapshots/snap-c31a998a2ab268df218fc4aa14bcd7b6.json",
+      "bytes": 1586,
+      "sha256": "a5126b899a8c7c1357d25385e149cb032fb55018cebd0a7cd0b50a89fe7a8d7c"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/genesisrag17/state.json",
+      "bytes": 21215,
+      "sha256": "f2bcca5f9fd8ea4e2c19f1bec35c32e633a92dd16628629a5559363702537741"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "d8274e4ad455d7abc9c379823f5b1ee46bbce919827807792d35be4eb2099446"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/journal/B000000000000.gseg",
+      "bytes": 682,
+      "sha256": "d77a4deb32cb61da430180b0b8bb35ec0fb581e122cc5720fc92ebaa90dcc44a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/meta_genesisrag17_e5_c31a998a2ab268df218fc4aa14bcd7b6.bin",
+      "bytes": 238,
+      "sha256": "1b7413a4c3f89047580eb0596fa2a63dbd83745b85a1d55fcaa1c7606db6acfb"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/nodes.bin",
+      "bytes": 14564,
+      "sha256": "9a390ea830fe9f24ccf1956073cc65718c0a4fb79338f279325cec19d045cd90"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/projection.sqlite",
+      "bytes": 532480,
+      "sha256": "0faac40862abb827b13999d905ec5e9680560813bd425aa4a3c055ff581c2e40"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "041c38f5aa33ea91f5d80f788995ac3203668907fc988a0c1ad59460956a28ef"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/projection.sqlite-wal",
+      "bytes": 580952,
+      "sha256": "dcf70c56e50d79d04ea5beab13eef1d8799518d58984ec5243093d52c9081c2f"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/state.json",
+      "bytes": 1271,
+      "sha256": "32cc9ea44505ff96967d8c2f92dfef1dbfced901d9e81bc866cb35a393968431"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/vec_genesisrag17_e5_c31a998a2ab268df218fc4aa14bcd7b6.bin",
+      "bytes": 19968,
+      "sha256": "10e4a166627dbe457133a45f1232485e0c8b2b59841959e971d9a62163b77b90"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/genesis-store/wal/active.gwal",
+      "bytes": 280455,
+      "sha256": "faf7f2a977a60a1ff733f86eb9cdb88b47bc527bb8f6e8d22875f508f5701a45"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "894c04b25ec559936b54b689625c162712f969db8494bcc75cf100490461b251"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/gks.sqlite-wal",
+      "bytes": 906432,
+      "sha256": "18900ed0e6e00942c32604159b648a4d629534694851cc8b87055685ea4ffcb6"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "3c27222d9c0173d2dba8043957fc8a6c8954509abc29f039aba36fa11af06924"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "43b1ee9bfa17e2b0ab046fcc6863df693cd5395ee3426a3dbf3c846a71b3cd7c"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/state-X7v8oh/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence-v6-attempt-2/zuri-evidence.sqlite",
+      "bytes": 4808704,
+      "sha256": "bf1fea5e73e9967a4d484cd51e5adb364a5ff4fd7d17f6b27e140b2805811c68"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence.log",
+      "bytes": 657,
+      "sha256": "3d69604c5a5834c66b0670b83e8726afe0c791a45523cd0ffae34ca68295d466"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-evidence/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-input.json",
+      "bytes": 1137185,
+      "sha256": "c94a4a6d44e7818a95dcf9c0ef92bb07ed59d5a3e22262e9ba29d75b85da429a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/source-projection.json",
+      "bytes": 9774,
+      "sha256": "0698a2a176776a6771ab727e5ca6688f64ef1e48dec5eced52f166e06ee68953"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/validated-evidence.json",
+      "bytes": 226941,
+      "sha256": "067fa88d6fe1ca706ac2745c0de4c072714e4ac73157afe2a859011564f30191"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/validator-freeze.json",
+      "bytes": 1793,
+      "sha256": "e9fe48e936807296982f47b4b9435aaad6f0679d49c317748949f618d2d20753"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/budgeted-output-audit.json",
+      "bytes": 293020,
+      "sha256": "8753c19dcc32b15fb461fa7b3f95bd797e2b3177ace83de422872996f794bd4a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/evidence-candidates.json",
+      "bytes": 418371,
+      "sha256": "90371d0b3d48aa224e724d63714f9810518003f3d6eafa53992ffce7697e746a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/freeze.json",
+      "bytes": 9638,
+      "sha256": "2e29879e46a8c5029dd9b410902b7339248f9e3d69bbf6eb027b706126e3bee3"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/native-input.json",
+      "bytes": 1131289,
+      "sha256": "9d1ce5f23bd92507ef4208cbc6787097d3c8a429d810d853e2a7715a83902b30"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/source-projection.json",
+      "bytes": 1064,
+      "sha256": "cddc70809c0743881f04e14e3bffdc4fdb4be481dee5e49d1b769d7ca468afd1"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/validated-evidence.json",
+      "bytes": 72266,
+      "sha256": "cf34054ad5f939bc80055eb16198989161c29afcc82193d8a4f1b27f133db036"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/README.md",
+      "bytes": 9927,
+      "sha256": "93d4f795ac95e36738d52f212c28a5ea4f3e1fd5b9b81e8743e4c773a12eb2ea"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/evidence_schema.cpython-311.pyc",
+      "bytes": 4090,
+      "sha256": "c208263777a073b823a5215fac7a103ead167b47e6a327e45920b2923f3cd950"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/evidence_schema.cpython-314.pyc",
+      "bytes": 4323,
+      "sha256": "d3da80dd847eed1f10685e48f383c7b51bbdff16d6121eca2e831c040e70d5f8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/evidence_schema_budgeted.cpython-311.pyc",
+      "bytes": 4477,
+      "sha256": "96089c098797f4c298439f5e189448e35863381bf1ebcf742882e2b4e017ab12"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence-native-v3.cpython-311.pyc",
+      "bytes": 25938,
+      "sha256": "e89186217a019e07c93e87d21ff317361cf9670fd7e3e934c170f06bf0169492"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence-native-v4.cpython-311.pyc",
+      "bytes": 28861,
+      "sha256": "1095637d42115f3d5b78e5f0a2a7319e9a109cc5b689b8f1960e95c275645fb7"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence-native-v4.cpython-314.pyc",
+      "bytes": 27648,
+      "sha256": "b8a3960ba802263df8bd1b843b4d479f2506cbeebcf8453f9cae6d75f15be8db"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence-native-v5.cpython-311.pyc",
+      "bytes": 31371,
+      "sha256": "bf5b21aed0ebf870e8dc9d5bd733d5c0766abbeeb58ca1a03d1598c75ec91be0"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence-v2.cpython-311.pyc",
+      "bytes": 33582,
+      "sha256": "3c5f0477ec082710893fe05a244c1c3fa63e118ebd4173cc6ea383f3794432b3"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/extract-evidence.cpython-311.pyc",
+      "bytes": 36121,
+      "sha256": "786a9434176e78d37622f86417d1da3ab5696e55b8653cd9ed2537a5ba8cae28"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/prepare-evidence-run.cpython-311.pyc",
+      "bytes": 14646,
+      "sha256": "7e4488201c3c657329c292bf3135b6b7486ce07c14fafb6f3e0c1c087fa9b28e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/prepare-evidence-run2.cpython-311.pyc",
+      "bytes": 15387,
+      "sha256": "ad529ef67e508900d6dc1b6eaf688ae323617bf85e39987cf2e9b3dabfd7d336"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/prepare-evidence-run3.cpython-311.pyc",
+      "bytes": 14631,
+      "sha256": "20d69ae4a4cf688eaa3fd8e3cfac5e7ce0c77e9851c8405ce7f87a1149611f2a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/prepare-evidence-run4.cpython-311.pyc",
+      "bytes": 15818,
+      "sha256": "9db92888db65b9f1e94fc8c5d7595596b90beab770718911cb5a79a53d12e88a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/prepare-evidence-run5.cpython-311.pyc",
+      "bytes": 17310,
+      "sha256": "f4b1cb06cf5a9eb42076e0d587085df1f78c64dcd6f1f7bd3dd72ef79ae5402b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/__pycache__/test-evidence-runner-v4.cpython-311.pyc",
+      "bytes": 3952,
+      "sha256": "1ff46f1247f4b1f84236cab9c9b4fa27d6561faa3de3e4085c5abc1a5d9908bb"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/audit-budgeted-output.mjs",
+      "bytes": 13279,
+      "sha256": "4378d8b67caccb2dc2c424e8655406c237b7a49cd42d74b9ac80dbdcb2b78124"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/build-mechanical-audit.mjs",
+      "bytes": 27712,
+      "sha256": "8234695637e33cf8ec8e8d7998e25e6435ddce0dca98a33ec31a8f83b66d7e12"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evaluate-evidence-v5.mjs",
+      "bytes": 13190,
+      "sha256": "89c86e937a7ae26e53531149e919576b03f038a67f2134c19912aa7b0b012b70"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evaluate-evidence-v6.mjs",
+      "bytes": 14688,
+      "sha256": "46c0c3a7caa74f4cc107d778d327a55a05f67995c1499816a5f7b3c948a9ae75"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v2.mjs",
+      "bytes": 20126,
+      "sha256": "052851b0a0fd7379b4908022d0e6e9eb8c6d5f1048c09fd01a3ccc412b1b452f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v2.test.mjs",
+      "bytes": 14195,
+      "sha256": "8498ef7c28a6d0b8f324af41fc03983eb85d23933b33a530f4b7481cd4af2b27"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v3.mjs",
+      "bytes": 23326,
+      "sha256": "a300c904c18d961e27effeda008a58e1c450ddb86793f6dd160e602e4abb1722"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter-v3.test.mjs",
+      "bytes": 7986,
+      "sha256": "28efa8692993e2eae36481593242b5ee0a92d887f0fd1566d5b912086c912ee1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter.mjs",
+      "bytes": 19448,
+      "sha256": "85c649ee85bd27aa688975ba6caa9c1794d7d3d840ffadbdc1b383d542475523"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-adapter.test.mjs",
+      "bytes": 13439,
+      "sha256": "96fe5b1862705b413c3beb53d989b33783d43ea77da78d84f4b240c81dbe50b5"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-prompt-budgeted.md",
+      "bytes": 2741,
+      "sha256": "3095c9801b290aca1211f68162498a5184818c510c776d12225b3a5a69fd532c"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-prompt-v2.md",
+      "bytes": 1822,
+      "sha256": "cc2a984dcd280f3ba22c63001df17d0a18127115c8685cd4a17b943978975344"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence-prompt.md",
+      "bytes": 1783,
+      "sha256": "b6ed59e13586d8bdff951da3bd8b11f97f01267782d38284394211d5a95840e8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence_schema.py",
+      "bytes": 2349,
+      "sha256": "fc8d8e47adba4348ced7e8a92d73cd9d78c2c9f39c742fe19b261f360f082af8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/evidence_schema_budgeted.py",
+      "bytes": 2830,
+      "sha256": "8cce93c5927ea7ed9203b3773317dfb9ee96c6019675020fee83707feedf5585"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/extract-evidence-native-v3.py",
+      "bytes": 18389,
+      "sha256": "b51775b5c9f64b86a9b76b4d1d2f1e5da95ab0a20edc3b41c4276e8bcad10d7d"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/extract-evidence-native-v4.py",
+      "bytes": 19463,
+      "sha256": "40011d0c987ce0ec1b15a3ce842c0eec08bb21b5c080da79b07230dc70f409b5"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/extract-evidence-native-v5.py",
+      "bytes": 22027,
+      "sha256": "b0b27267163add05a6b5535f9bc4aac316d68f2c56476c9d70d10743c3afa2cf"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/extract-evidence-v2.py",
+      "bytes": 19169,
+      "sha256": "cc5625e1e4b8fa7a60d9eb46801fc2fa5de5f982e382ebc843d26eeb2c402531"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/extract-evidence.py",
+      "bytes": 20445,
+      "sha256": "2597d4cf92d61b98e7863dcb9a6f55d58b1c46faede8aad57264393d86458a28"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/launch-native-v6.mjs",
+      "bytes": 2812,
+      "sha256": "8f4d0612a2769831ac67f1500d0654da58ce200013986976eb833c01398e7774"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/measurement-summary.json",
+      "bytes": 18128,
+      "sha256": "4db795c0d2dcdf65d9272a69dd5acd6b7851b97b83f6f3083633d734a016fbee"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/mechanical-audit.json",
+      "bytes": 2814675,
+      "sha256": "f1eefadda191ca4507de31c8f62c81944acc3b162c500385d24674387a7fc6a8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/prepare-evidence-run.py",
+      "bytes": 9643,
+      "sha256": "1d263d64e64d27d6fb48110b30315bacace762f8efbcdd4b1b201bee8a5ca752"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/prepare-evidence-run2.py",
+      "bytes": 10375,
+      "sha256": "4e8fe5b6a9a8993c7eeb44195ed6da0d0c613fc35dbc3d6f23b3b02cd120d726"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/prepare-evidence-run3.py",
+      "bytes": 9058,
+      "sha256": "2b964f543b0b7c5e61089222c0d8c28536234a65ba448c030ec1bace864a47b4"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/prepare-evidence-run4.py",
+      "bytes": 9904,
+      "sha256": "e3eb0c5c9e468fcf9843d5e2d9ae3399b5efcae47ec91dab98243193aa6823eb"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/prepare-evidence-run5.py",
+      "bytes": 11380,
+      "sha256": "a6e1cc0c34512f9eaa52d01c8335fbd989b338eeebd7d7b35dea5231c27d23eb"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/run-native-evidence-v5.ps1",
+      "bytes": 7176,
+      "sha256": "100dcdbc16e9aef34f7cf1b69b61e2e75aa972f2cea7bd56812ac58f8e9160f2"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/run-native-evidence-v6.ps1",
+      "bytes": 9019,
+      "sha256": "90fe039974336ba44176d2ed7df585a2289faceb3e825f9a12275c2b68d97eae"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/seal-evidence.mjs",
+      "bytes": 3694,
+      "sha256": "1d325aa452cfccfed8d09db3f830a9031e76101fd44063272df60953ee979098"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/semantic-audit.json",
+      "bytes": 3112695,
+      "sha256": "92895f41044953f1a5060d8eb936b70123e149ebc17bcb68091f8c1cbbca3f09"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/semantic-audit.md",
+      "bytes": 3206,
+      "sha256": "64d41611c7b65d3e8e716eca4466ab05ce71f8942dad0b747e4e5d27dcfdec4a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/test-evidence-runner-v4.py",
+      "bytes": 2682,
+      "sha256": "c43dc685d97e269b67e7a1b4ffde0ab50cc73b21a28bffc351ccd9872e3a19c3"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/test-evidence-runner-v5.py",
+      "bytes": 4110,
+      "sha256": "b97dc8ed712a56199771e38e27d292980218701c8fa3694e86934c3f53baf004"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/validate-and-build-native-v2.mjs",
+      "bytes": 15292,
+      "sha256": "25738065e7f8887d362815e07fa1bb617d3c599f2b86790bfc517873986dcd29"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/validate-and-build-native-v3.mjs",
+      "bytes": 15865,
+      "sha256": "5040f1b45179ec226c845c056d13ecd961ab2408e48f2595dc21c6bfaadb05ed"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/validate-and-build-native-v4.mjs",
+      "bytes": 16093,
+      "sha256": "e9cd570e4fac11b58e89bed22e1e1675a4b022659f7fde4b59f7db05221ca0f2"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/validate-and-build-native-v5.mjs",
+      "bytes": 16491,
+      "sha256": "7e8aa14840faf3d1cc53bdf41743de47666800a8418ff45104442db05d320a9f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/validate-and-build-native-v6.mjs",
+      "bytes": 16215,
+      "sha256": "ae4cec386185c14620e5a1e2ce1af80df4741c7a92e7d28c0977136b3d2fcd99"
+    }
+  ]
+}

@@ -1,0 +1,638 @@
+{
+  "schema": "thai-table-chunking-evidence.v1",
+  "revision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "rawRoot": ".local/thai-table-chunking-20261025/run-v2",
+  "originalManifestSha256": "88d9159f98e86a8e068c6ef46de2a259a3cfb1a496acc9c3e06e6fd1b40c0913",
+  "originalArtifactsUnchanged": [
+    "projected.json",
+    "native-input.json",
+    "paddle-1/economy.json",
+    "paddle-1/population.json",
+    "input/economy.pdf",
+    "input/population.pdf"
+  ],
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "nativeModels": [
+    {
+      "path": "config.json",
+      "bytes": 655,
+      "sha256": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959"
+    },
+    {
+      "path": "onnx/model.onnx",
+      "bytes": 470268510,
+      "sha256": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665"
+    },
+    {
+      "path": "special_tokens_map.json",
+      "bytes": 167,
+      "sha256": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7"
+    },
+    {
+      "path": "tokenizer.json",
+      "bytes": 17082730,
+      "sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39"
+    },
+    {
+      "path": "tokenizer_config.json",
+      "bytes": 443,
+      "sha256": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+    }
+  ],
+  "modelBytesMatchPrior": true,
+  "executedHarnessMatches": true,
+  "frozen": {
+    "frozenBeforeInference": "2026-10-24T22:05:28.340Z",
+    "files": {
+      "reports/oxr-thai-2026-10-25/table-chunking/README.md": "270e6bb20f36084da993e166ce2e412b603abf8b5ac333236739cb2951aecbab",
+      "reports/oxr-thai-2026-10-25/table-chunking/table-profile.mjs": "e61ab0b8e4606d0deb38c2bb0415b7b97899e762a7f8d1912ed2903ecbae9252",
+      "reports/oxr-thai-2026-10-25/table-chunking/prepare.mjs": "15249cec58069f54154c5d314c893f66f2db75a8fd50e8db5654c840286f86c9",
+      "reports/oxr-thai-2026-10-25/table-chunking/native.test.js": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b",
+      "reports/oxr-thai-2026-10-25/real-native/gold.json": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+      "reports/oxr-thai-2026-10-25/real-native/metrics.mjs": "d7c1740f964d70bb1e04a6d3767aaadd683660443a1b0b240d434d1fb2718180",
+      ".local/thai-table-chunking-20261025/run-v2/native-input.json": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120",
+      ".local/thai-table-chunking-20261025/run-v2/table-sidecar.json": "f6c903ffd8f3b1e9ae9ed5f724e210640e8947f05db2ce4db7a51442f7457a02"
+    }
+  },
+  "host": {
+    "cpu": [
+      {
+        "Name": "Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz",
+        "NumberOfCores": 6,
+        "NumberOfLogicalProcessors": 12
+      }
+    ],
+    "physicalMemoryBytes": 34317889536,
+    "docker": {
+      "ServerVersion": "29.9.2",
+      "OSType": "linux",
+      "Architecture": "x86_64",
+      "NCPU": 12,
+      "MemTotal": 16750788608
+    },
+    "measurement": "Serial CPU-only runs; host background load uncontrolled"
+  },
+  "commands": {
+    "plain": [
+      "run",
+      "--name",
+      "zuri-thai-table-plain-v2",
+      "--network",
+      "none",
+      "--cpus",
+      "2",
+      "--memory",
+      "6g",
+      "--memory-swap",
+      "6g",
+      "--mount",
+      "type=bind,src=<repo>\\.local\\thai-table-chunking-20261025\\run-v2\\native-plain,dst=/bench",
+      "--mount",
+      "type=bind,src=<repo>\\reports\\oxr-thai-2026-10-25\\table-chunking,dst=/harness,readonly",
+      "--mount",
+      "type=bind,src=<repo>\\reports\\oxr-thai-2026-10-25\\real-native,dst=/previous,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/src,dst=/app/src,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/tests,dst=/app/tests,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/scripts,dst=/app/scripts,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/prisma/schema.prisma,dst=/app/prisma/schema.prisma,readonly",
+      "--mount",
+      "type=bind,src=<repo>\\.local\\thai-table-chunking-20261025\\run-v2/native-input.json,dst=/input/native-input.json,readonly",
+      "--mount",
+      "type=volume,src=zuri-main-dev-20261020_ki17-model,dst=/model,readonly",
+      "-e",
+      "BENCH_ARM=plain",
+      "-e",
+      "KI17_MODEL_DIR=/model/614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "--entrypoint",
+      "node",
+      "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "/harness/launch-native.mjs"
+    ],
+    "table": [
+      "run",
+      "--name",
+      "zuri-thai-table-table-v2",
+      "--network",
+      "none",
+      "--cpus",
+      "2",
+      "--memory",
+      "6g",
+      "--memory-swap",
+      "6g",
+      "--mount",
+      "type=bind,src=<repo>\\.local\\thai-table-chunking-20261025\\run-v2\\native-table,dst=/bench",
+      "--mount",
+      "type=bind,src=<repo>\\reports\\oxr-thai-2026-10-25\\table-chunking,dst=/harness,readonly",
+      "--mount",
+      "type=bind,src=<repo>\\reports\\oxr-thai-2026-10-25\\real-native,dst=/previous,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/src,dst=/app/src,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/tests,dst=/app/tests,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/scripts,dst=/app/scripts,readonly",
+      "--mount",
+      "type=bind,src=<repo>/apps/server/prisma/schema.prisma,dst=/app/prisma/schema.prisma,readonly",
+      "--mount",
+      "type=bind,src=<repo>\\.local\\thai-table-chunking-20261025\\run-v2/native-input.json,dst=/input/native-input.json,readonly",
+      "--mount",
+      "type=volume,src=zuri-main-dev-20261020_ki17-model,dst=/model,readonly",
+      "-e",
+      "BENCH_ARM=table",
+      "-e",
+      "KI17_MODEL_DIR=/model/614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "--entrypoint",
+      "node",
+      "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+      "/harness/launch-native.mjs"
+    ]
+  },
+  "sources": [
+    {
+      "path": "evaluate.mjs",
+      "sha256": "b2506f39b482dd5f02cc3def1970426d973cffa053f1ddcc5f4f5a8fa9801a68"
+    },
+    {
+      "path": "freeze.mjs",
+      "sha256": "ab052ae0291cef8c2a2711972fbaae9113b427bd5a31e8771ce8e215de8c2794"
+    },
+    {
+      "path": "launch-native.mjs",
+      "sha256": "cee30e2c0d91d2c913329ce5690438c835f50c7b340d1c9811687271f9ae4e12"
+    },
+    {
+      "path": "measurement-summary.json",
+      "sha256": "dcfad1eabba548291e19c54ebee806889bfe3b9c8793138662c446e4c8e452b7"
+    },
+    {
+      "path": "native.test.js",
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": "prepare.mjs",
+      "sha256": "15249cec58069f54154c5d314c893f66f2db75a8fd50e8db5654c840286f86c9"
+    },
+    {
+      "path": "run-native.ps1",
+      "sha256": "8f5f0f3306f859d2fd36a7cd914b09aca9bb17d959f87a30e6c0a83e5bcf499b"
+    },
+    {
+      "path": "seal-evidence.mjs",
+      "sha256": "fe7279eafbd7ebeea1d4f250a9a963627f5bcab6345c5182149d0c96c9585390"
+    },
+    {
+      "path": "table-profile.mjs",
+      "sha256": "e61ab0b8e4606d0deb38c2bb0415b7b97899e762a7f8d1912ed2903ecbae9252"
+    },
+    {
+      "path": "table-profile.test.mjs",
+      "sha256": "9c6a08f7db055dc63634621f1eebc08f188771fb70409abd92360e321fd0ab60"
+    },
+    {
+      "path": "token-audit.py",
+      "sha256": "277ab7da357576a6c97ea3f64949fe5e445f8dd9f3ac654f81979fdb2bab0686"
+    }
+  ],
+  "raw": [
+    {
+      "path": "document-tests.log",
+      "bytes": 1607,
+      "sha256": "3edbf2fc797594860931274ca0c52ad6600fd2965c11d0ce397f5b086bd0a058"
+    },
+    {
+      "path": "evaluation.log",
+      "bytes": 7450,
+      "sha256": "b2611250d1f310a32f51ee64280b330bafb0186b78a2b2621b6b843737a69e7f"
+    },
+    {
+      "path": "frozen-protocol.md",
+      "bytes": 3615,
+      "sha256": "270e6bb20f36084da993e166ce2e412b603abf8b5ac333236739cb2951aecbab"
+    },
+    {
+      "path": "frozen.json",
+      "bytes": 1126,
+      "sha256": "fc5c9957fbe7767c0e2f0b6696280b23780b7b947ac28b056d5697139e0d0da7"
+    },
+    {
+      "path": "govern.log",
+      "bytes": 46033,
+      "sha256": "d928590b2f335849b0154665bde2cf3ac1458b699dde31d19786934e2224f4a5"
+    },
+    {
+      "path": "llms-check.log",
+      "bytes": 124,
+      "sha256": "15f4a3dc204f815e013fa89fafa5835ec251b0e201ed18ecd8046923d190e80c"
+    },
+    {
+      "path": "llms.log",
+      "bytes": 102,
+      "sha256": "ba65b7121f9f8ba228b46ac1a7bba35a2a7db204bd615ed5db2122cf89604c2d"
+    },
+    {
+      "path": "native-input.json",
+      "bytes": 1129252,
+      "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120"
+    },
+    {
+      "path": "native-models.json",
+      "bytes": 717,
+      "sha256": "bbea2d7600cb815966046e43d6cb6927704fad30d574607a1767a59c0b808be2"
+    },
+    {
+      "path": "native-plain/chunks.json",
+      "bytes": 35348,
+      "sha256": "c8ce59ca30e0d04fa805c1dbcbed7ec359188af35ec0450195252cb59a0f6fbd"
+    },
+    {
+      "path": "native-plain/executed-native.test.js",
+      "bytes": 8643,
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": "native-plain/native-results.json",
+      "bytes": 473943,
+      "sha256": "a420e586c85fdf2103e2fb50ae09f166a81d058e79ab9e818dae94a1c41d85ab"
+    },
+    {
+      "path": "native-plain/publication.json",
+      "bytes": 378,
+      "sha256": "ebb164ae46159bd519a6fccbeb3a9c6c86bbb69755ea5bdd971a8b6a3e2a6032"
+    },
+    {
+      "path": "native-plain/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": "native-plain/stages.json",
+      "bytes": 48452,
+      "sha256": "2c6cf7f72bbb2ec1cce5043370de56c70e060b1f78040fc7e22a679ad20d85d0"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/edges.bin",
+      "bytes": 130999,
+      "sha256": "1aeeff6970bf79a80b596b1106ba4d3e239c25e1ae800c7b793e6fc169d772c2"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesisrag17/decisions/gks_decision_11b4fce01ffee6c36de620e29cede811.json",
+      "bytes": 82603,
+      "sha256": "4676039e8e43714c663bbc824f7b001b4ba7276f736680b9799ff1961021c640"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 192512,
+      "sha256": "2d2d97c2aa3f23befc9c4c9724d6286c732dc56d54c9fe65734f0c20c4e79cec"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "9df6c4bbbd4fcec14c8a14ce405f2b63fa887cf06bccf1bffc00f29e633b93fe"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesisrag17/snapshots/snap-a402e7bfe8ef8e13f27276661cdfddb4.json",
+      "bytes": 2982,
+      "sha256": "12aa0e7c8482162564dd6e4cc8284a6554f281ef2b8c69d1508869c09b5ef6cc"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/genesisrag17/state.json",
+      "bytes": 21026,
+      "sha256": "c9d752eb7b68092813e932b62ac18ab0d60c8f3a9b9086c104b0844fa992ed9e"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "1cca59aed88a8af995972465a91bdfdf56b41c79a017c65e46fbc7cf4e6a82ce"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/journal/B000000000000.gseg",
+      "bytes": 673,
+      "sha256": "646a88e0e96d8e1c2429ca15b0a7456353bc3482465131050af53d49becd7aa1"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/meta_genesisrag17_e5_a402e7bfe8ef8e13f27276661cdfddb4.bin",
+      "bytes": 634,
+      "sha256": "fcf76b8326408a0d264712ff600726bec09568a10ffa26d38524f77aba6127a9"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/nodes.bin",
+      "bytes": 21198,
+      "sha256": "81586acab4be3b3af8079b9b6e9e8f16e69b11e4cc18daaf42dae21d41a4f84c"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/projection.sqlite",
+      "bytes": 802816,
+      "sha256": "38ce89ed74d3117d00fa6697bd9b7b8fdb88c85839a9bd83a95bf96fafec57ac"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "2feebbb62a5d816907656bf82a3db06b2e4fc8d50f5e5153eaa05f3694cc13e0"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/projection.sqlite-wal",
+      "bytes": 655112,
+      "sha256": "a1baeb101743d1fb9abdd5e6daee410b079f3a6f0fe819fff4ecfc10be05a66b"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "c1377f29fe875f0b907c575d5cecff6946e4246a9749a82fb8088ec8a483a396"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/vec_genesisrag17_e5_a402e7bfe8ef8e13f27276661cdfddb4.bin",
+      "bytes": 53760,
+      "sha256": "5dc6e76b49fcff0ebdf2d49ab0c8d733af06759938e3cac8edf37d787eb9788f"
+    },
+    {
+      "path": "native-plain/state-hhybjT/genesis-store/wal/active.gwal",
+      "bytes": 557495,
+      "sha256": "04b11cd3a2d9377dc875210a31de774169293daca4769f7a828d8e9ca6b6a72e"
+    },
+    {
+      "path": "native-plain/state-hhybjT/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-plain/state-hhybjT/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "e7b891225d2b32ea074fc046da0ca328baf0d123f51e5099ee2bb449777d51ec"
+    },
+    {
+      "path": "native-plain/state-hhybjT/gks.sqlite-wal",
+      "bytes": 1285472,
+      "sha256": "5d08a527b7d22cacc05c1eb057dd9e5bf018e0e26770cdc15e6543416e8e61d3"
+    },
+    {
+      "path": "native-plain/state-hhybjT/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-plain/state-hhybjT/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "4b06a90a74866c1a135609e391b4379737e00180b7bb048752aa786424cebb63"
+    },
+    {
+      "path": "native-plain/state-hhybjT/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "0b86641884062f607728044c73cca2b2b73fbd833640b46f3b7a2a17e166c39c"
+    },
+    {
+      "path": "native-plain/state-hhybjT/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": "native-plain/zuri-evidence.sqlite",
+      "bytes": 4993024,
+      "sha256": "e80573d313c0d0d9732f44ac446141c112f250e94d9dd6ac8c9a199716f08e77"
+    },
+    {
+      "path": "native-plain-state.json",
+      "bytes": 225,
+      "sha256": "24106157e0e5391e4c482c0bff11ec099c17d574811ca105f56344270329a130"
+    },
+    {
+      "path": "native-plain.log",
+      "bytes": 1189,
+      "sha256": "f9fd224c2acded93943ee51d629c0de21413624e674c7032565fc9fd45b6ec04"
+    },
+    {
+      "path": "native-table/chunks.json",
+      "bytes": 125161,
+      "sha256": "42e9ac57aa7e38720f92be20c41600fd3b91675067af0a80c39aea56b59cf9d8"
+    },
+    {
+      "path": "native-table/executed-native.test.js",
+      "bytes": 8643,
+      "sha256": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b"
+    },
+    {
+      "path": "native-table/native-results.json",
+      "bytes": 381728,
+      "sha256": "9acd77ceeea67d25133ad529182fd052592715daed0de6a1ecc5543b1bdf8f5a"
+    },
+    {
+      "path": "native-table/packet-audit.json",
+      "bytes": 31451,
+      "sha256": "92fd29918a6fc8927156933cd53ad24ad9632fbc355f08b03e40fcb127f07773"
+    },
+    {
+      "path": "native-table/publication.json",
+      "bytes": 378,
+      "sha256": "1f744190c31527faf35c91f83dce46cf05cfee3be0fc700007a7162d187bafc7"
+    },
+    {
+      "path": "native-table/runtime-provenance.json",
+      "bytes": 2706,
+      "sha256": "944cc889df442d494fd76cda16def698e6cd4fd8a19a3d9aab86279209122c02"
+    },
+    {
+      "path": "native-table/stages.json",
+      "bytes": 56526,
+      "sha256": "62291c7ca98a8609825f762e7615efb356b815d41755eff0621920ad90383048"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/edges.bin",
+      "bytes": 281744,
+      "sha256": "2a7a34e70eb530873f13adcc7badb41f7c70e65642d423c460e8478818ff2a7e"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesisrag17/decisions/gks_decision_b9e4a1efa82ba6c370600d07ebf40e50.json",
+      "bytes": 220469,
+      "sha256": "6631f77664a870f40dd012fa48d82d2e09d051f5c7aebda5a7cb00a46e7e11dd"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 561152,
+      "sha256": "39d46f3d9618d57e9906c604f23da9b4faf71184d80d887e10e05def1ea43b20"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "5b7250417d940c20046b5abb30ba7c52e1f637c177d3bfffa3bf1461abeef5d6"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesisrag17/snapshots/snap-36fde6227ee8e4b8a35212c1ceacfe20.json",
+      "bytes": 10782,
+      "sha256": "7b6676d221c66d98e3655dab8f7848577248712de2df0b30f8ac2916b8f3af47"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/genesisrag17/state.json",
+      "bytes": 21046,
+      "sha256": "132140d57d3f965f5714c38ff328452467f48ceb2811014a14fd784c4a3cb731"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "e37b62b4c961bbac78c366b9573ca62534ecb9b52efeb353af0fa15a41b9f65a"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/journal/B000000000000.gseg",
+      "bytes": 679,
+      "sha256": "2f4eaa881f4d1ecb54501d404e75e4ec2d031f9ec00a6ee81be6ed04a8781a38"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/meta_genesisrag17_e5_36fde6227ee8e4b8a35212c1ceacfe20.bin",
+      "bytes": 3012,
+      "sha256": "6deaa1e17178780242e1eb784015ccb8781c74c0e8a839d1aa7b8a369a3e69da"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/nodes.bin",
+      "bytes": 57788,
+      "sha256": "e867faad1727452820a21be05deb0e67abdd5f5f033e5aa6d5333a7696a562ab"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/projection.sqlite",
+      "bytes": 1863680,
+      "sha256": "6f85f040b8a52d798edccf881a3ebc41db0ce40544104b11b6b0e2d40b9251b6"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "077f8253914f08b09257d85698b5ca5027a1cc772c76c83908cdc5ebd10fc1be"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/projection.sqlite-wal",
+      "bytes": 1697472,
+      "sha256": "e503fbdc1629eb63972d392d14b148a8e045051859a3ef1b042e76f8b4c584e6"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "822e66a951af2f541ef9ef4607c68dc41d21a5e698320cd8724ee7413c6de1cb"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/vec_genesisrag17_e5_36fde6227ee8e4b8a35212c1ceacfe20.bin",
+      "bytes": 239616,
+      "sha256": "f8237a6c78b8b3c9477c4090427d7f539b9b4e70a162807f081440b012021243"
+    },
+    {
+      "path": "native-table/state-TgNMHp/genesis-store/wal/active.gwal",
+      "bytes": 1979050,
+      "sha256": "0cecfe0dcae5ecb49c882861168b37d2ca730ad603c808cf5d25bd4ba33fc379"
+    },
+    {
+      "path": "native-table/state-TgNMHp/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-table/state-TgNMHp/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "624b0169197051a17d9ebf92aae553cc49e1529b2d6eeac57fc6c0233f4cbafc"
+    },
+    {
+      "path": "native-table/state-TgNMHp/gks.sqlite-wal",
+      "bytes": 2389632,
+      "sha256": "f6ba57e9380603d584a1591857d52218124f7bfe9884bd1f4750676ce03a9c2f"
+    },
+    {
+      "path": "native-table/state-TgNMHp/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": "native-table/state-TgNMHp/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "b224e4bda5ec6e555a997149bc7f5a0f136b9d0fd71ef5e7c694a02589ee9ba5"
+    },
+    {
+      "path": "native-table/state-TgNMHp/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "0c065869a3d65c5e7b204b237c798a7482ca8eba48ce028fe0fcf0c4b35df9e2"
+    },
+    {
+      "path": "native-table/state-TgNMHp/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": "native-table/zuri-evidence.sqlite",
+      "bytes": 5763072,
+      "sha256": "838efafbbc6bf27760da90d95098469cbfaa62b96b2b477d13eb138dbb84a3aa"
+    },
+    {
+      "path": "native-table-state.json",
+      "bytes": 225,
+      "sha256": "0ac329d4b26b78575436b189e71af52c32199d5cd8789321a66032526f29ae7d"
+    },
+    {
+      "path": "native-table.log",
+      "bytes": 1189,
+      "sha256": "92b650f974951ee49751533147484c9c24cd5536f0ae4c82ee26d49ff402ba14"
+    },
+    {
+      "path": "plain-command.json",
+      "bytes": 1573,
+      "sha256": "fe3e1deb239314175c9461b0e1b4686a72e895ef9628d02dabf7adb8bd6ca610"
+    },
+    {
+      "path": "table-command.json",
+      "bytes": 1573,
+      "sha256": "c6ce126180032aa104002ba3ecd748ca388454e075aa99c1c58b8fa70b35cfb5"
+    },
+    {
+      "path": "table-sidecar.json",
+      "bytes": 2420480,
+      "sha256": "f6c903ffd8f3b1e9ae9ed5f724e210640e8947f05db2ce4db7a51442f7457a02"
+    },
+    {
+      "path": "token-audit.json",
+      "bytes": 2307,
+      "sha256": "7366932ab405cb6d1d41abe1970693caeb409e85d88bf3ef6847109c393a8c5e"
+    },
+    {
+      "path": "unit-tests.log",
+      "bytes": 1166,
+      "sha256": "7b52a0224f0bf95d8256a9617a3012509a35ccc60af58eab8e21440b1e911e5a"
+    }
+  ]
+}

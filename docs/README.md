@@ -1,5 +1,5 @@
 ---
-version: "0.6.0"
+version: "0.20.0"
 status: active
 superseded_by: null
 ---
@@ -27,9 +27,20 @@ plans and historical test receipts are separate from the build specification.
 - [Plans location and retained-source index](plans/README.md) records the plan
   cleanup and the contracts/evidence still held at legacy paths; the
   [roadmap index](roadmap/README.md) separates delivery state from projections.
-- [Engineering assessments](../reports/README.md), including the
+- [Engineering assessments](../reports/README.md) link the
   [2026-10-23 code/requirements gap assessment](../reports/gap-analysis-2026-10-23/README.md),
-  record dated findings and verification limits without creating requirements or plans.
+  [Thai parser/chunking experiment](../reports/oxr-thai-2026-10-25/README.md),
+  [local Thai parser alternatives](../reports/oxr-thai-2026-10-25/alternatives/README.md),
+  [real-document/native follow-up](../reports/oxr-thai-2026-10-25/real-native/README.md),
+  [PaddleOCR-VL v1 parser-by-projection follow-up](../reports/oxr-thai-2026-10-25/paddleocr-vl-v1/README.md),
+  [Hyper-Extract v1 candidate-evidence/native TEXT follow-up](../reports/oxr-thai-2026-10-25/hyper-extract-v1/README.md),
+  [Hyper-Extract relation-evidence audit/companion pass](../reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/README.md),
+  [Hyper-Extract held-fact source audit/geometry recheck](../reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/README.md),
+  [Hyper-Extract source-native extraction/native comparison](../reports/oxr-thai-2026-10-25/hyper-extraction-repair-v1/README.md),
+  [Hyper-Extract held-cell source/PDF-derived retrieval audit](../reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/README.md),
+  [economy PDF-native held-cell follow-up](../reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/README.md),
+  and [GenesisRAG17 E5 fixed-batch resource experiment](../reports/oxr-thai-2026-10-25/e5-microbatch-v1/README.md).
+  They record dated findings and verification limits without creating requirements or plans.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -70,6 +81,12 @@ and `npm run docs:readiness -- ZAI:FEAT-009` for scoped navigation and binding
 reports. See the [tooling contract](migrations/document-reintegration/TOOLING.md).
 
 ## Domain ownership and service execution
+
+- [Proposed File Manager → Knowledge Vault → GenesisRAG17 → Agent flow](change-requests/integration/line-knowledge-memory-unified-flow-20261024.md)
+  specifies local uploads, storage boundaries, customer/staff audiences, typed evidence
+  and separate ingestion/Agent query sequences with explicit component ownership
+  for review with unchanged price/stock authority;
+  it does not amend canonical requirements or activate production memory.
 
 - [Approved GenesisRAG17 ownership and reliability design](change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md)
   and [implementation plan](change-requests/knowledge/genesisrag17-implementation-20261023.md)
@@ -125,3 +142,26 @@ separate.
 Version diff 0.5.0 → 0.6.0 (2026-10-23): links the dated code/requirements
 assessment and the explicit plan-cleanup inventory. Canonical authority and
 delivery status remain in their existing sources.
+
+Version diff 0.7.0 → 0.8.0 (2026-10-25): identifies separate ingestion and Agent
+query views in the existing proposal, preserving component and permission boundaries.
+
+Version diff 0.6.0 → 0.7.0 (2026-10-24–25): links the proposed unified LINE
+Knowledge/Memory specification, extended with File Manager/Vault sources and
+customer/staff audiences, without changing requirements or activation authority.
+
+Version diff 0.8.0 → 0.9.0 (2026-10-25): links the isolated Thai OXR/parser/chunking assessment; no runtime or authority change.
+
+Version diff 0.9.0 → 0.10.0 (2026-10-25): links local parser alternatives on the frozen Thai corpus; no production change.
+
+Version diff 0.10.0 → 0.11.0 (2026-10-25): links public real Thai documents and isolated native ingestion/query evaluation; no production change.
+
+Version diff 0.13.0 → 0.14.0 (2026-10-25): links the Hyper-Extract v1 candidate-evidence/native TEXT follow-up; no graph adoption or production activation.
+
+Version diff 0.14.0 → 0.15.0 (2026-10-25): links the Hyper-Extract relation-evidence audit and bounded companion pass; no relation adoption, retrieval improvement or production activation.
+
+Version diff 0.18.0 → 0.19.0 (2026-10-25): links the separate 37-row economy PDF-native retrieval follow-up; historical held OCR and production authority remain unchanged.
+
+Version diff 0.19.0 → 0.20.0 (2026-10-25): links the paired E5 fixed-batch
+resource experiment; embedding vectors and native retrieval results match,
+with no application or production change.

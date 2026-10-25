@@ -1,0 +1,303 @@
+{
+  "schema": "genesisrag17-resource-path-diagnosis-v1",
+  "scope": {
+    "purpose": "Read-only diagnosis of the native embedding/chunking path and historical runtime/memory change.",
+    "qaGoldOrQuestionPayloadOpened": false,
+    "nativeResultPayloadOpened": false,
+    "newModelInferencePerformed": false,
+    "productionOrApplicationSourceChanged": false,
+    "oldRunArtifactsChanged": false
+  },
+  "reportBindings": {
+    "measurementSummary": {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/measurement-summary.json",
+      "sha256": "529ddeaca490c209b24d86d8beedaa6209d5cfe8e563ab53e1bf7cd6d73916aa"
+    },
+    "evidenceManifest": {
+      "path": "reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/evidence-manifest.json",
+      "sha256": "c6ee0a2a03573fea0fafc3cea3fb67ebea0c9540e2fd14444e391a2a48a442a2"
+    },
+    "note": "Each raw chunk and native-result SHA below matches its arm entry in the frozen measurement summary. The native-result files were hashed but not opened."
+  },
+  "comparisonArms": [
+    {
+      "id": "currentTableBaseline",
+      "rawRunPath": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1",
+      "chunkCount": 156,
+      "chunksSha256": "fcad378eeb5be67db84fa069610b1cb5434bd733a9a61e1c5c3b630a0f9b5287",
+      "nativeResultsSha256": "86e7b4c023c37e4e00c6aeeb1079c952c8cf4863ddb360df3b1e9bbd68ac8767",
+      "stagesSha256": "f715911d2eb10807ccb4bcdb099e98e971d75ddef2f74ef2ebba9f1eb649ca38",
+      "totalMs": 82169.641198,
+      "memoryPeakBytes": 2693615616,
+      "memoryPeakGiB": 2.508625,
+      "stage15EmbeddingMs": 37246,
+      "stage16IndexMs": 1570,
+      "stageCount": 17,
+      "oomKilled": false
+    },
+    {
+      "id": "priorPdfRepairReference",
+      "rawRunPath": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2",
+      "chunkCount": 277,
+      "chunksSha256": "9a2cb346be0a5f657fe90c2b0fffeddc1ecbfd8ef2bbf84b4373151158863709",
+      "nativeResultsSha256": "afa837831ea73aa840f121a9d7834e5d22f28e3fb5845dc48add24270b467736",
+      "stagesSha256": "60d699ca2bc31fd0cdbf2954ba91dec8e5113dd2a097f64397a70cbd3896f2e0",
+      "totalMs": 106300.066346,
+      "memoryPeakBytes": 3728732160,
+      "memoryPeakGiB": 3.472652,
+      "stage15EmbeddingMs": 58568,
+      "stage16IndexMs": 2110,
+      "stageCount": 17,
+      "oomKilled": false
+    },
+    {
+      "id": "combinedPdfRepairAndEconomyRows",
+      "rawRunPath": ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1",
+      "chunkCount": 302,
+      "chunksSha256": "f51f8ae2c3673782d54a1ccf936e00761c4eb3e32c7a42c3731f69057327f95b",
+      "nativeResultsSha256": "035f6db1f558dd58ec5220abfff3357dba6c31e7ba626d7889a06a02be6337ea",
+      "stagesSha256": "da7b25b56a06c7b0b6924fba7af07362a3f8139d25b7af303fc20c18f56c6594",
+      "totalMs": 148412.022115,
+      "memoryPeakBytes": 4497965056,
+      "memoryPeakGiB": 4.189056,
+      "stage15EmbeddingMs": 107847,
+      "stage16IndexMs": 1670,
+      "stageCount": 17,
+      "oomKilled": false
+    }
+  ],
+  "baselineIdentityResolution": {
+    "selectedBaseline": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1",
+    "selectionBasis": "Its chunks SHA fcad378e…b5287 and native-results SHA 86e7b4c0…8767 match currentTableBaseline in the report summary.",
+    "olderDistinctRun": {
+      "path": ".local/thai-table-chunking-20261025/run-v2/native-table",
+      "chunkCount": 156,
+      "chunksSha256": "42e9ac57aa7e38720f92be20c41600fd3b91675067af0a80c39aea56b59cf9d8",
+      "stage15EmbeddingMs": 28609,
+      "use": "Historical arm only; its input hash differs and it is not the baseline bound by the current report. Do not substitute its timing or infer current-baseline RAM from it."
+    }
+  },
+  "commonNativeResources": {
+    "image": "zuri-ki17-acceptance@sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+    "imageRevisionLabel": "bf48f2ff69dad33371ec3812ee45c29f44825ad6",
+    "configurationRevisionLabel": "5cc188cde1b939936a1c497081f1c1456a311ddf",
+    "cpuLimit": 2,
+    "memoryLimitGiB": 6,
+    "memorySwapLimitGiB": 6,
+    "network": "none",
+    "modelVolume": "zuri-main-dev-20261020_ki17-model",
+    "modelVolumeReadOnly": true,
+    "modelPath": "/model/614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "freshIsolatedNativeStatePerArm": true,
+    "gpuUsedByGenesisRag17": false
+  },
+  "pinnedRuntimeAndSource": {
+    "runtimeProvenanceSha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7",
+    "pinnedResolvedConfig": {
+      "imagePath": "/opt/ki17/pins/resolved.json",
+      "sha256": "60569ff03685b1f27983d89df844f6653d29d95d3b1c8d776a48ae4862ee79c2",
+      "bytes": 1808
+    },
+    "worker": {
+      "imagePath": "/opt/ki17/genesisblock/genesisrag17-worker/src/worker.mjs",
+      "sha256": "353ca60a304f951110b44d3508d30ef2aa7dfc61518f6af2e038fc10f49fed9e",
+      "bytes": 112653,
+      "sourceRepositoryCommit": "Freshair129/GenesisBlock@5156f412da73905a23d74775a82cc14d1f6d04d0",
+      "lineReferences": [
+        "Embedder construction/start/embed: lines 642-709",
+        "Model artifact verification and embedder start: lines 1133-1148",
+        "Stage 15 passes decision.chunks.map(chunk => chunk.text) to one passage embed call: lines 2073-2076"
+      ]
+    },
+    "embedder": {
+      "imagePath": "/opt/ki17/genesisblock/genesisrag17-worker/src/embedder.py",
+      "sha256": "dd7e9e51f61faf5a3d6d0bbe894c8c75b235f589c0906ca952c790afeb555e35",
+      "bytes": 4006,
+      "lineReferences": [
+        "Model dimensions and max length: lines 19-20",
+        "One encode_batch and dynamic batch max length, capped at 512: lines 45-61",
+        "One session.run plus masked mean pooling and normalization: lines 62-73",
+        "ONNX Runtime CPUExecutionProvider session: lines 27-42"
+      ]
+    },
+    "model": {
+      "id": "intfloat/multilingual-e5-small",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "onnxPath": "onnx/model.onnx",
+      "onnxSizeBytes": 470268510,
+      "onnxSha256": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665",
+      "tokenizerPath": "tokenizer.json",
+      "tokenizerSha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+      "configSha256": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959",
+      "config": {
+        "modelType": "bert",
+        "hiddenSize": 384,
+        "layers": 12,
+        "attentionHeads": 12,
+        "intermediateSize": 1536,
+        "maxPositionEmbeddings": 512
+      }
+    },
+    "executionEnvironment": {
+      "applicationNode": "22.23.4",
+      "ki17Node": "24.18.0",
+      "python": "3.12.15",
+      "tokenizers": "0.23.1",
+      "numpy": "2.5.2",
+      "onnxruntime": "1.29.0",
+      "selectedExecutionProvider": "CPUExecutionProvider",
+      "sessionOptions": "No explicit ONNX Runtime session options or thread counts are set in embedder.py; defaults apply."
+    },
+    "applicationChunkerSource": {
+      "path": "apps/server/src/modules/knowledge/genesisrag17-source.js",
+      "sha256": "2706bf12ad9f3cc4df7694887f598d9387618c8d5b59e85126caf26f7f0eb9f6",
+      "gitBlobAtHead49ef1dd": "67e8ef3ee06475f1d8cd862178c791a70d7d4c07",
+      "gitStatusAtInspection": "clean",
+      "executionCaveat": "The container bind-mounted apps/server/src read-only. runtime-provenance.json hashes the executor but does not list this imported chunker module separately; the module hash above is the matching clean source at the bind-mounted path."
+    },
+    "applicationExecutor": {
+      "path": "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+      "sha256": "e1d26252795d2302a3d629126aaaab94cb254080b94565b25f65d5cbdda7bd44",
+      "runtimeProvenanceSha256Matches": true
+    },
+    "testHarness": {
+      "path": "reports/oxr-thai-2026-10-25/hyper-extract-v1/native.test.js",
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000",
+      "memorySource": "The harness records totalMs with performance.now() and memoryPeakBytes from /sys/fs/cgroup/memory.peak (line 104). This is whole-container cgroup high-water, not per-process or per-operator memory."
+    }
+  },
+  "genesisrag17ChunkerConfiguration": {
+    "providerInHarness": "KI17_TEST",
+    "profileSelectedForProvider": "text",
+    "parserIdentity": "genesisrag17-parser-3",
+    "chunkerIdentity": "genesisrag17-chunker-2",
+    "maxTokensDefault": 80,
+    "maxTokensMeaning": "Whitespace tokens matched by /\\S+/u in chunker code, not multilingual-E5 tokenizer tokens.",
+    "maxChars": 480,
+    "overlapChars": 60,
+    "boundaryPolicy": "NFKC-bounded character window, whitespace-token cap, preferred text boundaries, and grapheme-safe boundaries; whichever cap is reached first ends a window.",
+    "sourceReferences": [
+      "genesisrag17-source.js:71-103, 137, 346-371, 561-638",
+      "genesisrag17-executor.js:151-204, 333-378, 821-850, 1578-1585",
+      "native.test.js:25-47 (prepared text arm is passed to the GenesisRAG17 TEXT ingestion provider without a maxTokens override)"
+    ]
+  },
+  "embeddingCallPattern": {
+    "passageCallsPerDocumentDecision": 1,
+    "textsPerPassageCall": "All decision chunks, in order; no microbatch loop or batch-size cap in the pinned worker/sidecar.",
+    "prefix": "passage: ",
+    "tokenizerCall": "Tokenizer.encode_batch over the full passage list, with truncation at 512 tokens.",
+    "padding": "Every text in that call is padded to the longest encoded text in the same batch (dynamic max length), rather than padded independently.",
+    "onnxCallsPerPassageBatch": 1,
+    "additionalEmbeddings": "Retrieval/query embeddings are separate single-query calls in the native index/benchmark stage; measured Stage 16 is 1.57s baseline versus 1.67s combined, so it does not explain the Stage 15 increase.",
+    "freshRunBehavior": "Each arm has a fresh worker/container and isolated store; all passage vectors are recomputed for that arm. Model artifact hash verification and Python tokenizer/ONNX session initialization occur once per worker inside Stage 15 before its passage batch."
+  },
+  "tokenizerOnlyShapeDiagnostic": {
+    "performed": true,
+    "modelInferencePerformed": false,
+    "inputMounts": [
+      ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/chunks.json",
+      ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/chunks.json",
+      ".local/hyper-economy-cell-repair-20261025/native-combined-attempt-1/chunks.json",
+      "the pinned model-volume tokenizer.json, mounted read-only"
+    ],
+    "notMounted": ["gold.json", "query/question files", "native-results.json", "metrics files"],
+    "method": "Python 3.12.15 / tokenizers 0.23.1 loaded the exact pinned tokenizer.json, enabled max_length=512 truncation, and encoded passage: + each raw chunk text. No ONNX session was created and no session.run was called.",
+    "arms": [
+      {
+        "id": "currentTableBaseline",
+        "chunks": 156,
+        "maxTokens": 208,
+        "p50Tokens": 138,
+        "p90Tokens": 179,
+        "p95Tokens": 183,
+        "totalActualTokens": 18587,
+        "globalPaddedSlots": 32448,
+        "paddingSlots": 13861,
+        "paddingFraction": 0.4272
+      },
+      {
+        "id": "priorPdfRepairReference",
+        "chunks": 277,
+        "maxTokens": 225,
+        "p50Tokens": 138,
+        "p90Tokens": 205,
+        "p95Tokens": 208,
+        "totalActualTokens": 33728,
+        "globalPaddedSlots": 62325,
+        "paddingSlots": 28597,
+        "paddingFraction": 0.4588
+      },
+      {
+        "id": "combinedPdfRepairAndEconomyRows",
+        "chunks": 302,
+        "maxTokens": 269,
+        "p50Tokens": 139,
+        "p90Tokens": 206,
+        "p95Tokens": 211,
+        "totalActualTokens": 38664,
+        "globalPaddedSlots": 81238,
+        "paddingSlots": 42574,
+        "paddingFraction": 0.5241
+      }
+    ],
+    "prefixCheck": {
+      "priorChunkCount": 277,
+      "combinedChunkCount": 302,
+      "priorPrefixTextOrdinalAndOffsetsIdentical": 277,
+      "newCombinedChunks": 25,
+      "priorPaddingWidthIncrease": 44,
+      "extraPaddedSlotsForIdenticalPriorPrefix": 12188,
+      "paddedSlotsFromNewChunksAtCombinedWidth": 6725,
+      "note": "The entire prior prefix is encoded again in the combined run. Its 277 chunks are byte-identical, but all share the new batch max length of 269 instead of 225."
+    }
+  },
+  "fixed32PredictedShapeOnly": {
+    "measuredInference": false,
+    "sequentialBatches": 10,
+    "batchSize": 32,
+    "lastBatchSize": 14,
+    "batchMaxTokenLengths": [208, 197, 149, 148, 225, 210, 210, 209, 262, 269],
+    "globalPaddedSlotsOneBatch": 81238,
+    "batch32PaddedSlotsTotal": 61942,
+    "paddedSlotReductionFraction": 0.2375,
+    "globalAttentionPairUnits": 21853022,
+    "batch32AttentionPairUnitsTotal": 13087550,
+    "attentionPairReductionFraction": 0.4012,
+    "maxBatchAttentionPairUnits": 2196608,
+    "shapeBasedFp32TensorEstimatesNotObservedAllocations": {
+      "attentionScoreMatrixGlobalMiB": 1000.4,
+      "attentionScoreMatrixMaxBatchMiB": 100.6,
+      "feedForwardIntermediateGlobalMiB": 476.0,
+      "feedForwardIntermediateMaxBatchMiB": 50.4,
+      "lastHiddenStateGlobalMiB": 119.0,
+      "lastHiddenStateMaxBatchMiB": 12.65,
+      "threeInt64InputArraysGlobalMiB": 1.86,
+      "threeInt64InputArraysMaxBatchMiB": 0.20
+    },
+    "caveat": "The tensor estimates use BERT dimensions and theoretical tensor shapes. ONNX graph fusion, memory planning, and arena reuse were not profiled; these figures are not measured RSS or cgroup allocations. Ten sequential ORT calls may change wall time, and no performance result is claimed here."
+  },
+  "interpretation": {
+    "baselineToCombined": {
+      "vectorCountIncreaseFraction": 0.9359,
+      "testElapsedIncreaseMs": 66242.380917,
+      "testElapsedIncreaseFraction": 0.8062,
+      "stage15IncreaseMs": 70601,
+      "stage15IncreaseFraction": 1.8955,
+      "cgroupMemoryIncreaseBytes": 1804349440,
+      "cgroupMemoryIncreaseFraction": 0.6699,
+      "globalPaddedSlotRatio": 2.5036,
+      "batchAttentionPairRatio": 3.2379
+    },
+    "priorToCombined": {
+      "vectorCountIncreaseFraction": 0.0903,
+      "actualTokenizerTokenIncreaseFraction": 0.1463,
+      "globalPaddedSlotIncreaseFraction": 0.3035,
+      "batchAttentionPairIncreaseFraction": 0.5584,
+      "stage15IncreaseFraction": 0.8414,
+      "cgroupMemoryIncreaseFraction": 0.2063
+    },
+    "supportedConclusion": "The large timing increase is concentrated in Stage 15, while Stage 16 remains about 1.6-2.1s. The pinned path runs a single dynamically padded CPU batch, and the combined batch increases the max sequence length from 225 to 269 while adding 25 chunks; this repads and recomputes the identical 277-chunk prefix. The batch/token shape is a credible mechanism for superlinear compute and activation growth beyond vector count.",
+    "notProven": "The historical runs are not paired repeats. Stage 15 includes model artifact hashing and worker/session startup as well as tokenization and inference. Cgroup memory is a whole-container high-water mark. No ONNX operator profile or fresh same-time control was captured, so the full elapsed or 1.68GiB peak delta cannot be assigned to a specific operator or tensor from these receipts alone."
+  }
+}

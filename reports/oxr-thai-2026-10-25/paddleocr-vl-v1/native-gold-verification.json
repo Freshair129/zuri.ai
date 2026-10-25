@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "path": "reports/oxr-thai-2026-10-25/real-native/gold.json",
+  "expectedSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "actualSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "checkedAt": "2026-10-24T23:22:54.2302983+00:00",
+  "method": "Hash only after parser outputs/projections/native input were frozen; no gold content supplied to parser."
+}

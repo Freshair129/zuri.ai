@@ -1,0 +1,470 @@
+{
+  "schema": "zuri.hyper-fact-source-audit.v1",
+  "status": "sealed-nonproduction-experiment",
+  "baseRevision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "workingTreeCaveat": "The repository had pre-existing user changes. This seal binds the task artifacts and inputs listed below; it does not claim a clean or committed tree.",
+  "rawRoot": ".local/hyper-fact-audit-20261025",
+  "caveat": "Hashes bind artifact identity and provenance, not semantic correctness. Candidate predicates and descriptions remain NOT_ASSESSED; no graph or production adoption is claimed.",
+  "factAuditFreezeSha256": "e4d922e7809546f93d29819dc5f312617e292e16610d246270a68f2c7b597c29",
+  "extractionFreezeSha256": "2e29879e46a8c5029dd9b410902b7339248f9e3d69bbf6eb027b706126e3bee3",
+  "candidateReceiptSha256": "90371d0b3d48aa224e724d63714f9810518003f3d6eafa53992ffce7697e746a",
+  "sourceBundleFileSha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd",
+  "sourceBundleContentSha256": "e0699864289fa151385590b002ee87048e955890ea0b7c4c9c2ffc7380714d49",
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "heldCandidateAudit": {
+    "heldRun5CandidatesAudited": 115,
+    "primaryCauseCounts": {
+      "upstream_Paddle_table_grid_header_offset": 10,
+      "model_wrong_month_value_selection": 1,
+      "model_subject_not_exact_source_cell": 4,
+      "model_subject_or_predicate_extraction_error": 4,
+      "upstream_OCR_lost_subject_and_model_emitted_blank": 1,
+      "model_duplicate_emission": 7,
+      "upstream_OCR_missing_or_invalid_subject_box": 3,
+      "model_output_not_grounded_in_emitting_chunk": 4,
+      "model_description_entity_mismatch": 5,
+      "model_population_metric_or_value_column_omission": 34,
+      "model_non_atomic_multi_cell_value": 7,
+      "model_population_metric_omission": 8,
+      "model_subject_combines_ordinal_and_entity": 7,
+      "model_subject_uses_ordinal_instead_of_entity": 1,
+      "candidate_exact_token_or_column_metadata_mismatch": 2,
+      "upstream_Paddle_page2_group_header_conflict_with_PDF": 6,
+      "model_subject_value_role_inversion": 7,
+      "model_subject_column_metadata_mismatch": 4
+    },
+    "causeAuditIsDiagnosticOnly": true,
+    "mechanicallyRecheckedFacts": 120,
+    "uniqueGeometryBoundCandidateClaims": 15,
+    "duplicateModelEmissionsHeld": 7,
+    "semanticStatus": "NOT_ASSESSED"
+  },
+  "completedNative": {
+    "status": "COMPLETED",
+    "successfulStages": 17,
+    "queryCount": 48,
+    "arm": "hyper-fact-geometry-v1",
+    "armSha256": "2c646ff47bb18526fa239143fcb48f15ceb34187d3f28119f7d9aa8fae3db894",
+    "rowHit1": 2,
+    "rowHit5": 2,
+    "rowAndHeaderTokenHit5": 2,
+    "documentHit5": 6
+  },
+  "files": [
+    {
+      "path": ".local/hyper-fact-audit-20261025/fact-audit-freeze.json",
+      "bytes": 5976,
+      "sha256": "e4d922e7809546f93d29819dc5f312617e292e16610d246270a68f2c7b597c29"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/chunks.json",
+      "bytes": 18894,
+      "sha256": "99e659bedf9361a605b4ab08287cecd94f743a68518d0b44f2c2ccfaf4207f22"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/native-results.json",
+      "bytes": 462357,
+      "sha256": "48e7ee6830a445984702c158ff7fa9c153f50cdf3d236de5a3735e48f00e44af"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/publication.json",
+      "bytes": 378,
+      "sha256": "3cf437865d55b9459ad5aa37804485d21fca5b534b0f3c08c8fa0144daf69432"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/runtime-provenance.json",
+      "bytes": 3531,
+      "sha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/stages.json",
+      "bytes": 47695,
+      "sha256": "4da97202b3d7952fa2aae739469ac5e10dd076277592a6635aa1328aead307c2"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/edges_retired.bin",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/edges.bin",
+      "bytes": 117560,
+      "sha256": "23d8ffe1e9d1dbb0434270b08cb3585c34b4081b96e8f0a21fd455bbebd7b00e"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesis.lock",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesisrag17/decisions/gks_decision_90cfd99a896495b725d2d671c0c05993.json",
+      "bytes": 55633,
+      "sha256": "5ba2996981a85ff86de00c24f274efdd875697774792637cdc9dfd4a8d8e5181"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesisrag17/lexical.sqlite",
+      "bytes": 126976,
+      "sha256": "358ff937176b0cd4bd9a82961ef5285e72a36daad92ac74a9174f0cc8f115985"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesisrag17/published-pointer.json",
+      "bytes": 799,
+      "sha256": "a35d0744150947f6788e2e8088856cb7fa93dfe894656d1fde1d1260bd82b701"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesisrag17/snapshots/snap-be87595940d496717b173802382058a2.json",
+      "bytes": 2231,
+      "sha256": "2ab551aec8e4c8981132672cd100d72c74da96d33a4659ddf3cf54a8ce1506ba"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/genesisrag17/state.json",
+      "bytes": 21298,
+      "sha256": "3baeb6e46c2a0c9bf0020af1148c76cf2a7dc62c7f952804217e256cef8a1ddc"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/identity.bin",
+      "bytes": 32,
+      "sha256": "31bb2d251568197c7800e09fbefceb38dc55cbba9a6fc104f3655b81f8af1692"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/journal/B000000000000.gseg",
+      "bytes": 674,
+      "sha256": "8934bdab36a95527f78525280152add60ab02eabb4b11060edfa0a29c12bc853"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/meta_default.bin",
+      "bytes": 5,
+      "sha256": "1438169120bcd7b270d38604a220b61af96f13bb265d428a3560e9fc96fb317b"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/meta_genesisrag17_e5_be87595940d496717b173802382058a2.bin",
+      "bytes": 418,
+      "sha256": "a2e795044412b5720b4a2d18d6f8fd3662f5b48b2400d18b1ff4f43dbe72e51f"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/nodes.bin",
+      "bytes": 17586,
+      "sha256": "58baf101266bdcc463975a77b128b58a5e702335d4a3af55bc7799616d4bb520"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/projection.sqlite",
+      "bytes": 655360,
+      "sha256": "e73120866a49cb70c906753640ddf779e24b85ded4ab003c210beaad9ca6f046"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/projection.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "ac1b95a43c6712143cdce860e79e639d7fd231ca93e523e26fbc15217af13388"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/projection.sqlite-wal",
+      "bytes": 626272,
+      "sha256": "533542a5b02661b0413b81b5a644e9ca358ee18bef15c14f6e4c46d2d366be8d"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/state.json",
+      "bytes": 1272,
+      "sha256": "aeadbf5f6a2a5fc5960bae3d7c126804d0a7b81345aa844038099bcacfb95ec2"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/vec_default.bin",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/vec_genesisrag17_e5_be87595940d496717b173802382058a2.bin",
+      "bytes": 35328,
+      "sha256": "37d366a2b35cd015a96e9c89a12a8c5f2db6f3bae40eaf81d1d42f265460b323"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/genesis-store/wal/active.gwal",
+      "bytes": 405859,
+      "sha256": "70fc27c61a5eb6bfd7dfb82eb69033d9c07431391381f65eba9cd9f9d2331395"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/gks.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/gks.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "b406c784ed40dc494832690e8aaff688dec9b3a80bd3ff398f4045f3178332fb"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/gks.sqlite-wal",
+      "bytes": 1054752,
+      "sha256": "ec7a4124b0781103dfb3ed5fc8a4262c5152f1de5bb2985276403dfd30682737"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/msp.sqlite",
+      "bytes": 4096,
+      "sha256": "97e8d54f8a7255106f66cf1b213c4a4d7b558d21310b1c2bfedc3d0d526dddda"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/msp.sqlite-shm",
+      "bytes": 32768,
+      "sha256": "0f81560966ad1d72785bb035a3fca6431cf6743336ea7e33f48ac59c25793310"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/msp.sqlite-wal",
+      "bytes": 1932312,
+      "sha256": "ef181566dd0bf5447c48ec1b3ef3a11bfc9bc43f577a9a4695ab71b47ceca7ec"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/state-v25vcL/msp.sqlite.migrate-lock",
+      "bytes": 4096,
+      "sha256": "e4a594a04b362fb0effc8d813971e25f6bec6102a1cd3fc12f37477e14d2e542"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-attempt-1/zuri-evidence.sqlite",
+      "bytes": 4886528,
+      "sha256": "68b9ed8129ebd218b9114b280acfedf0d516f9f6badbf1b149271a2805b22cf6"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-command-geometry-v1.json",
+      "bytes": 1794,
+      "sha256": "865d2adedf925b109cd112b58cabe55651c4800b55d487a41ac39365befbddb5"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-host-preflight.json",
+      "bytes": 1447,
+      "sha256": "646a2a5c41498c63149988682ede3c69e023587ff9385a319bbe91af1a2a780b"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-input-geometry-v1.json",
+      "bytes": 1194975,
+      "sha256": "0d39bc2900b1c8b53e382da6e6ab76004aa8c335dc1e0f4e93662d070da28f5b"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-preflight-attempt-1.txt",
+      "bytes": 684,
+      "sha256": "b37c8d11ee82a55b8eb2c8c9a977fc20305bba7d3f16681d51e99c35a8246b8d"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-preflight-attempt-2.txt",
+      "bytes": 764,
+      "sha256": "62d4ec66e7e1f7e18a7fb7e3d78448d1f5c4766ec2c4367b8b6fb5db6e11f6e0"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-run-geometry-v1.log",
+      "bytes": 1189,
+      "sha256": "bfaf3dcd8ec0ee706470e884fb37828dd54578a548432cc8d388cf0041ec7ac8"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/native-state-geometry-v1.json",
+      "bytes": 224,
+      "sha256": "dfae31ca4560bd69687eb626f93bcb886df923970011ec5887641fee92043217"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-projection-geometry-v1.json",
+      "bytes": 31739,
+      "sha256": "7abb788a814fd4a9dbf5889ca055d924f5ef670b7a4fe0757307339421b1f403"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/economy-1-table.png",
+      "bytes": 534428,
+      "sha256": "17e47f3546fa4c4ec798266e2ff8f9de83938cd76d1f7913e912a402b13e967a"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/economy-1.png",
+      "bytes": 816033,
+      "sha256": "a6d13f3bcb8498281eb66186efb2d669aa15161810a131fb01b5d71f0b9e29e5"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-1-table.png",
+      "bytes": 370559,
+      "sha256": "a120ed643988240f02fba11d91cb58ebd5a3a55e14bef2a8c2b68dcb1aea6733"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-1.png",
+      "bytes": 494533,
+      "sha256": "43057b3d7040aba50dd76e9ba2416b63658c5e97b063abc0d0c88410101ad938"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-2-table.png",
+      "bytes": 509025,
+      "sha256": "2ad597ba4964a88396fbea2a04ced4ea447131005f39c2b415292eac3f9943f0"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-2.png",
+      "bytes": 509503,
+      "sha256": "1acff0e6bf16955be645b1b4fbc7d91d2404d43677e980c0e7ff14a63366bde6"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-3-table.png",
+      "bytes": 196602,
+      "sha256": "ad4aca42aa946c0123c4b2af9ad119b39ec6ade5f8fe005f41ec85147b62bbae"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/source-renders/population-3.png",
+      "bytes": 279884,
+      "sha256": "67dbbc2f6be4025e6920c6e865e5ec260324137d0cb6617f740e816daf6065ec"
+    },
+    {
+      "path": ".local/hyper-fact-audit-20261025/validated-evidence-geometry-v1.json",
+      "bytes": 267993,
+      "sha256": "2fe0e6e0f3a8c14b8f92a0dcd8f0a175d30421bb6eb5259cb3e52e5c412b1606"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/native-input.json",
+      "bytes": 1137185,
+      "sha256": "c94a4a6d44e7818a95dcf9c0ef92bb07ed59d5a3e22262e9ba29d75b85da429a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5-validator-v6/validated-evidence.json",
+      "bytes": 226941,
+      "sha256": "067fa88d6fe1ca706ac2745c0de4c072714e4ac73157afe2a859011564f30191"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/chunks.json",
+      "bytes": 85286,
+      "sha256": "a8e4d41c1a89204283a87c0ac9ad8e5a5172b9b4f51129fafe5506bb6cdc5c08"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/evidence-candidates.json",
+      "bytes": 418371,
+      "sha256": "90371d0b3d48aa224e724d63714f9810518003f3d6eafa53992ffce7697e746a"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/freeze.json",
+      "bytes": 9638,
+      "sha256": "2e29879e46a8c5029dd9b410902b7339248f9e3d69bbf6eb027b706126e3bee3"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/thai-native-20261025/input/economy.pdf",
+      "bytes": 124802,
+      "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40"
+    },
+    {
+      "path": ".local/thai-native-20261025/input/population.pdf",
+      "bytes": 79599,
+      "sha256": "e9ab4edc753a899d48f4d0105996c6a4b573c68ba782d04d3da7b76ae78fd3d1"
+    },
+    {
+      "path": ".local/thai-native-20261025/paddle-2/economy.json",
+      "bytes": 603791,
+      "sha256": "a97f8805f626efcc1ba2715aa4fe44c09092b7654f153b0cd8be3ec343375b12"
+    },
+    {
+      "path": ".local/thai-native-20261025/paddle-2/population.json",
+      "bytes": 1258521,
+      "sha256": "c0feda07b05e0ab6835c8b9350a2962a5096d2f987a2cc753c6089c294f16e1a"
+    },
+    {
+      "path": ".local/thai-table-chunking-20261025/run-v2/native-input.json",
+      "bytes": 1129252,
+      "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120"
+    },
+    {
+      "path": ".local/thai-table-chunking-20261025/run-v2/table-sidecar.json",
+      "bytes": 2420480,
+      "sha256": "f6c903ffd8f3b1e9ae9ed5f724e210640e8947f05db2ce4db7a51442f7457a02"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/build_native_input.py",
+      "bytes": 5863,
+      "sha256": "adaab882828601f4f3f5c3aebab65be25560d5c2293a038525f59917d22a5976"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/build_projection.py",
+      "bytes": 6033,
+      "sha256": "bedbf34216c1a342bb556e09614d18bc47a3a2599e58eb004d6d5a47e6f8a845"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/evaluate-fact-audit.mjs",
+      "bytes": 11763,
+      "sha256": "76c78a466b4005c2f73cf8229674a9177cdee43020176f7cb7ed44e444fe7d6e"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/freeze_fact_audit.py",
+      "bytes": 6725,
+      "sha256": "7a1241a61f1138e3b842551e86393d7937f32b75aac20fa9b994e8280358e283"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/geometry_binding.py",
+      "bytes": 9800,
+      "sha256": "50fb6131c59b1b0a502234812409968dcb40c32e7b062d8882f40b75653aac45"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/measurement-summary.json",
+      "bytes": 14752,
+      "sha256": "93ac9cf7dd8f0bd7d38be7fbb48b54819a4b7b721496c9718f55b668a16e3075"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/mechanical-audit.json",
+      "bytes": 643731,
+      "sha256": "ba8815541ce54eed88bc1f5caecb4233a8d0f3033effaa59b0cf79a38103d587"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/README.md",
+      "bytes": 6231,
+      "sha256": "e39d2d07c2e9b090005688e11ee43d0a0a7e415ed07bce10f7ad1599e7c5d100"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/revalidate_facts.py",
+      "bytes": 22056,
+      "sha256": "6c1befd482c85747a039b944ef4d867d2d753677a889f587f67c43fb4f387242"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/run-native-fact-audit.ps1",
+      "bytes": 14560,
+      "sha256": "82ecc07ff33102558af6e9942bfd76ecb6af22b5800f3fe4fefc37e874eff4b4"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/seal-evidence.mjs",
+      "bytes": 5401,
+      "sha256": "2ca7b597a9167084c0c6926e9919bdd61d3d50128666cc524b18a79771500f8a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/source-audit.json",
+      "bytes": 610364,
+      "sha256": "f564ac49cb831c1069283b5d9d414fc184212e40eb045f7b5d2dcea1775e7442"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/source-audit.md",
+      "bytes": 3107,
+      "sha256": "330a0b5e640831e31e586f4c26632955fa4ac097be779d48ce1bb69773ba93a5"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/test_geometry_binding.py",
+      "bytes": 7021,
+      "sha256": "7cb71ecb3f98703702a0958d882f6ccb2297b9bf2ac10867fd6e70835e583eb3"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-fact-audit-v1/test_native_contract.py",
+      "bytes": 2875,
+      "sha256": "efd4d6d29cc057efb5ce90fc5d03098ec028e2bafbc565f1ac86cb7386865e62"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-relation-audit-v1/measurement-summary.json",
+      "bytes": 18128,
+      "sha256": "4db795c0d2dcdf65d9272a69dd5acd6b7851b97b83f6f3083633d734a016fbee"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/measurement-summary.json",
+      "bytes": 80602,
+      "sha256": "8c16e1bb2f7a545b972943e2b7b203e274b1f9def0b2bc5d38b1781f6ba8764a"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/real-native/evidence-manifest.json",
+      "bytes": 38198,
+      "sha256": "88d9159f98e86a8e068c6ef46de2a259a3cfb1a496acc9c3e06e6fd1b40c0913"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/real-native/gold.json",
+      "bytes": 7829,
+      "sha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303"
+    }
+  ]
+}

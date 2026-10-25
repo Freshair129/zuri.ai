@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.1.0"
+version: "0.13.0"
 ---
 
 # Engineering assessments
@@ -12,8 +12,28 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-25 PaddleOCR-VL v1 Thai/native comparison](oxr-thai-2026-10-25/paddleocr-vl-v1/README.md) | Same public PDFs and frozen gold; Paddle versus VL plain/table-preserving projections through actual isolated GenesisRAG17; no production adoption. |
+| [2026-10-25 Hyper-Extract v1 Thai/native subset](oxr-thai-2026-10-25/hyper-extract-v1/README.md) | Hyper candidates from frozen Paddle OCR text, strict source check and one actual native TEXT subset arm; candidate graph remains sidecar-only. |
+| [2026-10-25 Hyper-Extract relation-evidence audit](oxr-thai-2026-10-25/hyper-relation-audit-v1/README.md) | Audits the frozen 0/85 edge result, tests a generic source-bound table-fact validator and one budgeted native TEXT subset; no relation candidates or retrieval improvement, graph remains sidecar-only. |
+| [2026-10-25 Hyper-Extract held-fact source audit](oxr-thai-2026-10-25/hyper-fact-audit-v1/README.md) | Audits all 115 v6-held facts, rechecks all 120 against source cells and Paddle OCR-box geometry, then retests one source-only arm through actual GenesisRAG17; no semantic or graph admission. |
+| [2026-10-25 Hyper-Extract source-native extraction comparison](oxr-thai-2026-10-25/hyper-extraction-repair-v1/README.md) | Audits 93 extraction-primary candidates and deterministically derives structural cell references across all 114 source packets; compares against the unchanged current table arm through actual GenesisRAG17. Row hit@5 did not improve; semantics remain unassessed and production is unchanged. |
+| [2026-10-25 Hyper-Extract held-cell source/PDF audit](oxr-thai-2026-10-25/hyper-held-cell-audit-v1/README.md) | Rechecks all 972 source-cell/row-label records; retains 87 held cells, adds provenance-separated PDF-derived values, and compares retrieval against the unchanged table baseline. Primary and post-hoc metrics are separated; no semantic or production adoption. |
+| [2026-10-25 Hyper-Extract economy PDF-native held-cell follow-up](oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/README.md) | Adds 37 separate source-derived economy rows while preserving all 87 historical held OCR-cell records and the prior PDF overlay; compares the combined arm with the current table baseline through actual GenesisRAG17. Strict legacy row@5 ties; exploratory source-row union is reported separately. No semantic or production adoption. |
+| [2026-10-25 GenesisRAG17 E5 fixed-batch resource experiment](oxr-thai-2026-10-25/e5-microbatch-v1/README.md) | Paired same-input global versus sequential batch32 E5 embedding through actual isolated GenesisRAG17; vectors and retrieval rows match, with lower measured elapsed time and container peak in this single pair. Experiment-only helper override; no production change. |
+| [2026-10-25 table-preserving chunking](oxr-thai-2026-10-25/table-chunking/README.md) | Frozen Paddle OCR, header/row/column projection and actual native retrieval comparison; no production adoption. |
+| [2026-10-25 real Thai/native comparison](oxr-thai-2026-10-25/real-native/README.md) | Public real PDFs, complex tables, actual isolated GenesisRAG17 execution and parser/resource comparison; no production adoption. |
+| [2026-10-25 Thai parser alternatives](oxr-thai-2026-10-25/alternatives/README.md) | Local Thai OCR/table candidates on the frozen OXR corpus; separate evidence and no production adoption. |
+| [2026-10-25 Thai OXR/parser/chunking experiment](oxr-thai-2026-10-25/README.md) | Synthetic Thai extraction, table and offline retrieval comparison; hosted OXR not recommended from this run; no production change. |
 | [2026-10-23 code/requirements gap assessment](gap-analysis-2026-10-23/README.md) | Current canonical inventory, source/code conflicts, confirmed gaps and scoped test evidence at the stated revision. |
 | [Application fixes following the 2026-10-23 assessment](gap-analysis-2026-10-23/application-fixes.md) | Bounded implementation and verification of confirmed gaps; the assessment remains a separate historical snapshot. |
 | [2026-09-02 multi-dimension assessment](gap-analysis-2026-09-02/00-README.md) | Historical snapshot; findings require current revalidation. |
 
 Start from [the documentation index](../docs/README.md) for current authorities.
+
+Version diff 0.11.0 → 0.12.0 (2026-10-25): adds the separate economy PDF-native
+row follow-up; historic held OCR records remain unchanged, with no semantic
+validation, graph admission or production adoption.
+
+Version diff 0.12.0 → 0.13.0 (2026-10-25): adds the paired E5 fixed-batch
+resource experiment; embedding vectors and native retrieval results are
+identical across modes, with no application or production change.

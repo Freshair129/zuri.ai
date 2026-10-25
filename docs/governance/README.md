@@ -41,6 +41,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [LINE agent: stock availability and published sell-price facts](../change-requests/integration/line-agent-stock-price-facts-20261023.md)
 - [LINE customer product disclosure from GenesisRAG17](../change-requests/integration/line-customer-product-disclosure-20261024.md)
 - [LINE metadata-only ProductMaster disclosure from managed uploads](../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md)
+- [Proposed File Manager, Knowledge Vault, GenesisRAG17 and LINE Agent specification](../change-requests/integration/line-knowledge-memory-unified-flow-20261024.md)
 - [Main-dev keyless Ollama for LINE — reviewed-record migration proposal](../change-requests/integration/LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md)
 - [LINE Ollama with a TEST ONLY GenesisRAG17 source](../change-requests/integration/line-ollama-test-only-genesisrag17-20261024.md)
 - [TEST ONLY natural-language LINE stock and published price](../change-requests/integration/line-product-facts-natural-language-20261024.md)

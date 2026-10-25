@@ -1,0 +1,273 @@
+{
+  "schema": "zuri.hyper-held-cell-audit-evidence-manifest.v1",
+  "status": "SEALED",
+  "baseRevision": "49ef1ddbaa4db684bc5282ccc8df379e5a0028c8",
+  "measuredBaselineAttempt": "native-table-current-attempt-1",
+  "measuredTreatmentAttempt": "native-source-pdf-repair-v1-attempt-2",
+  "primaryInput": "8b8ad3517d5b445d33de01b61c3c98f1c1f9e939fb232d1da1df0eb2a075caa2",
+  "primaryProjection": "5270949da446c1166dbed3690c38710ed9021e8e16bf718946ad14c7a56c5a95",
+  "noQaChunkBoundaryProbe": "07b8e685fd00c2a3fd4e1daea163630b0bae0847c74c21060c25b669e0a3ee9a",
+  "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+  "entries": [
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-enumeration-v1.json",
+      "bytes": 4264206,
+      "sha256": "dee9db4198844c26ce4cc4c92f216d2e5b2114c5bb0940a2cdd6fd1ffc09a4e1"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-freeze-v1.json",
+      "bytes": 4955,
+      "sha256": "f2ff12f199b9c0dfba6eaae37d0a8dc0b5bea30a5b79fd7f90d62f5ece166975"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-repair-projection-layout-v2-freeze.json",
+      "bytes": 4272,
+      "sha256": "e284e70e334eda4b7ee221eb59d486a88da40e1b104baf5740f54705d9a273a9"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/held-cell-repair-projection-layout-v2.json",
+      "bytes": 2385854,
+      "sha256": "5270949da446c1166dbed3690c38710ed9021e8e16bf718946ad14c7a56c5a95"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-chunker-probe-layout-v2.json",
+      "bytes": 11566,
+      "sha256": "07b8e685fd00c2a3fd4e1daea163630b0bae0847c74c21060c25b669e0a3ee9a"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-host-preflight-source-pdf-repair-v1-layout-v2.json",
+      "bytes": 2336,
+      "sha256": "8ffdad5471c5a134aa9c888d8d9335b3bd2f084d948ed77499cd81987b02f927"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-input-held-cell-repair-layout-v2-freeze.json",
+      "bytes": 2428,
+      "sha256": "3928a0a3510188c52572f8881d3bd49534e624e3831a3e1863d440bb23d902ae"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-input-held-cell-repair-layout-v2.json",
+      "bytes": 2510875,
+      "sha256": "8b8ad3517d5b445d33de01b61c3c98f1c1f9e939fb232d1da1df0eb2a075caa2"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/chunks.json",
+      "bytes": 225264,
+      "sha256": "9a2cb346be0a5f657fe90c2b0fffeddc1ecbfd8ef2bbf84b4373151158863709"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-command.json",
+      "bytes": 1849,
+      "sha256": "23afc649459bf0ef8e2794627db80ff3a25a91368b222535ba8b3963909fe502"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-launch-profile.json",
+      "bytes": 2336,
+      "sha256": "df8b3bfb05334d8d56bd7235e1cecc380aa7d4985b19f61977ae61121995ecd5"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-results.json",
+      "bytes": 427533,
+      "sha256": "afa837831ea73aa840f121a9d7834e5d22f28e3fb5845dc48add24270b467736"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-run.log",
+      "bytes": 1193,
+      "sha256": "48b12f77c5c4c886b9eff7fc19106dd64b6eb92c12c178f247ce4f6971be5bee"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/native-state.json",
+      "bytes": 225,
+      "sha256": "7be5544a1daaab9ec40b6264de30dc862f918c3016b85ef655f542e0cb9da89e"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/publication.json",
+      "bytes": 378,
+      "sha256": "006c1b32839e103d74ae24f7c65d823b5bd0588cb2de2bb14e3623cd56b42b28"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/runtime-provenance.json",
+      "bytes": 3531,
+      "sha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-source-pdf-repair-v1-attempt-2/stages.json",
+      "bytes": 64669,
+      "sha256": "60d699ca2bc31fd0cdbf2954ba91dec8e5113dd2a097f64397a70cbd3896f2e0"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/chunks.json",
+      "bytes": 125161,
+      "sha256": "fcad378eeb5be67db84fa069610b1cb5434bd733a9a61e1c5c3b630a0f9b5287"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/executed-native.test.js",
+      "bytes": 9266,
+      "sha256": "d3d68062d5399da0da66a82bdc9ff8b29ac5e420ab3a1c7e37a8662e37068000"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-command.json",
+      "bytes": 1894,
+      "sha256": "68fdca992c88a12a44a4d5980d56f9a2b745dc252547d259ceda3e29b013c8d4"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-launch-profile.json",
+      "bytes": 2476,
+      "sha256": "b73600da2d79254442f94084e803db06d7b9d5c037a682a712c19dad67bfd5a5"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-results.json",
+      "bytes": 399014,
+      "sha256": "86e7b4c023c37e4e00c6aeeb1079c952c8cf4863ddb360df3b1e9bbd68ac8767"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-run.log",
+      "bytes": 1144,
+      "sha256": "5a5670fc88d93970dcfa101d458bee0f4feead39c9eba6ab725632e6071686ea"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/native-state.json",
+      "bytes": 224,
+      "sha256": "278ca9eb39ea94457e48a38e6d8e5166fb12c36fdf8ebdebaab04cb1e3d9b8b0"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/publication.json",
+      "bytes": 378,
+      "sha256": "336ba6eb9e666ddd0caf1c40e31a4526bf9792b5cba6ebf55c7d673440dda8d9"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/runtime-provenance.json",
+      "bytes": 3531,
+      "sha256": "7062082d09d924605a418a695f49eb3c4c799edbdd70a16bfa19b525a1fc5df7"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/native-table-current-attempt-1/stages.json",
+      "bytes": 56532,
+      "sha256": "f715911d2eb10807ccb4bcdb099e98e971d75ddef2f74ef2ebba9f1eb649ca38"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-cell-value-evidence-v1.json",
+      "bytes": 2129373,
+      "sha256": "f96f34a64473ecc5ad57a9f03e24cecc23f07b0fef60bca69cbcd9e5578dbdfa"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-cell-value-freeze-v1.json",
+      "bytes": 2250,
+      "sha256": "77646c977d7584126f3665d007ff45bf90e329dc89ec0068380d7709c5862ca4"
+    },
+    {
+      "path": ".local/hyper-held-cell-audit-20261025/pdf-vector-geometry-v1.json",
+      "bytes": 767132,
+      "sha256": "891db44b99c55f69eccb62393fde76dc1e498f41a3b8c9487024b1d6fcf1a51d"
+    },
+    {
+      "path": ".local/hyper-relation-audit-20261025/run-5/source-bundle.json",
+      "bytes": 799440,
+      "sha256": "227c6277938f09a129507a6184bdab6cd30a8c60803175c53cfe808c992a0dcd"
+    },
+    {
+      "path": ".local/thai-native-20261025/input/economy.pdf",
+      "bytes": 124802,
+      "sha256": "63f0acf6d225cc8d2797eb8204d453a6091989aa0b94167f8f04abf7ae793d40"
+    },
+    {
+      "path": ".local/thai-native-20261025/input/population.pdf",
+      "bytes": 79599,
+      "sha256": "e9ab4edc753a899d48f4d0105996c6a4b573c68ba782d04d3da7b76ae78fd3d1"
+    },
+    {
+      "path": ".local/thai-table-chunking-20261025/run-v2/native-input.json",
+      "bytes": 1129252,
+      "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/build_held_cell_projection.py",
+      "bytes": 38054,
+      "sha256": "be09e1baa0f7656a9025a267ab11572c42e47637ab81dac0d27bf62faafb3f0b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/derive_pdf_cell_values.py",
+      "bytes": 14162,
+      "sha256": "6ef11eaf5fee88f809fd03c714c30a616ef38f6eb5354ee9ecf1a2650730b139"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/evaluate-held-cell-native.mjs",
+      "bytes": 36828,
+      "sha256": "2b1408358d9a7231fadff79eee88fa6a368113fc3f84c440ae9c8a5f321b2fe1"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/extract_pdf_vector_geometry.py",
+      "bytes": 11659,
+      "sha256": "5ac8604e25b6d3ecaaca3ac1ea084b911f07429e26dc0e4d987bbdac389c121d"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/held_cell_repair.py",
+      "bytes": 9167,
+      "sha256": "95738fcbdc39052cf6ced40ff76a1dd05572ffb5083aca9fba0a7ff156564eb8"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/held-cell-audit.json",
+      "bytes": 754239,
+      "sha256": "c39a24662ed89d5a059a350c6c5277b829eb09fffa2a7d78198c52e8d6964231"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/held-cell-audit.md",
+      "bytes": 2862,
+      "sha256": "e902b30513c0065519f133e65d4f664ddbbdb5d8da3c43d6ff9b2c6ec5580d7f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/measurement-summary.json",
+      "bytes": 88684,
+      "sha256": "7d9554e49647cc181290cc5e13bc25eb1f898cc9504fbbe7f0fb501c551463db"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/native_chunk_boundary_probe.mjs",
+      "bytes": 7773,
+      "sha256": "765ac7d20d4855ff1d860883fc0cca92d8d48072e6d784234a4a15c6609def23"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/prepare_held_cells.py",
+      "bytes": 12442,
+      "sha256": "639ca19748c9f1612bf0c6c93177eb40c2cf8b2f4de0f9c7a73d08cdb5663573"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/README.md",
+      "bytes": 8034,
+      "sha256": "f894f1b9d0226222d93761c3d8e287eb4f3a9e401420164ba1cb3b8a48016e9b"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/run-native-held-cell-repair.ps1",
+      "bytes": 14693,
+      "sha256": "201da37fc8d03298ffd7632701efd179a7a87962dde0c395f8b4e933752beb92"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/seal-evidence-manifest.ps1",
+      "bytes": 4765,
+      "sha256": "e574f85007a403019c9c7c0fd5b388d9cfb937a312786734bff555f80fd5aad3"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/source_native_v2.py",
+      "bytes": 5197,
+      "sha256": "9709889a427a7913a9d174f0cea71594bbb83c4649018466086bd46d7b4c0bb6"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/test_held_cell_projection.py",
+      "bytes": 9438,
+      "sha256": "d9f24bb08e53ea567a34cd4702dd9da2448067659e8ce65f67aeb6b089a7882f"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/test_held_cell_repair.py",
+      "bytes": 6002,
+      "sha256": "6e4e10f5773bcdd3e219f165eab79e9965e36e7568df2f0411663dd9b9e545fe"
+    },
+    {
+      "path": "reports/oxr-thai-2026-10-25/hyper-held-cell-audit-v1/test_pdf_cell_value_corrections.py",
+      "bytes": 6751,
+      "sha256": "637c9a2c2f10cbdbc261045afb5ae2c179d61005d5ecc36daaeabd896b8252aa"
+    }
+  ]
+}

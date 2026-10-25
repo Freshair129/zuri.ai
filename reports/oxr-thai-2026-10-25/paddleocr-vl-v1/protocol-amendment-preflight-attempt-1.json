@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "paddleocr-vl-v1-protocol-amendment-1",
+  "status": "frozen-before-inference",
+  "frozenAt": "2026-10-24T22:55:04.868Z",
+  "amends": {
+    "path": "protocol.json",
+    "sha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032"
+  },
+  "controls": {
+    "cuda": {
+      "visibleGpu": "0",
+      "containerEnv": "CUDA_VISIBLE_DEVICES=0",
+      "mustUseCuda": true,
+      "mustReportCudaCompiled": true,
+      "mustReportAtLeastOneVisibleGpu": true,
+      "selectedDevice": "gpu:0",
+      "failureBehavior": "Abort before any PDF prediction on CPU/fallback or device mismatch."
+    },
+    "modelCache": {
+      "manifestPath": "model-cache-manifest.json",
+      "manifestSha256": "53bd317223e13d405c6b42c60e6e95508a6fd336efa7b0afc023042d384e5d60",
+      "mountPath": "/home/paddleocr/.paddlex",
+      "readOnlyDuringInference": true,
+      "cacheExport": {
+        "container": "zuri-thai-paddleocr-vl-bootstrap-v1-a2",
+        "source": "/home/paddleocr/.paddlex",
+        "bootstrapReceiptSha256": "a3c1ada578a0788638411f96a363e90c15d0c586d350c707857e27f4918b1c1c",
+        "files": 64,
+        "bytes": 2357934281
+      }
+    },
+    "repetitions": {
+      "primary": 1,
+      "diagnostic": 2,
+      "selection": "Always score repetition 1. Repetition 2 reports semantic/Markdown stability only; never choose an output by gold score."
+    },
+    "readingOrder": {
+      "path": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/paddle-html-adapter.mjs",
+      "sha256": "6638dd5c153ffc568a47205a1adf30b626d8dcb8ef652943449ecd991a00b8b1",
+      "ordering": "Vendor parsing_res_list order per page, pages sorted by page_index; no cross-page restructure_pages."
+    },
+    "pageCoverage": {
+      "source": "Poppler pdfinfo 26.07.0 against the exact SHA-256-pinned source PDFs",
+      "evidencePath": "source-page-counts.json",
+      "evidenceSha256": "dbbacc6c8aa7c9da858e6481253b5b00c7b7cdfa640f6d4379c0ef0465a74fae",
+      "pdfinfoExecutableSha256": "07a5551df8cbcaadcdd24802dbc149cc1c7df206e86a9c53e0410a1e4543c84d",
+      "expected": [
+        {
+          "id": "economy",
+          "count": 1,
+          "pageIndexes": [
+            0
+          ]
+        },
+        {
+          "id": "population",
+          "count": 3,
+          "pageIndexes": [
+            0,
+            1,
+            2
+          ]
+        }
+      ],
+      "requireUniqueContiguousZeroBasedPageIndexes": true,
+      "requireJsonPageCountEqualsPdfPageCount": true,
+      "requirePredictorResultCountEqualsPdfPageCount": true,
+      "missingOrDuplicatePageBehavior": "Abort before projection/scoring."
+    },
+    "projection": {
+      "oldPlain": "Same frozen original Paddle parser text projection; HTML table rows are flattened to tab-separated cells and paragraphs remain in parser block order.",
+      "vlPlain": "Same adapter as old Paddle; HTML table rows flattened to tab-separated cells, blocks in parser reading order, and page text concatenated with one newline separator.",
+      "table": "Apply the unchanged ocr-table-row-v1 profile to both parser tables; literal cells/spans only, no language dictionaries, column shifts, gold lookups, or value repairs.",
+      "adapterParity": "adapter-parity.log verifies that the same adapter reproduces both prior Paddle documents exactly before new OCR inference."
+    },
+    "costs": {
+      "hostGpuSampling": "run-vl.ps1 samples host nvidia-smi every second during both phases. The CSV is whole-device host VRAM including unrelated processes and is resource context, not strict process attribution; do not subtract an idle baseline as exact candidate VRAM.",
+      "containerRam": "run-vl.py records cgroup peak memory; its teardown nvidia-smi snapshot is not peak evidence. Parser wall time is separate from native pipeline time.",
+      "crossDevice": "Existing Paddle parser was CPU; VL is GPU. Do not claim a causal parser speedup from these unlike devices."
+    },
+    "blindness": {
+      "bootstrap": "No PDF input mount.",
+      "inference": "Network none; read-only model cache; read-only mount containing exactly economy.pdf and population.pdf; no gold, questions, answers, baseline OCR text, or evaluation code."
+    }
+  },
+  "pinnedHarness": {
+    "path": "harness-lock.json",
+    "sha256": "fd5450e28f93671e7ee1a387349100c3e5c88a33fb74e1119f0dd24154369d06"
+  },
+  "adapterParity": {
+    "path": "adapter-parity.log",
+    "sha256": "ed30fee758ad998a4f9a4a0aea5e0614f62eb321c660d10d3c4270c311bfe7c4"
+  },
+  "modelFiles": {
+    "count": 64,
+    "totalBytes": 2357934281,
+    "manifestSha256": "53bd317223e13d405c6b42c60e6e95508a6fd336efa7b0afc023042d384e5d60"
+  }
+}

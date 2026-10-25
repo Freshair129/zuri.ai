@@ -1,0 +1,61 @@
+{
+  "schema": "zuri.hyper-extract-evidence-projection-freeze.v1",
+  "sourceBundleSha256": "e0699864289fa151385590b002ee87048e955890ea0b7c4c9c2ffc7380714d49",
+  "package": {
+    "name": "hyperextract",
+    "version": "0.10.5",
+    "installation": {
+      "kind": "editable local source checkout",
+      "sourceRootRelative": ".local/hyper-extract-20261025/upstream/hyperextract",
+      "sourceCommit": "a8e27199ffd3984042e870d0b6963810a0d70f5d",
+      "sourceTreeSha256": "c07a004863ff47db1415201a739939771fb9ba79b2506edaf185a3937804ee7f"
+    },
+    "inspectedRelease": {
+      "tag": "v0.10.5",
+      "commit": "0dc002bb1029fd34b21e47602e406ef7880c8673"
+    }
+  },
+  "inference": {
+    "provider": "local Ollama OpenAI-compatible chat endpoint",
+    "modelTag": "qwen3.5:9b",
+    "modelDigest": "bb0c43f2ae93339a21a67576441645ad0fd5696a259c250bfe4af7462c528cb2",
+    "chunkSizeChars": 2048,
+    "chunkOverlapChars": 256,
+    "maxWorkers": 1,
+    "temperature": 0,
+    "maxOutputTokens": 2048,
+    "perCallTimeoutSeconds": 120,
+    "maxRetries": 0,
+    "reasoningEffortRequest": "none",
+    "contextSize": "OpenAI-compatible requests omit context; require Ollama /api/ps context_length=4096 before extraction; cold-load probe requests num_ctx=4096 if model is absent",
+    "requestMaxTokensField": 2048,
+    "structuredOutputMethod": "json_schema",
+    "expectedContextLength": 4096
+  },
+  "selectionPolicy": {
+    "input": "only the two exact source ranges identified in the frozen table arm",
+    "excluded": "control-prefix text, gold, and QA questions are not passed to Hyper-Extract",
+    "zones": "exact heading-delimited source slices; table row candidates use frozen rowText for mention anchors and retain full table packet/header text as the evidence zone"
+  },
+  "validationPolicy": {
+    "nodes": "literal candidate name substring in one zone anchorText; no normalization; node descriptions are never promoted and remain unvalidated candidate claims",
+    "edges": "all participants must be literal substrings of the same zone anchorText AND the complete candidate edge description must be a literal substring of that same zone relationText; otherwise HOLD; no co-occurrence inference"
+  },
+  "projectionPolicy": {
+    "select": "union of exact zones with at least one literal entity mention anchor or exact-quote relation candidate",
+    "content": "verbatim source zone slices joined with a fixed blank-line delimiter; no model-generated fields enter the TEXT projection",
+    "nativeBoundary": "candidate graph remains a sidecar; only the source-text projection enters unchanged GenesisRAG17 TEXT ingestion"
+  },
+  "runId": "run-3",
+  "executionAdapter": {
+    "kind": "ChatOpenAI subclass mapping upstream function_calling structured-output requests to json_schema",
+    "upstreamSourceModified": false,
+    "runner": "extract-json-schema.py",
+    "runnerSha256": "08a8176afb09183fe46b2b12df000f98db15f30c3e74b4a84c8f25566cce39e8",
+    "actualRequestCapture": "record path, model, max_tokens, max_completion_tokens, reasoning_effort, response_format type/name, and prompt-size counts for every call"
+  },
+  "runBoundary": {
+    "input": "Hyper-Extract receives only chunks from the frozen Paddle OCR text projection derived from the two PDFs; it does not parse PDF bytes or run OCR",
+    "output": "candidate graph remains an unvalidated sidecar; exact source text projection is a separate native TEXT input"
+  }
+}

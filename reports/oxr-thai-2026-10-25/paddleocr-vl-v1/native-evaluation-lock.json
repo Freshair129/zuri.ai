@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 1,
+  "status": "frozen-before-native-evaluation",
+  "protocolSha256": "0ccec5571ac8850e897cc0a9c54b4cffe3b417cb35c9a8538218ad540f8a0032",
+  "protocolAmendmentSha256": "457be7cafbde8fd1c6e3307d5f1fed1f699699d63df59d1bc686479d3c34be0c",
+  "harnessLockSha256": "6f97ba947461800a28c9fe6ca3c3c66b11f98ee6ed0099fb16a91f8c8ccfb777",
+  "candidate": {
+    "nativeInputSha256": "34ff5bfb7ba2ba938b76ba6b4e5383538ada3f7296713a2612e46be0af1e93aa",
+    "projectedJsonSha256": "f97ac43d8e4d5aca73d3df96273cd988f28597719a140a40d5fa77b8b3dbbd98",
+    "tableSidecarSha256": "cfe58bd25ed9a81d71a6db85cf65a7a9451847d421cf0ca43b94af16d01ee6f9",
+    "inferenceFreezeSha256": "5c9825a6181f0d058b55b8ea35c5fe21ca317400b4407ed68d26dd3e7da1c700",
+    "rawModelResults": [
+      {
+        "path": "repeat-1/economy/economy_0.md",
+        "bytes": 27771,
+        "sha256": "8e8dc737f90febe0d2935ac502ac5eabf389c21e95b2a37eab76ab1e9a646727"
+      },
+      {
+        "path": "repeat-1/economy/economy_0_res.json",
+        "bytes": 10658,
+        "sha256": "33141b7a54710fccf2127245779be93baabad3db5a9ed7d2cf70bf1a94439460"
+      },
+      {
+        "path": "repeat-1/economy/imgs/img_in_header_image_box_62_38_199_116.jpg",
+        "bytes": 5641,
+        "sha256": "3ac7b9a595d6b6d49908713f08e4e4cdcc35bcf92fde03c0bd3cf8b10713d5a4"
+      },
+      {
+        "path": "repeat-1/population/population_0.md",
+        "bytes": 18839,
+        "sha256": "2a86d684c1f3ac15d5cdedbec05292a0e00f758d220d81f44ccf8ba80dbcbc90"
+      },
+      {
+        "path": "repeat-1/population/population_0_res.json",
+        "bytes": 12638,
+        "sha256": "bf7d25bc0d0775b710d9b4d2f10b4f0d043a9abd936c06898d779c6813a03a88"
+      },
+      {
+        "path": "repeat-1/population/population_1.md",
+        "bytes": 18572,
+        "sha256": "3bad437098d49a7694568cb3e814672757d95e81055a74945540f8efbde514d1"
+      },
+      {
+        "path": "repeat-1/population/population_1_res.json",
+        "bytes": 10679,
+        "sha256": "7e28f072ecc9e2da070fdaa5a28aa43b1e13e90d18f59af3b18a4933e9ab38bb"
+      },
+      {
+        "path": "repeat-1/population/population_2.md",
+        "bytes": 4480,
+        "sha256": "48cecc68043e5d4c4a164f57eb7daad16ea73c62dd6c86a2c1abded80ecf7f28"
+      },
+      {
+        "path": "repeat-1/population/population_2_res.json",
+        "bytes": 6737,
+        "sha256": "e5f931d8e2e922571a7d975ba93d1357b8f1ead638462d3cda1f6fddca8528ae"
+      },
+      {
+        "path": "repeat-1-economy-receipt.json",
+        "bytes": 246,
+        "sha256": "b248e364ee4236a820c726c76981ada71c8ffd398da995485379185307c703f5"
+      },
+      {
+        "path": "repeat-1-population-receipt.json",
+        "bytes": 358,
+        "sha256": "4d714ea1060d09446463eb4867875fa16cb02ca8c5466a1300307db3befe6b3b"
+      },
+      {
+        "path": "repeat-2/economy/economy_0.md",
+        "bytes": 27771,
+        "sha256": "8e8dc737f90febe0d2935ac502ac5eabf389c21e95b2a37eab76ab1e9a646727"
+      },
+      {
+        "path": "repeat-2/economy/economy_0_res.json",
+        "bytes": 10658,
+        "sha256": "33141b7a54710fccf2127245779be93baabad3db5a9ed7d2cf70bf1a94439460"
+      },
+      {
+        "path": "repeat-2/economy/imgs/img_in_header_image_box_62_38_199_116.jpg",
+        "bytes": 5641,
+        "sha256": "3ac7b9a595d6b6d49908713f08e4e4cdcc35bcf92fde03c0bd3cf8b10713d5a4"
+      },
+      {
+        "path": "repeat-2/population/population_0.md",
+        "bytes": 18839,
+        "sha256": "2a86d684c1f3ac15d5cdedbec05292a0e00f758d220d81f44ccf8ba80dbcbc90"
+      },
+      {
+        "path": "repeat-2/population/population_0_res.json",
+        "bytes": 12638,
+        "sha256": "bf7d25bc0d0775b710d9b4d2f10b4f0d043a9abd936c06898d779c6813a03a88"
+      },
+      {
+        "path": "repeat-2/population/population_1.md",
+        "bytes": 18572,
+        "sha256": "3bad437098d49a7694568cb3e814672757d95e81055a74945540f8efbde514d1"
+      },
+      {
+        "path": "repeat-2/population/population_1_res.json",
+        "bytes": 10679,
+        "sha256": "7e28f072ecc9e2da070fdaa5a28aa43b1e13e90d18f59af3b18a4933e9ab38bb"
+      },
+      {
+        "path": "repeat-2/population/population_2.md",
+        "bytes": 4480,
+        "sha256": "48cecc68043e5d4c4a164f57eb7daad16ea73c62dd6c86a2c1abded80ecf7f28"
+      },
+      {
+        "path": "repeat-2/population/population_2_res.json",
+        "bytes": 6737,
+        "sha256": "e5f931d8e2e922571a7d975ba93d1357b8f1ead638462d3cda1f6fddca8528ae"
+      },
+      {
+        "path": "repeat-2-economy-receipt.json",
+        "bytes": 246,
+        "sha256": "80021230bb6c7043c904cb83afc1a44af8ddfe0581c8abf23af4a36c36013255"
+      },
+      {
+        "path": "repeat-2-population-receipt.json",
+        "bytes": 358,
+        "sha256": "92c59808906773900c059d6832aec49ab936bcf6b29b3176089605e3fd59e7d4"
+      },
+      {
+        "path": "run-result.json",
+        "bytes": 2239,
+        "sha256": "d83fbdc0f88b0a2f6eb6258b3daa43fb9a7dc6073440e9d20eac437efd83e792"
+      },
+      {
+        "path": "run-start.json",
+        "bytes": 589,
+        "sha256": "a566955539b3d835b7bfb5885627e6f07573bad307733719a292fa1915814dc0"
+      }
+    ],
+    "arms": [
+      {
+        "parser": "plain",
+        "contentSha256": "74b30c4a5f6dbb9fd1bc4138dee1f353cacb224d4841ebee48a70187d7564ff4"
+      },
+      {
+        "parser": "table",
+        "contentSha256": "94af779f3996a543d9b1a8d817f4913073edb24811adb1e3384cd652fde551ee"
+      }
+    ]
+  },
+  "existingPaddle": {
+    "path": ".local/thai-table-chunking-20261025/run-v2/native-input.json",
+    "sha256": "29a15c6b061d149f3d0955af3b3b9baf90a39cacb15250fd958b2f3b97ef9120",
+    "arms": [
+      {
+        "parser": "plain",
+        "contentSha256": "bf23780a00a5e131ea2008e9cfe6a31bf4add6770b2c63ffe28ae5bb8cd5da9e"
+      },
+      {
+        "parser": "table",
+        "contentSha256": "f9fd6dc1eba181abd08c372970088cdda1d1b7572114140c7d93f8076f0aff60"
+      }
+    ]
+  },
+  "native": {
+    "image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+    "cpu": 2,
+    "memoryBytes": 6442450944,
+    "network": "none",
+    "goldPath": "reports/oxr-thai-2026-10-25/real-native/gold.json",
+    "runnerPath": "reports/oxr-thai-2026-10-25/paddleocr-vl-v1/run-native-vl.ps1",
+    "runnerSha256": "284fdfc0d2e5d888aac8de8ae3ea46ca0368b17c68aa401d5cce4d787d0ca95b",
+    "sourceFiles": {
+      "../table-chunking/native.test.js": "928aa496c6ab898ad89576170668fab2c74f606991ae6115c19d0fcefc1ccf7b",
+      "../table-chunking/launch-native.mjs": "cee30e2c0d91d2c913329ce5690438c835f50c7b340d1c9811687271f9ae4e12",
+      "../real-native/native.config.mjs": "584914fd5db3b8de3cd3cd804d6daa3cbf52d5b3c49c3145c996378dfbfbb5fb",
+      "../real-native/metrics.mjs": "d7c1740f964d70bb1e04a6d3767aaadd683660443a1b0b240d434d1fb2718180",
+      "../table-chunking/table-profile.mjs": "e61ab0b8e4606d0deb38c2bb0415b7b97899e762a7f8d1912ed2903ecbae9252"
+    }
+  }
+}

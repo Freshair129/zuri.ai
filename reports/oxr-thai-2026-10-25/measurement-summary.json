@@ -1,0 +1,6638 @@
+{
+  "model": "intfloat/multilingual-e5-small",
+  "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+  "artifacts": {
+    "onnx/model.onnx": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665",
+    "tokenizer.json": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+    "tokenizer_config.json": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b",
+    "special_tokens_map.json": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7",
+    "config.json": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959"
+  },
+  "retrieval": "offline exact cosine, no native hybrid/graph/RRF or reranker",
+  "normalization": "NFKC then remove Unicode whitespace; retain punctuation and erroneous/null characters",
+  "parsing": [
+    {
+      "id": "returns-digital",
+      "parser": "baseline",
+      "status": "PARSED",
+      "elapsedMs": 551.3224,
+      "referenceChars": 1119,
+      "outputChars": 1119,
+      "editDistance": 31,
+      "cer": 0.02770330652368186,
+      "criticalMatches": 4,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "delivery-digital",
+      "parser": "baseline",
+      "status": "PARSED",
+      "elapsedMs": 358.6138000000001,
+      "referenceChars": 833,
+      "outputChars": 833,
+      "editDistance": 40,
+      "cer": 0.04801920768307323,
+      "criticalMatches": 3,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "catalog-digital",
+      "parser": "baseline",
+      "status": "PARSED",
+      "elapsedMs": 325.5527000000002,
+      "referenceChars": 513,
+      "outputChars": 513,
+      "editDistance": 4,
+      "cer": 0.007797270955165692,
+      "criticalMatches": 6,
+      "criticalTotal": 6,
+      "cellContentMatches": 44,
+      "cellPositionMatches": 0,
+      "cellTotal": 45,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "storage-digital",
+      "parser": "baseline",
+      "status": "PARSED",
+      "elapsedMs": 364.36400000000003,
+      "referenceChars": 580,
+      "outputChars": 580,
+      "editDistance": 17,
+      "cer": 0.029310344827586206,
+      "criticalMatches": 5,
+      "criticalTotal": 6,
+      "cellContentMatches": 39,
+      "cellPositionMatches": 0,
+      "cellTotal": 45,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "returns-digital",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 80907.8127,
+      "referenceChars": 1119,
+      "outputChars": 27003,
+      "editDistance": 26755,
+      "cer": 23.909740840035745,
+      "criticalMatches": 0,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "delivery-digital",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 64523.5301,
+      "referenceChars": 833,
+      "outputChars": 8843,
+      "editDistance": 8725,
+      "cer": 10.474189675870349,
+      "criticalMatches": 1,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "catalog-digital",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 38809.8033,
+      "referenceChars": 513,
+      "outputChars": 10006,
+      "editDistance": 9779,
+      "cer": 19.062378167641327,
+      "criticalMatches": 3,
+      "criticalTotal": 6,
+      "cellContentMatches": 24,
+      "cellPositionMatches": 24,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    },
+    {
+      "id": "storage-digital",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 57463.79460000002,
+      "referenceChars": 580,
+      "outputChars": 8737,
+      "editDistance": 8565,
+      "cer": 14.767241379310345,
+      "criticalMatches": 1,
+      "criticalTotal": 6,
+      "cellContentMatches": 14,
+      "cellPositionMatches": 14,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    },
+    {
+      "id": "returns-raster",
+      "parser": "baseline",
+      "status": "ERROR",
+      "elapsedMs": 466.84440000000006,
+      "referenceChars": 1119,
+      "outputChars": null,
+      "editDistance": null,
+      "cer": null,
+      "criticalMatches": null,
+      "criticalTotal": 6,
+      "cellContentMatches": null,
+      "cellPositionMatches": null,
+      "cellTotal": 0,
+      "parsedTableCount": null
+    },
+    {
+      "id": "delivery-raster",
+      "parser": "baseline",
+      "status": "ERROR",
+      "elapsedMs": 399.7618,
+      "referenceChars": 833,
+      "outputChars": null,
+      "editDistance": null,
+      "cer": null,
+      "criticalMatches": null,
+      "criticalTotal": 6,
+      "cellContentMatches": null,
+      "cellPositionMatches": null,
+      "cellTotal": 0,
+      "parsedTableCount": null
+    },
+    {
+      "id": "catalog-raster",
+      "parser": "baseline",
+      "status": "ERROR",
+      "elapsedMs": 379.4784000000004,
+      "referenceChars": 513,
+      "outputChars": null,
+      "editDistance": null,
+      "cer": null,
+      "criticalMatches": null,
+      "criticalTotal": 6,
+      "cellContentMatches": null,
+      "cellPositionMatches": null,
+      "cellTotal": 45,
+      "parsedTableCount": null
+    },
+    {
+      "id": "storage-raster",
+      "parser": "baseline",
+      "status": "ERROR",
+      "elapsedMs": 382.5072,
+      "referenceChars": 580,
+      "outputChars": null,
+      "editDistance": null,
+      "cer": null,
+      "criticalMatches": null,
+      "criticalTotal": 6,
+      "cellContentMatches": null,
+      "cellPositionMatches": null,
+      "cellTotal": 45,
+      "parsedTableCount": null
+    },
+    {
+      "id": "returns-raster",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 71740.7338,
+      "referenceChars": 1119,
+      "outputChars": 13004,
+      "editDistance": 12896,
+      "cer": 11.524575513851653,
+      "criticalMatches": 0,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "delivery-raster",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 101505.76259999999,
+      "referenceChars": 833,
+      "outputChars": 35088,
+      "editDistance": 34919,
+      "cer": 41.919567827130855,
+      "criticalMatches": 0,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "catalog-raster",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 67065.73869999999,
+      "referenceChars": 513,
+      "outputChars": 21893,
+      "editDistance": 21706,
+      "cer": 42.31189083820663,
+      "criticalMatches": 3,
+      "criticalTotal": 6,
+      "cellContentMatches": 24,
+      "cellPositionMatches": 24,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    },
+    {
+      "id": "storage-raster",
+      "parser": "oxr",
+      "status": "PARSED",
+      "elapsedMs": 36927.090800000005,
+      "referenceChars": 580,
+      "outputChars": 11874,
+      "editDistance": 11649,
+      "cer": 20.08448275862069,
+      "criticalMatches": 1,
+      "criticalTotal": 6,
+      "cellContentMatches": 14,
+      "cellPositionMatches": 14,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    },
+    {
+      "id": "returns-html",
+      "parser": "html-control",
+      "status": "PARSED",
+      "elapsedMs": 324.92940000000004,
+      "referenceChars": 1119,
+      "outputChars": 1119,
+      "editDistance": 0,
+      "cer": 0,
+      "criticalMatches": 6,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "delivery-html",
+      "parser": "html-control",
+      "status": "PARSED",
+      "elapsedMs": 235.6689,
+      "referenceChars": 833,
+      "outputChars": 833,
+      "editDistance": 0,
+      "cer": 0,
+      "criticalMatches": 6,
+      "criticalTotal": 6,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "cellTotal": 0,
+      "parsedTableCount": 0
+    },
+    {
+      "id": "catalog-html",
+      "parser": "html-control",
+      "status": "PARSED",
+      "elapsedMs": 220.32530000000008,
+      "referenceChars": 513,
+      "outputChars": 513,
+      "editDistance": 0,
+      "cer": 0,
+      "criticalMatches": 6,
+      "criticalTotal": 6,
+      "cellContentMatches": 45,
+      "cellPositionMatches": 45,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    },
+    {
+      "id": "storage-html",
+      "parser": "html-control",
+      "status": "PARSED",
+      "elapsedMs": 186.52249999999992,
+      "referenceChars": 580,
+      "outputChars": 580,
+      "editDistance": 0,
+      "cer": 0,
+      "criticalMatches": 6,
+      "criticalTotal": 6,
+      "cellContentMatches": 45,
+      "cellPositionMatches": 45,
+      "cellTotal": 45,
+      "parsedTableCount": 1
+    }
+  ],
+  "arms": [
+    {
+      "variant": "digital",
+      "parser": "baseline",
+      "chunker": "current",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 18,
+      "maxTokens": 179,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0.3333333333333333,
+      "evidenceHit5": 0.5,
+      "mrr": 0.40277777777777773,
+      "documentHit5": 1,
+      "conditionalEvidenceHit5": 0.5,
+      "totalChunkTokens": 2497,
+      "meanTop5Tokens": 732.9166666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 6,
+          "documentRank": 1,
+          "top5Tokens": 786,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8305950164794922
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8302150368690491
+            },
+            {
+              "doc": "returns",
+              "score": 0.8278886675834656
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8248664140701294
+            },
+            {
+              "doc": "storage",
+              "score": 0.824120819568634
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 777,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8216464519500732
+            },
+            {
+              "doc": "returns",
+              "score": 0.8215471506118774
+            },
+            {
+              "doc": "returns",
+              "score": 0.8144056797027588
+            },
+            {
+              "doc": "delivery",
+              "score": 0.809485137462616
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8053597211837769
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 708,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8256749510765076
+            },
+            {
+              "doc": "delivery",
+              "score": 0.819237232208252
+            },
+            {
+              "doc": "returns",
+              "score": 0.8174586892127991
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8169746398925781
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8131060600280762
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 4,
+          "documentRank": 3,
+          "top5Tokens": 752,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8217607140541077
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8201061487197876
+            },
+            {
+              "doc": "returns",
+              "score": 0.8165658712387085
+            },
+            {
+              "doc": "returns",
+              "score": 0.8147278428077698
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8102777600288391
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 796,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8391068577766418
+            },
+            {
+              "doc": "returns",
+              "score": 0.8305160999298096
+            },
+            {
+              "doc": "returns",
+              "score": 0.8250782489776611
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8241653442382812
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8218466639518738
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 657,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8296866416931152
+            },
+            {
+              "doc": "returns",
+              "score": 0.8122144341468811
+            },
+            {
+              "doc": "returns",
+              "score": 0.8099421858787537
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8091496825218201
+            },
+            {
+              "doc": "catalog",
+              "score": 0.806751012802124
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 743,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8282703161239624
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8263761401176453
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8252794146537781
+            },
+            {
+              "doc": "storage",
+              "score": 0.818229079246521
+            },
+            {
+              "doc": "returns",
+              "score": 0.8166104555130005
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 4,
+          "documentRank": 3,
+          "top5Tokens": 692,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8245338201522827
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8243401050567627
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8228439092636108
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8208634257316589
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8180364966392517
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 685,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8636126518249512
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8121957778930664
+            },
+            {
+              "doc": "returns",
+              "score": 0.8103061318397522
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8084415793418884
+            },
+            {
+              "doc": "storage",
+              "score": 0.8064744472503662
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 786,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8511276245117188
+            },
+            {
+              "doc": "storage",
+              "score": 0.8199676275253296
+            },
+            {
+              "doc": "returns",
+              "score": 0.814982533454895
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125362992286682
+            },
+            {
+              "doc": "delivery",
+              "score": 0.808668851852417
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 774,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8481740355491638
+            },
+            {
+              "doc": "storage",
+              "score": 0.8418591022491455
+            },
+            {
+              "doc": "storage",
+              "score": 0.835266649723053
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8313391804695129
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8312444686889648
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 760,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8386278748512268
+            },
+            {
+              "doc": "returns",
+              "score": 0.8381969928741455
+            },
+            {
+              "doc": "returns",
+              "score": 0.8325821161270142
+            },
+            {
+              "doc": "returns",
+              "score": 0.8289156556129456
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8262912034988403
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 668,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8477351665496826
+            },
+            {
+              "doc": "storage",
+              "score": 0.8127655982971191
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8096293210983276
+            },
+            {
+              "doc": "storage",
+              "score": 0.8050124645233154
+            },
+            {
+              "doc": "storage",
+              "score": 0.80076664686203
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 685,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8516165614128113
+            },
+            {
+              "doc": "returns",
+              "score": 0.8236742615699768
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8206785917282104
+            },
+            {
+              "doc": "storage",
+              "score": 0.8114362955093384
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8095195293426514
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 705,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.9022259712219238
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8638967275619507
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8419192433357239
+            },
+            {
+              "doc": "storage",
+              "score": 0.8376678228378296
+            },
+            {
+              "doc": "storage",
+              "score": 0.8304691910743713
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 643,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8757097721099854
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8562893867492676
+            },
+            {
+              "doc": "storage",
+              "score": 0.8394379615783691
+            },
+            {
+              "doc": "returns",
+              "score": 0.8244582414627075
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8217492699623108
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 644,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8074328899383545
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7972190380096436
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7897583246231079
+            },
+            {
+              "doc": "storage",
+              "score": 0.7850438952445984
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7830886840820312
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 665,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8670694828033447
+            },
+            {
+              "doc": "returns",
+              "score": 0.8472334146499634
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8397939205169678
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8281300067901611
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8251243829727173
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 812,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8175954818725586
+            },
+            {
+              "doc": "returns",
+              "score": 0.8108211755752563
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8047246932983398
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8042589426040649
+            },
+            {
+              "doc": "storage",
+              "score": 0.8026670217514038
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 797,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8429728150367737
+            },
+            {
+              "doc": "storage",
+              "score": 0.8428391218185425
+            },
+            {
+              "doc": "returns",
+              "score": 0.8224090337753296
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8039053082466125
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7998351454734802
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 812,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8501017093658447
+            },
+            {
+              "doc": "storage",
+              "score": 0.8239184021949768
+            },
+            {
+              "doc": "returns",
+              "score": 0.8199867010116577
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8007249236106873
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8006117939949036
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 676,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8477085828781128
+            },
+            {
+              "doc": "storage",
+              "score": 0.8462693095207214
+            },
+            {
+              "doc": "storage",
+              "score": 0.8181045055389404
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8049962520599365
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8041051626205444
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 803,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.886415958404541
+            },
+            {
+              "doc": "storage",
+              "score": 0.8650228977203369
+            },
+            {
+              "doc": "returns",
+              "score": 0.8294274210929871
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8259578943252563
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8203091621398926
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 764,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.843824565410614
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8318807482719421
+            },
+            {
+              "doc": "storage",
+              "score": 0.8221322298049927
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8213323354721069
+            },
+            {
+              "doc": "storage",
+              "score": 0.8208522796630859
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "digital",
+      "parser": "baseline",
+      "chunker": "experimental",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 20,
+      "maxTokens": 176,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0.4166666666666667,
+      "evidenceHit5": 0.625,
+      "mrr": 0.4909722222222222,
+      "documentHit5": 1,
+      "conditionalEvidenceHit5": 0.625,
+      "totalChunkTokens": 2976,
+      "meanTop5Tokens": 757.375,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 4,
+          "documentRank": 2,
+          "top5Tokens": 766,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8357944488525391
+            },
+            {
+              "doc": "returns",
+              "score": 0.834905743598938
+            },
+            {
+              "doc": "returns",
+              "score": 0.8340399265289307
+            },
+            {
+              "doc": "returns",
+              "score": 0.8292720913887024
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285789489746094
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 775,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8254361152648926
+            },
+            {
+              "doc": "returns",
+              "score": 0.8172240257263184
+            },
+            {
+              "doc": "returns",
+              "score": 0.8136814832687378
+            },
+            {
+              "doc": "returns",
+              "score": 0.8136154413223267
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8112618923187256
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 743,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8279327154159546
+            },
+            {
+              "doc": "catalog",
+              "score": 0.824059009552002
+            },
+            {
+              "doc": "returns",
+              "score": 0.8216050863265991
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8172283172607422
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8166854381561279
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 5,
+          "documentRank": 2,
+          "top5Tokens": 744,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.823728084564209
+            },
+            {
+              "doc": "returns",
+              "score": 0.8223567008972168
+            },
+            {
+              "doc": "delivery",
+              "score": 0.815118670463562
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8126296997070312
+            },
+            {
+              "doc": "returns",
+              "score": 0.811721920967102
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 807,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8406294584274292
+            },
+            {
+              "doc": "returns",
+              "score": 0.8305766582489014
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8302663564682007
+            },
+            {
+              "doc": "returns",
+              "score": 0.8285810947418213
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8224228620529175
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 739,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8364365100860596
+            },
+            {
+              "doc": "returns",
+              "score": 0.8283501863479614
+            },
+            {
+              "doc": "storage",
+              "score": 0.8166782855987549
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8140219449996948
+            },
+            {
+              "doc": "returns",
+              "score": 0.8105805516242981
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 742,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8362431526184082
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8327839970588684
+            },
+            {
+              "doc": "returns",
+              "score": 0.8209758996963501
+            },
+            {
+              "doc": "storage",
+              "score": 0.8171278238296509
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8166296482086182
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 783,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8304995894432068
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8304270505905151
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8254278302192688
+            },
+            {
+              "doc": "storage",
+              "score": 0.819797158241272
+            },
+            {
+              "doc": "returns",
+              "score": 0.8194106817245483
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 797,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.863353967666626
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8289726972579956
+            },
+            {
+              "doc": "returns",
+              "score": 0.8204939365386963
+            },
+            {
+              "doc": "storage",
+              "score": 0.8129383325576782
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8117531538009644
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 786,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8452858328819275
+            },
+            {
+              "doc": "delivery",
+              "score": 0.83492112159729
+            },
+            {
+              "doc": "storage",
+              "score": 0.8195153474807739
+            },
+            {
+              "doc": "storage",
+              "score": 0.8162277340888977
+            },
+            {
+              "doc": "delivery",
+              "score": 0.812445878982544
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 3,
+          "documentRank": 2,
+          "top5Tokens": 758,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.846972644329071
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8427935838699341
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8417997360229492
+            },
+            {
+              "doc": "storage",
+              "score": 0.835314154624939
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8322460055351257
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 5,
+          "top5Tokens": 780,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8344332575798035
+            },
+            {
+              "doc": "returns",
+              "score": 0.8333444595336914
+            },
+            {
+              "doc": "returns",
+              "score": 0.8319751620292664
+            },
+            {
+              "doc": "returns",
+              "score": 0.8294965028762817
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8278558254241943
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 799,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8314254283905029
+            },
+            {
+              "doc": "storage",
+              "score": 0.8210878372192383
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8178346157073975
+            },
+            {
+              "doc": "delivery",
+              "score": 0.812775194644928
+            },
+            {
+              "doc": "storage",
+              "score": 0.8103365898132324
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 768,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8424890041351318
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8282661437988281
+            },
+            {
+              "doc": "storage",
+              "score": 0.8229981660842896
+            },
+            {
+              "doc": "returns",
+              "score": 0.8166437149047852
+            },
+            {
+              "doc": "storage",
+              "score": 0.8102972507476807
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 743,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8989244699478149
+            },
+            {
+              "doc": "catalog",
+              "score": 0.863102376461029
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8517366051673889
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8446948528289795
+            },
+            {
+              "doc": "storage",
+              "score": 0.8376449346542358
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 706,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8988696336746216
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8513928651809692
+            },
+            {
+              "doc": "storage",
+              "score": 0.832481861114502
+            },
+            {
+              "doc": "storage",
+              "score": 0.8253577351570129
+            },
+            {
+              "doc": "storage",
+              "score": 0.8232637643814087
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 627,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.80842125415802
+            },
+            {
+              "doc": "storage",
+              "score": 0.7971044778823853
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7934548854827881
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7866091132164001
+            },
+            {
+              "doc": "storage",
+              "score": 0.7840062379837036
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 753,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8703941106796265
+            },
+            {
+              "doc": "returns",
+              "score": 0.8503596782684326
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8391463756561279
+            },
+            {
+              "doc": "returns",
+              "score": 0.8351567983627319
+            },
+            {
+              "doc": "delivery",
+              "score": 0.834624171257019
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 797,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8275909423828125
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125817775726318
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8036394715309143
+            },
+            {
+              "doc": "returns",
+              "score": 0.8033982515335083
+            },
+            {
+              "doc": "storage",
+              "score": 0.8000991940498352
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 781,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8457578420639038
+            },
+            {
+              "doc": "storage",
+              "score": 0.8227018117904663
+            },
+            {
+              "doc": "returns",
+              "score": 0.8101035952568054
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8016222715377808
+            },
+            {
+              "doc": "returns",
+              "score": 0.8007311224937439
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 730,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8533816337585449
+            },
+            {
+              "doc": "storage",
+              "score": 0.8431393504142761
+            },
+            {
+              "doc": "storage",
+              "score": 0.8265640735626221
+            },
+            {
+              "doc": "returns",
+              "score": 0.807633638381958
+            },
+            {
+              "doc": "returns",
+              "score": 0.8053436279296875
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 720,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8446199893951416
+            },
+            {
+              "doc": "storage",
+              "score": 0.8411543369293213
+            },
+            {
+              "doc": "storage",
+              "score": 0.8221856355667114
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8085587024688721
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8071039915084839
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 781,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.879001796245575
+            },
+            {
+              "doc": "storage",
+              "score": 0.8402289748191833
+            },
+            {
+              "doc": "delivery",
+              "score": 0.830963134765625
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8289667367935181
+            },
+            {
+              "doc": "returns",
+              "score": 0.8191940784454346
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 752,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8412148952484131
+            },
+            {
+              "doc": "storage",
+              "score": 0.8290190696716309
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8270105123519897
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8268539309501648
+            },
+            {
+              "doc": "returns",
+              "score": 0.8227983713150024
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "digital",
+      "parser": "oxr",
+      "chunker": "current",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 135,
+      "maxTokens": 484,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0,
+      "evidenceHit5": 0.041666666666666664,
+      "mrr": 0.013888888888888888,
+      "documentHit5": 0.7083333333333334,
+      "conditionalEvidenceHit5": 0.041666666666666664,
+      "totalChunkTokens": 39100,
+      "meanTop5Tokens": 1179.3333333333333,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1317,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8233367800712585
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8227968811988831
+            },
+            {
+              "doc": "storage",
+              "score": 0.8168918490409851
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8100103735923767
+            },
+            {
+              "doc": "returns",
+              "score": 0.8084909915924072
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1387,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8099539875984192
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8085611462593079
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8068339824676514
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8068339824676514
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8066555261611938
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 30,
+          "top5Tokens": 1214,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8090240359306335
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8087074756622314
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8055028915405273
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8037233352661133
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8033706545829773
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1451,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.817496657371521
+            },
+            {
+              "doc": "returns",
+              "score": 0.8013231754302979
+            },
+            {
+              "doc": "returns",
+              "score": 0.8003851175308228
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7997816801071167
+            },
+            {
+              "doc": "storage",
+              "score": 0.7960000038146973
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 13,
+          "top5Tokens": 1172,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8177695870399475
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8128125667572021
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8128125667572021
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8120459914207458
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8120459914207458
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 6,
+          "top5Tokens": 1172,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8048277497291565
+            },
+            {
+              "doc": "storage",
+              "score": 0.7961664199829102
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7956056594848633
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7917007207870483
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7913228273391724
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 5,
+          "top5Tokens": 1274,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8143795728683472
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8077982068061829
+            },
+            {
+              "doc": "returns",
+              "score": 0.8053744435310364
+            },
+            {
+              "doc": "returns",
+              "score": 0.8053286075592041
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8011282682418823
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 27,
+          "top5Tokens": 1137,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8135625123977661
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8056256175041199
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8056256175041199
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8054026365280151
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8054026365280151
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 7,
+          "top5Tokens": 1094,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8157875537872314
+            },
+            {
+              "doc": "catalog",
+              "score": 0.810611367225647
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8060741424560547
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8060741424560547
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8056548833847046
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 7,
+          "top5Tokens": 1338,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8069135546684265
+            },
+            {
+              "doc": "storage",
+              "score": 0.8062769174575806
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8048241138458252
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8037879467010498
+            },
+            {
+              "doc": "returns",
+              "score": 0.8034763336181641
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 3,
+          "documentRank": 3,
+          "top5Tokens": 1006,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8346302509307861
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8344955444335938
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8273566961288452
+            },
+            {
+              "doc": "storage",
+              "score": 0.8263716697692871
+            },
+            {
+              "doc": "returns",
+              "score": 0.817842960357666
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 12,
+          "top5Tokens": 1380,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8267163038253784
+            },
+            {
+              "doc": "returns",
+              "score": 0.8236385583877563
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8176840543746948
+            },
+            {
+              "doc": "catalog",
+              "score": 0.810600996017456
+            },
+            {
+              "doc": "catalog",
+              "score": 0.810600996017456
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 874,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8198643922805786
+            },
+            {
+              "doc": "storage",
+              "score": 0.8181832432746887
+            },
+            {
+              "doc": "storage",
+              "score": 0.8009880781173706
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7983120679855347
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7983120679855347
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1094,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.81520676612854
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8124692440032959
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8106498122215271
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8106498122215271
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8097069263458252
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1126,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8837480545043945
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8761643767356873
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8363004922866821
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8363004922866821
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8356088399887085
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1123,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8513566255569458
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8348532915115356
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8286020755767822
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8286020755767822
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8282188177108765
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8041555881500244
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8041555881500244
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8040976524353027
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8040976524353027
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8029723167419434
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1129,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8378939032554626
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8266983032226562
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8266983032226562
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8254013061523438
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8254013061523438
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1196,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8092083930969238
+            },
+            {
+              "doc": "storage",
+              "score": 0.8091532588005066
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8019345998764038
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7964272499084473
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7922918796539307
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 853,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8294007778167725
+            },
+            {
+              "doc": "catalog",
+              "score": 0.815010130405426
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8112009763717651
+            },
+            {
+              "doc": "returns",
+              "score": 0.8095782995223999
+            },
+            {
+              "doc": "storage",
+              "score": 0.8035376667976379
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1274,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8135349750518799
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8118577003479004
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8079667687416077
+            },
+            {
+              "doc": "returns",
+              "score": 0.802045464515686
+            },
+            {
+              "doc": "returns",
+              "score": 0.8016116619110107
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 954,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8409827351570129
+            },
+            {
+              "doc": "storage",
+              "score": 0.8247802257537842
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8156735301017761
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8156735301017761
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8154681921005249
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1073,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.834822416305542
+            },
+            {
+              "doc": "storage",
+              "score": 0.8275429010391235
+            },
+            {
+              "doc": "returns",
+              "score": 0.8202362060546875
+            },
+            {
+              "doc": "storage",
+              "score": 0.8176450729370117
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8104616403579712
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 4,
+          "top5Tokens": 1451,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.824575662612915
+            },
+            {
+              "doc": "returns",
+              "score": 0.8225558996200562
+            },
+            {
+              "doc": "returns",
+              "score": 0.8124899864196777
+            },
+            {
+              "doc": "storage",
+              "score": 0.8123968243598938
+            },
+            {
+              "doc": "returns",
+              "score": 0.8108326196670532
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "digital",
+      "parser": "oxr",
+      "chunker": "experimental",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 161,
+      "maxTokens": 484,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0.041666666666666664,
+      "evidenceHit5": 0.041666666666666664,
+      "mrr": 0.041666666666666664,
+      "documentHit5": 0.8333333333333334,
+      "conditionalEvidenceHit5": 0.041666666666666664,
+      "totalChunkTokens": 40393,
+      "meanTop5Tokens": 978.5416666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 895,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8253785371780396
+            },
+            {
+              "doc": "storage",
+              "score": 0.8174315690994263
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8126239776611328
+            },
+            {
+              "doc": "storage",
+              "score": 0.8095235228538513
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8079359531402588
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 1350,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8097862005233765
+            },
+            {
+              "doc": "catalog",
+              "score": 0.807614803314209
+            },
+            {
+              "doc": "returns",
+              "score": 0.8063464164733887
+            },
+            {
+              "doc": "catalog",
+              "score": 0.806342363357544
+            },
+            {
+              "doc": "catalog",
+              "score": 0.806342363357544
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 17,
+          "top5Tokens": 548,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8098104000091553
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8094210624694824
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8067991733551025
+            },
+            {
+              "doc": "storage",
+              "score": 0.806020975112915
+            },
+            {
+              "doc": "delivery",
+              "score": 0.805184006690979
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1108,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8184283971786499
+            },
+            {
+              "doc": "storage",
+              "score": 0.8015154600143433
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7977855205535889
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7972066402435303
+            },
+            {
+              "doc": "returns",
+              "score": 0.7962729334831238
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 9,
+          "top5Tokens": 1193,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.812402606010437
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8119418025016785
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8119418025016785
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8119418025016785
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8119418025016785
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 832,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.7977406978607178
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7964969873428345
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7940362691879272
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7937991619110107
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7918357849121094
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 795,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8128522038459778
+            },
+            {
+              "doc": "returns",
+              "score": 0.8052438497543335
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8035579919815063
+            },
+            {
+              "doc": "storage",
+              "score": 0.7978813648223877
+            },
+            {
+              "doc": "storage",
+              "score": 0.7972744107246399
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 39,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.80527663230896
+            },
+            {
+              "doc": "catalog",
+              "score": 0.80527663230896
+            },
+            {
+              "doc": "catalog",
+              "score": 0.80527663230896
+            },
+            {
+              "doc": "catalog",
+              "score": 0.80527663230896
+            },
+            {
+              "doc": "catalog",
+              "score": 0.80527663230896
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1067,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8054966330528259
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8052206039428711
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8052206039428711
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8052206039428711
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8052206039428711
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 633,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8127715587615967
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8064236044883728
+            },
+            {
+              "doc": "storage",
+              "score": 0.8059753179550171
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8052512407302856
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8034390211105347
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 738,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8280132412910461
+            },
+            {
+              "doc": "storage",
+              "score": 0.8266199231147766
+            },
+            {
+              "doc": "storage",
+              "score": 0.8182768821716309
+            },
+            {
+              "doc": "returns",
+              "score": 0.818095326423645
+            },
+            {
+              "doc": "storage",
+              "score": 0.8173900842666626
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1265,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8207957148551941
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8140155076980591
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8102644681930542
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8098804354667664
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8098804354667664
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1013,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8023775219917297
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7967958450317383
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7967958450317383
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7967958450317383
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7967958450317383
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8091174960136414
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8091174960136414
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8091174960136414
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8091174960136414
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8091174960136414
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 654,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8670873641967773
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8643931150436401
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8424643278121948
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8354185223579407
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8354185223579407
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 842,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8659704923629761
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8516530990600586
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8277997970581055
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8277997970581055
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8277997970581055
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8038231134414673
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8038231134414673
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8038231134414673
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8038231134414673
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8038231134414673
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8251973390579224
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8251973390579224
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8251973390579224
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8251973390579224
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8251973390579224
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 4,
+          "top5Tokens": 1080,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8116774559020996
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8008729815483093
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7938830852508545
+            },
+            {
+              "doc": "storage",
+              "score": 0.7912946343421936
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7905932664871216
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 359,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8073554039001465
+            },
+            {
+              "doc": "storage",
+              "score": 0.8062682151794434
+            },
+            {
+              "doc": "storage",
+              "score": 0.8056305646896362
+            },
+            {
+              "doc": "storage",
+              "score": 0.8049098253250122
+            },
+            {
+              "doc": "storage",
+              "score": 0.8045933246612549
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 1080,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8048944473266602
+            },
+            {
+              "doc": "returns",
+              "score": 0.8037569522857666
+            },
+            {
+              "doc": "storage",
+              "score": 0.800623893737793
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7979479432106018
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7975600957870483
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 8,
+          "top5Tokens": 1215,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8157360553741455
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8157360553741455
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8157360553741455
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8157360553741455
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8157360553741455
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 914,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8248573541641235
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8145198822021484
+            },
+            {
+              "doc": "storage",
+              "score": 0.8138617277145386
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8099493980407715
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8098641633987427
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 1044,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.827208936214447
+            },
+            {
+              "doc": "returns",
+              "score": 0.8191040754318237
+            },
+            {
+              "doc": "storage",
+              "score": 0.811018168926239
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8080868721008301
+            },
+            {
+              "doc": "returns",
+              "score": 0.8072649836540222
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "raster",
+      "parser": "baseline",
+      "chunker": "current",
+      "parsedDocuments": 0,
+      "notRunDocuments": 0,
+      "failedDocuments": 4,
+      "expectedDocuments": 4,
+      "chunkCount": 0,
+      "maxTokens": 0,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 0,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0,
+      "evidenceHit5": 0,
+      "mrr": 0,
+      "documentHit5": 0,
+      "conditionalEvidenceHit5": null,
+      "totalChunkTokens": 0,
+      "meanTop5Tokens": 0,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        }
+      ]
+    },
+    {
+      "variant": "raster",
+      "parser": "baseline",
+      "chunker": "experimental",
+      "parsedDocuments": 0,
+      "notRunDocuments": 0,
+      "failedDocuments": 4,
+      "expectedDocuments": 4,
+      "chunkCount": 0,
+      "maxTokens": 0,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 0,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0,
+      "evidenceHit5": 0,
+      "mrr": 0,
+      "documentHit5": 0,
+      "conditionalEvidenceHit5": null,
+      "totalChunkTokens": 0,
+      "meanTop5Tokens": 0,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "ERROR",
+          "evidenceRank": null,
+          "documentRank": null,
+          "top5Tokens": 0,
+          "top5": []
+        }
+      ]
+    },
+    {
+      "variant": "raster",
+      "parser": "oxr",
+      "chunker": "current",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 259,
+      "maxTokens": 325,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0,
+      "evidenceHit5": 0,
+      "mrr": 0,
+      "documentHit5": 0.625,
+      "conditionalEvidenceHit5": 0,
+      "totalChunkTokens": 53198,
+      "meanTop5Tokens": 1016.7916666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1056,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8311253190040588
+            },
+            {
+              "doc": "returns",
+              "score": 0.8271465301513672
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8234078884124756
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8217145204544067
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8217145204544067
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 23,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8125597238540649
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125597238540649
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125597238540649
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125597238540649
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8125597238540649
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 1032,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8134831190109253
+            },
+            {
+              "doc": "delivery",
+              "score": 0.812181830406189
+            },
+            {
+              "doc": "returns",
+              "score": 0.8096864223480225
+            },
+            {
+              "doc": "delivery",
+              "score": 0.804772138595581
+            },
+            {
+              "doc": "returns",
+              "score": 0.8043172359466553
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 25,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8285338878631592
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285338878631592
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285338878631592
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285338878631592
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285338878631592
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 33,
+          "top5Tokens": 1072,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.822137713432312
+            },
+            {
+              "doc": "storage",
+              "score": 0.8143686652183533
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8103591203689575
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8095407485961914
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8091637492179871
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 4,
+          "top5Tokens": 953,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8167732357978821
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7970293760299683
+            },
+            {
+              "doc": "storage",
+              "score": 0.7966716885566711
+            },
+            {
+              "doc": "returns",
+              "score": 0.7961692810058594
+            },
+            {
+              "doc": "storage",
+              "score": 0.7943966388702393
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8228138089179993
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8228138089179993
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8228138089179993
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8228138089179993
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8228138089179993
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 35,
+          "top5Tokens": 1047,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8169931173324585
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8132920265197754
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8130890130996704
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8130890130996704
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8130890130996704
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 970,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8126248717308044
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8107009530067444
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8104664087295532
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8083463907241821
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8083463907241821
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 993,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8149776458740234
+            },
+            {
+              "doc": "returns",
+              "score": 0.8138302564620972
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8126786351203918
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8126142024993896
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8116840720176697
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1061,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8418683409690857
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8324378728866577
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8324378728866577
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8324378728866577
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8324378728866577
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8240161538124084
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8240161538124084
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8240161538124084
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8240161538124084
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8240161538124084
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 980,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8194709420204163
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8194709420204163
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8194709420204163
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8194709420204163
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8194709420204163
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 998,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8212186694145203
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8207622766494751
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8207622766494751
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8207622766494751
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8207622766494751
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 941,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8659573793411255
+            },
+            {
+              "doc": "catalog",
+              "score": 0.82809978723526
+            },
+            {
+              "doc": "storage",
+              "score": 0.8210123777389526
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8207062482833862
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8197271823883057
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 969,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8734527230262756
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8603670597076416
+            },
+            {
+              "doc": "storage",
+              "score": 0.8217685222625732
+            },
+            {
+              "doc": "storage",
+              "score": 0.8191558122634888
+            },
+            {
+              "doc": "storage",
+              "score": 0.8191558122634888
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1070,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.7940058708190918
+            },
+            {
+              "doc": "returns",
+              "score": 0.7933260202407837
+            },
+            {
+              "doc": "storage",
+              "score": 0.7917280197143555
+            },
+            {
+              "doc": "returns",
+              "score": 0.7906605005264282
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7895262241363525
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 1070,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8334819078445435
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8311984539031982
+            },
+            {
+              "doc": "storage",
+              "score": 0.820709228515625
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8175227046012878
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8175227046012878
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 32,
+          "top5Tokens": 998,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8119885921478271
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8034085631370544
+            },
+            {
+              "doc": "catalog",
+              "score": 0.798902690410614
+            },
+            {
+              "doc": "catalog",
+              "score": 0.798902690410614
+            },
+            {
+              "doc": "catalog",
+              "score": 0.798902690410614
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 4,
+          "top5Tokens": 1114,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.815414309501648
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8132798671722412
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8116072416305542
+            },
+            {
+              "doc": "storage",
+              "score": 0.8115302920341492
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8114063739776611
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 61,
+          "top5Tokens": 970,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8233617544174194
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8135322332382202
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8088394403457642
+            },
+            {
+              "doc": "returns",
+              "score": 0.8059796094894409
+            },
+            {
+              "doc": "returns",
+              "score": 0.8043335676193237
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 53,
+          "top5Tokens": 1048,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.836845338344574
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8359856605529785
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8332951068878174
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8332144618034363
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8332144618034363
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 82,
+          "top5Tokens": 1011,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8386722803115845
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8299227952957153
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285995721817017
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285995721817017
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285995721817017
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 29,
+          "top5Tokens": 970,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8319367170333862
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8291563987731934
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8291563987731934
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8291563987731934
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8291563987731934
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "raster",
+      "parser": "oxr",
+      "chunker": "experimental",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 313,
+      "maxTokens": 324,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0,
+      "evidenceHit5": 0,
+      "mrr": 0,
+      "documentHit5": 0.5833333333333334,
+      "conditionalEvidenceHit5": 0,
+      "totalChunkTokens": 57791,
+      "meanTop5Tokens": 821.0416666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1000,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8218386173248291
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8189263343811035
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8189263343811035
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8189263343811035
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8189263343811035
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 659,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8112654685974121
+            },
+            {
+              "doc": "returns",
+              "score": 0.8103792667388916
+            },
+            {
+              "doc": "delivery",
+              "score": 0.809346616268158
+            },
+            {
+              "doc": "delivery",
+              "score": 0.809346616268158
+            },
+            {
+              "doc": "delivery",
+              "score": 0.809346616268158
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 5,
+          "top5Tokens": 359,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8069835901260376
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8056120872497559
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8040870428085327
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8040350675582886
+            },
+            {
+              "doc": "returns",
+              "score": 0.8039369583129883
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 26,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8262284398078918
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8262284398078918
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8262284398078918
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8262284398078918
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8262284398078918
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 67,
+          "top5Tokens": 621,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8154549598693848
+            },
+            {
+              "doc": "storage",
+              "score": 0.81192547082901
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8103198409080505
+            },
+            {
+              "doc": "storage",
+              "score": 0.8100333213806152
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8092208504676819
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 377,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8042454123497009
+            },
+            {
+              "doc": "returns",
+              "score": 0.7957158088684082
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7927215099334717
+            },
+            {
+              "doc": "storage",
+              "score": 0.7892003655433655
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7890449166297913
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8199170827865601
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8199170827865601
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8199170827865601
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8199170827865601
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8199170827865601
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 60,
+          "top5Tokens": 996,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8127884268760681
+            },
+            {
+              "doc": "catalog",
+              "score": 0.812242865562439
+            },
+            {
+              "doc": "catalog",
+              "score": 0.812242865562439
+            },
+            {
+              "doc": "catalog",
+              "score": 0.812242865562439
+            },
+            {
+              "doc": "catalog",
+              "score": 0.812242865562439
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 59,
+          "top5Tokens": 998,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8121191263198853
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8109358549118042
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8100072145462036
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8100072145462036
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8100072145462036
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 740,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8157895803451538
+            },
+            {
+              "doc": "storage",
+              "score": 0.8110808730125427
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8089065551757812
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8089065551757812
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8089065551757812
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.830113410949707
+            },
+            {
+              "doc": "delivery",
+              "score": 0.830113410949707
+            },
+            {
+              "doc": "delivery",
+              "score": 0.830113410949707
+            },
+            {
+              "doc": "delivery",
+              "score": 0.830113410949707
+            },
+            {
+              "doc": "delivery",
+              "score": 0.830113410949707
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8211674690246582
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8211674690246582
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8211674690246582
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8211674690246582
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8211674690246582
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 980,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8202252984046936
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8202252984046936
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8202252984046936
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8202252984046936
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8202252984046936
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 996,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8218696117401123
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8214612603187561
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8214612603187561
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8214612603187561
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8214612603187561
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 230,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8725852966308594
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8691463470458984
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8452785015106201
+            },
+            {
+              "doc": "storage",
+              "score": 0.8293250799179077
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8292824029922485
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 1,
+          "top5Tokens": 464,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8686749935150146
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8514503836631775
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8272044658660889
+            },
+            {
+              "doc": "storage",
+              "score": 0.8195602893829346
+            },
+            {
+              "doc": "storage",
+              "score": 0.8183726072311401
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 3,
+          "top5Tokens": 701,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.7964943647384644
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7892538905143738
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7884771823883057
+            },
+            {
+              "doc": "storage",
+              "score": 0.7883548736572266
+            },
+            {
+              "doc": "storage",
+              "score": 0.7883548736572266
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 2,
+          "top5Tokens": 494,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8212976455688477
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8168594837188721
+            },
+            {
+              "doc": "storage",
+              "score": 0.8167151212692261
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8157649040222168
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8149436116218567
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 58,
+          "top5Tokens": 982,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8010189533233643
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7988671660423279
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7988671660423279
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7988671660423279
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7988671660423279
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 57,
+          "top5Tokens": 998,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8098042011260986
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8092567920684814
+            },
+            {
+              "doc": "catalog",
+              "score": 0.808979868888855
+            },
+            {
+              "doc": "catalog",
+              "score": 0.808979868888855
+            },
+            {
+              "doc": "catalog",
+              "score": 0.808979868888855
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 84,
+          "top5Tokens": 994,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8110570907592773
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8032575249671936
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8011771440505981
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8011771440505981
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8011771440505981
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 52,
+          "top5Tokens": 996,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8372009992599487
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8336111307144165
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8336111307144165
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8336111307144165
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8336111307144165
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 82,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8256282210350037
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8256282210350037
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8256282210350037
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8256282210350037
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8256282210350037
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": null,
+          "documentRank": 30,
+          "top5Tokens": 1020,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.826427161693573
+            },
+            {
+              "doc": "delivery",
+              "score": 0.826427161693573
+            },
+            {
+              "doc": "delivery",
+              "score": 0.826427161693573
+            },
+            {
+              "doc": "delivery",
+              "score": 0.826427161693573
+            },
+            {
+              "doc": "delivery",
+              "score": 0.826427161693573
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "html",
+      "parser": "html-control",
+      "chunker": "current",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 9,
+      "maxTokens": 175,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 0.8333333333333334,
+      "evidenceHit5": 1,
+      "mrr": 0.9097222222222222,
+      "documentHit5": 1,
+      "conditionalEvidenceHit5": 1,
+      "totalChunkTokens": 940,
+      "meanTop5Tokens": 535.7916666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 503,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.9059261083602905
+            },
+            {
+              "doc": "returns",
+              "score": 0.8815628290176392
+            },
+            {
+              "doc": "returns",
+              "score": 0.8730295300483704
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8570687770843506
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8466341495513916
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 547,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8625644445419312
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8112601637840271
+            },
+            {
+              "doc": "returns",
+              "score": 0.8111528158187866
+            },
+            {
+              "doc": "returns",
+              "score": 0.8047083616256714
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7881330251693726
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 447,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8673570156097412
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8272212743759155
+            },
+            {
+              "doc": "returns",
+              "score": 0.827120304107666
+            },
+            {
+              "doc": "returns",
+              "score": 0.8202335238456726
+            },
+            {
+              "doc": "storage",
+              "score": 0.8184270858764648
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 3,
+          "documentRank": 1,
+          "top5Tokens": 447,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.829630970954895
+            },
+            {
+              "doc": "returns",
+              "score": 0.8274260759353638
+            },
+            {
+              "doc": "returns",
+              "score": 0.827400267124176
+            },
+            {
+              "doc": "storage",
+              "score": 0.8025730848312378
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8000288009643555
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 555,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8832705020904541
+            },
+            {
+              "doc": "returns",
+              "score": 0.8239115476608276
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8226497173309326
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8218600749969482
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8208086490631104
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 1,
+          "top5Tokens": 503,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8685627579689026
+            },
+            {
+              "doc": "returns",
+              "score": 0.8638620376586914
+            },
+            {
+              "doc": "returns",
+              "score": 0.8536604642868042
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8367059230804443
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8285273313522339
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 579,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8627055287361145
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8193871974945068
+            },
+            {
+              "doc": "returns",
+              "score": 0.8175064325332642
+            },
+            {
+              "doc": "storage",
+              "score": 0.814441442489624
+            },
+            {
+              "doc": "returns",
+              "score": 0.8069671392440796
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 501,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.880291223526001
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8333853483200073
+            },
+            {
+              "doc": "returns",
+              "score": 0.821005642414093
+            },
+            {
+              "doc": "catalog",
+              "score": 0.805404543876648
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8036494255065918
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 586,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8487088680267334
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8128875494003296
+            },
+            {
+              "doc": "storage",
+              "score": 0.7976821064949036
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7953752279281616
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7949235439300537
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 588,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8856690526008606
+            },
+            {
+              "doc": "storage",
+              "score": 0.8224873542785645
+            },
+            {
+              "doc": "returns",
+              "score": 0.8199193477630615
+            },
+            {
+              "doc": "returns",
+              "score": 0.8072458505630493
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8059034943580627
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 2,
+          "documentRank": 2,
+          "top5Tokens": 579,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8613365292549133
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8369273543357849
+            },
+            {
+              "doc": "returns",
+              "score": 0.8294073343276978
+            },
+            {
+              "doc": "delivery",
+              "score": 0.828291654586792
+            },
+            {
+              "doc": "returns",
+              "score": 0.8258312940597534
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 579,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8268687129020691
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8243238925933838
+            },
+            {
+              "doc": "returns",
+              "score": 0.8218661546707153
+            },
+            {
+              "doc": "returns",
+              "score": 0.8190260529518127
+            },
+            {
+              "doc": "storage",
+              "score": 0.8071158528327942
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 583,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8452797532081604
+            },
+            {
+              "doc": "returns",
+              "score": 0.8163186311721802
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8140854835510254
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8060353994369507
+            },
+            {
+              "doc": "storage",
+              "score": 0.8050066232681274
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 501,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8526633977890015
+            },
+            {
+              "doc": "returns",
+              "score": 0.8431888222694397
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8222745656967163
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8163373470306396
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8001935482025146
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 586,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8938909769058228
+            },
+            {
+              "doc": "delivery",
+              "score": 0.833643913269043
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8307843804359436
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8286036252975464
+            },
+            {
+              "doc": "storage",
+              "score": 0.8154729008674622
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 525,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8747305870056152
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8368020057678223
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8210105895996094
+            },
+            {
+              "doc": "delivery",
+              "score": 0.815360426902771
+            },
+            {
+              "doc": "returns",
+              "score": 0.8032550811767578
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 593,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8455565571784973
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7917158007621765
+            },
+            {
+              "doc": "returns",
+              "score": 0.7890617847442627
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7877017259597778
+            },
+            {
+              "doc": "storage",
+              "score": 0.7868785262107849
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 501,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8790955543518066
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8332366943359375
+            },
+            {
+              "doc": "returns",
+              "score": 0.8302685618400574
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8245068788528442
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8198184370994568
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 537,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8397624492645264
+            },
+            {
+              "doc": "storage",
+              "score": 0.8097406625747681
+            },
+            {
+              "doc": "returns",
+              "score": 0.8047630786895752
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7989808320999146
+            },
+            {
+              "doc": "returns",
+              "score": 0.7921062707901001
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 529,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8701449632644653
+            },
+            {
+              "doc": "storage",
+              "score": 0.8252925872802734
+            },
+            {
+              "doc": "returns",
+              "score": 0.7913012504577637
+            },
+            {
+              "doc": "returns",
+              "score": 0.7886998653411865
+            },
+            {
+              "doc": "returns",
+              "score": 0.7877448797225952
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 529,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8609359264373779
+            },
+            {
+              "doc": "storage",
+              "score": 0.8266423940658569
+            },
+            {
+              "doc": "returns",
+              "score": 0.826313316822052
+            },
+            {
+              "doc": "returns",
+              "score": 0.821654200553894
+            },
+            {
+              "doc": "returns",
+              "score": 0.819006621837616
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 516,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8514272570610046
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8216978311538696
+            },
+            {
+              "doc": "storage",
+              "score": 0.7981441020965576
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7972909808158875
+            },
+            {
+              "doc": "returns",
+              "score": 0.7957221269607544
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 508,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8783913850784302
+            },
+            {
+              "doc": "returns",
+              "score": 0.830318808555603
+            },
+            {
+              "doc": "storage",
+              "score": 0.826712965965271
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8226313591003418
+            },
+            {
+              "doc": "returns",
+              "score": 0.818954586982727
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 537,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8417466878890991
+            },
+            {
+              "doc": "storage",
+              "score": 0.8322945237159729
+            },
+            {
+              "doc": "returns",
+              "score": 0.8128257989883423
+            },
+            {
+              "doc": "returns",
+              "score": 0.8126823902130127
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8056415319442749
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "variant": "html",
+      "parser": "html-control",
+      "chunker": "experimental",
+      "parsedDocuments": 4,
+      "notRunDocuments": 0,
+      "failedDocuments": 0,
+      "expectedDocuments": 4,
+      "chunkCount": 35,
+      "maxTokens": 107,
+      "tokenOverflow": 0,
+      "queries": 24,
+      "measuredQueries": 24,
+      "rateDefinition": "end-to-end over all queries; unavailable source is failure, not measured retrieval miss",
+      "evidenceHit1": 1,
+      "evidenceHit5": 1,
+      "mrr": 1,
+      "documentHit5": 1,
+      "conditionalEvidenceHit5": 1,
+      "totalChunkTokens": 1441,
+      "meanTop5Tokens": 241.54166666666666,
+      "queryResults": [
+        {
+          "id": "returns-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 304,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8894690871238708
+            },
+            {
+              "doc": "returns",
+              "score": 0.8862250447273254
+            },
+            {
+              "doc": "returns",
+              "score": 0.8766740560531616
+            },
+            {
+              "doc": "storage",
+              "score": 0.8521232604980469
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8477737307548523
+            }
+          ]
+        },
+        {
+          "id": "returns-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 306,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8599896430969238
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8357840180397034
+            },
+            {
+              "doc": "returns",
+              "score": 0.8302590847015381
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8066095113754272
+            },
+            {
+              "doc": "returns",
+              "score": 0.8033009767532349
+            }
+          ]
+        },
+        {
+          "id": "returns-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 193,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.864888072013855
+            },
+            {
+              "doc": "delivery",
+              "score": 0.821115255355835
+            },
+            {
+              "doc": "returns",
+              "score": 0.8152910470962524
+            },
+            {
+              "doc": "returns",
+              "score": 0.8137654066085815
+            },
+            {
+              "doc": "storage",
+              "score": 0.8128774166107178
+            }
+          ]
+        },
+        {
+          "id": "returns-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 271,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8579082489013672
+            },
+            {
+              "doc": "returns",
+              "score": 0.8200139403343201
+            },
+            {
+              "doc": "storage",
+              "score": 0.817734956741333
+            },
+            {
+              "doc": "returns",
+              "score": 0.8140411376953125
+            },
+            {
+              "doc": "returns",
+              "score": 0.798964262008667
+            }
+          ]
+        },
+        {
+          "id": "returns-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 227,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.899800717830658
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8364995718002319
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8348428606987
+            },
+            {
+              "doc": "storage",
+              "score": 0.8292570114135742
+            },
+            {
+              "doc": "storage",
+              "score": 0.8257516622543335
+            }
+          ]
+        },
+        {
+          "id": "returns-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 279,
+          "top5": [
+            {
+              "doc": "returns",
+              "score": 0.8776050806045532
+            },
+            {
+              "doc": "returns",
+              "score": 0.8631268739700317
+            },
+            {
+              "doc": "returns",
+              "score": 0.8505222797393799
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8371080160140991
+            },
+            {
+              "doc": "returns",
+              "score": 0.829685628414154
+            }
+          ]
+        },
+        {
+          "id": "delivery-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 200,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8739565014839172
+            },
+            {
+              "doc": "delivery",
+              "score": 0.851203203201294
+            },
+            {
+              "doc": "returns",
+              "score": 0.8255705833435059
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8200321197509766
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8189345598220825
+            }
+          ]
+        },
+        {
+          "id": "delivery-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 161,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8862032294273376
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8422880172729492
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8326698541641235
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8202829957008362
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8162828087806702
+            }
+          ]
+        },
+        {
+          "id": "delivery-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 169,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8706548810005188
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8013410568237305
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7982346415519714
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7951731085777283
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7926497459411621
+            }
+          ]
+        },
+        {
+          "id": "delivery-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 227,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.896306574344635
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8210242390632629
+            },
+            {
+              "doc": "storage",
+              "score": 0.8128778338432312
+            },
+            {
+              "doc": "storage",
+              "score": 0.8118688464164734
+            },
+            {
+              "doc": "storage",
+              "score": 0.8114731311798096
+            }
+          ]
+        },
+        {
+          "id": "delivery-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 232,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8532615900039673
+            },
+            {
+              "doc": "storage",
+              "score": 0.8420818448066711
+            },
+            {
+              "doc": "storage",
+              "score": 0.8412584066390991
+            },
+            {
+              "doc": "storage",
+              "score": 0.8309226632118225
+            },
+            {
+              "doc": "storage",
+              "score": 0.8302425146102905
+            }
+          ]
+        },
+        {
+          "id": "delivery-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 264,
+          "top5": [
+            {
+              "doc": "delivery",
+              "score": 0.8529730439186096
+            },
+            {
+              "doc": "returns",
+              "score": 0.8263459205627441
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8231052756309509
+            },
+            {
+              "doc": "delivery",
+              "score": 0.8224705457687378
+            },
+            {
+              "doc": "returns",
+              "score": 0.8219731450080872
+            }
+          ]
+        },
+        {
+          "id": "catalog-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 217,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8616138696670532
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8194844722747803
+            },
+            {
+              "doc": "returns",
+              "score": 0.8184074759483337
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7984278202056885
+            },
+            {
+              "doc": "delivery",
+              "score": 0.7968702912330627
+            }
+          ]
+        },
+        {
+          "id": "catalog-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 244,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.88214111328125
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8483196496963501
+            },
+            {
+              "doc": "returns",
+              "score": 0.8442578911781311
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8033702373504639
+            },
+            {
+              "doc": "storage",
+              "score": 0.7991966009140015
+            }
+          ]
+        },
+        {
+          "id": "catalog-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 242,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8991897106170654
+            },
+            {
+              "doc": "catalog",
+              "score": 0.887891411781311
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8590657711029053
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8545423746109009
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8440434336662292
+            }
+          ]
+        },
+        {
+          "id": "catalog-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 242,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8982551693916321
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8780297040939331
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8601337671279907
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8311375379562378
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8308281302452087
+            }
+          ]
+        },
+        {
+          "id": "catalog-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 243,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.8689833879470825
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8410511016845703
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7995620369911194
+            },
+            {
+              "doc": "storage",
+              "score": 0.7918562293052673
+            },
+            {
+              "doc": "catalog",
+              "score": 0.7908470630645752
+            }
+          ]
+        },
+        {
+          "id": "catalog-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 243,
+          "top5": [
+            {
+              "doc": "catalog",
+              "score": 0.894278883934021
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8638796806335449
+            },
+            {
+              "doc": "catalog",
+              "score": 0.825788140296936
+            },
+            {
+              "doc": "returns",
+              "score": 0.8229256868362427
+            },
+            {
+              "doc": "catalog",
+              "score": 0.8228809833526611
+            }
+          ]
+        },
+        {
+          "id": "storage-1",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 240,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8852871656417847
+            },
+            {
+              "doc": "storage",
+              "score": 0.8437206745147705
+            },
+            {
+              "doc": "storage",
+              "score": 0.8139464259147644
+            },
+            {
+              "doc": "storage",
+              "score": 0.8127230405807495
+            },
+            {
+              "doc": "storage",
+              "score": 0.8089781999588013
+            }
+          ]
+        },
+        {
+          "id": "storage-2",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 253,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.9017207026481628
+            },
+            {
+              "doc": "storage",
+              "score": 0.8520705103874207
+            },
+            {
+              "doc": "storage",
+              "score": 0.8368871212005615
+            },
+            {
+              "doc": "storage",
+              "score": 0.8355872631072998
+            },
+            {
+              "doc": "storage",
+              "score": 0.8323992490768433
+            }
+          ]
+        },
+        {
+          "id": "storage-3",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 297,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8945794105529785
+            },
+            {
+              "doc": "storage",
+              "score": 0.8491820096969604
+            },
+            {
+              "doc": "storage",
+              "score": 0.8380477428436279
+            },
+            {
+              "doc": "storage",
+              "score": 0.8319278955459595
+            },
+            {
+              "doc": "returns",
+              "score": 0.8303592205047607
+            }
+          ]
+        },
+        {
+          "id": "storage-4",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 253,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8835214376449585
+            },
+            {
+              "doc": "storage",
+              "score": 0.8346025943756104
+            },
+            {
+              "doc": "storage",
+              "score": 0.8297747373580933
+            },
+            {
+              "doc": "storage",
+              "score": 0.8231224417686462
+            },
+            {
+              "doc": "storage",
+              "score": 0.8198011517524719
+            }
+          ]
+        },
+        {
+          "id": "storage-5",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 254,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.903236448764801
+            },
+            {
+              "doc": "storage",
+              "score": 0.867982804775238
+            },
+            {
+              "doc": "storage",
+              "score": 0.8500621914863586
+            },
+            {
+              "doc": "storage",
+              "score": 0.8428202867507935
+            },
+            {
+              "doc": "storage",
+              "score": 0.842097282409668
+            }
+          ]
+        },
+        {
+          "id": "storage-6",
+          "parseStatus": "PARSED",
+          "evidenceRank": 1,
+          "documentRank": 1,
+          "top5Tokens": 236,
+          "top5": [
+            {
+              "doc": "storage",
+              "score": 0.8635337352752686
+            },
+            {
+              "doc": "storage",
+              "score": 0.8242006301879883
+            },
+            {
+              "doc": "storage",
+              "score": 0.8199656009674072
+            },
+            {
+              "doc": "storage",
+              "score": 0.81920325756073
+            },
+            {
+              "doc": "storage",
+              "score": 0.818475604057312
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "parsingGroups": [
+    {
+      "variant": "digital",
+      "parser": "baseline",
+      "expectedDocuments": 4,
+      "measuredDocuments": 4,
+      "failedDocuments": [],
+      "weightedCER": 0.030213464696223317,
+      "criticalMatches": 18,
+      "measuredCriticalTotal": 24,
+      "cellContentMatches": 83,
+      "cellPositionMatches": 0,
+      "measuredCellTotal": 90,
+      "elapsedMs": [
+        551.3224,
+        358.6138000000001,
+        325.5527000000002,
+        364.36400000000003
+      ]
+    },
+    {
+      "variant": "digital",
+      "parser": "oxr",
+      "expectedDocuments": 4,
+      "measuredDocuments": 4,
+      "failedDocuments": [],
+      "weightedCER": 17.676190476190477,
+      "criticalMatches": 5,
+      "measuredCriticalTotal": 24,
+      "cellContentMatches": 38,
+      "cellPositionMatches": 38,
+      "measuredCellTotal": 90,
+      "elapsedMs": [
+        80907.8127,
+        64523.5301,
+        38809.8033,
+        57463.79460000002
+      ]
+    },
+    {
+      "variant": "raster",
+      "parser": "baseline",
+      "expectedDocuments": 4,
+      "measuredDocuments": 0,
+      "failedDocuments": [
+        {
+          "id": "returns-raster",
+          "status": "ERROR"
+        },
+        {
+          "id": "delivery-raster",
+          "status": "ERROR"
+        },
+        {
+          "id": "catalog-raster",
+          "status": "ERROR"
+        },
+        {
+          "id": "storage-raster",
+          "status": "ERROR"
+        }
+      ],
+      "weightedCER": null,
+      "criticalMatches": 0,
+      "measuredCriticalTotal": 0,
+      "cellContentMatches": 0,
+      "cellPositionMatches": 0,
+      "measuredCellTotal": 0,
+      "elapsedMs": []
+    },
+    {
+      "variant": "raster",
+      "parser": "oxr",
+      "expectedDocuments": 4,
+      "measuredDocuments": 4,
+      "failedDocuments": [],
+      "weightedCER": 26.6568144499179,
+      "criticalMatches": 4,
+      "measuredCriticalTotal": 24,
+      "cellContentMatches": 38,
+      "cellPositionMatches": 38,
+      "measuredCellTotal": 90,
+      "elapsedMs": [
+        71740.7338,
+        101505.76259999999,
+        67065.73869999999,
+        36927.090800000005
+      ]
+    },
+    {
+      "variant": "html",
+      "parser": "html-control",
+      "expectedDocuments": 4,
+      "measuredDocuments": 4,
+      "failedDocuments": [],
+      "weightedCER": 0,
+      "criticalMatches": 24,
+      "measuredCriticalTotal": 24,
+      "cellContentMatches": 90,
+      "cellPositionMatches": 90,
+      "measuredCellTotal": 90,
+      "elapsedMs": [
+        324.92940000000004,
+        235.6689,
+        220.32530000000008,
+        186.52249999999992
+      ]
+    }
+  ]
+}

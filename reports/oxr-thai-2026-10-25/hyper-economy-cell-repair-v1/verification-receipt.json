@@ -1,0 +1,121 @@
+{
+  "schema": "hyper-economy-cell-repair-verification-receipt-v1",
+  "status": "PASS_EXPERIMENTAL",
+  "runtime": {
+    "python": "3.11.17",
+    "pdfplumber": "0.11.9",
+    "pdfminer": "20251230",
+    "node": "v24.20.0",
+    "genesisRag17Image": "sha256:6a21147e2adbdd596924918fd7223b817ce95cf61878ac7f7104f5abe7624a39",
+    "modelVolume": "zuri-main-dev-20261020_ki17-model",
+    "modelVolumeMode": "read-only"
+  },
+  "checks": [
+    {
+      "command": "python build_pdf_baseline_rows.py",
+      "exitCode": 0,
+      "result": "37 PDF-native rows, 259 numeric cells, 259 unique Paddle value-box corroborations, zero old held status changes, zero model calls"
+    },
+    {
+      "command": "python build_native_input.py",
+      "exitCode": 0,
+      "result": "Combined candidate input SHA-256 b71bdc93b5175bf760cfb5d669dc2f8cc06e4c4a72c65ecb7c43368eaaf9f06c; prior PDF repair content and 64 range records preserved as prefix"
+    },
+    {
+      "command": "python -m unittest discover -s reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1 -p 'test_*.py' -v",
+      "exitCode": 0,
+      "testsPassed": 18,
+      "testsFailed": 0
+    },
+    {
+      "command": "vite-node --root apps/server --config apps/server/vitest.config.js reports/oxr-thai-2026-10-25/hyper-economy-cell-repair-v1/native_chunker_probe.mjs",
+      "exitCode": 0,
+      "status": "PASS_NO_QA",
+      "priorPopulationRowBodiesInOneChunk": "59/59",
+      "newEconomyRowsWithLabelAndSevenHeaderValueAtomsInOneChunk": "37/37",
+      "unchangedTablePacketsRepresented": "114/114",
+      "parser": "genesisrag17-parser-3",
+      "chunker": "genesisrag17-chunker-2"
+    },
+    {
+      "command": "run-native-combined.ps1 -PreflightOnly",
+      "exitCode": 0,
+      "status": "PASS_HOST_PREFLIGHT_ONLY",
+      "dockerLaunched": false,
+      "goldOrQuestionsReadByHostPreflight": false
+    },
+    {
+      "command": "run-native-combined.ps1",
+      "exitCode": 0,
+      "testFilesPassed": 1,
+      "testFilesFailed": 0,
+      "nativeTestDurationMs": 148626,
+      "vitestDurationMs": 170330,
+      "stagesSucceeded": 17,
+      "queryCount": 48,
+      "indexedChunks": 302,
+      "nativeElapsedMs": 148412.022115,
+      "cgroupPeakMemoryBytes": 4497965056,
+      "goldSha256": "976e843a970065b31b984f11fa933434a38a3f824f27b34117b333eb85789303",
+      "nativeResultsSha256": "035f6db1f558dd58ec5220abfff3357dba6c31e7ba626d7889a06a02be6337ea"
+    },
+    {
+      "command": "node evaluate-combined.mjs",
+      "exitCode": 0,
+      "result": "All 3 native receipts bound to their input arms and frozen gold; 16 first-pass queries and 48 total query tuples per run validated"
+    },
+    {
+      "command": "node seal-evidence.mjs",
+      "exitCode": 0,
+      "result": "Sealed declared report artifacts, native outputs, source evidence and upstream frozen input references in evidence-manifest.json"
+    }
+  ],
+  "measurement": {
+    "currentTableBaseline": {
+      "rowHitAt1": "4/16",
+      "rowHitAt5": "4/16",
+      "rowAndHeaderAt5": "4/16",
+      "pdfDerivedCorrectRowAt1": "0/16",
+      "pdfDerivedCorrectRowAt5": "0/16",
+      "legacyOrPdfDerivedUnionAt1": "4/16",
+      "legacyOrPdfDerivedUnionAt5": "4/16",
+      "chunks": 156,
+      "elapsedMs": 82169.641198,
+      "cgroupPeakMemoryBytes": 2693615616
+    },
+    "priorPdfOverlayHistoricalReference": {
+      "rowHitAt1": "2/16",
+      "rowHitAt5": "4/16",
+      "rowAndHeaderAt5": "4/16",
+      "pdfDerivedCorrectRowAt1": "8/16",
+      "pdfDerivedCorrectRowAt5": "10/16",
+      "legacyOrPdfDerivedUnionAt1": "10/16",
+      "legacyOrPdfDerivedUnionAt5": "12/16",
+      "chunks": 277,
+      "elapsedMs": 106300.066346,
+      "cgroupPeakMemoryBytes": 3728732160
+    },
+    "combinedPriorOverlayPlusEconomyRows": {
+      "rowHitAt1": "1/16",
+      "rowHitAt5": "4/16",
+      "rowAndHeaderAt5": "4/16",
+      "pdfDerivedCorrectRowAt1": "9/16",
+      "pdfDerivedCorrectRowAt5": "12/16",
+      "newEconomyPdfRowCorrectAt1": "1/16",
+      "newEconomyPdfRowCorrectAt5": "2/16",
+      "legacyOrPdfDerivedUnionAt1": "10/16",
+      "legacyOrPdfDerivedUnionAt5": "14/16",
+      "chunks": 302,
+      "elapsedMs": 148412.022115,
+      "cgroupPeakMemoryBytes": 4497965056
+    }
+  },
+  "authority": {
+    "legacyHeldCellStatusesChanged": 0,
+    "semanticStatus": "NOT_ASSESSED",
+    "graphAdmission": "NONE",
+    "productionAdoption": false,
+    "goldOrQuestionsUsedForSourceSelection": false,
+    "modelCalls": 0
+  }
+}
