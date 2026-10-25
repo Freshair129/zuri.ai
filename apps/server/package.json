@@ -21,6 +21,7 @@
     "test": "node scripts/assert-tests-ran.mjs vitest run",
     "test:unit": "node scripts/assert-tests-ran.mjs vitest run tests/unit",
     "test:integration": "node scripts/assert-tests-ran.mjs vitest run tests/integration",
+    "test:production-migration:isolated": "node scripts/run-production-migration-isolated-postgres.mjs",
     "test:postgres": "node scripts/assert-tests-ran.mjs vitest run --config vitest.postgres.config.js",
     "test:genesisrag17": "node scripts/run-genesisrag17-acceptance.mjs",
     "test:knowledge-admission": "node scripts/run-knowledge-admission-acceptance.mjs",

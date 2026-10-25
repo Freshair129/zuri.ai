@@ -3,6 +3,20 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import pg from 'pg'
+import {
+  assertOutsideRepository,
+  assertMatchingArtifacts,
+  canonicalJson,
+  captureDatabaseBaseline,
+  readHashedArtifact,
+  sha256,
+  verifyDependencyBackup,
+} from './production-migration-evidence.mjs'
+import {
+  createDirectClientConfig,
+  PRODUCTION_PROJECT_REF,
+  resolveDirectTarget,
+} from './production-migration-target.mjs'
 
 // @req FR-051, FR-069, FR-094, FR-095, FR-268, FR-272 — reconcile a reviewed
 // Supabase migration set against the live catalog without replaying destructive
@@ -10,7 +24,7 @@ import pg from 'pg'
 // @spec ADR-057, ADR-058, ADR-102, ADR-103, ADR-104, SEC-001, SEC-018
 // @tested tests/unit/production-migration-reconciliation.test.js
 
-export const PRODUCTION_PROJECT_REF = 'qcnmhyglarzcpudjorzc'
+export { PRODUCTION_PROJECT_REF }
 
 const SERVER_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
@@ -240,35 +254,76 @@ export const RECONCILIATION_PLAN = [
       privateTables,
     },
   },
+  {
+    version: '20261024010000',
+    name: 'dependency_handoff',
+    relativePath: 'supabase/migrations/20261024010000_dependency_handoff.sql',
+    sha256: '7ebd65cccbb049f92a8e0c246b7866888f65e39958b855ae43ffbb704e965d19',
+    mode: 'apply',
+    pre: {
+      tables: ['Dependency'],
+      absentColumns: [['Dependency', 'contractJson']],
+    },
+    post: {
+      columnDefinitions: [{
+        table: 'Dependency',
+        column: 'contractJson',
+        dataType: 'text',
+        isNullable: 'YES',
+        columnDefault: null,
+      }],
+    },
+  },
 ]
 
+export const PIPELINE_BUILDER_PLAN = RECONCILIATION_PLAN.filter((item) => item.version === '20261024010000')
+export const PRIOR_RECONCILIATION_PLAN = RECONCILIATION_PLAN.filter((item) => item.version !== '20261024010000')
+
+export function assertPriorMigrationReceipts(ledger, priorPlan = PRIOR_RECONCILIATION_PLAN) {
+  for (const item of priorPlan) {
+    if (!ledger.has(item.version)) {
+      throw new Error(`refuse: prior migration ${item.version} is missing from ledger; this operation cannot execute historical migrations`)
+    }
+    if (ledger.get(item.version) !== item.name) {
+      throw new Error(`refuse: prior migration ledger name mismatch for ${item.version}`)
+    }
+  }
+}
+
 export function parseArgs(argv) {
-  const options = { apply: false, projectRef: null, preflightPath: null, snapshotPath: null }
+  const options = {
+    apply: false,
+    projectRef: null,
+    preflightPath: null,
+    preflightSha256: null,
+    snapshotPath: null,
+    snapshotSha256: null,
+  }
   for (let index = 0; index < argv.length; index += 1) {
     const token = argv[index]
     if (token === '--apply') {
       options.apply = true
       continue
     }
-    if (token === '--project-ref' || token === '--preflight' || token === '--snapshot') {
+    if (['--project-ref', '--preflight', '--preflight-sha256', '--snapshot', '--snapshot-sha256'].includes(token)) {
       const value = argv[index + 1]
       if (!value || value.startsWith('--')) throw new Error(`${token} requires a value`)
       if (token === '--project-ref') options.projectRef = value
       if (token === '--preflight') options.preflightPath = value
+      if (token === '--preflight-sha256') options.preflightSha256 = value
       if (token === '--snapshot') options.snapshotPath = value
+      if (token === '--snapshot-sha256') options.snapshotSha256 = value
       index += 1
       continue
     }
     throw new Error(`unknown option: ${token}`)
   }
+  for (const key of ['preflightSha256', 'snapshotSha256']) {
+    if (options[key] !== null && !/^[a-f0-9]{64}$/.test(options[key])) {
+      throw new Error(`invalid SHA-256 value for ${key}`)
+    }
+  }
   return options
-}
-
-function readJsonArtifact(filePath, expectedMode) {
-  const artifact = JSON.parse(fs.readFileSync(filePath, 'utf8'))
-  if (artifact.mode !== expectedMode) throw new Error(`artifact mode must be ${expectedMode}`)
-  if (artifact.projectRef !== PRODUCTION_PROJECT_REF) throw new Error('artifact project reference does not match the production target')
-  return artifact
 }
 
 function migrationFile(item) {
@@ -301,6 +356,7 @@ async function assertCatalog(client, checks = {}) {
   const absentColumns = checks.absentColumns ?? []
   const indexes = checks.indexes ?? []
   const constraints = checks.constraints ?? []
+  const columnDefinitions = checks.columnDefinitions ?? []
   const privateTableNames = checks.privateTables ?? []
   const privateTableRoles = checks.privateTableRoles ?? {}
 
@@ -346,6 +402,20 @@ async function assertCatalog(client, checks = {}) {
     const found = new Set(rows.map((row) => `${row.table_name}.${row.column_name}`))
     const present = absentColumns.filter(([table, column]) => found.has(`${table}.${column}`))
     if (present.length > 0) throw new Error(`catalog precondition expected absent column(s): ${present.map(([table, column]) => `${table}.${column}`).join(',')}`)
+  }
+
+  for (const expected of columnDefinitions) {
+    const rows = await queryRows(client, `
+      select data_type, is_nullable, column_default
+      from information_schema.columns
+      where table_schema = 'public' and table_name = $1 and column_name = $2
+    `, [expected.table, expected.column])
+    if (rows.length !== 1
+        || rows[0].data_type !== expected.dataType
+        || rows[0].is_nullable !== expected.isNullable
+        || rows[0].column_default !== expected.columnDefault) {
+      throw new Error(`catalog postcondition failed for ${expected.table}.${expected.column}: exact type, nullability and default are required`)
+    }
   }
 
   if (indexes.length > 0) {
@@ -411,12 +481,12 @@ async function assertPrivateTable(client, table, requiredRoles = ['zuri_app_runt
   if (missing.length > 0) throw new Error(`security precondition failed for ${table}: runtime grant(s) missing`)
 }
 
-async function readLedger(client) {
+async function readLedger(client, plan = RECONCILIATION_PLAN) {
   const rows = await queryRows(client, `
     select version, name
     from supabase_migrations.schema_migrations
     where version = any($1::text[])
-  `, [RECONCILIATION_PLAN.map((item) => item.version)])
+  `, [plan.map((item) => item.version)])
   return new Map(rows.map((row) => [row.version, row.name]))
 }
 
@@ -437,15 +507,38 @@ async function recordLedger(client, item) {
   return 'RECORDED'
 }
 
-async function applyPlan(client, apply) {
-  const ledger = await readLedger(client)
+async function assertPriorMigrationsReconciled(client) {
+  const ledger = await readLedger(client, PRIOR_RECONCILIATION_PLAN)
+  assertPriorMigrationReceipts(ledger)
+  for (const item of PRIOR_RECONCILIATION_PLAN) {
+    await assertCatalog(client, item.mode === 'record' ? item.checks : item.post)
+  }
+}
+
+async function applyPlan(client, apply, target, expectedBaseline, plan = PIPELINE_BUILDER_PLAN, {
+  requirePriorReconciliation = false,
+} = {}) {
   const results = []
 
-  await client.query('BEGIN')
+  await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ')
   await client.query("SET LOCAL lock_timeout = '5s'")
   await client.query("SET LOCAL statement_timeout = '120s'")
   try {
-    for (const item of RECONCILIATION_PLAN) {
+    // Acquire write-blocking locks before the first MVCC snapshot. A writer
+    // committed while these locks are being acquired must be visible to the
+    // baseline comparison; later writers wait until this transaction ends.
+    await client.query('LOCK TABLE public."Dependency" IN SHARE MODE')
+    await client.query('LOCK TABLE supabase_migrations.schema_migrations IN SHARE MODE')
+    const before = await captureDatabaseBaseline(client, target)
+    if (before.baselineId !== expectedBaseline.baselineId
+        || canonicalJson(before.baseline) !== canonicalJson(expectedBaseline.baseline)) {
+      throw new Error('refuse: live database baseline differs from the verified preflight and snapshot')
+    }
+
+    if (requirePriorReconciliation) await assertPriorMigrationsReconciled(client)
+
+    const ledger = await readLedger(client, plan)
+    for (const item of plan) {
       const file = migrationFile(item)
       const hasReceipt = ledger.has(item.version)
       if (hasReceipt && ledger.get(item.version) !== item.name) throw new Error(`ledger name mismatch for ${item.version}`)
@@ -458,6 +551,7 @@ async function applyPlan(client, apply) {
       }
 
       if (!hasReceipt) {
+        await assertCatalog(client, item.pre)
         await client.query(withoutTransactionWrapper(file.sql))
         await assertCatalog(client, item.post)
         const status = await recordLedger(client, item)
@@ -469,6 +563,23 @@ async function applyPlan(client, apply) {
       results.push({ version: item.version, name: item.name, mode: item.mode, status: 'ALREADY_APPLIED', sha256: file.sha256 })
     }
 
+    const after = await captureDatabaseBaseline(client, target)
+    const beforeDependency = expectedBaseline.baseline.dependency
+    const afterDependency = after.baseline.dependency
+    if (afterDependency.rowsSha256 !== beforeDependency.rowsSha256
+        || afterDependency.rowCount !== beforeDependency.rowCount) {
+      throw new Error('refuse: Dependency rows changed during the migration transaction')
+    }
+    if (canonicalJson(afterDependency.security) !== canonicalJson(beforeDependency.security)) {
+      throw new Error('refuse: Dependency RLS, policies or grants changed during the migration transaction')
+    }
+    for (const item of plan) {
+      const recorded = after.migrationHistory.filter((row) => row.version === item.version)
+      if (recorded.length !== 1 || recorded[0].name !== item.name) {
+        throw new Error(`refuse: migration ledger postcondition failed for ${item.version}`)
+      }
+    }
+
     if (apply) await client.query('COMMIT')
     else await client.query('ROLLBACK')
   } catch (error) {
@@ -476,41 +587,105 @@ async function applyPlan(client, apply) {
     throw error
   }
 
+  if (!apply) {
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
+    let restored
+    try {
+      restored = await captureDatabaseBaseline(client, target)
+      await client.query('COMMIT')
+    } catch (error) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw error
+    }
+    if (restored.baselineId !== expectedBaseline.baselineId
+        || canonicalJson(restored.baseline) !== canonicalJson(expectedBaseline.baseline)) {
+      throw new Error('refuse: dry-run rollback did not restore the accepted database baseline')
+    }
+  }
+
   return results
+}
+
+export async function runReconciliationPlan(client, {
+  apply = false,
+  target,
+  expectedBaseline,
+  plan = PIPELINE_BUILDER_PLAN,
+  requirePriorReconciliation = false,
+}) {
+  if (!target || !expectedBaseline?.baselineId || !expectedBaseline?.baseline) {
+    throw new Error('refuse: a verified target and baseline are required')
+  }
+  return applyPlan(client, apply, target, expectedBaseline, plan, { requirePriorReconciliation })
 }
 
 export async function main(argv = process.argv.slice(2), dependencies = {}) {
   const options = parseArgs(argv)
   if (options.projectRef !== PRODUCTION_PROJECT_REF) throw new Error(`refuse: pass --project-ref ${PRODUCTION_PROJECT_REF}`)
-  if (!options.preflightPath || !options.snapshotPath) throw new Error('refuse: --preflight and --snapshot receipts are required')
+  if (!options.preflightPath || !options.preflightSha256
+      || !options.snapshotPath || !options.snapshotSha256) {
+    throw new Error('refuse: preflight and snapshot paths with externally verified SHA-256 values are required')
+  }
 
-  readJsonArtifact(options.preflightPath, 'READ_ONLY')
-  readJsonArtifact(options.snapshotPath, 'READ_ONLY_LOGICAL_BACKUP')
+  const connectionString = dependencies.connectionString ?? process.env.DIRECT_URL
+  const target = resolveDirectTarget(connectionString, PRODUCTION_PROJECT_REF)
+  const repositoryRoot = path.resolve(SERVER_ROOT, '../..')
+  assertOutsideRepository(options.preflightPath, repositoryRoot)
+  assertOutsideRepository(options.snapshotPath, repositoryRoot)
+  const preflight = readHashedArtifact(options.preflightPath, options.preflightSha256, 'READ_ONLY')
+  const snapshot = readHashedArtifact(options.snapshotPath, options.snapshotSha256, 'READ_ONLY_LOGICAL_BACKUP')
+  const expectedEndpoint = {
+    projectRef: target.projectRef,
+    host: target.host,
+    port: target.port,
+    database: target.database,
+  }
+  for (const artifact of [preflight, snapshot]) {
+    if (artifact.projectRef !== PRODUCTION_PROJECT_REF
+        || !artifact.target
+        || artifact.target.projectRef !== expectedEndpoint.projectRef
+        || artifact.target.host !== expectedEndpoint.host
+        || artifact.target.port !== expectedEndpoint.port
+        || artifact.target.database !== expectedEndpoint.database) {
+      throw new Error('refuse: evidence artifact endpoint does not match DIRECT_URL')
+    }
+  }
+  assertMatchingArtifacts(preflight, snapshot, preflight.target)
+  if (!preflight.baseline || preflight.baselineId !== sha256(canonicalJson(preflight.baseline))
+      || preflight.baseline.target?.user !== 'postgres'
+      || preflight.baseline.target?.schema !== 'public') {
+    throw new Error('refuse: preflight baseline identity or digest is invalid')
+  }
+  if (canonicalJson(preflight.baseline.target) !== canonicalJson(preflight.target)) {
+    throw new Error('refuse: artifact target does not match its baseline identity')
+  }
+  const snapshotLedger = snapshot.tables?.migrations
+  if (!Array.isArray(snapshotLedger)
+      || snapshotLedger.length !== snapshot.baseline?.migrationLedger?.rowCount
+      || sha256(canonicalJson(snapshotLedger)) !== snapshot.baseline?.migrationLedger?.sha256) {
+    throw new Error('refuse: snapshot migration ledger rows do not match the baseline')
+  }
+  await verifyDependencyBackup(snapshot, options.snapshotPath, repositoryRoot)
+  if (snapshot.dependencyBackup.rowCount !== snapshot.baseline?.dependency?.rowCount
+      || snapshot.dependencyBackup.sha256 !== snapshot.baseline?.dependency?.fullRowsSha256) {
+    throw new Error('refuse: Dependency backup rows do not match the baseline evidence')
+  }
 
-  const connectionString = dependencies.connectionString ?? process.env.DIRECT_URL ?? process.env.DATABASE_URL
-  if (!connectionString || !/^postgres(?:ql)?:/i.test(connectionString)) throw new Error('refuse: DIRECT_URL or DATABASE_URL must be a PostgreSQL URL')
-
-  const client = dependencies.client ?? new pg.Client({
-    connectionString,
-    ssl: connectionString.includes('supabase') ? { rejectUnauthorized: false } : undefined,
-    connectionTimeoutMillis: 10_000,
-  })
+  const client = dependencies.client ?? new pg.Client(createDirectClientConfig(connectionString, PRODUCTION_PROJECT_REF))
   await client.connect()
   try {
-    const identity = (await client.query(`
-      select current_user as user,
-             current_database() as database,
-             current_schema() as schema,
-             current_setting('server_version') as server_version
-    `)).rows[0]
-    if (identity.user !== 'postgres') throw new Error(`refuse: migration connection must be postgres, got ${identity.user}`)
-    const results = await applyPlan(client, options.apply)
+    const results = await runReconciliationPlan(client, {
+      apply: options.apply,
+      target,
+      expectedBaseline: preflight,
+      plan: PIPELINE_BUILDER_PLAN,
+      requirePriorReconciliation: true,
+    })
     const output = {
       status: options.apply ? 'APPLIED' : 'DRY_RUN_ROLLED_BACK',
       projectRef: PRODUCTION_PROJECT_REF,
-      database: identity.database,
-      schema: identity.schema,
-      serverVersionMajor: identity.server_version.split('.')[0],
+      target: preflight.target,
+      baselineId: preflight.baselineId,
       migrationCount: results.length,
       results,
     }

@@ -105,6 +105,7 @@ status: generated
 - [apps/server/tests/integration/pipeline-sqlite-recovery.test.js](../../../apps/server/tests/integration/pipeline-sqlite-recovery.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/plan-delta-moves.test.js](../../../apps/server/tests/integration/plan-delta-moves.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/production-migration-isolated-postgres.test.js](../../../apps/server/tests/integration/production-migration-isolated-postgres.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/postgres/pipeline-handoff-races.test.js](../../../apps/server/tests/postgres/pipeline-handoff-races.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`transitive`)

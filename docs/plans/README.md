@@ -1,9 +1,9 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.3"
-checked_at: "2026-10-23"
-checked_base_revision: "fa10e309ac1e2833ad518f5432e921a5822d5d4d"
+version: "0.3.5"
+checked_at: "2026-10-25"
+checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
 
 # Plans location and retained sources
@@ -23,21 +23,25 @@ rewrite those pinned rows or move their consumed paths.
 ## Current implementation plans
 
 The owner approved the linked PM SRS and explicitly requested the following
-plans on 2026-10-23, then approved the package at `c291afcd` and authorized A1
-with tests and independent review first. Tracks B/C remain unstarted; Pipeline
-contract adoption remains separate. These are ordinary implementation documents,
-separate from retired DDC procedures.
+plans on 2026-10-23, then approved the package at `c291afcd` and authorized A1.
+A1 and B1–B4 are merged; Pipeline Builder C0 was adopted and C1–C4 were merged.
+PR #745 records bounded isolated UAT on main. `TASK-FEAT-007` remains
+`in_progress` in the roadmap.
+Canonical lifecycle adoption and production migration remain separate gates.
+These are ordinary implementation documents, separate from retired DDC
+procedures.
 
 | Plan | Scope |
 |---|---|
 | [Project Manager plan index](PROJECT-MANAGER-IMPLEMENTATION-20261023.md) | Approved SRS baseline, remaining-work disposition, dependencies and execution/release limits. |
 | [PM approval verification](PM-APPROVAL-VERIFICATION-20261023.md) | FR-272 real PostgreSQL concurrency and audit-rollback evidence. |
 | [Existing PM delivery qualification](PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md) | Source reconciliation, Feature role/recovery proof, strategy/bootstrap qualification and selected release. |
-| [Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | Contract adoption before the four design-gated FR-082–085 implementation slices. |
+| [Pipeline Builder](PM-PIPELINE-BUILDER-20261023.md) | C0–C4 implementation and bounded isolated UAT evidence for FR-082–085; production remains separate. |
 
-The selected base contained fourteen tracked direct files and no child
-directories. This approved plan adds one document on disk; the current patch
-therefore contains fifteen direct files and no child directories.
+The 2026-10-23 selected base contained fourteen tracked direct files and no
+child directories. Two standalone implementation plans were indexed after
+that base. The current filesystem has seventeen direct files: sixteen already
+on `189fb41a` plus this approved tooling plan.
 
 ## Approved implementation plans
 
@@ -49,6 +53,17 @@ implementation or runtime acceptance has occurred.
 |---|---|
 | [Main-dev LINE local Ollama](LINE-LOCAL-OLLAMA-MAIN-DEV-20261023.md) | Approved default-off, allowlisted keyless Ollama selection for the isolated main-dev LINE test, with production provider denials preserved; implementation and runtime acceptance remain pending. |
 | [MSP retention scheduler](MSP-RETENTION-SCHEDULER-20261024.md) | Owner-requested nightly API-011 maintenance and qualification; production memory activation waits for retention acceptance and real LINE UAT. |
+
+## Approved production migration tooling plan
+
+The following plan is approved for the exact Pipeline Builder migration's
+operator-tool implementation and isolated qualification. It is not approval to
+connect to or mutate production. ADR-104 scope acceptance and a separate exact
+apply authorization remain required before any production write.
+
+| Plan | Scope |
+|---|---|
+| [Pipeline Builder production migration](PM-PIPELINE-PRODUCTION-MIGRATION-20261025.md) | Approved operator-tool implementation and isolated qualification for the single nullable `Dependency.contractJson` migration; production access/apply and application release remain separate gates. |
 
 ## Retained files
 
@@ -95,3 +110,9 @@ contracts; no application work or production activation is recorded as done.
 
 0.3.1 (2026-10-23): record owner approval of the package and selection of A1; preserve the separate Pipeline and release gates.
 0.3.2 (2026-10-23): refresh this inventory at `fa10e309` and index the pending main-dev local Ollama plan without changing delivery state.
+
+0.3.3 → 0.3.4 (2026-10-25): refresh the index on main after PR #745, correct PM
+plan status links to the roadmap, and add a separately proposed Pipeline Builder
+production migration plan without granting production authority.
+0.3.5 (2026-10-25): record approval for bounded operator-tool implementation
+and isolated qualification; production connection/apply authority remains closed.
