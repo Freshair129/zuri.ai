@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1.7
 # @spec ADR-075 — keep the worker runtime pinned while applying a bounded helper overlay.
 # @tested tests/unit/ki17-embedder-only-overlay.test.js
+# Use BuildKit's bundled Dockerfile frontend so this offline build does not resolve a remote syntax image.
 # Main-dev qualification only. This recipe does not alter the app image, default
 # KI17 pin receipt, model, worker entrypoint, environment, or Compose configuration.
 FROM base-image

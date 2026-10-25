@@ -480,7 +480,11 @@ OCI root digest, every blob digest and size, the `linux/amd64` manifest/config,
 and all 26 rootfs diff IDs against Docker's inspection of the same RepoDigest.
 It supplies the verified local layout as the digest-pinned `base-image` build
 context; this avoids asking BuildKit to resolve the private local repository
-name against Docker Hub. The original RepoDigest stays in the receipt and image
+name against Docker Hub. The OCI context URI keeps a Windows drive path directly
+after `oci-layout://` and leaves spaces unescaped because Buildx parses its
+suffix as a filesystem path rather than URL-decoding it. The Dockerfile uses
+BuildKit's bundled frontend instead of resolving a remote `#syntax` image. The
+original RepoDigest stays in the receipt and image
 label; the builder does not replace it with a mutable tag. It also checks the
 old helper hash, stdio MSP/GKS/GenesisBlock tuple and E5 model revision, then
 creates a deterministic `main-dev-e5-batch32` local tag. The Docker recipe

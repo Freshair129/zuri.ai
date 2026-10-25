@@ -567,11 +567,20 @@ export function buildDockerArgs({ tag, configurationCommit, helperSourceCommit, 
 }
 
 export function ociLayoutContextUri(layoutDir, digest) {
+  return ociLayoutContextUriFromAbsolutePath(path.resolve(layoutDir), digest)
+}
+
+export function ociLayoutContextUriFromAbsolutePath(absolutePath, digest) {
   if (!/^sha256:[0-9a-f]{64}$/.test(String(digest))) fail('KI17_EMBEDDER_BASE_DIGEST_INVALID', 'local OCI context digest must be a full sha256 digest')
-  const absolute = path.resolve(layoutDir).replaceAll('\\', '/')
-  const uriPath = /^[A-Za-z]:\//.test(absolute) ? `/${absolute}` : absolute
-  const encodedPath = uriPath.split('/').map((segment) => /^[A-Za-z]:$/.test(segment) ? segment : encodeURIComponent(segment)).join('/')
-  return `oci-layout://${encodedPath}@${digest}`
+  if (typeof absolutePath !== 'string' || !absolutePath.trim()) fail('KI17_EMBEDDER_BASE_LAYOUT_INVALID', 'local OCI context path must be absolute')
+  const normalized = absolutePath.replaceAll('\\', '/')
+  if (!normalized.startsWith('/') && !/^[A-Za-z]:\//.test(normalized)) {
+    fail('KI17_EMBEDDER_BASE_LAYOUT_INVALID', 'local OCI context path must be absolute')
+  }
+  // Buildx strips exactly `oci-layout://` before parsing the path. Keep a Windows
+  // drive at character 0 (`C:/...`) so its colon is recognized as a drive, and
+  // leave spaces unescaped because the OCI-layout parser does not URL-decode.
+  return `oci-layout://${normalized}@${digest}`
 }
 
 function createContext(source, receipt, workDir) {

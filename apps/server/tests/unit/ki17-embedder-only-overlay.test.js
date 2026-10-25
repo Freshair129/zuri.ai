@@ -25,6 +25,7 @@ import {
   buildPlan,
   extractDockerOciArchive,
   ociLayoutContextUri,
+  ociLayoutContextUriFromAbsolutePath,
   validateLocalOciLayout,
   verifySourceCheckout,
 } from '../../scripts/build-ki17-embedder-only.mjs'
@@ -361,6 +362,21 @@ describe('KI17 helper-only main-dev image overlay', () => {
     expect(plan).toMatchObject({ deploys: false, pushes: false, tag })
   })
 
+  it('formats local OCI contexts for Buildx Windows and POSIX path parsing without escaping filesystem paths', () => {
+    const digest = BASE_IMAGE_DIGEST
+    const windowsUri = ociLayoutContextUriFromAbsolutePath('C:/Users/test user/AppData/Local/Temp/base layout', digest)
+    const windowsPath = windowsUri.slice('oci-layout://'.length).split('@')[0]
+    expect(windowsUri).toBe(`oci-layout://C:/Users/test user/AppData/Local/Temp/base layout@${digest}`)
+    expect(windowsPath).toBe('C:/Users/test user/AppData/Local/Temp/base layout')
+    expect(windowsPath.indexOf(':')).toBe(1)
+    expect(windowsPath[2]).toBe('/')
+    expect(windowsUri).not.toContain('%20')
+
+    const posixUri = ociLayoutContextUriFromAbsolutePath('/tmp/test user/base layout', digest)
+    expect(posixUri).toBe(`oci-layout:///tmp/test user/base layout@${digest}`)
+    expect(() => ociLayoutContextUriFromAbsolutePath('relative/base-layout', digest)).toThrow(/BASE_LAYOUT_INVALID/)
+  })
+
   it('extracts the daemon-saved OCI layout only when the pinned digest, every blob, and inspected platform agree', () => {
     const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ki17-oci-extract-test-'))
     try {
@@ -404,6 +420,7 @@ describe('KI17 helper-only main-dev image overlay', () => {
   it('copies only the embedder helper and separate overlay receipt while preserving inherited runtime settings', () => {
     const commands = recipe.split(/\r?\n/).filter((line) => !line.trimStart().startsWith('#')).join('\n')
     const copyLines = commands.split('\n').filter((line) => /^COPY\s/.test(line.trim()))
+    expect(recipe).not.toMatch(/^\s*#\s*syntax=/m)
     expect(commands).toContain('FROM base-image')
     expect(commands).toContain(`ARG BASE_IMAGE=${BASE_IMAGE_REF}`)
     expect(commands).not.toMatch(/^FROM .*zuri-ai-main-dev-genesis-worker@/m)
