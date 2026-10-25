@@ -1,5 +1,5 @@
 ---
-version: "0.20.0"
+version: "0.21.0"
 status: active
 superseded_by: null
 ---
@@ -128,6 +128,7 @@ kit outside this execution repository.
 ## Existing source entrypoints
 
 - [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md)
+- [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
@@ -165,3 +166,7 @@ Version diff 0.18.0 → 0.19.0 (2026-10-25): links the separate 37-row economy P
 Version diff 0.19.0 → 0.20.0 (2026-10-25): links the paired E5 fixed-batch
 resource experiment; embedding vectors and native retrieval results match,
 with no application or production change.
+
+Version diff 0.20.0 → 0.21.0 (2026-10-26): links the data-flow atlas as a visual
+companion to the canonical data-pipeline map; the atlas does not establish
+production acceptance or replace its source registry.
