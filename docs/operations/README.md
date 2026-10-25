@@ -57,6 +57,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [PM Approval Gateway Verification Implementation Plan](../plans/PM-APPROVAL-VERIFICATION-20261023.md)
 - [Existing PM Delivery Qualification Implementation Plan](../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md)
 - [Project Manager Pipeline Builder Implementation Plan](../plans/PM-PIPELINE-BUILDER-20261023.md)
+- [Project Manager Pipeline Builder production migration plan](../plans/PM-PIPELINE-PRODUCTION-MIGRATION-20261025.md)
 - [Project Manager Remaining Implementation Plan](../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
 - [Plans location and retained sources](../plans/README.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)

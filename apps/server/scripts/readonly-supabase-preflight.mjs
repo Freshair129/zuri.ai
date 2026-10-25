@@ -1,31 +1,28 @@
 import pg from 'pg'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { assertOutsideRepository, buildHashedArtifact, captureDatabaseBaseline, sha256 } from './production-migration-evidence.mjs'
+import { createDirectClientConfig, resolveDirectTarget } from './production-migration-target.mjs'
 
 // @req FR-051, FR-071 — remote migration preflight inventories scope, schema,
 // grants, RLS and current destination evidence without performing a write.
 // @spec ADR-018 D7/D8 — read-only evidence precedes any Supabase mutation.
 
-const { Pool } = pg
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL
+const connectionString = process.env.DIRECT_URL
 const outputPath = process.argv[2] || null
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
+const REPOSITORY_ROOT = path.resolve(SCRIPT_DIR, '../../..')
 
-if (!connectionString) {
-  console.error('READ_ONLY_PREFLIGHT_FAILED: missing database connection environment')
-  process.exit(1)
-}
+const target = resolveDirectTarget(connectionString)
+const resolvedOutputPath = outputPath ? assertOutsideRepository(outputPath, REPOSITORY_ROOT) : null
+if (!resolvedOutputPath) throw new Error('READ_ONLY_PREFLIGHT_FAILED: output path is required')
+if (fs.existsSync(resolvedOutputPath)) throw new Error('READ_ONLY_PREFLIGHT_FAILED: output path already exists')
 
-const pool = new Pool({
-  connectionString,
-  ssl: connectionString.includes('supabase') ? { rejectUnauthorized: false } : undefined,
-  max: 1,
-  connectionTimeoutMillis: 10_000,
-  query_timeout: 20_000,
-})
+const client = new pg.Client({ ...createDirectClientConfig(connectionString), query_timeout: 20_000 })
 
 const report = {
   mode: 'READ_ONLY',
-  projectRef: 'qcnmhyglarzcpudjorzc',
   generatedAt: new Date().toISOString(),
   backupEvidence: 'UNAVAILABLE_FROM_DATABASE_ONLY',
   queries: {},
@@ -33,7 +30,7 @@ const report = {
 
 async function query(name, text, values = []) {
   try {
-    const result = await pool.query(text, values)
+    const result = await client.query(text, values)
     report.queries[name] = { status: 'OK', rows: result.rows }
   } catch (error) {
     report.queries[name] = { status: 'UNAVAILABLE', code: error?.code || 'UNKNOWN' }
@@ -41,11 +38,15 @@ async function query(name, text, values = []) {
 }
 
 try {
-  await query('connection', `
-    select current_database() as database,
-           current_user as user,
-           current_schema() as schema
-  `)
+  await client.connect()
+  await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
+  const evidence = await captureDatabaseBaseline(client, target)
+  report.projectRef = target.projectRef
+  report.target = evidence.identity
+  report.baseline = evidence.baseline
+  report.baselineId = evidence.baselineId
+  report.timing = evidence.timing
+  report.queries.connection = { status: 'OK', rows: [evidence.identity] }
   await query('schemas', `
     select nspname as schema
     from pg_namespace
@@ -157,12 +158,26 @@ try {
     from pg_extension
     order by extname
   `)
-  const serialized = JSON.stringify(report, null, 2) + '\n'
-  if (outputPath) {
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-    fs.writeFileSync(outputPath, serialized, 'utf8')
-  }
-  console.log(serialized)
+  const unavailable = Object.entries(report.queries)
+    .filter(([, result]) => result.status !== 'OK')
+    .map(([name]) => name)
+  if (unavailable.length > 0) throw new Error(`preflight query unavailable: ${unavailable.join(',')}`)
+  await client.query('COMMIT')
+  const artifact = buildHashedArtifact(report)
+  const serialized = JSON.stringify(artifact, null, 2) + '\n'
+  fs.mkdirSync(path.dirname(resolvedOutputPath), { recursive: true })
+  fs.writeFileSync(resolvedOutputPath, serialized, { encoding: 'utf8', flag: 'wx' })
+  console.log(JSON.stringify({
+    status: 'VERIFIED_READ_ONLY_PREFLIGHT',
+    outputPath: resolvedOutputPath,
+    fileSha256: sha256(Buffer.from(serialized, 'utf8')),
+    baselineId: evidence.baselineId,
+    target: evidence.identity,
+  }, null, 2))
+} catch (error) {
+  await client.query('ROLLBACK').catch(() => {})
+  console.error(`READ_ONLY_PREFLIGHT_FAILED: ${error?.code || 'TARGET_OR_QUERY_REJECTED'}`)
+  process.exitCode = 1
 } finally {
-  await pool.end()
+  await client.end().catch(() => {})
 }

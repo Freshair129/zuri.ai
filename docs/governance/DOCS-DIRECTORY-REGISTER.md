@@ -1,9 +1,9 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.1"
-checked_at: "2026-10-22"
-checked_base_revision: "1f1e5a0a7591f4e42646ebc33e78654a4e3477be"
+version: "0.3.3"
+checked_at: "2026-10-25"
+checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
 
 # Direct directories under `docs/`
@@ -24,7 +24,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 | [`governance/`](../governance/README.md) | 1 / 0 | [Documentation entrypoint](../README.md) and [generated governance navigation](../governance/README.md) | The main documentation index links the new profile and filesystem registers; the generated view remains unchanged in this no-generator pass. |
 | [`migrations/`](../migrations/) | 0 / 4 | [Operations index](../operations/README.md) | Generated operations view lists migration documents; each migration lane keeps its own authority and evidence. |
 | [`operations/`](../operations/README.md) | 1 / 0 | `README.md` | Generated operations navigation includes deployment, migrations, plans, and runbooks. |
-| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. After the 2026-10-23 cleanup and explicitly requested PM planning, current enumeration has nine retained sources, four approved PM plans and README (14 files). Legacy source-path exceptions are explicit in that index. |
+| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. At `189fb41a`, there are 16 tracked files: nine retained sources, four PM plans, two approved standalone implementation plans and README. This approved tooling plan brings the current patch's on-disk total to 17. Legacy source-path exceptions are explicit in that index. |
 | [`product/`](../product/README.md) | 1 / 0 | `README.md` | Generated product navigation. |
 | [`prompts/`](../prompts/README.md) | 1 / 0 | `README.md` | Added an index marking the only prompt as historical and non-authorizing. |
 | [`requirements/`](../requirements/) | 345 / 0 | [Canonical document registry](../../registry/document-registry/index.json) | Registry owns requirement paths; no second ID list. |
@@ -56,3 +56,10 @@ relocation; folder names alone do not authorize their deletion.
 0.0 → 0.1.1 (2026-10-22): Enumerates all 20 direct documentation folders, resolves each folder to a local, generated, or canonical entrypoint, classifies the prompt artifact, and records exact-copy evidence without deleting provenance.
 
 0.3.1 (2026-10-23): reconcile current plan approval wording; filesystem counts and historical base are unchanged.
+
+0.3.2 (2026-10-25): refresh the plans-folder enumeration at main after PR #745
+and index the proposed production migration plan; historical reviewed-base
+counts and other directory classifications remain unchanged.
+
+0.3.3 (2026-10-25): record approval of the bounded operator-tool and isolated
+qualification plan; the production connection and apply gates remain closed.

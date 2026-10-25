@@ -1,28 +1,34 @@
-import crypto from 'node:crypto'
+import pg from 'pg'
 import fs from 'node:fs'
 import path from 'node:path'
-import pg from 'pg'
+import { fileURLToPath } from 'node:url'
+import {
+  assertOutsideRepository,
+  buildHashedArtifact,
+  captureDatabaseBaseline,
+  sha256,
+} from './production-migration-evidence.mjs'
+import { createDirectClientConfig, resolveDirectTarget } from './production-migration-target.mjs'
 
 // @req FR-051, FR-071 — preserve a verified rollback snapshot before a
 // production identity/data mutation.
 // @spec ADR-018 D7/D8 — logical backup precedes bounded migration writes.
 
-const { Pool } = pg
 const outputPath = process.argv[2]
-const connectionString = process.env.DIRECT_URL || process.env.DATABASE_URL
+const connectionString = process.env.DIRECT_URL
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url))
+const REPOSITORY_ROOT = path.resolve(SCRIPT_DIR, '../../..')
 
-if (!outputPath || !connectionString) {
-  console.error('READ_ONLY_BACKUP_FAILED: output path and database environment are required')
-  process.exit(1)
+if (!outputPath) throw new Error('READ_ONLY_BACKUP_FAILED: output path is required')
+if (!connectionString) throw new Error('READ_ONLY_BACKUP_FAILED: DIRECT_URL is required')
+
+const resolvedOutputPath = assertOutsideRepository(outputPath, REPOSITORY_ROOT)
+const dependencyPath = `${resolvedOutputPath}.dependency.ndjson`
+if (fs.existsSync(resolvedOutputPath) || fs.existsSync(dependencyPath)) {
+  throw new Error('READ_ONLY_BACKUP_FAILED: evidence output path already exists')
 }
-
-const pool = new Pool({
-  connectionString,
-  ssl: connectionString.includes('supabase') ? { rejectUnauthorized: false } : undefined,
-  max: 1,
-  connectionTimeoutMillis: 10_000,
-  query_timeout: 20_000,
-})
+const target = resolveDirectTarget(connectionString)
+const client = new pg.Client({ ...createDirectClientConfig(connectionString), query_timeout: 20_000 })
 
 const queries = {
   portfolio: `select id, code, name, status, created_at, updated_at, version from zuri_core.portfolio order by id`,
@@ -39,33 +45,72 @@ const queries = {
   lineChannelBinding: `select id, code, provider, tenant_id, business_id, status,
     valid_from, expires_at, rotated_at, created_at, updated_at, version
     from zuri_core.line_channel_binding order by id`,
-  migrations: `select version, name from supabase_migrations.schema_migrations order by version`,
 }
 
 const snapshot = {
-  schemaVersion: '1.0.0',
+  schemaVersion: '2.0.0',
   mode: 'READ_ONLY_LOGICAL_BACKUP',
-  projectRef: 'qcnmhyglarzcpudjorzc',
   capturedAt: new Date().toISOString(),
   redactions: ['line_channel_binding.external_channel_id_hash', 'line_channel_binding.credential_hash'],
   tables: {},
 }
 
+let dependencyHandle
 try {
+  await client.connect()
+  await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY')
+  dependencyHandle = fs.openSync(dependencyPath, 'wx')
+  let rowBuffer = []
+  const evidence = await captureDatabaseBaseline(client, target, {
+    onDependencyRow: async (rowJson) => {
+      rowBuffer.push(`${rowJson}\n`)
+      if (rowBuffer.length >= 128) {
+        fs.writeSync(dependencyHandle, rowBuffer.join(''), null, 'utf8')
+        rowBuffer = []
+      }
+    },
+  })
+  if (rowBuffer.length > 0) fs.writeSync(dependencyHandle, rowBuffer.join(''), null, 'utf8')
+  fs.fsyncSync(dependencyHandle)
+  fs.closeSync(dependencyHandle)
+  dependencyHandle = undefined
+
   for (const [name, sql] of Object.entries(queries)) {
-    const result = await pool.query(sql)
+    const result = await client.query(sql)
     snapshot.tables[name] = result.rows
   }
-  const canonical = JSON.stringify(snapshot)
-  snapshot.sha256 = crypto.createHash('sha256').update(canonical, 'utf8').digest('hex')
-  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-  fs.writeFileSync(outputPath, JSON.stringify(snapshot, null, 2) + '\n', 'utf8')
+  snapshot.tables.migrations = evidence.migrationHistory
+  snapshot.projectRef = target.projectRef
+  snapshot.target = evidence.identity
+  snapshot.baseline = evidence.baseline
+  snapshot.baselineId = evidence.baselineId
+  snapshot.dependencyBackup = {
+    file: path.basename(dependencyPath),
+    rowCount: evidence.baseline.dependency.rowCount,
+    sha256: evidence.baseline.dependency.fullRowsSha256,
+  }
+  await client.query('COMMIT')
+
+  const artifact = buildHashedArtifact(snapshot)
+  const serialized = `${JSON.stringify(artifact, null, 2)}\n`
+  fs.mkdirSync(path.dirname(resolvedOutputPath), { recursive: true })
+  fs.writeFileSync(resolvedOutputPath, serialized, { encoding: 'utf8', flag: 'wx' })
+  const dependencySha256 = evidence.baseline.dependency.fullRowsSha256
   console.log(JSON.stringify({
     status: 'VERIFIED_READ_ONLY_SNAPSHOT',
-    outputPath,
-    sha256: snapshot.sha256,
+    outputPath: resolvedOutputPath,
+    fileSha256: sha256(Buffer.from(serialized, 'utf8')),
+    dependencyPath,
+    dependencySha256,
+    baselineId: evidence.baselineId,
+    target: evidence.identity,
     counts: Object.fromEntries(Object.entries(snapshot.tables).map(([name, rows]) => [name, rows.length])),
-  }))
+  }, null, 2))
+} catch (error) {
+  if (dependencyHandle !== undefined) fs.closeSync(dependencyHandle)
+  await client.query('ROLLBACK').catch(() => {})
+  console.error(`READ_ONLY_BACKUP_FAILED: ${error?.code || 'TARGET_OR_QUERY_REJECTED'}`)
+  process.exitCode = 1
 } finally {
-  await pool.end()
+  await client.end().catch(() => {})
 }
