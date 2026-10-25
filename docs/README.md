@@ -1,5 +1,5 @@
 ---
-version: "0.6.0"
+version: "0.7.0"
 status: active
 superseded_by: null
 ---
@@ -111,6 +111,7 @@ kit outside this execution repository.
 ## Existing source entrypoints
 
 - [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md)
+- [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
@@ -125,3 +126,7 @@ separate.
 Version diff 0.5.0 → 0.6.0 (2026-10-23): links the dated code/requirements
 assessment and the explicit plan-cleanup inventory. Canonical authority and
 delivery status remain in their existing sources.
+
+Version diff 0.6.0 → 0.7.0 (2026-10-26): links the data-flow atlas as a visual
+companion to the canonical data-pipeline map; it does not establish production
+acceptance or replace the source registry.
