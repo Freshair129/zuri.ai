@@ -3,11 +3,10 @@
 # @tested tests/unit/ki17-embedder-only-overlay.test.js
 # Main-dev qualification only. This recipe does not alter the app image, default
 # KI17 pin receipt, model, worker entrypoint, environment, or Compose configuration.
-ARG BASE_IMAGE=zuri-ai-main-dev-genesis-worker@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7
-FROM ${BASE_IMAGE}
+FROM base-image
 
 USER root
-ARG BASE_IMAGE
+ARG BASE_IMAGE=zuri-ai-main-dev-genesis-worker@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7
 ARG CONFIGURATION_COMMIT
 ARG HELPER_SOURCE_COMMIT
 ARG HELPER_SOURCE_SHA256

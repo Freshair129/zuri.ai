@@ -474,13 +474,21 @@ node scripts/build-ki17-embedder-only.mjs `
 The builder checks the official repository origin, exact clean source commit,
 Git blob and LF-byte hash. It also requires the local immutable base
 `zuri-ai-main-dev-genesis-worker@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7`,
-checks its old helper hash, stdio MSP/GKS/GenesisBlock tuple and E5 model
-revision, then creates a deterministic `main-dev-e5-batch32` local tag. The
-Docker recipe verifies the base receipt before copying and the helper receipt
-afterward. It preserves the worker command, runtime environment, default pin
-files and model contract. It does not start Compose or push an image. Inspect
-the separate receipt and profile label before any later main-dev switch; do not
-describe this image as a new GenesisBlock commit pin.
+then exports that exact digest to a temporary local OCI layout with
+`docker image save`. Before BuildKit sees it, the builder checks the exported
+OCI root digest, every blob digest and size, the `linux/amd64` manifest/config,
+and all 26 rootfs diff IDs against Docker's inspection of the same RepoDigest.
+It supplies the verified local layout as the digest-pinned `base-image` build
+context; this avoids asking BuildKit to resolve the private local repository
+name against Docker Hub. The original RepoDigest stays in the receipt and image
+label; the builder does not replace it with a mutable tag. It also checks the
+old helper hash, stdio MSP/GKS/GenesisBlock tuple and E5 model revision, then
+creates a deterministic `main-dev-e5-batch32` local tag. The Docker recipe
+verifies the base receipt before copying and the helper receipt afterward. It
+preserves the worker command, runtime environment, default pin files and model
+contract. It does not start Compose or push an image. Inspect the separate
+receipt and profile label before any later main-dev switch; do not describe this
+image as a new GenesisBlock commit pin.
 
 #### Main-dev switch and rollback boundary
 

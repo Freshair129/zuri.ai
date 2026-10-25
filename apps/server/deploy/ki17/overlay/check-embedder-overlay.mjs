@@ -10,6 +10,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const BASE_IMAGE_REF = 'zuri-ai-main-dev-genesis-worker@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7'
+export const BASE_IMAGE_DIGEST = BASE_IMAGE_REF.slice(BASE_IMAGE_REF.lastIndexOf('@') + 1)
 export const BASE_EMBEDDER_SHA256 = 'dd7e9e51f61faf5a3d6d0bbe894c8c75b235f589c0906ca952c790afeb555e35'
 export const BASE_GENESISBLOCK_COMMIT = '5156f412da73905a23d74775a82cc14d1f6d04d0'
 export const HELPER_REPOSITORY = 'Freshair129/GenesisBlock'
@@ -102,6 +103,26 @@ export function validateOverlay({
     fail('KI17_EMBEDDER_OVERLAY_RECEIPT_INVALID', 'the receipt must identify schema v1 and the main-dev-only profile')
   }
   if (receipt?.base?.imageRef !== BASE_IMAGE_REF) fail('KI17_EMBEDDER_OVERLAY_BASE_REFERENCE_MISMATCH', 'receipt does not name the qualified immutable base image')
+  const localOciLayout = receipt?.base?.localOciLayout
+  if (localOciLayout?.indexDigest !== BASE_IMAGE_DIGEST || localOciLayout?.platform !== 'linux/amd64') {
+    fail('KI17_EMBEDDER_OVERLAY_BASE_LAYOUT_MISMATCH', 'receipt does not bind the local OCI layout to the qualified digest and platform')
+  }
+  requireString(localOciLayout?.manifestDigest, /^sha256:[0-9a-f]{64}$/, 'base.localOciLayout.manifestDigest')
+  requireString(localOciLayout?.configDigest, /^sha256:[0-9a-f]{64}$/, 'base.localOciLayout.configDigest')
+  requireString(localOciLayout?.daemonImageId, /^sha256:[0-9a-f]{64}$/, 'base.localOciLayout.daemonImageId')
+  if (![localOciLayout.indexDigest, localOciLayout.manifestDigest, localOciLayout.configDigest].includes(localOciLayout.daemonImageId)) {
+    fail('KI17_EMBEDDER_OVERLAY_BASE_LAYOUT_MISMATCH', 'daemon image ID must bind to the OCI index, platform manifest, or image config digest')
+  }
+  if (!Array.isArray(localOciLayout?.layerDigests) || localOciLayout.layerDigests.length === 0 ||
+      !Array.isArray(localOciLayout?.rootFsDiffIds) || localOciLayout.rootFsDiffIds.length !== localOciLayout.layerDigests.length) {
+    fail('KI17_EMBEDDER_OVERLAY_BASE_LAYOUT_MISMATCH', 'receipt must bind every selected image layer and root filesystem diff ID')
+  }
+  for (const [index, digest] of localOciLayout.layerDigests.entries()) {
+    requireString(digest, /^sha256:[0-9a-f]{64}$/, `base.localOciLayout.layerDigests[${index}]`)
+  }
+  for (const [index, digest] of localOciLayout.rootFsDiffIds.entries()) {
+    requireString(digest, /^sha256:[0-9a-f]{64}$/, `base.localOciLayout.rootFsDiffIds[${index}]`)
+  }
   if (receipt?.base?.profile !== 'stdio') fail('KI17_EMBEDDER_OVERLAY_BASE_PROFILE_MISMATCH', 'receipt does not bind the inherited stdio profile')
   if (receipt?.base?.previousEmbedderSha256 !== BASE_EMBEDDER_SHA256) fail('KI17_EMBEDDER_OVERLAY_BASE_HELPER_MISMATCH', 'receipt does not bind the helper already present in the base image')
 

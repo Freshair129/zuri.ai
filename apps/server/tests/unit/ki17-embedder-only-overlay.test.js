@@ -1,11 +1,12 @@
 import { createHash } from 'node:crypto'
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { describe, expect, it } from 'vitest'
 
 import {
   BASE_EMBEDDER_SHA256,
+  BASE_IMAGE_DIGEST,
   BASE_GENESISBLOCK_COMMIT,
   BASE_IMAGE_REF,
   CANDIDATE_TAG_PREFIX,
@@ -22,6 +23,9 @@ import {
   assertSourceDescriptor,
   buildDockerArgs,
   buildPlan,
+  extractDockerOciArchive,
+  ociLayoutContextUri,
+  validateLocalOciLayout,
   verifySourceCheckout,
 } from '../../scripts/build-ki17-embedder-only.mjs'
 
@@ -46,6 +50,117 @@ const expectedRuntime = {
   python: '3.12',
   modelRepository: 'intfloat/multilingual-e5-small',
   modelRevision: '614241f622f53c4eeff9890bdc4f31cfecc418b3',
+}
+
+function digest(bytes) {
+  return `sha256:${createHash('sha256').update(bytes).digest('hex')}`
+}
+
+function descriptor(bytes, mediaType) {
+  return { mediaType, digest: digest(bytes), size: bytes.length }
+}
+
+function octal(value, width) {
+  return `${value.toString(8).padStart(width - 1, '0')}\0`
+}
+
+function tarEntry(name, content = Buffer.alloc(0), type = '0') {
+  const header = Buffer.alloc(512)
+  header.write(name, 0, 100, 'utf8')
+  header.write('0000644\0', 100, 8, 'ascii')
+  header.write('0000000\0', 108, 8, 'ascii')
+  header.write('0000000\0', 116, 8, 'ascii')
+  header.write(octal(content.length, 12), 124, 12, 'ascii')
+  header.write('00000000000\0', 136, 12, 'ascii')
+  header.fill(0x20, 148, 156)
+  header[156] = type.charCodeAt(0)
+  header.write('ustar\0', 257, 6, 'ascii')
+  header.write('00', 263, 2, 'ascii')
+  const checksum = header.reduce((sum, byte) => sum + byte, 0)
+  header.write(`${checksum.toString(8).padStart(6, '0')}\0 `, 148, 8, 'ascii')
+  const padding = Buffer.alloc((512 - content.length % 512) % 512)
+  return [header, content, padding]
+}
+
+function makeOciArchive(tempDir, { tamperBlob = false } = {}) {
+  const layerBytes = Buffer.from('offline-image-layer-fixture')
+  const diffId = digest(Buffer.from('unpacked-rootfs-layer-fixture'))
+  const configBytes = Buffer.from(JSON.stringify({
+    os: 'linux',
+    architecture: 'amd64',
+    config: { Cmd: ['node', 'worker.js'], User: 'node' },
+    rootfs: { type: 'layers', diff_ids: [diffId] },
+  }))
+  const layerDescriptor = descriptor(layerBytes, 'application/vnd.oci.image.layer.v1.tar+gzip')
+  const configDescriptor = descriptor(configBytes, 'application/vnd.oci.image.config.v1+json')
+  const manifestBytes = Buffer.from(JSON.stringify({
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.manifest.v1+json',
+    config: configDescriptor,
+    layers: [layerDescriptor],
+  }))
+  const childIndexBytes = Buffer.from(JSON.stringify({
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.index.v1+json',
+    manifests: [{
+      ...descriptor(manifestBytes, 'application/vnd.oci.image.manifest.v1+json'),
+      platform: { os: 'linux', architecture: 'amd64' },
+    }],
+  }))
+  const childIndexDescriptor = descriptor(childIndexBytes, 'application/vnd.oci.image.index.v1+json')
+  const rootIndexBytes = Buffer.from(JSON.stringify({
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.index.v1+json',
+    manifests: [childIndexDescriptor],
+  }))
+  const imageRef = `fixture.invalid/ki17-base@${digest(rootIndexBytes)}`
+  const indexBytes = Buffer.from(JSON.stringify({
+    schemaVersion: 2,
+    mediaType: 'application/vnd.oci.image.index.v1+json',
+    manifests: [descriptor(rootIndexBytes, 'application/vnd.oci.image.index.v1+json')],
+  }))
+  const blobs = new Map([
+    [rootIndexBytes, digest(rootIndexBytes)],
+    [childIndexBytes, digest(childIndexBytes)],
+    [manifestBytes, digest(manifestBytes)],
+    [configBytes, digest(configBytes)],
+    [layerBytes, digest(layerBytes)],
+  ])
+  const entries = [
+    tarEntry('blobs/', Buffer.alloc(0), '5'),
+    tarEntry('blobs/sha256/', Buffer.alloc(0), '5'),
+    tarEntry('oci-layout', Buffer.from('{"imageLayoutVersion":"1.0.0"}')),
+    tarEntry('index.json', indexBytes),
+  ]
+  for (const [bytes, blobDigest] of blobs) {
+    const data = tamperBlob && blobDigest === layerDescriptor.digest ? Buffer.from('tampered-image-layer') : bytes
+    entries.push(tarEntry(`blobs/sha256/${blobDigest.slice('sha256:'.length)}`, data))
+  }
+  entries.push(tarEntry('manifest.json', Buffer.from('[]')))
+  const archivePath = path.join(tempDir, 'docker-image.tar')
+  writeFileSync(archivePath, Buffer.concat([...entries.flat(), Buffer.alloc(1024)]))
+  return {
+    archivePath,
+    imageRef,
+    imageInfo: {
+      imageId: digest(rootIndexBytes),
+      os: 'linux',
+      architecture: 'amd64',
+      platform: 'linux/amd64',
+      rootFsLayers: [diffId],
+      repoDigests: [imageRef],
+      config: { Cmd: ['node', 'worker.js'], User: 'node' },
+    },
+    expected: {
+      indexDigest: digest(rootIndexBytes),
+      daemonImageId: digest(rootIndexBytes),
+      manifestDigest: digest(manifestBytes),
+      configDigest: digest(configBytes),
+      platform: 'linux/amd64',
+      layerDigests: [layerDescriptor.digest],
+      rootFsDiffIds: [diffId],
+    },
+  }
 }
 
 function baseArtifacts(overrides = {}) {
@@ -79,6 +194,15 @@ function receiptFor(artifacts = baseArtifacts(), helper = sourceBytes) {
     configurationCommit,
     base: {
       imageRef: BASE_IMAGE_REF,
+      localOciLayout: {
+        indexDigest: BASE_IMAGE_DIGEST,
+        daemonImageId: BASE_IMAGE_DIGEST,
+        manifestDigest: `sha256:${'1'.repeat(64)}`,
+        configDigest: `sha256:${'2'.repeat(64)}`,
+        platform: 'linux/amd64',
+        layerDigests: [`sha256:${'3'.repeat(64)}`],
+        rootFsDiffIds: [`sha256:${'4'.repeat(64)}`],
+      },
       profile: 'stdio',
       pinsSha256: createHash('sha256').update(artifacts.pinsBytes).digest('hex'),
       resolvedSha256: createHash('sha256').update(artifacts.resolvedBytes).digest('hex'),
@@ -142,6 +266,11 @@ describe('KI17 helper-only main-dev image overlay', () => {
       resolvedBytes: artifacts.resolvedBytes, currentHelperBytes: sourceBytes,
       expectedSourceCommit: 'f'.repeat(40), expectedSourceSha256: sourceSha256,
     })).toThrow(/SOURCE_MISMATCH/)
+    const changedLayoutReceipt = { ...receipt, base: { ...receipt.base, localOciLayout: { ...receipt.base.localOciLayout, indexDigest: `sha256:${'f'.repeat(64)}` } } }
+    expect(() => validateOverlay({
+      phase: 'after', receipt: changedLayoutReceipt, pinsBytes: artifacts.pinsBytes,
+      resolvedBytes: artifacts.resolvedBytes, currentHelperBytes: sourceBytes,
+    })).toThrow(/BASE_LAYOUT_MISMATCH/)
 
     const changedPins = baseArtifacts({ pins: { runtime: { ...expectedRuntime, modelRevision: 'f'.repeat(40) } } })
     const changedPinsReceipt = receiptFor(changedPins)
@@ -210,6 +339,7 @@ describe('KI17 helper-only main-dev image overlay', () => {
     expect(() => assertBaseImageDigests(JSON.stringify(['zuri-ai-main-dev-genesis-worker:latest']))).toThrow(/BASE_DIGEST_MISMATCH/)
 
     const contextDir = 'C:/temporary/helper-context'
+    const baseLayoutDir = 'C:/temporary/base layout'
     const tag = `${CANDIDATE_TAG_PREFIX}${sourceCommit.slice(0, 8)}`
     const dockerArgs = buildDockerArgs({
       tag,
@@ -217,19 +347,66 @@ describe('KI17 helper-only main-dev image overlay', () => {
       helperSourceCommit: sourceCommit,
       helperSha256: sourceSha256,
       contextDir,
+      baseLayoutDir,
     })
-    const plan = buildPlan({ tag, configurationCommit, source: { commit: sourceCommit, sha256: sourceSha256 }, contextDir })
+    const plan = buildPlan({ tag, configurationCommit, source: { commit: sourceCommit, sha256: sourceSha256 }, contextDir, baseLayoutDir })
     expect(dockerArgs).toContain(`BASE_IMAGE=${BASE_IMAGE_REF}`)
     expect(dockerArgs).toContain(`helper-source=${contextDir}`)
+    expect(dockerArgs).toContain(`base-image=${ociLayoutContextUri(baseLayoutDir, BASE_IMAGE_DIGEST)}`)
+    expect(dockerArgs).toContain('--platform=linux/amd64')
+    expect(ociLayoutContextUri(baseLayoutDir, BASE_IMAGE_DIGEST)).toContain('@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7')
+    expect(ociLayoutContextUri(baseLayoutDir, BASE_IMAGE_DIGEST)).not.toContain('zuri-ai-main-dev-genesis-worker:')
     expect(dockerArgs).toContain(tag)
     expect(dockerArgs.join(' ')).not.toMatch(/compose|--push|push\s/)
     expect(plan).toMatchObject({ deploys: false, pushes: false, tag })
   })
 
+  it('extracts the daemon-saved OCI layout only when the pinned digest, every blob, and inspected platform agree', () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ki17-oci-extract-test-'))
+    try {
+      const fixture = makeOciArchive(tempDir)
+      const layoutDir = path.join(tempDir, 'layout')
+      const extracted = extractDockerOciArchive(fixture.archivePath, layoutDir, fixture)
+      expect(extracted).toEqual(fixture.expected)
+      expect(validateLocalOciLayout(layoutDir, fixture)).toEqual(fixture.expected)
+
+      expect(() => validateLocalOciLayout(layoutDir, {
+        ...fixture,
+        imageInfo: { ...fixture.imageInfo, config: { Cmd: ['node', 'other.js'], User: 'node' } },
+      })).toThrow(/BASE_LAYOUT_CONFIG_MISMATCH/)
+      expect(() => validateLocalOciLayout(layoutDir, {
+        ...fixture,
+        imageInfo: { ...fixture.imageInfo, imageId: `sha256:${'f'.repeat(64)}` },
+      })).toThrow(/BASE_IMAGE_ID_MISMATCH/)
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true })
+    }
+  })
+
+  it('rejects a Docker image archive with an altered blob or a different root digest', () => {
+    const tempDir = mkdtempSync(path.join(os.tmpdir(), 'ki17-oci-reject-test-'))
+    try {
+      const tampered = makeOciArchive(tempDir, { tamperBlob: true })
+      expect(() => extractDockerOciArchive(tampered.archivePath, path.join(tempDir, 'tampered-layout'), tampered)).toThrow(/BASE_ARCHIVE_BLOB_MISMATCH/)
+
+      const valid = makeOciArchive(tempDir)
+      const wrongImageRef = `fixture.invalid/ki17-base@sha256:${'f'.repeat(64)}`
+      expect(() => extractDockerOciArchive(valid.archivePath, path.join(tempDir, 'wrong-root-layout'), {
+        ...valid,
+        imageRef: wrongImageRef,
+        imageInfo: { ...valid.imageInfo, imageId: `sha256:${'f'.repeat(64)}`, repoDigests: [wrongImageRef] },
+      })).toThrow(/BASE_LAYOUT_DIGEST_MISMATCH/)
+    } finally {
+      rmSync(tempDir, { recursive: true, force: true })
+    }
+  })
+
   it('copies only the embedder helper and separate overlay receipt while preserving inherited runtime settings', () => {
     const commands = recipe.split(/\r?\n/).filter((line) => !line.trimStart().startsWith('#')).join('\n')
     const copyLines = commands.split('\n').filter((line) => /^COPY\s/.test(line.trim()))
+    expect(commands).toContain('FROM base-image')
     expect(commands).toContain(`ARG BASE_IMAGE=${BASE_IMAGE_REF}`)
+    expect(commands).not.toMatch(/^FROM .*zuri-ai-main-dev-genesis-worker@/m)
     expect(commands).toContain('KI17_EMBEDDER_BASE_IMAGE_MISMATCH')
     expect(copyLines).toHaveLength(3)
     expect(copyLines[0]).toContain('COPY --from=helper-source /embedder.py /tmp/e5-helper-overlay/embedder.py')
