@@ -1082,10 +1082,12 @@ function validateCustomerProductOptions(options) {
 const LINE_GKS_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
 
 // @req FR-235 — before a delayed LINE send, re-resolve only citations that the
-// same execution's ContextReceipt says reached the model. The receipt and
-// EVIDENCE_SELECTED trace are Core-owned; no client proof or new authority is
-// accepted here. `resolveKnowledgeCitation` checks the exact immutable
-// generation plus current source and Business access (ADR-072 D10).
+// current execution's ContextReceipt says reached the model. Core may resume
+// evidence persisted by an earlier attempt of the same turn after lease expiry,
+// so its EVIDENCE_SELECTED proof is turn-scoped while the ContextReceipt remains
+// execution-scoped. No client proof or new authority is accepted here;
+// `resolveKnowledgeCitation` checks the exact immutable generation plus current
+// source and Business access (ADR-072 D10).
 async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthorized = false) {
   // These bounded paths have their own current-proof fence and are not the
   // generic corpus reader described by FR-235.
@@ -1104,8 +1106,7 @@ async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthor
     throw error
   }
 
-  const gksEvents = events.filter(event => event.executionId === job.executionId && event.kind === 'EVIDENCE_SELECTED'
-    && event.payload?.source === 'GKS_CORPUS')
+  const gksEvents = events.filter(event => event.kind === 'EVIDENCE_SELECTED' && event.payload?.source === 'GKS_CORPUS')
   if (!gksEvents.length) return !configuredForGks
 
   const refsByCitation = new Map()
@@ -1120,7 +1121,8 @@ async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthor
         || typeof ref.manifestHash !== 'string' || !/^[a-f0-9]{64}$/i.test(ref.manifestHash)) return false
       const previous = refsByCitation.get(ref.citationId)
       if (previous && (previous.sourceId !== ref.sourceId || previous.snapshotId !== ref.snapshotId
-        || previous.generation !== ref.generation || previous.corpusGeneration !== ref.corpusGeneration)) return false
+        || previous.generation !== ref.generation || previous.corpusGeneration !== ref.corpusGeneration
+        || previous.manifestHash !== ref.manifestHash)) return false
       refsByCitation.set(ref.citationId, ref)
     }
   }
