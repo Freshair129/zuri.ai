@@ -149,8 +149,12 @@ before changing the deployment target.
 
 Keep primary-checkout dev, Knowledge Studio, and each UAT stack isolated from
 one another by Compose project, database, volume, and environment configuration.
+Production has two distinct database targets: self-hosted PostgreSQL and cloud
+Supabase. Self-hosting does not make a target development/UAT; name the target
+and environment when planning a production operation. Do not assume shared data,
+replication, sync, or dual writes between the targets ([ADR-114](docs/decisions/ADR-114-ZURI-AI-PRODUCTION-TARGETS.md)).
 Keep production database and runtime credentials separate from development and
-UAT; its data boundary remains governed by ADR-018. Never point a dev
+UAT; Supabase tenant isolation remains governed by ADR-018. Never point a dev
 `DATABASE_URL` at UAT or production, and never promote work by repointing the
 dev container. Release a tested app artifact in a separate production runtime
 with production-specific configuration; run only approved migrations through
@@ -822,3 +826,7 @@ replaces it with ordinary Git review, change-relevant checks, independent review
 for substantive work, and the existing required hosted CI. All earlier delivery
 procedures, including v4 above, are historical and no longer govern current work.
 Product workflows, document governance and verification policy remain separate.
+
+Version diff (2026-10-26): names self-hosted PostgreSQL and cloud Supabase as
+separate production database targets, keeps environment distinct from hosting
+location, and makes no cross-target data synchronization assumption under ADR-114.

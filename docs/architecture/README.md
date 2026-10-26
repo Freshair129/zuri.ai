@@ -180,3 +180,4 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-111 — SCM service extraction: one deployable over Inventory, Procurement and Commerce](../decisions/ADR-111-SCM-SERVICE-EXTRACTION.md)
 - [ADR-112 — Primary-checkout development Docker deployment and database isolation](../decisions/ADR-112-PRIMARY-CHECKOUT-DEV-DOCKER-AND-DATABASE-ISOLATION.md)
 - [ADR-113 — Retire Developer Delivery Control](../decisions/ADR-113-RETIRE-DEVELOPER-DELIVERY-CONTROL.md)
+- [ADR-114 — Zuri AI production database targets](../decisions/ADR-114-ZURI-AI-PRODUCTION-TARGETS.md)

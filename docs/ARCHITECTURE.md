@@ -1,6 +1,6 @@
 ---
 id: ZAI:ARCHITECTURE
-version: "1.0.0"
+version: "1.0.1"
 status: active
 superseded_by: null
 relations:
@@ -22,6 +22,8 @@ relations:
     target: ZAI:ADR-106
   - type: relates_to
     target: ZAI:ADR-110
+  - type: relates_to
+    target: ZAI:ADR-114
   - type: relates_to
     target: ZAI:VERIFICATION-POLICY
 ---
@@ -154,13 +156,16 @@ The logical domain model and the physical database profile are separate concerns
 |---|---|
 | Offline/local adapter | SQLite remains the local/offline adapter where the owning feature uses it. |
 | Development, test, preview, and staging | Use an isolated local PostgreSQL/Supabase instance or separate Supabase project where the server profile requires PostgreSQL. Never create fake test tenants in the production project. |
-| Hosted Zuri and LINE-facing reads | Supabase/PostgreSQL is the hosted relational authority, with tenant integrity, RLS, and least-privilege runtime roles governed by ADR-018. |
+| Production — self-hosted | Self-hosted PostgreSQL is a production target; hosting location alone does not classify it as development or UAT. |
+| Production — cloud | Supabase/PostgreSQL is the cloud relational target for hosted Zuri and LINE-facing reads, with tenant integrity, RLS, and least-privilege runtime roles governed by ADR-018. |
 
-The profiles do not imply network sync, a local-to-cloud dual write, or an automatic
+The two production targets do not imply shared data, replication, network sync,
+cross-target failover, or dual writes. The profiles also do not imply an automatic
 SQLite cutover. Development, UAT, and production credentials and databases remain
 separate. A schema's existence or a local passing check does not establish that a
 production migration or activation occurred ([ADR-018](decisions/ADR-018-SUPABASE-PRODUCTION-TENANT-ISOLATION.md),
-[ADR-105](decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md)).
+[ADR-105](decisions/ADR-105-LINE-OA-STUDIO-STATELESS-APPLICATION-TIER.md),
+[ADR-114](decisions/ADR-114-ZURI-AI-PRODUCTION-TARGETS.md)).
 
 ## Explicitly unselected topology
 
@@ -179,3 +184,7 @@ Edge framing with the accepted Core, domain, LINE Studio, Integration, Agent and
 Conversation Runtime boundaries; separates physical database profiles; and marks
 the unaccepted target modular-monolith runtime choices as unselected. No new domain,
 schema, service, route, or requirement identity is introduced.
+
+1.0.0 → 1.0.1: records self-hosted PostgreSQL and cloud Supabase as distinct
+production targets under ADR-114; makes no cross-target data behavior or deployment
+claim and preserves the existing Supabase-specific controls.
