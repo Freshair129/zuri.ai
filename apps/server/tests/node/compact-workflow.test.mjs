@@ -51,3 +51,14 @@ test('prepared artifact origin guard accepts only an exact successful same-repos
     assert.equal(calls[0].run_id, 12); assert.equal(calls[1].artifact_id, 34)
   }
 })
+
+test('fresh PostgreSQL CI covers schema producers and SQL sources on a disposable Linux runner', async () => {
+  const workflow = parse(await readFile(new URL('../../../../.github/workflows/compact-postgres.yml', import.meta.url), 'utf8'))
+  assert.deepEqual(workflow.permissions, { contents: 'read' })
+  for (const event of ['push', 'pull_request']) for (const file of ['apps/server/prisma/**', 'apps/server/scripts/gen-postgres-schema.mjs', 'apps/server/supabase/migrations/**']) assert(workflow.on[event].paths.includes(file), `missing ${event} input ${file}`)
+  const job = workflow.jobs['fresh-postgres']; assert.equal(job['runs-on'], 'ubuntu-latest')
+  const commands = job.steps.filter(s => s.run).map(s => s.run).join('\n')
+  assert.match(commands, /docker pull postgres@sha256:[a-f0-9]{64}/)
+  assert.match(commands, /npm run test:postgres -- tests\/postgres\/compact-fresh-install\.test\.js/)
+  assert.equal(/db push|(?:docker|npm) (?:push|login)|secrets\./i.test(JSON.stringify(job)), false)
+})

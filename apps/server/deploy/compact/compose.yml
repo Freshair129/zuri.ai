@@ -9,6 +9,8 @@ services:
     env_file:
       - path: ${COMPACT_APP_ENV_FILE:?Set a private application env file}
         required: true
+      - path: ${COMPACT_DATABASE_RUNTIME_ENV_FILE:?Set a private runtime database env file}
+        required: true
     environment:
       NODE_ENV: production
       PORT: '3000'
@@ -36,11 +38,13 @@ services:
     networks: [private]
   db:
     image: '@image.postgres'
+    container_name: ${COMPACT_DATABASE_CONTAINER:?Set the owned database container}
     restart: unless-stopped
     env_file:
       - path: ${COMPACT_DATABASE_ENV_FILE:?Set a private database env file}
         required: true
     volumes: [database:/var/lib/postgresql/data]
+    ports: ['127.0.0.1:${COMPACT_DATABASE_PORT:?Set the owned database loopback port}:5432']
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 10s
@@ -59,7 +63,7 @@ services:
     image: '@image.tools'
     profiles: [tools]
     entrypoint: [node]
-    command: ['-e', "console.error('COMPACT_TASK2_REQUIRED');process.exit(64)"]
+    command: ['-e', "console.error('COMPACT_USE_HOST_INSTALLER');process.exit(64)"]
     networks: [private]
   line-worker:
     image: '@image.lineWorker'
@@ -69,6 +73,8 @@ services:
     command: [node, scripts/server-line-worker.mjs]
     env_file:
       - path: ${COMPACT_APP_ENV_FILE:?Set a private application env file}
+        required: true
+      - path: ${COMPACT_DATABASE_RUNTIME_ENV_FILE:?Set a private runtime database env file}
         required: true
     environment:
       ZURI_LINE_WORKER_URL: http://web:3000/api/line-oa/worker
@@ -105,9 +111,9 @@ services:
       web: {condition: service_healthy}
     networks: [private]
 networks:
-  private: {}
+  private: {external: true, name: '${COMPACT_PRIVATE_NETWORK:?Set the owned private network}'}
 volumes:
-  database: {}
-  objects: {}
+  database: {external: true, name: '${COMPACT_DATABASE_VOLUME:?Set the owned database volume}'}
+  objects: {external: true, name: '${COMPACT_OBJECTS_VOLUME:?Set the owned objects volume}'}
   genesis: {}
   knowledge-state: {}

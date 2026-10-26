@@ -1,0 +1,69 @@
+name: compact-postgres
+
+# Exact-image TEST fixtures only. No production secrets, deployment or publish.
+on:
+  push:
+    branches: [main]
+    paths:
+      - apps/server/deploy/compact/**
+      - apps/server/scripts/compact-*.mjs
+      - apps/server/scripts/lib/compact/**
+      - apps/server/tests/node/compact-*.mjs
+      - apps/server/tests/helpers/compact-postgres-target.js
+      - apps/server/tests/postgres/compact-fresh-install.test.js
+      - apps/server/tests/helpers/pm-role-target.js
+      - apps/server/tests/global-setup-postgres.js
+      - apps/server/vitest.postgres.config.js
+      - apps/server/prisma/**
+      - apps/server/scripts/gen-postgres-schema.mjs
+      - apps/server/scripts/generate-prisma-clients.mjs
+      - apps/server/supabase/migrations/**
+      - apps/server/package.json
+      - apps/server/package-lock.json
+      - .github/workflows/compact-postgres.yml
+  pull_request:
+    paths:
+      - apps/server/deploy/compact/**
+      - apps/server/scripts/compact-*.mjs
+      - apps/server/scripts/lib/compact/**
+      - apps/server/tests/node/compact-*.mjs
+      - apps/server/tests/helpers/compact-postgres-target.js
+      - apps/server/tests/postgres/compact-fresh-install.test.js
+      - apps/server/tests/helpers/pm-role-target.js
+      - apps/server/tests/global-setup-postgres.js
+      - apps/server/vitest.postgres.config.js
+      - apps/server/prisma/**
+      - apps/server/scripts/gen-postgres-schema.mjs
+      - apps/server/scripts/generate-prisma-clients.mjs
+      - apps/server/supabase/migrations/**
+      - apps/server/package.json
+      - apps/server/package-lock.json
+      - .github/workflows/compact-postgres.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: compact-postgres-${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || (github.event_name == 'push' && github.ref == 'refs/heads/main' && 'main') || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref == 'refs/heads/main') }}
+
+jobs:
+  fresh-postgres:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      - run: npm ci
+      - name: Prepare immutable disposable TEST image
+        run: docker pull postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea
+      - run: npm run compact:test
+      - name: Fresh-only PostgreSQL acceptance
+        run: npm run test:postgres -- tests/postgres/compact-fresh-install.test.js

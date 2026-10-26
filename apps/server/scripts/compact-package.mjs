@@ -7,6 +7,7 @@ import { createWriteStream } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { parse, stringify } from 'yaml'
+import { build } from 'esbuild'
 import { CompactError, validateCompactManifest } from './lib/compact/manifest.mjs'
 import { bytes, json, digest, stableJson, openRegular, destination, writeExclusive, hashFile, listFiles } from './lib/compact/files.mjs'
 import { writeOciArchive } from './lib/compact/oci-layout.mjs'
@@ -27,11 +28,13 @@ export async function renderCompactRuntimeFiles(input) {
     compose.services.web.volumes.push('knowledge-state:/var/lib/zuri-ki17/state')
     compose.services['genesis-worker'].volumes[2].source = `./models/${m.modelArtifacts[0].id}`
   } else { delete compose.volumes.genesis; delete compose.volumes['knowledge-state'] }
+  const installer = await build({ entryPoints: [fileURLToPath(new URL('./compact-self-host.mjs', import.meta.url))], absWorkingDir: fileURLToPath(new URL('../', import.meta.url)), bundle: true, platform: 'node', format: 'esm', target: 'node22', write: false, legalComments: 'none', logLevel: 'silent', banner: { js: "import { createRequire as compactCreateRequire } from 'node:module'; const require = compactCreateRequire(import.meta.url);" } })
   return {
     'compose.yml': stringify(compose, { lineWidth: 0 }),
     'env.example': await readFile(path.join(ASSETS, 'env.example')),
     'README.md': await readFile(path.join(ASSETS, 'README.md')),
     'release-manifest.schema.json': await readFile(path.join(ASSETS, 'release-manifest.schema.json')),
+    'compact-self-host.mjs': installer.outputFiles[0].contents,
   }
 }
 function exactKeys(value, keys) { return value && typeof value === 'object' && !Array.isArray(value) && Object.keys(value).length === keys.length && keys.every(k => Object.hasOwn(value, k)) }

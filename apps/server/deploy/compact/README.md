@@ -1,15 +1,17 @@
-# Compact package contract (Task1)
+# Compact package and fresh database contract (Tasks1–2)
 
-This is build-time packaging under ADR-115. It is not an installer, a runnable
-release qualification, permission to publish, or production activation. Tasks2–7
-still own installation, schema parity, business-flow and runtime qualification.
-The template in this directory must be rendered by the packager; do not run it.
+ADR-115 Tasks1–2 provide build-time packaging and a fresh-only PostgreSQL installer
+for explicitly owned TEST targets. `INSTALLED` describes the database baseline,
+not core application readiness. Tasks3–7 retain bootstrap, business-flow, storage,
+LINE/Knowledge and release qualification. The Compose template in this directory
+must be rendered by the packager; do not run it directly.
 
 `compact:package` consumes a prepared `release-manifest.json`. All non-generated
 payload paths resolve under that file's directory, never an ambient checkout.
 Supply canonical docs, their generated graph, canonical registry and every record
 it references; reviewed baseline SQL, storage/license evidence and any selected
-Knowledge pins/model bytes. The baseline is hashed, never executed. A graph or
+Knowledge pins/model bytes. Packaging hashes the baseline; only the explicit host
+installer applies it. A graph or
 reference metadata alone does not recover object/native-store bytes.
 
 Images use `repository@sha256:<64 lowercase hex>` references. Core requires
@@ -39,13 +41,14 @@ Build-time API (Node22+, Server dev dependencies from its lockfile):
 ```js
 import { renderCompactRuntimeFiles, packageCompactRelease } from './scripts/compact-package.mjs'
 // manifest is a JSON object with selected identities and prepared file hashes.
-// Compute the four generated root file hashes from this exact packager version:
+// Compute the five generated root file hashes from this exact packager version:
 const rootFiles = await renderCompactRuntimeFiles(manifest)
 // Put their SHA256 values into manifest.files, then save the prepared manifest.
 await packageCompactRelease({ manifest: preparedManifestFilename, outputDirectory: newDirectory })
 ```
 
-Generated roots are `compose.yml`, `env.example`, `README.md` and this JSON schema.
+Generated roots are `compose.yml`, `env.example`, `README.md`, this JSON schema,
+and the bundled `compact-self-host.mjs` host CLI (bare Node22+, Docker CLI).
 Their declared hashes must match this tool's rendered bytes. No input version
 can override the trusted runtime template. Other payloads are copied only after
 all declared bytes, paths, registry coverage and evidence bindings pass preflight.
@@ -93,11 +96,124 @@ that failed output for diagnosis; the tool never recursively deletes it or retri
 over it. A successful package can move without its prepared input directory.
 
 Core Compose declares no migration service/build contexts. The manual-only
-`tools` profile deliberately fails closed until Task2. Selected AI services are
-rendered only when requested; no unselected image/environment interpolation is
-required. Database/object-store ports are not public. Separate credentials and
-future baseline/runtime-role setup remain mandatory; Task1 does not configure
-them. Never point package tests at existing main-dev/UAT/production volumes.
+`tools` profile exits with `COMPACT_USE_HOST_INSTALLER`, overriding its legacy
+default `db push`. Selected AI services are rendered only when requested; no
+unselected image/environment interpolation is required. The database port binds
+to loopback; the object store has no published port. Never point package tests
+at existing main-dev/UAT/production volumes.
+
+## Build the reviewed fresh baseline
+
+From Server with its locked build dependencies installed:
+
+```sh
+npm run compact:baseline -- --output /new/schema --source-revision <exact-HEAD-commit>
+```
+
+This produces `baseline.sql` and `baseline.json` in a new directory. Copy both
+under the prepared package's `schema/` directory and declare their hashes before
+rendering generated roots. The producer verifies the canonical schema at HEAD,
+generates PostgreSQL DDL with Prisma `migrate diff --from-empty` without connecting
+to a database, and appends the reviewed fresh security snapshot. It neither runs
+Supabase history nor writes a migration ledger. The snapshot preserves current
+grants, all 108 current CHECK constraints and eight Phase B scoped policies;
+130 migration source hashes are build-time reconciliation inputs, never scripts
+to execute. Changed source inventory/content requires reviewed reconciliation.
+The generated shared PostgreSQL client is not regenerated or overwritten.
+
+## Explicit TEST target and private inputs
+
+Create a private JSON descriptor outside the package. Example identities below
+are illustrative: choose a new UUID/project, a free loopback port and an explicit
+RFC1918 /24–/28 subnet disjoint from Docker networks and host routes. The fixture
+subnet is not a portable default. On Linux select a local Unix-socket context;
+remote TCP/SSH contexts and non-TEST environments are refused.
+
+```json
+{
+  "schemaVersion": "compact-target.v1",
+  "environment": "TEST",
+  "targetId": "11111111-1111-4111-8111-111111111111",
+  "project": "zuri-compact-test-a1",
+  "dockerContext": "desktop-linux",
+  "network": "zuri-compact-test-a1-private",
+  "networkSubnet": "10.252.16.0/28",
+  "database": {
+    "container": "zuri-compact-test-a1-db", "host": "127.0.0.1",
+    "port": 35432, "name": "compact_test_a1",
+    "bootstrapRole": "compact_bootstrap", "runtimeRole": "zuri_web_login"
+  },
+  "volumes": {
+    "database": "zuri-compact-test-a1-database",
+    "objects": "zuri-compact-test-a1-objects"
+  },
+  "secretFiles": {
+    "bootstrapEnvironment": "C:/private/compact/bootstrap.env",
+    "runtimeEnvironment": "C:/private/compact/runtime.env"
+  }
+}
+```
+
+Protect two distinct regular private files outside the package (no links). The
+bootstrap file contains exactly `POSTGRES_USER=compact_bootstrap`,
+`POSTGRES_DB=<descriptor database name>` and `POSTGRES_PASSWORD=<private value>`.
+The runtime file contains exactly these six aliases, all with the same private
+URL: `DATABASE_URL`, `DIRECT_URL`, `POSTGRES_PRISMA_URL`, `POSTGRES_URL`,
+`POSTGRES_URL_NON_POOLING`, `DATABASE_POSTGRES_URL`. Its URL is
+`postgresql://zuri_web_login:<private value>@db:5432/<descriptor database name>`.
+Generate two distinct cryptographically random 32-byte values encoded as
+64 lowercase hexadecimal characters. Do not place them in command arguments,
+manifests, reports or tracked files. No operator/product identity is bootstrapped.
+Compose web/LINE worker read the runtime file last; only db reads the bootstrap
+file. Map the nonsecret selectors in `env.example` to these same identities.
+
+## Inspect, plan, initialize and stop
+
+Preload the selected immutable images through a separately authorized transport.
+The host tool verifies all selected local digests/platforms; it never pulls,
+builds or imports images. It verifies the complete package inventory and every
+hash (including optional OCI bytes) before contacting the explicit local daemon.
+Run the bundled CLI from any working directory:
+
+```sh
+node /package/compact-self-host.mjs inspect --package /package --target /private/target.json
+node /package/compact-self-host.mjs plan --package /package --target /private/target.json
+node /package/compact-self-host.mjs install --package /package --target /private/target.json
+node /package/compact-self-host.mjs status --package /package --target /private/target.json
+node /package/compact-self-host.mjs stop --package /package --target /private/target.json
+```
+
+`plan` validates private inputs and emits a redacted immutable observation-bound
+plan without mutation. `install` re-observes ownership, identity and emptiness,
+creates only its named network/volumes/database container, then rechecks the DB
+inside one atomic SQL transaction. DDL, roles and the installation marker roll
+back together on failure. `zuri_web_login` inherits the scoped runtime group
+without owner membership, superuser, bypass-RLS, database/schema creation or
+grant authority. All tables enforce RLS; current pricing/immutable-table grants
+and Phase B scope policies remain explicit.
+
+An installed retry only inspects the target. The marker binds target, manifest,
+baseline, physical database identity and native catalog hash, including relevant
+ACLs. Populated/foreign/unproven targets, stale observations or schema/ACL drift
+fail closed. There is no repair, reset, remove, import or upgrade command. Partial
+owned resources remain for diagnosis. `status` and `stop` do not require private
+file contents; stop preserves the network and volumes. A stopped database reports
+`STOPPED_UNVERIFIED`, without starting it or claiming schema health.
+
+This increment does not start web/storage/AI or qualify a complete Compose stack.
+Do not use `compose up` to bypass the fresh installer or infer Task3 readiness.
+The explicit disposable acceptance command is:
+
+```sh
+npm run test:postgres -- tests/postgres/compact-fresh-install.test.js
+```
+
+It uses unique TEST containers, networks and volumes plus a separate embedded
+catalog reference, with exact ownership checks before fixture cleanup. Package
+fixtures use synthetic component/qualification assertions and real PostgreSQL;
+they are not a real Zuri image or storage-provider qualification. The separate
+Linux CI job declares this acceptance; a local Windows pass does not qualify a
+Linux host or constitute hosted CI evidence.
 
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the

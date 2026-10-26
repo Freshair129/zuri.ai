@@ -34,6 +34,10 @@ test('packages declared bytes only, and relocates without access to original inp
   assert.equal(c.services.web.ports[0].startsWith('127.0.0.1:'), true)
   assert.deepEqual(c.services.tools.profiles, ['tools'])
   assert.equal(JSON.stringify(c).includes(root), false)
+  const installer = await readFile(path.join(relocated, 'compact-self-host.mjs'), 'utf8')
+  assert.match(installer, /runCompactSelfHost/)
+  assert.equal(installer.includes(root), false)
+  assert.equal(c.services.web.env_file.at(-1).path, '${COMPACT_DATABASE_RUNTIME_ENV_FILE:?Set a private runtime database env file}')
 })
 test('identical inputs produce identical package bytes in different directories', async () => {
   const { a, root, f } = await setup()

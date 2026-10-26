@@ -4,7 +4,7 @@ import Ajv2020 from 'ajv/dist/2020.js'
 import schema from '../../../deploy/compact/release-manifest.schema.json' with { type: 'json' }
 
 const validate = new Ajv2020({ strict: true, allErrors: false, ownProperties: true }).compile(schema)
-export const REQUIRED_FILES = Object.freeze(['compose.yml', 'env.example', 'README.md', 'release-manifest.schema.json', 'docs/PRODUCT.md', 'docs/.doc-graph.json', 'registry/document-registry/index.json'])
+export const REQUIRED_FILES = Object.freeze(['compose.yml', 'env.example', 'README.md', 'release-manifest.schema.json', 'compact-self-host.mjs', 'docs/PRODUCT.md', 'docs/.doc-graph.json', 'registry/document-registry/index.json'])
 const reserved = new Set(['release-manifest.json', 'SHA256SUMS', 'images.oci.tar', 'transport.json', '.partial'])
 export class CompactError extends Error {
   constructor(code) { super(code); this.code = code; this.name = 'CompactError' }

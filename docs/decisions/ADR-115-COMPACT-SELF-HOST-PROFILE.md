@@ -1,11 +1,11 @@
 ---
 id: ZAI:ADR-115
 title: Compact single-host deployment profile and qualification boundaries
-version: "0.1.1"
+version: "0.1.2"
 status: accepted
 approved_on: "2026-10-27"
 approved_artifact_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-approval_scope: architecture-and-plan; Task1 implementation selected; no production action
+approval_scope: architecture-and-plan; Tasks1–2 selected; Task2 disposable TEST only; no production action
 created_at: "2026-10-27"
 last_update: "2026-10-27"
 author: Codex
@@ -13,7 +13,7 @@ superseded_by: null
 attributes:
   doc_type: architecture-decision
   domain: platform-control
-  scope: "Proposed portable single-host packaging and qualification; no application implementation, production activation or canonical requirement migration"
+  scope: "Accepted portable single-host profile; Tasks1–2 package and TEST database foundation; no production activation or canonical requirement migration"
 relations:
   - type: relates_to
     target: ZAI:ADR-058
@@ -39,8 +39,9 @@ relations:
 
 **Status:** Accepted. On 2026-10-27 the owner approved ADR-115 and the
 implementation plan at `e5fcfd4b599d328c1b1210b310746e6a573f2c25`, and selected
-Task1 on the existing primary-checkout branch. Tasks2–7, installation and
-production operations have not been selected by that instruction.
+Task1 on the existing primary-checkout branch. The owner subsequently selected
+Task2 with disposable PostgreSQL isolated from main-dev/UAT and independent
+review. Tasks3–7 and production operations remain unselected.
 
 ## Context
 
@@ -207,12 +208,17 @@ This is an owner-approved design. The dated assessment records the planning
 baseline. The [Task1 delivery evidence](../../reports/compact-selfhost-2026-10-27/task1-packaging.md)
 records the implemented build-time packager, synthetic artifact tests, independent
 review and governance. Those checks do not establish a qualified release image,
-provider, installation, host, live LINE flow or production operation. Tasks2–7
-retain their separate selection and qualification gates.
+provider, installation, host, live LINE flow or production operation. The
+[Task2 evidence](../../reports/compact-selfhost-2026-10-27/task2-fresh-install.md)
+records the fresh-only TEST database implementation and actual PostgreSQL
+acceptance separately. Its `INSTALLED` result is baseline state, not the
+Task3 core-installable milestone. Tasks3–7 retain their separate selection and
+qualification gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.2 | 2026-10-27 | accepted | Records subsequent Task2 selection for disposable TEST PostgreSQL and its bounded database evidence; Tasks3–7 remain unselected | working-tree | Codex |
 | 0.1.1 | 2026-10-27 | accepted | Owner approved the exact e5fcfd4b ADR/plan and selected Task1 only; no installation or production authority | working-tree | Codex |
 | 0.1.0b | 2026-10-27 | candidate | Proposes one-host packaging, fresh-only baseline and independent AI/business capability qualification after source reconciliation; no requirement lifecycle changes | uncommitted | Codex |

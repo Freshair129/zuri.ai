@@ -16,7 +16,7 @@ export function manifest() {
   return {
     schemaVersion: 'compact-release.v1', releaseId: 'test-1', sourceRevision: 'c'.repeat(40), platform: 'linux/amd64',
     images: { web: `test/web@sha256:${digest}`, tools: `test/tools@sha256:${digest}`, postgres: `test/postgres@sha256:${digest}`, storage: `test/storage@sha256:${digest}` },
-    files: Object.fromEntries(['compose.yml', 'env.example', 'README.md', 'release-manifest.schema.json', 'schema/baseline.sql', 'docs/PRODUCT.md', 'docs/.doc-graph.json', 'registry/document-registry/index.json', 'qualifications/storage.json', 'qualifications/license.json'].map(p => [p, 'b'.repeat(64)])),
+    files: Object.fromEntries(['compose.yml', 'env.example', 'README.md', 'release-manifest.schema.json', 'compact-self-host.mjs', 'schema/baseline.sql', 'docs/PRODUCT.md', 'docs/.doc-graph.json', 'registry/document-registry/index.json', 'qualifications/storage.json', 'qualifications/license.json'].map(p => [p, 'b'.repeat(64)])),
     schemaBaseline: evidence('schema/baseline.sql'), profiles: ['core'],
     storageQualification: { status: 'QUALIFIED', provider: 'S3_COMPATIBLE', image: `test/storage@sha256:${digest}`, command: ['server', '/data'], licenseRequired: false, evidence: evidence('qualifications/storage.json'), licenseEvidence: evidence('qualifications/license.json') },
     componentPins: {}, modelArtifacts: [],

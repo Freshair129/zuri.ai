@@ -1,5 +1,5 @@
 ---
-version: "0.7.3"
+version: "0.7.4"
 status: active
 superseded_by: null
 ---
@@ -37,7 +37,8 @@ plans and historical test receipts are separate from the build specification.
   links current requirements/code and retained audit findings to
   [accepted ADR-115](decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md) and its
   [approved implementation plan](plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
-  The owner selected Task1 only; installation and production remain separate.
+  The owner selected Tasks1–2; Task2 initializes disposable TEST PostgreSQL only.
+  Core application qualification and production remain separate.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every

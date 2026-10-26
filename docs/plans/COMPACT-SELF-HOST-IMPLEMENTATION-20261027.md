@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 1
-version: "0.1.1"
+selected_task: 2
+version: "0.1.2"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -21,8 +21,9 @@ relations:
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans
 > or superpowers:subagent-driven-development. The owner approved this plan at
-> e5fcfd4b on 2026-10-27 and selected Task1 only. Steps use checkbox syntax.
-> No installation, production action or new worktree is authorized.
+> e5fcfd4b on 2026-10-27, completed Task1, then selected Task2 with disposable
+> PostgreSQL and independent review. Steps use checkbox syntax. Task2 permits
+> isolated TEST database initialization only. No production action or new worktree.
 
 **Goal:** Deliver a repeatable single-host package while qualifying AI separately
 and preserving existing product authority and capabilities.
@@ -78,8 +79,8 @@ binds source findings and old-audit dispositions to the baseline above.
 Paths marked **new** below are implementation outputs relative to the planning baseline.
 Deployment stays in `apps/server/deploy/compact/`; orchestration helpers in
 `apps/server/scripts/lib/compact/` separate manifest, target and execution concerns.
-Task1 was selected after approval of the planning commit; later-task paths remain
-planned outputs and are not created by Task1.
+Tasks1–2 were selected after approval of the planning commit; Tasks3–7 paths
+remain planned outputs.
 Application paths in task file lists are relative to `apps/server/`; workflow
 paths are relative to the repository root.
 
@@ -90,6 +91,7 @@ paths are relative to the repository root.
 | New `scripts/compact-package.mjs` | `packageCompactRelease({manifest,outputDirectory,imageExporter})` emits the validated package; build-time CLI only, separate from runtime installation |
 | New `scripts/lib/compact/target.mjs` | `planCompactInstall({manifest,target,observed})` returns a redacted immutable plan; pure, no mutation |
 | New `scripts/lib/compact/executor.mjs`, `scripts/compact-self-host.mjs` | Explicit `inspect`, `plan`, `install`, `status`, `stop` commands over argument-array subprocesses; no arbitrary shell/eval |
+| New `scripts/compact-baseline.mjs`, `scripts/lib/compact/baseline.mjs`, `security.mjs`, `database.mjs`, `docker.mjs` | Exact-source schema-diff producer, reviewed fresh security snapshot, atomic SQL/marker/catalog observation and explicit local Docker transport; packaged bare-Node CLI |
 | Existing `src/platform/storage/supabase-object-storage.js`; new `private-business-object-storage.js` | Preserve public factory exports/default Supabase behavior; explicit S3 Asset/catalog adapter and strict managed-reference dispatch |
 | Existing Marketing report database/receiver/operator; new `marketing-report-lock.js` | Qualified PostgreSQL client selection and shared policy/binding lock order |
 | New `scripts/lib/compact/qualify.mjs` and isolated acceptance harness | Owned target lifecycle and separate profile evidence; no production admission |
@@ -142,33 +144,45 @@ not qualification performed by the packager. No real provider was selected here.
 
 ## Task2: Fresh-only target planning and schema initialization
 
-**Files:** New `target.mjs`, `executor.mjs`, `compact-self-host.mjs`,
-`tests/node/compact-target.test.mjs`, `tests/node/compact-executor.test.mjs`,
-`tests/postgres/compact-fresh-install.test.js`; modify compact Compose/tools wiring.
+**Files:** New `target.mjs`, `executor.mjs`, `database.mjs`, `docker.mjs`,
+`baseline.mjs`, `security.mjs`, `compact-baseline.mjs`, `compact-self-host.mjs`,
+Node target/baseline/executor tests, disposable helper and
+`tests/postgres/compact-fresh-install.test.js`; modify compact Compose/tools and
+packaged CLI wiring. Add `.github/workflows/compact-postgres.yml` and explicit
+PostgreSQL selection without expanding the existing embedded-only default.
 
 **Consumes:** Task1 manifest; an explicit target descriptor with environment,
-Compose project, local endpoint, volume names and private secret-file locations,
+Compose project, local endpoint, explicit private network subnet, volume names and private secret-file locations,
 with separate bootstrap/runtime database credential references.
 **Produces:** `planCompactInstall({manifest,target,observed})`; CLI `plan` is
 read-only. `install` rechecks that exact target before executing the fresh baseline.
 
-- [ ] Write negative tests for populated DB, existing foreign volume, changed
+- [x] Write negative tests for populated DB, existing foreign volume, changed
   observation, remote/unrecognized target, missing digest/file and paths with
   spaces/metacharacters. Assert no DDL, volume removal or shell interpolation.
-- [ ] Run new Node tests; observe the expected failures before implementation.
-- [ ] Implement pure target validation and argument-array execution. Local fresh
+- [x] Run new Node tests; observe the expected failures before implementation.
+- [x] Implement pure target validation and argument-array execution. Local fresh
   initialization uses a reviewed schema baseline artifact generated from the exact
   release PostgreSQL schema, applied transactionally to an empty application DB.
   Never replay Supabase history, fabricate its ledger or reset existing data.
-- [ ] Against an owned disposable PostgreSQL target, verify current schema/catalog
+- [x] Against an owned disposable PostgreSQL target, verify current schema/catalog
   parity, rollback on an injected DDL error and a nonempty-target retry refusal.
   Prove web/workers use a non-owner, non-superuser, non-bypass runtime role and
   that the exact fresh-target grants/policies satisfy the existing contracts.
   `status`/retry reads the installed state without reinitializing it. Package
   startup must not invoke the legacy tools image's default `db push` command.
-- [ ] Run `npm run test:postgres -- tests/postgres/compact-fresh-install.test.js`
+- [x] Run `npm run test:postgres -- tests/postgres/compact-fresh-install.test.js`
   after wiring it into the explicit disposable-target configuration; record real
-  executed test count, target identity and before/after catalog results. Commit.
+  executed test count, target identity and before/after catalog results.
+
+Task2's [delivery evidence](../../reports/compact-selfhost-2026-10-27/task2-fresh-install.md)
+records the executed checks and target/catalog observations. This increment
+accepts explicit TEST targets only. It does not launch web/storage/AI or perform
+product bootstrap. Baseline generation uses current schema-diff DDL and the
+reviewed current security snapshot, with build-time source hashes requiring
+reconciliation on drift. No historical migration file or Supabase ledger is
+applied. `INSTALLED` means database baseline state; core qualification is Task3.
+The bounded delivery commit follows independent review and composed validation.
 
 ## Task3: Private bootstrap, installation diagnostics and core qualification
 
@@ -323,5 +337,6 @@ to qualify later, not facts invented by the plan.
 Future implementation should run inline in the primary checkout on a branch,
 with an independent GPT-6 Luna Max reviewer under repository policy. Do not create
 a worktree merely to execute this plan. The owner selected Task1 at the approved
-planning commit; Tasks2–7 remain unselected. Task1 does not authorize installation,
-publication, production access or later application changes.
+planning commit, then Task2 for disposable TEST database acceptance. Tasks3–7
+remain unselected. No publication, production access or later application change
+is authorized by this Task2 continuation.

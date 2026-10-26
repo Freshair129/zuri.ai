@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.7"
+version: "0.3.8"
 checked_at: "2026-10-25"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -22,15 +22,16 @@ rewrite those pinned rows or move their consumed paths.
 
 ## Current implementation plans
 
-### Approved Compact self-host plan — Task1 selected
+### Approved Compact self-host plan — Task2 selected
 
 The owner approved ADR-115 and the following plan at `e5fcfd4b` on 2026-10-27,
-then selected Task1 on the existing primary-checkout branch. The approval does
-not select Tasks2–7, installation or production operations.
+then selected Task1 and subsequently Task2 on the existing primary-checkout
+branch. Task2 permits disposable TEST database acceptance. Tasks3–7 and
+production operations remain unselected.
 
 | Plan | Scope |
 |---|---|
-| [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Approved one-host profile; Task1 packaging selected. Fresh initialization, business parity and LINE/Knowledge qualification remain later tasks. |
+| [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Approved one-host profile; Tasks1–2 package and disposable TEST database foundation. Core/business parity and LINE/Knowledge qualification remain later tasks. |
 
 ### Existing Project Manager plans
 
