@@ -841,6 +841,7 @@
     "ADR-112",
     "ADR-113",
     "ADR-114",
+    "ADR-115",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11002,6 +11003,19 @@
         {
           "anchor": "zuri ai production database targets",
           "since": "2026-10-25",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-115": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md",
+      "status": "current",
+      "statement_digest": "e83311505a5b6f833ea1a118e9103849cf19fc74ff7ed9eac0c28e6fe25e4fef",
+      "history": [
+        {
+          "anchor": "compact single host deployment profile and qualification",
+          "since": "2026-10-26",
           "reason": "declared"
         }
       ]

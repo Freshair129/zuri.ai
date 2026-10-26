@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.2.0"
+version: "0.3.0"
 ---
 
 # Engineering assessments
@@ -12,6 +12,7 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-27 Compact self-host reconciliation](compact-selfhost-2026-10-27/README.md) | Bounded packaging/capability findings at main2b424364, old-audit disposition and proposed-plan inputs; no installation or production acceptance. |
 | [2026-10-26 Knowledge lifecycle and serving assessment](knowledge-readiness-2026-10-26/README.md) | Source-backed storage/access findings, isolated verification and remaining whole-journey acceptance; no production adoption. |
 | [2026-10-23 code/requirements gap assessment](gap-analysis-2026-10-23/README.md) | Current canonical inventory, source/code conflicts, confirmed gaps and scoped test evidence at the stated revision. |
 | [Application fixes following the 2026-10-23 assessment](gap-analysis-2026-10-23/application-fixes.md) | Bounded implementation and verification of confirmed gaps; the assessment remains a separate historical snapshot. |

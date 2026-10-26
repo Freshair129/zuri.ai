@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.5"
+version: "0.3.6"
 checked_at: "2026-10-25"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -22,6 +22,19 @@ rewrite those pinned rows or move their consumed paths.
 
 ## Current implementation plans
 
+### Proposed Compact self-host plan
+
+The owner selected single-host deployment with AI separately qualified on
+2026-10-27 and requested documentation before code. The following plan and ADR
+remain proposed/candidate; no implementation or production action is approved
+by this index.
+
+| Plan | Scope |
+|---|---|
+| [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Portable artifact, safe fresh-only PostgreSQL initialization, private storage/business parity, and independent LINE/Knowledge qualification under candidate ADR-115. |
+
+### Existing Project Manager plans
+
 The owner approved the linked PM SRS and explicitly requested the following
 plans on 2026-10-23, then approved the package at `c291afcd` and authorized A1.
 A1 and B1–B4 are merged; Pipeline Builder C0 was adopted and C1–C4 were merged.
@@ -40,8 +53,9 @@ procedures.
 
 The 2026-10-23 selected base contained fourteen tracked direct files and no
 child directories. Two standalone implementation plans were indexed after
-that base. The current filesystem has seventeen direct files: sixteen already
-on `189fb41a` plus this approved tooling plan.
+that base. At `2b424364` the filesystem had seventeen direct files; the proposed
+Compact plan brings the current on-disk count to eighteen. This count is
+navigation, not plan approval.
 
 ## Approved implementation plans
 
