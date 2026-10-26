@@ -39,8 +39,20 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // `timeline` records MSP tool calls and GKS corpus reads in the order they happen,
 // so each cohort's ordering (the MSP phases, then the corpus read) is compared too.
 const corpusMock = vi.hoisted(() => ({ fn: null, calls: [], timeline: [] }))
+const citationDeliveryMocks = vi.hoisted(() => ({
+  resolve: vi.fn(async citationId => {
+    const suffix = typeof citationId === 'string' && citationId.startsWith('cit-') ? citationId.slice(4) : ''
+    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 1, corpusGeneration: 4 }
+  }),
+  lock: vi.fn(async () => {}),
+}))
 vi.mock('@/modules/knowledge/knowledge-corpus-service', () => ({
   queryKnowledgeCorpus: async (...args) => { corpusMock.calls.push(args[0]); corpusMock.timeline.push('gks:corpus'); return corpusMock.fn(...args) },
+  // These parity cases use synthetic citation IDs and do not persist a local
+  // KnowledgeCorpus. Real source fencing is exercised with real rows in
+  // server-line-jobs.test.js.
+  resolveKnowledgeCitation: (...args) => citationDeliveryMocks.resolve(...args),
+  lockKnowledgeCitationSourcesForDelivery: (...args) => citationDeliveryMocks.lock(...args),
 }))
 
 const serviceToken = 'synthetic-w12-runtime-core-token-000000001'
@@ -498,7 +510,7 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
   // Four ~1,100-character hits plus the thread history exceed the composer's 4,000
   // character budget: knowledge outranks memory, so the last hit and the older
   // thread turns are dropped. Both paths must drop the same ones.
-  const pressure = () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+  const pressure = () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
     results: ['a', 'b', 'c', 'd'].map(id => hit(id, `AB-1 ${id} `.padEnd(1100, id))) })
 
   for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
@@ -534,7 +546,7 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
 
   it('no composed knowledge: no model, no ContextReceipt, the legacy reply', async () => {
     await setGrounding('GKS_CORPUS')
-    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
+    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] })
     const side = await playBoth([{ audience: 'DIRECT', speaker: 'A' }])
     expect(side.built.providerCalls).toEqual([])
     expect(side.legacy.providerCalls).toEqual([])
@@ -547,6 +559,10 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
     await setGrounding('GKS_THEN_BUSINESS_KNOWLEDGE')
     corpusMock.fn = async () => pressure()
     const side = await playBoth([{ audience: 'DIRECT', speaker: 'A' }], {
+      betweenPhases: async () => {
+        citationDeliveryMocks.resolve.mockClear()
+        citationDeliveryMocks.lock.mockClear()
+      },
       beforeRuntimeRun: async (jobs, built) => {
         const first = await createConversationRuntime({ claimantId: 'runtime-gks-killed',
           ports: mortal(built.ports, name => name === 'memory.read') }).runOne()
@@ -554,9 +570,43 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
         await prisma.lineConversationJob.update({ where: { id: jobs[0].id }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
       } })
     expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED'])
+    expect(citationDeliveryMocks.lock).toHaveBeenCalledWith(['cit-a', 'cit-b', 'cit-c'],
+      expect.objectContaining({ tenantId: tenant.id, businessId: business.id }))
+    expect(citationDeliveryMocks.resolve.mock.calls.map(([citationId]) => citationId)).toEqual(['cit-a', 'cit-b', 'cit-c'])
     expect(corpusMock.calls).toHaveLength(2)
     expectSameMsp(side)
     expectSameProvider(side)
+  })
+
+  it('fails closed when retry traces disagree on the selected citation manifest', async () => {
+    await setGrounding('GKS_THEN_BUSINESS_KNOWLEDGE')
+    corpusMock.fn = async () => pressure()
+    const side = await playBoth([{ audience: 'DIRECT', speaker: 'A' }], {
+      betweenPhases: async () => {
+        citationDeliveryMocks.resolve.mockClear()
+        citationDeliveryMocks.lock.mockClear()
+      },
+      beforeRuntimeRun: async (jobs, built) => {
+        const first = await createConversationRuntime({ claimantId: 'runtime-gks-conflicting-retry',
+          ports: mortal(built.ports, name => name === 'memory.read') }).runOne()
+        expect(first).toMatchObject({ jobId: jobs[0].id, code: 'RUNTIME_KILLED' })
+        await prisma.lineConversationJob.update({ where: { id: jobs[0].id }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
+        await appendTraceEvent(prisma, {
+          scope: { tenantId: tenant.id, businessId: business.id }, turnId: jobs[0].id,
+          executionId: 'b2aaff78-1f9d-4b4e-84f8-c98e5c72d341',
+          idempotencyKey: `conflicting-gks-retry:${jobs[0].id}`, kind: 'EVIDENCE_SELECTED',
+          payload: { source: 'GKS_CORPUS', mode: 'GKS_THEN_BUSINESS_KNOWLEDGE', retrievalRefs: [{
+            citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1,
+            corpusGeneration: 4, manifestHash: 'b'.repeat(64),
+          }] },
+        })
+      } })
+    expect(side.outcomes.map(outcome => outcome.status)).toEqual(['CANCELLED'])
+    expect(await prisma.lineConversationJob.findUnique({ where: { id: side.runtimeJobs[0].id }, select: { errorCode: true } }))
+      .toEqual({ errorCode: 'LINE_GKS_AUTHORITY_REVOKED' })
+    expect(side.runtimeDeliveries).toEqual([])
+    expect(citationDeliveryMocks.lock).not.toHaveBeenCalled()
+    expect(citationDeliveryMocks.resolve).not.toHaveBeenCalled()
   })
 
 
@@ -668,7 +718,7 @@ describe('W11 x W12 — unverified speakers\' memory turns in shared audiences a
   for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
     it(`DIRECT under ${mode}: an unlinked and a PENDING speaker get the composed evidence, no recall, PENDING appends`, async () => {
       await setGrounding(mode)
-      corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
         results: [{ id: 'a', text: 'AB-1 a', score: 0.9, citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1 }] })
       const side = await playBoth([{ audience: 'DIRECT', speaker: 'U' }, { audience: 'DIRECT', speaker: 'P' }])
       expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
@@ -693,7 +743,7 @@ describe('W11 x W12 — unverified speakers\' memory turns in shared audiences a
 
   it('GROUP under GKS_CORPUS: a verified and an unlinked speaker match the legacy tick', async () => {
     await setGrounding('GKS_CORPUS')
-    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+    corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
       results: [{ id: 'g', text: 'AB-1 g', score: 0.9, citationId: 'cit-g', sourceId: 'src-g', snapshotId: 'snap-1', generation: 1 }] })
     const side = await playBoth([{ speaker: 'A' }, { speaker: 'U' }])
     expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])

@@ -1644,7 +1644,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 68
+          "testCount": 71
         },
         {
           "id": "FR-253",
@@ -3985,7 +3985,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 58
+          "testCount": 61
         },
         {
           "id": "FR-187",
@@ -4001,7 +4001,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-223",
@@ -4065,7 +4065,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-255",
@@ -4920,8 +4920,8 @@
           "title": "Knowledge source admission and corpus publication",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 13,
-          "testCount": 58
+          "codeCount": 14,
+          "testCount": 61
         },
         {
           "id": "FR-187",
@@ -4937,7 +4937,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-189",
@@ -5012,8 +5012,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "declared": "done",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 68
+          "codeCount": 7,
+          "testCount": 71
         },
         {
           "id": "FR-236",
@@ -5037,7 +5037,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-253",
@@ -5053,7 +5053,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-288",
@@ -5597,7 +5597,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 68
+          "testCount": 71
         },
         {
           "id": "FR-238",
@@ -5605,7 +5605,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-243",
@@ -7971,7 +7971,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 58
+          "testCount": 61
         },
         {
           "id": "FR-174",
@@ -8243,7 +8243,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 68
+          "testCount": 71
         },
         {
           "id": "FR-236",
@@ -8355,7 +8355,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-266",
@@ -10797,8 +10797,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
-          "testCount": 58
+          "codeCount": 31,
+          "testCount": 61
         },
         {
           "id": "FR-254",
@@ -10806,7 +10806,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 22
+          "testCount": 23
         }
       ],
       "evidence": [
@@ -10850,6 +10850,7 @@
         "apps/server/src/modules/knowledge/knowledge-document-zero-pii.js",
         "apps/server/src/modules/knowledge/knowledge-execution-authority.js",
         "apps/server/src/modules/knowledge/knowledge-http.js",
+        "apps/server/src/modules/knowledge/knowledge-object-recovery-service.js",
         "apps/server/src/modules/knowledge/knowledge-replay-contract.js",
         "apps/server/src/modules/knowledge/knowledge-replay-service.js",
         "apps/server/src/modules/knowledge/knowledge-repository.js",
@@ -10913,6 +10914,7 @@
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/storage/knowledge-object-restore.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/asset-management-pipeline-contract.test.js",
@@ -10948,6 +10950,7 @@
         "apps/server/tests/unit/knowledge-classification.test.js",
         "apps/server/tests/unit/knowledge-corpus-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-delivery-fence.test.js",
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-documents-ui.test.js",
         "apps/server/tests/unit/knowledge-documents-withdrawal.test.js",
@@ -10956,6 +10959,7 @@
         "apps/server/tests/unit/knowledge-http.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job-state.test.js",
         "apps/server/tests/unit/knowledge-ingestion-job.test.js",
+        "apps/server/tests/unit/knowledge-object-recovery.test.js",
         "apps/server/tests/unit/knowledge-published-snapshot-contract.test.js",
         "apps/server/tests/unit/knowledge-replay-service.test.js",
         "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
@@ -12661,7 +12665,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-189",
@@ -12721,6 +12725,7 @@
         "apps/server/tests/unit/knowledge-admission-transaction.test.js",
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
+        "apps/server/tests/unit/knowledge-delivery-fence.test.js",
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
@@ -13987,8 +13992,8 @@
           "title": "LINE answer grounding from the published knowledge corpus",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 68
+          "codeCount": 32,
+          "testCount": 71
         },
         {
           "id": "FR-236",
@@ -14012,7 +14017,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -14117,6 +14122,7 @@
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/postgres/knowledge-line-withdrawal-races.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
@@ -14139,6 +14145,7 @@
         "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-candidates-ui.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/knowledge-delivery-fence.test.js",
         "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
         "apps/server/tests/unit/knowledge-gap-report-service.test.js",
         "apps/server/tests/unit/knowledge-gap-report-ui.test.js",

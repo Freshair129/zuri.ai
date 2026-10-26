@@ -23,6 +23,7 @@
     "test:integration": "node scripts/assert-tests-ran.mjs vitest run tests/integration",
     "test:production-migration:isolated": "node scripts/run-production-migration-isolated-postgres.mjs",
     "test:postgres": "node scripts/assert-tests-ran.mjs vitest run --config vitest.postgres.config.js",
+    "test:knowledge-restore:isolated": "node scripts/assert-tests-ran.mjs vitest run --config vitest.knowledge-restore.config.js",
     "test:genesisrag17": "node scripts/run-genesisrag17-acceptance.mjs",
     "test:knowledge-admission": "node scripts/run-knowledge-admission-acceptance.mjs",
     "test:e2e": "node scripts/assert-tests-ran.mjs playwright test --fail-on-flaky",

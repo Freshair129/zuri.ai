@@ -8,6 +8,13 @@ import { createHash, createHmac } from 'node:crypto'
 const DEFAULT_REGION = 'us-east-1'
 const SERVICE = 's3'
 const SHA256 = /^[a-f0-9]{64}$/i
+// Factory-owned transport identity. A descriptor, wrapper or copied property
+// cannot register an arbitrary read/write port as this configured S3 transport.
+const PORT_IDENTITIES = new WeakMap()
+
+export function getS3ObjectStoragePortIdentity(port) {
+  return PORT_IDENTITIES.get(port) || null
+}
 
 function storageError(message, status = 503, code = 'KNOWLEDGE_STORAGE_UNAVAILABLE') {
   const error = new Error(message)
@@ -151,7 +158,7 @@ export function createS3ObjectStoragePort({
     }, statuses)
   }
 
-  return Object.freeze({
+  const port = {
     async putImmutable({ key, content, contentType = 'application/octet-stream', expectedSha256 } = {}) {
       const bytes = toBuffer(content)
       const digest = sha256(bytes)
@@ -175,6 +182,27 @@ export function createS3ObjectStoragePort({
       return { bytes, versionId: exactResponseVersion(response, version), contentType: response.headers.get('content-type') || 'application/octet-stream', sha256: sha256(bytes), byteLength: bytes.length }
     },
 
+    // A PENDING intent may have committed its PUT without receiving the reply.
+    // HEAD discovers a candidate version only; content is always read by that
+    // exact version and verified before the caller may attach it to lineage.
+    async recoverImmutable({ key, expectedSha256, byteLength } = {}) {
+      if (typeof expectedSha256 !== 'string' || !SHA256.test(expectedSha256) || !Number.isSafeInteger(byteLength) || byteLength < 0) {
+        throw storageError('Object recovery identity is invalid', 400, 'KNOWLEDGE_STORAGE_CONTENT_INVALID')
+      }
+      let response
+      try { response = await request('HEAD', key) } catch (error) {
+        if (error?.code === 'KNOWLEDGE_STORAGE_OBJECT_NOT_FOUND') return null
+        throw error
+      }
+      const versionId = responseVersion(response)
+      if (!versionId) throw storageError('Object storage did not return an immutable version', 503, 'KNOWLEDGE_STORAGE_VERSION_UNAVAILABLE')
+      const recovered = await port.readExact({ key, versionId })
+      if (recovered.sha256 !== expectedSha256.toLowerCase() || recovered.byteLength !== byteLength) {
+        throw storageError('Recovered object does not match the immutable intent', 409, 'KNOWLEDGE_STORAGE_READBACK_MISMATCH')
+      }
+      return { key, versionId, sha256: recovered.sha256, byteLength: recovered.byteLength }
+    },
+
     async statExact({ key, versionId } = {}) {
       const version = required(versionId, 'Object storage version')
       const response = await request('HEAD', key, { query: [['versionId', version]], statuses: [200] })
@@ -187,7 +215,9 @@ export function createS3ObjectStoragePort({
       for (const versionId of versionIds) await request('DELETE', key, { query: [['versionId', versionId]], statuses: [200, 204] })
       return { key, erasedVersionIds: [...versionIds] }
     },
-  })
+  }
+  PORT_IDENTITIES.set(port, Object.freeze({ endpoint: root.href, bucket: bucketName, region: regionName }))
+  return Object.freeze(port)
 }
 
 export function createConfiguredKnowledgeObjectStoragePort(env = process.env, options = {}) {

@@ -10,6 +10,7 @@ const READY = 'READY'
 const PENDING = 'PENDING'
 const QUARANTINED = 'QUARANTINED'
 const ERASED = 'ERASED'
+const ERASURE_PENDING = 'ERASURE_PENDING'
 
 function storageError(message, status = 503, code = 'KNOWLEDGE_STORAGE_UNAVAILABLE') {
   const error = new Error(message)
@@ -91,6 +92,7 @@ export async function storeKnowledgeRawArtifact({
     assertStorageScope(existing, normalizedScope)
     if (existing.sha256 !== sha256 || existing.objectKey !== key || existing.bindingId !== binding) throw storageError('Knowledge storage identity was reused with different immutable content', 409, 'KNOWLEDGE_STORAGE_IDENTITY_CONFLICT')
     if (existing.status === READY) return existing
+    if (existing.status !== PENDING) throw storageError('Knowledge storage reference cannot be resumed', 409, 'KNOWLEDGE_STORAGE_NOT_RESUMABLE')
   }
   const timestamp = typeof now === 'function' ? now() : now
   const row = existing || await db.knowledgeArtifactStorage.create({ data: {
@@ -112,19 +114,44 @@ export async function storeKnowledgeRawArtifact({
   const operation = existing
     ? await db.knowledgeArtifactOperation.findUnique({ where: { idempotencyKey } }) || await recordOperation(db, { ...normalizedScope, storageId: row.id, idempotencyKey, operation: 'PUT', status: PENDING, actorId })
     : await recordOperation(db, { ...normalizedScope, storageId: row.id, idempotencyKey, operation: 'PUT', status: PENDING, actorId })
+  let pinnedVersionId = row.objectVersionId
   try {
-    const uploaded = row.objectVersionId
-      ? { key: row.objectKey, versionId: row.objectVersionId, sha256, byteLength: bytes.length }
-      : await storage.putImmutable({ key, content: bytes, contentType, expectedSha256: sha256 })
+    const recover = async () => {
+      if (typeof storage.recoverImmutable !== 'function') throw storageError('Knowledge storage recovery port is unavailable', 503, 'KNOWLEDGE_STORAGE_PORT_UNAVAILABLE')
+      return storage.recoverImmutable({ key, expectedSha256: sha256, byteLength: bytes.length })
+    }
+    let uploaded = row.objectVersionId ? { key, versionId: row.objectVersionId } : existing ? await recover() : null
+    if (!uploaded) {
+      try { uploaded = await storage.putImmutable({ key, content: bytes, contentType, expectedSha256: sha256 }) } catch (error) {
+        // A competing retry can win the conditional PUT after recovery found
+        // nothing. Reconcile that winner; never overwrite or invent a version.
+        if (error?.code !== 'KNOWLEDGE_STORAGE_OBJECT_EXISTS') throw error
+        uploaded = await recover()
+        if (!uploaded) throw error
+      }
+    }
+    if (typeof uploaded.versionId !== 'string' || !uploaded.versionId.trim()) throw storageError('Knowledge storage version is unavailable', 503, 'KNOWLEDGE_STORAGE_VERSION_UNAVAILABLE')
+    pinnedVersionId = uploaded.versionId
+    if (!row.objectVersionId) {
+      const pinned = await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: PENDING, objectVersionId: null }, data: { objectVersionId: uploaded.versionId, updatedAt: timestamp } })
+      if (pinned.count !== 1) {
+        const current = await db.knowledgeArtifactStorage.findUnique({ where: { id: row.id } })
+        if (!current || ![PENDING, READY].includes(current.status) || current.objectVersionId !== uploaded.versionId) throw storageError('Knowledge storage changed during recovery', 409, 'KNOWLEDGE_STORAGE_CONFLICT')
+      }
+    }
     const read = await storage.readExact({ key, versionId: uploaded.versionId })
-    if (read.sha256 !== sha256 || read.byteLength !== bytes.length || !Buffer.from(read.bytes).equals(bytes)) throw storageError('Knowledge storage readback hash mismatch', 409, 'KNOWLEDGE_STORAGE_READBACK_MISMATCH')
-    const ready = await db.knowledgeArtifactStorage.update({ where: { id: row.id }, data: { objectVersionId: uploaded.versionId, status: READY, version: { increment: 1 }, updatedAt: timestamp } })
-    await db.knowledgeArtifactOperation.update({ where: { id: operation.id }, data: { status: READY, attempts: { increment: 1 }, evidenceHash: sha256, updatedAt: timestamp } })
+    if (read.versionId !== uploaded.versionId || read.sha256 !== sha256 || read.byteLength !== bytes.length || !Buffer.from(read.bytes).equals(bytes)) throw storageError('Knowledge storage readback hash mismatch', 409, 'KNOWLEDGE_STORAGE_READBACK_MISMATCH')
+    const promoted = await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: PENDING, objectVersionId: uploaded.versionId }, data: { status: READY, version: { increment: 1 }, updatedAt: timestamp } })
+    const ready = await db.knowledgeArtifactStorage.findUnique({ where: { id: row.id } })
+    if (!ready || ready.status !== READY || ready.objectVersionId !== uploaded.versionId || ready.sha256 !== sha256) throw storageError('Knowledge storage changed during readback', 409, 'KNOWLEDGE_STORAGE_CONFLICT')
+    if (promoted.count !== 1) return ready // An identical concurrent retry already committed.
+    await db.knowledgeArtifactOperation.update({ where: { id: operation.id }, data: { status: READY, attempts: { increment: 1 }, errorCode: null, evidenceHash: sha256, updatedAt: timestamp } })
     return ready
   } catch (error) {
     const code = error?.code || 'KNOWLEDGE_STORAGE_PUT_FAILED'
-    await db.knowledgeArtifactOperation.update({ where: { id: operation.id }, data: { status: 'FAILED', attempts: { increment: 1 }, errorCode: code, updatedAt: timestamp } }).catch(() => {})
-    if (error?.code === 'KNOWLEDGE_STORAGE_HASH_MISMATCH' || error?.code === 'KNOWLEDGE_STORAGE_READBACK_MISMATCH') await db.knowledgeArtifactStorage.update({ where: { id: row.id }, data: { status: QUARANTINED, updatedAt: timestamp } }).catch(() => {})
+    const current = await db.knowledgeArtifactStorage.findUnique({ where: { id: row.id } }).catch(() => null)
+    if (current?.status !== READY) await db.knowledgeArtifactOperation.updateMany({ where: { id: operation.id, status: { in: [PENDING, 'FAILED'] } }, data: { status: 'FAILED', attempts: { increment: 1 }, errorCode: code, updatedAt: timestamp } }).catch(() => {})
+    if (error?.code === 'KNOWLEDGE_STORAGE_HASH_MISMATCH' || error?.code === 'KNOWLEDGE_STORAGE_READBACK_MISMATCH') await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: { in: [PENDING, READY] }, objectVersionId: pinnedVersionId ?? null, sha256 }, data: { status: QUARANTINED, version: { increment: 1 }, updatedAt: timestamp } }).catch(() => {})
     throw error
   }
 }
@@ -139,7 +166,12 @@ export async function readKnowledgeRawArtifact({ db, storage, rawArtifactId, sco
   if (typeof authorize !== 'function' || !(await authorize(row))) throw storageError('Knowledge storage read is denied', 403, 'KNOWLEDGE_STORAGE_READ_DENIED')
   if (row.status !== READY || !row.objectVersionId) throw storageError('Knowledge storage reference is not readable', 409, 'KNOWLEDGE_STORAGE_NOT_READY')
   const result = await storage.readExact({ key: row.objectKey, versionId: row.objectVersionId })
-  if (result.sha256 !== row.sha256 || result.byteLength !== row.byteLength) throw storageError('Knowledge storage content failed integrity verification', 409, 'KNOWLEDGE_STORAGE_INTEGRITY_FAILURE')
+  const bytes = Buffer.isBuffer(result?.bytes) || result?.bytes instanceof Uint8Array ? Buffer.from(result.bytes) : null
+  if (!bytes || result.versionId !== row.objectVersionId || bytes.length !== row.byteLength || digest(bytes) !== row.sha256 || result.sha256 !== row.sha256 || result.byteLength !== row.byteLength) {
+    await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: READY, objectVersionId: row.objectVersionId, sha256: row.sha256 },
+      data: { status: QUARANTINED, version: { increment: 1 }, updatedAt: new Date() } })
+    throw storageError('Knowledge storage content failed integrity verification', 409, 'KNOWLEDGE_STORAGE_INTEGRITY_FAILURE')
+  }
   return { ...result, storageId: row.id, rawArtifactId: row.rawArtifactId, contentType: row.contentType }
 }
 
@@ -157,8 +189,12 @@ export async function eraseKnowledgeRawArtifact({ db, storage, rawArtifactId, sc
   const timestamp = typeof now === 'function' ? now() : now
   const idempotencyKey = `knowledge-storage:erase:${row.id}:${row.objectVersionId}`
   const operation = await db.knowledgeArtifactOperation.findUnique({ where: { idempotencyKey } }) || await recordOperation(db, { ...normalizedScope, storageId: row.id, idempotencyKey, operation: 'ERASE', status: 'PENDING', actorId, reason })
+  const claimed = await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: row.status, version: row.version, objectVersionId: row.objectVersionId }, data: { status: ERASURE_PENDING, version: { increment: 1 }, updatedAt: timestamp } })
+  if (claimed.count !== 1) throw storageError('Knowledge storage changed before erasure', 409, 'KNOWLEDGE_STORAGE_CONFLICT')
   await storage.eraseExactVersions({ key: row.objectKey, versionIds: [row.objectVersionId] })
-  const erased = await db.knowledgeArtifactStorage.update({ where: { id: row.id }, data: { status: ERASED, version: { increment: 1 }, updatedAt: timestamp } })
+  const settled = await db.knowledgeArtifactStorage.updateMany({ where: { id: row.id, status: ERASURE_PENDING, objectVersionId: row.objectVersionId }, data: { status: ERASED, version: { increment: 1 }, updatedAt: timestamp } })
+  if (settled.count !== 1) throw storageError('Knowledge storage changed during erasure', 409, 'KNOWLEDGE_STORAGE_CONFLICT')
+  const erased = await db.knowledgeArtifactStorage.findUnique({ where: { id: row.id } })
   await db.knowledgeArtifactOperation.update({ where: { id: operation.id }, data: { status: ERASED, attempts: { increment: 1 }, reason, updatedAt: timestamp } })
   return erased
 }

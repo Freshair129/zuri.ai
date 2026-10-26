@@ -23,9 +23,21 @@ import { createConversationRuntime } from '../../../../services/conversation-run
 // Ordinary metadata turns exercise this suite; dedicated stock/price tests cover the fixed owner path.
 // @tested tests/integration/conversation-runtime-grounding.test.js
 const queryKnowledgeCorpusMock = vi.hoisted(() => vi.fn())
+const citationDeliveryMocks = vi.hoisted(() => ({
+  resolve: vi.fn(async citationId => {
+    const suffix = typeof citationId === 'string' && citationId.startsWith('cit-') ? citationId.slice(4) : ''
+    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 1, corpusGeneration: 4 }
+  }),
+  lock: vi.fn(async () => {}),
+}))
 vi.mock('@/modules/knowledge/knowledge-corpus-service', async (importOriginal) => ({
   ...(await importOriginal()),
   queryKnowledgeCorpus: (...args) => queryKnowledgeCorpusMock(...args),
+  // The corpus query below returns synthetic, unpersisted citations. Keep the
+  // source-revalidation dependency at the same fake boundary; real-source
+  // withdrawal and delivery locking are covered by server-line-jobs.test.js.
+  resolveKnowledgeCitation: (...args) => citationDeliveryMocks.resolve(...args),
+  lockKnowledgeCitationSourcesForDelivery: (...args) => citationDeliveryMocks.lock(...args),
 }))
 
 const serviceToken = 'synthetic-runtime-grounding-core-token-0001'
@@ -165,7 +177,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
     { mode: 'BUSINESS_KNOWLEDGE', corpus: [corpusHit], expected: [productRecord], corpusCalls: 0,
       hops: [{ source: 'BUSINESS_QUERY', mode: undefined, reason: undefined, records: 1 }] },
     { mode: 'GKS_CORPUS', corpus: [corpusHit], corpusCalls: 1,
-      expected: [{ kind: 'CORPUS_CHUNK', text: corpusHit.text, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 4, manifestHash: 'h'.repeat(64) }],
+      expected: [{ kind: 'CORPUS_CHUNK', text: corpusHit.text, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 4, manifestHash: 'a'.repeat(64) }],
       hops: [{ source: 'GKS_CORPUS', mode: 'GKS_CORPUS', reason: null, records: 1 }] },
     { mode: 'GKS_CORPUS', corpus: [], expected: [], corpusCalls: 1,
       hops: [{ source: 'GKS_CORPUS', mode: 'GKS_CORPUS', reason: 'NO_EVIDENCE', records: 0 },
@@ -181,7 +193,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
     it(`${testCase.mode} (${testCase.corpus === 'THROWS' ? 'corpus unavailable' : `${testCase.corpus.length} corpus hit(s)`}): prepare returns the selected evidence and traces each hop on the job`, async () => {
       queryKnowledgeCorpusMock.mockImplementation(async () => {
         if (testCase.corpus === 'THROWS') throw new Error('MSP worker failed with SQL detail')
-        return { corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: testCase.corpus }
+        return { corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: testCase.corpus }
       })
       const account = await createAccount({ runtimeOwner: 'CONVERSATION_RUNTIME', knowledgeGrounding: testCase.mode })
       const job = await admit(account.id, `synthetic-grounding-prepare-${index}`)
@@ -207,7 +219,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
   }
 
   it('GKS_CORPUS: a full runtime turn answers from the corpus chunk and records the delivery', async () => {
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [corpusHit] })
     const account = await createAccount({ runtimeOwner: 'CONVERSATION_RUNTIME', knowledgeGrounding: 'GKS_CORPUS' })
     const admitted = await admit(account.id, 'synthetic-grounding-full-turn')
     const modelInputs = []

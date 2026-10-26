@@ -10,6 +10,14 @@ import {
 } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { applyLineOaAccountAction } from '@/modules/line-oa-studio/application/line-oa-account-service'
 
+const resolveKnowledgeCitationMock = vi.hoisted(() => vi.fn())
+const lockKnowledgeCitationsMock = vi.hoisted(() => vi.fn(async () => {}))
+vi.mock('@/modules/knowledge/knowledge-corpus-service', async (importOriginal) => {
+  const actual = await importOriginal()
+  return { ...actual, resolveKnowledgeCitation: (...args) => resolveKnowledgeCitationMock(...args),
+    lockKnowledgeCitationSourcesForDelivery: (...args) => lockKnowledgeCitationsMock(...args) }
+})
+
 // @req FR-149, FR-150 — real durable admission and fenced delivery recovery.
 // @req FR-265 — the device compute lease this file also covered is withdrawn
 //   (ADR-100 D2); what survives is the server worker's own claim and send path.
@@ -51,6 +59,51 @@ const worker = (over = {}) => ({
   ...over,
 })
 
+function currentGksCitation(citationId, over = {}) {
+  return {
+    citationId,
+    corpusId: 'corpus-1',
+    corpusGeneration: 4,
+    sourceId: 'source-1',
+    sourceVersion: 'v1',
+    ingestionId: 'ingestion-1',
+    snapshotId: 'snapshot-1',
+    generation: 2,
+    rawArtifactId: 'raw-1',
+    parsedArtifactId: 'parsed-1',
+    chunkId: 'chunk-1',
+    contentHash: 'a'.repeat(64),
+    title: 'Published source',
+    fileAssetId: null,
+    text: 'published evidence',
+    startOffset: 0,
+    endOffset: 18,
+    ...over,
+  }
+}
+
+function answerWithGksTrace(citationId, { includeContextReceipt = true, sourceId = 'source-1' } = {}) {
+  return vi.fn(async (_execution, { trace }) => {
+    await trace.recordEvidence({ queryId: 'product_detail', params: { productCode: 'AB-1' } }, {
+      records: [{ kind: 'CORPUS_CHUNK', citationId, text: 'published evidence' }],
+    }, {
+      mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: null,
+      retrievalRefs: [{ citationId, sourceId, snapshotId: 'snapshot-1', generation: 2,
+        corpusGeneration: 4, manifestHash: 'b'.repeat(64) }], budgetMs: 1,
+    })
+    if (includeContextReceipt) {
+      await trace.recordContextReceipt({
+        receiptId: 'ctxrcpt_00000000-0000-4000-8000-000000000235',
+        refs: { msp: [], citations: [citationId], records: [] },
+        hash: 'c'.repeat(64),
+        budget: { max: 1600, used: 18, trimmed: 0 },
+        dropped: [],
+      })
+    }
+    return { text: 'answer grounded in the published source' }
+  })
+}
+
 /** Inject one storage failure while retaining the actual SQLite transaction. */
 function failingTransaction(model, operation, shouldFail, code) {
   return new Proxy(prisma, { get(target, key) {
@@ -79,6 +132,8 @@ beforeAll(async () => {
 afterEach(async () => {
   // Only this suite's queue rows: workers in later tests must not claim abandoned fixtures.
   await prisma.lineConversationJob.deleteMany({ where: { tenantId: tenant.id } })
+  resolveKnowledgeCitationMock.mockReset()
+  lockKnowledgeCitationsMock.mockReset().mockResolvedValue(undefined)
 })
 
 // @req FR-265 — `describe('negotiated Edge reply deadline')` covered the v2 claim
@@ -218,6 +273,253 @@ describe('server transport and acceptance recovery', () => {
     expect(options.pushTransport.send).toHaveBeenCalledTimes(1)
     expect(options.answer).toHaveBeenCalledTimes(1)
     expect((await row(admitted.jobId)).sealedReplyToken).toBeNull()
+  })
+
+  // @req FR-235 — a selected GKS citation remains current through a durable delayed send.
+  // @spec ADR-072 D10 and Acceptance — a withdrawn source cannot leak through a delayed response.
+  it('uses the actual scoped source fence to deny a committed withdrawal before delayed send', async () => {
+    const actual = await vi.importActual('@/modules/knowledge/knowledge-corpus-service')
+    const corpus = await prisma.knowledgeCorpus.create({ data: {
+      corpusKey: `send-fence-${++sequence}`, portfolioId: tenant.portfolioId, tenantId: tenant.id,
+      businessId: businessA.id, scopeJson: JSON.stringify({ portfolioId: tenant.portfolioId,
+        tenantId: tenant.id, businessId: businessA.id, workspaceId: '', agentId: '', visibility: 'private' }), policyJson: '{}',
+    } })
+    const source = await prisma.knowledgeSource.create({ data: { corpusId: corpus.id,
+      sourceKey: 'delayed-send', kind: 'TEXT', title: 'Delayed send proof' } })
+    const citationId = actual.citationReference({ corpusId: corpus.id, sourceId: source.id,
+      corpusGeneration: 4, ingestionId: 'ingestion-1', chunkId: 'chunk-1' })
+    lockKnowledgeCitationsMock.mockImplementation(actual.lockKnowledgeCitationSourcesForDelivery)
+    resolveKnowledgeCitationMock.mockResolvedValue(currentGksCitation(citationId, { corpusId: corpus.id, sourceId: source.id }))
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-real-source-withdrawal'))
+    const options = worker({ answer: answerWithGksTrace(citationId, { sourceId: source.id }),
+      replyTransport: { send: vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400' })) } })
+    expect(await runLineConversationWorker(options)).toMatchObject({ id: admitted.jobId, status: 'READY' })
+    const withdrawn = await actual.withdrawKnowledgeSource(source.id, { expectedVersion: source.version }, {
+      db: prisma, viewer: makeViewer({ role: 'OWNER', visibleBusinessIds: [businessA.id], ownedBusinessIds: [businessA.id] }), env,
+    })
+    expect(withdrawn.status).toBe('WITHDRAWN')
+    resolveKnowledgeCitationMock.mockClear()
+    expect(await runLineConversationWorker({ ...options, now: () => later(60_000) })).toMatchObject({ status: 'CANCELLED' })
+    expect((await row(admitted.jobId)).errorCode).toBe('LINE_GKS_AUTHORITY_REVOKED')
+    expect(resolveKnowledgeCitationMock).not.toHaveBeenCalled()
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+    expect(options.answer).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    { ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_TEST_ONLY' },
+    { ZURI_MAIN_DEV_LOCAL_OLLAMA_KNOWLEDGE_SOURCE: 'GENESISRAG17_CUSTOMER_PRODUCTS' },
+    { ZURI_MAIN_DEV_LOCAL_OLLAMA_ENABLED: 'true' },
+  ])('does not borrow a process-wide test setting to bypass generic GKS authority: %j', async extraEnv => {
+    const citationId = 'gks-no-process-wide-bypass'
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS' })
+    const admitted = await admit(oa, event(`gks-no-process-wide-bypass-${sequence}`))
+    const options = worker({ env: { ...env, ...extraEnv }, answer: answerWithGksTrace(citationId) })
+    resolveKnowledgeCitationMock.mockRejectedValue(Object.assign(new Error('Source revoked'), { status: 404 }))
+    expect(await runLineConversationWorker(options)).toMatchObject({ status: 'CANCELLED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'CANCELLED', errorCode: 'LINE_GKS_AUTHORITY_REVOKED' })
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+  })
+
+  it('keeps the same READY answer when its source lock is temporarily unavailable', async () => {
+    const citationId = 'gks-source-lock-unavailable'
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS' })
+    const admitted = await admit(oa, event('gks-source-lock-unavailable'))
+    const options = worker({ answer: answerWithGksTrace(citationId) })
+    lockKnowledgeCitationsMock.mockRejectedValueOnce(Object.assign(new Error('Source lock unavailable'), {
+      status: 503, code: 'KNOWLEDGE_DELIVERY_FENCE_UNAVAILABLE',
+    }))
+    await expect(runLineConversationWorker(options)).rejects.toMatchObject({ code: 'KNOWLEDGE_DELIVERY_FENCE_UNAVAILABLE' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', attempts: 0,
+      answerText: 'answer grounded in the published source' })
+    expect(options.replyTransport.send).not.toHaveBeenCalled()
+    expect(resolveKnowledgeCitationMock).not.toHaveBeenCalled()
+    resolveKnowledgeCitationMock.mockResolvedValue(currentGksCitation(citationId))
+    expect(await runLineConversationWorker(options)).toMatchObject({ status: 'RECORDED' })
+    expect(options.answer).toHaveBeenCalledTimes(1)
+    expect(options.replyTransport.send).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not push a delayed GKS answer when its selected citation no longer resolves', async () => {
+    const citationId = 'gks-citation-withdrawn-before-delayed-send'
+    let withdrawn = false
+    const revokedCitationChecks = []
+    resolveKnowledgeCitationMock.mockImplementation(async requestedCitationId => {
+      expect(requestedCitationId).toBe(citationId)
+      if (withdrawn) {
+        revokedCitationChecks.push(requestedCitationId)
+        throw Object.assign(new Error('Knowledge source is no longer available'), { code: 'KNOWLEDGE_SOURCE_REVOKED', status: 404 })
+      }
+      return currentGksCitation(citationId)
+    })
+
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-citation-withdrawn-before-delayed-send'))
+    const answer = answerWithGksTrace(citationId)
+    const replySend = vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-gks' }))
+    const pushSend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'push-after-withdrawal' }))
+    const firstWorker = worker({ answer, replyTransport: { send: replySend }, pushTransport: { send: pushSend } })
+
+    await expect(runLineConversationWorker(firstWorker)).resolves.toMatchObject({ id: admitted.jobId, status: 'READY' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH', answerText: 'answer grounded in the published source' })
+    expect(resolveKnowledgeCitationMock).toHaveBeenCalledTimes(1)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+
+    withdrawn = true
+    const recovered = await runLineConversationWorker({ ...firstWorker, now: () => later(60_000) })
+
+    expect(recovered).toMatchObject({ id: admitted.jobId, status: 'CANCELLED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'CANCELLED', answerText: null, sealedReplyToken: null })
+    expect(revokedCitationChecks).toEqual([citationId])
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
+  })
+
+  it('cancels a generic GKS answer when its execution has no ContextReceipt', async () => {
+    const citationId = 'gks-citation-missing-context-receipt'
+    resolveKnowledgeCitationMock.mockResolvedValue(currentGksCitation(citationId))
+
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-citation-missing-context-receipt'))
+    const answer = answerWithGksTrace(citationId, { includeContextReceipt: false })
+    const replySend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'reply-without-context-receipt' }))
+    const pushSend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'push-without-context-receipt' }))
+
+    const result = await runLineConversationWorker(worker({ answer,
+      replyTransport: { send: replySend }, pushTransport: { send: pushSend } }))
+
+    expect(result).toMatchObject({ id: admitted.jobId, status: 'CANCELLED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'CANCELLED', answerText: null,
+      errorCode: 'LINE_GKS_AUTHORITY_REVOKED', sealedReplyToken: null })
+    expect(resolveKnowledgeCitationMock).not.toHaveBeenCalled()
+    expect(replySend).not.toHaveBeenCalled()
+    expect(pushSend).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not push a delayed GKS answer when the resolved citation identity changed', async () => {
+    const citationId = 'gks-citation-identity-changed-before-delayed-send'
+    let identityChanged = false
+    resolveKnowledgeCitationMock.mockImplementation(async requestedCitationId => {
+      expect(requestedCitationId).toBe(citationId)
+      return identityChanged
+        ? currentGksCitation(citationId, { sourceId: 'source-replaced' })
+        : currentGksCitation(citationId)
+    })
+
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-citation-identity-changed-before-delayed-send'))
+    const answer = answerWithGksTrace(citationId)
+    const replySend = vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-gks-identity' }))
+    const pushSend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'push-after-citation-identity-change' }))
+    const firstWorker = worker({ answer, replyTransport: { send: replySend }, pushTransport: { send: pushSend } })
+
+    await expect(runLineConversationWorker(firstWorker)).resolves.toMatchObject({ id: admitted.jobId, status: 'READY' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH', answerText: 'answer grounded in the published source' })
+    expect(resolveKnowledgeCitationMock).toHaveBeenCalledTimes(1)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+
+    identityChanged = true
+    const recovered = await runLineConversationWorker({ ...firstWorker, now: () => later(60_000) })
+
+    expect(recovered).toMatchObject({ id: admitted.jobId, status: 'CANCELLED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'CANCELLED', answerText: null,
+      errorCode: 'LINE_GKS_AUTHORITY_REVOKED', sealedReplyToken: null })
+    expect(resolveKnowledgeCitationMock).toHaveBeenCalledTimes(2)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
+  })
+
+  it('leaves a delayed GKS answer READY after a transient citation resolver failure', async () => {
+    const citationId = 'gks-citation-temporary-resolver-failure'
+    let resolverCalls = 0
+    resolveKnowledgeCitationMock.mockImplementation(async requestedCitationId => {
+      expect(requestedCitationId).toBe(citationId)
+      resolverCalls += 1
+      if (resolverCalls === 2) {
+        throw Object.assign(new Error('Knowledge citation resolver is temporarily unavailable'), {
+          code: 'KNOWLEDGE_TEMPORARILY_UNAVAILABLE', status: 503,
+        })
+      }
+      return currentGksCitation(citationId)
+    })
+
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-citation-temporary-resolver-failure'))
+    const answer = answerWithGksTrace(citationId)
+    const replySend = vi.fn(async () => ({ status: 'PERMANENT_FAILURE', code: 'LINE_HTTP_400', requestId: 'reply-400-gks-retry' }))
+    const pushSend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'push-after-resolver-recovery' }))
+    const firstWorker = worker({ answer, replyTransport: { send: replySend }, pushTransport: { send: pushSend } })
+
+    await expect(runLineConversationWorker(firstWorker)).resolves.toMatchObject({ id: admitted.jobId, status: 'READY' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH', answerText: 'answer grounded in the published source' })
+    expect(resolverCalls).toBe(1)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+
+    await expect(runLineConversationWorker({ ...firstWorker, now: () => later(60_000) }))
+      .rejects.toMatchObject({ code: 'KNOWLEDGE_TEMPORARILY_UNAVAILABLE', status: 503 })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'READY', sendMethod: 'PUSH', answerText: 'answer grounded in the published source' })
+    expect(resolverCalls).toBe(2)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
+
+    const recovered = await runLineConversationWorker({ ...firstWorker, now: () => later(61_000) })
+
+    expect(recovered).toMatchObject({ id: admitted.jobId, status: 'RECORDED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'RECORDED', answerText: 'answer grounded in the published source' })
+    expect(resolverCalls).toBe(3)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(pushSend).toHaveBeenCalledTimes(1)
+    expect(answer).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps a READY GKS answer recoverable after a transient execution-trace read failure', async () => {
+    const citationId = 'gks-citation-temporary-trace-read-failure'
+    resolveKnowledgeCitationMock.mockResolvedValue(currentGksCitation(citationId))
+
+    const oa = await account({ knowledgeGrounding: 'GKS_CORPUS', allowDelayedPush: true })
+    const admitted = await admit(oa, event('gks-citation-temporary-trace-read-failure'))
+    const answer = answerWithGksTrace(citationId)
+    const replySend = vi.fn(async () => ({ status: 'ACCEPTED_BY_LINE', requestId: 'reply-after-trace-recovery' }))
+    let failedAtSend = false
+    const db = failingTransaction('agentTraceEvent', 'findMany', args => {
+      if (!failedAtSend && args?.where?.turnId === admitted.jobId) {
+        failedAtSend = true
+        return true
+      }
+      return false
+    }, 'EXECUTION_TRACE_READ_TEMPORARY')
+    const options = worker({ db, answer, replyTransport: { send: replySend } })
+
+    await expect(runLineConversationWorker(options)).rejects.toThrow('EXECUTION_TRACE_READ_TEMPORARY')
+    expect(failedAtSend).toBe(true)
+    const ready = await row(admitted.jobId)
+    expect(ready).toMatchObject({ status: 'READY', answerText: 'answer grounded in the published source' })
+    expect(ready.executionId).toBeTruthy()
+    const persistedTrace = await prisma.agentTraceEvent.findMany({ where: { tenantId: ready.tenantId,
+      businessId: ready.businessId, turnId: ready.id, executionId: ready.executionId } })
+    expect(persistedTrace.map(item => item.kind)).toEqual(expect.arrayContaining(['EVIDENCE_SELECTED', 'CONTEXT_RECEIPT']))
+    expect(resolveKnowledgeCitationMock).not.toHaveBeenCalled()
+    expect(replySend).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
+
+    const recovered = await runLineConversationWorker(options)
+
+    expect(recovered).toMatchObject({ id: admitted.jobId, status: 'RECORDED' })
+    expect(await row(admitted.jobId)).toMatchObject({ status: 'RECORDED', answerText: 'answer grounded in the published source' })
+    expect(resolveKnowledgeCitationMock).toHaveBeenCalledTimes(1)
+    expect(replySend).toHaveBeenCalledTimes(1)
+    expect(options.pushTransport.send).not.toHaveBeenCalled()
+    expect(answer).toHaveBeenCalledTimes(1)
   })
 
   it('keeps a dead Reply token terminal when the account does not allow delayed Push', async () => {

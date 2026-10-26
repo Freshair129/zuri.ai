@@ -9,12 +9,16 @@ import { makeOperatorViewer } from '../factories/viewer'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { GENESIS_RAG17_SCHEMA_VERSION } from '@/modules/knowledge/genesisrag17-contract'
+import { readKnowledgeRawArtifact } from '@/modules/knowledge/knowledge-artifact-storage-service'
 import { exportSnapshot, importSnapshot, previewSnapshot } from '@/modules/project-manager/application/backup-service'
 
 describe('TASK-ZAI-049 raw ingestion storage binding', () => {
   let scope
   let connectionId
   let viewer
+  let objects
+  let storagePort
+  let lastRead
 
   beforeAll(async () => {
     const suffix = randomUUID().slice(0, 8)
@@ -30,39 +34,42 @@ describe('TASK-ZAI-049 raw ingestion storage binding', () => {
 
   it('stores the exact UTF-8 bytes and returns a READY version-bound reference', async () => {
     const content = 'ราคา 10 บาท\nบรรทัดสอง'
-    const objects = new Map()
-    const storage = {
+    objects = new Map()
+    lastRead = null
+    storagePort = {
       putImmutable: async ({ key, content: bytes, expectedSha256 }) => {
         const versionId = 'storage-version-1'
         objects.set(`${key}|${versionId}`, Buffer.from(bytes))
         return { key, versionId, sha256: expectedSha256, byteLength: bytes.length }
       },
       readExact: async ({ key, versionId }) => {
+        lastRead = { key, versionId }
         const bytes = objects.get(`${key}|${versionId}`)
+        if (!bytes) {
+          const error = new Error('Test object bytes are unavailable')
+          error.code = 'TEST_OBJECT_MISSING'
+          throw error
+        }
         return { bytes, versionId, sha256: createHash('sha256').update(bytes).digest('hex'), byteLength: bytes.length }
       },
     }
     const transport = async (name, request) => ({ schemaVersion: GENESIS_RAG17_SCHEMA_VERSION, scope: request.scope, batchId: request.batch.batchId, decisionId: null, status: 'PENDING' })
     const result = await ingestGenesisRag17Raw({ scope, policy: { allowEmbedding: true, allowPublication: true }, source: {
       sourceId: `storage://source/${randomUUID()}`, documentId: 'storage-doc', version: '1', content, connectionId, sourceType: 'TEXT', sourceUri: 'storage-test',
-    } }, { db: prisma, viewer, transport, credential: 'storage-test', storagePort: storage, storageBinding: { id: 'minio-local', revision: 1, bucket: 'knowledge-raw' } })
+    } }, { db: prisma, viewer, transport, credential: 'storage-test', storagePort, storageBinding: { id: 'minio-local', revision: 1, bucket: 'knowledge-raw' } })
     const stored = await prisma.knowledgeArtifactStorage.findUnique({ where: { rawArtifactId: result.source.rawArtifactId } })
     expect(stored).toMatchObject({ status: 'READY', objectVersionId: 'storage-version-1', bucket: 'knowledge-raw', byteLength: Buffer.byteLength(content), contentType: 'text/plain' })
     expect(stored.sha256).toBe(createHash('sha256').update(Buffer.from(content, 'utf8')).digest('hex'))
     expect(objects.size).toBe(1)
   })
 
-  it('round-trips storage metadata and operation evidence in the installation snapshot', async () => {
+  it('restores storage metadata but does not restore missing external object bytes', async () => {
     const storedBefore = await prisma.knowledgeArtifactStorage.findFirst({ where: { businessId: scope.businessId }, orderBy: { createdAt: 'desc' } })
     expect(storedBefore).toMatchObject({ status: 'READY', objectVersionId: 'storage-version-1' })
     const operationBefore = await prisma.knowledgeArtifactOperation.findFirst({ where: { storageId: storedBefore.id }, orderBy: { createdAt: 'desc' } })
     expect(operationBefore).toMatchObject({ operation: 'PUT', status: 'READY', evidenceHash: storedBefore.sha256 })
 
     const snapshot = await exportSnapshot({ db: prisma })
-    expect(previewSnapshot(snapshot).artifactStorageRecovery).toMatchObject({
-      status: 'AVAILABLE',
-      manifestVersion: 'knowledge-artifact-storage-recovery.v1',
-    })
     expect(snapshot.tables.knowledgeArtifactStorage).toContainEqual(expect.objectContaining({
       id: storedBefore.id,
       rawArtifactId: storedBefore.rawArtifactId,
@@ -77,6 +84,11 @@ describe('TASK-ZAI-049 raw ingestion storage binding', () => {
 
     await prisma.knowledgeArtifactOperation.delete({ where: { id: operationBefore.id } })
     await prisma.knowledgeArtifactStorage.update({ where: { id: storedBefore.id }, data: { status: 'QUARANTINED' } })
+    objects.clear()
+    expect(previewSnapshot(snapshot).artifactStorageRecovery).toMatchObject({
+      status: 'AVAILABLE',
+      manifestVersion: 'knowledge-artifact-storage-recovery.v1',
+    })
 
     const result = await importSnapshot(snapshot, { db: prisma, viewer: makeOperatorViewer(), confirm: true })
     expect(result.restored).toBe(true)
@@ -93,5 +105,13 @@ describe('TASK-ZAI-049 raw ingestion storage binding', () => {
       status: 'READY',
       evidenceHash: storedBefore.sha256,
     })
+    await expect(readKnowledgeRawArtifact({
+      db: prisma,
+      storage: storagePort,
+      rawArtifactId: storedBefore.rawArtifactId,
+      scope,
+      authorize: async () => true,
+    })).rejects.toMatchObject({ code: 'TEST_OBJECT_MISSING' })
+    expect(lastRead).toEqual({ key: storedBefore.objectKey, versionId: storedBefore.objectVersionId })
   })
 })

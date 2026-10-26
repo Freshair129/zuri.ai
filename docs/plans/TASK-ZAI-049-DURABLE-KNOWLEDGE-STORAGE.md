@@ -1,10 +1,10 @@
 ---
 id: ZAI:TASK-ZAI-049-STORAGE-SPEC
 title: TASK-ZAI-049 — Durable knowledge storage on self-hosted S3
-version: "0.1.1"
+version: "0.1.5"
 status: beta
 created_at: "2026-09-17T22:06:27+07:00,RWANG,base 0c7fd884"
-last_update: "2026-09-17T23:52:00+07:00,RWANG"
+last_update: "2026-10-26,Codex"
 superseded_by: null
 attributes:
   domain: knowledge
@@ -163,8 +163,13 @@ logical storage intent per scoped admission identity. An artifact's original ref
 is immutable once READY. No cross-Business deduplication, filenames or personal data
 in keys. A key is opaque and collision-safe even for identical bytes from two sources.
 
-The internal port provides `putImmutable`, `readExact`, `statExact` and an independently
-authorized `eraseExactVersions`. Reads require a trusted binding and exact version;
+The internal port provides `putImmutable`, `readExact`, `statExact`, recovery-only
+`recoverImmutable`, and an independently authorized `eraseExactVersions`.
+Recovery may discover a candidate version with a scoped-key HEAD, then reads only
+that exact version and verifies its actual byte length and SHA-256 against the
+durable intent before attaching it. A missing object permits another conditional
+PUT; an outage, absent version identity or mismatch never permits an overwrite.
+Reads require a trusted binding and exact version;
 there is no fallback to an object's latest version or caller-supplied URL. Provider
 capabilities include versioning, retention behavior, immutable-write conflicts,
 checksums/readback, version enumeration and deletion; probe the pinned release rather
@@ -258,6 +263,67 @@ Apply current erasure decisions, then test exact bytes and Fact -> chunk -> pars
 lineage through the owning services. Missing native prerequisites make the full proof
 BLOCKED, while independently completed storage checks retain their narrower result.
 
+### 8.1 Bounded offline TEST qualification (2026-10-26)
+
+The authorized continuation qualifies exact-version object copying in isolation;
+it does not introduce an application restore reader or activate serving. The
+selected approach uses the existing object port, a content-free backup manifest,
+and an append-only mapping receipt. Overwriting imported READY references would
+lose original provenance; assuming a destination preserves provider version IDs
+would silently substitute physical identity. Neither alternative is used.
+
+Implementation remains process-only and limited to synthetic TEST data:
+
+1. `knowledge-object-recovery-service.js` binds a complete snapshot hash and its
+   storage inventory, copies original exact versions into a separate TEST backup
+   bucket, and verifies returned versions, actual bytes, SHA-256 and length.
+2. Restore into a newly initialized TEST database and bucket with no app server,
+   worker or reader enabled. Check original restored metadata against the pinned
+   snapshot. Apply a separately supplied synthetic test erasure decision set
+   before copying: withheld objects receive no destination copy. This test
+   evidence is not an approved operational erasure-ledger contract or payload purge.
+3. Copy only pinned backup versions. Verify each new destination version and
+   record original -> backup -> restored references in an append-only AuditEvent,
+   with scoped RESTORE operation rows anchoring the receipt hash. Keep all
+   original raw/citation identities and READY object references unchanged.
+4. A diagnostic verification reads only receipt-pinned restored versions; it
+   does not change the application's reader. Runtime activation is always false.
+   Failure, collision, missing version, modified manifest, absent/stale test
+   decision evidence or wrong/non-TEST target fails closed. An interrupted copy
+   with no receipt is not resumed by reading latest; its copied versions remain
+   unadopted until separately reconciled.
+   Binding validation also checks the endpoint, bucket and region recorded by
+   the actual S3 port factory before any I/O. Factory-private immutable identity
+   is required; copied identity properties or read/write method wrappers are
+   not proof of a transport's destination. Operations capture the validated
+   binding/port tuple once so mutation of a caller's descriptor during an await
+   cannot redirect later I/O. Test observation stays at the fetch
+   seam and does not replace the registered port.
+5. Unit/synthetic regressions and an explicit storage qualification config test
+   the same logic. The optional actual-provider harness uses fresh loopback-only
+   MinIO and versioned scratch buckets plus a clean disposable database. Provider
+   contract evidence is reported separately from native recovery and acceptance.
+
+The local harness uses a newly labelled Docker-managed local volume, initialized
+for the pinned image's UID/GID 1000:1000, with no existing volume or Windows bind
+mount. It verifies the exact container ID, run-specific name, image, scope label and `/data`
+mount before removing its own container and volume. Startup state and bounded
+credential-redacted logs are retained before cleanup on failure. An explicit
+health-only probe creates no buckets or child database and proves no object copy.
+Run the full profile with `npm --prefix apps/server run test:knowledge-restore:isolated`;
+its successful synthetic-data storage/Tier 1 proof is not application activation.
+
+The working files are the Knowledge service, its unit tests, a dedicated
+`vitest.knowledge-restore.config.js`, and `tests/storage/` qualification tests.
+The integrator runs relevant SQLite/PostgreSQL commercial and Knowledge checks,
+build and governance, then obtains independent Luna Max review. No commit or
+deployment is part of this increment.
+
+Full §8 recovery remains blocked until current owner-issued native checkpoints
+and instructions, a snapshot-independent current erasure ledger/authority, and
+key-reference/recovery evidence exist. This TEST manifest/receipt is not their
+replacement, and no positive copy result permits production or application serving.
+
 ## 9. Migration, release and rollback
 
 After spec approval, prepare additive schema/contract changes and scoped backfill tools
@@ -329,10 +395,27 @@ backup/restore proof and operator gates. Runtime code, database and production u
 mismatches and backup references that do not resolve to scoped raw lineage or storage
 parents; production acceptance remains NOT_RUN.
 
+`0.1.1` -> `0.1.2` beta: explains the existing lost-response recovery obligation's
+internal port. Recovery retains known versions before readback; lifecycle transitions
+use compare-and-swap so delayed reads cannot overwrite erasure/quarantine. Erasure
+claims ERASURE_PENDING before deleting, and authorized retries retain the same exact
+version. A late duplicate failure cannot downgrade a successful PUT journal. Raw
+reads verify actual bytes and quarantine the same READY version on corruption. These
+are bounded lifecycle repairs, not full backup/restore or production acceptance.
+
+`0.1.2` -> `0.1.3` beta: records the bounded offline TEST implementation and
+qualification sequence for exact-version copies and audited physical-reference
+mapping; application readers stay closed and missing owner recovery contracts
+remain explicit. No public restore route or new document grants.
+
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.5 | 2026-10-26 | beta | Closes descriptor/actual-port mismatch through factory-bound endpoint, bucket and region checks before I/O | working tree | Codex |
+| 0.1.4 | 2026-10-26 | beta | Explains the isolated local-volume/UID fixture and separate health-only evidence; application recovery gates unchanged | working tree | Codex |
+| 0.1.3 | 2026-10-26 | beta | Offline synthetic TEST copy/mapping qualification; no runtime activation or full restore acceptance | working tree | Codex |
+| 0.1.2 | 2026-10-26 | beta | Bounded lost-response recovery, lifecycle CAS and erasure fence; no production adoption | working tree | Codex |
 | 0.1.0b | 2026-09-17 | candidate | Initial self-hosted S3 raw durability, retention and coordinated recovery specification | base 0c7fd884 | RWANG |
 | 0.1.0 | 2026-09-17 | beta | Owner-approved isolated implementation: provider port, scoped references, operation journal, backup inventory and Stage 1 readback proof; production acceptance remains NOT_RUN | 335cf917 | RWANG |
 | 0.1.1 | 2026-09-17 | beta | Isolated acceptance hardening: provider version mismatch checks and scoped backup lineage validation; production acceptance remains NOT_RUN | 87e69c2f | RWANG |

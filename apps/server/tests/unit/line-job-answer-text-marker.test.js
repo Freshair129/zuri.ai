@@ -61,6 +61,8 @@ describe('LineConversationJob.answerText writers (FR-244 marker invariant)', () 
       'modules/line-oa-studio/application/line-conversation-jobs.js :: null',
       // Customer product disclosure revoked: CANCELLED, stale reply cleared.
       'modules/line-oa-studio/application/line-conversation-jobs.js :: null',
+      // GKS citation authority revoked: CANCELLED, stale reply cleared.
+      'modules/line-oa-studio/application/line-conversation-jobs.js :: null',
       // settleExecution: text only with READY (see the next case).
       "modules/line-oa-studio/application/line-conversation-jobs.js :: finalStatus === 'UNKNOWN' ? null : text ?? null",
       // PDPA erasure: cleared.
@@ -83,6 +85,7 @@ describe('LineConversationJob.answerText writers (FR-244 marker invariant)', () 
     expect(source).toContain(`data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_PRODUCT_FACTS_AUTHORITY_REVOKED'`)
     expect(source).toContain(`data: { status: 'CANCELLED', answerText: null, errorCode: 'MAIN_DEV_TEST_RAG_AUTHORITY_REVOKED'`)
     expect(source).toContain(`data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_CUSTOMER_PRODUCT_AUTHORITY_REVOKED'`)
+    expect(source).toContain(`data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_GKS_AUTHORITY_REVOKED'`)
     expect(source).toMatch(/code = 'REPLY_DEADLINE_MISSED'\r?\n\s*text = undefined/)
   })
 
