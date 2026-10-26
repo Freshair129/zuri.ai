@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.4"
+version: "0.3.5"
 checked_at: "2026-10-25"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -24,7 +24,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 | [`governance/`](../governance/README.md) | 1 / 0 | [Documentation entrypoint](../README.md) and [generated governance navigation](../governance/README.md) | The main documentation index links the new profile and filesystem registers; the generated view remains unchanged in this no-generator pass. |
 | [`migrations/`](../migrations/) | 0 / 4 | [Operations index](../operations/README.md) | Generated operations view lists migration documents; each migration lane keeps its own authority and evidence. |
 | [`operations/`](../operations/README.md) | 1 / 0 | `README.md` | Generated operations navigation includes deployment, migrations, plans, and runbooks. |
-| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. Main `2b424364` has 17 direct files; the proposed Compact plan adds one, for 18 on disk. Legacy source-path exceptions and each plan's approval boundary are explicit in that index. |
+| [`plans/`](../plans/README.md) | 20 / 0 | `README.md` | Historical base count. Main `2b424364` has 17 direct files; the approved Compact plan adds one, for 18 on disk. Legacy source-path exceptions and each plan's approval/selection boundary are explicit in that index. |
 | [`product/`](../product/README.md) | 1 / 0 | `README.md` | Generated product navigation. |
 | [`prompts/`](../prompts/README.md) | 1 / 0 | `README.md` | Added an index marking the only prompt as historical and non-authorizing. |
 | [`requirements/`](../requirements/) | 345 / 0 | [Canonical document registry](../../registry/document-registry/index.json) | Registry owns requirement paths; no second ID list. |

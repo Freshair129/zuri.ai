@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -9,8 +9,13 @@ code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 # Compact self-host source reconciliation
 
 This is a bounded packaging and capability assessment at the revision above.
-It informs [candidate ADR-115](../../docs/decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md)
-and its [proposed plan](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
+Follow-up on 2026-10-27: the owner approved the ADR and plan at `e5fcfd4b` and
+selected Task1. The findings/checks below remain the planning snapshot; this
+approval does not turn them into installation or production acceptance.
+It informs [accepted ADR-115](../../docs/decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md)
+and its [approved plan](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
+Subsequent Task1 results live in the [packaging delivery evidence](task1-packaging.md);
+they do not replace this dated source assessment.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 

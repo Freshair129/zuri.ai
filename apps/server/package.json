@@ -7,6 +7,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "compact:package": "node scripts/compact-package.mjs",
+    "compact:test": "node --test tests/node/compact-manifest.test.mjs tests/node/compact-package.test.mjs tests/node/compact-workflow.test.mjs",
     "lint": "next lint",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",

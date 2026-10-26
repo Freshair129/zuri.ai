@@ -1,8 +1,11 @@
 ---
 id: ZAI:ADR-115
 title: Compact single-host deployment profile and qualification boundaries
-version: "0.1.0b"
-status: candidate
+version: "0.1.1"
+status: accepted
+approved_on: "2026-10-27"
+approved_artifact_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
+approval_scope: architecture-and-plan; Task1 implementation selected; no production action
 created_at: "2026-10-27"
 last_update: "2026-10-27"
 author: Codex
@@ -34,10 +37,10 @@ relations:
 
 # ADR-115 — Compact single-host deployment profile and qualification boundaries
 
-**Status:** Candidate. The owner selected the direction "single host, AI parts
-separately qualified" on 2026-10-27 and requested an ADR and implementation plan
-before code. This document is a reviewable proposal, not approval of its exact
-revision or permission to implement, migrate or deploy it.
+**Status:** Accepted. On 2026-10-27 the owner approved ADR-115 and the
+implementation plan at `e5fcfd4b599d328c1b1210b310746e6a573f2c25`, and selected
+Task1 on the existing primary-checkout branch. Tasks2–7, installation and
+production operations have not been selected by that instruction.
 
 ## Context
 
@@ -62,7 +65,7 @@ product, seven separate applications or a reduced requirement registry.
 
 ### D1 — One host, existing application authority
 
-Propose a versioned Docker Compose release whose image platform is `linux/amd64`.
+Use a versioned Docker Compose release whose image platform is `linux/amd64`.
 The proposed first host qualification is Windows Docker Desktop with Linux
 containers, matching the owner's current environment. Qualify a Linux host
 separately before claiming host support; the image platform alone proves neither
@@ -200,13 +203,16 @@ introduced by this package.
 
 ## Verification
 
-This is a source-reconciled candidate. The dated assessment records inspected
-paths, old evidence and checks actually run. No package exists yet, and no new
-installation, application test, live provider test or production operation is
-claimed by this ADR. Documentation governance is recorded in the assessment.
+This is an owner-approved design. The dated assessment records the planning
+baseline. The [Task1 delivery evidence](../../reports/compact-selfhost-2026-10-27/task1-packaging.md)
+records the implemented build-time packager, synthetic artifact tests, independent
+review and governance. Those checks do not establish a qualified release image,
+provider, installation, host, live LINE flow or production operation. Tasks2–7
+retain their separate selection and qualification gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.1.1 | 2026-10-27 | accepted | Owner approved the exact e5fcfd4b ADR/plan and selected Task1 only; no installation or production authority | working-tree | Codex |
 | 0.1.0b | 2026-10-27 | candidate | Proposes one-host packaging, fresh-only baseline and independent AI/business capability qualification after source reconciliation; no requirement lifecycle changes | uncommitted | Codex |

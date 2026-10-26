@@ -10,8 +10,17 @@ describe('Docker publication containment', () => {
     const workflow = parse(text);
     expect(workflow.permissions).toEqual({ contents: 'read' });
     const builds = [];
-    for (const job of Object.values(workflow.jobs)) {
-      expect(job.permissions ?? workflow.permissions).toEqual({ contents: 'read' });
+    for (const [name, job] of Object.entries(workflow.jobs)) {
+      if (name === 'compact-package') {
+        // ADR-115 Task1: the explicit manual candidate job may read prepared
+        // same-repository artifacts. This grants no package/registry writes.
+        expect(job.if).toBe("${{ github.event_name == 'workflow_dispatch' && inputs.compact_package }}");
+        expect(workflow.on.workflow_dispatch.inputs.compact_package.default).toBe(false);
+        expect(job.permissions).toEqual({ contents: 'read', actions: 'read' });
+        expect(job.steps.find(step => step.uses?.startsWith('actions/download-artifact@')).with['github-token']).toBe('${{ github.token }}');
+      } else {
+        expect(job.permissions ?? workflow.permissions).toEqual({ contents: 'read' });
+      }
       for (const step of job.steps) {
         expect(step.uses ?? '').not.toMatch(/login-action|metadata-action/);
         expect(step.run ?? '').not.toMatch(/\b(?:push|login)\b/);

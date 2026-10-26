@@ -2,8 +2,11 @@
 id: ZAI:COMPACT-SELF-HOST-PLAN-20261027
 title: Compact self-host implementation plan
 doc_type: implementation-plan
-status: proposed
-version: "0.1.0"
+status: approved
+approved_at: "2026-10-27"
+approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
+selected_task: 1
+version: "0.1.1"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -17,9 +20,9 @@ relations:
 # Compact Self-host Implementation Plan
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans
-> or superpowers:subagent-driven-development after this plan is approved. Steps
-> use checkbox syntax. This task authorizes planning only; no application code,
-> production action or new worktree is authorized by this document.
+> or superpowers:subagent-driven-development. The owner approved this plan at
+> e5fcfd4b on 2026-10-27 and selected Task1 only. Steps use checkbox syntax.
+> No installation, production action or new worktree is authorized.
 
 **Goal:** Deliver a repeatable single-host package while qualifying AI separately
 and preserving existing product authority and capabilities.
@@ -34,7 +37,7 @@ S3/Supabase ports, Vitest, Node test runner and Playwright. Images are
 containers. Linux-host support needs its own qualification. Primary DB/object
 storage stay on the same host; off-host backup does not expand runtime scope.
 
-**Spec:** [Candidate ADR-115](../decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md).
+**Spec:** [Accepted ADR-115](../decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md).
 The [dated assessment](../../reports/compact-selfhost-2026-10-27/README.md)
 binds source findings and old-audit dispositions to the baseline above.
 
@@ -72,10 +75,11 @@ binds source findings and old-audit dispositions to the baseline above.
 
 ## File and interface map
 
-Paths marked **new** below are planned outputs, not files claimed to exist.
+Paths marked **new** below are implementation outputs relative to the planning baseline.
 Deployment stays in `apps/server/deploy/compact/`; orchestration helpers in
 `apps/server/scripts/lib/compact/` separate manifest, target and execution concerns.
-No proposed file is created during this planning task.
+Task1 was selected after approval of the planning commit; later-task paths remain
+planned outputs and are not created by Task1.
 Application paths in task file lists are relative to `apps/server/`; workflow
 paths are relative to the repository root.
 
@@ -111,21 +115,30 @@ only after defining an opt-in package job, plus Server package scripts.
 `packageCompactRelease({manifest,outputDirectory,imageExporter})` to emit an
 artifact directory and optional OCI archive with identical image identities.
 
-- [ ] Write tests: a core manifest requires web/tools/PostgreSQL and a qualified
+- [x] Write tests: a core manifest requires web/tools/PostgreSQL and a qualified
   private-storage selection; no AI images are mandatory. LINE/Knowledge selection
   requires their exact components. Floating tag, changed hash, `../`, unknown
   profile or unqualified storage selection is rejected without subprocess calls.
-- [ ] Run `node --test tests/node/compact-manifest.test.mjs tests/node/compact-package.test.mjs` from Server; observe
+- [x] Run `node --test tests/node/compact-manifest.test.mjs tests/node/compact-package.test.mjs` from Server; observe
   failures for missing validation, not a zero-test pass.
-- [ ] Implement `validateCompactManifest(value)` and a package builder using the
+- [x] Implement `validateCompactManifest(value)` and a package builder using the
   existing image targets. Package canonical docs/registry/generated graph inputs
   inside the release; installed Compose uses packaged content, not host source.
   Keep provider image/command qualification explicit; do not substitute AIStor,
   MinIO and RustFS by name. Reuse the existing MinIO fixture for TEST evidence only.
-- [ ] Verify tests pass, inspect package inventory for secrets/absolute paths,
+- [x] Verify tests pass, inspect package inventory for secrets/absolute paths,
   and prove a package can be unpacked at a different path without source access.
   Publishing to a registry is opt-in; an OCI archive is a supported transport.
-- [ ] Commit the bounded package change with its source/pin/hash evidence.
+- [x] Commit the bounded package change with its source/pin/hash evidence.
+
+Task1's [delivery evidence](../../reports/compact-selfhost-2026-10-27/task1-packaging.md)
+distinguishes synthetic package/OCI tests from actual release and runtime gates.
+`manifest` is a prepared manifest file path. Optional `expectedRevision` binds
+validation and packaging to one loaded snapshot. Image production uses the existing
+Dockerfile targets separately; the packager's trusted `imageExporter` returns a
+local OCI layout and has no default Docker/network or installation operation.
+Storage/license inputs are redacted assertions bound to exact hashes/identities,
+not qualification performed by the packager. No real provider was selected here.
 
 ## Task2: Fresh-only target planning and schema initialization
 
@@ -309,5 +322,6 @@ to qualify later, not facts invented by the plan.
 
 Future implementation should run inline in the primary checkout on a branch,
 with an independent GPT-6 Luna Max reviewer under repository policy. Do not create
-a worktree merely to execute this plan. The current task ends with documentation,
-its review and actual governance results; it does not execute these checkboxes.
+a worktree merely to execute this plan. The owner selected Task1 at the approved
+planning commit; Tasks2–7 remain unselected. Task1 does not authorize installation,
+publication, production access or later application changes.

@@ -22,6 +22,19 @@ on:
       - apps/server/package-lock.json
       - .github/workflows/docker-image.yml
   workflow_dispatch:
+    inputs:
+      compact_package:
+        description: Package explicit prepared Compact inputs (no publish/deploy)
+        type: boolean
+        default: false
+      compact_input_run_id:
+        description: Same-repository workflow run containing prepared inputs
+        type: string
+        default: ''
+      compact_input_artifact_id:
+        description: Immutable artifact ID containing release-manifest.json and payloads
+        type: string
+        default: ''
 
 # Build at most one image candidate for the latest main snapshot. Each version
 # tag and manually dispatched build remains independent.
@@ -33,6 +46,63 @@ permissions:
   contents: read
 
 jobs:
+  compact-package:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.compact_package }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      - name: Check explicit input identities
+        env:
+          INPUT_RUN_ID: ${{ inputs.compact_input_run_id }}
+          INPUT_ARTIFACT_ID: ${{ inputs.compact_input_artifact_id }}
+        run: node -e "for(const k of ['INPUT_RUN_ID','INPUT_ARTIFACT_ID'])if(!/^[1-9][0-9]*$/.test(process.env[k]||'')||!Number.isSafeInteger(Number(process.env[k])))process.exit(1)"
+      - name: Verify prepared artifact origin
+        uses: actions/github-script@v7
+        env:
+          INPUT_RUN_ID: ${{ inputs.compact_input_run_id }}
+          INPUT_ARTIFACT_ID: ${{ inputs.compact_input_artifact_id }}
+        with:
+          script: |
+            try {
+              const runId = Number(process.env.INPUT_RUN_ID), artifactId = Number(process.env.INPUT_ARTIFACT_ID);
+              const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: runId });
+              const { data: artifact } = await github.rest.actions.getArtifact({ ...context.repo, artifact_id: artifactId });
+              const repoId = context.payload.repository.id, origin = artifact.workflow_run;
+              if (run.id !== runId || run.status !== 'completed' || run.conclusion !== 'success' || run.head_sha !== context.sha || run.repository?.id !== repoId || run.head_repository?.id !== repoId || artifact.id !== artifactId || artifact.expired !== false || origin?.id !== runId || origin.repository_id !== repoId || origin.head_repository_id !== repoId || origin.head_sha !== context.sha) throw new Error();
+            } catch { core.setFailed('COMPACT_INPUT_ORIGIN_INVALID'); }
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ inputs.compact_input_artifact_id }}
+          run-id: ${{ inputs.compact_input_run_id }}
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/compact-input
+      - run: npm ci
+        working-directory: apps/server
+      - run: npm run compact:test
+        working-directory: apps/server
+      - name: Package exact-source candidate
+        working-directory: apps/server
+        shell: bash
+        run: |
+          args=(--manifest "$RUNNER_TEMP/compact-input/release-manifest.json" --output "$RUNNER_TEMP/compact-package" --expected-revision "$GITHUB_SHA")
+          if [ -d "$RUNNER_TEMP/compact-input/oci" ]; then args+=(--oci-layout "$RUNNER_TEMP/compact-input/oci"); fi
+          npm run compact:package -- "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compact-candidate-${{ github.sha }}
+          path: ${{ runner.temp }}/compact-package
+          if-no-files-found: error
+          include-hidden-files: true
   compose-config:
     # The Compose file must interpolate from nothing but .env.example plus the two
     # values a real deployment supplies — a variable added to the file without a
