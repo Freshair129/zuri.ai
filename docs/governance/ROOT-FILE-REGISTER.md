@@ -1,17 +1,18 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.2.0"
-checked_at: "2026-10-22"
-checked_base_revision: "1f1e5a0a7591f4e42646ebc33e78654a4e3477be"
+version: "0.3.1"
+checked_at: "2026-10-26"
+checked_base_revision: "8276706c1f7bff5fe0c58330bf0e4d9836fa1e5b"
 ---
 
 # Direct files under `docs/`
 
 This register classifies the 41 tracked files directly under `docs/` at the
-reviewed base. The entries record observed purpose, representative exact-path
-readers found in the repository, and a safe disposition. Reader paths are
-evidence of reference, not proof that a document is authoritative or current.
+reviewed base and records one visual companion added by this change (42 files in
+the resulting worktree). The entries record observed purpose, representative
+exact-path readers found in the repository, and a safe disposition. Reader paths
+are evidence of reference, not proof that a document is authoritative or current.
 The inventory excludes nested, untracked, and ignored files; enumerate the
 affected filesystem again before any later move or deletion.
 
@@ -32,7 +33,8 @@ affected filesystem again before any later move or deletion.
 | [`ARCHITECTURE-DIAGRAMS.md`](../ARCHITECTURE-DIAGRAMS.md) | Architecture diagram collection with dated material; it is a view/evidence set, not the sole architecture authority. | `docs/architecture/README.md`; `docs/SYSTEM-DIAGRAM.md`; ADR-085; roadmap HTML. | Keep linked as a diagram set; confirm diagram revision before using it as current implementation evidence. |
 | [`ARCHITECTURE-NOTES.md`](../ARCHITECTURE-NOTES.md) | Notes explicitly titled for `zuri-v2-lab`; historical architecture context rather than current implementation contract. | `docs/architecture/README.md`; PRD compatibility export; migration manifest. | Preserve as historical context and label its scope; do not use it to override accepted ADRs or current code. |
 | [`ARCHITECTURE-TARGET-MODULAR-MONOLITH.md`](../ARCHITECTURE-TARGET-MODULAR-MONOLITH.md) | Draft target modular-monolith architecture; ADR-025 adopts its domain taxonomy, not every target statement. | `AGENTS.md`; `docs/architecture/README.md`; blueprint builder and PM architecture docs. | Keep as a draft target; cite the exact accepted ADR when deriving current constraints. |
-| [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Active current-build-boundary and architecture overview (`version: 1.0.0`). It is a summary, not a replacement for source-owned contracts. | `AGENTS.md`; architecture index; blueprint tooling; governance spec. | Keep as a linked overview; reconcile claims with accepted ADRs and implementation. |
+| [`ARCHITECTURE.md`](../ARCHITECTURE.md) | Active current-build-boundary and architecture overview (`version: 1.0.1`). It is a summary, not a replacement for source-owned contracts. | `AGENTS.md`; architecture index; blueprint tooling; governance spec. | Keep as a linked overview; reconcile claims with accepted ADRs and implementation. |
+| [`DATA-FLOW-ATLAS.html`](../DATA-FLOW-ATLAS.html) | Static visual companion generated from the 2026-10-25 checkout; 22 chain statuses and two blocked GitHub projection edges are a dated registry snapshot, not fresh deployment evidence. Its production-target note was added from ADR-114 on 2026-10-26 and does not establish target activation. | `docs/README.md`; `docs/DATA-PIPELINE-MAP.md`; `apps/server/runtime/data-pipeline-map.json`; ADR-114. | Keep as a derived view; refresh from canonical architecture, domain and pipeline sources, and preserve their status labels and authority. |
 | [`DATA-PIPELINE-MAP.md`](../DATA-PIPELINE-MAP.md) | Beta data-pipeline map (`version: 1.1.0b`); ADR-085 names it in the knowledge/data-pipeline boundary. | ADR-085; `apps/server` code/tests; roadmap and system diagram. | Keep at its consumed path; validate individual flow claims against code/contracts before treating them as shipped. |
 | [`DB-MIGRATION-NOTES.md`](../DB-MIGRATION-NOTES.md) | SQLite-to-PostgreSQL migration notes; historical migration evidence, not the current physical schema authority. | Server scripts/tests; database appendix and ERD; roadmap and runbooks. | Keep at its consumed path; use current Prisma schemas for current physical shape. |
 | [`DOMAIN-MODEL.md`](../DOMAIN-MODEL.md) | Domain-model overview; explicitly points to `apps/server/prisma/schema.prisma` as current physical-model authority. | `scripts/build-llms-full.mjs`; roadmap projections; blueprint tooling. | Keep as a domain-model explanation; preserve the stated schema boundary and reconcile contradictory model drafts. |
@@ -61,9 +63,9 @@ affected filesystem again before any later move or deletion.
 
 ## Findings and limits
 
-- Git enumeration at the reviewed base found 41 tracked direct files. A current
-  worktree enumeration found the same 41 direct files and no extra direct file;
-  it also found the 20 registered direct directories.
+- Git enumeration at the reviewed base found 41 tracked direct files. This
+  change adds one visual companion; the resulting worktree has 42 tracked direct
+  files and no extra direct file. It also has the 20 registered direct directories.
 - Exact-name reference scanning found path consumers for these sources, but a
   textual match does not prove semantic use. Dynamic paths and generated
   navigation must be checked before moving a source.
@@ -89,3 +91,11 @@ affected filesystem again before any later move or deletion.
 currentness, and GoVibe lifecycle classifications using existing policy,
 implementation, and accepted-decision evidence; keeps candidate and historical
 authority boundaries explicit without inventing requirements.
+
+0.2.0 → 0.3.0 (2026-10-26): records the visual data-flow atlas as a dated
+derived view and reconciles the direct-file count; source authority stays in the
+canonical architecture and pipeline records.
+
+0.3.0 → 0.3.1 (2026-10-26): updates the architecture overview version and dates
+the atlas production-target note separately from its 2026-10-25 flow/status
+snapshot; the atlas remains a derived view, not deployment evidence.
