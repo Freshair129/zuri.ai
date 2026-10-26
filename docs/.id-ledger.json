@@ -840,6 +840,7 @@
     "ADR-111",
     "ADR-112",
     "ADR-113",
+    "ADR-114",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -10988,6 +10989,19 @@
         {
           "anchor": "retire developer delivery control",
           "since": "2026-10-22",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-114": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-114-ZURI-AI-PRODUCTION-TARGETS.md",
+      "status": "current",
+      "statement_digest": "8f2c0f37f31ec26cd96a16c41a29c44be54b742b35c66ec0f243e7043d91df18",
+      "history": [
+        {
+          "anchor": "zuri ai production database targets",
+          "since": "2026-10-25",
           "reason": "declared"
         }
       ]
