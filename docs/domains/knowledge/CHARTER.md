@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.10.0"
+version: "1.10.1"
 status: beta
-last_update: "2026-10-24,Codex"
+last_update: "2026-10-26,Codex"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -71,6 +71,36 @@ There is no declared staffed backup. The
 recovery guidance and remaining installation-specific handoff evidence;
 [Server service documentation](../../services/server/SERVICE.md) explains the
 process execution boundary. Numeric SLO targets require measured workload data.
+
+## Document access and Vault terminology
+
+The current document admission contract uses the existing File Management authority for a
+readable source version, then Knowledge admission/publication and current
+Business/Project/FileAsset checks for serving. Its sources are
+[FR-173](../../features/FEAT-013/requirements/FR-173.md),
+[FR-254](../../features/FEAT-013/requirements/FR-254.md),
+[ADR-072](../../decisions/ADR-072-KNOWLEDGE-ADMISSION-AND-CORPUS-PUBLICATION.md)
+and [ADR-107](../../decisions/ADR-107-FILE-MANAGEMENT-SERVICE-AND-EXACT-VERSION-PORT.md).
+Admission or indexing does not grant a new audience access.
+
+"Staff" is not itself an access grant: existing Membership/RoleBinding and
+scope rules remain authoritative ([BR-020](../../requirements/BR-020.md),
+[BR-034](../../requirements/BR-034.md)). Public LINE Knowledge reads retain
+[SEC-009](../../requirements/SEC-009.md) and the bounded
+[FR-235](../../features/FEAT-038/requirements/FR-235.md) contract for a
+default-off descriptive Product disclosure path. That bounded Product policy does not authorize arbitrary
+File Manager documents. Price and stock stay with their existing owner readers.
+
+MSP's private episodic vaults ([ADR-022](../../decisions/ADR-022-MULTI-TENANT-MSP-VAULTS.md),
+[FR-057](../../requirements/FR-057.md), [SEC-013](../../requirements/SEC-013.md))
+do not supply document-vault grants. The broader
+[FR-111](../../features/FEAT-013/requirements/FR-111.md) classification contract
+and the current [GenesisRAG17 pipeline contract](../../plans/GENESISRAG17-CONTRACT.md)
+likewise do not define a general
+customer/staff document-vault workflow. Recipient eligibility, grant/approval
+authority, allowed classifications and scope, expiry and revocation semantics
+remain a contract gap for such a workflow. This clarification reconciles existing
+sources; it introduces no Vault model, audience grant or new requirement.
 
 ## Boundaries
 
@@ -533,6 +563,7 @@ its own terms.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.10.0 → 1.10.1 (2026-10-26) | Reconciles document admission/access, bounded customer Product disclosure and MSP episodic vault terminology; identifies the unspecified general document-vault audience contract | Documentation only; no new grants or commercial authority |
 | 1.9.0 → 1.10.0 (2026-10-24) | Claims LineProductDisclosurePolicy as Knowledge's default-off, audited per-account decision for selected descriptive Product fields from verified GenesisRAG17 records; Product identity, stock and price authority remain with their existing owners | Additive policy model and owner API; no catalog, stock or price authority transfer |
 | 1.8.8b → 1.9.0 (2026-10-23) | Adopts approved Knowledge capability accountability and the user's solo product/development/operations ownership; external component decision rights retained | Local worker scheduling/diagnostic safety only; no model, migration, wire, store or quality-authority transfer |
 | 1.8.7b → 1.8.8b (2026-09-25) | Corrects the earlier sliver claims (flow 1.4.6b/1.4.8b, spec 1.4.4b/1.4.6b): two ordinary-prose sliver paths remained (a window re-finding the previous paragraph-break cut; a budget edge inside a run of blank lines). The cut search now starts past the previous cut and past whitespace, and a chunk adding no non-whitespace text is not emitted. Chunk boundaries change for ordinary prose too, superseding 1.4.6b's 'ordinary prose output is unchanged'. Proven by `tests/unit/genesisrag17-chunker-safety-fixes.test.js`; fuzz of 24,000 generated documents: 0 slivers, 0 mid-word cuts, 0 chunks over 480 raw/NFKC characters; parser-1 historical and parser-2 unchanged | `genesisrag17-source.js` changed; no model, route or requirement statement touched |

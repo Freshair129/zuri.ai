@@ -82,6 +82,7 @@ status: generated
 - [apps/server/tests/unit/genesisrag17-parser-2.test.js](../../../apps/server/tests/unit/genesisrag17-parser-2.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/genesisrag17-source.test.js](../../../apps/server/tests/unit/genesisrag17-source.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/ki17-acceptance-harness.test.js](../../../apps/server/tests/unit/ki17-acceptance-harness.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/knowledge-delivery-fence.test.js](../../../apps/server/tests/unit/knowledge-delivery-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-189](requirements/FR-189.md)

@@ -672,6 +672,50 @@ function decodeCitationReference(value) {
   return parsed
 }
 
+/**
+ * Hold source withdrawal ordering until the caller's existing send transaction
+ * commits. This is not an ACL grant: the caller must still resolve every
+ * citation after acquiring the fence. Only the sources retained by the model
+ * are locked, in stable order. PostgreSQL source UPDATE/DELETE waits for these
+ * SHARE locks; a withdrawal committed first is absent from this active read.
+ * SQLite callers must already hold their write transaction (LINE's account CAS).
+ * No lock is held over network delivery and an already claimed attempt is not recalled.
+ * @req FR-173, FR-235
+ * @spec ADR-072
+ * @tested tests/unit/knowledge-delivery-fence.test.js
+ */
+export async function lockKnowledgeCitationSourcesForDelivery(citationIds, { db, tenantId, businessId } = {}) {
+  const unavailable = () => serviceError(503, 'Knowledge delivery transaction fence is unavailable', 'KNOWLEDGE_DELIVERY_FENCE_UNAVAILABLE')
+  if (!Array.isArray(citationIds) || citationIds.length < 1 || citationIds.length > 128) {
+    throw serviceError(400, 'Knowledge delivery citations are invalid', 'KNOWLEDGE_CITATION_INVALID')
+  }
+  const sources = [...new Map(citationIds.map(value => {
+    const ref = decodeCitationReference(value)
+    return [`${ref.sourceId}\u0000${ref.corpusId}`, { id: ref.sourceId, corpusId: ref.corpusId }]
+  })).values()].sort((a, b) => a.id.localeCompare(b.id) || a.corpusId.localeCompare(b.corpusId))
+  if (!tenantId || !businessId || !db || typeof db.$transaction === 'function') throw unavailable()
+  const provider = db._engineConfig?.activeProvider || db._client?._engineConfig?.activeProvider
+  let rows
+  if (/^postgres(?:ql)?$/i.test(provider || '') && typeof db.$queryRawUnsafe === 'function') {
+    // SQL fragments are constants; every identifier from a citation is a bound value.
+    const pairs = sources.map((_, i) => `(s."id" = $${3 + i * 2} AND s."corpusId" = $${4 + i * 2})`).join(' OR ')
+    rows = await db.$queryRawUnsafe(`SELECT s."id", s."corpusId" FROM "KnowledgeSource" s
+      JOIN "KnowledgeCorpus" c ON c."id" = s."corpusId"
+      WHERE c."tenantId" = $1 AND c."businessId" = $2 AND c."deletedAt" IS NULL AND c."status" = 'ACTIVE'
+      AND s."revokedAt" IS NULL AND s."deletedAt" IS NULL AND (${pairs})
+      ORDER BY s."id" FOR SHARE OF s`, tenantId, businessId, ...sources.flatMap(source => [source.id, source.corpusId]))
+  } else if (provider === 'sqlite' && typeof db.knowledgeSource?.findMany === 'function') {
+    rows = await db.knowledgeSource.findMany({ where: {
+      OR: sources, revokedAt: null, deletedAt: null,
+      corpus: { tenantId, businessId, deletedAt: null, status: 'ACTIVE' },
+    }, select: { id: true, corpusId: true }, orderBy: { id: 'asc' } })
+  } else throw unavailable()
+  if (!Array.isArray(rows) || rows.length !== sources.length
+    || sources.some(source => !rows.some(row => row.id === source.id && row.corpusId === source.corpusId))) {
+    throw serviceError(404, 'Knowledge source is no longer available', 'KNOWLEDGE_SOURCE_REVOKED')
+  }
+}
+
 async function resolveQueryFunction(options) {
   if (typeof options.querySnapshot === 'function') return options.querySnapshot
   if (typeof options.runtime?.querySnapshot === 'function') return options.runtime.querySnapshot

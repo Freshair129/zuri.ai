@@ -1,5 +1,5 @@
 ---
-version: "0.7.0"
+version: "0.7.1"
 status: active
 superseded_by: null
 ---
@@ -30,6 +30,9 @@ plans and historical test receipts are separate from the build specification.
 - [Engineering assessments](../reports/README.md), including the
   [2026-10-23 code/requirements gap assessment](../reports/gap-analysis-2026-10-23/README.md),
   record dated findings and verification limits without creating requirements or plans.
+- [Knowledge lifecycle and serving assessment](../reports/knowledge-readiness-2026-10-26/README.md)
+  records the bounded storage/access review, executed checks and remaining
+  main-dev qualification separately from whole-system completion.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -130,3 +133,6 @@ delivery status remain in their existing sources.
 Version diff 0.6.0 → 0.7.0 (2026-10-26): links the data-flow atlas as a visual
 companion to the canonical data-pipeline map; it does not establish production
 acceptance or replace the source registry.
+
+Version diff 0.7.0 → 0.7.1 (2026-10-26): links the bounded Knowledge lifecycle
+and serving assessment, keeping findings and test evidence separate from adoption.

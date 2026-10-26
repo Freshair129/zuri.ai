@@ -24,6 +24,7 @@ import { normalizeLineProductFactsReply, readLineProductFactsDecision } from './
 import { checkMainDevTestRagSend } from '@/modules/agent/main-dev-test-rag-decision'
 import { checkLineCustomerProductSend } from '@/modules/agent/line-customer-product-decision'
 import { isMainDevLocalOllamaRequested } from '@/modules/agent/main-dev-local-ollama'
+import { resolveKnowledgeCitation, lockKnowledgeCitationSourcesForDelivery } from '@/modules/knowledge/knowledge-corpus-service'
 
 // @req FR-149, FR-150 — durable admission, optional compute, fenced send and receipt recovery.
 // @req FR-171 — context and execution journal, attempt identity and truthful send observations.
@@ -1078,6 +1079,83 @@ function validateCustomerProductOptions(options) {
   return Object.freeze({ ...options })
 }
 
+const LINE_GKS_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
+
+// @req FR-235 — before a delayed LINE send, re-resolve only citations that the
+// same execution's ContextReceipt says reached the model. The receipt and
+// EVIDENCE_SELECTED trace are Core-owned; no client proof or new authority is
+// accepted here. `resolveKnowledgeCitation` checks the exact immutable
+// generation plus current source and Business access (ADR-072 D10).
+async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthorized = false) {
+  // These bounded paths have their own current-proof fence and are not the
+  // generic corpus reader described by FR-235.
+  // An environment selector is not proof for this job. Only a successful,
+  // execution-bound decision from the specific send guard may select its fence.
+  if (boundedKnowledgeAuthorized) return true
+
+  const configuredForGks = LINE_GKS_MODES.has(job.account?.knowledgeGrounding)
+  if (!job.executionId) return !configuredForGks
+
+  let events
+  try {
+    events = await readExecutionTrace(db, { scope: { tenantId: job.tenantId, businessId: job.businessId }, turnId: job.id })
+  } catch (error) {
+    if ([400, 403, 404, 409, 413].includes(error?.status) || error?.code === 'EXECUTION_TRACE_READ_LIMIT') return false
+    throw error
+  }
+
+  const gksEvents = events.filter(event => event.executionId === job.executionId && event.kind === 'EVIDENCE_SELECTED'
+    && event.payload?.source === 'GKS_CORPUS')
+  if (!gksEvents.length) return !configuredForGks
+
+  const refsByCitation = new Map()
+  for (const event of gksEvents) {
+    if (!LINE_GKS_MODES.has(event.payload?.mode) || !Array.isArray(event.payload?.retrievalRefs)) return false
+    for (const ref of event.payload.retrievalRefs) {
+      if (!ref || typeof ref.citationId !== 'string' || !ref.citationId
+        || typeof ref.sourceId !== 'string' || !ref.sourceId
+        || typeof ref.snapshotId !== 'string' || !ref.snapshotId
+        || !Number.isSafeInteger(ref.generation) || ref.generation < 1
+        || !Number.isSafeInteger(ref.corpusGeneration) || ref.corpusGeneration < 1
+        || typeof ref.manifestHash !== 'string' || !/^[a-f0-9]{64}$/i.test(ref.manifestHash)) return false
+      const previous = refsByCitation.get(ref.citationId)
+      if (previous && (previous.sourceId !== ref.sourceId || previous.snapshotId !== ref.snapshotId
+        || previous.generation !== ref.generation || previous.corpusGeneration !== ref.corpusGeneration)) return false
+      refsByCitation.set(ref.citationId, ref)
+    }
+  }
+  if (!refsByCitation.size) return true
+
+  const contextReceipts = events.filter(event => event.executionId === job.executionId && event.kind === 'CONTEXT_RECEIPT')
+  if (!contextReceipts.length) return false
+  const includedCitations = new Set(contextReceipts
+    .flatMap(event => Array.isArray(event.payload?.refs?.citations) ? event.payload.refs.citations : []))
+  const usedRefs = [...refsByCitation.values()].filter(ref => includedCitations.has(ref.citationId))
+  if (!usedRefs.length) return true
+
+  try {
+    await lockKnowledgeCitationSourcesForDelivery(usedRefs.map(ref => ref.citationId), {
+      db, tenantId: job.tenantId, businessId: job.businessId,
+    })
+  } catch (error) {
+    if ([400, 403, 404, 409].includes(error?.status)) return false
+    throw error
+  }
+  const viewer = { visibleBusinessIds: [job.businessId] }
+  for (const ref of usedRefs) {
+    try {
+      const current = await resolveKnowledgeCitation(ref.citationId, { db, viewer, env })
+      if (current?.citationId !== ref.citationId || current.sourceId !== ref.sourceId
+        || current.snapshotId !== ref.snapshotId || current.generation !== ref.generation
+        || current.corpusGeneration !== ref.corpusGeneration) return false
+    } catch (error) {
+      if ([400, 403, 404, 409].includes(error?.status)) return false
+      throw error
+    }
+  }
+  return true
+}
+
 export async function runLineConversationWorker({ db = prisma, answer, resolveAccount, replyTransport, pushTransport,
   env = process.env, now = () => new Date(), workerId = `server:${randomUUID()}`,
   revalidateProductFacts = revalidateLineProductFacts,
@@ -1266,9 +1344,11 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
         return { count: 0, productFactsRejected: cancelled.count > 0 }
       }
     }
+    let boundedKnowledgeAuthorized = false
     if (requiredRuntimeOwner === 'SERVER' && !isProductFacts && !fixedOutOfHoursReply
       && !isLineProjectWorkCommand(current.inbound?.body)) {
       const decision = await checkMainDevTestRagSend(tx, current, { ...testRagOptions, env })
+      boundedKnowledgeAuthorized = decision.required && decision.allowed
       if (decision.required && !decision.allowed) {
         const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id,
           runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
@@ -1280,12 +1360,23 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     if (requiredRuntimeOwner === 'SERVER' && !(fixedOutOfHoursReply && !current.executionId)) {
       const decision = await checkLineCustomerProductSend(tx, current, { ...customerProductOptions, env,
         requireWhenConfigured: !isProductFacts && !fixedOutOfHoursReply && !isLineProjectWorkCommand(current.inbound?.body) })
+      boundedKnowledgeAuthorized ||= decision.required && decision.allowed
       if (decision.required && !decision.allowed) {
         const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id,
           runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
         data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_CUSTOMER_PRODUCT_AUTHORITY_REVOKED',
           sealedReplyToken: null, version: { increment: 1 } } })
         return { count: 0, customerProductRejected: cancelled.count > 0 }
+      }
+    }
+    if (!isProductFacts && !fixedOutOfHoursReply && !isLineProjectWorkCommand(current.inbound?.body)) {
+      const currentGks = await lineGksCitationsStillCurrent(tx, current, env, boundedKnowledgeAuthorized)
+      if (!currentGks) {
+        const cancelled = await tx.lineConversationJob.updateMany({ where: { id: current.id, executionMode: requiredExecutionMode,
+          runtimeOwner: requiredRuntimeOwner, executionId: expectedExecutionId, version: job.version, status: 'READY' },
+        data: { status: 'CANCELLED', answerText: null, errorCode: 'LINE_GKS_AUTHORITY_REVOKED',
+          sealedReplyToken: null, version: { increment: 1 } } })
+        return { count: 0, gksRejected: cancelled.count > 0 }
       }
     }
     const result = await tx.lineConversationJob.updateMany({ where: { id: job.id, executionMode: requiredExecutionMode, runtimeOwner: requiredRuntimeOwner,
@@ -1298,7 +1389,7 @@ async function sendReadyJob({ db, job, resolveAccount, replyTransport, pushTrans
     }, at)
     return result
   })
-  if (claimed.productFactsRejected || claimed.testRagRejected || claimed.customerProductRejected) return { id: job.id, status: 'CANCELLED' }
+  if (claimed.productFactsRejected || claimed.testRagRejected || claimed.customerProductRejected || claimed.gksRejected) return { id: job.id, status: 'CANCELLED' }
   if (!claimed.count) return { status: 'CONTENDED' }
   let result
   let receivedProviderResponse = true

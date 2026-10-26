@@ -3,6 +3,7 @@
 // @spec TASK-ZAI-049 storage spec
 // @tested src/platform/storage/s3-object-storage.js
 import { describe, expect, it, vi } from 'vitest'
+import { createHash } from 'node:crypto'
 import { createS3ObjectStoragePort, createConfiguredKnowledgeObjectStoragePort } from '@/platform/storage/s3-object-storage'
 
 const CONTENT = Buffer.from([0, 1, 2, 255, 10])
@@ -56,5 +57,32 @@ describe('TASK-ZAI-049 S3-compatible storage port', () => {
     const port = createS3ObjectStoragePort({ endpoint: 'http://minio.internal:9000', accessKeyId: 'access', secretAccessKey: 'secret', bucket: 'knowledge-raw', fetchFn: vi.fn().mockResolvedValue(new Response(null, { status: 200 })) })
     await expect(port.putImmutable({ key: 'raw-1', content: CONTENT })).rejects.toMatchObject({ code: 'KNOWLEDGE_STORAGE_VERSION_UNAVAILABLE' })
     expect(createConfiguredKnowledgeObjectStoragePort({})).toBeNull()
+  })
+
+  it('recovers only verified exact bytes after discovering an immutable version', async () => {
+    const digest = createHash('sha256').update(CONTENT).digest('hex')
+    const fetchFn = vi.fn(async (url, request) => request.method === 'HEAD'
+      ? new Response(null, { headers: { 'x-amz-version-id': 'recovered' } })
+      : new Response(CONTENT, { headers: { 'x-amz-version-id': 'recovered' } }))
+    const port = createS3ObjectStoragePort({ endpoint: 'http://storage.test', accessKeyId: 'test', secretAccessKey: 'test', bucket: 'knowledge-raw', fetchFn })
+    await expect(port.recoverImmutable({ key: 'raw-1', expectedSha256: digest, byteLength: CONTENT.length })).resolves.toEqual({ key: 'raw-1', versionId: 'recovered', sha256: digest, byteLength: CONTENT.length })
+    expect(fetchFn.mock.calls.map(([, request]) => request.method)).toEqual(['HEAD', 'GET'])
+    expect(new URL(fetchFn.mock.calls[1][0]).searchParams.get('versionId')).toBe('recovered')
+  })
+
+  it.each(['missing-version', 'wrong-version', 'wrong-bytes', 'wrong-length', 'outage', 'not-found'])('fails closed during recovery: %s', async (failure) => {
+    const digest = createHash('sha256').update(CONTENT).digest('hex')
+    const fetchFn = vi.fn(async (url, request) => {
+      if (request.method === 'HEAD') return new Response(null, { status: failure === 'outage' ? 503 : failure === 'not-found' ? 404 : 200,
+        headers: failure === 'missing-version' ? {} : { 'x-amz-version-id': 'recovered' } })
+      return new Response(failure === 'wrong-bytes' ? Buffer.alloc(CONTENT.length) : CONTENT,
+        { headers: { 'x-amz-version-id': failure === 'wrong-version' ? 'other' : 'recovered' } })
+    })
+    const port = createS3ObjectStoragePort({ endpoint: 'http://storage.test', accessKeyId: 'test', secretAccessKey: 'test', bucket: 'knowledge-raw', fetchFn })
+    const result = port.recoverImmutable({ key: 'raw-1', expectedSha256: digest, byteLength: failure === 'wrong-length' ? CONTENT.length + 1 : CONTENT.length })
+    if (failure === 'not-found') await expect(result).resolves.toBeNull()
+    else await expect(result).rejects.toMatchObject({ code: failure === 'missing-version' ? 'KNOWLEDGE_STORAGE_VERSION_UNAVAILABLE'
+      : failure === 'wrong-version' ? 'KNOWLEDGE_STORAGE_VERSION_MISMATCH' : failure === 'outage' ? 'KNOWLEDGE_STORAGE_PROVIDER_ERROR' : 'KNOWLEDGE_STORAGE_READBACK_MISMATCH' })
+    expect(fetchFn.mock.calls.some(([, request]) => request.method === 'PUT')).toBe(false)
   })
 })
