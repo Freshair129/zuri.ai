@@ -18,6 +18,7 @@ Generated navigation for current source documents in the architecture grouping. 
 - [Architecture Notes — zuri-v2-lab](../ARCHITECTURE-NOTES.md)
 - [Zuri Modular Monolith + Shared Database Architecture Specification](../ARCHITECTURE-TARGET-MODULAR-MONOLITH.md)
 - [Architecture](../ARCHITECTURE.md)
+- [Visual Office as an optional Zuri platform client](2026-10-22-visual-office-zuri-client-design.md)
 - [Acceptance](blueprint/ACCEPTANCE.md)
 - [Architecture](blueprint/ARCHITECTURE.md)
 - [Data and contracts](blueprint/DATA-AND-CONTRACTS.md)
