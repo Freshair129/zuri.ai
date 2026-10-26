@@ -446,6 +446,103 @@ docker run --rm --entrypoint cat zuri-ai-genesis-worker:<tag> /opt/ki17/pins/res
 
 That answers §10 step 7's "the four commits" without archaeology.
 
+### Main-dev-only E5 batch32 helper qualification
+
+This is a separate, non-production path for qualifying one GenesisBlock worker
+helper over the already qualified main-dev worker image. It does not update
+`pins.json`, rebuild GenesisBlock's native addon, alter the application image,
+or establish a new full GenesisBlock runtime pin. The image keeps the base
+`/opt/ki17/pins/resolved.json` unchanged and adds
+`/opt/ki17/pins/e5-embedder-overlay.json` with the helper source commit and
+content hash. The GenesisBlock PR head is not treated as merged or CI-green by
+this recipe; wait until its required PR checks pass before building.
+
+The approved source input for this qualification is the GenesisBlock helper at
+PR #268 head `71fd8a41bb9d414e34d70784101c10c7d6237f67`, with LF-byte SHA-256
+`641e68e94f35dd5a8c795cf84b0964a4bbbc03d95bd619323e398ea4592b5336` at
+`genesisrag17-worker/src/embedder.py`. From `apps/server`, use a clean checkout
+whose `origin` is the official `Freshair129/GenesisBlock` repository and whose
+`HEAD` is that exact commit after PR #268's required checks pass:
+
+```powershell
+node scripts/build-ki17-embedder-only.mjs `
+  --helper-source-repo "C:\path\to\GenesisBlock" `
+  --source-commit 71fd8a41bb9d414e34d70784101c10c7d6237f67 `
+  --source-sha256 641e68e94f35dd5a8c795cf84b0964a4bbbc03d95bd619323e398ea4592b5336
+```
+
+The builder checks the official repository origin, exact clean source commit,
+Git blob and LF-byte hash. It also requires the local immutable base
+`zuri-ai-main-dev-genesis-worker@sha256:9bee2c31dc0efee6f2564eab273f9c815961a1635c08a29805849524974163e7`,
+then exports that exact digest to a temporary local OCI layout with
+`docker image save`. Before BuildKit sees it, the builder checks the exported
+OCI root digest, every blob digest and size, the `linux/amd64` manifest/config,
+and all 26 rootfs diff IDs against Docker's inspection of the same RepoDigest.
+It supplies the verified local layout as the digest-pinned `base-image` build
+context; this avoids asking BuildKit to resolve the private local repository
+name against Docker Hub. The OCI context URI keeps a Windows drive path directly
+after `oci-layout://` and leaves spaces unescaped because Buildx parses its
+suffix as a filesystem path rather than URL-decoding it. The Dockerfile uses
+BuildKit's bundled frontend instead of resolving a remote `#syntax` image. The
+original RepoDigest stays in the receipt and image
+label; the builder does not replace it with a mutable tag. It also checks the
+old helper hash, stdio MSP/GKS/GenesisBlock tuple and E5 model revision, then
+creates a deterministic `main-dev-e5-batch32` local tag. The Docker recipe
+verifies the base receipt before copying and the helper receipt afterward. It
+preserves the worker command, runtime environment, default pin files and model
+contract. It does not start Compose or push an image. Inspect the separate
+receipt and profile label before any later main-dev switch; do not describe this
+image as a new GenesisBlock commit pin.
+
+#### Main-dev switch and rollback boundary
+
+The build is not a deployment. Before switching the main-dev worker, use the
+running container's non-secret Compose labels to recover its project name,
+working directory, configuration-file list and `config-hash`. Recompute only
+`docker compose config --hash genesis-worker` with that same project, Compose
+version, file list, profile and environment-file selectors. Do not print or
+paste the fully rendered Compose configuration or `.Config.Env`. The initial
+read-only 2026-10-26 snapshot recorded effective hash
+`5b118d53a950d686f19258555feeb4f45ce0f2b8f7c8d09a402cff07e85f9301` and running
+worker label `8e06e27894ccecec37779be2d32ac12f75b0b0ac99bafbe3db90cbc590032c5d`.
+Treat that pair as a prompt for a fresh check, not proof of semantic drift. Re-run
+the comparison with the exact Compose version, project, file order, profile and
+interpolation selector before deciding whether reconciliation is needed. From
+the worker's recorded `apps/server` working directory, the current interpolation
+selector is `--env-file .env.main-dev`.
+Preserve `ZURI_KNOWLEDGE_ENV_FILE` as resolved from that input; it separately
+selects the worker's runtime environment file. Do not replace it with a guessed
+path or print any file values. If a fresh comparison still differs, use a reviewed
+field-equivalence check against the running container and current Compose
+projection; byte-identical historical files are not required. Compare project
+and service identity, image/build target, profile, command and entrypoint, user
+and working directory, named mount identities/destinations/read-only flags,
+`network_mode`, restart policy, stop grace period, health check, logging driver
+and options, and environment-file selectors. Compare all environment names and
+value hashes in memory; the current reviewed worker had 39 explicit entries and
+6 image-default entries. Emit only equality counts and changed names, never values
+or hashes, and do not persist the rendered configuration or `.Config.Env`.
+Record the fields checked and any differences. Proceed only when the runtime
+fields match and the planned worker image is the sole intentional change.
+Reconcile any changed credentials, mount names, namespace, health policy, or
+application flags before the switch.
+
+After the baseline matches, pass only the non-secret candidate image reference
+through the process-scoped `ZURI_GENESIS_WORKER_IMAGE` override for one command,
+with the same Compose project, files, profile, `--env-file .env.main-dev`,
+and `ZURI_KNOWLEDGE_ENV_FILE` selection. Preserve the existing environment-file
+values and permissions unchanged. Use `--no-build --no-deps` and target only
+`genesis-worker`; retain `network_mode: service:web`, the worker runtime
+environment-file selection, named state/store/model volumes, model read-only
+mount, restart policy, health check and stop grace period. Do not
+edit `.env.main-dev` or change the default image/pin. Record web,
+line-worker and database container IDs before and after and require them to be
+unchanged; verify the replacement worker uses the same named mounts and web
+network namespace, then run the read-only KI17 smoke check. If it fails, run
+the same one-service command with the exact previous worker image. Do not use
+`down`, `down -v`, migration, reseed, or a build during the switch. This
+runbook records the safe sequence; it does not mean the switch has run.
+
 ## Compose
 
 `genesis-worker` sits behind the `knowledge` profile, so no `docker compose up`
