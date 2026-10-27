@@ -21,6 +21,24 @@ export class PgConnectionError extends Error {
   }
 }
 
+// Internal wire primitive, shared by the connection and deterministic protocol tests.
+export function waitForPgReply(port, flag, timeoutMs) {
+  const deadline = performance.now() + timeoutMs
+  for (;;) {
+    // Reset before checking the port so a reply arriving between that check
+    // and wait leaves flag=1. A delayed notify from the previous reply can
+    // wake this call, but only an actual message completes it.
+    Atomics.store(flag, 0, 0)
+    const message = receiveMessageOnPort(port)
+    if (message) return message.message
+    const remainingMs = deadline - performance.now()
+    if (remainingMs <= 0) {
+      throw new PgConnectionError('SCM PostgreSQL connection did not answer', { code: 'SCM_PG_NO_REPLY' })
+    }
+    Atomics.wait(flag, 0, 0, remainingMs)
+  }
+}
+
 export function openPgConnection(url, { connectTimeoutMs = 10000, callTimeoutMs = 60000 } = {}) {
   const flag = new Int32Array(new SharedArrayBuffer(4))
   const requestChannel = new MessageChannel()
@@ -35,14 +53,10 @@ export function openPgConnection(url, { connectTimeoutMs = 10000, callTimeoutMs 
   let broken = null
 
   function awaitReply(timeoutMs) {
-    const outcome = Atomics.wait(flag, 0, 0, timeoutMs)
-    const message = receiveMessageOnPort(replyChannel.port1)
-    Atomics.store(flag, 0, 0)
-    if (!message) {
-      broken = new PgConnectionError(outcome === 'timed-out' ? 'SCM PostgreSQL connection did not answer' : 'SCM PostgreSQL connection lost', { code: 'SCM_PG_NO_REPLY' })
+    try { return waitForPgReply(replyChannel.port1, flag, timeoutMs) } catch (error) {
+      broken = error
       throw broken
     }
-    return message.message
   }
 
   const ready = awaitReply(connectTimeoutMs + 2000)
