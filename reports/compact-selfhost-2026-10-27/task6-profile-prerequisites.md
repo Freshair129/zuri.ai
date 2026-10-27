@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-27"
 implementation_base: "59abfaac2bdd20c769bb8bf7af61c5f2c0216c32"
 ---
@@ -75,7 +75,10 @@ The subsequently requested full-range review of `d5525db1..59abfaac` found one P
 integrity/availability issue: first policy creation can race Business tenant
 reassignment, leaving an immutable mismatched policy. The existing report-target
 race fix was accepted by source review, but this additional scope race is not
-covered by the recorded 22 tests. Task5 is not fully review-accepted. Its commit
-and files are preserved while the integrator coordinates the requested follow-up.
+covered by the recorded 22 tests. The integrator subsequently selected the
+[bounded Task5 correction](task5-policy-scope-correction.md), with both schedules
+promoted to tracked native tests. The linked report records the full composed
+re-review and both finding resolutions; those checks remain separate from this
+Task6 preparation milestone. The original commit and all Task7 work are preserved.
 Paired-Go cases remain skipped/unqualified. No Supabase migration, existing role,
 production, main-dev or UAT is changed by this preparation milestone.

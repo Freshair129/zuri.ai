@@ -96,3 +96,16 @@ test('preflight admits only the exact report-principal route with trusted provid
     body.replace("@/modules/marketing/infrastructure/marketing-report-database", '@/untrusted-database'),
   ]) assert.equal(guard.isMarketingReportMachineReceiver(file, changed), false)
 })
+
+test('machine-principal exemption refuses comment-only and dead-code authorization decoys', async () => {
+  const guard = await import('../../scripts/marketing-report-route-policy.mjs')
+  const file = 'src/app/api/growth/external-marketing-reports/route.js'
+  const body = await readFile(new URL('../../src/app/api/growth/external-marketing-reports/route.js', import.meta.url), 'utf8')
+  for (const changed of [
+    `/* ${body} */\nexport async function POST(request) { return Response.json({ok:true}) }`,
+    body.replace('export async function POST(request)', 'async function unusedAuthorizationDecoy(request)') + '\nexport async function POST(request) { return Response.json({ok:true}) }',
+    body.replace('export async function POST(request)', 'export async function POST(request) { if (false) return unused(request); return Response.json({ok:true}) }\nasync function unused(request)'),
+    'const documentationOnly = ' + JSON.stringify(body) + '\nexport async function POST(request) { return Response.json({ok:true}) }',
+  ]) assert.equal(guard.isMarketingReportMachineReceiver(file, changed), false)
+  assert.equal(guard.isMarketingReportMachineReceiver(file, '// Cosmetic comment\n' + body), true)
+})

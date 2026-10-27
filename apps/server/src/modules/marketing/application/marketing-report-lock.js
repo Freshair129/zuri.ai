@@ -32,13 +32,18 @@ export async function lockMarketingReportScope(tx, { provider, businessId, bindi
   if (bindingId) await tx.$queryRaw`SELECT "id" FROM "MarketingReportBinding" WHERE "id"=${bindingId} AND "businessId"=${businessId} FOR UPDATE`
 }
 
-export async function lockMarketingReportTarget(tx, { provider, businessId, initiativeId } = {}) {
+export async function lockMarketingReportBusiness(tx, { provider, businessId } = {}) {
   if (provider === 'sqlite') return // The installation-wide writer is already held.
-  if (provider !== 'postgresql') throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
-  // Policy -> Binding -> Business -> Plan -> Initiative. Native scope updates
-  // must finish before these reads or wait until the retained report commits.
+  if (provider !== 'postgresql' || typeof businessId !== 'string' || !businessId) throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
   const business = await tx.$queryRaw`SELECT "id" FROM "Business" WHERE "id"=${businessId} FOR UPDATE`
   if (!business.length) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
+}
+
+export async function lockMarketingReportTarget(tx, { provider, businessId, initiativeId } = {}) {
+  if (provider === 'sqlite') return // The installation-wide writer is already held.
+  // Policy -> Binding -> Business -> Plan -> Initiative. Native scope updates
+  // must finish before these reads or wait until the retained report commits.
+  await lockMarketingReportBusiness(tx, { provider, businessId })
   const hint = await tx.marketingInitiative.findFirst({ where: { id: initiativeId, businessId }, select: { planId: true } })
   if (!hint) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
   const plan = await tx.$queryRaw`SELECT "id" FROM "MarketingPlan" WHERE "id"=${hint.planId} AND "businessId"=${businessId} FOR UPDATE`

@@ -21,7 +21,7 @@ const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 
 describe('Compact PostgreSQL Marketing report runtime', () => {
   let target, db, second, observer
-  const completed = new Set(), expected = ['guards', 'providerBoundary', 'triggerDrift', 'acceptBeforeDisable', 'disableBeforeReplay', 'acceptBeforeRevoke', 'revokeBeforeReplay', 'duplicates', 'conflicts', 'versions', 'absentPolicy', 'boundedWait', 'auditRollback', 'commitRollback', 'custody', 'nativePreservation', 'rebind-initiative-business', 'rebind-initiative-plan', 'rebind-plan-business', 'before-insert-initiative-business', 'before-insert-initiative-plan', 'before-insert-plan-business']
+  const completed = new Set(), expected = ['guards', 'providerBoundary', 'triggerDrift', 'acceptBeforeDisable', 'disableBeforeReplay', 'acceptBeforeRevoke', 'revokeBeforeReplay', 'duplicates', 'conflicts', 'versions', 'absentPolicy', 'boundedWait', 'auditRollback', 'commitRollback', 'custody', 'nativePreservation', 'rebind-initiative-business', 'rebind-initiative-plan', 'rebind-plan-business', 'before-insert-initiative-business', 'before-insert-initiative-plan', 'before-insert-plan-business', 'first-policy-before-tenant-move', 'tenant-move-before-first-policy']
   beforeAll(async () => {
     target = await compactFixture({ packageApi, baselineApi, executorApi }); await target.install()
     const url = new URL(`postgresql://localhost/${target.target.database.name}`)
@@ -249,6 +249,52 @@ describe('Compact PostgreSQL Marketing report runtime', () => {
     const snapshot = async () => { const result = await target.query(`SELECT jsonb_object_agg(tablename,query_to_xml(format('SELECT to_jsonb(t) AS row FROM public.%I t ORDER BY to_jsonb(t)::text',tablename),false,true,'')::text) AS snapshot FROM pg_tables WHERE schemaname='public' AND tablename NOT IN ('MarketingReportPolicy','MarketingReportBinding','MarketingExternalReport','AuditEvent')`); return createHash('sha256').update(JSON.stringify(result.rows[0].snapshot)).digest('hex') }
     const before = await snapshot(); await receive(f); await receive(f, second); expect(await snapshot()).toBe(before)
     completed.add('nativePreservation')
+  })
+
+  async function policyScopeFixture() {
+    const portfolio = await db.portfolio.create({ data: { code: randomUUID(), name: 'Synthetic first-policy race' } })
+    const tenant = await db.tenant.create({ data: { code: randomUUID(), name: 'Tenant A', portfolioId: portfolio.id } })
+    const other = await db.tenant.create({ data: { code: randomUUID(), name: 'Tenant B', portfolioId: portfolio.id } })
+    const business = await db.business.create({ data: { code: randomUUID(), name: 'Synthetic first-policy race', tenantId: tenant.id } })
+    return { business, tenant, other }
+  }
+  it('serializes first policy before native Business tenant reassignment', async () => {
+    const f = await policyScopeFixture(), hold = holdAfter(db, 'business', 'findUnique', args => args.where.id === f.business.id)
+    const [{ pid }] = await second.$queryRaw`SELECT pg_backend_pid() AS pid`
+    const creating = setMarketingReportPolicy({ db: hold.wrapped, provider: 'postgresql', viewer: operator, businessId: f.business.id, expectedVersion: 0, ingestEnabled: false }).then(value => ({ value }), error => ({ error }))
+    await hold.ready
+    const moving = second.business.update({ where: { id: f.business.id }, data: { tenantId: f.other.id } }).then(value => ({ value }), error => ({ error }))
+    let state
+    try {
+      for (let i = 0; i < 20; i++) { [state] = await observer.$queryRaw`SELECT wait_event_type FROM pg_stat_activity WHERE pid=${pid}`; if (state?.wait_event_type === 'Lock') break; await pause(10) }
+    } finally { hold.release(); await Promise.allSettled([creating, moving]) }
+    expect((await creating).error).toBeUndefined()
+    expect((await moving).error?.message).toContain('MARKETING_REPORT_NATIVE_SCOPE_IMMUTABLE')
+    expect(state?.wait_event_type).toBe('Lock')
+    const policy = await db.marketingReportPolicy.findUnique({ where: { businessId: f.business.id } }), business = await db.business.findUnique({ where: { id: f.business.id } })
+    expect(policy.tenantId).toBe(business.tenantId); expect(business.tenantId).toBe(f.tenant.id)
+    completed.add('first-policy-before-tenant-move')
+  })
+  it('rereads the committed Business tenant after native reassignment precedes first policy', async () => {
+    const f = await policyScopeFixture()
+    let release, reached
+    const gate = new Promise(resolve => { release = resolve }), ready = new Promise(resolve => { reached = resolve })
+    const [{ pid }] = await db.$queryRaw`SELECT pg_backend_pid() AS pid`
+    const moving = second.$transaction(async tx => {
+      await tx.business.update({ where: { id: f.business.id }, data: { tenantId: f.other.id } }); reached(); await gate
+    }, { timeout: 10000 })
+    await ready
+    const creating = setMarketingReportPolicy({ db, provider: 'postgresql', viewer: operator, businessId: f.business.id, expectedVersion: 0, ingestEnabled: false }).then(value => ({ value }), error => ({ error }))
+    let state
+    try {
+      for (let i = 0; i < 20; i++) { [state] = await observer.$queryRaw`SELECT wait_event_type FROM pg_stat_activity WHERE pid=${pid}`; if (state?.wait_event_type === 'Lock') break; await pause(10) }
+    } finally { release(); await Promise.allSettled([moving, creating]) }
+    await moving; expect((await creating).error).toBeUndefined()
+    const policy = await db.marketingReportPolicy.findUnique({ where: { businessId: f.business.id } }), business = await db.business.findUnique({ where: { id: f.business.id } })
+    expect(policy.tenantId).toBe(business.tenantId); expect(business.tenantId).toBe(f.other.id)
+    expect(state?.wait_event_type).toBe('Lock')
+    expect(await db.auditEvent.findFirst({ where: { businessId: f.business.id, entityType: 'MARKETING_REPORT_POLICY', action: 'CREATED_DISABLED' } })).toMatchObject({ tenantId: f.other.id })
+    completed.add('tenant-move-before-first-policy')
   })
 
   it.each(['initiative-business', 'initiative-plan', 'plan-business'])('serializes first-report scope-race: %s', async move => {

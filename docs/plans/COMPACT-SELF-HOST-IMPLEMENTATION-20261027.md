@@ -313,8 +313,10 @@ records strict offline model prerequisites and an owned inert Docker cohort
 probe. This is not AI qualification: the core shipping lane keeps LINE/Knowledge
 unselected, and the actual selected-profile gates below remain open. Diagnostics
 never import a report as permission or assert current authority from env shape.
-The same report records the remaining P2 found by the later full-range Task5
-review; Task5's local milestone checks do not close that follow-up.
+The same report records the P2 found by the later full-range Task5 review; the
+selected [Task5 scope correction](../../reports/compact-selfhost-2026-10-27/task5-policy-scope-correction.md)
+tracks its separate correction/re-review. Task5's original local milestone checks
+do not close that follow-up.
 
 **Files:** Extend compact manifest/Compose/CLI diagnostics; add
 `tests/node/compact-profile.test.mjs` and

@@ -5,7 +5,7 @@ import { randomBytes, randomUUID, createHash } from 'node:crypto'
 import { isInstallationOperator } from '../../identity/viewer-authority.js'
 import { recordAudit } from '../../project-manager/application/audit.js'
 import { reportError } from './marketing-report-wire.js'
-import { lockMarketingReportScope, withMarketingReportTransaction } from './marketing-report-lock.js'
+import { lockMarketingReportScope, lockMarketingReportBusiness, withMarketingReportTransaction } from './marketing-report-lock.js'
 
 function operator(viewer) {
   if (!isInstallationOperator(viewer)) throw reportError(403, 'REPORT_OPERATOR_REQUIRED')
@@ -23,9 +23,13 @@ export async function setMarketingReportPolicy({ db, provider = 'sqlite', viewer
   if (!safe(businessId, UUID) || !version(expectedVersion) || typeof ingestEnabled !== 'boolean') throw reportError(422, 'REPORT_POLICY_INVALID')
   return withMarketingReportTransaction(db, provider, async tx => {
     await lockMarketingReportScope(tx, { provider, businessId })
+    const existing = await tx.marketingReportPolicy.findUnique({ where: { businessId } })
+    // An absent Policy/advisory lock does not stop a native Business writer.
+    // Lock the Business before reading its tenant; READ COMMITTED then sees a
+    // preceding move, or the native guard sees this policy after our commit.
+    if (!existing) await lockMarketingReportBusiness(tx, { provider, businessId })
     const business = await tx.business.findUnique({ where: { id: businessId } })
     if (!business) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
-    const existing = await tx.marketingReportPolicy.findUnique({ where: { businessId } })
     if (!existing) {
       // An absent policy can only be provisioned disabled. Enabling is a
       // separate expected-version command, never an implicit credential grant.

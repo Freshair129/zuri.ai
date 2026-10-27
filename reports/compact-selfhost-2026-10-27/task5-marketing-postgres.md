@@ -1,13 +1,18 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 implementation_base: "d5525db188a2cbf8625cebaf9afcce95c836af14"
 ---
 
 # Compact Task5 PostgreSQL Marketing intake
+
+The original milestone below is preserved. A later full-range review found an
+additional first-policy/Business-tenant P2 beyond its 22-case evidence; see the
+[separate correction and current validation](task5-policy-scope-correction.md).
+The original milestone alone is not full acceptance of that later schedule.
 
 ## Pre-code source reconciliation
 
@@ -127,7 +132,7 @@ the hosted exact head here. The separate Task3 hosted core job remains a Task7
 gate. No CI, Linux-host, complete restore, live Go/Marketing transfer, migration,
 production/provider approval or release is inferred from the local checks.
 
-The first final governance run retained one CRITICAL: the exact report-principal
+The original milestone's first final governance run retained one CRITICAL: the exact report-principal
 recognition still required the old `marketingReportDatabase()` call shape. The
 route still has the approved dedicated principal; adding a Person/session viewer
 would violate its contract. A narrow lexical helper now recognizes only that
@@ -135,7 +140,10 @@ existing path with ordered strict bearer/body parsing, the trusted zero-argument
 resolver and selected DB/provider delegation. Neighbor paths and altered imports,
 arguments, auth/body/provider sources fail its regression. No viewer baseline debt
 or namespace exception was added. Separate independent Luna Max review found no
-issue in this new helper/callsite/tests, and did not treat it as runtime auth proof.
+issue in that helper/callsite/tests, and did not treat it as runtime auth proof.
+The later full-range correction review found comment/dead-code spoofing in that
+regex approach; the linked correction replaces it with a parsed executable-shape
+pin and records the hostile regression and current review result.
 
 Task4's corrected committed delta at `d5525db1` also received a scoped independent
 read-back: no remaining issue in version metadata, evidence completion/cleanup or
