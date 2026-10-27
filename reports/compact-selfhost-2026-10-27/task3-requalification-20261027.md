@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-27"
 implementation_base: "419eafae96616d82b5903d5e52ac68fa38b2bee5"
 qualification_revision: "16825173d0784ac2a5223ead99b595cc8b3a4096"
@@ -129,8 +129,11 @@ The existing diagnostic still reports unqualified capabilities honestly; this
 report is not imported as runtime authority. Later Task4–7 evidence keeps its own
 revisions and limits rather than being requalified by this Task3 test.
 
-Hosted CI, PR/merge, publication/release and production activation were not run
-for this branch. The original checkpoint tags/bundles/backups, existing runtimes
+The local qualification run above did not execute hosted CI, PR/merge,
+publication/release or production activation. The separate delivery is tracked
+in [PR #753](https://github.com/Freshair129/zuri.ai/pull/753); hosted delivery
+checks do not requalify the exact-image core artifact. The original checkpoint
+tags/bundles/backups, existing runtimes
 and the separate Visual Office repository were not modified. No worktree was
 created. Documentation closeout verification is recorded with this evidence's
 final revision; it does not change the qualified executable/artifact revision.
