@@ -243,6 +243,7 @@
           "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+          "apps/server/tests/storage/compact-business-objects.test.js",
           "apps/server/tests/unit/api-error-mapping.test.js",
           "apps/server/tests/unit/asset-lifecycle-service.test.js",
           "apps/server/tests/unit/context-composer.test.js",
@@ -1031,6 +1032,7 @@
           "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+          "apps/server/tests/storage/compact-business-objects.test.js",
           "apps/server/tests/unit/api-error-mapping.test.js",
           "apps/server/tests/unit/asset-lifecycle-service.test.js",
           "apps/server/tests/unit/context-composer.test.js",
@@ -1271,6 +1273,7 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/integration/pipeline-contract-regressions.test.js",
+          "apps/server/tests/storage/compact-business-objects.test.js",
           "apps/server/tests/unit/doc-identities.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -1469,7 +1472,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-079",
@@ -2053,7 +2056,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 38,
+          "testCount": 39,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -2076,6 +2079,7 @@
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
@@ -2301,6 +2305,7 @@
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
@@ -3184,7 +3189,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-076",
@@ -6454,7 +6459,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-095",
@@ -7360,7 +7365,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 77
+          "testCount": 78
         },
         {
           "id": "FR-073",
@@ -7384,7 +7389,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 45
+          "testCount": 46
         },
         {
           "id": "FR-077",
@@ -7480,7 +7485,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 20,
-          "testCount": 38,
+          "testCount": 39,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -7522,6 +7527,7 @@
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
@@ -8629,7 +8635,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 5,
-          "testCount": 20,
+          "testCount": 21,
           "evidence": [
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/file-asset-service.js",
@@ -8649,6 +8655,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/doc-identities.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -9039,6 +9046,7 @@
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
             "apps/server/tests/unit/asset-lifecycle-service.test.js",
             "apps/server/tests/unit/context-composer.test.js",
@@ -9272,6 +9280,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/integration/pipeline-contract-regressions.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/doc-identities.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -10142,7 +10151,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 23,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-085",
@@ -10232,6 +10241,7 @@
         "apps/server/tests/postgres/pipeline-handoff-races.test.js",
         "apps/server/tests/postgres/pipeline-structure-moves.test.js",
         "apps/server/tests/postgres/work-release-races.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/asset-lifecycle-service.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -18037,7 +18047,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 77
+          "testCount": 78
         }
       ],
       "evidence": [
@@ -18133,6 +18143,7 @@
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/integration/work-release-gates.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
@@ -18284,7 +18295,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 45
+          "testCount": 46
         }
       ],
       "evidence": [
@@ -18326,6 +18337,7 @@
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/postgres/operator-bootstrap-races.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/error-events.test.js",
@@ -21049,7 +21061,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 5,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -21071,6 +21083,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/doc-identities.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",

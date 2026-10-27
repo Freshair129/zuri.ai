@@ -226,7 +226,11 @@ export async function resolveFileAssetContent(fileId, {
   if (asset.storageKind === 'MANAGED_BLOB') {
     if (!asset.blobRef) throw new Error('Managed blob reference is missing')
     const port = objectStoragePort || createConfiguredManagedBlobObjectStoragePort()
-    const content = await port.get({ ref: asset.blobRef, tenantId: asset.tenantId, businessId: asset.businessId })
+    // @spec ADR-115 — the private business bridge verifies persisted integrity
+    // before extraction/admission. Existing ports may ignore these optional fields.
+    // @tested tests/storage/compact-business-objects.test.js
+    const content = await port.get({ ref: asset.blobRef, tenantId: asset.tenantId, businessId: asset.businessId,
+      expectedSha256: asset.sha256 ?? undefined, expectedByteLength: asset.size ?? undefined })
     return { asset, content: Buffer.from(content) }
   }
   if (asset.storageKind !== 'LOCAL_FILE' || !asset.relativePath) {

@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.6"
+version: "0.1.7"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -23,6 +23,9 @@ core TEST run; it does not replace the original Task3 snapshot. These do not
 replace this dated source
 assessment or confer production/release authority. [Task4 private storage evidence](task4-business-storage.md)
 records Asset/catalog provider parity and its remaining qualification limits.
+The [2026-10-28 Task4 requalification](task4-requalification-20261028.md) checks
+the current consumer path and persisted integrity against the private S3 provider;
+it retains the original Task4 snapshot and separate release/provider gates.
 [Task5 PostgreSQL Marketing evidence](task5-marketing-postgres.md) records the
 fresh-only TEST exception, source reconciliation and independent native sessions.
 It creates no requirement, changes no canonical lifecycle and proves no runtime

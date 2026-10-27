@@ -19,6 +19,39 @@ const scope = { tenantId: 'tenant-a', businessId: 'business-a' }
 const response = (status = 200, bytes = 'private bytes', version = 'v +/%?#') => new Response(bytes, { status, headers: { 'x-amz-version-id': version } })
 
 describe('Compact private Asset/catalog storage', () => {
+  it('does not qualify the real catalog consumer from generic object CRUD alone', () => {
+    const completedCases = new Set(['upload', 'catalog', 'extraction', 'metadataFailure', 'versions', 'objectLoss', 'unversionedRefusal'])
+    const result = fixtureEvidence.businessStorageObservation({ completedCases, cleanup: 'PASS' })
+    expect(result.status).toBe('FAIL')
+    expect(result.checks.pricingCatalogAdmission).toBe(false)
+  })
+  it.each([['integrity', 'metadataIntegrity'], ['pricingAdmission', 'pricingCatalogAdmission']])('requires completed %s assertions before reporting full parity', (omitted, check) => {
+    const all = ['upload', 'catalog', 'extraction', 'integrity', 'pricingAdmission', 'metadataFailure', 'versions', 'objectLoss', 'unversionedRefusal']
+    const result = fixtureEvidence.businessStorageObservation({ completedCases: new Set(all.filter(name => name !== omitted)), cleanup: 'PASS' })
+    expect(result.status).toBe('FAIL')
+    expect(result.checks[check]).toBe(false)
+  })
+  it.each([
+    { expectedSha256: '0'.repeat(64) },
+    { expectedByteLength: 1 },
+  ])('refuses a pinned response inconsistent with persisted integrity %j', async expected => {
+    const fetchFn = vi.fn().mockResolvedValue(response())
+    const port = createConfiguredAssetObjectStoragePort(env, { fetchFn })
+    const stored = await port.put({ key: assetKey, content: Buffer.from('private bytes') })
+    await expect(port.get({ ref: stored.ref, ...scope, ...expected })).rejects.toMatchObject({ status: 409, code: 'BUSINESS_STORAGE_UNAVAILABLE' })
+  })
+  it.each([
+    { expectedSha256: 'malformed' }, { expectedSha256: '' },
+    ...['\n', '\r', '\r\n', '\u2028', '\u2029'].map(ending => ({ expectedSha256: 'a'.repeat(64) + ending })),
+    { expectedByteLength: -1 }, { expectedByteLength: 1.5 },
+  ])('refuses malformed integrity expectations before provider I/O %j', async expected => {
+    const fetchFn = vi.fn().mockResolvedValue(response())
+    const port = createConfiguredAssetObjectStoragePort(env, { fetchFn })
+    const stored = await port.put({ key: assetKey, content: Buffer.from('private bytes') })
+    fetchFn.mockClear()
+    await expect(port.get({ ref: stored.ref, ...scope, ...expected })).rejects.toMatchObject({ status: 400 })
+    expect(fetchFn).not.toHaveBeenCalled()
+  })
   it('selects only the injected disposable database and removes every PostgreSQL alias', () => {
     const selected = compactStorageDatabaseEnvironment({ DATABASE_URL: 'postgresql://foreign.invalid/db', POSTGRES_PRISMA_URL: 'postgresql://foreign.invalid/db', POSTGRES_URL: 'postgresql://foreign.invalid/db', POSTGRES_URL_NON_POOLING: 'postgresql://foreign.invalid/db', DATABASE_POSTGRES_URL: 'postgresql://foreign.invalid/db' }, 'file:./.test-dbs/run-owned.db')
     expect(selected).toEqual({ DATABASE_URL: 'file:./.test-dbs/run-owned.db', DIRECT_URL: 'file:./.test-dbs/run-owned.db' })
@@ -27,7 +60,7 @@ describe('Compact private Asset/catalog storage', () => {
   })
   it('reports PASS only after all actual cases and owned cleanup succeed', () => {
     expect(typeof fixtureEvidence.businessStorageObservation).toBe('function')
-    const evidence = { runId: 'owned-run', environment: 'TEST' }, all = ['upload', 'catalog', 'extraction', 'metadataFailure', 'versions', 'objectLoss', 'unversionedRefusal']
+    const evidence = { runId: 'owned-run', environment: 'TEST' }, all = ['upload', 'catalog', 'extraction', 'integrity', 'pricingAdmission', 'metadataFailure', 'versions', 'objectLoss', 'unversionedRefusal']
     const partial = fixtureEvidence.businessStorageObservation({ evidence, completedCases: new Set(all.filter(name => name !== 'extraction')), cleanup: 'PASS' })
     expect(partial.status).toBe('FAIL'); expect(partial.checks.extractionRead).toBe(false)
     expect(fixtureEvidence.businessStorageObservation({ evidence, completedCases: new Set(all), cleanup: 'FAIL' }).status).toBe('FAIL')

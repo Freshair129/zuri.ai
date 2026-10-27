@@ -1,5 +1,5 @@
 ---
-version: "0.7.7"
+version: "0.7.8"
 status: active
 superseded_by: null
 ---
@@ -40,6 +40,8 @@ plans and historical test receipts are separate from the build specification.
   Safe Compact continuation includes isolated TEST core, private Asset/catalog and
   explicit PostgreSQL Marketing intake work;
   production, live credentials and release actions remain separate.
+  The [2026-10-28 Task4 requalification](../reports/compact-selfhost-2026-10-27/task4-requalification-20261028.md)
+  records the private S3 integrity correction and real pricing-catalog consumer checks.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -143,3 +145,6 @@ acceptance or replace the source registry.
 
 Version diff 0.7.0 → 0.7.1 (2026-10-26): links the bounded Knowledge lifecycle
 and serving assessment, keeping findings and test evidence separate from adoption.
+
+Version diff 0.7.7 → 0.7.8 (2026-10-28): links the bounded Task4 requalification;
+canonical requirements, historical qualification and production authority remain separate.

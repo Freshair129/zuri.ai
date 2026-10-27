@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "recordedOn": "2026-10-28",
+  "sourceRevision": "19f53c162faf57f706d230adf248b6eb6e8c79eb",
+  "sourceTree": "9eb774e82b6d627cccfd34df0a0a37bbaa04f55e",
+  "cleanTrackedSourceAtQualification": true,
+  "sourceInputs": {
+    "apps/server/src/platform/storage/private-business-object-storage.js": "0e9c3c82d9ed6645e7c7f9f6d224190f4bdb7f0fbeac7015974532bf09b930ab",
+    "apps/server/src/platform/storage/s3-object-storage.js": "07beec939bc8d0bbd02a7b570c7b8b8b5918a2350a2c6a8adf88993fb4617e71",
+    "apps/server/src/platform/storage/supabase-object-storage.js": "53af133e6bb4f79f82d64ea8467cadbab47800f8ca1f843666f9dcde95eda361",
+    "apps/server/src/modules/project-manager/application/file-asset-service.js": "e2d1cd800033206858c517a7af60fa7716a5b8f6c17a9a10482d79986d507828",
+    "apps/server/src/modules/asset-management/application/asset-evidence-service.js": "9c37369ca54aef733bd2e97e395344277c0641f983e19d9fb737bddb33423471",
+    "apps/server/src/modules/commerce/application/pricing-catalog-service.js": "8c6d44b9a321f18068278a0390a64b462d74ebed413305b6e395630af804f952",
+    "apps/server/src/modules/knowledge/knowledge-admission-service.js": "096932ab4d8859ddfbb27ebedd773b1f9b725373867e1a80ec49b4e06be482a8",
+    "apps/server/tests/helpers/compact-business-storage.mjs": "95cb377d12eba3e65e276e485516c5a08ffa592679697bf7a18149c299594eaa",
+    "apps/server/tests/helpers/compact-pricing-catalog.js": "ba4665ab593253ca0aa067e903ae8b758b2e1789c716c6362537af51df6d48dc",
+    "apps/server/tests/helpers/compact-storage-database.mjs": "5321915062e384a14496a59ab3925f50cad60f7b2cdae1349367875b6854cd7c",
+    "apps/server/tests/storage/compact-business-objects.test.js": "faa95ceaf5787b5bfa8aec60ab8fa7aa34908fdf03bce4f53f94008c13881ac7",
+    "apps/server/tests/unit/private-business-object-storage.test.js": "94b640abe714f2424f4b5fbfe61368f76ca52889354d492136893f20d57337a1",
+    "apps/server/vitest.compact-storage.config.js": "de6e7372ba9326d0c6aaabd53942fb31e255e84f790d9ed81a518fce1092fe6a",
+    "apps/server/tests/setup-compact-storage.js": "494204ccbac2001b2dbb849171d3e9eb84e4022ed5a37f1fb85a4410b1533e4f",
+    "apps/server/package-lock.json": "d82bd72a3df4a39053b616aeed36fa17e9385d1e401d024dc303d4eb5a68a167"
+  },
+  "runtime": {
+    "node": "v24.20.0",
+    "host": "Windows Docker Desktop with Linux containers",
+    "applicationDatabase": "owned disposable SQLite; not PostgreSQL qualification"
+  },
+  "executedProviderTests": 9,
+  "skippedProviderTests": 0,
+  "provider": {
+    "environment": "TEST",
+    "image": "sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f",
+    "reference": "sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f",
+    "command": [
+      "server",
+      "/data",
+      "--address",
+      ":9000",
+      "--quiet"
+    ],
+    "runId": "0caa371b-8d11-41cc-ad93-08a8f94a5168",
+    "containerId": "a00213a79f9a283e82b9becedf3f8cd02269e3f8c98d967ee43708285cb55a99",
+    "volume": "zuri-compact-storage-0caa371b-8d11-data",
+    "networkId": "9537a17d3b1353048ce792dbf403aa307ce737c01611adc29bc6657286c0ee5a",
+    "principals": [
+      {
+        "purpose": "asset",
+        "actions": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:DeleteObject",
+          "s3:DeleteObjectVersion"
+        ],
+        "namespace": [
+          "arn:aws:s3:::zuri-compact-storage-0caa371b-8d11-asset/asset-evidence/*"
+        ]
+      },
+      {
+        "purpose": "catalog",
+        "actions": [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:GetObjectVersion",
+          "s3:DeleteObject",
+          "s3:DeleteObjectVersion"
+        ],
+        "namespace": [
+          "arn:aws:s3:::zuri-compact-storage-0caa371b-8d11-catalog/business-catalog/*"
+        ]
+      }
+    ],
+    "license": "Existing cached TEST fixture; no production provider/license approval",
+    "status": "PASS",
+    "cleanup": "PASS",
+    "checks": {
+      "uploadRead": true,
+      "authorizedFileAsset": true,
+      "foreignRefRefused": true,
+      "distinctCatalog": true,
+      "credentialIsolation": true,
+      "noOverwrite": true,
+      "exactErase": true,
+      "extractionRead": true,
+      "metadataIntegrity": true,
+      "pricingCatalogAdmission": true,
+      "pricingCatalogReplay": true,
+      "currentCatalogAuthorization": true,
+      "failedMetadataCleanup": true,
+      "versionPinnedAfterReplacement": true,
+      "exactErasePreservesOtherVersion": true,
+      "metadataOnlyRestoreRefused": true,
+      "immutableVersionRequired": true
+    },
+    "limitations": [
+      "Injected TEST extractor; no live model qualification",
+      "No production provider/license or complete restore qualification"
+    ]
+  },
+  "resourceComparison": {
+    "containersAndStatesPreserved": true,
+    "volumesPreserved": true,
+    "namedNetworksPreserved": true,
+    "defaultBridgeIdentity": "changed; cause undetermined; no task operation targeted it"
+  },
+  "limits": [
+    "Source-bound host-port TEST evidence; not a rebuilt Compact release artifact",
+    "Pricing admission stops at durable QUEUED jobs; no worker/model/native Knowledge or publication qualification",
+    "Persisted nullable FileAsset hash remains supported; size is checked when hash is absent",
+    "No provider production/license approval, Linux-host install, complete restore, hosted CI, PR/merge, release or production activation"
+  ]
+}
