@@ -1,5 +1,5 @@
 import { describe, it, expect, afterAll } from 'vitest'
-import { existsSync, lstatSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { existsSync, lstatSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { createRequire } from 'node:module'
@@ -26,7 +26,9 @@ const { DatabaseSync } = createRequire(import.meta.url)('node:sqlite')
 // The test harness prepares one verified schema template per run, then clones it
 // to an exclusive SQLite database for each test file.
 
-const dir = mkdtempSync(path.join(tmpdir(), 'db-reset-'))
+// Windows runners can expose TEMP via an 8.3 alias. Allocate under its physical
+// path so these fixtures satisfy the same unchanged ancestor-path guard.
+const dir = mkdtempSync(path.join(realpathSync.native(tmpdir()), 'db-reset-'))
 afterAll(() => rmSync(dir, { recursive: true, force: true }))
 
 describe('per-run test database', () => {
