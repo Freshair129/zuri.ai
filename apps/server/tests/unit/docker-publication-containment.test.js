@@ -18,6 +18,19 @@ describe('Docker publication containment', () => {
         expect(workflow.on.workflow_dispatch.inputs.compact_package.default).toBe(false);
         expect(job.permissions).toEqual({ contents: 'read', actions: 'read' });
         expect(job.steps.find(step => step.uses?.startsWith('actions/download-artifact@')).with['github-token']).toBe('${{ github.token }}');
+      } else if (name === 'compact-core') {
+        // ADR-115 Task7: only the explicit manual qualification job may read
+        // its same-run candidate. No token, foreign run or registry authority.
+        expect(job.if).toBe("${{ github.event_name == 'workflow_dispatch' && inputs.compact_package && inputs.compact_qualify_core }}");
+        expect(job.needs).toBe('compact-package');
+        expect(workflow.on.workflow_dispatch.inputs.compact_package.default).toBe(false);
+        expect(workflow.on.workflow_dispatch.inputs.compact_qualify_core.default).toBe(false);
+        expect(job.permissions).toEqual({ contents: 'read', actions: 'read' });
+        const download = job.steps.find(step => step.uses?.startsWith('actions/download-artifact@'));
+        expect(download.with).toEqual({
+          name: 'compact-candidate-${{ github.sha }}',
+          path: '${{ runner.temp }}/compact-package',
+        });
       } else {
         expect(job.permissions ?? workflow.permissions).toEqual({ contents: 'read' });
       }
