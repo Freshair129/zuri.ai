@@ -4,13 +4,14 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
-import { afterAll, beforeAll, describe, expect, it } from 'vitest'
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { anchor } from '../../scripts/id-anchors.mjs'
 import { parseCanonicalRecord } from '../../scripts/document-registry-format.mjs'
 import { authoredRecordMarkdown } from '../../../../tools/document-record-migration.mjs'
 import { buildCanonicalIndex } from '../../../../tools/document-registry.mjs'
 import {
   CANONICAL_INDEX_PATH, CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION,
+  MAX_BLOB_BYTES, GIT_VERIFICATION_TIMEOUT_MS,
   createGovernanceEvidencePort, normalizeSourceManifest, statementDigest,
   verifyGovernanceSnapshotIntent,
 } from '@/modules/project-manager/application/governance-source-verifier'
@@ -179,6 +180,19 @@ function capture(value, sourceManifest = value.manifest) {
       manifestHash: normalizeSourceManifest(sourceManifest).manifestHash, sourceManifest } })
 }
 
+async function verificationGit(args, options) {
+  const pending = execFile('git', args, {
+    cwd: options.cwd, shell: false, windowsHide: true, encoding: null,
+    timeout: Math.min(5000, options.timeoutMs), maxBuffer: options.maxBuffer,
+    env: { ...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : '/dev/null', GIT_NO_REPLACE_OBJECTS: '1', GIT_TERMINAL_PROMPT: '0' },
+  })
+  if (options.input !== undefined) {
+    pending.child.stdin.once('error', () => {})
+    pending.child.stdin.end(options.input)
+  }
+  return (await pending).stdout
+}
+
 async function replay(value, mutate = (snapshot) => snapshot) {
   const { proof } = await capture(value)
   const snapshot = mutate({ id: randomUUID(), tenantId, businessId,
@@ -202,6 +216,103 @@ afterAll(async () => {
 })
 
 describe('canonical source snapshot v2', () => {
+  it('reads committed canonical blobs with a bounded number of Git processes', async () => {
+    const calls = []
+    const gitRunner = async (args, options) => {
+      calls.push(args)
+      return verificationGit(args, options)
+    }
+    const verified = await verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
+      env: fixture.env, gitRunner,
+      input: { repositoryId, commitSha: fixture.commitSha, manifestHash: fixture.manifestHash, sourceManifest: fixture.manifest } })
+    expect(verified.validationStatus).toBe('VALID')
+    expect(calls.filter(args => args[0] === 'ls-tree')).toHaveLength(1)
+    expect(calls.filter(args => args[0] === 'cat-file' && args[1] === '--batch-check')).toHaveLength(1)
+    expect(calls.filter(args => args[0] === 'cat-file' && args[1] === '--batch')).toHaveLength(1)
+  })
+  it.each([
+    ['truncated', bytes => bytes.subarray(0, -1), 'blob-batch-framing'],
+    ['extra output', bytes => Buffer.concat([bytes, Buffer.from('unrequested')]), 'blob-batch-framing'],
+    ['wrong type', bytes => Buffer.from(bytes.toString().replace(' blob ', ' tree ')), 'blob-batch-object'],
+    ['wrong object', bytes => { const out = Buffer.from(bytes); out[0] = out[0] === 97 ? 98 : 97; return out }, 'blob-batch-object'],
+    ['oversized blob', bytes => Buffer.concat([Buffer.from(bytes.subarray(0, bytes.indexOf(10)).toString().replace(/ \d+$/, ` ${MAX_BLOB_BYTES + 1}`)), bytes.subarray(bytes.indexOf(10))]), 'blob-too-large'],
+    ['corrupt content', bytes => { const out = Buffer.from(bytes); out[out.indexOf(10) + 1] ^= 1; return out }, 'blob-digest-mismatch'],
+    ['high-bit header', bytes => { const out = Buffer.from(bytes); out[0] |= 128; return out }, 'blob-batch-object'],
+    ['wrong metadata object', bytes => { const out = Buffer.from(bytes); out[0] = out[0] === 97 ? 98 : 97; return out }, 'blob-batch-object', '--batch-check'],
+    ['truncated metadata', bytes => bytes.subarray(0, -1), 'blob-batch-framing', '--batch-check'],
+    ['oversized metadata', bytes => Buffer.from(bytes.toString().replace(/ blob \d+/, ` blob ${MAX_BLOB_BYTES + 1}`)), 'blob-too-large', '--batch-check'],
+  ])('rejects canonical Git batch protocol %s without issuing a proof', async (_name, mutate, reason, phase = '--batch') => {
+    const gitRunner = async (args, options) => {
+      const output = await verificationGit(args, options)
+      return args[0] === 'cat-file' && args[1] === phase ? mutate(output) : output
+    }
+    await expect(verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
+      env: fixture.env, gitRunner,
+      input: { repositoryId, commitSha: fixture.commitSha, manifestHash: fixture.manifestHash, sourceManifest: fixture.manifest } }))
+      .rejects.toMatchObject({ code: 'SNAPSHOT_INVALID', reason })
+  })
+  it.each([
+    ['symlink mode', text => text.replace(/^100644/, '120000'), 'non-regular-git-object'],
+    ['non-blob object', text => text.replace(' blob ', ' tree '), 'non-blob-git-object'],
+    ['wrong literal path', text => text.replace(/\t[^\0]+/, '\tdocs/unrequested.md'), 'tree-path-mismatch'],
+  ])('rejects canonical tree %s before reading blob contents', async (_name, mutate, reason) => {
+    const commands = []
+    const gitRunner = async (args, options) => {
+      commands.push(args[0])
+      const output = await verificationGit(args, options)
+      return args[0] === 'ls-tree' ? Buffer.from(mutate(output.toString('utf8'))) : output
+    }
+    await expect(verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
+      env: fixture.env, gitRunner,
+      input: { repositoryId, commitSha: fixture.commitSha, manifestHash: fixture.manifestHash, sourceManifest: fixture.manifest } }))
+      .rejects.toMatchObject({ code: 'SNAPSHOT_INVALID', reason })
+    expect(commands).not.toContain('cat-file')
+  })
+  it('does not start a canonical blob batch after the shared verification deadline', async () => {
+    let clock = Date.now()
+    const now = vi.spyOn(Date, 'now').mockImplementation(() => clock), commands = []
+    try {
+      const gitRunner = async (args, options) => {
+        commands.push(args[0])
+        const output = await verificationGit(args, options)
+        if (args[0] === 'ls-tree') clock += GIT_VERIFICATION_TIMEOUT_MS + 1
+        return output
+      }
+      await expect(verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
+        env: fixture.env, gitRunner,
+        input: { repositoryId, commitSha: fixture.commitSha, manifestHash: fixture.manifestHash, sourceManifest: fixture.manifest } }))
+        .rejects.toMatchObject({ code: 'DATA_INTEGRITY_UNAVAILABLE', reason: 'verification-timeout' })
+      expect(commands).not.toContain('cat-file')
+    } finally { now.mockRestore() }
+  })
+  it('retains the aggregate byte cap even if a Git adapter returns an oversized batch', async () => {
+    const entries = Array.from({ length: 6 }, (_, index) => ({
+      path: index === 0 ? CANONICAL_INDEX_PATH : `docs/part-${index}.md`, sha256: 'a'.repeat(64),
+    }))
+    const objects = entries.map((_, index) => String(index + 1).padStart(40, '0'))
+    const body = Buffer.alloc(6 * 1024 * 1024, 120)
+    const normalized = normalizeSourceManifest({ schemaVersion: CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION, entries })
+    const gitRunner = async (args, options) => {
+      if (args[0] === 'ls-tree') return Buffer.from(entries.map((entry, index) => `100644 blob ${objects[index]}\t${entry.path}\0`).join(''))
+      if (args[0] === 'cat-file') {
+        const requested = options.input.toString('ascii').trim().split('\n')
+        if (args[1] === '--batch-check') return Buffer.from(requested.map(object => `${object} blob ${body.length}\n`).join(''))
+        return Buffer.concat(requested.flatMap(object => [Buffer.from(`${object} blob ${body.length}\n`), body, Buffer.from('\n')]))
+      }
+      return verificationGit(args, options)
+    }
+    await expect(verifyGovernanceSnapshotIntent({ projectId, scope, repository, projectRepository,
+      env: fixture.env, gitRunner,
+      input: { repositoryId, commitSha: fixture.commitSha, manifestHash: normalized.manifestHash, sourceManifest: normalized.manifest } }))
+      .rejects.toMatchObject({ code: 'SNAPSHOT_INVALID', reason: 'inspection-limit' })
+  })
+  it('rejects oversized native Git batches with the original aggregate inspection guard', async () => {
+    const large = await makeFixture(value => {
+      for (let index = 0; index < 6; index++) value.files[`fixtures/blob-${index}.bin`] = Buffer.alloc(6 * 1024 * 1024, index)
+      return value
+    })
+    await expect(capture(large)).rejects.toMatchObject({ code: 'SNAPSHOT_INVALID', reason: 'inspection-limit' })
+  })
   it('preserves historical full-index snapshots containing only FR/FEAT source blobs', async () => {
     const historical = await makeFixture(value => {
       const omitted = canonical('SDD-049', 'SDD', '| SDD-049 | Historical non-PM source. | planned |', 'docs/requirements/SDD-049.md')

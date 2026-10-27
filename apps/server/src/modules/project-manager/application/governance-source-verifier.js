@@ -10,7 +10,7 @@ import { parseCanonicalIndex, parseCanonicalRecord, validateCanonicalEntry, vali
 // @req FR-252 — only a server-local, operator-bound Git verifier may produce
 // the immutable provenance used by a GovernanceSnapshot or a Feature binding.
 // @spec ADR-097, docs/architecture/project-manager-system/24-PHASE-B-FEATURE-IMPLEMENTATION-PLAN.md, docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md, docs/architecture/project-manager-system/27-PHASE-B-COMMIT-PROVENANCE-CONTRACT.md
-// @tested tests/unit/governance-source-verifier.test.js, tests/integration/governance-snapshot-capture.test.js
+// @tested tests/unit/governance-source-verifier.test.js, tests/unit/governance-canonical-source.test.js, tests/integration/governance-snapshot-capture.test.js
 
 const execFile = promisify(execFileCallback)
 
@@ -280,10 +280,11 @@ async function runGitCommand(args, {
   cwd,
   maxBuffer = 8 * 1024 * 1024,
   timeoutMs = GIT_COMMAND_TIMEOUT_MS,
+  input,
 } = {}) {
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) throw unavailable('verification-timeout')
   try {
-    const result = await execFile('git', args, {
+    const pending = execFile('git', args, {
       cwd,
       env: gitEnvironment(),
       shell: false,
@@ -292,6 +293,13 @@ async function runGitCommand(args, {
       maxBuffer,
       encoding: null,
     })
+    let inputError
+    if (input !== undefined) {
+      pending.child.stdin.once('error', error => { inputError = error })
+      pending.child.stdin.end(input)
+    }
+    const result = await pending
+    if (inputError) throw inputError
     return Buffer.isBuffer(result.stdout) ? result.stdout : Buffer.from(result.stdout || '')
   } catch {
     throw unavailable('git-command-failed')
@@ -430,6 +438,85 @@ async function readBlob(gitRunner, checkoutRoot, commitSha, entryPath, remaining
   return bytes
 }
 
+// Canonical registries contain hundreds of small blobs. Verify their literal
+// tree entries in bounded argv groups, then read immutable object IDs through
+// one binary-safe cat-file stream instead of starting two processes per path.
+async function readCanonicalBlobs(gitRunner, checkoutRoot, commitSha, entries, remainingMs) {
+  const objects = new Map()
+  for (let offset = 0; offset < entries.length;) {
+    const requested = new Set(), paths = []
+    let argvSize = 256
+    while (offset < entries.length && argvSize + entries[offset].path.length + 16 <= 8000) {
+      const entryPath = entries[offset++].path
+      requested.add(entryPath)
+      paths.push(`:(literal)${entryPath}`)
+      argvSize += entryPath.length + 16
+    }
+    const listing = await invokeGit(gitRunner, ['ls-tree', '-z', '-r', '--full-tree', commitSha, '--', ...paths],
+      { cwd: checkoutRoot, maxBuffer: MAX_BLOB_BYTES, timeoutMs: remainingMs() })
+    const text = decodeUtf8(listing, 'tree-encoding')
+    if (text && !text.endsWith('\0')) throw invalid('tree-path-mismatch')
+    const records = text.split('\0').filter(Boolean)
+    if (records.length !== requested.size) throw invalid('tree-path-cardinality')
+    for (const record of records) {
+      const match = /^(\d{6}) (blob|tree|commit) ([0-9a-f]{40}(?:[0-9a-f]{24})?)\t([\s\S]*)$/.exec(record)
+      if (!match || !requested.has(match[4]) || objects.has(match[4])) throw invalid('tree-path-mismatch')
+      if (match[1] !== '100644' && match[1] !== '100755') throw invalid('non-regular-git-object')
+      if (match[2] !== 'blob') throw invalid('non-blob-git-object')
+      objects.set(match[4], match[3])
+    }
+  }
+  const objectIds = [...new Set(objects.values())]
+  if (!objectIds.length) return new Map()
+  const input = Buffer.from(objectIds.map(id => `${id}\n`).join(''), 'ascii')
+  const metadata = await invokeGit(gitRunner, ['cat-file', '--batch-check'], {
+    cwd: checkoutRoot, input, maxBuffer: MAX_MANIFEST_ENTRIES * 256, timeoutMs: remainingMs(),
+  })
+  const metadataText = decodeUtf8(metadata, 'blob-batch-object')
+  if (!metadataText.endsWith('\n')) throw invalid('blob-batch-framing')
+  const rows = metadataText.slice(0, -1).split('\n'), sizes = new Map()
+  if (rows.length !== objectIds.length) throw invalid('blob-batch-framing')
+  for (const [index, row] of rows.entries()) {
+    const match = /^([0-9a-f]{40}(?:[0-9a-f]{24})?) blob (0|[1-9][0-9]*)$/.exec(row)
+    if (!match || match[1] !== objectIds[index]) throw invalid('blob-batch-object')
+    const size = Number(match[2])
+    if (!Number.isSafeInteger(size) || size > MAX_BLOB_BYTES) throw invalid('blob-too-large')
+    sizes.set(objectIds[index], size)
+  }
+  let declaredBytes = 0
+  for (const entry of entries) {
+    declaredBytes += sizes.get(objects.get(entry.path))
+    if (declaredBytes > MAX_INSPECTED_BYTES) throw invalid('inspection-limit')
+  }
+  const output = await invokeGit(gitRunner, ['cat-file', '--batch'], {
+    cwd: checkoutRoot,
+    input,
+    maxBuffer: MAX_INSPECTED_BYTES + MAX_MANIFEST_ENTRIES * 256,
+    timeoutMs: remainingMs(),
+  })
+  const content = new Map()
+  let cursor = 0, inspectedBytes = 0
+  for (const objectId of objectIds) {
+    remainingMs()
+    const end = output.indexOf(10, cursor)
+    if (end < 0 || end - cursor > 128) throw invalid('blob-batch-framing')
+    const header = output.subarray(cursor, end).toString('utf8')
+    const match = /^([0-9a-f]{40}(?:[0-9a-f]{24})?) blob (0|[1-9][0-9]*)$/.exec(header)
+    if (!match || match[1] !== objectId) throw invalid('blob-batch-object')
+    const size = Number(match[2])
+    if (!Number.isSafeInteger(size) || size > MAX_BLOB_BYTES) throw invalid('blob-too-large')
+    if (size !== sizes.get(objectId)) throw invalid('blob-batch-object')
+    inspectedBytes += size
+    if (inspectedBytes > MAX_INSPECTED_BYTES) throw invalid('inspection-limit')
+    cursor = end + 1
+    if (cursor + size >= output.length || output[cursor + size] !== 10) throw invalid('blob-batch-framing')
+    content.set(objectId, output.subarray(cursor, cursor + size))
+    cursor += size + 1
+  }
+  if (cursor !== output.length) throw invalid('blob-batch-framing')
+  return new Map(entries.map(entry => [entry.path, content.get(objects.get(entry.path))]))
+}
+
 async function verifyManifestAgainstCommit({ binding, commitSha, manifest, manifestHash, gitRunner, deadline = null }) {
   const normalized = normalizeSourceManifest(manifest, { manifestHash })
   const verificationDeadline = deadline ?? (Date.now() + GIT_VERIFICATION_TIMEOUT_MS)
@@ -437,11 +524,14 @@ async function verifyManifestAgainstCommit({ binding, commitSha, manifest, manif
   await verifyCommit(gitRunner, binding.absoluteCheckoutRoot, commitSha, remainingMs)
   const blobs = new Map()
   let inspectedBytes = 0
+  const canonicalBlobs = normalized.manifest.schemaVersion === CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION
+    ? await readCanonicalBlobs(gitRunner, binding.absoluteCheckoutRoot, commitSha, normalized.manifest.entries, remainingMs) : null
   const width = normalized.manifest.schemaVersion === CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION ? 4 : 1
   for (let offset = 0; offset < normalized.manifest.entries.length; offset += width) {
     const group = normalized.manifest.entries.slice(offset, offset + width)
     const results = await Promise.allSettled(group.map(async entry => {
-      const bytes = await readBlob(gitRunner, binding.absoluteCheckoutRoot, commitSha, entry.path, remainingMs)
+      const bytes = canonicalBlobs ? canonicalBlobs.get(entry.path)
+        : await readBlob(gitRunner, binding.absoluteCheckoutRoot, commitSha, entry.path, remainingMs)
       remainingOrRefuse(verificationDeadline)
       inspectedBytes += bytes.length
       if (inspectedBytes > MAX_INSPECTED_BYTES) throw invalid('inspection-limit')

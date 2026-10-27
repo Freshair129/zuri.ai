@@ -2,7 +2,7 @@ import { execSync } from 'child_process'
 import {
   closeSync,
   existsSync,
-  mkdirSync,
+  lstatSync,
   openSync,
   readdirSync,
   readFileSync,
@@ -14,8 +14,14 @@ import path from 'path'
 import { createRequire } from 'module'
 import { createHash, randomBytes } from 'crypto'
 import { normalizeNewlines } from '../scripts/canonical-text.mjs'
+import {
+  cleanupRunFileTestDatabases,
+  ensureFileTestDatabaseDirectory,
+  TEST_DB_DIR,
+} from './helpers/file-test-database.js'
 
 const ROOT = path.resolve(__dirname, '..')
+export { TEST_DB_DIR }
 
 // Loaded through createRequire, not a static import: the Vite build inside
 // vitest 2.x predates node:sqlite, strips the node: prefix and then fails to
@@ -23,13 +29,8 @@ const ROOT = path.resolve(__dirname, '..')
 // static analysis.
 const nodeRequire = createRequire(path.join(ROOT, 'package.json'))
 
-// One database per run, not one shared file. The name carries the pid plus a
-// clock and random component so two runs — two terminals, two agents, a focused
-// file alongside a full suite — can never land on the same path.
-export const TEST_DB_DIR = path.resolve(ROOT, 'prisma', '.test-dbs')
-
 // A run that is SIGKILLed never reaches teardown and leaves its database behind.
-// Anything older than this cannot belong to a live run, so the next run sweeps it.
+// The existing conservative cutoff bounds stale cleanup; it is not a PID lease.
 const ABANDONED_AFTER_MS = 6 * 60 * 60 * 1000
 
 // Tables the whole suite builds on: every integration test starts by creating a
@@ -199,14 +200,19 @@ export function testDatabaseFiles(dbPath) {
 
 /**
  * Delete a test database and its sidecars, returning what was removed. Windows
- * locks an open SQLite file: a database still held by a live run reports EPERM,
- * and since no run ever shares another's file, that means "not mine" — skip it
- * and leave it to its owner. Any other failure is real and propagates.
+ * can report EPERM or EBUSY for an unavailable file; leave those paths for a
+ * later cleanup attempt. Other failures propagate.
  */
-export function removeTestDatabase(dbPath, { exists = existsSync, remove = rmSync } = {}) {
+export function removeTestDatabase(dbPath, { exists = existsSync, inspect = lstatSync, remove = rmSync } = {}) {
+  const candidates = testDatabaseFiles(dbPath).filter(exists)
+  for (const file of candidates) {
+    const details = inspect(file)
+    if (details.isSymbolicLink()) throw new Error(`TEST_DATABASE_SYMLINK_REFUSED: ${file}`)
+    if (!details.isFile()) throw new Error(`TEST_DATABASE_FILE_INVALID: ${file}`)
+  }
+
   const removed = []
-  for (const file of testDatabaseFiles(dbPath)) {
-    if (!exists(file)) continue
+  for (const file of candidates) {
     try {
       remove(file)
       removed.push(file)
@@ -220,16 +226,19 @@ export function removeTestDatabase(dbPath, { exists = existsSync, remove = rmSyn
 
 /**
  * Remove databases left behind by runs that never reached teardown, so the
- * directory cannot grow without bound. Age is the only safe signal — a live run
- * of any length is far younger than the cutoff, and one that is not still gets
- * skipped by the lock check in removeTestDatabase.
+ * directory cannot grow without bound. Only files older than the conservative
+ * cutoff are considered; EPERM/EBUSY paths remain for a later cleanup attempt.
  */
 export function sweepAbandonedDatabases(dir = TEST_DB_DIR, options = {}) {
   const {
     now = Date.now(),
     maxAgeMs = ABANDONED_AFTER_MS,
     list = readdirSync,
-    modifiedAt = (file) => statSync(file).mtimeMs,
+    modifiedAt = (file) => {
+      const details = lstatSync(file)
+      if (details.isSymbolicLink() || !details.isFile()) throw new Error('TEST_DATABASE_SWEEP_ENTRY_INVALID')
+      return details.mtimeMs
+    },
     ...removal
   } = options
 
@@ -277,10 +286,10 @@ export function assertSchemaApplied(dbPath, tables = FOUNDATION_TABLES) {
   }
 }
 
-// Create a fresh isolated SQLite database for this run, and hand its URL to the
-// worker processes through vitest's provide/inject channel — see tests/setup.js.
+// Create one empty SQLite schema template for the run. setup.js clones this
+// closed template to a unique file before each test file imports its modules.
 export default function globalSetup({ provide }) {
-  mkdirSync(TEST_DB_DIR, { recursive: true })
+  ensureFileTestDatabaseDirectory(TEST_DB_DIR)
   sweepAbandonedDatabases()
 
   const { file, url } = testDatabaseTarget()
@@ -324,9 +333,12 @@ export default function globalSetup({ provide }) {
   if (!generated) push(false)
 
   assertSchemaApplied(file)
+  const runPrefix = path.basename(file, '.db')
   provide('testDatabaseUrl', url)
+  provide('testDatabaseEngine', 'sqlite')
+  provide('testDatabaseRunPrefix', runPrefix)
 
-  // vitest runs the returned teardown after the run whether it passed or failed,
-  // so the run's database does not outlive it.
-  return () => removeTestDatabase(file)
+  // Vitest runs the returned teardown after the run whether it passed or failed.
+  // Only names bearing this run's unique prefix can be removed here.
+  return () => cleanupRunFileTestDatabases(runPrefix)
 }
