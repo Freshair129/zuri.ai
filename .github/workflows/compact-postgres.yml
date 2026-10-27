@@ -9,7 +9,8 @@ on:
       - apps/server/scripts/compact-*.mjs
       - apps/server/scripts/lib/compact/**
       - apps/server/tests/node/compact-*.mjs
-      - apps/server/tests/helpers/compact-postgres-target.js
+      - apps/server/tests/helpers/compact-postgres-target.*
+      - apps/server/playwright*.config.js
       - apps/server/tests/postgres/compact-fresh-install.test.js
       - apps/server/tests/helpers/pm-role-target.js
       - apps/server/tests/global-setup-postgres.js
@@ -27,7 +28,8 @@ on:
       - apps/server/scripts/compact-*.mjs
       - apps/server/scripts/lib/compact/**
       - apps/server/tests/node/compact-*.mjs
-      - apps/server/tests/helpers/compact-postgres-target.js
+      - apps/server/tests/helpers/compact-postgres-target.*
+      - apps/server/playwright*.config.js
       - apps/server/tests/postgres/compact-fresh-install.test.js
       - apps/server/tests/helpers/pm-role-target.js
       - apps/server/tests/global-setup-postgres.js

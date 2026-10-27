@@ -4,6 +4,10 @@ name: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
 services:
   web:
     image: '@image.web'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
     user: node
     restart: unless-stopped
     env_file:
@@ -15,6 +19,7 @@ services:
       NODE_ENV: production
       PORT: '3000'
       PUBLIC_BASE_URL: ${COMPACT_PUBLIC_BASE_URL:?Set the qualified origin}
+      ZURI_SECRET_STORE: envelope
       ZURI_KNOWLEDGE_STUDIO_ROOT: /app/knowledge-studio-data
     ports: ['127.0.0.1:${COMPACT_WEB_PORT:-3000}:3000']
     volumes:
@@ -78,6 +83,7 @@ services:
         required: true
     environment:
       ZURI_LINE_WORKER_URL: http://web:3000/api/line-oa/worker
+      ZURI_SECRET_STORE: envelope
     depends_on:
       web: {condition: service_healthy}
     networks: [private]

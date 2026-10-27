@@ -29,6 +29,14 @@ beforeAll(async () => {
 afterAll(async () => { try { await Promise.all(clients.map(c => c.$disconnect())); await policyReference?.stop() } finally { for (const f of fixtures.reverse()) await f.close() } }, 120000)
 
 describe('Compact fresh-only PostgreSQL', () => {
+  it('resolves the db network alias through the actual runtime credential', async () => {
+    const f = await make(); await f.install()
+    const observed = await f.driver.inspect({ manifest: f.manifest, target: f.target })
+    const connection = await runCompactDocker(['--host', observed.daemon.endpoint, 'run', '--rm', '--pull', 'never', '--name', `${f.target.project}-alias-probe`, '--label', `com.zuri-ai.compact.target=${f.target.targetId}`, '--label', `com.zuri-ai.compact.project=${f.target.project}`, '--label', 'com.zuri-ai.compact.environment=TEST', '--network', f.target.network, '--log-driver', 'none', '--env', 'PGPASSWORD', '--env', 'PGCONNECT_TIMEOUT', f.manifest.images.postgres,
+      'psql', '-X', '--no-password', '--host', 'db', '--username', f.target.database.runtimeRole, '--dbname', f.target.database.name, '--no-align', '--tuples-only', '--command', 'SELECT current_user'], { environment: { PGPASSWORD: f.runtimePassword, PGCONNECT_TIMEOUT: '5' }, timeoutMs: 15000 })
+    expect(connection.status, 'owned runtime database must resolve through db, not host credentials').toBe(0)
+    expect(connection.stdout.trim()).toBe('zuri_web_login')
+  }, 120000)
   it('installs current model catalog with non-owner runtime and exact Phase B policies', async () => {
     const f = await make(), result = await f.install()
     expect(result.status).toBe('INSTALLED')

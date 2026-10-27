@@ -19,7 +19,7 @@ export async function readCompactCredentials(target, { packageDirectory } = {}) 
   return safe('COMPACT_PRIVATE_FILE_INVALID', async () => {
     const t = validateCompactTarget(target), paths = await Promise.all(Object.values(t.secretFiles).map(p => realpath(p)))
     if (paths[0] === paths[1]) fail('COMPACT_PRIVATE_FILE_INVALID')
-    if (packageDirectory) for (const filename of paths) { const rel = path.relative(await realpath(packageDirectory), filename); if (!rel || !rel.startsWith('..') && !path.isAbsolute(rel)) fail('COMPACT_PRIVATE_FILE_INVALID') }
+    if (packageDirectory) for (const filename of paths) { const rel = path.relative(await realpath(packageDirectory), filename); if (!rel || rel !== '..' && !rel.startsWith('..' + path.sep) && !path.isAbsolute(rel)) fail('COMPACT_PRIVATE_FILE_INVALID') }
     const env = buffer => {
       const values = Object.create(null)
       for (const line of buffer.toString('utf8').split(/\r?\n/)) {

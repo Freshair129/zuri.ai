@@ -3160,7 +3160,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-075",
@@ -3272,7 +3272,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-120",
@@ -3280,7 +3280,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-121",
@@ -6918,7 +6918,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-004",
@@ -6926,7 +6926,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-005",
@@ -6966,7 +6966,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-010",
@@ -7342,7 +7342,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-075",
@@ -7683,7 +7683,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-108",
@@ -14873,7 +14873,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -14882,6 +14882,7 @@
         "apps/server/src/app/api/projects/route.js",
         "apps/server/src/modules/project-manager/application/project-list-read-model.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
@@ -14919,13 +14920,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "evidence": [
         "apps/server/src/app/api/workstreams/[id]/route.js",
         "apps/server/src/app/api/workstreams/route.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
@@ -15163,7 +15165,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -15174,6 +15176,7 @@
         "apps/server/src/modules/project-manager/import/plan-mode-envelope.js",
         "apps/server/src/modules/project-manager/views/execution/ExecutionModeView.jsx",
         "apps/server/src/modules/project-manager/views/execution/mode-bodies.jsx",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/plan-mode-modal-intake.test.js",
         "apps/server/tests/unit/card-calculator-agreement.test.js",
@@ -18165,7 +18168,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -18175,6 +18178,7 @@
         "apps/server/src/modules/identity/viewer-authority.js",
         "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
@@ -18895,13 +18899,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
         "apps/server/src/modules/identity/operator-bootstrap.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -19223,7 +19228,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -19234,6 +19239,7 @@
         "apps/server/src/modules/identity/signup-copy.js",
         "apps/server/src/modules/identity/signup-rate-limit.js",
         "apps/server/src/modules/identity/signup-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
         "apps/server/tests/e2e/fr120-signup.spec.js",

@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.2"
+version: "0.1.3"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -16,7 +16,9 @@ It informs [accepted ADR-115](../../docs/decisions/ADR-115-COMPACT-SELF-HOST-PRO
 and its [approved plan](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
 Subsequent Task1 results live in the [packaging delivery evidence](task1-packaging.md).
 The owner then selected Task2; its [fresh TEST database evidence](task2-fresh-install.md)
-records that follow-up separately. Neither replaces this dated source assessment.
+records that follow-up separately. [Task3 core evidence](task3-core-qualification.md)
+records the later safe plan continuation. These do not replace this dated source
+assessment or confer production/release authority.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 

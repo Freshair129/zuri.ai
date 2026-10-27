@@ -53,6 +53,7 @@ const executablePath = resolveChromium()
 
 module.exports = defineConfig({
   testDir: './tests/e2e',
+  testIgnore: ['**/compact-core.spec.js'],
   globalSetup: './tests/e2e/global-setup.js',
   timeout: 60000,
   // 10s, set from a measurement of what every assertion in the suite actually

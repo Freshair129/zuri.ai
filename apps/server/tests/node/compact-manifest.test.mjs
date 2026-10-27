@@ -5,6 +5,17 @@ import assert from 'node:assert/strict'
 import { manifest, implementation } from './compact-fixtures.mjs'
 const api = () => implementation('../../scripts/lib/compact/manifest.mjs')
 
+test('current graph documentation with an interior space is a portable payload path', async () => {
+  const { validateCompactManifest } = await api(), input = manifest()
+  input.files['docs/STD-Multi agent workflow S-01.md'] = 'b'.repeat(64)
+  assert.doesNotThrow(() => validateCompactManifest(input))
+})
+for (const filename of ['docs/leading /record.md', 'docs/ trailing.md', 'docs/con .md', 'docs/name$(command).md']) test(`refuses nonportable spaced or shell path ${filename}`, async () => {
+  const { validateCompactManifest } = await api(), input = manifest()
+  input.files[filename] = 'b'.repeat(64)
+  assert.throws(() => validateCompactManifest(input), { code: 'COMPACT_MANIFEST_INVALID' })
+})
+
 test('core validates without AI and returns immutable data', async () => {
   const { validateCompactManifest } = await api(), input = manifest()
   const output = validateCompactManifest(input)

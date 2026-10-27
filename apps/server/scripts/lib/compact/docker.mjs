@@ -1,10 +1,12 @@
 // @spec ADR-115 — local daemon, exact owned TEST resources, no shell, pull, prune or deletion.
 // @tested tests/node/compact-executor.test.mjs, tests/postgres/compact-fresh-install.test.js
 import { spawn } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
 import { CompactError, validateCompactManifest } from './manifest.mjs'
 import { validateCompactTarget, assertCompactResources, compactOwnerLabels, planCompactInstall } from './target.mjs'
 import { digest, stableJson } from './files.mjs'
 import { COMPACT_DATABASE_INSPECTION, compactInitializationSql } from './database.mjs'
+import { COMPACT_BOOTSTRAP_COMMAND } from './bootstrap-command.mjs'
 const fail = code => { throw new CompactError(code) }
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 export function compactProcessEnvironment(extra = {}) {
@@ -59,6 +61,22 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
     return invoke(endpoint, args, { input: sql, environment, timeoutMs: atomic ? 120000 : 15000 })
   }
   const driver = {
+    async bootstrap({ manifest, target, observed, credentials, operator }) {
+      const t = validateCompactTarget(target), m = validateCompactManifest(manifest)
+      const current = await driver.inspect({ manifest: m, target: t })
+      if (digest(stableJson(current)) !== digest(stableJson(observed))) fail('COMPACT_OBSERVATION_CHANGED')
+      if (planCompactInstall({ manifest: m, target: t, observed: current }).action !== 'INSPECT_INSTALLED') fail('COMPACT_INSTALLATION_REQUIRED')
+      const url = `postgresql://${t.database.bootstrapRole}:${credentials.bootstrapPassword}@db:5432/${t.database.name}`
+      const environment = Object.fromEntries(['DATABASE_URL', 'DIRECT_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL', 'POSTGRES_URL_NON_POOLING', 'DATABASE_POSTGRES_URL'].map(key => [key, url]))
+      const labels = Object.entries(compactOwnerLabels(t)).flatMap(([key, value]) => ['--label', `${key}=${value}`])
+      const args = ['--host', current.daemon.endpoint, 'run', '--rm', '--interactive', '--name', `${t.project}-bootstrap-${randomUUID()}`, '--pull', 'never', '--platform', m.platform,
+        ...labels, '--network', t.network, '--log-driver', 'none', '--read-only', '--user', 'node', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--tmpfs', '/tmp:rw,nosuid,nodev,size=64m',
+        ...Object.keys(environment).flatMap(key => ['--env', key]), '--entrypoint', 'node', m.images.tools, '--input-type=module', '-e', COMPACT_BOOTSTRAP_COMMAND]
+      const input = JSON.stringify({ operator, expected: { systemIdentifier: current.database.systemIdentifier, databaseOid: current.database.oid, targetId: t.targetId, manifestSha256: current.database.installation.manifestSha256 } })
+      const result = await run(args, { input, environment, timeoutMs: 45000 })
+      if (result.status !== 0) fail(result.status === 2 ? 'COMPACT_BOOTSTRAP_REFUSED' : 'COMPACT_BOOTSTRAP_FAILED')
+      try { return JSON.parse(result.stdout) } catch { fail('COMPACT_BOOTSTRAP_FAILED') }
+    },
     async inspect({ manifest, target }) {
       const m = validateCompactManifest(manifest), t = validateCompactTarget(target), daemon = await local(t)
       const images = {}, cache = new Map()
@@ -76,7 +94,7 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
       const ports = c?.State?.Running ? c.NetworkSettings?.Ports?.['5432/tcp'] : c?.HostConfig?.PortBindings?.['5432/tcp'], networks = Object.keys(c?.NetworkSettings?.Networks || {})
       const observed = { daemon, images, volumes, network: n ? { id: n.Id, name: n.Name, driver: n.Driver, labels: n.Labels || {}, subnet: n.IPAM?.Config?.length === 1 ? n.IPAM.Config[0].Subnet : '' } : null,
         container: c ? { id: c.Id, name: c.Name.replace(/^\//, ''), reference: c.Config.Image, imageId: c.Image, running: c.State.Running, labels: c.Config.Labels || {}, mounts: c.Mounts.map(v => ({ type: v.Type, name: v.Name || '', destination: v.Destination })), network: networks.length === 1 ? networks[0] : '', host: ports?.length === 1 ? ports[0].HostIp : '', port: ports?.length === 1 ? Number(ports[0].HostPort) : 0, created: c.Created,
-          safeConfiguration: c.HostConfig.Privileged === false && !c.HostConfig.AutoRemove && !c.HostConfig.PidMode && !c.HostConfig.CapAdd?.length && !c.HostConfig.Devices?.length && !c.HostConfig.Binds?.length } : null,
+          safeConfiguration: c.HostConfig.Privileged === false && !c.HostConfig.AutoRemove && !c.HostConfig.PidMode && !c.HostConfig.CapAdd?.length && !c.HostConfig.Devices?.length && !c.HostConfig.Binds?.length && networks.length === 1 && c.NetworkSettings.Networks[networks[0]].Aliases?.includes('db') === true } : null,
         database: null }
       // Return refused facts without connecting to an unowned/mismatched DB.
       try { assertCompactResources(t, m, observed) } catch (e) { if (e instanceof CompactError) return observed; throw e }
@@ -101,7 +119,7 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
       await invoke(endpoint, ['network', 'create', '--driver', 'bridge', '--subnet', t.networkSubnet, ...labels, t.network])
       const n = await read(endpoint, 'network', t.network)
       if (!n || Object.entries(compactOwnerLabels(t)).some(([k, v]) => n.Labels?.[k] !== v)) fail('COMPACT_FOREIGN_RESOURCE')
-      const id = await invoke(endpoint, ['container', 'create', '--name', t.database.container, '--pull', 'never', '--platform', m.platform, ...labels, '--label', `com.docker.compose.project=${t.project}`, '--label', 'com.docker.compose.service=db', '--network', t.network, '--publish', `127.0.0.1:${t.database.port}:5432`, '--mount', `type=volume,source=${t.volumes.database},target=/var/lib/postgresql/data`, '--env', 'POSTGRES_USER', '--env', 'POSTGRES_PASSWORD', '--env', 'POSTGRES_DB', m.images.postgres], { environment: { POSTGRES_USER: t.database.bootstrapRole, POSTGRES_PASSWORD: credentials.bootstrapPassword, POSTGRES_DB: t.database.name } })
+      const id = await invoke(endpoint, ['container', 'create', '--name', t.database.container, '--pull', 'never', '--platform', m.platform, ...labels, '--label', `com.docker.compose.project=${t.project}`, '--label', 'com.docker.compose.service=db', '--network', t.network, '--network-alias', 'db', '--publish', `127.0.0.1:${t.database.port}:5432`, '--mount', `type=volume,source=${t.volumes.database},target=/var/lib/postgresql/data`, '--env', 'POSTGRES_USER', '--env', 'POSTGRES_PASSWORD', '--env', 'POSTGRES_DB', m.images.postgres], { environment: { POSTGRES_USER: t.database.bootstrapRole, POSTGRES_PASSWORD: credentials.bootstrapPassword, POSTGRES_DB: t.database.name } })
       if (!/^[a-f0-9]{64}$/.test(id)) fail('COMPACT_DOCKER_FAILED')
       const created = await read(endpoint, 'container', id)
       if (!created || Object.entries(compactOwnerLabels(t)).some(([k, v]) => created.Config?.Labels?.[k] !== v)) fail('COMPACT_FOREIGN_RESOURCE')

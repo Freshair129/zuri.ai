@@ -1,10 +1,10 @@
-# Compact package and fresh database contract (Tasks1–2)
+# Compact package, fresh database and private core bootstrap (Tasks1–3)
 
-ADR-115 Tasks1–2 provide build-time packaging and a fresh-only PostgreSQL installer
-for explicitly owned TEST targets. `INSTALLED` describes the database baseline,
-not core application readiness. Tasks3–7 retain bootstrap, business-flow, storage,
-LINE/Knowledge and release qualification. The Compose template in this directory
-must be rendered by the packager; do not run it directly.
+ADR-115 Tasks1–3 provide build-time packaging, a fresh-only PostgreSQL installer,
+private first-operator wrapping and isolated core qualification for explicit TEST
+targets. `INSTALLED` describes the database baseline. Asset/catalog, Marketing,
+LINE/Knowledge and release qualification remain later milestones. The Compose
+template must be rendered by the packager; do not run it directly.
 
 `compact:package` consumes a prepared `release-manifest.json`. All non-generated
 payload paths resolve under that file's directory, never an ambient checkout.
@@ -23,6 +23,8 @@ qualifications. No GPU pool is required.
 
 The strict JSON schema is `release-manifest.schema.json`; the validator adds
 portable path/case-collision and selected-profile/hash-reference invariants.
+Interior ASCII spaces support issued graph-document filenames; edge whitespace,
+Windows device names, traversal and shell metacharacters remain refused.
 Unknown data is rejected, never coerced. Task1 capability fields remain
 `NOT_QUALIFIED` for selected profiles and `NOT_SELECTED` otherwise. Supplied
 qualification evidence binds image/command/platform/checks; this tool does not
@@ -200,8 +202,9 @@ owned resources remain for diagnosis. `status` and `stop` do not require private
 file contents; stop preserves the network and volumes. A stopped database reports
 `STOPPED_UNVERIFIED`, without starting it or claiming schema health.
 
-This increment does not start web/storage/AI or qualify a complete Compose stack.
-Do not use `compose up` to bypass the fresh installer or infer Task3 readiness.
+The host installer does not automatically start web/storage/AI. Task3's isolated
+fixture starts its owned web after database initialization and private bootstrap;
+do not use `compose up` to bypass the fresh installer or infer release readiness.
 The explicit disposable acceptance command is:
 
 ```sh
@@ -214,6 +217,75 @@ fixtures use synthetic component/qualification assertions and real PostgreSQL;
 they are not a real Zuri image or storage-provider qualification. The separate
 Linux CI job declares this acceptance; a local Windows pass does not qualify a
 Linux host or constitute hosted CI evidence.
+
+## Private first operator and configuration diagnostics
+
+Prepare a private JSON identity file with exactly `email` and `displayName`.
+Select a new absolute output filename in an already protected private directory,
+outside the release. Run the packaged tool only against the initialized TEST
+target:
+
+```sh
+node /package/compact-self-host.mjs bootstrap --package /package --target /private/target.json --operator /private/operator.json --private-output /private/initial-login.json
+node /package/compact-self-host.mjs diagnostics --package /package --target /private/target.json --configuration /private/app.env
+```
+
+Bootstrap reuses `scripts/bootstrap-operator.mjs` and the existing FR-107 service.
+The selected tools digest runs as a transient restricted container on the owned
+network, with no data-volume mount and Docker logging disabled. Physical DB and
+installation identity are checked inside an advisory-locked transaction. Its
+bootstrap DB authority is separate from web's runtime role. A standing operator
+refuses another bootstrap; no grant-only, credential overwrite or reset is exposed.
+
+The initial password goes only into the exclusively created private JSON output.
+Generic stdout returns status/IDs; errors use fixed codes. Existing files and
+linked/inside-release destinations are refused. New files use POSIX mode0600;
+Windows inherits the private parent's ACL. The caller must supply a protected
+parent; the tool does not change host ACLs or trust settings. Keep this file out
+of backups/reports intended for publication. If the DB commit succeeds but private
+delivery fails, retain the failure and use separately authorized existing recovery
+procedures; retry never overwrites an already-created credential. A reserved empty
+output can remain after refusal/failure and is not a success report.
+
+Supply `ZURI_SECRET_KEK` and its positive `ZURI_SECRET_KEK_VERSION` through the
+private application env file. Compose explicitly selects the existing `envelope`
+store. Missing/invalid key material stays unavailable; this tool never creates a
+persistent key or enables a development fallback. The app env parser used by
+diagnostics accepts blank/comment lines and unique `UPPER_CASE=value` assignments,
+without quotes or multiline values. Do not print that file. Configuration reports
+contain no key material: `CONFIGURED_NOT_QUALIFIED` is configuration shape, not a
+crypto/provider/live qualification. `storage` describes the still-unqualified
+Asset/catalog port, not merely the existence of an S3 engine. Runtime `core`
+always remains `NOT_QUALIFIED`; this CLI does not import qualification reports.
+Actual qualification evidence is recorded separately from these configuration checks.
+
+The installation operator has the existing platform viewer, with no inferred
+Tenant/Business ownership. The Business/PM success path uses an ordinary account,
+profile completion and its actual self-provisioning OWNER membership. Signup
+alone still grants no scope or platform authority. Compact does not change these
+authorization rules.
+
+For the separate core acceptance, supply `COMPACT_CORE_IMAGE_FILE`: a private JSON
+map of exact locally loaded `web`, `tools`, `postgres`, `storage` digest references.
+The first two are built from the selected Server source; PostgreSQL uses the
+fixture's pinned image, and storage uses the reviewed existing TEST MinIO fixture.
+No image is guessed, pulled or published by the test harness. Optional
+`COMPACT_CORE_EVIDENCE_DIRECTORY` selects an existing private evidence directory.
+
+```sh
+npm run test:compact:core
+```
+
+This profile has its own owned ports/DB/volumes and certificate-pinned loopback
+HTTPS browser. Its short-lived certificate changes no host trust store. Real
+browser sessions perform operator login, signup without grants, Business/PM CRUD,
+cross-Business refusals, seven execution views and restart persistence. Provider
+checks cover versioning, conditional writes and exact-version read/erase only;
+Asset/catalog integration remains Task4. Traces/screenshots/video are disabled
+to keep login material out of artifacts. The default E2E profile excludes this
+explicit fixture; no existing `:3100` stack or seed is used. A local TEST candidate
+pass is separate from exact-release, Linux-host, LINE/Knowledge and production
+qualification.
 
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the

@@ -24,9 +24,9 @@ function assertJson(value, seen = new Set(), depth = 0) {
   seen.delete(value)
 }
 export function isPortablePayloadPath(file) {
-  if (typeof file !== 'string' || file.length > 240 || reserved.has(file) || !/^[A-Za-z0-9_.-]+(?:\/[A-Za-z0-9_.-]+)*$/.test(file)) return false
+  if (typeof file !== 'string' || file.length > 240 || reserved.has(file) || !/^[A-Za-z0-9_. -]+(?:\/[A-Za-z0-9_. -]+)*$/.test(file)) return false
   const segments = file.split('/')
-  if (segments.some(p => p === '.' || p === '..' || p.endsWith('.') || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(p))) return false
+  if (segments.some(p => p === '.' || p === '..' || p !== p.trim() || p.endsWith('.') || /^(con|prn|aux|nul|com[1-9]|lpt[1-9])$/i.test(p.split('.')[0].trim()))) return false
   if (segments.some(p => /^(\.git|\.brain|\.codex|node_modules|secrets|credentials)$/i.test(p))) return false
   if (file !== 'env.example' && segments.some(p => /^\.env(?:\.|$)/i.test(p) || /\.(?:key|pem|pfx|p12)$/i.test(p) || /^(?:id_rsa|credentials\.json)$/i.test(p))) return false
   return REQUIRED_FILES.includes(file) || /^(?:docs|registry|schema|qualifications|models|pins)\//.test(file)

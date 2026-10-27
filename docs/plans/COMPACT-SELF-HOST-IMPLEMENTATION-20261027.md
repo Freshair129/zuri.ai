@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 2
-version: "0.1.2"
+selected_task: 3
+version: "0.1.3"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -22,8 +22,11 @@ relations:
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:executing-plans
 > or superpowers:subagent-driven-development. The owner approved this plan at
 > e5fcfd4b on 2026-10-27, completed Task1, then selected Task2 with disposable
-> PostgreSQL and independent review. Steps use checkbox syntax. Task2 permits
-> isolated TEST database initialization only. No production action or new worktree.
+> PostgreSQL and independent review. The subsequent delegated owner instruction
+> selects safe Compact continuation before domain follow-up, beginning with Task3.
+> Steps use checkbox syntax. Disposable TEST credentials/fixtures only; no
+> production, persistent credential/security expansion, live LINE, publication or
+> new worktree is authorized by routine continuation.
 
 **Goal:** Deliver a repeatable single-host package while qualifying AI separately
 and preserving existing product authority and capabilities.
@@ -79,8 +82,8 @@ binds source findings and old-audit dispositions to the baseline above.
 Paths marked **new** below are implementation outputs relative to the planning baseline.
 Deployment stays in `apps/server/deploy/compact/`; orchestration helpers in
 `apps/server/scripts/lib/compact/` separate manifest, target and execution concerns.
-Tasks1–2 were selected after approval of the planning commit; Tasks3–7 paths
-remain planned outputs.
+Tasks1–3 were selected after approval of the planning commit. Tasks4–7 remain
+pending execution under the safe continuation and their specific capability gates.
 Application paths in task file lists are relative to `apps/server/`; workflow
 paths are relative to the repository root.
 
@@ -195,22 +198,32 @@ and identity services; do not add a second bootstrap authority.
 **Produces:** `bootstrapCompactOperator({target,privateOutput})` and
 `inspectCompactCapabilities({manifest,observed})` returning nonsecret states.
 
-- [ ] Write tests asserting the initial password is handed to an explicit private
+- [x] Write tests asserting the initial password is handed to an explicit private
   destination and never generic stdout/stderr/report logs; signup still has no
   membership/operator grant; missing KEK/storage configuration stays unavailable.
-- [ ] Observe RED, then implement private wrapping of the existing bootstrap,
+- [x] Observe RED, then implement private wrapping of the existing bootstrap,
   envelope-store selection and sanitized capability diagnostics. Do not alter
   provider grants, Business provisioning rules or browser credential ownership.
-- [ ] On the isolated package, verify health, operator/login, unprivileged signup,
+- [x] On the isolated package, verify health, operator/login, unprivileged signup,
   authorized Business/PM create-read-update, cross-Business refusal, all seven
   execution-view smoke paths and persistence across app restart. Use existing
   viewer factories and current weighted-progress/import contracts.
   Browser authentication uses an operator-provided valid HTTPS origin or an
   isolated trusted HTTPS fixture; HTTP health alone does not qualify login.
-- [ ] Run Node tests plus the scoped Playwright fixture after declaring its
+- [x] Run Node tests plus the scoped Playwright fixture after declaring its
   owned project/port/database; no existing `:3100` dev fixture. Fail on flaky
   retry and zero executed tests. Report core installable separately from each
-  unqualified capability, then commit.
+  unqualified capability. Commit follows composed validation and review.
+
+Task3's [delivery evidence](../../reports/compact-selfhost-2026-10-27/task3-core-qualification.md)
+separates actual TEST core-flow and provider-engine checks from remaining
+Asset/catalog, LINE/Knowledge and exact-release qualification. The existing
+platform viewer carries no Tenant/Business ownership; the browser success path
+uses a distinct ordinary account's real self-provisioning OWNER membership.
+No authority guard was widened. The bare-Node host bootstrap writes only to a
+new explicit private output; safe diagnostics do not import a passing test as
+runtime readiness. The bounded milestone commit follows composed validation
+and independent review.
 
 ## Task4: Private Asset/catalog storage parity
 
@@ -337,6 +350,9 @@ to qualify later, not facts invented by the plan.
 Future implementation should run inline in the primary checkout on a branch,
 with an independent GPT-6 Luna Max reviewer under repository policy. Do not create
 a worktree merely to execute this plan. The owner selected Task1 at the approved
-planning commit, then Task2 for disposable TEST database acceptance. Tasks3–7
-remain unselected. No publication, production access or later application change
-is authorized by this Task2 continuation.
+planning commit, then Task2 for disposable TEST database acceptance. The newer
+delegated owner instruction selects safe Compact continuation before domain
+follow-up. Task3 precedes Tasks4–7. Only ephemeral TEST credentials and fixtures
+are covered here; persistent credentials, expanded security/access, real-data
+deletion, production, live LINE, merge/PR/publication/release actions remain
+separately gated. Stop only a dependent gated step and continue safe work.

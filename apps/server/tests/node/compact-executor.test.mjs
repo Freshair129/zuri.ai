@@ -2,13 +2,23 @@
 // @tested tests/node/compact-executor.test.mjs
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
-import { mkdtemp, writeFile, rename, access } from 'node:fs/promises'
+import { mkdtemp, writeFile, rename, access, mkdir, readFile } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
 import { manifest, implementation } from './compact-fixtures.mjs'
 import { targetFixture, ownedObservation, executorFixture } from './compact-task2-fixtures.mjs'
 const api = () => implementation('../../scripts/lib/compact/executor.mjs')
 const setup = async () => executorFixture(await implementation('../../scripts/compact-package.mjs'), await implementation('../../scripts/lib/compact/baseline.mjs'))
+
+test('private credential references reject dot-dot-prefixed descendants of the package', async () => {
+  const { readCompactCredentials } = await api(), f = await setup()
+  const child = path.join(f.packageDirectory, '..private'); await mkdir(child)
+  for (const key of Object.keys(f.t.secretFiles)) {
+    const filename = path.join(child, key + '.env')
+    await writeFile(filename, await readFile(f.t.secretFiles[key])); f.t.secretFiles[key] = filename
+  }
+  await assert.rejects(readCompactCredentials(f.t, { packageDirectory: f.packageDirectory }), { code: 'COMPACT_PRIVATE_FILE_INVALID' })
+})
 
 test('changed observation refuses installation without DDL, stop or resource removal', async () => {
   const { executeCompactInstall } = await api(), { planCompactInstall } = await implementation('../../scripts/lib/compact/target.mjs')

@@ -6,6 +6,14 @@ import { readFile } from 'node:fs/promises'
 import { parse } from 'yaml'
 import { runInNewContext } from 'node:vm'
 
+test('the default E2E profile excludes the independently owned Compact fixture', async () => {
+  const source = await readFile(new URL('../../playwright.config.js', import.meta.url), 'utf8')
+  assert.match(source, /testIgnore:\s*\[[^\]]*compact-core\.spec\.js/)
+  const compact = await readFile(new URL('../../playwright.compact.config.js', import.meta.url), 'utf8')
+  assert.match(compact, /testMatch:\s*'compact-core\.spec\.js'/)
+  assert.doesNotMatch(compact, /globalSetup:|webServer:/)
+})
+
 async function provenance() {
   const workflow = parse(await readFile(new URL('../../../../.github/workflows/docker-image.yml', import.meta.url), 'utf8'))
   const steps = workflow.jobs['compact-package'].steps, step = steps.find(s => s.name === 'Verify prepared artifact origin')
