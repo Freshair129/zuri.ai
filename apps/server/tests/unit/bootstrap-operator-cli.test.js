@@ -28,12 +28,14 @@ describe('main', () => {
   it('bootstraps through the service and logs the result once', async () => {
     const log = vi.fn()
     const db = {
+      _engineConfig: { activeProvider: 'sqlite' },
       platformGrant: { findFirst: vi.fn(async () => null) },
       person: { findFirst: vi.fn(async () => null), findUnique: vi.fn(async () => null) },
       $transaction: vi.fn(async (run) => run({
-        person: { create: vi.fn(async ({ data }) => ({ id: 'per-1', code: data.code, displayName: data.displayName })) },
+        $executeRawUnsafe: vi.fn(async () => 0),
+        person: { findFirst: db.person.findFirst, findUnique: db.person.findUnique, create: vi.fn(async ({ data }) => ({ id: 'per-1', code: data.code, displayName: data.displayName })) },
         personCredential: { create: vi.fn(async () => ({ id: 'cred-1' })) },
-        platformGrant: { create: vi.fn(async () => ({ id: 'grant-1' })) },
+        platformGrant: { findFirst: db.platformGrant.findFirst, create: vi.fn(async () => ({ id: 'grant-1' })) },
         auditEvent: { create: vi.fn(async ({ data }) => ({ id: 'audit-1', ...data })) },
       })),
     }
@@ -56,15 +58,17 @@ describe('main', () => {
     const log = vi.fn()
     const credentialCreate = vi.fn(async () => ({ id: 'cred-never' }))
     const db = {
+      _engineConfig: { activeProvider: 'sqlite' },
       platformGrant: { findFirst: vi.fn(async () => null) },
       person: {
         findFirst: vi.fn(async () => ({ id: 'per-1', code: 'PER-BOSS', displayName: 'Boss', credential: { id: 'cred-1' } })),
         findUnique: vi.fn(async () => null),
       },
       $transaction: vi.fn(async (run) => run({
-        person: { create: vi.fn() },
+        $executeRawUnsafe: vi.fn(async () => 0),
+        person: { findFirst: db.person.findFirst, create: vi.fn() },
         personCredential: { create: credentialCreate },
-        platformGrant: { create: vi.fn(async () => ({ id: 'grant-1' })) },
+        platformGrant: { findFirst: db.platformGrant.findFirst, create: vi.fn(async () => ({ id: 'grant-1' })) },
         auditEvent: { create: vi.fn(async ({ data }) => ({ id: 'audit-1', ...data })) },
       })),
     }

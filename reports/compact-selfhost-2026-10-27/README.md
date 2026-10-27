@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.5"
+version: "0.1.6"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -17,7 +17,10 @@ and its [approved plan](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-202610
 Subsequent Task1 results live in the [packaging delivery evidence](task1-packaging.md).
 The owner then selected Task2; its [fresh TEST database evidence](task2-fresh-install.md)
 records that follow-up separately. [Task3 core evidence](task3-core-qualification.md)
-records the later safe plan continuation. These do not replace this dated source
+records the later safe plan continuation. The [Task3 requalification](task3-requalification-20261027.md)
+records a later shared-bootstrap concurrency correction and a fresh exact-artifact
+core TEST run; it does not replace the original Task3 snapshot. These do not
+replace this dated source
 assessment or confer production/release authority. [Task4 private storage evidence](task4-business-storage.md)
 records Asset/catalog provider parity and its remaining qualification limits.
 [Task5 PostgreSQL Marketing evidence](task5-marketing-postgres.md) records the
@@ -123,6 +126,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.6: links the bounded Task3 requalification and shared first-operator fence
+correction; preserves this planning snapshot and earlier delivery evidence.
 
 0.1.0: introduces a dated Compact assessment and explicit disposition of prior
 audit leads. Existing reports remain immutable historical evidence; canonical

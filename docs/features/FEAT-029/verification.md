@@ -101,6 +101,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/release-safety-backup.test.js](../../../apps/server/tests/integration/release-safety-backup.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/postgres/operator-bootstrap-races.test.js](../../../apps/server/tests/postgres/operator-bootstrap-races.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/audit-page.test.js](../../../apps/server/tests/unit/audit-page.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)

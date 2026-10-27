@@ -3184,7 +3184,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-076",
@@ -3288,7 +3288,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-120",
@@ -3450,7 +3450,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-198",
@@ -6454,7 +6454,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-095",
@@ -7384,7 +7384,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 44
+          "testCount": 45
         },
         {
           "id": "FR-077",
@@ -7717,7 +7717,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-108",
@@ -8125,7 +8125,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-198",
@@ -13049,7 +13049,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-200",
@@ -13107,6 +13107,7 @@
         "apps/server/tests/integration/workspace-collaboration-roster.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/postgres/operator-bootstrap-races.test.js",
         "apps/server/tests/unit/access-history-service.test.js",
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -18283,7 +18284,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 44
+          "testCount": 45
         }
       ],
       "evidence": [
@@ -18324,6 +18325,7 @@
         "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/scope-and-isolation.test.js",
         "apps/server/tests/integration/workspace-onboarding-flow.test.js",
+        "apps/server/tests/postgres/operator-bootstrap-races.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/error-events.test.js",
@@ -18956,7 +18958,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -18974,6 +18976,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/platform-grant-revoke.test.js",
+        "apps/server/tests/postgres/operator-bootstrap-races.test.js",
         "apps/server/tests/unit/bootstrap-operator-cli.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
