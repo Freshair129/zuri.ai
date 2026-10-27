@@ -1,0 +1,241 @@
+{
+  "sourceRevision": "4348cdfde18cc0f49f3be19cc23792a80a95cf55",
+  "applicationBaseline": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "provider": "sqlite",
+  "suiteResults": {
+    "serviceAndUnit": {
+      "files": 5,
+      "passed": 32,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 8.11
+    },
+    "browser": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0,
+      "flaky": 0,
+      "retries": 0,
+      "durationSeconds": 36.665095,
+      "cohort": "fresh owned browser attempt 3"
+    }
+  },
+  "priorFailuresRetained": {
+    "prismaResolutionPreflights": 2,
+    "vitestStartupFailuresBeforeTests": 2,
+    "browserFixtureFailureCohorts": 2,
+    "firstBrowserCaseFailures": 2,
+    "secondBrowserCaseFailures": 2,
+    "firstBrowserStoppedBeforeCampaignBody": true,
+    "secondBrowserStoppedDuringScopeBeforeCampaignCreate": true
+  },
+  "sourceHashes": [
+    {
+      "file": "docs/features/FEAT-021/feature.md",
+      "sha256": "2c55292ffed9c3b1be85ba7c4fd7a0ab3834b16a97bcbc5d0b82075d572fac35"
+    },
+    {
+      "file": "docs/features/FEAT-021/requirements/FR-160.md",
+      "sha256": "401c875d0f6ae09e78402d1938c8ba236098f90a171639720a562e3c59f38946"
+    },
+    {
+      "file": "apps/server/tests/integration/marketing-campaign.test.js",
+      "sha256": "4b5519f998031f1b5733b2d8075dbfee35b977e46d5c740b445fc1211606e422"
+    },
+    {
+      "file": "apps/server/tests/integration/marketing-campaign-execution.test.js",
+      "sha256": "abc3c6667eb448aaf5685c3cc51551d48be9141ded7542eefafec20d489b80df"
+    },
+    {
+      "file": "apps/server/tests/unit/marketing/marketing-campaign-route.test.js",
+      "sha256": "0a1613c91ac77da257b8c9b60dbb42b09fdb7085ec2c328a3b2fd5e43b1b5dae"
+    },
+    {
+      "file": "apps/server/tests/unit/marketing/marketing-campaign-contract.test.js",
+      "sha256": "9abb09f8631cc3fe7e49fec1399bb86a794afb1bf69f7ead5f2d2400108a54f4"
+    },
+    {
+      "file": "apps/server/tests/unit/marketing-campaign-ui.test.js",
+      "sha256": "c3cfeb441bc1bc245f8b26e6503e686c72ce744bd1c554cf9ef5ba60ccd0f3d1"
+    },
+    {
+      "file": "apps/server/tests/e2e/marketing-campaigns.spec.js",
+      "sha256": "d4cc974f2deaf04904c5bc367f266f47a00511db6668c3569d3c6d87611ac3d5"
+    }
+  ],
+  "harnessHashes": {
+    "service": [
+      {
+        "file": "env.cjs",
+        "sha256": "aae1c54486dfe09f2b7286aec63884834c52ba1fa4a3637619acc364239917ce"
+      },
+      {
+        "file": "network-guard.cjs",
+        "sha256": "31e36289a2b15e5f20f5fd6f4a848bd8fab358eb737a780c6621761a8b9b6e32"
+      },
+      {
+        "file": "paths.cjs",
+        "sha256": "1560967267e7a9e4bb46b7620dc89c51cf4f31dcbbc417d43bfd1fd56512561e"
+      },
+      {
+        "file": "prepare-db.cjs",
+        "sha256": "67823ed05d3c5dfe54d961df29bb83cca6baea137a32079e2a67d27d5bf763f6"
+      },
+      {
+        "file": "run-service.cjs",
+        "sha256": "680ddcab609d81d8b00f9a0abc5e6101c89d5d6a3a9cf701bfc93574d434a5d8"
+      },
+      {
+        "file": "service-setup.mjs",
+        "sha256": "0e8e6da12b9c8a516a271380d44e2d3b19f8122b454b9e682e0c5c69811d4cf8"
+      },
+      {
+        "file": "service-worker.mjs",
+        "sha256": "d7f381fa5146e2f52cdd3c661e48a37927d08fdae9f70be1966ba0cb3bfb2d3b"
+      },
+      {
+        "file": "vitest.campaign.config.mjs",
+        "sha256": "49af5664972ae77d72745809a8e7d4907b9e1f11d2a30b9fde7f8d3109254ebf"
+      }
+    ],
+    "browser": [
+      {
+        "file": "browser-fixtures.cjs",
+        "sha256": "cbc1a2cd8c737ef1ffe9ca389bef8d03fc3e2ededbaed5ce12982636afadc016"
+      },
+      {
+        "file": "env.cjs",
+        "sha256": "aae1c54486dfe09f2b7286aec63884834c52ba1fa4a3637619acc364239917ce"
+      },
+      {
+        "file": "network-guard.cjs",
+        "sha256": "003e16d486818dfcd2fcba83d011a333d2ceb7f6438308cbfa0f0fcc88d3c900"
+      },
+      {
+        "file": "owned-job.ps1",
+        "sha256": "2dc3902e1d89671cfc69afd9fc125f06e9e9622e0cedd5a0eab6aaaa490e43d2"
+      },
+      {
+        "file": "paths.cjs",
+        "sha256": "1560967267e7a9e4bb46b7620dc89c51cf4f31dcbbc417d43bfd1fd56512561e"
+      },
+      {
+        "file": "playwright.campaign.config.cjs",
+        "sha256": "30abb985a7376a3e4f4694634007176fa81fede46bb8cf861bd5060f227026f3"
+      },
+      {
+        "file": "prepare-browser-db.cjs",
+        "sha256": "7195a5ed16bbfda0c431d1c600a177be5881bbb18771c0eef509060543e67946"
+      },
+      {
+        "file": "run-browser.cjs",
+        "sha256": "4e92df6ce687a915196f60a1c2cab77231327f911f30712d2f255c974261f479"
+      },
+      {
+        "file": "run-playwright.cjs",
+        "sha256": "dcb7bded7a90862a1061de1534b603b2e1ae7e32264bc810199605c12b31c91c"
+      },
+      {
+        "file": "server.cjs",
+        "sha256": "916033a7ea7bc843371abf9cff82f34fdfe4b0db3cf4477e8da1273828e2af66"
+      },
+      {
+        "file": "spec-hook.cjs",
+        "sha256": "d0ea713d064b11b57ab7956854e838a082382f5bab27f1ecb6f4978a5148e396"
+      }
+    ]
+  },
+  "sharedClientSchemas": [
+    {
+      "kind": "sqlite",
+      "sha256": "1e6a28377bdf70480b18ec31cc6702d37892bc60825b61f36d2d8ead47f63000"
+    },
+    {
+      "kind": "postgresql",
+      "sha256": "f8208ea7df90fc4b4bc9d182e79805dc05e51c54e773945aa865990da19fe139"
+    }
+  ],
+  "privateClientCopyFiles": 20,
+  "sharedClientsUnchanged": true,
+  "browserActivity": {
+    "contexts": 3,
+    "pageAllowed": 270,
+    "apiAllowed": 20,
+    "pageBlocked": 0,
+    "apiBlocked": 0,
+    "webSocketBlocked": 0
+  },
+  "nodeGuardRecords": 39,
+  "nodeGuardProcesses": 39,
+  "nodeBlockedNetworkAttempts": 0,
+  "nodeBlockedEnvReads": 0,
+  "discardedOwnLiteralIpLookupCallbacks": 5,
+  "privateNextAdvisory": {
+    "hotReloaderHash": "b8d4fa453ee0ebed545ef3fe9f9e8422316174ed84babf12801e6d29cbc4e0da",
+    "scope": "Private Next dev NPM version advisory only; no product API or auth override",
+    "networkVersionProbeDisabled": true
+  },
+  "cleanup": {
+    "serverJobOwnedProcesses": 35,
+    "browserJobOwnedProcesses": 12,
+    "activeProcessesAfterCleanup": 0,
+    "stragglersBeforeCleanup": 0,
+    "timeout": false,
+    "dbsAndEvidenceRetained": true
+  },
+  "browserDbMetadata": {
+    "integrity": "ok",
+    "syntheticPersonCredentials": 2,
+    "operationalCredentials": false,
+    "nonemptyTableCounts": {
+      "Portfolio": 1,
+      "Tenant": 4,
+      "LegalEntity": 1,
+      "LegalEntityIdentifier": 1,
+      "Business": 4,
+      "Branch": 1,
+      "Person": 3,
+      "PersonCredential": 2,
+      "Membership": 3,
+      "Session": 4,
+      "Workspace": 5,
+      "Project": 2,
+      "Team": 2,
+      "TeamMembership": 2,
+      "ProjectTeam": 2,
+      "BusinessRoadmap": 1,
+      "BusinessRoadmapHorizon": 3,
+      "BusinessGoal": 3,
+      "BusinessKeyResult": 2,
+      "BusinessKeyResultCheckIn": 5,
+      "Workstream": 8,
+      "PlanImportReceipt": 2,
+      "ProjectExecutionRun": 2,
+      "ProjectExecutionStep": 5,
+      "WorkContainer": 8,
+      "WorkItem": 26,
+      "Milestone": 4,
+      "Gate": 5,
+      "Dependency": 1,
+      "Repository": 1,
+      "ProjectRepository": 1,
+      "AuditEvent": 18,
+      "MarketingPlan": 2,
+      "MarketingPlanVersion": 2,
+      "MarketingReview": 1,
+      "MarketingDecision": 1,
+      "MarketingHandoff": 1,
+      "MarketingInitiative": 2
+    }
+  },
+  "limits": {
+    "httpAndBrowser": true,
+    "loopbackOnly": true,
+    "noRealSenderOrProvider": true,
+    "noNativePostgres": true,
+    "noHostedCi": true,
+    "noProductionOrRelease": true,
+    "noCanonicalAdoption": true,
+    "notHostWideSyscallCapture": true
+  }
+}

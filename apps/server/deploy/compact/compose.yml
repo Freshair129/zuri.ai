@@ -1,0 +1,149 @@
+# @spec ADR-115 — trusted template, rendered by compact-package.mjs; no installer.
+# @tested tests/node/compact-package.test.mjs
+name: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+services:
+  web:
+    image: '@image.web'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
+    user: node
+    restart: unless-stopped
+    env_file:
+      - path: ${COMPACT_APP_ENV_FILE:?Set a private application env file}
+        required: true
+      - path: ${COMPACT_DATABASE_RUNTIME_ENV_FILE:?Set a private runtime database env file}
+        required: true
+    environment:
+      NODE_ENV: production
+      PORT: '3000'
+      PUBLIC_BASE_URL: ${COMPACT_PUBLIC_BASE_URL:?Set the qualified origin}
+      ZURI_SECRET_STORE: envelope
+      ZURI_KNOWLEDGE_STUDIO_ROOT: /app/knowledge-studio-data
+      ZURI_ASSET_STORAGE_PROVIDER: s3
+      ZURI_ASSET_STORAGE_ENDPOINT: http://storage:9000
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: s3
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT: http://storage:9000
+    ports: ['127.0.0.1:${COMPACT_WEB_PORT:-3000}:3000']
+    volumes:
+      - type: bind
+        source: ./docs
+        target: /app/knowledge-studio-data/docs
+        read_only: true
+        bind: {create_host_path: false}
+      - type: bind
+        source: ./registry/document-registry/index.json
+        target: /app/knowledge-studio-data/registry/document-registry/index.json
+        read_only: true
+        bind: {create_host_path: false}
+    depends_on:
+      db: {condition: service_healthy}
+    healthcheck:
+      test: ['CMD', 'node', '-e', "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks: [private]
+  db:
+    image: '@image.postgres'
+    container_name: ${COMPACT_DATABASE_CONTAINER:?Set the owned database container}
+    restart: unless-stopped
+    env_file:
+      - path: ${COMPACT_DATABASE_ENV_FILE:?Set a private database env file}
+        required: true
+    volumes: [database:/var/lib/postgresql/data]
+    ports: ['127.0.0.1:${COMPACT_DATABASE_PORT:?Set the owned database loopback port}:5432']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [private]
+  storage:
+    image: '@image.storage'
+    restart: unless-stopped
+    env_file:
+      - path: ${COMPACT_STORAGE_ADMIN_ENV_FILE:?Set a private storage admin env file}
+        required: true
+    volumes: [objects:/data]
+    networks: [private]
+  tools:
+    image: '@image.tools'
+    profiles: [tools]
+    entrypoint: [node]
+    command: ['-e', "console.error('COMPACT_USE_HOST_INSTALLER');process.exit(64)"]
+    networks: [private]
+  line-worker:
+    image: '@image.lineWorker'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
+    profiles: [line]
+    user: node
+    restart: unless-stopped
+    command: [node, scripts/server-line-worker.mjs]
+    env_file:
+      - path: ${COMPACT_APP_ENV_FILE:?Set a private application env file}
+        required: true
+      - path: ${COMPACT_DATABASE_RUNTIME_ENV_FILE:?Set a private runtime database env file}
+        required: true
+    environment:
+      ZURI_LINE_WORKER_URL: http://web:3000/api/line-oa/worker
+      ZURI_SECRET_STORE: envelope
+    depends_on:
+      web: {condition: service_healthy}
+    networks: [private]
+  genesis-worker:
+    image: '@image.genesisWorker'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
+    profiles: [knowledge]
+    restart: unless-stopped
+    network_mode: service:web
+    environment:
+      GENESIS_WORKER_MODEL_DIR: /opt/ki17/model
+    env_file:
+      - path: ${COMPACT_KNOWLEDGE_ENV_FILE:?Set a private Knowledge env file}
+        required: true
+    volumes:
+      - genesis:/var/lib/zuri-ki17/genesis
+      - knowledge-state:/var/lib/zuri-ki17/state
+      - type: bind
+        source: ./models
+        target: /opt/ki17/model
+        read_only: true
+        bind: {create_host_path: false}
+    depends_on:
+      web: {condition: service_healthy}
+  ngrok:
+    image: '@image.ngrok'
+    profiles: [public]
+    restart: unless-stopped
+    env_file:
+      - path: ${COMPACT_INGRESS_ENV_FILE:?Set a private ingress env file}
+        required: true
+    command: [http, '--domain=${COMPACT_PUBLIC_DOMAIN:?Set an assigned domain}', web:3000]
+    depends_on:
+      web: {condition: service_healthy}
+    networks: [private]
+networks:
+  private: {external: true, name: '${COMPACT_PRIVATE_NETWORK:?Set the owned private network}'}
+volumes:
+  database: {external: true, name: '${COMPACT_DATABASE_VOLUME:?Set the owned database volume}'}
+  objects: {external: true, name: '${COMPACT_OBJECTS_VOLUME:?Set the owned objects volume}'}
+  genesis:
+    name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-genesis'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
+  knowledge-state:
+    name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-knowledge-state'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST

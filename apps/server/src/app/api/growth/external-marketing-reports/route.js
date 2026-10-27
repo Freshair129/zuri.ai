@@ -3,7 +3,7 @@
 import { NextResponse } from 'next/server'
 import { reportCredentialHash, readMarketingReportRequest } from '@/modules/marketing/application/marketing-report-wire'
 import { receiveMarketingReport } from '@/modules/marketing/application/marketing-report-receiver'
-import { marketingReportDatabase } from '@/modules/marketing/infrastructure/marketing-report-database'
+import { resolveMarketingReportDatabase } from '@/modules/marketing/infrastructure/marketing-report-database'
 
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
@@ -14,7 +14,8 @@ export async function POST(request) {
     const authorization = request.headers.get('authorization')
     reportCredentialHash(authorization)
     const { canonicalEnvelope } = await readMarketingReportRequest(request)
-    const result = await receiveMarketingReport({ db: marketingReportDatabase(), authorization, raw: canonicalEnvelope })
+    const selected = resolveMarketingReportDatabase()
+    const result = await receiveMarketingReport({ db: selected?.db, provider: selected?.provider, authorization, raw: canonicalEnvelope })
     return NextResponse.json(result.receipt, { status: result.status, headers })
   } catch (error) {
     // Remote callers receive only reviewed safe codes, never Prisma errors,

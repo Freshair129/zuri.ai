@@ -1,0 +1,45 @@
+{
+  "sourceRevision": "40c1b0296693b3f414db9a196c6c243816b8b9da",
+  "installedNext": "15.5.28",
+  "mode": "private Next dev; NODE_ENV=test",
+  "httpStatus": 200,
+  "returnedPlanIdMatchesFixture": true,
+  "planRouteWarnings": 1,
+  "noClientException": true,
+  "newCredentialRows": 0,
+  "newMembershipRows": 0,
+  "noCampaignWrites": true,
+  "noSender": true,
+  "status": "PASS",
+  "classification": "COMPATIBILITY_WARNING_NO_CURRENT_FUNCTIONAL_DEFECT_DEMONSTRATED",
+  "productionTested": false,
+  "nativePostgresTested": false,
+  "originalFixtureDbUnchanged": true,
+  "sharedClientSchemasUnchanged": true,
+  "marketingDataUnchanged": true,
+  "credentialsBefore": 2,
+  "credentialsAfter": 2,
+  "membershipsBefore": 3,
+  "membershipsAfter": 3,
+  "syntheticSessionsBefore": 4,
+  "syntheticSessionsAfter": 5,
+  "guardRecords": 2,
+  "blockedNetwork": 0,
+  "blockedEnvReads": 0,
+  "activeProcessesAfterCleanup": 0,
+  "dbAndLogsRetained": true,
+  "sourceHashes": [
+    {
+      "file": "src/app/api/growth/plans/[id]/route.js",
+      "sha256": "8dfa528ee8e0c475f34fd23c200466777d5f69a8ea2bb7399295a0a8e64b076e"
+    },
+    {
+      "file": "node_modules/next/dist/server/request/params.js",
+      "sha256": "f5845ea81454bb4f5f8758064d1837e6f7b341ec03cd862e52185608ab74d30c"
+    },
+    {
+      "file": "node_modules/next/dist/server/create-deduped-by-callsite-server-error-logger.js",
+      "sha256": "7d3962a99da35a8c796fd7df5a2ea8173baba58fd9944daf1a310ede24529587"
+    }
+  ]
+}

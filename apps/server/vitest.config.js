@@ -13,6 +13,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/unit/**/*.test.js', 'tests/integration/**/*.test.js'],
+    exclude: ['**/node_modules/**', '**/.git/**', 'tests/integration/compact-profile-recovery.test.js'],
     globalSetup: ['tests/global-setup.js'],
     setupFiles: ['tests/setup.js'],
     // SQLite file DB: run test files serially to avoid writer lock contention.

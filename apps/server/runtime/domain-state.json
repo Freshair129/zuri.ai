@@ -781,10 +781,14 @@
         "summary": "FR-281 is partial",
         "evidence": [
           "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+          "apps/server/src/modules/marketing/application/marketing-report-lock.js",
           "apps/server/src/modules/marketing/application/marketing-report-operator.js",
           "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js"
         ]
       },
@@ -797,6 +801,7 @@
         "evidence": [
           "apps/server/src/app/api/growth/external-marketing-reports/route.js",
           "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+          "apps/server/src/modules/marketing/application/marketing-report-lock.js",
           "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
           "apps/server/src/modules/marketing/application/marketing-report-wire.js",
           "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -811,7 +816,10 @@
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
@@ -836,6 +844,7 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
@@ -1179,6 +1188,9 @@
           "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js"
         ]
       },
@@ -1202,7 +1214,10 @@
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
@@ -1225,6 +1240,7 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
@@ -1652,7 +1668,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-256",
@@ -2118,7 +2134,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -2126,7 +2142,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -2387,7 +2403,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-291",
@@ -3160,7 +3176,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-075",
@@ -3272,7 +3288,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-120",
@@ -3280,7 +3296,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-121",
@@ -3985,7 +4001,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-187",
@@ -4009,7 +4025,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -4921,7 +4937,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-187",
@@ -5045,7 +5061,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-254",
@@ -5523,7 +5539,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -6120,14 +6136,18 @@
           "title": "Report-only machine credential",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 3,
-          "testCount": 3,
+          "codeCount": 4,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-operator.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -6136,11 +6156,12 @@
           "title": "Atomic reported-evidence intake",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 5,
-          "testCount": 14,
+          "codeCount": 6,
+          "testCount": 17,
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/src/modules/marketing/application/marketing-report-wire.js",
             "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -6155,7 +6176,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -6166,7 +6190,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 13,
+          "testCount": 14,
           "evidence": [
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
             "apps/server/src/modules/marketing/application/marketing-report-read.js",
@@ -6181,6 +6205,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -6325,10 +6350,14 @@
           "summary": "FR-281 is partial",
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-operator.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -6340,6 +6369,7 @@
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/src/modules/marketing/application/marketing-report-wire.js",
             "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -6354,7 +6384,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -6378,6 +6411,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -6918,7 +6952,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-004",
@@ -6926,7 +6960,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 9
         },
         {
           "id": "FR-005",
@@ -6966,7 +7000,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-010",
@@ -7190,7 +7224,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 47
+          "testCount": 49
         },
         {
           "id": "FR-046",
@@ -7342,7 +7376,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-075",
@@ -7683,7 +7717,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-108",
@@ -7771,7 +7805,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -7779,7 +7813,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -7971,7 +8005,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-174",
@@ -8195,7 +8229,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -8347,7 +8381,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-254",
@@ -8524,11 +8558,14 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 3,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -8538,7 +8575,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 14,
+          "testCount": 17,
           "evidence": [
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -8553,7 +8590,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -8564,7 +8604,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 13,
+          "testCount": 14,
           "evidence": [
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/integration/backup.test.js",
@@ -8577,6 +8617,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -9151,6 +9192,9 @@
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -9173,7 +9217,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -9195,6 +9242,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -9393,7 +9441,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 47
+          "testCount": 49
         },
         {
           "id": "FR-058",
@@ -9458,6 +9506,8 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
+        "apps/server/tests/postgres/compact-recovery.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -10797,8 +10847,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 61
+          "codeCount": 32,
+          "testCount": 63
         },
         {
           "id": "FR-254",
@@ -10872,6 +10922,7 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/s3-object-storage.js",
         "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
@@ -10914,6 +10965,7 @@
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/storage/knowledge-object-restore.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -10980,6 +11032,7 @@
         "apps/server/tests/unit/platform/raw-ingest-service.test.js",
         "apps/server/tests/unit/platform/raw-record-repository-read.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -11241,8 +11294,8 @@
           "title": "Asset cloud evidence intake",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 9
+          "codeCount": 11,
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -11250,7 +11303,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -11291,9 +11344,11 @@
         "apps/server/src/modules/asset-management/import/xlsx-template.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
         "apps/server/src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/supabase-object-storage.js",
         "apps/server/tests/integration/asset-evidence-intake-execution.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-intake-service-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -11302,7 +11357,8 @@
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
         "apps/server/tests/unit/asset-receiving-evidence-ui.test.js",
         "apps/server/tests/unit/asset-request-scope-capability.test.js",
-        "apps/server/tests/unit/doc-graph-retired-rules.test.js"
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js"
       ]
     },
     {
@@ -13628,7 +13684,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -13740,6 +13796,7 @@
         "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/postgres/compact-recovery.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/context-composer.test.js",
@@ -14873,7 +14930,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 11
+          "testCount": 12
         }
       ],
       "evidence": [
@@ -14882,6 +14939,7 @@
         "apps/server/src/app/api/projects/route.js",
         "apps/server/src/modules/project-manager/application/project-list-read-model.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
@@ -14919,13 +14977,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 8
+          "testCount": 9
         }
       ],
       "evidence": [
         "apps/server/src/app/api/workstreams/[id]/route.js",
         "apps/server/src/app/api/workstreams/route.js",
         "apps/server/src/modules/project-manager/application/project-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
@@ -15163,7 +15222,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -15174,6 +15233,7 @@
         "apps/server/src/modules/project-manager/import/plan-mode-envelope.js",
         "apps/server/src/modules/project-manager/views/execution/ExecutionModeView.jsx",
         "apps/server/src/modules/project-manager/views/execution/mode-bodies.jsx",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/plan-mode-modal-intake.test.js",
         "apps/server/tests/unit/card-calculator-agreement.test.js",
@@ -18165,7 +18225,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -18175,6 +18235,7 @@
         "apps/server/src/modules/identity/viewer-authority.js",
         "apps/server/src/modules/project-manager/application/business-provisioning-service.js",
         "apps/server/src/modules/project-manager/application/scope-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
         "apps/server/tests/integration/adaptive-shell.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
@@ -18895,13 +18956,14 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
         "apps/server/src/modules/identity/operator-bootstrap.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -19223,7 +19285,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         }
       ],
       "evidence": [
@@ -19234,6 +19296,7 @@
         "apps/server/src/modules/identity/signup-copy.js",
         "apps/server/src/modules/identity/signup-rate-limit.js",
         "apps/server/src/modules/identity/signup-service.js",
+        "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
         "apps/server/tests/e2e/fr120-signup.spec.js",
@@ -20505,8 +20568,8 @@
           "title": "Business-scoped versioned pricing rules and formula console",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 43
+          "codeCount": 25,
+          "testCount": 45
         }
       ],
       "evidence": [
@@ -20534,6 +20597,7 @@
         "apps/server/src/modules/knowledge/knowledge-authorization.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr253-pricing-rules.spec.js",
@@ -20555,6 +20619,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
@@ -20573,6 +20638,7 @@
         "apps/server/tests/unit/pricing-engine.test.js",
         "apps/server/tests/unit/pricing-publication.test.js",
         "apps/server/tests/unit/pricing-rules-ui.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-feature-forms.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -20827,17 +20893,21 @@
           "title": "Report-only machine credential",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 4,
-          "testCount": 3
+          "codeCount": 5,
+          "testCount": 6
         }
       ],
       "evidence": [
         "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+        "apps/server/src/modules/marketing/application/marketing-report-lock.js",
         "apps/server/src/modules/marketing/application/marketing-report-operator.js",
         "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
+        "apps/server/tests/unit/marketing-report-database.test.js",
+        "apps/server/tests/unit/marketing-report-lock.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js"
       ]
     },
@@ -20867,13 +20937,14 @@
           "title": "Atomic reported-evidence intake",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 7,
-          "testCount": 14
+          "codeCount": 8,
+          "testCount": 17
         }
       ],
       "evidence": [
         "apps/server/src/app/api/growth/external-marketing-reports/route.js",
         "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+        "apps/server/src/modules/marketing/application/marketing-report-lock.js",
         "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
         "apps/server/src/modules/marketing/application/marketing-report-wire.js",
         "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -20890,7 +20961,10 @@
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/marketing-report-database.test.js",
+        "apps/server/tests/unit/marketing-report-lock.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
@@ -20922,7 +20996,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -20940,6 +21014,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"

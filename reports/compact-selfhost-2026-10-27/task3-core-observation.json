@@ -1,0 +1,40 @@
+{
+  "environment": "TEST",
+  "sourceBase": "8bcaae9f7b2975df8d68d65cdfc8ea3306619e09",
+  "targetId": "7d5f6167-a2ca-4a43-bb02-d9fcd9f60bd9",
+  "project": "zuri-compact-7d5f6167-a2ca",
+  "images": {
+    "web": "zuri-compact-task3-web-b04ee0ddee2c@sha256:4fd15be3a977a4ba8ac73371357dcf5e27fd8a460b669f6f5ff4baf44edc5df3",
+    "tools": "zuri-compact-task3-tools-b04ee0ddee2c@sha256:a539acaad1c2c753a44a108396baeb1577144313eb9db89c2742ed93fc2c55fa",
+    "postgres": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+    "storage": "zuri-main-dev-minio@sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f"
+  },
+  "manifestSha256": "ffca769032b648758d7979cd2a69ce76c5e60a503008f7e744e8bcaee7ef01fc",
+  "hostCliSha256": "6835d49696089c70e2162bcfe6c33f8cc59fb38edf1cc4a887e93b06c367ea35",
+  "baselineSha256": "156a785741d4befacad6cae9812f15fe33bd8c90a195e42cdda8f308fb7ee7d1",
+  "databaseIdentity": {
+    "systemIdentifier": "7701136941346676770",
+    "oid": 16384,
+    "catalogSha256": "f56f2fe90788b8878266635db534362d2c2af9fca01be298a9eb37fd308dec99"
+  },
+  "webContainerId": "ff957abac05a63c90635a30379d0398f5f164f0d6a3ec483ac5d6b8699a29103",
+  "providerChecks": {
+    "versioning": true,
+    "conditionalWrite": true,
+    "exactRead": true,
+    "exactErase": true
+  },
+  "checks": {
+    "coreFlows": true,
+    "httpsLogin": true,
+    "signupUnprivileged": true,
+    "crossBusinessDenied": true,
+    "sevenExecutionViews": true,
+    "restartPersistence": true,
+    "modelTables": 210
+  },
+  "limits": [
+    "TEST candidate with a working host-tool patch, not a production release",
+    "Asset/catalog parity, LINE/Knowledge and complete recovery remain separate"
+  ]
+}

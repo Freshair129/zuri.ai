@@ -1,5 +1,5 @@
 ---
-version: "0.7.1"
+version: "0.7.7"
 status: active
 superseded_by: null
 ---
@@ -33,6 +33,13 @@ plans and historical test receipts are separate from the build specification.
 - [Knowledge lifecycle and serving assessment](../reports/knowledge-readiness-2026-10-26/README.md)
   records the bounded storage/access review, executed checks and remaining
   main-dev qualification separately from whole-system completion.
+- [Compact self-host reconciliation](../reports/compact-selfhost-2026-10-27/README.md)
+  links current requirements/code and retained audit findings to
+  [accepted ADR-115](decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md) and its
+  [approved implementation plan](plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
+  Safe Compact continuation includes isolated TEST core, private Asset/catalog and
+  explicit PostgreSQL Marketing intake work;
+  production, live credentials and release actions remain separate.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every

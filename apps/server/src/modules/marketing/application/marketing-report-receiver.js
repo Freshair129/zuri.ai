@@ -2,8 +2,8 @@
 // @req FR-281, FR-282, FR-283 — reauthorize before replay; acknowledge outer commit only.
 // @spec SDD-112, ZURI-GO-REPORT-PHYSICAL-DESIGN
 import { randomUUID } from 'node:crypto'
-import { setTimeout as delay } from 'node:timers/promises'
 import { reportCredentialHash, parseMarketingReport, reportError } from './marketing-report-wire.js'
+import { lockMarketingReportScope, lockMarketingReportTarget, marketingReportRetryable, withMarketingReportTransaction } from './marketing-report-lock.js'
 
 export function marketingReportReceipt(report) {
   return {
@@ -14,24 +14,34 @@ export function marketingReportReceipt(report) {
   }
 }
 
-export function receiverRetryable(error) {
-  // Installed Prisma 5.22 native mappings are qualified by the concurrency test.
-  return error?.code === 'P1008' || error?.code === 'P2034'
-    || error?.code === 'P2010' && ['5', '6', 'SQLITE_BUSY', 'SQLITE_LOCKED'].includes(String(error.meta?.code))
-    || error?.code === 'P2002' && /bindingId.*sourceReportId|sourceReportId.*bindingId/.test(String(error.meta?.target))
-}
+export const receiverRetryable = marketingReportRetryable
 
-async function acceptInTransaction(tx, keyHash, envelope, canonicalEnvelope) {
-  // This write is deliberately first: every subsequent grant read belongs to
-  // the same SQLite writer transaction as policy disable / credential revoke.
-  await tx.$executeRaw`UPDATE "MarketingReportBinding" SET "id"="id" WHERE "keyHash"=${keyHash}`
-  const binding = await tx.marketingReportBinding.findUnique({
-    where: { keyHash }, include: { policy: { include: { business: true } } },
-  })
+function assertCurrentBinding(binding, envelope) {
   if (!binding || binding.status !== 'ACTIVE' || binding.revokedAt !== null || binding.permission !== 'marketing.report.ingest') throw reportError(401, 'REPORT_UNAUTHORIZED')
   const business = binding.policy.business
   if (!binding.policy.ingestEnabled || binding.tenantId !== binding.policy.tenantId || binding.tenantId !== business.tenantId || binding.businessId !== business.id || business.status !== 'ACTIVE'
     || envelope.target.bindingId !== binding.id || envelope.source.system !== binding.sourceSystem || envelope.source.deploymentId !== binding.sourceDeploymentId || envelope.source.sourceBusinessId !== binding.sourceBusinessId) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
+}
+
+async function acceptInTransaction(tx, keyHash, envelope, canonicalEnvelope, provider) {
+  if (provider === 'sqlite') await lockMarketingReportScope(tx, { provider, keyHash })
+  else {
+    // This immutable identity is only a lock hint, never a reusable grant.
+    const hint = await tx.marketingReportBinding.findUnique({ where: { keyHash }, select: { id: true, businessId: true } })
+    if (!hint) throw reportError(401, 'REPORT_UNAUTHORIZED')
+    await lockMarketingReportScope(tx, { provider, businessId: hint.businessId, bindingId: hint.id })
+  }
+  let binding = await tx.marketingReportBinding.findUnique({
+    where: { keyHash }, include: { policy: { include: { business: true } } },
+  })
+  assertCurrentBinding(binding, envelope)
+  if (provider === 'postgresql') {
+    await lockMarketingReportTarget(tx, { provider, businessId: binding.businessId, initiativeId: envelope.target.initiativeId })
+    // Business/native scope can change while a target lock is awaited. Re-read
+    // authority and target under the acquired locks before replay or insertion.
+    binding = await tx.marketingReportBinding.findUnique({ where: { keyHash }, include: { policy: { include: { business: true } } } })
+    assertCurrentBinding(binding, envelope)
+  }
   const initiative = await tx.marketingInitiative.findUnique({ where: { id: envelope.target.initiativeId }, include: { plan: true } })
   if (!initiative || initiative.tenantId !== binding.tenantId || initiative.businessId !== binding.businessId || initiative.status !== 'OPEN' || initiative.deletedAt !== null
     || initiative.plan.deletedAt !== null || initiative.plan.tenantId !== binding.tenantId || initiative.plan.businessId !== binding.businessId) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
@@ -61,28 +71,9 @@ async function acceptInTransaction(tx, keyHash, envelope, canonicalEnvelope) {
   return { status: 201, receipt: marketingReportReceipt(report) }
 }
 
-export async function receiveMarketingReport({ db, authorization, raw } = {}) {
+export async function receiveMarketingReport({ db, provider = 'sqlite', authorization, raw } = {}) {
   const keyHash = reportCredentialHash(authorization)
   const { envelope, canonicalEnvelope } = parseMarketingReport(raw)
-  if (!db?.$transaction) throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
-  const deadline = performance.now() + 5000
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const remaining = Math.floor(deadline - performance.now())
-    if (remaining <= 0) break
-    try {
-      const result = await db.$transaction(tx => acceptInTransaction(tx, keyHash, envelope, canonicalEnvelope), {
-        maxWait: Math.min(1000, remaining), timeout: Math.min(1200, remaining),
-      })
-      // Only the outer transaction's committed result escapes this function.
-      if (performance.now() >= deadline) throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
-      return result
-    } catch (error) {
-      if (error?.status) throw error
-      if (!receiverRetryable(error) || attempt === 2) throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
-      const wait = attempt === 0 ? 25 : 100
-      if (performance.now() + wait >= deadline) break
-      await delay(wait)
-    }
-  }
-  throw reportError(503, 'REPORT_RECEIVER_UNAVAILABLE')
+  // Only the outer transaction's committed result escapes the shared boundary.
+  return withMarketingReportTransaction(db, provider, tx => acceptInTransaction(tx, keyHash, envelope, canonicalEnvelope, provider))
 }

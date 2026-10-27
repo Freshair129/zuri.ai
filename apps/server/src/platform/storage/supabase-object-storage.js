@@ -3,6 +3,7 @@
 // @tested tests/unit/asset-evidence-storage-contract.test.js
 
 import { createConfiguredKnowledgeManagedBlobPort, isKnowledgeManagedBlobRef } from './s3-object-storage'
+import { businessStorageProvider, createPrivateBusinessObjectStoragePort, parseBusinessObjectRef } from './private-business-object-storage'
 
 const DEFAULT_TIMEOUT_MS = 20_000
 
@@ -89,6 +90,7 @@ export function createSupabaseObjectStoragePort({
 }
 
 export function createConfiguredAssetObjectStoragePort(env = process.env, options = {}) {
+  if (businessStorageProvider('asset', env) === 's3') return createPrivateBusinessObjectStoragePort('asset', env, options)
   return createSupabaseObjectStoragePort({
     baseUrl: env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL,
     serviceRoleKey: env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
@@ -102,6 +104,7 @@ export function createConfiguredAssetObjectStoragePort(env = process.env, option
  * separate bucket so the evidence bucket can keep its image/PDF-only contract.
  */
 export function createConfiguredKnowledgeCatalogObjectStoragePort(env = process.env, options = {}) {
+  if (businessStorageProvider('catalog', env) === 's3') return createPrivateBusinessObjectStoragePort('catalog', env, options)
   return createSupabaseObjectStoragePort({
     baseUrl: env.SUPABASE_URL || env.NEXT_PUBLIC_SUPABASE_URL,
     serviceRoleKey: env.SUPABASE_STORAGE_SERVICE_ROLE_KEY || env.SUPABASE_SERVICE_ROLE_KEY,
@@ -130,13 +133,19 @@ export function createConfiguredManagedBlobObjectStoragePort(env = process.env, 
     return knowledgePort
   }
   const portFor = (ref) => {
+    if (typeof ref === 'string' && ref.startsWith('s3-business://')) {
+      const parsed = parseBusinessObjectRef(ref)
+      if (businessStorageProvider(parsed.purpose, env) !== 's3') throw storageError('Private business storage is not selected', 400)
+      return parsed.purpose === 'asset' ? asset() : catalog()
+    }
     if (isKnowledgeManagedBlobRef(ref, env)) return knowledge()
+    if (typeof ref !== 'string' || !ref.startsWith('supabase://')) throw storageError('Managed object reference is invalid', 400)
     const bucket = env.ZURI_KNOWLEDGE_CATALOG_BUCKET
     if (typeof bucket === 'string' && bucket.trim() && typeof ref === 'string' && ref.startsWith(`supabase://${bucket}/`)) return catalog()
     return asset()
   }
   return Object.freeze({
-    async get({ ref }) { return portFor(ref).get({ ref }) },
-    async remove({ ref }) { return portFor(ref).remove({ ref }) },
+    async get(input) { return portFor(input.ref).get(input) },
+    async remove(input) { return portFor(input.ref).remove(input) },
   })
 }

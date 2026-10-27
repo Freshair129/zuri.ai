@@ -213,6 +213,7 @@ status: generated
 - [apps/server/src/platform/integrations/core/genesisrag17-worker.js](../../../apps/server/src/platform/integrations/core/genesisrag17-worker.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js](../../../apps/server/src/platform/integrations/core/knowledge-ingestion-executor.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/pipeline-tracking-service.js](../../../apps/server/src/platform/integrations/core/pipeline-tracking-service.js) — `implements` (`annotation`)
+- [apps/server/src/platform/storage/private-business-object-storage.js](../../../apps/server/src/platform/storage/private-business-object-storage.js) — `implements` (`annotation`)
 - [apps/server/src/platform/storage/s3-object-storage.js](../../../apps/server/src/platform/storage/s3-object-storage.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
@@ -247,6 +248,7 @@ status: generated
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/storage/knowledge-object-restore.test.js](../../../apps/server/tests/storage/knowledge-object-restore.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
@@ -276,6 +278,7 @@ status: generated
 - [apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js](../../../apps/server/tests/unit/platform/fr129-catalog-publication-gate.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform/pipeline-tracking-service.test.js](../../../apps/server/tests/unit/platform/pipeline-tracking-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/private-business-object-storage.test.js](../../../apps/server/tests/unit/private-business-object-storage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/project-manager-mcp.test.js](../../../apps/server/tests/unit/project-manager-mcp.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`transitive`)
 

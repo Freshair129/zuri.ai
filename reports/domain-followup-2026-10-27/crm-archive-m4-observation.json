@@ -1,0 +1,167 @@
+{
+  "sourceRevision": "62728e733faff5387d228bedc3745d6147232454",
+  "case": "M4",
+  "canonicalReferences": [
+    "ZAI:FR-230 v1",
+    "ZAI:FR-245 v1",
+    "ZAI:SEC-034 v1",
+    "ZAI:SDD-103 v1",
+    "ADR-093 v1.2.1"
+  ],
+  "provider": "sqlite",
+  "result": {
+    "passed": 1,
+    "failed": 0,
+    "unselectedSkipped": 23,
+    "durationSeconds": 8.3
+  },
+  "assertionsUnchanged": true,
+  "onlyArchiveAllocationChanged": true,
+  "transform": {
+    "case": "M4",
+    "sourceSha256": "5efba7f2862e3aab60b2ce1718b443969d4decf4a381dcab04ddf26887a7a11d",
+    "transformedSha256": "dd5d3cfeea5839b0ca63eac6a2a91341cafd39850dcc7acc5865c1a25ec4bae2",
+    "assertionBodySha256": "c7e37e568e3ac8edd5bd3fed16e29ece03dd2c7d3f58f6c106089e0a3b0b12c5",
+    "assertionBodyUnchanged": true,
+    "onlyArchiveAllocationChanged": true
+  },
+  "sourceSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+  "ddlSha256": "aba51b022c296848829e3de0ff60245af1949abe13de5cfcacfe9b229a4146b3",
+  "executedHarnessHashes": [
+    {
+      "file": "env.cjs",
+      "sha256": "aae1c54486dfe09f2b7286aec63884834c52ba1fa4a3637619acc364239917ce"
+    },
+    {
+      "file": "guard.mjs",
+      "sha256": "1956beaf681e584819d1998e46a86f576ca0e9de244c6cec1f81a42a281fc2a7"
+    },
+    {
+      "file": "launch.cjs",
+      "sha256": "ebf2b255b3de2dc2f2311246cf18e21d6e2aa3ca7f2c662f36dcb101b6181a6f"
+    },
+    {
+      "file": "network-guard.cjs",
+      "sha256": "003e16d486818dfcd2fcba83d011a333d2ceb7f6438308cbfa0f0fcc88d3c900"
+    },
+    {
+      "file": "owned-job.ps1",
+      "sha256": "2dc3902e1d89671cfc69afd9fc125f06e9e9622e0cedd5a0eab6aaaa490e43d2"
+    },
+    {
+      "file": "paths.cjs",
+      "sha256": "1560967267e7a9e4bb46b7620dc89c51cf4f31dcbbc417d43bfd1fd56512561e"
+    },
+    {
+      "file": "run-case.cjs",
+      "sha256": "d175f736911b078b8a7a1c2ada6597ecdcd279a8a77123fcf1828a8efa022d25"
+    },
+    {
+      "file": "selection.cjs",
+      "sha256": "62af424a8af0fb19f5dfeabff217e55e94fd2bedae7e4976f9dbb895ddf46aae"
+    },
+    {
+      "file": "setup.mjs",
+      "sha256": "d99b46b17a5a9d7d5209b149a065319bfea80b60fbd9669f9da4b20255fdf171"
+    },
+    {
+      "file": "vitest.case.config.mjs",
+      "sha256": "47960d7c392b3ca1eecd3e759c868c0944a6422a322ac80b594d729b8137419c"
+    }
+  ],
+  "privateClientFileCount": 20,
+  "sharedClientSchemas": [
+    {
+      "file": "node_modules/.prisma/client/schema.prisma",
+      "sha256": "1e6a28377bdf70480b18ec31cc6702d37892bc60825b61f36d2d8ead47f63000"
+    },
+    {
+      "file": "node_modules/@zuri/prisma-postgres/schema.prisma",
+      "sha256": "f8208ea7df90fc4b4bc9d182e79805dc05e51c54e773945aa865990da19fe139"
+    }
+  ],
+  "sharedClientSchemasUnchanged": true,
+  "protectedAuthRowsAbsent": true,
+  "syntheticMfaOnly": true,
+  "keyVersionLabels": {
+    "CustomerArchiveKey": [
+      "v0"
+    ],
+    "LegalHoldArchiveKey": []
+  },
+  "fixtureCounts": {
+    "Portfolio": 1,
+    "Tenant": 1,
+    "Business": 1,
+    "BusinessAgentConfig": 1,
+    "Person": 4,
+    "PlatformGrant": 0,
+    "WorkspaceMembership": 0,
+    "PersonCredential": 0,
+    "Membership": 0,
+    "Session": 0,
+    "MfaFactor": 1,
+    "PasskeyCredential": 0,
+    "ChannelIdentity": 2,
+    "Workspace": 1,
+    "ExternalIdentity": 2,
+    "Customer": 2,
+    "Conversation": 1,
+    "Message": 5,
+    "ConversationSession": 1,
+    "CustomerArchiveKey": 2,
+    "ArchiveManifest": 1,
+    "CustomerLegalHold": 1,
+    "CustomerRetentionConsent": 1,
+    "AuditEvent": 18,
+    "IntegrationCredential": 0,
+    "IntegrationCredentialVersion": 0,
+    "IntegrationSecretEnvelope": 0,
+    "EdgeDeviceCredential": 0,
+    "HarnessCredential": 0,
+    "ErrorEvent": 1
+  },
+  "semanticPostconditions": {
+    "blockedErasureAudits": 2,
+    "durableErrorEventCount": 1,
+    "deduplicatedErrorOccurrences": 2
+  },
+  "guard": {
+    "blockedCreates": 0,
+    "blockedFileOps": 0,
+    "fetchAttempts": 0,
+    "nodeBlockedNetwork": 0,
+    "nodeBlockedEnvReads": 0,
+    "nodeRecords": 5,
+    "ownFixtureCount": 1,
+    "scopedDeletes": 0,
+    "scopedAppends": 1,
+    "scope": "SINGLE_CURRENT_FIXTURE_REALPATH"
+  },
+  "retention": {
+    "db": true,
+    "archiveFileCount": 1,
+    "archiveFiles": [
+      {
+        "sha256": "2077d825f956a8b8b3ea1f6afe62d8e42355918894e38bd93863073367ba1988",
+        "bytes": 1518
+      }
+    ],
+    "allQaEvidence": true
+  },
+  "cleanup": {
+    "jobExitCode": 0,
+    "activeProcesses": 0,
+    "stragglers": 0,
+    "timedOut": false
+  },
+  "limits": {
+    "noHttpOrDeviceMfa": true,
+    "noNativePostgres": true,
+    "noScheduler": true,
+    "noProductionOrOffhost": true,
+    "noLiveLineOrMsp": true,
+    "noCanonicalAdoption": true,
+    "noHostWideCapture": true
+  }
+}

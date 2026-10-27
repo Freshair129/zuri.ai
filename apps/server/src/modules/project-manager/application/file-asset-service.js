@@ -226,7 +226,7 @@ export async function resolveFileAssetContent(fileId, {
   if (asset.storageKind === 'MANAGED_BLOB') {
     if (!asset.blobRef) throw new Error('Managed blob reference is missing')
     const port = objectStoragePort || createConfiguredManagedBlobObjectStoragePort()
-    const content = await port.get({ ref: asset.blobRef })
+    const content = await port.get({ ref: asset.blobRef, tenantId: asset.tenantId, businessId: asset.businessId })
     return { asset, content: Buffer.from(content) }
   }
   if (asset.storageKind !== 'LOCAL_FILE' || !asset.relativePath) {

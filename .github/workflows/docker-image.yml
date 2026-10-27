@@ -22,6 +22,23 @@ on:
       - apps/server/package-lock.json
       - .github/workflows/docker-image.yml
   workflow_dispatch:
+    inputs:
+      compact_package:
+        description: Package explicit prepared Compact inputs (no publish/deploy)
+        type: boolean
+        default: false
+      compact_qualify_core:
+        description: Run owned disposable core/recovery tests on the packaged OCI candidate
+        type: boolean
+        default: false
+      compact_input_run_id:
+        description: Same-repository workflow run containing prepared inputs
+        type: string
+        default: ''
+      compact_input_artifact_id:
+        description: Immutable artifact ID containing release-manifest.json and payloads
+        type: string
+        default: ''
 
 # Build at most one image candidate for the latest main snapshot. Each version
 # tag and manually dispatched build remains independent.
@@ -33,6 +50,124 @@ permissions:
   contents: read
 
 jobs:
+  compact-package:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.compact_package }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      - name: Check explicit input identities
+        env:
+          INPUT_RUN_ID: ${{ inputs.compact_input_run_id }}
+          INPUT_ARTIFACT_ID: ${{ inputs.compact_input_artifact_id }}
+        run: node -e "for(const k of ['INPUT_RUN_ID','INPUT_ARTIFACT_ID'])if(!/^[1-9][0-9]*$/.test(process.env[k]||'')||!Number.isSafeInteger(Number(process.env[k])))process.exit(1)"
+      - name: Verify prepared artifact origin
+        uses: actions/github-script@v7
+        env:
+          INPUT_RUN_ID: ${{ inputs.compact_input_run_id }}
+          INPUT_ARTIFACT_ID: ${{ inputs.compact_input_artifact_id }}
+        with:
+          script: |
+            try {
+              const runId = Number(process.env.INPUT_RUN_ID), artifactId = Number(process.env.INPUT_ARTIFACT_ID);
+              const { data: run } = await github.rest.actions.getWorkflowRun({ ...context.repo, run_id: runId });
+              const { data: artifact } = await github.rest.actions.getArtifact({ ...context.repo, artifact_id: artifactId });
+              const repoId = context.payload.repository.id, origin = artifact.workflow_run;
+              if (run.id !== runId || run.status !== 'completed' || run.conclusion !== 'success' || run.head_sha !== context.sha || run.repository?.id !== repoId || run.head_repository?.id !== repoId || artifact.id !== artifactId || artifact.expired !== false || origin?.id !== runId || origin.repository_id !== repoId || origin.head_repository_id !== repoId || origin.head_sha !== context.sha) throw new Error();
+            } catch { core.setFailed('COMPACT_INPUT_ORIGIN_INVALID'); }
+      - uses: actions/download-artifact@v4
+        with:
+          artifact-ids: ${{ inputs.compact_input_artifact_id }}
+          run-id: ${{ inputs.compact_input_run_id }}
+          repository: ${{ github.repository }}
+          github-token: ${{ github.token }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/compact-input
+      - run: npm ci
+        working-directory: apps/server
+      - run: npm run compact:test
+        working-directory: apps/server
+      - name: Package exact-source candidate
+        working-directory: apps/server
+        shell: bash
+        run: |
+          args=(--manifest "$RUNNER_TEMP/compact-input/release-manifest.json" --output "$RUNNER_TEMP/compact-package" --expected-revision "$GITHUB_SHA")
+          if [ -d "$RUNNER_TEMP/compact-input/oci" ]; then args+=(--oci-layout "$RUNNER_TEMP/compact-input/oci"); fi
+          npm run compact:package -- "${args[@]}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compact-candidate-${{ github.sha }}
+          path: ${{ runner.temp }}/compact-package
+          if-no-files-found: error
+          include-hidden-files: true
+  compact-core:
+    needs: compact-package
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.compact_package && inputs.compact_qualify_core }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    defaults:
+      run:
+        working-directory: apps/server
+    env:
+      COMPACT_TEST_DOCKER_CONTEXT: compact-core-ci
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set job-local qualification paths
+        shell: bash
+        run: |
+          printf '%s\n' \
+            "COMPACT_PACKAGE_DIRECTORY=$RUNNER_TEMP/compact-package" \
+            "COMPACT_CORE_IMAGE_FILE=$RUNNER_TEMP/compact-images.json" \
+            "COMPACT_CORE_EVIDENCE_DIRECTORY=$RUNNER_TEMP/compact-core-observations" \
+            "COMPACT_RECOVERY_PRIVATE_DIRECTORY=$RUNNER_TEMP/compact-recovery-private" >> "$GITHUB_ENV"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      # Job-local engine: OCI imports need the containerd image store. This does
+      # not reconfigure any operator's Docker Desktop or use a live environment.
+      - uses: docker/setup-docker-action@v5
+        with:
+          context: compact-core-ci
+          daemon-config: '{"features":{"containerd-snapshotter":true}}'
+      - uses: actions/download-artifact@v4
+        with:
+          name: compact-candidate-${{ github.sha }}
+          path: ${{ runner.temp }}/compact-package
+      - run: npm ci
+      - name: Verify exact OCI candidate before image load
+        shell: bash
+        run: |
+          node scripts/compact-qualify-input.mjs --package "$COMPACT_PACKAGE_DIRECTORY" --expected-revision "$GITHUB_SHA" > "$COMPACT_CORE_IMAGE_FILE"
+          mkdir "$COMPACT_CORE_EVIDENCE_DIRECTORY" "$COMPACT_RECOVERY_PRIVATE_DIRECTORY"
+      - name: Load selected candidate images
+        shell: bash
+        run: docker --context "$COMPACT_TEST_DOCKER_CONTEXT" image load --input "$COMPACT_PACKAGE_DIRECTORY/images.oci.tar"
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Exact artifact core HTTPS and recreation
+        run: npm run test:compact:core
+      - name: Exact artifact bounded synthetic recovery
+        run: npm run test:compact:recovery
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compact-core-observations-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/compact-core-observations/*.json
+            ${{ runner.temp }}/compact-recovery-private/*/sanitized-observation.json
+          if-no-files-found: warn
+          # Never upload private SQL/object backups, keys, env or browser traces.
   compose-config:
     # The Compose file must interpolate from nothing but .env.example plus the two
     # values a real deployment supplies — a variable added to the file without a

@@ -1,0 +1,281 @@
+{
+  "sourceRevision": "764b480de6429e84fb9f0f4f2a10922ca64829b2",
+  "applicationBaseline": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "canonicalReferences": [
+    "ZAI:FR-067 v1",
+    "ZAI:FR-195 v1 (Portfolio context only)",
+    "ZAI:SEC-014 v1",
+    "ZAI:BR-016 v1"
+  ],
+  "provider": "sqlite",
+  "nodeReport": {
+    "status": "PASS",
+    "sourceRevision": "764b480de6429e84fb9f0f4f2a10922ca64829b2",
+    "passed": 1,
+    "failed": 0,
+    "skipped": 0,
+    "cancelled": 0,
+    "todo": 0,
+    "reporter": "Node24 spec (not TAP despite retained .tap filename)",
+    "totalDurationMs": 42072.6596,
+    "scenarioDurationMs": 12342.5696,
+    "requestCount": 11,
+    "initialLauncherExit": 1,
+    "initialCloseoutFailure": "EXPECTED_TAP_PREFIX_BUT_NODE_EMITTED_SPEC",
+    "scenarioJobExit": 0,
+    "recoveredFromRetainedReport": true,
+    "testOrHttpRequestRerun": false,
+    "ownedJobActiveProcesses": 0,
+    "ownedServerActiveProcesses": 0,
+    "ownJobStragglers": 0,
+    "sourceCodeChanged": false
+  },
+  "httpRequests": [
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites",
+      "status": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites/accept",
+      "status": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites/accept",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites/accept",
+      "status": 400
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites/accept",
+      "status": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/workspace-invites/accept",
+      "status": 400
+    }
+  ],
+  "completedChecks": [
+    "EXCLUSIVE_LOOPBACK_CONFIGURATION",
+    "CURRENT_CANONICAL_SCHEMA_PIN",
+    "EMPTY_TABLE_PRESTATE",
+    "NO_BUSINESS_OR_PLATFORM_PREGRANTS",
+    "OWNED_SERVER_READY",
+    "OWNED_PORT_MATCH",
+    "OWNED_HTTP_PATH",
+    "OWNER_REAL_LOGIN",
+    "SIGNED_HTTPONLY_COOKIE_ISSUED",
+    "INVITEE_REAL_LOGIN",
+    "SESSIONS_MAP_TO_BOTH_SYNTHETIC_PRINCIPALS",
+    "ANONYMOUS_MINT_REFUSED",
+    "OWNER_ROLE_MINT_REFUSED",
+    "NON_OWNER_MINT_SCOPE_HIDDEN",
+    "REFUSED_MINTS_WRITE_NO_INVITE",
+    "AUTHORIZED_PORTFOLIO_MINT",
+    "RAW_TOKEN_SHAPE_ONLY",
+    "PORTFOLIO_HASH_ONLY_INVITE",
+    "RAW_TOKEN_NOT_STORED",
+    "ANONYMOUS_ACCEPT_REFUSED",
+    "WRONG_SESSION_GENERIC_REFUSAL",
+    "BODY_PERSON_CLAIM_REFUSED",
+    "REFUSED_ACCEPTS_NO_GRANT_NO_TOKEN_BURN",
+    "INVITEE_SESSION_ACCEPTED",
+    "GRANT_BOUND_TO_ACTUAL_SESSION_PERSON",
+    "REPLAY_GENERIC_REFUSAL",
+    "ONE_NEW_WORKSPACE_MEMBERSHIP_ONLY",
+    "OWNER_GRANT_UNCHANGED",
+    "NO_REAL_OR_BUSINESS_AUTHORITY_EXPANSION",
+    "ONLY_TWO_SYNTHETIC_CREDENTIALS_AND_SESSIONS",
+    "SINGLE_ACCEPTANCE_AUDIT",
+    "TOKEN_MATERIAL_ABSENT_FROM_AUDIT",
+    "OWNED_SERVER_EXIT_ZERO",
+    "OWNED_SERVER_JOB_EMPTY",
+    "SHARED_CLIENT_SCHEMA_UNCHANGED",
+    "ALL_SELECTED_PHASES_COMPLETED",
+    "OWNED_RUNTIME_GUARD_AND_PRIVATE_CLIENT_PRESENT",
+    "ZERO_INSTRUMENTED_EXTERNAL_OR_ENV_ATTEMPTS"
+  ],
+  "postFixtureCounts": {
+    "Portfolio": 1,
+    "Tenant": 0,
+    "Business": 0,
+    "Person": 2,
+    "PlatformGrant": 0,
+    "WorkspaceMembership": 2,
+    "AccessInvite": 1,
+    "PersonCredential": 2,
+    "Membership": 0,
+    "Session": 2,
+    "MfaFactor": 0,
+    "RoleBinding": 0,
+    "Workspace": 0,
+    "Project": 0,
+    "AuditEvent": 2,
+    "IntegrationSecretEnvelope": 0,
+    "ApiAccessKey": 0
+  },
+  "acceptedInviteMetadata": {
+    "scopeType": "PORTFOLIO",
+    "status": "ACCEPTED",
+    "role": "MEMBER"
+  },
+  "seededOwnerMemberships": 1,
+  "newSyntheticInviteeMemberships": 1,
+  "ownerGrantUnchanged": true,
+  "noRealAuthorityExpansion": true,
+  "tokenReturnedInMemoryOnly": true,
+  "noRawTokenOrInviteDigestInAudit": true,
+  "sourceHashes": [
+    {
+      "file": "docs/requirements/FR-067.md",
+      "sha256": "11f0cad8802f9ba4a08212d36154e26d5dc74533b9e600a3026f3813352de0ce"
+    },
+    {
+      "file": "docs/features/FEAT-029/requirements/FR-195.md",
+      "sha256": "3b591d149f2e9a0e2976fff0232ccb899a7b6f628882fde90f985b7c099348c0"
+    },
+    {
+      "file": "apps/server/src/app/api/auth/login/route.js",
+      "sha256": "c5283029a69a213d9ad6ae46e869874499001ee046751ce6af4f4d856a94c01d"
+    },
+    {
+      "file": "apps/server/src/app/api/workspace-invites/route.js",
+      "sha256": "dbe22091d77c42da8edf20637337f515d418f12381e1b779e71bd9f78c3e8c8e"
+    },
+    {
+      "file": "apps/server/src/app/api/workspace-invites/accept/route.js",
+      "sha256": "7a363ee874ff6a59d7f50836109ba57a891334e0470f08a3de2cedb1fb0e86d1"
+    },
+    {
+      "file": "apps/server/src/modules/identity/workspace-membership-service.js",
+      "sha256": "7cb68ffbe5632ce1c4fc03ab34d1c0026b70903e86115e24348f0c0f89894614"
+    },
+    {
+      "file": "apps/server/src/modules/identity/request-viewer.js",
+      "sha256": "eff84a7d036340700967f08cde096484013983043f63085356c503d475607c6e"
+    },
+    {
+      "file": "apps/server/src/modules/identity/session-port.js",
+      "sha256": "47b739f50f219e167d5668d46ebad85858153c1c9ddf4d826c15353acc9f7068"
+    },
+    {
+      "file": "apps/server/src/modules/identity/auth-service.js",
+      "sha256": "70ea683474d32aea2050d1a1e50aeca4e141d9fb57cb36295a891e8cf432efd2"
+    },
+    {
+      "file": "apps/server/tests/integration/workspace-onboarding-flow.test.js",
+      "sha256": "ca7b7c517bceeb6b62894dc0183ed252b1c10d461c61a20ffa6d0e398f365bc2"
+    },
+    {
+      "file": "apps/server/tests/unit/workspace-onboarding-routes.test.js",
+      "sha256": "1d80b32bda5d3cc3331617d4211c218120f1f9234c1b76e73c1fc768b6e7593d"
+    }
+  ],
+  "executedHarnessHashes": [
+    {
+      "file": "env.cjs",
+      "sha256": "aae1c54486dfe09f2b7286aec63884834c52ba1fa4a3637619acc364239917ce"
+    },
+    {
+      "file": "launch.cjs",
+      "sha256": "ca2cd1743cb97177b1f914f883118acb62a2c30fecf7aea7563f6bffd7d790c9"
+    },
+    {
+      "file": "network-guard.cjs",
+      "sha256": "003e16d486818dfcd2fcba83d011a333d2ceb7f6438308cbfa0f0fcc88d3c900"
+    },
+    {
+      "file": "owned-job.ps1",
+      "sha256": "2dc3902e1d89671cfc69afd9fc125f06e9e9622e0cedd5a0eab6aaaa490e43d2"
+    },
+    {
+      "file": "paths.cjs",
+      "sha256": "1560967267e7a9e4bb46b7620dc89c51cf4f31dcbbc417d43bfd1fd56512561e"
+    },
+    {
+      "file": "portfolio-invite.test.cjs",
+      "sha256": "a9b58f8184ecf3bd615bb99bb505b7a70966d29eade77a9ca1be435295c473e3"
+    },
+    {
+      "file": "run-http.cjs",
+      "sha256": "101c3c295f1c2379a8766b9d32e49211389b171e53fd61e0ed2c21587ffc0137"
+    },
+    {
+      "file": "server.cjs",
+      "sha256": "916033a7ea7bc843371abf9cff82f34fdfe4b0db3cf4477e8da1273828e2af66"
+    }
+  ],
+  "postRunCloseoutSha256": "aef9354f0deeb3115d1aadf556c58672e62ea60fa9ac9fa3f21dd1697ddb38cb",
+  "privateClientFileCount": 20,
+  "sharedClientSchemas": [
+    {
+      "file": "node_modules/.prisma/client/schema.prisma",
+      "sha256": "1e6a28377bdf70480b18ec31cc6702d37892bc60825b61f36d2d8ead47f63000"
+    },
+    {
+      "file": "node_modules/@zuri/prisma-postgres/schema.prisma",
+      "sha256": "f8208ea7df90fc4b4bc9d182e79805dc05e51c54e773945aa865990da19fe139"
+    }
+  ],
+  "sharedClientSchemasUnchanged": true,
+  "guard": {
+    "records": 4,
+    "blockedNetwork": 0,
+    "blockedEnvReads": 0,
+    "serverPrivateClientLoadConfirmed": true,
+    "scope": "INSTRUMENTED_NODE_PATHS_ONLY"
+  },
+  "cleanup": {
+    "testJobExit": 0,
+    "serverJobExit": 0,
+    "testActive": 0,
+    "serverActive": 0,
+    "testStragglers": 0,
+    "serverStragglers": 0,
+    "timeout": false,
+    "allFixturesRetained": true
+  },
+  "limits": {
+    "noTenantOrBusinessInvitation": true,
+    "noNativePostgres": true,
+    "noExpiryOrRevocationHttpCase": true,
+    "noParallelAcceptanceRace": true,
+    "noBrowserUi": true,
+    "noSenderOrProvider": true,
+    "noProductionOrRelease": true,
+    "noFullFeatureAdoption": true,
+    "noHostWideCapture": true
+  }
+}

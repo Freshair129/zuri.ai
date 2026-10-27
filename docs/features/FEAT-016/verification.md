@@ -27,12 +27,14 @@ status: generated
 - [apps/server/src/modules/asset-management/application/asset-request-scope.js](../../../apps/server/src/modules/asset-management/application/asset-request-scope.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetReceivingWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetReceivingWorkspace.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/domain/evidence-policy.js](../../../apps/server/src/modules/asset-management/domain/evidence-policy.js) — `implements` (`annotation`)
+- [apps/server/src/platform/storage/private-business-object-storage.js](../../../apps/server/src/platform/storage/private-business-object-storage.js) — `implements` (`annotation`)
 - [apps/server/src/platform/storage/supabase-object-storage.js](../../../apps/server/src/platform/storage/supabase-object-storage.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/asset-evidence-intake-execution.test.js](../../../apps/server/tests/integration/asset-evidence-intake-execution.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-extractor-contract.test.js](../../../apps/server/tests/unit/asset-evidence-extractor-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-evidence-intake-service-contract.test.js](../../../apps/server/tests/unit/asset-evidence-intake-service-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-route-schema-contract.test.js](../../../apps/server/tests/unit/asset-evidence-route-schema-contract.test.js) — `verifies` (`test-reference`)
@@ -40,6 +42,7 @@ status: generated
 - [apps/server/tests/unit/asset-production-activation-contract.test.js](../../../apps/server/tests/unit/asset-production-activation-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-receiving-evidence-ui.test.js](../../../apps/server/tests/unit/asset-receiving-evidence-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-request-scope-capability.test.js](../../../apps/server/tests/unit/asset-request-scope-capability.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/private-business-object-storage.test.js](../../../apps/server/tests/unit/private-business-object-storage.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-138](requirements/FR-138.md)
 
@@ -60,6 +63,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/asset-evidence-intake-execution.test.js](../../../apps/server/tests/integration/asset-evidence-intake-execution.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-extractor-contract.test.js](../../../apps/server/tests/unit/asset-evidence-extractor-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-intake-service-contract.test.js](../../../apps/server/tests/unit/asset-evidence-intake-service-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-route-schema-contract.test.js](../../../apps/server/tests/unit/asset-evidence-route-schema-contract.test.js) — `verifies` (`test-reference`)

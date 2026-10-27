@@ -1,0 +1,1359 @@
+{
+  "schemaVersion": "compact-task2-observations.v1",
+  "recordedAt": "2026-10-27",
+  "evidenceScope": "Actual disposable PostgreSQL; synthetic package component assertions; no product or production qualification",
+  "implementationBase": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+  "supplementalCatalogObservation": {
+    "targetId": "9d6e9ca5-8d4b-4c56-a980-357aad8c1d64",
+    "verifiedOwnerLabel": true,
+    "query": "SELECT count(*) FROM pg_constraint c JOIN pg_namespace n ON n.oid=c.connamespace WHERE n.nspname='public' AND c.contype='c'",
+    "checkConstraints": 108
+  },
+  "cases": [
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "populated-target-refusal",
+      "environment": "TEST",
+      "targetId": "58c926fe-d628-4665-8ac4-bb54fbff11b0",
+      "project": "zuri-compact-58c926fe-d628",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "da8c9828579a33c8773e9b989d1c0dd6ae3ea0ae261bf669e6e3467ce4d7d363",
+          "name": "zuri-compact-58c926fe-d628-private",
+          "subnet": "10.252.66.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-58c926fe-d628-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:09Z"
+          },
+          "objects": {
+            "name": "zuri-compact-58c926fe-d628-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:11:09Z"
+          }
+        },
+        "container": {
+          "id": "e4e5800d66b651879b3d4c51816a6b771672fd6ea1d0d2e739ad49b98475355d",
+          "name": "zuri-compact-58c926fe-d628-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_58c926fed6284665",
+          "user": "compact_bootstrap",
+          "objectCount": 2,
+          "runtimeRoles": [],
+          "catalogSha256": "147b93e3c2cfd96f9692f67c36c090fe663e4da80d61621db7d8e3cf05f3af1f",
+          "systemIdentifier": "7701118044220907554",
+          "installation": null
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "da8c9828579a33c8773e9b989d1c0dd6ae3ea0ae261bf669e6e3467ce4d7d363",
+          "name": "zuri-compact-58c926fe-d628-private",
+          "subnet": "10.252.66.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-58c926fe-d628-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:09Z"
+          },
+          "objects": {
+            "name": "zuri-compact-58c926fe-d628-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:11:09Z"
+          }
+        },
+        "container": {
+          "id": "e4e5800d66b651879b3d4c51816a6b771672fd6ea1d0d2e739ad49b98475355d",
+          "name": "zuri-compact-58c926fe-d628-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_58c926fed6284665",
+          "user": "compact_bootstrap",
+          "objectCount": 2,
+          "runtimeRoles": [],
+          "catalogSha256": "147b93e3c2cfd96f9692f67c36c090fe663e4da80d61621db7d8e3cf05f3af1f",
+          "systemIdentifier": "7701118044220907554",
+          "installation": null
+        }
+      },
+      "checks": {
+        "retainedSentinelRows": 1
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "racing-writer-refusal",
+      "environment": "TEST",
+      "targetId": "6128816f-9d1a-4ad1-8060-b8e0ede8bf65",
+      "project": "zuri-compact-6128816f-9d1a",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "43e6d1397244429ab0ffdbe1d1978f076d346540d42089f0526e7058c38ac23c",
+          "name": "zuri-compact-6128816f-9d1a-private",
+          "subnet": "10.252.71.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-6128816f-9d1a-database",
+            "driver": "local",
+            "created": "2026-10-26T23:13:22Z"
+          },
+          "objects": {
+            "name": "zuri-compact-6128816f-9d1a-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:13:22Z"
+          }
+        },
+        "container": {
+          "id": "11c82071a319e6999e8b8414571800356b982391577b7054c47da38f10f069be",
+          "name": "zuri-compact-6128816f-9d1a-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_6128816f9d1a4ad1",
+          "user": "compact_bootstrap",
+          "objectCount": 1,
+          "runtimeRoles": [],
+          "catalogSha256": "024e02de5fb06590dd4653b6dd104977efb8401b4c6917bfc83e899226fad1fc",
+          "systemIdentifier": "7701118615367770146",
+          "installation": null
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "43e6d1397244429ab0ffdbe1d1978f076d346540d42089f0526e7058c38ac23c",
+          "name": "zuri-compact-6128816f-9d1a-private",
+          "subnet": "10.252.71.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-6128816f-9d1a-database",
+            "driver": "local",
+            "created": "2026-10-26T23:13:22Z"
+          },
+          "objects": {
+            "name": "zuri-compact-6128816f-9d1a-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:13:22Z"
+          }
+        },
+        "container": {
+          "id": "11c82071a319e6999e8b8414571800356b982391577b7054c47da38f10f069be",
+          "name": "zuri-compact-6128816f-9d1a-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_6128816f9d1a4ad1",
+          "user": "compact_bootstrap",
+          "objectCount": 1,
+          "runtimeRoles": [],
+          "catalogSha256": "024e02de5fb06590dd4653b6dd104977efb8401b4c6917bfc83e899226fad1fc",
+          "systemIdentifier": "7701118615367770146",
+          "installation": null
+        }
+      },
+      "checks": {
+        "retainedSentinelRows": 1,
+        "applicationTables": 1,
+        "installationAbsent": true
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "transaction-rollback",
+      "environment": "TEST",
+      "targetId": "76875537-ccf7-4991-ab2c-bdcb4f39967d",
+      "project": "zuri-compact-76875537-ccf7",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "491ffe70a61a63a1ddac67a1b471b20213d939f3bec13891a4a0561d61ff6220",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "cc1a52decca6cb8f1f9e52d3e9b78981a022e9699e87f768473b33463d6e3c0a"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "f2cc231f6f3cb5071c9eb507490fbbba5eaded7c4873f7b2603e3994970bb4f9",
+          "name": "zuri-compact-76875537-ccf7-private",
+          "subnet": "10.252.65.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-76875537-ccf7-database",
+            "driver": "local",
+            "created": "2026-10-26T23:10:53Z"
+          },
+          "objects": {
+            "name": "zuri-compact-76875537-ccf7-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:10:53Z"
+          }
+        },
+        "container": {
+          "id": "c782e1c2bc170d8f5f79a3da265f6b91cfbcd8622720e8590e21c2c3158dc407",
+          "name": "zuri-compact-76875537-ccf7-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_76875537ccf74991",
+          "user": "compact_bootstrap",
+          "objectCount": 0,
+          "runtimeRoles": [],
+          "catalogSha256": "394d496a41881f09835ca5594c2b6a17cd0d4b26359614c4002429108901947e",
+          "systemIdentifier": "7701117972713574434",
+          "installation": null
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "f2cc231f6f3cb5071c9eb507490fbbba5eaded7c4873f7b2603e3994970bb4f9",
+          "name": "zuri-compact-76875537-ccf7-private",
+          "subnet": "10.252.65.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-76875537-ccf7-database",
+            "driver": "local",
+            "created": "2026-10-26T23:10:53Z"
+          },
+          "objects": {
+            "name": "zuri-compact-76875537-ccf7-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:10:53Z"
+          }
+        },
+        "container": {
+          "id": "c782e1c2bc170d8f5f79a3da265f6b91cfbcd8622720e8590e21c2c3158dc407",
+          "name": "zuri-compact-76875537-ccf7-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_76875537ccf74991",
+          "user": "compact_bootstrap",
+          "objectCount": 0,
+          "runtimeRoles": [],
+          "catalogSha256": "394d496a41881f09835ca5594c2b6a17cd0d4b26359614c4002429108901947e",
+          "systemIdentifier": "7701117972713574434",
+          "installation": null
+        }
+      },
+      "checks": {
+        "injectedDdlFailed": true,
+        "applicationObjects": 0,
+        "runtimeRoles": 0
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "pricing-and-iam-contracts",
+      "environment": "TEST",
+      "targetId": "96864796-e5f7-420b-a8ef-827104860ef5",
+      "project": "zuri-compact-96864796-e5f7",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "1b7fb4598f1655b189e22e19ce2d395df11898548848381298668ec3957b66e2",
+          "name": "zuri-compact-96864796-e5f7-private",
+          "subnet": "10.252.69.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-96864796-e5f7-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:30Z"
+          },
+          "objects": {
+            "name": "zuri-compact-96864796-e5f7-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:30Z"
+          }
+        },
+        "container": {
+          "id": "abe9c00ce1647f6b30c6fc172c24715ef9f159a800b6897fe57fa49a90d250b3",
+          "name": "zuri-compact-96864796-e5f7-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_96864796e5f7420b",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "ac6823c9ca56496eb7f6e82649fc88ebf8ac78ca93f7f59efc82c52364b72b3a",
+          "systemIdentifier": "7701118392831758370",
+          "installation": {
+            "targetId": "96864796-e5f7-420b-a8ef-827104860ef5",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "ac6823c9ca56496eb7f6e82649fc88ebf8ac78ca93f7f59efc82c52364b72b3a",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118392831758370"
+          }
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "1b7fb4598f1655b189e22e19ce2d395df11898548848381298668ec3957b66e2",
+          "name": "zuri-compact-96864796-e5f7-private",
+          "subnet": "10.252.69.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-96864796-e5f7-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:30Z"
+          },
+          "objects": {
+            "name": "zuri-compact-96864796-e5f7-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:30Z"
+          }
+        },
+        "container": {
+          "id": "abe9c00ce1647f6b30c6fc172c24715ef9f159a800b6897fe57fa49a90d250b3",
+          "name": "zuri-compact-96864796-e5f7-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_96864796e5f7420b",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "ac6823c9ca56496eb7f6e82649fc88ebf8ac78ca93f7f59efc82c52364b72b3a",
+          "systemIdentifier": "7701118392831758370",
+          "installation": {
+            "targetId": "96864796-e5f7-420b-a8ef-827104860ef5",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "ac6823c9ca56496eb7f6e82649fc88ebf8ac78ca93f7f59efc82c52364b72b3a",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118392831758370"
+          }
+        }
+      },
+      "checks": {
+        "pricingDeleteDenied": true,
+        "calculationUpdateDenied": true,
+        "membershipCheckRejected": true,
+        "provisioningCheckRejected": true
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "core-parity-and-retry",
+      "environment": "TEST",
+      "targetId": "9d6e9ca5-8d4b-4c56-a980-357aad8c1d64",
+      "project": "zuri-compact-9d6e9ca5-8d4b",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "64fad33ea187dc36c761cb7f86014657936558ff71f360ac53377cfba1b70d2f",
+          "name": "zuri-compact-9d6e9ca5-8d4b-private",
+          "subnet": "10.252.64.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-9d6e9ca5-8d4b-database",
+            "driver": "local",
+            "created": "2026-10-26T23:10:09Z"
+          },
+          "objects": {
+            "name": "zuri-compact-9d6e9ca5-8d4b-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:10:09Z"
+          }
+        },
+        "container": {
+          "id": "f36fa26577ca0bfeb36dcfdb0745280ea2b14e86ed3ebfe9440f5c663b754faf",
+          "name": "zuri-compact-9d6e9ca5-8d4b-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_9d6e9ca58d4b4c56",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "a7afd47ef526c7cce84bde6e57cd5d5d03774a5402313aced3b19b03a4d4f820",
+          "systemIdentifier": "7701117785369133090",
+          "installation": {
+            "targetId": "9d6e9ca5-8d4b-4c56-a980-357aad8c1d64",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "a7afd47ef526c7cce84bde6e57cd5d5d03774a5402313aced3b19b03a4d4f820",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "c478c05c867aec7785886780b5396f28dd901ba9e59f8f423a444d30e6f7e542",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701117785369133090"
+          }
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "64fad33ea187dc36c761cb7f86014657936558ff71f360ac53377cfba1b70d2f",
+          "name": "zuri-compact-9d6e9ca5-8d4b-private",
+          "subnet": "10.252.64.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-9d6e9ca5-8d4b-database",
+            "driver": "local",
+            "created": "2026-10-26T23:10:09Z"
+          },
+          "objects": {
+            "name": "zuri-compact-9d6e9ca5-8d4b-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:10:09Z"
+          }
+        },
+        "container": {
+          "id": "f36fa26577ca0bfeb36dcfdb0745280ea2b14e86ed3ebfe9440f5c663b754faf",
+          "name": "zuri-compact-9d6e9ca5-8d4b-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_9d6e9ca58d4b4c56",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "a7afd47ef526c7cce84bde6e57cd5d5d03774a5402313aced3b19b03a4d4f820",
+          "systemIdentifier": "7701117785369133090",
+          "installation": {
+            "targetId": "9d6e9ca5-8d4b-4c56-a980-357aad8c1d64",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "a7afd47ef526c7cce84bde6e57cd5d5d03774a5402313aced3b19b03a4d4f820",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "c478c05c867aec7785886780b5396f28dd901ba9e59f8f423a444d30e6f7e542",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701117785369133090"
+          }
+        }
+      },
+      "checks": {
+        "modelTables": 210,
+        "modelColumns": 2990,
+        "phaseBChecks": 79,
+        "phaseBPolicies": 8,
+        "retainedFeatureRows": 1,
+        "runtimeRole": {
+          "current_user": "zuri_web_login",
+          "rolsuper": false,
+          "rolbypassrls": false,
+          "rolcreatedb": false,
+          "rolcreaterole": false,
+          "rolreplication": false,
+          "owner": "compact_bootstrap"
+        }
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "foreign-volume-refusal",
+      "environment": "TEST",
+      "targetId": "a4389390-4546-4b8a-a02b-eb82d2a0ace0",
+      "project": "zuri-compact-a4389390-4546",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": null,
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-a4389390-4546-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:22Z"
+          },
+          "objects": null
+        },
+        "container": null,
+        "database": null
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": null,
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-a4389390-4546-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:22Z"
+          },
+          "objects": null
+        },
+        "container": null,
+        "database": null
+      },
+      "checks": {
+        "noContainerCreated": true
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "schema-drift-refusal",
+      "environment": "TEST",
+      "targetId": "b7f56778-f14c-48c3-b58e-32a2b5848f16",
+      "project": "zuri-compact-b7f56778-f14c",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "1fb93da001cd282cc07653e4862d940299db9e261d75d63d45431cd032bb42f4",
+          "name": "zuri-compact-b7f56778-f14c-private",
+          "subnet": "10.252.67.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-b7f56778-f14c-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:31Z"
+          },
+          "objects": {
+            "name": "zuri-compact-b7f56778-f14c-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:11:31Z"
+          }
+        },
+        "container": {
+          "id": "a405979d084c19eef9554feb3eab17774133c7e7970c587740c37b81fedf09ab",
+          "name": "zuri-compact-b7f56778-f14c-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_b7f56778f14c48c3",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "bc3e270ca0abd930c80ceef925b6a2c49eb61858a9af119ff5c44bbe817ada58",
+          "systemIdentifier": "7701118137486790690",
+          "installation": {
+            "targetId": "b7f56778-f14c-48c3-b58e-32a2b5848f16",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "33e873d26351ed9ba3e3f3bee377c9df2f1725995a9c4ed582d7160e0c6910fb",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118137486790690"
+          }
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "1fb93da001cd282cc07653e4862d940299db9e261d75d63d45431cd032bb42f4",
+          "name": "zuri-compact-b7f56778-f14c-private",
+          "subnet": "10.252.67.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-b7f56778-f14c-database",
+            "driver": "local",
+            "created": "2026-10-26T23:11:31Z"
+          },
+          "objects": {
+            "name": "zuri-compact-b7f56778-f14c-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:11:31Z"
+          }
+        },
+        "container": {
+          "id": "a405979d084c19eef9554feb3eab17774133c7e7970c587740c37b81fedf09ab",
+          "name": "zuri-compact-b7f56778-f14c-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_b7f56778f14c48c3",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "bc3e270ca0abd930c80ceef925b6a2c49eb61858a9af119ff5c44bbe817ada58",
+          "systemIdentifier": "7701118137486790690",
+          "installation": {
+            "targetId": "b7f56778-f14c-48c3-b58e-32a2b5848f16",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "33e873d26351ed9ba3e3f3bee377c9df2f1725995a9c4ed582d7160e0c6910fb",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118137486790690"
+          }
+        }
+      },
+      "checks": {
+        "noRepair": true
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "large-object-refusal",
+      "environment": "TEST",
+      "targetId": "ce780c10-1d4e-41da-90f0-a29652256c73",
+      "project": "zuri-compact-ce780c10-1d4e",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "976185da664a58bdd8c4ae7b4f476449ba99bafd0cc6cb4d88b8145184bb8286",
+          "name": "zuri-compact-ce780c10-1d4e-private",
+          "subnet": "10.252.70.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-ce780c10-1d4e-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:57Z"
+          },
+          "objects": {
+            "name": "zuri-compact-ce780c10-1d4e-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:57Z"
+          }
+        },
+        "container": {
+          "id": "dbd422e3a0cd6f13ecf327c23c69d2571ce4c53a2f86990561ff3078d99e1de5",
+          "name": "zuri-compact-ce780c10-1d4e-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_ce780c101d4e41da",
+          "user": "compact_bootstrap",
+          "objectCount": 1,
+          "runtimeRoles": [],
+          "catalogSha256": "6c524b85c400048e0e17b1b9df3e05d1ede603d705155c87727ada555f5d1a66",
+          "systemIdentifier": "7701118506691747874",
+          "installation": null
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "976185da664a58bdd8c4ae7b4f476449ba99bafd0cc6cb4d88b8145184bb8286",
+          "name": "zuri-compact-ce780c10-1d4e-private",
+          "subnet": "10.252.70.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-ce780c10-1d4e-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:57Z"
+          },
+          "objects": {
+            "name": "zuri-compact-ce780c10-1d4e-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:57Z"
+          }
+        },
+        "container": {
+          "id": "dbd422e3a0cd6f13ecf327c23c69d2571ce4c53a2f86990561ff3078d99e1de5",
+          "name": "zuri-compact-ce780c10-1d4e-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_ce780c101d4e41da",
+          "user": "compact_bootstrap",
+          "objectCount": 1,
+          "runtimeRoles": [],
+          "catalogSha256": "6c524b85c400048e0e17b1b9df3e05d1ede603d705155c87727ada555f5d1a66",
+          "systemIdentifier": "7701118506691747874",
+          "installation": null
+        }
+      },
+      "checks": {
+        "retainedLargeObjects": 1
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "relocated-cli-stop",
+      "environment": "TEST",
+      "targetId": "da296223-8e9f-42e3-a33b-8ae2066d6084",
+      "project": "zuri-compact-da296223-8e9f",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "84292ce40bfbc7e940b8af57c734d0c03db0207aa18466bfc30d1585a6f38573",
+          "name": "zuri-compact-da296223-8e9f-private",
+          "subnet": "10.252.72.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-da296223-8e9f-database",
+            "driver": "local",
+            "created": "2026-10-26T23:13:40Z"
+          },
+          "objects": {
+            "name": "zuri-compact-da296223-8e9f-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:13:40Z"
+          }
+        },
+        "container": {
+          "id": "0c7f24d2d4052b8b246b9f83698f2a5cd8dc100579e4a217a3804fd54d0fb231",
+          "name": "zuri-compact-da296223-8e9f-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_da2962238e9f42e3",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "f940dbb4e860aacb957098433da3eb3da555657245a9c6b1cd51758701f07b66",
+          "systemIdentifier": "7701118691376562210",
+          "installation": {
+            "targetId": "da296223-8e9f-42e3-a33b-8ae2066d6084",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "f940dbb4e860aacb957098433da3eb3da555657245a9c6b1cd51758701f07b66",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118691376562210"
+          }
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "84292ce40bfbc7e940b8af57c734d0c03db0207aa18466bfc30d1585a6f38573",
+          "name": "zuri-compact-da296223-8e9f-private",
+          "subnet": "10.252.72.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-da296223-8e9f-database",
+            "driver": "local",
+            "created": "2026-10-26T23:13:40Z"
+          },
+          "objects": {
+            "name": "zuri-compact-da296223-8e9f-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:13:40Z"
+          }
+        },
+        "container": {
+          "id": "0c7f24d2d4052b8b246b9f83698f2a5cd8dc100579e4a217a3804fd54d0fb231",
+          "name": "zuri-compact-da296223-8e9f-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": false
+        },
+        "database": null
+      },
+      "checks": {
+        "privateCredentialFilesAbsent": true,
+        "sameContainer": true,
+        "sameVolumes": true,
+        "stoppedStatusUnverified": true
+      }
+    },
+    {
+      "schemaVersion": "compact-test-observation.v1",
+      "syntheticPackage": true,
+      "caseName": "connect-revocation-refusal",
+      "environment": "TEST",
+      "targetId": "f0ab7480-9137-44ed-901e-bf143d970184",
+      "project": "zuri-compact-f0ab7480-9137",
+      "schemaSourceCommit": "eb888992be1b00e4b7d594a7737fd769c06130f8",
+      "baseline": {
+        "schemaVersion": "compact-baseline.v1",
+        "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+        "canonicalSchemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
+        "postgresSchemaSha256": "3f546323ddcfc737f05f041b313d8f36d3593b1b4dfaddb6e95ce422dbacb20b",
+        "ddlSha256": "ea1ef02b31d3c6029bb3765837752440555136c064ce43253c0e34b032f9f4b8",
+        "securitySha256": "14cd9f7eb4312d3e6905a5acc2f3b3cd2139df4c2166e69bc8f62ed6ba23329d",
+        "phaseBSourceSha256": "9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3",
+        "sourceContractsSha256": "17fe78afbd027d1d1e13fbdb81f86a1bf48b301f776910735302b2e35c683a3b",
+        "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08"
+      },
+      "before": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "94742364c499a9166ae2922f640ef098599006dabdb782f225edae88bce1affe",
+          "name": "zuri-compact-f0ab7480-9137-private",
+          "subnet": "10.252.68.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-f0ab7480-9137-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:00Z"
+          },
+          "objects": {
+            "name": "zuri-compact-f0ab7480-9137-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:00Z"
+          }
+        },
+        "container": {
+          "id": "4340840b3570030a1e3c865ccfc32cea74b8a9f1b77fee2edbb3da9c688d1b3b",
+          "name": "zuri-compact-f0ab7480-9137-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_f0ab7480913744ed",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "8a17f1fa5dc5d590c08a2eeacbd5ad1bda3de92f392a79ceafb340661a9dae12",
+          "systemIdentifier": "7701118263313842210",
+          "installation": {
+            "targetId": "f0ab7480-9137-44ed-901e-bf143d970184",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "ffb952b5dfcc05422d456b7ff3ea0c2680b9b480c2d5803f2f78c80f7f14a97e",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118263313842210"
+          }
+        }
+      },
+      "after": {
+        "daemonId": "17864b49-3ee4-457c-9a53-83d41db1a264",
+        "image": {
+          "reference": "postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "id": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "platform": "linux/amd64"
+        },
+        "network": {
+          "id": "94742364c499a9166ae2922f640ef098599006dabdb782f225edae88bce1affe",
+          "name": "zuri-compact-f0ab7480-9137-private",
+          "subnet": "10.252.68.0/28"
+        },
+        "volumes": {
+          "database": {
+            "name": "zuri-compact-f0ab7480-9137-database",
+            "driver": "local",
+            "created": "2026-10-26T23:12:00Z"
+          },
+          "objects": {
+            "name": "zuri-compact-f0ab7480-9137-objects",
+            "driver": "local",
+            "created": "2026-10-26T23:12:00Z"
+          }
+        },
+        "container": {
+          "id": "4340840b3570030a1e3c865ccfc32cea74b8a9f1b77fee2edbb3da9c688d1b3b",
+          "name": "zuri-compact-f0ab7480-9137-db",
+          "imageId": "sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea",
+          "running": true
+        },
+        "database": {
+          "oid": 16384,
+          "name": "compact_f0ab7480913744ed",
+          "user": "compact_bootstrap",
+          "objectCount": 1039,
+          "runtimeRoles": [
+            {
+              "name": "zuri_app_runtime",
+              "login": false,
+              "owner": false,
+              "bypass": false,
+              "inherit": false,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": false,
+              "privilegedMembership": false
+            },
+            {
+              "name": "zuri_web_login",
+              "login": true,
+              "owner": false,
+              "bypass": false,
+              "inherit": true,
+              "createDb": false,
+              "superuser": false,
+              "createRole": false,
+              "replication": false,
+              "inheritsRuntime": true,
+              "privilegedMembership": false
+            }
+          ],
+          "catalogSha256": "8a17f1fa5dc5d590c08a2eeacbd5ad1bda3de92f392a79ceafb340661a9dae12",
+          "systemIdentifier": "7701118263313842210",
+          "installation": {
+            "targetId": "f0ab7480-9137-44ed-901e-bf143d970184",
+            "releaseId": "test-1",
+            "databaseOid": 16384,
+            "catalogSha256": "ffb952b5dfcc05422d456b7ff3ea0c2680b9b480c2d5803f2f78c80f7f14a97e",
+            "baselineSha256": "8e5cd6f5e9008d8816bb5ee434902673b1946980e3006c8af8c03cc3eb9aba08",
+            "manifestSha256": "4dd58f9e775194a8a030ab29c8fcf67d1cce298e42d08c49caedb4638b45af7a",
+            "sourceRevision": "cccccccccccccccccccccccccccccccccccccccc",
+            "systemIdentifier": "7701118263313842210"
+          }
+        }
+      },
+      "checks": {
+        "runtimeConnectDenied": true,
+        "noRepair": true
+      }
+    }
+  ]
+}
