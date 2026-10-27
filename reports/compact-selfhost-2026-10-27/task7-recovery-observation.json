@@ -1,0 +1,90 @@
+{
+  "candidate": {
+    "baselineSha256": "20d359177719a67cb378c40a400ecba4b4589d5aa0c3eb2196f413e23dcc31de",
+    "hostCliSha256": "3768d1c713896a019b6986f3304df1d93aa649413d9db2d5f339c3c14c14f7c4",
+    "images": {
+      "tools": {
+        "id": "sha256:7eb02491399ca442c92aecbf059bf367418fa8893d7a8acf0ac7587c3a656c27",
+        "platform": "linux/amd64",
+        "reference": "zuri-compact.local/fixtures/tools-7eb02491399c@sha256:7eb02491399ca442c92aecbf059bf367418fa8893d7a8acf0ac7587c3a656c27",
+        "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08"
+      },
+      "web": {
+        "id": "sha256:0e5c990255f227c29bcf7f81fa2152110e5777a15afa2cd6ed85b99f76ac66d3",
+        "platform": "linux/amd64",
+        "reference": "zuri-compact.local/fixtures/web-0e5c990255f2@sha256:0e5c990255f227c29bcf7f81fa2152110e5777a15afa2cd6ed85b99f76ac66d3",
+        "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08"
+      }
+    },
+    "installation": "NOT_INSTALLED",
+    "manifestSha256": "de0aa18d3dbe460b99d031307c3e9701f7173d34f7372f33d2476199bda776b4",
+    "packageInventorySha256": "cca160a9deedd67e190e23d13c6dc4994a24c19c0f618b303a234d277cd2eb11",
+    "project": "zuri-compact-4e0d8e91-dfca",
+    "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08",
+    "status": "ARTIFACT_INSPECTED_NOT_QUALIFIED",
+    "targetId": "4e0d8e91-dfca-4b12-857e-03aa15d1e0e0"
+  },
+  "checks": {
+    "credentialReentry": true,
+    "currentFileAuthorization": true,
+    "databaseRowsAndCatalog": true,
+    "exactObjectAndFixtureRemap": true,
+    "foreignAndCorruptRefused": true,
+    "metadataOnlyRefused": true,
+    "retryRefused": true,
+    "sourceSecretRestart": true
+  },
+  "cleanup": "PASS",
+  "databaseBackupSha256": "2558c02da57feadd20cc358185a99ed3b14a7568820b389edaf61190a7be1686",
+  "envelopeRowsExcluded": 1,
+  "environment": "TEST",
+  "limits": [
+    "Harness-only synthetic restore, not backup-service or operator recovery qualification",
+    "No envelope ciphertext or KEK exported/restored",
+    "Same-host resources do not qualify an off-host backup failure domain",
+    "No AI/native Stage9/live/hosted/production acceptance"
+  ],
+  "objectPurposes": [
+    "asset",
+    "catalog"
+  ],
+  "operatorRecovery": "NOT_QUALIFIED",
+  "portableTableHashCount": 196,
+  "runId": "99a53a74-47c2-4748-a700-05b35c4f5c96",
+  "sourceIdentity": {
+    "catalogSha256": "7b0cc2520297ca8e1f5d5521c28ff6d81ea449684a7326c84e96410f40ec8091",
+    "containerId": "06fa5d390cc5fa1478109f6ec88541158a3e3e54ac35ff70e556d746cb996ff3",
+    "marker": {
+      "baselineSha256": "20d359177719a67cb378c40a400ecba4b4589d5aa0c3eb2196f413e23dcc31de",
+      "catalogSha256": "7b0cc2520297ca8e1f5d5521c28ff6d81ea449684a7326c84e96410f40ec8091",
+      "databaseOid": 16384,
+      "manifestSha256": "de0aa18d3dbe460b99d031307c3e9701f7173d34f7372f33d2476199bda776b4",
+      "releaseId": "compact-test-4061f511-oci",
+      "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08",
+      "systemIdentifier": "7701216066918821922",
+      "targetId": "4e0d8e91-dfca-4b12-857e-03aa15d1e0e0"
+    },
+    "oid": 16384,
+    "systemIdentifier": "7701216066918821922",
+    "targetId": "4e0d8e91-dfca-4b12-857e-03aa15d1e0e0"
+  },
+  "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "status": "PASS",
+  "targetIdentity": {
+    "catalogSha256": "e243cf926591d41cd0bc7634dce8ac517eb0fedeb8ad0b9cd32e101ae686d3b0",
+    "containerId": "ac19d8e18b26dd388de7b3743d28d03aa7c7716dd3a4878c19bc56ffa01dc72d",
+    "marker": {
+      "baselineSha256": "20d359177719a67cb378c40a400ecba4b4589d5aa0c3eb2196f413e23dcc31de",
+      "catalogSha256": "e243cf926591d41cd0bc7634dce8ac517eb0fedeb8ad0b9cd32e101ae686d3b0",
+      "databaseOid": 16384,
+      "manifestSha256": "de0aa18d3dbe460b99d031307c3e9701f7173d34f7372f33d2476199bda776b4",
+      "releaseId": "compact-test-4061f511-oci",
+      "sourceRevision": "4061f5112cf9f336d1a089785738f4975d305a08",
+      "systemIdentifier": "7701216184839622690",
+      "targetId": "56c386b1-a589-4ccb-b2ac-4b06ab4b3097"
+    },
+    "oid": 16384,
+    "systemIdentifier": "7701216184839622690",
+    "targetId": "56c386b1-a589-4ccb-b2ac-4b06ab4b3097"
+  }
+}

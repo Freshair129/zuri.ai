@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 7
-version: "0.1.8"
+version: "0.1.9"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -344,8 +344,11 @@ hashes; no domain lifecycle adoption or inference-pool implementation.
 
 ## Task7: Install/restart/recovery matrix and release handoff
 
-The [Task7 working evidence](../../reports/compact-selfhost-2026-10-27/task7-core-matrix.md)
-records the core-only artifact/recreation proof and pre-code recovery review.
+The [Task7 local TEST evidence](../../reports/compact-selfhost-2026-10-27/task7-core-matrix.md)
+records exact-artifact core/recreation/recovery checks at code revision
+`4061f5112cf9f336d1a089785738f4975d305a08`, plus independent code review.
+This closes the bounded local TEST milestone; hosted/release and supported
+operator/off-host recovery gates remain open.
 SEC-030/FR-223 exclude envelope ciphertext/KEK from export; restored credential
 metadata must use the existing re-entry transition. Synthetic fixture remapping
 cannot qualify a missing managed-blob operator recovery contract. Keep those
@@ -367,13 +370,19 @@ instructions; no production access or permission token.
   first failures. A second volume on the same host is not a backup failure domain.
   App rollback may reuse compatible persistent data; it must not reverse a schema
   change implicitly. Existing-data upgrade remains outside fresh-only v1.
-- [ ] Run mandatory CI/consumer/build checks selected by the repository policy;
-  run exact-artifact isolated install/restart/restore/browser tests. Report
-  unselected/unrun profiles and all skipped/flaky checks explicitly. Measure the
-  CPU/RAM/disk envelope; do not invent minimum hardware from image startup alone.
-- [ ] Obtain independent review of the final same patch, update runbook/evidence,
-  then use normal PR/exact-head CI controls. No merge, release publication or
-  production activation follows automatically from a local qualification pass.
+- [x] Run selected local consumer/build checks and exact-artifact isolated
+  install/restart/bounded-recovery/browser tests. Report unselected/unrun profiles
+  and all skipped/flaky checks explicitly. Measure the CPU/RAM/disk envelope;
+  do not invent minimum hardware from image startup alone.
+- [x] Obtain independent review of the composed code and CI-context correction;
+  update runbook and sanitized local evidence. The final artifact is bound to the
+  clean qualification revision above, not a later documentation-only commit.
+- [ ] Complete required hosted exact-head CI and normal PR/release controls when
+  separately selected. The manual job is implemented but NOT_RUN. No merge,
+  release publication or production activation follows from the local pass.
+- [ ] Qualify supported operator managed-blob restore/rebind and an actual
+  off-host backup failure domain under their owning contracts before claiming
+  complete operational recovery. The TEST-only remap does not close these gates.
 
 ## Dependency and approval handoff
 

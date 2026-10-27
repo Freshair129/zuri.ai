@@ -1,0 +1,101 @@
+{
+  "baselineSha256": "20d359177719a67cb378c40a400ecba4b4589d5aa0c3eb2196f413e23dcc31de",
+  "checks": {
+    "appRecreationPersistence": true,
+    "coreFlows": true,
+    "crossBusinessDenied": true,
+    "httpsLogin": true,
+    "installedRetrySafe": true,
+    "modelTables": 210,
+    "restartPersistence": true,
+    "sevenExecutionViews": true,
+    "signupUnprivileged": true
+  },
+  "cleanup": "PASS",
+  "databaseIdentity": {
+    "catalogSha256": "8f46d84c1e8e02ea066c2c07ce4aa7d32ffc7ecc02a4ce59c6b79fbd2d9c11a2",
+    "oid": 16384,
+    "systemIdentifier": "7701215671948341282"
+  },
+  "environment": "TEST",
+  "hostCliSha256": "3768d1c713896a019b6986f3304df1d93aa649413d9db2d5f339c3c14c14f7c4",
+  "images": {
+    "postgres": "zuri-compact.local/fixtures/postgres-1a66d744c1b4@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+    "storage": "zuri-compact.local/fixtures/storage-c256d3e46c78@sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+    "tools": "zuri-compact.local/fixtures/tools-7eb02491399c@sha256:7eb02491399ca442c92aecbf059bf367418fa8893d7a8acf0ac7587c3a656c27",
+    "web": "zuri-compact.local/fixtures/web-0e5c990255f2@sha256:0e5c990255f227c29bcf7f81fa2152110e5777a15afa2cd6ed85b99f76ac66d3"
+  },
+  "limits": [
+    "TEST candidate with a working host-tool patch, not a production release",
+    "Asset/catalog parity, LINE/Knowledge and complete recovery remain separate"
+  ],
+  "manifestSha256": "de0aa18d3dbe460b99d031307c3e9701f7173d34f7372f33d2476199bda776b4",
+  "packageInventorySha256": "cca160a9deedd67e190e23d13c6dc4994a24c19c0f618b303a234d277cd2eb11",
+  "project": "zuri-compact-8e2e0098-0b43",
+  "providerChecks": {
+    "conditionalWrite": true,
+    "exactErase": true,
+    "exactRead": true,
+    "versioning": true
+  },
+  "runtimeEnvelope": {
+    "engine": {
+      "cpuCount": 12,
+      "memoryBytes": 16750776320
+    },
+    "host": {
+      "architecture": "x64",
+      "cpuCount": 12,
+      "memoryBytes": 34317889536,
+      "platform": "win32"
+    },
+    "logicalImageBytes": {
+      "database": 419072015,
+      "storage": 398845752,
+      "web": 585373039
+    },
+    "measuredAt": "2026-10-27T05:31:10.099Z",
+    "minimumHardware": "NOT_QUALIFIED",
+    "packageBytes": 925780009,
+    "samplePoint": "AFTER_CORE_FLOW_NOT_A_PEAK_OR_MINIMUM",
+    "samples": [
+      {
+        "containerId": "ae163239e234f95fc6c656b6eeeff9faad13f82924fd018ae4e87799e226b5c1",
+        "cpuPercent": "0.02%",
+        "memoryUsage": "61.43MiB / 15.6GiB",
+        "pids": 8,
+        "role": "database"
+      },
+      {
+        "containerId": "fe83f921b3ce8dc58ff71fce964cacf18f042f45780401738d9eabef0d156711",
+        "cpuPercent": "30.05%",
+        "memoryUsage": "287.3MiB / 15.6GiB",
+        "pids": 25,
+        "role": "web"
+      },
+      {
+        "containerId": "f00fe55bcc96e41850ed0f736497529e086ee39e2f7279b0855ed8a82fbfa248",
+        "cpuPercent": "0.04%",
+        "memoryUsage": "70.36MiB / 15.6GiB",
+        "pids": 17,
+        "role": "storage"
+      }
+    ],
+    "volumes": {
+      "database": {
+        "allocatedBytes": 79458304,
+        "logicalBytes": 79389917
+      },
+      "objects": {
+        "allocatedBytes": 40960,
+        "logicalBytes": 16033
+      }
+    }
+  },
+  "scope": "CORE_FLOW_TEST_ONLY",
+  "sourceBase": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "status": "PASS",
+  "suppliedArtifact": true,
+  "targetId": "8e2e0098-0b43-4205-9885-adcccb58ebb0",
+  "webContainerId": "fe83f921b3ce8dc58ff71fce964cacf18f042f45780401738d9eabef0d156711"
+}
