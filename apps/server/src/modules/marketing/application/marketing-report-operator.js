@@ -5,6 +5,7 @@ import { randomBytes, randomUUID, createHash } from 'node:crypto'
 import { isInstallationOperator } from '../../identity/viewer-authority.js'
 import { recordAudit } from '../../project-manager/application/audit.js'
 import { reportError } from './marketing-report-wire.js'
+import { lockMarketingReportScope, withMarketingReportTransaction } from './marketing-report-lock.js'
 
 function operator(viewer) {
   if (!isInstallationOperator(viewer)) throw reportError(403, 'REPORT_OPERATOR_REQUIRED')
@@ -17,10 +18,11 @@ async function audit(tx, viewer, business, entityType, entityId, action, payload
   await recordAudit(tx, { tenantId: business.tenantId, businessId: business.id, entityType, entityId, action, actorId: viewer.principal?.id ?? null, payload })
 }
 
-export async function setMarketingReportPolicy({ db, viewer, businessId, expectedVersion, ingestEnabled }) {
+export async function setMarketingReportPolicy({ db, provider = 'sqlite', viewer, businessId, expectedVersion, ingestEnabled }) {
   operator(viewer)
   if (!safe(businessId, UUID) || !version(expectedVersion) || typeof ingestEnabled !== 'boolean') throw reportError(422, 'REPORT_POLICY_INVALID')
-  return db.$transaction(async tx => {
+  return withMarketingReportTransaction(db, provider, async tx => {
+    await lockMarketingReportScope(tx, { provider, businessId })
     const business = await tx.business.findUnique({ where: { id: businessId } })
     if (!business) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
     const existing = await tx.marketingReportPolicy.findUnique({ where: { businessId } })
@@ -41,12 +43,13 @@ export async function setMarketingReportPolicy({ db, viewer, businessId, expecte
   })
 }
 
-export async function createMarketingReportBinding({ db, viewer, businessId, sourceDeploymentId, sourceBusinessId }) {
+export async function createMarketingReportBinding({ db, provider = 'sqlite', viewer, businessId, sourceDeploymentId, sourceBusinessId }) {
   operator(viewer)
   if (!safe(businessId, UUID) || !safe(sourceBusinessId, UUID) || !safe(sourceDeploymentId, ID)) throw reportError(422, 'REPORT_BINDING_INVALID')
   const credential = 'zmr_' + randomBytes(32).toString('base64url')
   const keyHash = createHash('sha256').update(credential, 'utf8').digest('hex')
-  const binding = await db.$transaction(async tx => {
+  const binding = await withMarketingReportTransaction(db, provider, async tx => {
+    await lockMarketingReportScope(tx, { provider, businessId })
     const policy = await tx.marketingReportPolicy.findUnique({ where: { businessId }, include: { business: true } })
     if (!policy || policy.tenantId !== policy.business.tenantId) throw reportError(404, 'REPORT_SCOPE_UNAVAILABLE')
     const created = await tx.marketingReportBinding.create({ data: { id: randomUUID(), keyHash, businessId, tenantId: policy.tenantId, sourceDeploymentId, sourceBusinessId } })
@@ -59,10 +62,16 @@ export async function createMarketingReportBinding({ db, viewer, businessId, sou
   return { binding, credential }
 }
 
-export async function revokeMarketingReportBinding({ db, viewer, bindingId, expectedVersion }) {
+export async function revokeMarketingReportBinding({ db, provider = 'sqlite', viewer, bindingId, expectedVersion }) {
   operator(viewer)
   if (!safe(bindingId, UUID) || !version(expectedVersion) || expectedVersion < 1) throw reportError(422, 'REPORT_BINDING_INVALID')
-  return db.$transaction(async tx => {
+  return withMarketingReportTransaction(db, provider, async tx => {
+    if (provider === 'sqlite') await lockMarketingReportScope(tx, { provider, bindingId })
+    else {
+      const hint = await tx.marketingReportBinding.findUnique({ where: { id: bindingId }, select: { businessId: true } })
+      if (!hint) throw reportError(409, 'REPORT_BINDING_CONFLICT')
+      await lockMarketingReportScope(tx, { provider, businessId: hint.businessId, bindingId })
+    }
     const binding = await tx.marketingReportBinding.findUnique({ where: { id: bindingId }, include: { policy: { include: { business: true } } } })
     if (!binding || binding.status !== 'ACTIVE' || binding.version !== expectedVersion) throw reportError(409, 'REPORT_BINDING_CONFLICT')
     const changed = await tx.marketingReportBinding.updateMany({ where: { id: bindingId, version: expectedVersion, status: 'ACTIVE' }, data: { status: 'REVOKED', revokedAt: new Date(), version: { increment: 1 } } })

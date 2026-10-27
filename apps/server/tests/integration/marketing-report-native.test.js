@@ -20,7 +20,7 @@ import { makeViewer } from '../factories/viewer'
 
 const routeDatabase = vi.hoisted(() => ({ db: null, calls: 0 }))
 vi.mock('@/lib/db', () => ({ default: {}, prisma: {} }))
-vi.mock('@/modules/marketing/infrastructure/marketing-report-database', () => ({ marketingReportDatabase: () => { routeDatabase.calls++; return routeDatabase.db } }))
+vi.mock('@/modules/marketing/infrastructure/marketing-report-database', () => ({ resolveMarketingReportDatabase: () => { routeDatabase.calls++; return routeDatabase.db ? { db: routeDatabase.db, provider: 'sqlite' } : null } }))
 
 const require = createRequire(import.meta.url)
 const { DatabaseSync } = require('node:sqlite')

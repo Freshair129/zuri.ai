@@ -5,17 +5,25 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createRequire } from 'node:module'
+import { executedFromVitest } from './assert-tests-ran.mjs'
 
 const server = resolve(dirname(fileURLToPath(import.meta.url)), '..'), repository = resolve(server, '../..')
 const require = createRequire(join(server, 'package.json'))
 const cli = process.env.ZURI_REPORT_PRISMA_CLI || require.resolve('prisma/build/index.js')
 const vitest = process.env.ZURI_REPORT_VITEST_CLI || require.resolve('vitest/vitest.mjs')
 if (!/prisma\s+:\s+5\.22\.0\b/.test(execFileSync(process.execPath, [cli, '--version'], { encoding: 'utf8' }))) throw Error('PINNED_PRISMA_5_22_REQUIRED')
-const privateRoot = join(repository, '.local'); mkdirSync(privateRoot, { recursive: true })
+// Keep the private generated schema under the app's dependency tree. A schema
+// under repository/.local cannot resolve this monorepo's scoped @prisma/client.
+const privateRoot = join(server, '.local'); mkdirSync(privateRoot, { recursive: true })
 const qa = mkdtempSync(join(privateRoot, 'p3-receiver-native-qa-')), schema = join(qa, 'schema.prisma'), base = join(qa, 'baseline.prisma'), client = join(qa, 'client')
 const baseline = execFileSync('git', ['--no-replace-objects', 'show', 'd08f08a8f2604bd9657360d37f7c135d636189b7:apps/server/prisma/schema.prisma'], { cwd: repository, encoding: 'utf8' })
 writeFileSync(base, baseline)
-writeFileSync(schema, readFileSync(join(server, 'prisma/schema.prisma'), 'utf8').replace('provider = "prisma-client-js"', 'provider = "prisma-client-js"\n  output = ' + JSON.stringify(client.replaceAll('\\', '/'))))
+// This is the issued historical SQLite fixture, not the current-schema PG lane.
+// Its private client must match that baseline plus the issued report migration;
+// today's client inserts newer native columns absent from that frozen database.
+const nativeSchemaRevision = '5958b38d2994b453a3d2c1176209b6da6b0aceb6'
+const nativeSchema = execFileSync('git', ['--no-replace-objects', 'show', `${nativeSchemaRevision}:apps/server/prisma/schema.prisma`], { cwd: repository, encoding: 'utf8' })
+writeFileSync(schema, nativeSchema.replace('provider = "prisma-client-js"', 'provider = "prisma-client-js"\n  output = ' + JSON.stringify(client.replaceAll('\\', '/'))))
 const env = { ...process.env, DATABASE_URL: 'file:' + join(qa, 'unused-qa.sqlite').replaceAll('\\', '/'), PRISMA_GENERATE_SKIP_AUTOINSTALL: '1',
   ZURI_REPORT_QA_HOME: qa, ZURI_REPORT_QA_CLIENT: client }
 writeFileSync(join(qa, 'base.sql'), execFileSync(process.execPath, [cli, 'migrate', 'diff', '--from-empty', '--to-schema-datamodel', base, '--script'], { env, encoding: 'utf8' }))
@@ -25,7 +33,13 @@ writeFileSync(config, 'export default ' + JSON.stringify({ root: server, resolve
   environment: 'node', include: ['tests/unit/marketing-report-wire.test.js', 'tests/integration/marketing-report-native.test.js'],
   fileParallelism: false, maxWorkers: 1, testTimeout: 30000, hookTimeout: 30000,
 } }) + ';\n')
-const result = spawnSync(process.execPath, [vitest, 'run', '--config', config], { cwd: repository, env, stdio: 'inherit' })
+const proof = join(qa, 'vitest-results.json')
+const result = spawnSync(process.execPath, [vitest, 'run', '--config', config, '--reporter=default', '--reporter=json', '--outputFile', proof], { cwd: repository, env, stdio: 'inherit' })
 process.exitCode = result.status ?? 1
+if (process.exitCode === 0) {
+  const executed = executedFromVitest(JSON.parse(readFileSync(proof, 'utf8')))
+  if (!Number.isInteger(executed) || executed <= 0) throw new Error('MARKETING_REPORT_NATIVE_ZERO_TESTS')
+  console.log(`marketing-report-native: executed ${executed} test(s); skips remain separately reported`)
+}
 // Preserve only test-owned private SQLite evidence/client files for inspection.
 // Never migrate, restore, provision, read config or send to an ambient DB/URL.

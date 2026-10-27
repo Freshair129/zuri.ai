@@ -11,6 +11,7 @@ const CATALOG = `jsonb_build_object(
  'policies',COALESCE((SELECT jsonb_agg(to_jsonb(p) ORDER BY p.tablename,p.policyname) FROM pg_policies p WHERE p.schemaname='public'),'[]'::jsonb),
  'grants',COALESCE((SELECT jsonb_agg(to_jsonb(g) ORDER BY g.table_name,g.grantee,g.privilege_type) FROM information_schema.table_privileges g WHERE g.table_schema='public'),'[]'::jsonb),
  'indexes',COALESCE((SELECT jsonb_agg(jsonb_build_array(t.relname,i.relname,pg_get_indexdef(i.oid)) ORDER BY t.relname,i.relname) FROM pg_index x JOIN pg_class i ON i.oid=x.indexrelid JOIN pg_class t ON t.oid=x.indrelid JOIN pg_namespace n ON n.oid=t.relnamespace WHERE n.nspname='public'),'[]'::jsonb),
+ 'triggers',COALESCE((SELECT jsonb_agg(jsonb_build_array(c.relname,t.tgname,t.tgenabled,pg_get_triggerdef(t.oid,true)) ORDER BY c.relname,t.tgname) FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND NOT t.tgisinternal),'[]'::jsonb),
  'namespaces',COALESCE((SELECT jsonb_agg(jsonb_build_array(n.nspname,n.nspowner,n.nspacl) ORDER BY n.nspname) FROM pg_namespace n WHERE ${USER_NAMESPACE} AND n.nspname<>'zuri_compact'),'[]'::jsonb),
  'defaults',COALESCE((SELECT jsonb_agg(to_jsonb(d) ORDER BY d.oid) FROM pg_default_acl d),'[]'::jsonb),
  'database',(SELECT jsonb_build_array(datname,datdba,datacl,datallowconn,datconnlimit) FROM pg_database WHERE datname=current_database()),
@@ -64,8 +65,8 @@ BEGIN
   OR EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND (NOT c.relrowsecurity OR NOT c.relforcerowsecurity OR pg_get_userbyid(c.relowner)<>'compact_bootstrap'))
   OR EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND (
     NOT has_table_privilege('zuri_web_login',c.oid,'SELECT') OR NOT has_table_privilege('zuri_web_login',c.oid,'INSERT')
-    OR has_table_privilege('zuri_web_login',c.oid,'UPDATE')<>(c.relname NOT IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation'))
-    OR has_table_privilege('zuri_web_login',c.oid,'DELETE')<>(c.relname NOT IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation','PricingRuleSet'))
+    OR has_table_privilege('zuri_web_login',c.oid,'UPDATE')<>(c.relname NOT IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation','MarketingExternalReport'))
+    OR has_table_privilege('zuri_web_login',c.oid,'DELETE')<>(c.relname NOT IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation','PricingRuleSet','MarketingExternalReport','MarketingReportPolicy','MarketingReportBinding'))
     OR has_table_privilege('zuri_web_login',c.oid,'TRUNCATE') OR has_table_privilege('zuri_web_login',c.oid,'REFERENCES') OR has_table_privilege('zuri_web_login',c.oid,'TRIGGER')))
   OR EXISTS(SELECT 1 FROM information_schema.table_privileges WHERE table_schema='public' AND grantee IN ('zuri_app_runtime','zuri_web_login') AND is_grantable='YES')
   OR EXISTS(SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='S' AND (NOT has_sequence_privilege('zuri_web_login',c.oid,'USAGE') OR NOT has_sequence_privilege('zuri_web_login',c.oid,'SELECT') OR NOT has_sequence_privilege('zuri_web_login',c.oid,'UPDATE')))

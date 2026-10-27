@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.4"
+version: "0.1.5"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -20,6 +20,8 @@ records that follow-up separately. [Task3 core evidence](task3-core-qualificatio
 records the later safe plan continuation. These do not replace this dated source
 assessment or confer production/release authority. [Task4 private storage evidence](task4-business-storage.md)
 records Asset/catalog provider parity and its remaining qualification limits.
+[Task5 PostgreSQL Marketing evidence](task5-marketing-postgres.md) records the
+fresh-only TEST exception, source reconciliation and independent native sessions.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 

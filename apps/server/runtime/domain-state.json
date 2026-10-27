@@ -781,10 +781,14 @@
         "summary": "FR-281 is partial",
         "evidence": [
           "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+          "apps/server/src/modules/marketing/application/marketing-report-lock.js",
           "apps/server/src/modules/marketing/application/marketing-report-operator.js",
           "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js"
         ]
       },
@@ -797,6 +801,7 @@
         "evidence": [
           "apps/server/src/app/api/growth/external-marketing-reports/route.js",
           "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+          "apps/server/src/modules/marketing/application/marketing-report-lock.js",
           "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
           "apps/server/src/modules/marketing/application/marketing-report-wire.js",
           "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -811,7 +816,10 @@
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
@@ -836,6 +844,7 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
@@ -1179,6 +1188,9 @@
           "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js"
         ]
       },
@@ -1202,7 +1214,10 @@
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/marketing-report-database.test.js",
+          "apps/server/tests/unit/marketing-report-lock.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
@@ -1225,6 +1240,7 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/marketing-report-native.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/marketing-report-native.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/marketing-report-wire.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
@@ -6120,14 +6136,18 @@
           "title": "Report-only machine credential",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 3,
-          "testCount": 3,
+          "codeCount": 4,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-operator.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -6136,11 +6156,12 @@
           "title": "Atomic reported-evidence intake",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 5,
-          "testCount": 14,
+          "codeCount": 6,
+          "testCount": 17,
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/src/modules/marketing/application/marketing-report-wire.js",
             "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -6155,7 +6176,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -6166,7 +6190,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 13,
+          "testCount": 14,
           "evidence": [
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
             "apps/server/src/modules/marketing/application/marketing-report-read.js",
@@ -6181,6 +6205,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -6325,10 +6350,14 @@
           "summary": "FR-281 is partial",
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-operator.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -6340,6 +6369,7 @@
           "evidence": [
             "apps/server/src/app/api/growth/external-marketing-reports/route.js",
             "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+            "apps/server/src/modules/marketing/application/marketing-report-lock.js",
             "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
             "apps/server/src/modules/marketing/application/marketing-report-wire.js",
             "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -6354,7 +6384,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -6378,6 +6411,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -8524,11 +8558,14 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 3,
+          "testCount": 6,
           "evidence": [
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -8538,7 +8575,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 2,
-          "testCount": 14,
+          "testCount": 17,
           "evidence": [
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -8553,7 +8590,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -8564,7 +8604,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 13,
+          "testCount": 14,
           "evidence": [
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/integration/backup.test.js",
@@ -8577,6 +8617,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -9151,6 +9192,9 @@
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js"
           ]
         },
@@ -9173,7 +9217,10 @@
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/marketing-report-database.test.js",
+            "apps/server/tests/unit/marketing-report-lock.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
@@ -9195,6 +9242,7 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/marketing-report-native.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/marketing-report-native.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/marketing-report-wire.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
@@ -20843,17 +20891,21 @@
           "title": "Report-only machine credential",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 4,
-          "testCount": 3
+          "codeCount": 5,
+          "testCount": 6
         }
       ],
       "evidence": [
         "apps/server/src/app/api/growth/external-marketing-reports/route.js",
+        "apps/server/src/modules/marketing/application/marketing-report-lock.js",
         "apps/server/src/modules/marketing/application/marketing-report-operator.js",
         "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
+        "apps/server/tests/unit/marketing-report-database.test.js",
+        "apps/server/tests/unit/marketing-report-lock.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js"
       ]
     },
@@ -20883,13 +20935,14 @@
           "title": "Atomic reported-evidence intake",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 7,
-          "testCount": 14
+          "codeCount": 8,
+          "testCount": 17
         }
       ],
       "evidence": [
         "apps/server/src/app/api/growth/external-marketing-reports/route.js",
         "apps/server/src/modules/marketing/application/marketing-report-backup.js",
+        "apps/server/src/modules/marketing/application/marketing-report-lock.js",
         "apps/server/src/modules/marketing/application/marketing-report-receiver.js",
         "apps/server/src/modules/marketing/application/marketing-report-wire.js",
         "apps/server/src/modules/marketing/infrastructure/marketing-report-database.js",
@@ -20906,7 +20959,10 @@
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/marketing-report-database.test.js",
+        "apps/server/tests/unit/marketing-report-lock.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
@@ -20938,7 +20994,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -20956,6 +21012,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/marketing-report-native.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/postgres/marketing-report-native.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/marketing-report-wire.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"

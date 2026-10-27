@@ -3,7 +3,8 @@
 // Phase B CHECKs and eight policy expressions are copied exactly from the issued source below.
 // Runtime-only generic policies preserve server-owned access; every table is forced through RLS.
 export const PHASE_B_SOURCE = Object.freeze({ file: 'supabase/migrations/20260917041000_add_phase_b_feature_authority.sql', sha256: '9cdc9dec66a479b55238488e4bc8e14b637bb9ca9af2e7671aa5a382767d60c3', checks: 79, policies: 8 })
-export const COMPACT_SECURITY_SQL = String.raw`
+import { COMPACT_MARKETING_SECURITY_SQL } from './marketing-security.mjs'
+export const COMPACT_CORE_SECURITY_SQL = String.raw`
 CREATE ROLE zuri_app_runtime NOLOGIN NOINHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION;
 CREATE ROLE zuri_web_login LOGIN INHERIT NOSUPERUSER NOBYPASSRLS NOCREATEDB NOCREATEROLE NOREPLICATION;
 GRANT zuri_app_runtime TO zuri_web_login WITH INHERIT TRUE, SET FALSE, ADMIN FALSE;
@@ -22,9 +23,9 @@ BEGIN
     EXECUTE format('ALTER TABLE public.%I ENABLE ROW LEVEL SECURITY',r.tablename);
     EXECUTE format('ALTER TABLE public.%I FORCE ROW LEVEL SECURITY',r.tablename);
     EXECUTE format('REVOKE ALL ON TABLE public.%I FROM PUBLIC,zuri_app_runtime,zuri_web_login',r.tablename);
-    IF r.tablename IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation') THEN
+    IF r.tablename IN ('GovernanceSnapshot','ProjectFeatureMutationReceipt','PricingCalculation','MarketingExternalReport') THEN
       EXECUTE format('GRANT SELECT,INSERT ON TABLE public.%I TO zuri_app_runtime',r.tablename);
-    ELSIF r.tablename='PricingRuleSet' THEN
+    ELSIF r.tablename IN ('PricingRuleSet','MarketingReportPolicy','MarketingReportBinding') THEN
       EXECUTE format('GRANT SELECT,INSERT,UPDATE ON TABLE public.%I TO zuri_app_runtime',r.tablename);
     ELSE
       EXECUTE format('GRANT SELECT,INSERT,UPDATE,DELETE ON TABLE public.%I TO zuri_app_runtime',r.tablename);
@@ -1146,6 +1147,7 @@ ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_provisioning_key_scope_check" 
 `
 
 // Build-time source inventory: additions/edits require snapshot reconciliation.
+export const COMPACT_SECURITY_SQL = COMPACT_CORE_SECURITY_SQL + COMPACT_MARKETING_SECURITY_SQL
 export const CURRENT_SCHEMA_CONTRACTS = Object.freeze({
   "supabase/migrations/20260813192826_business_knowledge.sql": "192bc3a4be2e70848449d414aa18dae4dcb38430f77a072fa070a4282ce0edca",
   "supabase/migrations/20260813213654_production_tenant_bootstrap.sql": "82b28e8fc37a0daac05f1be22b1c857444f05c88ab6ebfd07dc0905689186b0c",

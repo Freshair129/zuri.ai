@@ -3,13 +3,19 @@ doc_type: intake-note
 title: Zuri-Go reported Marketing evidence — parent record migration
 status: approved
 superseded_by: null
-version: "0.7.0"
+version: "0.7.1"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
 ---
 
 # Zuri-Go report receiver — parent contract and record migration
+
+The 2026-10-27 [Compact TEST supplement](ZURI-GO-REPORT-PHYSICAL-DESIGN.md#compact-test-supplement--2026-10-27)
+records independent review of the selected fresh-only PostgreSQL design/native
+test binding under ADR-115 Task5. It reconciles the historical pre-coding review
+wording below for that bounded slice. SQLite acceptance, the disabled Supabase
+mirror, canonical lifecycle and all live/security/release gates remain separate.
 
 Physical follow-up: [receiver physical design](ZURI-GO-REPORT-PHYSICAL-DESIGN.md) is approved, including the separate deny-default Business machine policy, immutable SQLite evidence/audit/receipt and unsupported legacy JSON backup refusal. Main-first reconciliation issued fresh planned FR-281–283/SDD-112 at `d08f08a8f2604bd9657360d37f7c135d636189b7` from exact reviewed manifest SHA-256 `758bd232d12fa7c8768ce0f924b3b83344aea3dc118bdc6047d387792c440ee0`. The old FR-278–280/SDD-111 batch is historical at `cdb9518bc50019e876c15c6b1f6c1c98af84f65a`; it is not active-main identity or an alias. Current implementation uses the fresh identities. [Bounded implementation evidence](ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md) records 17/17 isolated native/wire checks and independent source review; full sender/cross-repository/live acceptance remains open.
 

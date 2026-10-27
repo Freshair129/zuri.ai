@@ -3,13 +3,44 @@ doc_type: intake-note
 title: Marketing report receiver — physical design for review
 status: approved
 superseded_by: null
-version: "0.3.0"
+version: "0.3.1"
 date: "2026-10-05"
 complexity: C-3
 risk: HIGH
 ---
 
 # Marketing report receiver — physical design proposal
+
+## Compact TEST supplement — 2026-10-27
+
+The approved [Compact Task5](../../plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md)
+adds a separately selected fresh self-host PostgreSQL TEST qualification. Independent
+design review reconciled that scope before application coding. The historical
+SQLite contract, issued Supabase mirror and its disabled-runtime/revoked-role
+boundary below remain unchanged. This supplement is not permission to apply that
+migration, enable an existing target or alter a live role.
+
+The fresh Compact snapshot preserves reviewed custody/audit/native-scope triggers,
+forced RLS and narrow trusted-owner guards with fixed search paths and no direct
+EXECUTE. Policy/Binding receive only runtime SELECT/INSERT/UPDATE; ExternalReport
+only SELECT/INSERT through the intended non-owner runtime membership. Public and
+external API roles receive no access. An explicit server-only provider selector
+and canonical client are required; a PostgreSQL URL does not enable this receiver.
+Policy-before-binding locks and post-lock authority reads replace SQLite's global
+writer serialization only for this selected provider. Absent policy creation
+requires a transaction advisory lock. SQLite's existing first-write/retry path stays.
+After Policy/Binding, lock Business, the hinted Plan and Initiative in that order,
+then re-read current scope and authority. A changed Plan hint retries the whole
+transaction with the same order. This closes first-report/native-rebind races
+before FK checks; uncommitted links are not visible to an ordinary trigger query.
+
+Native test binding: independent actual runtime-role sessions must cover both lock
+orders for policy disable and credential revoke, replay/identity races, version
+CAS, append-only/native-scope guards, audit/outer-commit rollback and credential
+privacy. Executed checks and remaining gates are recorded in the
+[Task5 record](../../../reports/compact-selfhost-2026-10-27/task5-marketing-postgres.md).
+No live provisioning, transfer, persistent credential or production authority is
+supplied by this supplement. Canonical IDs/statements/lifecycles are not rewritten.
 
 Main-first reconciliation preserves main `07779662` and its dashboard FR-278, plus the historical branch's conflicting batch. Fresh reviewed issuance at `d08f08a8` supplies FR-281–283/SDD-112 below; no old identity is renamed or aliased. [Bounded implementation evidence](ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md) records the SQLite candidate and remaining acceptance gates.
 

@@ -18,6 +18,21 @@ test('baseline scanner treats SQL strings, comments and DO bodies as SQL, not ou
   const { assertCompactBaselineSql } = await api()
   assert.doesNotThrow(() => assertCompactBaselineSql('-- COMMIT is history\nCREATE TABLE "x" (id text DEFAULT \'COMMIT;\'); DO $guard$ BEGIN PERFORM 1; END $guard$;'))
 })
+
+test('baseline scanner accepts reviewed fresh trigger/function declarations without transaction escapes', async () => {
+  const { assertCompactBaselineSql } = await api()
+  assert.doesNotThrow(() => assertCompactBaselineSql('CREATE OR REPLACE FUNCTION report_guard() RETURNS trigger LANGUAGE plpgsql SET search_path=public,pg_temp AS $$ BEGIN RETURN NEW; END $$; CREATE TRIGGER report_guard BEFORE INSERT ON "Report" FOR EACH ROW EXECUTE FUNCTION report_guard();'))
+})
+
+test('fresh Marketing guards retain the exact issued function/trigger bodies without replaying the mirror', async () => {
+  const { COMPACT_MARKETING_SECURITY_SQL } = await implementation('../../scripts/lib/compact/marketing-security.mjs')
+  const issued = (await readFile(new URL('../../supabase/migrations/20261005124416_marketing_external_report.sql', import.meta.url), 'utf8')).replaceAll('\r\n', '\n')
+  const start = issued.indexOf('CREATE OR REPLACE FUNCTION marketing_report_policy_guard()')
+  const end = issued.indexOf('-- PostgreSQL receiver is disabled.', start)
+  assert(start > 0 && end > start)
+  assert(COMPACT_MARKETING_SECURITY_SQL.includes(issued.slice(start, end).trimEnd()))
+  assert.doesNotMatch(COMPACT_MARKETING_SECURITY_SQL, /CREATE TABLE IF NOT EXISTS|^BEGIN;|^COMMIT;/m)
+})
 test('producer rejects a PostgreSQL model drift instead of certifying a different schema', async () => {
   const { buildCompactBaseline } = await api()
   assert.throws(() => buildCompactBaseline({ ddl: 'CREATE TABLE x(id text);', canonicalSchema: 'model One {\n id String @id\n}\n', postgresSchema: 'datasource db { provider = "postgresql" }\nmodel Other {\n id String @id\n}\n', sourceRevision: 'a'.repeat(40) }), { code: 'COMPACT_BASELINE_INVALID' })

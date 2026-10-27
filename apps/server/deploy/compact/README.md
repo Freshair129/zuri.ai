@@ -1,6 +1,6 @@
 # Compact package, fresh database and private core bootstrap (Tasks1–3)
 
-ADR-115 Tasks1–3 provide build-time packaging, a fresh-only PostgreSQL installer,
+ADR-115 Tasks1–5 provide build-time packaging, a fresh-only PostgreSQL installer,
 private first-operator wrapping and isolated core qualification for explicit TEST
 targets. `INSTALLED` describes the database baseline. Asset/catalog, Marketing,
 LINE/Knowledge and release qualification remain later milestones. The Compose
@@ -326,6 +326,40 @@ foreign-bucket credentials and exact-version loss are checked. The general CLI
 diagnostic still reports storage unavailable: it does not qualify/import this
 provider report or inspect these new business-port settings. Production provider,
 license, complete backup/restore and exact release qualification remain separate.
+
+### PostgreSQL reported Marketing (Task5)
+
+The receiver keeps its dedicated report principal and revision1 wire contract.
+An ambient PostgreSQL URL does not enable it. For a selected fresh Compact TEST
+target only, set `ZURI_MARKETING_REPORT_DATABASE_PROVIDER=postgresql` in the private
+app environment; the canonical app client must already select that target. An
+unknown provider, absent client, unselected PG or generated-client provider
+mismatch remains unavailable. The bounded SQLite default and DB-only wrapper are
+retained. No existing Supabase mirror or runtime role is enabled by this setting.
+
+New Compact baselines include the issued custody/audit/native-scope guards and
+narrow server runtime grants: Policy/Binding SELECT+INSERT+UPDATE, ExternalReport
+SELECT+INSERT. No report update/delete, API/public access, runtime owner/BYPASSRLS
+or direct guard-function execution is granted. The issued migration is unchanged
+and is never replayed as installation history. Trigger definitions/enable state
+join the installed catalog fingerprint, so disabled custody guards refuse retry.
+
+Receiver and operator mutations lock Policy before Binding and reread authority.
+Absent policy creation uses a transaction advisory lock. Intake additionally locks
+Business → hinted Plan → Initiative and rereads target scope; a changed Plan hint
+retries the full order. SQLite retains its first-write writer lock. Both pool wait
+and transaction execution fit the bounded retry budget; no receipt escapes an
+aborted or failed outer commit. Provisioning/enabling real Businesses and handing
+over persistent credentials remain separately authorized operations.
+
+`npm run test:postgres -- tests/postgres/marketing-report-native.test.js` exercises
+the actual owned TEST PostgreSQL runtime role, separate from existing stacks.
+`node scripts/run-marketing-report-native.mjs` preserves the explicit historical
+SQLite native fixture using its matching pinned private client, generated under
+ignored app `.local`; it does not replace the shared Prisma client or certify all
+current SQLite models. Both runners reject zero-test success. Paired Go cases need
+their separately selected counterpart and remain skipped when absent; no live
+Marketing transfer or production operation is part of this qualification.
 
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the

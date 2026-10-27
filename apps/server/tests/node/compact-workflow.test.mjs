@@ -70,3 +70,29 @@ test('fresh PostgreSQL CI covers schema producers and SQL sources on a disposabl
   assert.match(commands, /npm run test:postgres -- tests\/postgres\/compact-fresh-install\.test\.js/)
   assert.equal(/db push|(?:docker|npm) (?:push|login)|secrets\./i.test(JSON.stringify(job)), false)
 })
+
+test('Compact PostgreSQL CI selects Marketing intake/authority changes and executes the native runtime suite', async () => {
+  const workflow = parse(await readFile(new URL('../../../../.github/workflows/compact-postgres.yml', import.meta.url), 'utf8'))
+  for (const event of ['push', 'pull_request']) for (const file of ['apps/server/src/modules/marketing/**', 'apps/server/src/app/api/growth/external-marketing-reports/**', 'apps/server/tests/postgres/marketing-report-native.test.js', 'apps/server/tests/unit/marketing-report-*.test.js']) assert(workflow.on[event].paths.includes(file), `missing ${event} input ${file}`)
+  const commands = workflow.jobs['fresh-postgres'].steps.filter(step => step.run).map(step => step.run).join('\n')
+  assert.match(commands, /npm run test:postgres -- tests\/postgres\/marketing-report-native\.test\.js/)
+})
+
+test('preflight admits only the exact report-principal route with trusted provider and strict wire delegation', async () => {
+  const guard = await import('../../scripts/marketing-report-route-policy.mjs').catch(() => null)
+  assert(guard, 'provider-aware machine-principal recognition must exist')
+  const file = 'src/app/api/growth/external-marketing-reports/route.js'
+  const body = await readFile(new URL('../../src/app/api/growth/external-marketing-reports/route.js', import.meta.url), 'utf8')
+  assert.equal(guard.isMarketingReportMachineReceiver(file, body), true)
+  for (const badFile of [file.replace('external-marketing-reports', 'other'), file.replace('growth/', 'admin/')]) assert.equal(guard.isMarketingReportMachineReceiver(badFile, body), false)
+  for (const changed of [
+    body.replace('reportCredentialHash(authorization)', ''),
+    body.replace("request.headers.get('authorization')", "request.headers.get('session')"),
+    body.replace('readMarketingReportRequest(request)', 'request.json()'),
+    body.replace('resolveMarketingReportDatabase()', 'resolveMarketingReportDatabase(request)'),
+    body.replace('provider: selected?.provider', 'provider: request.provider'),
+    body.replace('db: selected?.db', 'db: request.database'),
+    body.replace('raw: canonicalEnvelope', 'raw: request.body'),
+    body.replace("@/modules/marketing/infrastructure/marketing-report-database", '@/untrusted-database'),
+  ]) assert.equal(guard.isMarketingReportMachineReceiver(file, changed), false)
+})

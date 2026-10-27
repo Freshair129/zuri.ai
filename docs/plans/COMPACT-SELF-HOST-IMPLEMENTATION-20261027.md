@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 4
-version: "0.1.4"
+selected_task: 5
+version: "0.1.5"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -82,7 +82,7 @@ binds source findings and old-audit dispositions to the baseline above.
 Paths marked **new** below are implementation outputs relative to the planning baseline.
 Deployment stays in `apps/server/deploy/compact/`; orchestration helpers in
 `apps/server/scripts/lib/compact/` separate manifest, target and execution concerns.
-Tasks1–4 execute the approved safe continuation. Tasks5–7 remain pending execution
+Tasks1–5 execute the approved safe continuation. Tasks6–7 remain pending execution
 under their specific capability gates.
 Application paths in task file lists are relative to `apps/server/`; workflow
 paths are relative to the repository root.
@@ -263,6 +263,9 @@ default; `s3` explicitly configured); stable existing factory exports.
 and `app/api/growth/external-marketing-reports/route.js`; add
 `marketing/application/marketing-report-lock.js`,
 `tests/postgres/marketing-report-native.test.js`; extend existing wire/native tests.
+Extend the fresh-only Compact security snapshot/baseline and its catalog/ACL tests
+with the reviewed custody triggers and narrower report privileges. Do not change
+or replay the issued Supabase migration or mutate an existing target.
 
 **Consumes:** Current FR-281–283 credential, policy, replay and audit contracts.
 **Produces:** `resolveMarketingReportDatabase({env,postgresDb})` returns
@@ -271,19 +274,37 @@ The route passes the trusted provider into receiver/commands. Add
 `lockMarketingReportScope(tx,{provider,businessId,bindingId})`; both policy and
 credential mutators use the same policy-before-binding order and re-read authority.
 
-- [ ] Reproduce current PostgreSQL-unavailable behavior, then add two independent
+The 2026-10-27 independent design reconciliation binds this step to a fresh
+Compact TEST exception to the older PostgreSQL-disabled mirror. Require explicit
+server-only `ZURI_MARKETING_REPORT_DATABASE_PROVIDER=postgresql` plus the canonical
+selected PostgreSQL client. A PostgreSQL URL alone, an unknown selection or missing
+client remains unavailable; no existing Supabase deployment is enabled implicitly.
+Preserve issued append-only/audit/native-scope guards, forced RLS, fixed-search-path
+trusted-owner definer guards with no direct execute grants. Replace generic report
+CRUD with Policy/Binding SELECT+INSERT+UPDATE and ExternalReport SELECT+INSERT;
+no report update/delete, external API role grant or runtime owner/BYPASSRLS.
+Absent policy creation uses a transaction advisory lock; existing scopes lock
+policy before binding and re-read all grants. SQLite retains its first-write guard.
+Lock Business → hinted Plan → Initiative after the common scope locks, re-read
+authority/target, and retry the whole order if the Plan hint changed. Qualify both
+first-report/native-rebind orderings; FK key-share alone is not a scope recheck.
+The [Task5 design/evidence](../../reports/compact-selfhost-2026-10-27/task5-marketing-postgres.md)
+records the source conflict and this test binding before application code.
+
+- [x] Reproduce current PostgreSQL-unavailable behavior, then add two independent
   session tests for acceptance vs policy-disable, credential-revoke, duplicate
   replay and concurrent revision writes; audit failure must roll back acceptance.
-- [ ] Observe RED. Use the canonical PostgreSQL client for the selected Server
+- [x] Observe RED. Use the canonical PostgreSQL client for the selected Server
   target, keep the bounded SQLite client and safe unavailable response for unknown
   providers. A null-guard deletion alone is insufficient.
-- [ ] Implement provider-safe shared locking/retry/transaction bounds. Preserve
+- [x] Implement provider-safe shared locking/retry/transaction bounds. Preserve
   credentials and source-scope reauthorization before replay and return a receipt
   only after outer commit. Prove both observed lock orders with runtime roles;
   SQLite's installation-wide writer lock is not PostgreSQL concurrency evidence.
-- [ ] Run wrapped wire/native regressions and the selected PostgreSQL file,
+- [x] Run wrapped wire/native regressions and the selected PostgreSQL file,
   then Server build/governance. Native external-provider provisioning/live delivery
-  remains separate. Commit without claiming a live Marketing integration.
+  remains separate. Milestone commit follows final governance/review reconciliation;
+  this supplies no live Marketing integration or migration claim.
 
 ## Task6: Qualify optional LINE and Knowledge profiles
 

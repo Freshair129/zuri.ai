@@ -7,11 +7,18 @@ on:
     paths:
       - apps/server/deploy/compact/**
       - apps/server/scripts/compact-*.mjs
+      - apps/server/scripts/marketing-report-route-policy.mjs
+      - apps/server/scripts/doc-preflight.mjs
       - apps/server/scripts/lib/compact/**
       - apps/server/tests/node/compact-*.mjs
       - apps/server/tests/helpers/compact-postgres-target.*
       - apps/server/playwright*.config.js
       - apps/server/tests/postgres/compact-fresh-install.test.js
+      - apps/server/tests/postgres/marketing-report-native.test.js
+      - apps/server/tests/unit/marketing-report-*.test.js
+      - apps/server/src/modules/marketing/**
+      - apps/server/src/app/api/growth/external-marketing-reports/**
+      - apps/server/src/lib/db.js
       - apps/server/tests/helpers/pm-role-target.js
       - apps/server/tests/global-setup-postgres.js
       - apps/server/vitest.postgres.config.js
@@ -26,11 +33,18 @@ on:
     paths:
       - apps/server/deploy/compact/**
       - apps/server/scripts/compact-*.mjs
+      - apps/server/scripts/marketing-report-route-policy.mjs
+      - apps/server/scripts/doc-preflight.mjs
       - apps/server/scripts/lib/compact/**
       - apps/server/tests/node/compact-*.mjs
       - apps/server/tests/helpers/compact-postgres-target.*
       - apps/server/playwright*.config.js
       - apps/server/tests/postgres/compact-fresh-install.test.js
+      - apps/server/tests/postgres/marketing-report-native.test.js
+      - apps/server/tests/unit/marketing-report-*.test.js
+      - apps/server/src/modules/marketing/**
+      - apps/server/src/app/api/growth/external-marketing-reports/**
+      - apps/server/src/lib/db.js
       - apps/server/tests/helpers/pm-role-target.js
       - apps/server/tests/global-setup-postgres.js
       - apps/server/vitest.postgres.config.js
@@ -69,3 +83,7 @@ jobs:
       - run: npm run compact:test
       - name: Fresh-only PostgreSQL acceptance
         run: npm run test:postgres -- tests/postgres/compact-fresh-install.test.js
+      - name: Marketing wire and provider regressions
+        run: npm test -- tests/unit/marketing-report-wire.test.js tests/unit/marketing-report-database.test.js tests/unit/marketing-report-lock.test.js
+      - name: Fresh Compact Marketing runtime-role acceptance
+        run: npm run test:postgres -- tests/postgres/marketing-report-native.test.js

@@ -26,7 +26,7 @@ export function assertCompactBaselineSql(sql) {
   }
   if (quote || dollar || block) fail()
   const statements = cleaned.split(';').map(s => s.trim().replace(/\s+/g, ' ')).filter(Boolean)
-  if (!statements.length || statements.some(s => !/^(?:CREATE (?:TABLE|(?:UNIQUE )?INDEX|ROLE|POLICY|SCHEMA|TYPE)\b|ALTER (?:TABLE|DEFAULT PRIVILEGES)\b|GRANT\b|REVOKE\b|DO\b|COMMENT ON\b)/i.test(s))) fail()
+  if (!statements.length || statements.some(s => !/^(?:CREATE (?:TABLE|(?:UNIQUE )?INDEX|ROLE|POLICY|SCHEMA|TYPE|(?:OR REPLACE )?FUNCTION|TRIGGER)\b|ALTER (?:TABLE|DEFAULT PRIVILEGES)\b|GRANT\b|REVOKE\b|DO\b|COMMENT ON\b)/i.test(s))) fail()
   return sql
 }
 export function buildCompactBaseline({ ddl, canonicalSchema, postgresSchema, sourceRevision } = {}) {

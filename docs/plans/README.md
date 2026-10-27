@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.10"
+version: "0.3.11"
 checked_at: "2026-10-25"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -22,7 +22,7 @@ rewrite those pinned rows or move their consumed paths.
 
 ## Current implementation plans
 
-### Approved Compact self-host plan — Task4 continuation
+### Approved Compact self-host plan — Task5 continuation
 
 The owner approved ADR-115 and the following plan at `e5fcfd4b` on 2026-10-27,
 then selected Task1 and subsequently Task2 on the existing primary-checkout
@@ -32,7 +32,7 @@ capability gates; production and sensitive/release actions remain separate.
 
 | Plan | Scope |
 |---|---|
-| [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Approved one-host profile; Tasks1–3 package/database/core evidence, Task4 private Asset/catalog qualification. Marketing, LINE/Knowledge and release milestones remain pending. |
+| [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Approved one-host profile; package/database/core and Asset/catalog evidence, Task5 fresh TEST Marketing PostgreSQL qualification. LINE/Knowledge and release milestones remain pending. |
 
 ### Existing Project Manager plans
 
