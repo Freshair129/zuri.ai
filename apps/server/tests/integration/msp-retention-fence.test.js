@@ -14,7 +14,9 @@ import { createPortfolio, createTenant, createBusiness, createWorkspace } from '
 // @tested this file
 let tenant, workspace, runtime = prisma, restricted, role, admin, runtimeConnectionString
 const postgres = prisma._engineConfig.activeProvider === 'postgresql'
-const url = inject('testDatabaseUrl')
+// PostgreSQL keeps its injected run database; SQLite clients must share this
+// file's clone so the independent writer exercises the same physical fence.
+const url = postgres ? inject('testDatabaseUrl') : process.env.DATABASE_URL
 const counts = { threadMessages: 0, protectedMemoryRecords: 0, sessionSummaries: 0, threadDeliveryReceipts: 0, threadPendingDeliveries: 0 }
 beforeAll(async () => {
   const code = randomUUID().slice(0, 8)
