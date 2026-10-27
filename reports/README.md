@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.7.0"
+version: "0.8.0"
 ---
 
 # Engineering assessments
@@ -12,6 +12,7 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-27 CRM M4 broken-chain TEST](domain-followup-2026-10-27/crm-archive-m4-existing-contract.md) | One existing M4 passed at source62728e73 on a private SQLite/archive fixture; 23 other cases unselected, no scheduler/native PostgreSQL/production or full FR-245 adoption. |
 | [2026-10-27 Campaign async-params assessment](domain-followup-2026-10-27/campaign-async-params-assessment.md) | Installed Next15.5.28 diagnostic reproduced with HTTP200/correct Plan identity at source40c1b029; compatibility debt with no observed functional defect, no route change or production qualification. |
 | [2026-10-27 Campaign existing-contract TEST](domain-followup-2026-10-27/campaign-existing-contract.md) | Unchanged suites: 32 service/unit and 2 browser cases passed at source4348cdfd on private SQLite/client/loopback fixtures; earlier harness failures retained, no native PostgreSQL/live delivery/production or full FR-160 adoption. |
 | [2026-10-27 CRM archive H1 existing-contract TEST](domain-followup-2026-10-27/crm-archive-h1-existing-contract.md) | One H1 passed on private SQLite/archive fixtures at source3041e621; 23 other cases unselected/skipped, no scheduler/production/off-host or full FR-245 acceptance. |
