@@ -1,5 +1,5 @@
 ---
-version: "0.7.8"
+version: "0.7.9"
 status: active
 superseded_by: null
 ---
@@ -42,6 +42,8 @@ plans and historical test receipts are separate from the build specification.
   production, live credentials and release actions remain separate.
   The [2026-10-28 Task4 requalification](../reports/compact-selfhost-2026-10-27/task4-requalification-20261028.md)
   records the private S3 integrity correction and real pricing-catalog consumer checks.
+  The [2026-10-28 Task5 requalification](../reports/compact-selfhost-2026-10-27/task5-requalification-20261028.md)
+  records PostgreSQL provider/retry evidence and honest failed-fixture cleanup.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -148,3 +150,6 @@ and serving assessment, keeping findings and test evidence separate from adoptio
 
 Version diff 0.7.7 → 0.7.8 (2026-10-28): links the bounded Task4 requalification;
 canonical requirements, historical qualification and production authority remain separate.
+
+Version diff 0.7.8 → 0.7.9 (2026-10-28): links the bounded Task5 requalification;
+canonical lifecycle and release authority remain unchanged.
