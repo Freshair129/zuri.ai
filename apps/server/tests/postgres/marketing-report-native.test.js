@@ -3,42 +3,68 @@
 // @tested src/modules/marketing/application/marketing-report-receiver.js
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { randomUUID, createHash } from 'node:crypto'
+import { execFileSync } from 'node:child_process'
 import { readFile, writeFile } from 'node:fs/promises'
 import { PrismaClient } from '@zuri/prisma-postgres'
 import * as packageApi from '../../scripts/compact-package.mjs'
 import * as baselineApi from '../../scripts/lib/compact/baseline.mjs'
 import * as executorApi from '../../scripts/lib/compact/executor.mjs'
-import { compactFixture } from '../helpers/compact-postgres-target.mjs'
+import { compactFixture, observeAndCleanCompactFixture } from '../helpers/compact-postgres-target.mjs'
 import { makeOperatorViewer, makeViewer } from '../factories/viewer'
 import { setMarketingReportPolicy, createMarketingReportBinding, revokeMarketingReportBinding } from '@/modules/marketing/application/marketing-report-operator'
 import { receiveMarketingReport } from '@/modules/marketing/application/marketing-report-receiver'
 import { canonicalReportText, reportHash } from '@/modules/marketing/application/marketing-report-wire'
 import { readMarketingExternalReport } from '@/modules/marketing/application/marketing-report-read'
+import { resolveMarketingReportDatabase } from '@/modules/marketing/infrastructure/marketing-report-database'
 const operator = makeOperatorViewer({ visibleBusinessIds: [], ownedBusinessIds: [] })
 const golden = JSON.parse(await readFile(new URL('../fixtures/marketing-report/go-v01.json', import.meta.url)))
 const encode = value => { const { payloadHash, ...body } = value; return canonicalReportText({ ...body, payloadHash: reportHash(body) }) }
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
+// This bounded source fingerprint describes host-side acceptance, not an OCI
+// release. Normalize only line endings so Windows and Git source hashes agree.
+async function testSource() {
+  const root = new URL('../../', import.meta.url)
+  const git = args => execFileSync('git', args, { cwd: root, encoding: 'utf8', windowsHide: true, timeout: 5000, maxBuffer: 8 * 1024 * 1024 })
+  const revision = git(['rev-parse', 'HEAD']).trim(), inputs = {}
+  const files = ['src/modules/marketing/infrastructure/marketing-report-database.js', 'src/modules/marketing/application/marketing-report-receiver.js', 'src/modules/marketing/application/marketing-report-operator.js', 'src/modules/marketing/application/marketing-report-lock.js', 'src/modules/marketing/application/marketing-report-wire.js', 'src/modules/marketing/application/marketing-report-read.js', 'src/app/api/growth/external-marketing-reports/route.js', 'src/lib/db.js', 'scripts/lib/compact/marketing-security.mjs', 'scripts/lib/compact/security.mjs', 'scripts/lib/compact/baseline.mjs', 'tests/helpers/compact-postgres-target.mjs', 'tests/postgres/marketing-report-native.test.js', 'prisma/schema.prisma', 'prisma/schema.postgres.prisma', 'package-lock.json']
+  const hash = text => createHash('sha256').update(text.replaceAll('\r\n', '\n')).digest('hex')
+  let trackedInputsMatchRevision = true
+  for (const file of files) {
+    inputs[file] = hash(await readFile(new URL(file, root), 'utf8'))
+    if (inputs[file] !== hash(git(['show', `${revision}:apps/server/${file}`]))) trackedInputsMatchRevision = false
+  }
+  return { revision, hashEncoding: 'utf8-lf', trackedInputsMatchRevision, inputs }
+}
 
 describe('Compact PostgreSQL Marketing report runtime', () => {
-  let target, db, second, observer
-  const completed = new Set(), expected = ['guards', 'providerBoundary', 'triggerDrift', 'acceptBeforeDisable', 'disableBeforeReplay', 'acceptBeforeRevoke', 'revokeBeforeReplay', 'duplicates', 'conflicts', 'versions', 'absentPolicy', 'boundedWait', 'auditRollback', 'commitRollback', 'custody', 'nativePreservation', 'rebind-initiative-business', 'rebind-initiative-plan', 'rebind-plan-business', 'before-insert-initiative-business', 'before-insert-initiative-plan', 'before-insert-plan-business', 'first-policy-before-tenant-move', 'tenant-move-before-first-policy']
+  let target, db, second, observer, runtimeUrl, source
+  const completed = new Set(), expected = ['guards', 'providerBoundary', 'providerResolver', 'changedPlanRetry', 'triggerDrift', 'acceptBeforeDisable', 'disableBeforeReplay', 'acceptBeforeRevoke', 'revokeBeforeReplay', 'duplicates', 'conflicts', 'versions', 'absentPolicy', 'boundedWait', 'auditRollback', 'commitRollback', 'custody', 'nativePreservation', 'rebind-initiative-business', 'rebind-initiative-plan', 'rebind-plan-business', 'before-insert-initiative-business', 'before-insert-initiative-plan', 'before-insert-plan-business', 'first-policy-before-tenant-move', 'tenant-move-before-first-policy']
   beforeAll(async () => {
+    source = await testSource()
     target = await compactFixture({ packageApi, baselineApi, executorApi }); await target.install()
     const url = new URL(`postgresql://localhost/${target.target.database.name}`)
     url.hostname = target.target.database.host; url.port = String(target.target.database.port)
     url.username = target.target.database.runtimeRole; url.password = target.runtimePassword; url.searchParams.set('connection_limit', '1')
+    runtimeUrl = url.href
     db = new PrismaClient({ datasources: { db: { url: url.href } }, log: [] }); second = new PrismaClient({ datasources: { db: { url: url.href } }, log: [] })
     observer = new PrismaClient({ datasources: { db: { url: url.href } }, log: [] })
     await db.$connect(); await second.$connect()
   }, 120000)
   afterAll(async () => {
-    let cleanup = 'FAIL', cleanupError, identity
-    try {
-      if (target) { const observed = await target.driver.inspect({ manifest: target.manifest, target: target.target }); identity = { targetId: target.target.targetId, project: target.target.project, image: target.manifest.images.postgres, baselineSha256: target.manifest.schemaBaseline.sha256, systemIdentifier: observed.database.systemIdentifier, databaseOid: observed.database.oid, catalogSha256: observed.database.catalogSha256 } }
-      await db?.$disconnect(); await second?.$disconnect(); await observer?.$disconnect(); await target?.close(); cleanup = 'PASS'
-    } catch (error) { cleanupError = error }
-    if (process.env.COMPACT_MARKETING_EVIDENCE_FILE) await writeFile(process.env.COMPACT_MARKETING_EVIDENCE_FILE, JSON.stringify({ environment: 'TEST', implementationBase: 'd5525db188a2cbf8625cebaf9afcce95c836af14', candidate: 'base plus working patch, not an exact production release', ...identity, status: expected.every(name => completed.has(name)) && cleanup === 'PASS' ? 'PASS' : 'FAIL', cleanup, checks: Object.fromEntries(expected.map(name => [name, completed.has(name)])) }, null, 2))
-    if (cleanupError) throw cleanupError
+    const result = await observeAndCleanCompactFixture({
+      observe: async () => {
+        if (!target) return
+        const observed = await target.driver.inspect({ manifest: target.manifest, target: target.target })
+        return { targetId: target.target.targetId, project: target.target.project, image: target.manifest.images.postgres, baselineSha256: target.manifest.schemaBaseline.sha256, systemIdentifier: observed.database.systemIdentifier, databaseOid: observed.database.oid, catalogSha256: observed.database.catalogSha256 }
+      },
+      cleanup: [...[db, second, observer].filter(Boolean).map(client => () => client.$disconnect()), ...(target ? [() => target.close()] : [])],
+      record: async ({ identity, observation, cleanup, cleanupChecks }) => {
+        const sourceStable = JSON.stringify(source) === JSON.stringify(await testSource())
+        if (process.env.COMPACT_MARKETING_EVIDENCE_FILE) await writeFile(process.env.COMPACT_MARKETING_EVIDENCE_FILE, JSON.stringify({ environment: 'TEST', source, sourceStable, candidate: 'Host resolver/receiver acceptance with fresh disposable PostgreSQL; route hash binds inspected source, not HTTP E2E', ...identity, observation, cleanup, cleanupChecks, status: expected.every(name => completed.has(name)) && observation === 'PASS' && cleanup === 'PASS' && sourceStable ? 'PASS' : 'FAIL', checks: Object.fromEntries(expected.map(name => [name, completed.has(name)])) }, null, 2))
+        expect(sourceStable).toBe(true)
+      },
+    })
+    if (result.error) throw result.error
   }, 120000)
   async function fixture({ withoutPolicy = false } = {}) {
     const portfolio = await db.portfolio.create({ data: { code: randomUUID(), name: 'Compact synthetic' } })
@@ -79,6 +105,8 @@ describe('Compact PostgreSQL Marketing report runtime', () => {
   it('retains report custody guards with narrower runtime privileges and no owner/BYPASSRLS', async () => {
     const [role] = await db.$queryRaw`SELECT current_user AS name, r.rolsuper, r.rolbypassrls, has_table_privilege(current_user,'"MarketingExternalReport"','UPDATE') AS update, has_table_privilege(current_user,'"MarketingExternalReport"','DELETE') AS delete FROM pg_roles r WHERE r.rolname=current_user`
     expect(role).toMatchObject({ name: 'zuri_web_login', rolsuper: false, rolbypassrls: false, update: false, delete: false })
+    const grants = await db.$queryRaw`SELECT t.name,v.privilege,has_table_privilege(current_user,format('public.%I',t.name),v.privilege) AS allowed FROM (VALUES ('MarketingReportPolicy'),('MarketingReportBinding'),('MarketingExternalReport')) AS t(name) CROSS JOIN (VALUES ('SELECT'),('INSERT'),('UPDATE'),('DELETE'),('TRUNCATE'),('REFERENCES'),('TRIGGER')) AS v(privilege)`
+    expect(grants.filter(row => row.allowed).map(row => row.name + '.' + row.privilege).sort()).toEqual(['MarketingReportPolicy.SELECT', 'MarketingReportPolicy.INSERT', 'MarketingReportPolicy.UPDATE', 'MarketingReportBinding.SELECT', 'MarketingReportBinding.INSERT', 'MarketingReportBinding.UPDATE', 'MarketingExternalReport.SELECT', 'MarketingExternalReport.INSERT'].sort())
     const triggers = await target.query("SELECT tgname FROM pg_trigger WHERE NOT tgisinternal AND tgname LIKE 'marketing_%' ORDER BY tgname")
     expect(triggers.rows.map(row => row.tgname)).toEqual(expect.arrayContaining(['marketing_report_policy_guard', 'marketing_report_binding_guard', 'marketing_external_report_guard', 'marketing_report_audit_guard', 'marketing_report_business_scope_guard', 'marketing_report_initiative_scope_guard', 'marketing_report_plan_scope_guard']))
     const functions = await target.query("SELECT proname,prosecdef,proconfig,has_function_privilege('zuri_web_login',oid,'EXECUTE') AS callable FROM pg_proc WHERE proname IN ('marketing_report_audit_guard','marketing_report_native_scope_guard') ORDER BY proname")
@@ -115,6 +143,46 @@ describe('Compact PostgreSQL Marketing report runtime', () => {
     await expect(receiveMarketingReport({ db, authorization: f.authorization, raw: f.raw })).rejects.toMatchObject({ status: 503 })
     expect(await audits(f)).toBe(0)
     completed.add('providerBoundary')
+  })
+
+  it('selects the explicit PostgreSQL provider on actual runtime clients and retains committed replay', async () => {
+    const f = await fixture()
+    for (const env of [{ DATABASE_URL: runtimeUrl }, { DATABASE_URL: runtimeUrl, ZURI_MARKETING_REPORT_DATABASE_PROVIDER: 'unknown' }]) {
+      expect(resolveMarketingReportDatabase({ env, postgresDb: db }) === null).toBe(true)
+    }
+    expect(await audits(f)).toBe(0)
+    expect(await db.marketingExternalReport.count({ where: { businessId: f.business.id } })).toBe(0)
+    const env = { DATABASE_URL: runtimeUrl, ZURI_MARKETING_REPORT_DATABASE_PROVIDER: 'postgresql' }
+    const selected = resolveMarketingReportDatabase({ env, postgresDb: db })
+    const replay = resolveMarketingReportDatabase({ env, postgresDb: second })
+    // Boolean identity assertions avoid serializing clients/connection strings.
+    expect(selected?.db === db && selected?.provider === 'postgresql').toBe(true)
+    expect(replay?.db === second && replay?.provider === 'postgresql').toBe(true)
+    const first = await receiveMarketingReport({ ...selected, authorization: f.authorization, raw: f.raw })
+    const repeated = await receiveMarketingReport({ ...replay, authorization: f.authorization, raw: f.raw })
+    expect(first.status).toBe(201); expect(repeated.status).toBe(200)
+    expect(repeated.receipt).toEqual(first.receipt)
+    expect(await audits(f)).toBe(1)
+    completed.add('providerResolver')
+  })
+
+  it('retries the whole scope order when an independent writer changes the Plan hint', async () => {
+    const f = await fixture()
+    const next = await second.marketingPlan.create({ data: { code: randomUUID(), title: 'Same-Business replacement plan', tenantId: f.tenant.id, businessId: f.business.id, createdBy: 'TEST' } })
+    let hintReads = 0
+    const hold = holdAfter(db, 'marketingInitiative', 'findFirst', args => args.where.id === f.initiative.id && ++hintReads === 1)
+    const accepting = receive(f, hold.wrapped)
+    await hold.ready
+    try {
+      await second.marketingInitiative.update({ where: { id: f.initiative.id }, data: { planId: next.id } })
+    } finally { hold.release(); await Promise.allSettled([accepting]) }
+    expect((await accepting).status).toBe(201)
+    expect(hintReads).toBe(2)
+    expect(await db.marketingExternalReport.findFirst({ where: { businessId: f.business.id } })).toMatchObject({ planId: next.id, initiativeId: f.initiative.id })
+    expect(await audits(f)).toBe(1)
+    expect((await receive(f, second)).status).toBe(200)
+    expect(await audits(f)).toBe(1)
+    completed.add('changedPlanRetry')
   })
 
   it('detects a disabled custody trigger as installed catalog drift and never repairs it', async () => {

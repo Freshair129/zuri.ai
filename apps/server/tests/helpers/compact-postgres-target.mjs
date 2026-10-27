@@ -1,5 +1,6 @@
 // @spec ADR-115 — only run-created TEST resources; never an ambient database URL.
 // @tested tests/postgres/compact-fresh-install.test.js
+// @tested tests/node/compact-qualification.test.mjs, tests/postgres/marketing-report-native.test.js
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { randomBytes, randomUUID } from 'node:crypto'
@@ -39,6 +40,23 @@ export async function completeCompactFixtureCleanup(actions) {
   let firstError
   for (const action of actions) try { await action() } catch (error) { firstError ||= error }
   if (firstError) throw firstError
+}
+export async function observeAndCleanCompactFixture({ observe, cleanup = [], record }) {
+  const errors = [], cleanupChecks = []
+  let identity, observation = 'PASS', recordStatus = 'NOT_SELECTED'
+  try { identity = await observe(); if (identity === undefined) observation = 'NOT_RUN' } catch (error) { observation = 'FAIL'; errors.push(error) }
+  // Every action still uses its existing ownership checks. Observation and
+  // disconnect failures must not prevent the remaining owned cleanup attempts.
+  try { await completeCompactFixtureCleanup(cleanup.map((action, index) => async () => {
+    try { await action(); cleanupChecks[index] = 'PASS' }
+    catch (error) { cleanupChecks[index] = 'FAIL'; errors.push(error); throw error }
+  })) } catch { /* Each action's original error is retained above. */ }
+  const view = { identity, observation, cleanup: cleanup.length === 0 ? 'NOT_REQUIRED' : cleanupChecks.includes('FAIL') ? 'FAIL' : 'PASS', cleanupChecks }
+  if (record) {
+    try { await record(view); recordStatus = 'PASS' }
+    catch (error) { recordStatus = 'FAIL'; errors.push(error) }
+  }
+  return { ...view, record: recordStatus, error: errors.length > 1 ? new AggregateError(errors, 'COMPACT_FIXTURE_FINALIZATION_FAILED') : errors[0] ?? null }
 }
 async function removeCompactFixtureRoot(root) {
   const physical = await realpath(root), temporary = await realpath(os.tmpdir())
