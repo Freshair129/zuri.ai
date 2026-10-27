@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { promisify } from 'node:util'
+import { writeSync } from 'node:fs'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import { anchor } from '../../scripts/id-anchors.mjs'
 import { parseCanonicalRecord } from '../../scripts/document-registry-format.mjs'
@@ -61,29 +62,52 @@ async function git(args, cwd) {
   return stdout.trim()
 }
 
-async function makeFixture(transform = (value) => value) {
+function fixtureTrace(label = 'canonical-fixture') {
+  const started = performance.now()
+  return stage => {
+    if (process.env.CI || process.env.CANONICAL_FIXTURE_TRACE === '1') {
+      // Diagnostics must not interrupt fixture work or cleanup if stderr closes.
+      try { writeSync(2, `[${label}] ${stage} elapsedMs=${Math.round(performance.now() - started)}\n`) } catch {}
+    }
+  }
+}
+
+async function makeFixture(transform = (value) => value, trace = () => {}) {
+  trace('fixture-start')
   const root = await mkdtemp(path.join(os.tmpdir(), 'zuri-canonical-proof-'))
   rootPaths.push(root)
+  trace(`directory-created-${rootPaths.length}`)
   await git(['init', '--quiet'], root)
+  trace('git-init')
   await git(['config', 'user.name', 'Canonical fixture'], root)
+  trace('git-config-name')
   await git(['config', 'user.email', 'fixture@example.test'], root)
+  trace('git-config-email')
   const original = { index: { version: 1, sourceRevision, records: [fr.entry, feature.entry] },
     files: { [fr.entry.path]: fr.text, [feature.entry.path]: feature.text } }
   const { index, files } = transform(structuredClone(original))
+  trace('records-ready')
   files[CANONICAL_INDEX_PATH] = JSON.stringify(index)
+  let written = 0
   for (const [name, content] of Object.entries(files)) {
     await mkdir(path.dirname(path.join(root, name)), { recursive: true })
     await writeFile(path.join(root, name), content)
+    if (++written % 32 === 0) trace(`files-written-${written}`)
   }
+  trace('files-written')
   await git(['add', '--', '.'], root)
+  trace('git-add')
   await git(['commit', '--quiet', '-m', 'canonical fixture'], root)
+  trace('git-commit')
   const commitSha = await git(['rev-parse', 'HEAD'], root)
+  trace('git-head')
   const normalized = normalizeSourceManifest({ schemaVersion: CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION,
     entries: Object.entries(files).map(([name, content]) => ({ path: name, sha256: sha256(content) })) })
   const registryPath = path.join(root, 'operator.json')
   await writeFile(registryPath, JSON.stringify({ schemaVersion: '1.0.0', bindings: [
     { checkoutBindingId: 'canonical-fixture', repositoryId, absoluteCheckoutRoot: root },
   ] }))
+  trace('fixture-ready')
   return { root, commitSha, ...normalized, env: { ZURI_PM_CHECKOUT_REGISTRY_PATH: registryPath } }
 }
 
@@ -208,10 +232,13 @@ async function replay(value, mutate = (snapshot) => snapshot) {
 
 beforeAll(async () => { fixture = await makeFixture() })
 afterAll(async () => {
-  for (const root of rootPaths) {
+  const trace = fixtureTrace('canonical-cleanup')
+  for (const [index, root] of rootPaths.entries()) {
     if (!path.resolve(root).startsWith(path.resolve(os.tmpdir()) + path.sep)
       || !path.basename(root).startsWith('zuri-canonical-proof-')) throw Error('Unsafe fixture cleanup path')
+    trace(`fixture-${index + 1}-start`)
     await rm(root, { recursive: true, force: true })
+    trace(`fixture-${index + 1}-complete`)
   }
 })
 
@@ -363,6 +390,7 @@ describe('canonical source snapshot v2', () => {
   })
 
   it('captures a full-size 277-FR and 46-feature registry within the unchanged verification budget', async () => {
+    const trace = fixtureTrace()
     const full = await makeFixture(() => {
       const records = []
       const files = {}
@@ -380,9 +408,11 @@ describe('canonical source snapshot v2', () => {
         files[record.entry.path] = record.text
       }
       return { index: { version: 1, sourceRevision, records }, files }
-    })
+    }, trace)
     expect(full.manifest.entries).toHaveLength(324)
+    trace('capture-start')
     expect((await capture(full)).validationStatus).toBe('VALID')
+    trace('capture-complete')
   })
 
   it('captures committed records and replays stable subjects with canonical locators', async () => {
