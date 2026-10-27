@@ -12,7 +12,7 @@
 //   revocation takes effect on the very next session-port resolution because
 //   hasOperatorGrant below only ever matches status ACTIVE.
 // @spec FR-075, SEC-008, SEC-014
-// @tested tests/unit/operator-bootstrap.test.js
+// @tested tests/unit/operator-bootstrap.test.js, tests/postgres/operator-bootstrap-races.test.js
 //
 // Relative imports on purpose, like sot-data-plane-auth.js: the CLI in
 // scripts/bootstrap-operator.mjs must load this under plain node, where the
@@ -42,17 +42,7 @@ function failure(status, message) {
   return error
 }
 
-/**
- * Create the installation's FIRST operator. Fails closed when one exists.
- * Returns the initial password exactly once — it is never persisted in any
- * form but its scrypt hash, and never audited. With `grantOnly`, issues only
- * the ACTIVE OPERATOR grant (+ audit) to an existing Person and returns no
- * password — no credential is read, written or required.
- */
-export async function bootstrapOperator({ email, displayName, grantOnly = false, db = prisma, now = () => new Date() } = {}) {
-  if (typeof email !== 'string' || !email.includes('@')) throw failure(400, 'BOOTSTRAP_EMAIL_REQUIRED')
-  if (!grantOnly && (typeof displayName !== 'string' || !displayName.trim())) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
-
+async function readBootstrapState(db, email, grantOnly) {
   const standing = await db.platformGrant.findFirst({
     where: liveOperatorGrantWhere(new Date()),
     select: { id: true },
@@ -64,9 +54,37 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
     select: { id: true, code: true, displayName: true, credential: { select: { id: true } } },
   })
 
-  if (grantOnly) {
-    if (!existing) throw failure(404, 'BOOTSTRAP_GRANT_ONLY_PERSON_NOT_FOUND — grant-only issues a grant to an existing Person; it never creates one')
-    const grantId = await db.$transaction(async (tx) => {
+  if (grantOnly && !existing) throw failure(404, 'BOOTSTRAP_GRANT_ONLY_PERSON_NOT_FOUND — grant-only issues a grant to an existing Person; it never creates one')
+  if (!grantOnly && existing?.credential) throw failure(409, 'BOOTSTRAP_REFUSED_CREDENTIAL_EXISTS — this Person already holds a credential; bootstrap never overwrites one')
+  return existing
+}
+
+/**
+ * Create the installation's FIRST operator. Every entrypoint fences and rechecks
+ * the empty operator set in the same transaction as its grant and audit.
+ * Returns the initial password exactly once; only its hash is persisted.
+ * `grantOnly` reuses a Person and never reads or changes their password.
+ */
+export async function bootstrapOperator({ email, displayName, grantOnly = false, db = prisma, now = () => new Date() } = {}) {
+  if (typeof email !== 'string' || !email.includes('@')) throw failure(400, 'BOOTSTRAP_EMAIL_REQUIRED')
+  if (!grantOnly && (typeof displayName !== 'string' || !displayName.trim())) throw failure(400, 'BOOTSTRAP_DISPLAY_NAME_REQUIRED')
+
+  // Keep inexpensive refusals, but never use this observation to authorize a
+  // write. Both entrypoints re-read the operator set and Person under one fence.
+  await readBootstrapState(db, email, grantOnly)
+  const provider = db?._engineConfig?.activeProvider
+  if (!['postgresql', 'sqlite'].includes(provider)) throw failure(503, 'BOOTSTRAP_DATABASE_PROVIDER_INVALID')
+  return db.$transaction(async (tx) => {
+    if (provider === 'postgresql') {
+      // Shared with the Compact wrapper; advisory transaction locks are
+      // reentrant on its existing transaction/connection.
+      await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock(115107::bigint)::text')
+    } else {
+      // Take SQLite's writer reservation before reading the empty operator set.
+      await tx.$executeRawUnsafe('UPDATE "PlatformGrant" SET "id" = "id" WHERE 1 = 0')
+    }
+    const existing = await readBootstrapState(tx, email, grantOnly)
+    if (grantOnly) {
       const grant = await tx.platformGrant.create({
         // @req FR-197 — the bootstrap grant is standing (it was never issued BY
         // a standing operator, since none existed) and carries no expiry: the
@@ -82,22 +100,14 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
         actorId: null,
         payload: { personCode: existing.code, grantId: grant.id, grantOnly: true, at: now().toISOString() },
       })
-      return grant.id
-    })
-    return { personId: existing.id, personCode: existing.code, displayName: existing.displayName, grantId }
-  }
+      return { personId: existing.id, personCode: existing.code, displayName: existing.displayName, grantId: grant.id }
+    }
 
-  if (existing?.credential) {
-    throw failure(409, 'BOOTSTRAP_REFUSED_CREDENTIAL_EXISTS — this Person already holds a credential; bootstrap never overwrites one')
-  }
-
-  const initialPassword = randomBytes(INITIAL_PASSWORD_BYTES).toString('base64url')
-  const passwordHash = hashInitialPassword(initialPassword)
-  const code = existing?.code
-    ?? await uniqueHumanCode('PSN', displayName, async (candidate) =>
-      Boolean(await db.person.findUnique({ where: { code: candidate }, select: { id: true } })))
-
-  const result = await db.$transaction(async (tx) => {
+    const initialPassword = randomBytes(INITIAL_PASSWORD_BYTES).toString('base64url')
+    const passwordHash = hashInitialPassword(initialPassword)
+    const code = existing?.code
+      ?? await uniqueHumanCode('PSN', displayName, async (candidate) =>
+        Boolean(await tx.person.findUnique({ where: { code: candidate }, select: { id: true } })))
     const person = existing
       ? await tx.person.findUnique({ where: { id: existing.id }, select: { id: true, code: true, displayName: true } })
       : await tx.person.create({ data: { code, displayName: displayName.trim(), email }, select: { id: true, code: true, displayName: true } })
@@ -117,16 +127,11 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
       actorId: null,
       payload: { personCode: person.code, grantId: grant.id, at: now().toISOString() },
     })
-    return { person, grantId: grant.id }
+    return {
+      personId: person.id, personCode: person.code, displayName: person.displayName,
+      grantId: grant.id, initialPassword,
+    }
   })
-
-  return {
-    personId: result.person.id,
-    personCode: result.person.code,
-    displayName: result.person.displayName,
-    grantId: result.grantId,
-    initialPassword,
-  }
 }
 
 /** Per-request operator resolution for the session port: sha-free, one indexed

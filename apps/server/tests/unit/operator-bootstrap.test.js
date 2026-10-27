@@ -27,6 +27,7 @@ function bootstrapDb({ standingGrant = null, existingPerson = null } = {}) {
     auditEvent: { create: vi.fn(async ({ data }) => { created.audit = data; return { id: 'audit-1', ...data } }) },
   }
   const db = {
+    _engineConfig: { activeProvider: 'sqlite' },
     platformGrant: { findFirst: vi.fn(async () => standingGrant) },
     person: {
       findFirst: vi.fn(async () => existingPerson),
@@ -34,6 +35,9 @@ function bootstrapDb({ standingGrant = null, existingPerson = null } = {}) {
     },
     $transaction: vi.fn(async (run) => run(tx)),
   }
+  tx.platformGrant.findFirst = vi.fn(async () => standingGrant)
+  tx.person.findFirst = vi.fn(async () => existingPerson)
+  tx.$executeRawUnsafe = vi.fn(async () => 0)
   return { db, tx, created }
 }
 
@@ -47,6 +51,34 @@ describe('hashInitialPassword', () => {
 })
 
 describe('bootstrapOperator', () => {
+  it('rechecks the operator set after acquiring the transaction fence', async () => {
+    const { db, tx, created } = bootstrapDb()
+    tx.platformGrant.findFirst.mockResolvedValue({ id: 'concurrent-operator' })
+    const result = await bootstrapOperator({ email: 'boss@example.com', displayName: 'Boss', db })
+      .then(() => ({ status: 'SUCCEEDED' }), error => ({ status: 'REFUSED', code: error.status }))
+    expect(result).toEqual({ status: 'REFUSED', code: 409 })
+    expect(created.grant).toBeNull()
+  })
+
+  it('rechecks existing credentials inside the fence rather than overwriting a newly credentialed person', async () => {
+    const { db, tx, created } = bootstrapDb()
+    tx.person.findFirst.mockResolvedValue({ id: 'per-concurrent', code: 'PER-CURRENT', credential: { id: 'credential-current' } })
+    const result = await bootstrapOperator({ email: 'boss@example.com', displayName: 'Boss', db })
+      .then(() => ({ status: 'SUCCEEDED' }), error => ({ status: 'REFUSED', code: error.status }))
+    expect(result).toEqual({ status: 'REFUSED', code: 409 })
+    expect(created.credential).toBeNull()
+    expect(created.grant).toBeNull()
+  })
+
+  it('fails closed when the database cannot supply a recognized transaction fence', async () => {
+    const { db, created } = bootstrapDb()
+    db._engineConfig.activeProvider = 'unknown'
+    const result = await bootstrapOperator({ email: 'boss@example.com', displayName: 'Boss', db })
+      .then(() => ({ status: 'SUCCEEDED' }), error => ({ status: 'REFUSED', code: error.status }))
+    expect(result).toEqual({ status: 'REFUSED', code: 503 })
+    expect(created.grant).toBeNull()
+  })
+
   it('refuses while any ACTIVE OPERATOR grant stands — later grants are issued by an operator, not bootstrap', async () => {
     const { db } = bootstrapDb({ standingGrant: { id: 'grant-existing' } })
     await expect(bootstrapOperator({ email: 'boss@example.com', displayName: 'Boss', db }))
