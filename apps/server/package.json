@@ -11,6 +11,7 @@
     "compact:baseline": "node scripts/compact-baseline.mjs",
     "compact:self-host": "node scripts/compact-self-host.mjs",
     "test:compact:core": "node scripts/assert-tests-ran.mjs playwright test --config playwright.compact.config.js --fail-on-flaky",
+    "test:compact:storage": "node scripts/assert-tests-ran.mjs vitest run --config vitest.compact-storage.config.js",
     "compact:test": "node --test tests/node/compact-manifest.test.mjs tests/node/compact-package.test.mjs tests/node/compact-workflow.test.mjs tests/node/compact-target.test.mjs tests/node/compact-baseline.test.mjs tests/node/compact-executor.test.mjs tests/node/compact-bootstrap.test.mjs",
     "lint": "next lint",
     "db:push": "prisma db push",

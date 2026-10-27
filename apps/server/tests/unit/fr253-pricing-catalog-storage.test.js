@@ -172,6 +172,33 @@ describe('FR-253 default pricing catalog storage', () => {
 
   afterEach(() => vi.unstubAllGlobals())
 
+  it('explicitly selects the separate S3 catalog namespace even while private Knowledge is enabled', async () => {
+    const provider = makeFetch()
+    vi.stubGlobal('fetch', provider.fetchFn)
+    const env = {
+      ZURI_KNOWLEDGE_STORAGE_ENABLED: '1', ZURI_KNOWLEDGE_STORAGE_BUCKET: 'knowledge-raw',
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: 's3', ZURI_KNOWLEDGE_CATALOG_BUCKET: 'catalog-private',
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT: 'http://catalog.test:9000',
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_ACCESS_KEY: 'catalog-access', ZURI_KNOWLEDGE_CATALOG_STORAGE_SECRET_KEY: 'catalog-secret',
+    }
+    const result = await admitPricingCatalog(input, { viewer, db: state.db, now: new Date('2026-10-10T00:00:00.000Z'), env })
+    const put = provider.requests.find(request => request.method === 'PUT')
+    expect(put.url.origin).toBe('http://catalog.test:9000')
+    expect(put.url.pathname).toMatch(/^\/catalog-private\/business-catalog\/tenant-1\/business-1\/[a-f0-9]{64}\/[a-f0-9-]+\.json$/)
+    expect(state.assetsById.get(result.fileAssetId).blobRef).toMatch(/^s3-business:\/\/catalog\/catalog-private\//)
+    expect(provider.requests.every(request => request.url.origin === 'http://catalog.test:9000')).toBe(true)
+  })
+
+  it('never falls back or freezes calculations when the explicit catalog provider is incomplete', async () => {
+    const provider = makeFetch(); vi.stubGlobal('fetch', provider.fetchFn)
+    await expect(admitPricingCatalog(input, { viewer, db: state.db, env: {
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: 's3', ZURI_KNOWLEDGE_CATALOG_BUCKET: 'catalog-private',
+      ZURI_KNOWLEDGE_STORAGE_ENABLED: '1', SUPABASE_URL: 'https://cloud.test', SUPABASE_SERVICE_ROLE_KEY: 'secret',
+    } })).rejects.toMatchObject({ status: 503 })
+    expect(provider.requests).toHaveLength(0)
+    expect(state.tx.pricingCalculation.create).not.toHaveBeenCalled()
+  })
+
   it('stores with the private Knowledge store and reads the exact managed-blob version with MinIO-only configuration', async () => {
     const provider = makeFetch()
     vi.stubGlobal('fetch', provider.fetchFn)

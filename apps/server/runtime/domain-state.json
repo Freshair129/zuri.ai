@@ -1652,7 +1652,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-256",
@@ -2118,7 +2118,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -2126,7 +2126,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -2387,7 +2387,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-291",
@@ -3985,7 +3985,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-187",
@@ -4921,7 +4921,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-187",
@@ -5045,7 +5045,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-254",
@@ -7190,7 +7190,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-046",
@@ -7771,7 +7771,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -7779,7 +7779,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -7971,7 +7971,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 61
+          "testCount": 63
         },
         {
           "id": "FR-174",
@@ -8347,7 +8347,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 43
+          "testCount": 45
         },
         {
           "id": "FR-254",
@@ -9393,7 +9393,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 47
+          "testCount": 48
         },
         {
           "id": "FR-058",
@@ -9458,6 +9458,7 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -10797,8 +10798,8 @@
           "title": "Knowledge source admission and corpus publication",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 61
+          "codeCount": 32,
+          "testCount": 63
         },
         {
           "id": "FR-254",
@@ -10872,6 +10873,7 @@
         "apps/server/src/platform/integrations/core/pipeline-tracking-service.js",
         "apps/server/src/platform/integrations/core/raw-ingest-service.js",
         "apps/server/src/platform/integrations/core/raw-record-repository.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/s3-object-storage.js",
         "apps/server/tests/acceptance/genesisrag17-e2e.test.js",
         "apps/server/tests/acceptance/knowledge-admission-native.test.js",
@@ -10914,6 +10916,7 @@
         "apps/server/tests/integration/platform/integration-persistence.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/storage/knowledge-object-restore.test.js",
         "apps/server/tests/unit/agent-requestable-sensitivity.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
@@ -10980,6 +10983,7 @@
         "apps/server/tests/unit/platform/raw-ingest-service.test.js",
         "apps/server/tests/unit/platform/raw-record-repository-read.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
@@ -11241,8 +11245,8 @@
           "title": "Asset cloud evidence intake",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 9
+          "codeCount": 11,
+          "testCount": 11
         },
         {
           "id": "FR-138",
@@ -11250,7 +11254,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-139",
@@ -11291,9 +11295,11 @@
         "apps/server/src/modules/asset-management/import/xlsx-template.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
         "apps/server/src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/supabase-object-storage.js",
         "apps/server/tests/integration/asset-evidence-intake-execution.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-intake-service-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
@@ -11302,7 +11308,8 @@
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
         "apps/server/tests/unit/asset-receiving-evidence-ui.test.js",
         "apps/server/tests/unit/asset-request-scope-capability.test.js",
-        "apps/server/tests/unit/doc-graph-retired-rules.test.js"
+        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js"
       ]
     },
     {
@@ -20511,8 +20518,8 @@
           "title": "Business-scoped versioned pricing rules and formula console",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 43
+          "codeCount": 25,
+          "testCount": 45
         }
       ],
       "evidence": [
@@ -20540,6 +20547,7 @@
         "apps/server/src/modules/knowledge/knowledge-authorization.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr253-pricing-rules.spec.js",
@@ -20561,6 +20569,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/commerce-domain.test.js",
@@ -20579,6 +20588,7 @@
         "apps/server/tests/unit/pricing-engine.test.js",
         "apps/server/tests/unit/pricing-publication.test.js",
         "apps/server/tests/unit/pricing-rules-ui.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-feature-forms.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",

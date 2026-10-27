@@ -1,0 +1,58 @@
+{
+  "environment": "TEST",
+  "image": "sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f",
+  "runId": "4e10e0c9-0908-4468-90ea-2759e28bcec3",
+  "containerId": "3b319ddc3a502a27d31bcb0c9233ee7ef576450ac661f039d38eee9b522f8364",
+  "volume": "zuri-compact-storage-4e10e0c9-0908-data",
+  "networkId": "d2002e1f3c05ce6e6f6ce3b81bbd7ab28c943b996f96f61287c8755e448f66af",
+  "principals": [
+    {
+      "purpose": "asset",
+      "actions": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
+      ],
+      "namespace": [
+        "arn:aws:s3:::zuri-compact-storage-4e10e0c9-0908-asset/asset-evidence/*"
+      ]
+    },
+    {
+      "purpose": "catalog",
+      "actions": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:GetObjectVersion",
+        "s3:DeleteObject",
+        "s3:DeleteObjectVersion"
+      ],
+      "namespace": [
+        "arn:aws:s3:::zuri-compact-storage-4e10e0c9-0908-catalog/business-catalog/*"
+      ]
+    }
+  ],
+  "license": "Existing cached TEST fixture; no production provider/license approval",
+  "status": "PASS",
+  "cleanup": "PASS",
+  "checks": {
+    "uploadRead": true,
+    "authorizedFileAsset": true,
+    "foreignRefRefused": true,
+    "distinctCatalog": true,
+    "credentialIsolation": true,
+    "noOverwrite": true,
+    "exactErase": true,
+    "extractionRead": true,
+    "failedMetadataCleanup": true,
+    "versionPinnedAfterReplacement": true,
+    "exactErasePreservesOtherVersion": true,
+    "metadataOnlyRestoreRefused": true,
+    "immutableVersionRequired": true
+  },
+  "limitations": [
+    "Injected TEST extractor; no live model qualification",
+    "No production provider/license or complete restore qualification"
+  ]
+}

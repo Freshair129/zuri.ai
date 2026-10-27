@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.3"
+version: "0.1.4"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -18,7 +18,8 @@ Subsequent Task1 results live in the [packaging delivery evidence](task1-packagi
 The owner then selected Task2; its [fresh TEST database evidence](task2-fresh-install.md)
 records that follow-up separately. [Task3 core evidence](task3-core-qualification.md)
 records the later safe plan continuation. These do not replace this dated source
-assessment or confer production/release authority.
+assessment or confer production/release authority. [Task4 private storage evidence](task4-business-storage.md)
+records Asset/catalog provider parity and its remaining qualification limits.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 

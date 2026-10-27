@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 3
-version: "0.1.3"
+selected_task: 4
+version: "0.1.4"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -82,8 +82,8 @@ binds source findings and old-audit dispositions to the baseline above.
 Paths marked **new** below are implementation outputs relative to the planning baseline.
 Deployment stays in `apps/server/deploy/compact/`; orchestration helpers in
 `apps/server/scripts/lib/compact/` separate manifest, target and execution concerns.
-Tasks1–3 were selected after approval of the planning commit. Tasks4–7 remain
-pending execution under the safe continuation and their specific capability gates.
+Tasks1–4 execute the approved safe continuation. Tasks5–7 remain pending execution
+under their specific capability gates.
 Application paths in task file lists are relative to `apps/server/`; workflow
 paths are relative to the repository root.
 
@@ -238,20 +238,23 @@ and `tests/storage/compact-business-objects.test.js` with an owned provider fixt
 `ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER` selection (`supabase` compatibility
 default; `s3` explicitly configured); stable existing factory exports.
 
-- [ ] Write contract tests for S3 no-overwrite writes, opaque version-pinned refs,
+- [x] Write contract tests for S3 no-overwrite writes, opaque version-pinned refs,
   distinct Asset/catalog/Knowledge namespaces, current authorization before bytes,
   wrong bucket/version refusal, failed-DB-write cleanup and safe errors. Existing
   Supabase tests must retain their exact behavior.
-- [ ] Observe RED, then implement the S3 `put/get/remove` bridge using
+- [x] Observe RED, then implement the S3 `put/get/remove` bridge using
   `putImmutable/readExact/eraseExactVersions`; explicit configured endpoint/bucket
   and least-privilege credentials only. Unknown refs/configuration fail closed;
   never resolve via cloud fallback or choose another purpose's bucket.
-- [ ] Qualify actual upload/read/extraction-read/structured-catalog/authorized
+- [x] Qualify actual upload/read/extraction-read/structured-catalog/authorized
   FileAsset read and exact deletion against the selected TEST provider. Test
   object loss after DB metadata restore. A reference-only snapshot is not backup.
-- [ ] Run wrapped Vitest unit/consumer tests, the explicit isolated storage
+- [x] Run wrapped Vitest unit/consumer tests, the explicit isolated storage
   configuration, Server build and governance. Record exact provider image and
-  license/capability limits; no production-provider approval is inferred. Commit.
+  license/capability limits; no production-provider approval is inferred. Commit
+  follows the final governance/review reconciliation. The
+  [Task4 evidence](../../reports/compact-selfhost-2026-10-27/task4-business-storage.md)
+  distinguishes provider parity from complete restore, hosted and release gates.
 
 ## Task5: PostgreSQL Marketing report intake parity
 

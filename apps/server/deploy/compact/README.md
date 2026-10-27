@@ -281,11 +281,51 @@ HTTPS browser. Its short-lived certificate changes no host trust store. Real
 browser sessions perform operator login, signup without grants, Business/PM CRUD,
 cross-Business refusals, seven execution views and restart persistence. Provider
 checks cover versioning, conditional writes and exact-version read/erase only;
-Asset/catalog integration remains Task4. Traces/screenshots/video are disabled
+Asset/catalog integration has its separate Task4 provider profile below. Traces/screenshots/video are disabled
 to keep login material out of artifacts. The default E2E profile excludes this
 explicit fixture; no existing `:3100` stack or seed is used. A local TEST candidate
 pass is separate from exact-release, Linux-host, LINE/Knowledge and production
 qualification.
+
+### Private Asset/catalog storage (Task4)
+
+Existing factory exports and the `supabase` default remain compatible. Explicitly
+select `ZURI_ASSET_STORAGE_PROVIDER=s3` and/or
+`ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER=s3` in the private app environment to use
+the S3 bridge. For each selected purpose, supply the following outside the release:
+
+| Purpose | Configuration keys |
+|---|---|
+| Asset | `ZURI_ASSET_EVIDENCE_BUCKET`, `ZURI_ASSET_STORAGE_ENDPOINT`, `ZURI_ASSET_STORAGE_ACCESS_KEY`, `ZURI_ASSET_STORAGE_SECRET_KEY`, optional `ZURI_ASSET_STORAGE_REGION` |
+| Catalog | `ZURI_KNOWLEDGE_CATALOG_BUCKET`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_ACCESS_KEY`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_SECRET_KEY`, optional `ZURI_KNOWLEDGE_CATALOG_STORAGE_REGION` |
+
+Buckets must be distinct from one another and the configured Knowledge bucket.
+Enable versioning before use. Provision separate service credentials restricted
+to each bucket's `asset-evidence/*` or `business-catalog/*` namespace. The TEST
+provider required PutObject, GetObject, GetObjectVersion, DeleteObject and
+DeleteObjectVersion; the app never administers users, buckets or policies.
+Use credentials authorized for your selected provider; no root credential is
+needed by the application. Explicit catalog selection takes precedence over the
+older Knowledge-private writer; unselected compatibility behavior is preserved.
+
+New `s3-business://` refs bind purpose, bucket, scoped key and immutable version.
+They contain no endpoint or credential. FileAsset reads authorize current Business
+visibility first and then check the stored Business/Tenant against the ref. Lost
+versions, wrong scope, configuration and unknown refs fail closed without cloud
+fallback. A failed metadata write attempts exact-version cleanup and never
+reports success. Cleanup failure still needs operational reconciliation; the
+existing service does not pretend that bytes and the DB share a transaction.
+Selecting S3 does not migrate existing hosted objects or refs; fresh-only Compact
+does not authorize a provider migration. Keep compatible hosted configuration for
+existing hosted installations unless a separate migration is approved.
+
+`npm run test:compact:storage` runs an owned local MinIO fixture and an isolated
+application database. It does not use main-dev/UAT, a live extractor or existing
+provider credentials. The provider image is an explicit cached TEST identity;
+foreign-bucket credentials and exact-version loss are checked. The general CLI
+diagnostic still reports storage unavailable: it does not qualify/import this
+provider report or inspect these new business-port settings. Production provider,
+license, complete backup/restore and exact release qualification remain separate.
 
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the

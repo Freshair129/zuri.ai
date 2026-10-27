@@ -7,6 +7,7 @@ import { createManagedBlobFileAsset, resolveFileAssetContent } from '@/modules/p
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { createConfiguredKnowledgeCatalogObjectStoragePort, createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
 import { createConfiguredKnowledgeManagedBlobPort } from '@/platform/storage/s3-object-storage'
+import { businessStorageProvider } from '@/platform/storage/private-business-object-storage'
 import { assertKnowledgeBusinessWritable } from '@/modules/knowledge/knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from '@/modules/knowledge/knowledge-runtime'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
@@ -41,6 +42,7 @@ const sha256 = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const STORAGE_KEY_SEGMENT = /^[A-Za-z0-9_-]+$/
 
 function createPricingCatalogObjectStoragePort(env) {
+  if (businessStorageProvider('catalog', env) === 's3') return createConfiguredKnowledgeCatalogObjectStoragePort(env)
   return createConfiguredKnowledgeManagedBlobPort(env) || createConfiguredKnowledgeCatalogObjectStoragePort(env)
 }
 
@@ -149,7 +151,9 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
   let asset = await db.fileAsset.findUnique({ where: { code } })
   if (asset && (asset.businessId !== data.businessId || asset.sha256 !== contentHash || asset.deletedAt || asset.status !== 'ACTIVE')) throw fail(409, 'PRICING_CATALOG_ASSET_CONFLICT')
   if (!asset) {
-    const key = env.ZURI_KNOWLEDGE_STORAGE_ENABLED === '1'
+    const key = businessStorageProvider('catalog', env) === 's3'
+      ? `business-catalog/${active.tenantId}/${data.businessId}/${contentHash}/${randomUUID()}.json`
+      : env.ZURI_KNOWLEDGE_STORAGE_ENABLED === '1'
       ? privateCatalogObjectKey({ tenantId: active.tenantId, businessId: data.businessId, contentHash })
       : `commerce-pricing/${data.businessId}/${randomUUID()}.json`
     const stored = await storage.put({ key, content, mime: 'application/json' })

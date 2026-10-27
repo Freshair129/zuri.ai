@@ -1,11 +1,11 @@
 ---
 id: ZAI:ADR-115
 title: Compact single-host deployment profile and qualification boundaries
-version: "0.1.3"
+version: "0.1.4"
 status: accepted
 approved_on: "2026-10-27"
 approved_artifact_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-approval_scope: architecture-and-plan; safe plan continuation selected; current Task3 disposable TEST only; no production action
+approval_scope: architecture-and-plan; safe plan continuation selected; current Task4 disposable TEST only; no production action
 created_at: "2026-10-27"
 last_update: "2026-10-27"
 author: Codex
@@ -217,15 +217,18 @@ records the fresh-only TEST database implementation and actual PostgreSQL
 acceptance separately. Its `INSTALLED` result is baseline state, not the
 Task3 core-installable milestone. The [Task3 evidence](../../reports/compact-selfhost-2026-10-27/task3-core-qualification.md)
 records private first-operator wrapping and actual isolated HTTPS/Business/PM
-qualification. Configuration diagnostics retain `NOT_QUALIFIED` without a
-qualification report; fixture success does not activate a production runtime.
-Tasks4–7 remain pending execution and retain their capability/release gates.
+qualification. Configuration diagnostics do not import qualification reports;
+fixture success does not activate a production runtime. The
+[Task4 evidence](../../reports/compact-selfhost-2026-10-27/task4-business-storage.md)
+records private Asset/catalog parity on an owned TEST provider. Tasks5–7 remain
+pending execution and retain their capability/release gates.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.3 | 2026-10-27 | accepted | Records delegated safe continuation and Task3 TEST core qualification; preserves separate ownership, credentials and production/release authority | working-tree | Codex |
+| 0.1.4 | 2026-10-27 | accepted | Records Task4 private Asset/catalog TEST storage continuation; provider/release and remaining capabilities stay separately gated | working-tree | Codex |
 | 0.1.2 | 2026-10-27 | accepted | Records subsequent Task2 selection for disposable TEST PostgreSQL and its bounded database evidence; Tasks3–7 remain unselected | working-tree | Codex |
 | 0.1.1 | 2026-10-27 | accepted | Owner approved the exact e5fcfd4b ADR/plan and selected Task1 only; no installation or production authority | working-tree | Codex |
 | 0.1.0b | 2026-10-27 | candidate | Proposes one-host packaging, fresh-only baseline and independent AI/business capability qualification after source reconciliation; no requirement lifecycle changes | uncommitted | Codex |

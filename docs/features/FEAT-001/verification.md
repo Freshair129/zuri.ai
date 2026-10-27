@@ -89,6 +89,7 @@ status: generated
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/pipeline-contract-regressions.test.js](../../../apps/server/tests/integration/pipeline-contract-regressions.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-authorization.test.js](../../../apps/server/tests/integration/project-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-management-navigation.test.js](../../../apps/server/tests/unit/asset-management-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/authorization-seam-routes.test.js](../../../apps/server/tests/unit/authorization-seam-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
