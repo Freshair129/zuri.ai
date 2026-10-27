@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.3.0"
+version: "0.4.0"
 ---
 
 # Engineering assessments
@@ -12,6 +12,8 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-27 AccessInvite existing-contract TEST](domain-followup-2026-10-27/access-invite-existing-contract.md) | Unchanged FR-195 service suite, 6/6 on a private retained SQLite DB at source8462109f; no delivery, HTTP/session, native PostgreSQL or full FEAT-029 acceptance. |
+| [2026-10-27 Compact local core artifact matrix](compact-selfhost-2026-10-27/task7-core-matrix.md) | Exact OCI artifact at code4061f511: local install/browser/recreation and bounded synthetic recovery; hosted, supported operator restore, off-host, AI and release gates remain open. |
 | [2026-10-27 Compact self-host reconciliation](compact-selfhost-2026-10-27/README.md) | Bounded packaging/capability findings at main2b424364, old-audit disposition and proposed-plan inputs; no installation or production acceptance. |
 | [2026-10-26 Knowledge lifecycle and serving assessment](knowledge-readiness-2026-10-26/README.md) | Source-backed storage/access findings, isolated verification and remaining whole-journey acceptance; no production adoption. |
 | [2026-10-23 code/requirements gap assessment](gap-analysis-2026-10-23/README.md) | Current canonical inventory, source/code conflicts, confirmed gaps and scoped test evidence at the stated revision. |

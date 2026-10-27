@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "existing-contract-test-observation.v1",
+  "sourceRevision": "8462109f6923de67f5c4bba99d219bc04a4cdf73",
+  "applicationCodeBaseline": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "environment": "TEST",
+  "canonicalRecords": {
+    "ZAI:FEAT-029": 1,
+    "ZAI:FR-195": 1
+  },
+  "status": "PASS",
+  "provider": "sqlite",
+  "testFile": "apps/server/tests/integration/fr195-access-invite.test.js",
+  "results": {
+    "passed": 6,
+    "failed": 0,
+    "skipped": 0,
+    "durationSeconds": 27.53
+  },
+  "initialAppRows": 0,
+  "formattedSchemaMatch": true,
+  "sharedClientSchemas": {
+    "sqliteSchema": "1e6a28377bdf70480b18ec31cc6702d37892bc60825b61f36d2d8ead47f63000",
+    "postgresSchema": "f8208ea7df90fc4b4bc9d182e79805dc05e51c54e773945aa865990da19fe139"
+  },
+  "sharedClientsUnchanged": true,
+  "protectedAuthRowsAbsent": true,
+  "retainedSyntheticCounts": {
+    "Person": 4,
+    "PlatformGrant": 0,
+    "WorkspaceMembership": 1,
+    "AccessInvite": 8,
+    "PersonCredential": 0,
+    "PluginSession": 0,
+    "Membership": 2,
+    "Session": 0,
+    "PasskeyCredential": 0,
+    "BusinessWigSession": 0,
+    "ConversationSession": 0,
+    "IntegrationCredential": 0,
+    "IntegrationCredentialVersion": 0,
+    "EdgeDeviceCredential": 0,
+    "HarnessCredential": 0
+  },
+  "isolation": {
+    "freshPrivateDb": true,
+    "dbRetained": true,
+    "staleDatabaseSweepInvoked": false,
+    "dbLoginCredentialCreated": false,
+    "postgresAliasesRemoved": true,
+    "providedOwnSqliteVerified": true,
+    "fetchBlocked": true,
+    "applicationOrDatabaseServerStarted": false
+  },
+  "sourceSha256": {
+    "apps/server/tests/integration/fr195-access-invite.test.js": "a67c16bed27edcf231a6b2555100e2bf24eaed965661405f8320d14a05897047",
+    "apps/server/src/modules/identity/access-invite-service.js": "e855202b097a2387c2804ba55e57f92bcda4cff0e199b25230af24b450f5ec35",
+    "apps/server/src/modules/identity/membership-grant-service.js": "bd3727f5ac71531c43605573094ac934fb0bc1b8600717b4f661df25f6d7feb4",
+    "apps/server/src/modules/identity/workspace-membership-service.js": "7cb68ffbe5632ce1c4fc03ab34d1c0026b70903e86115e24348f0c0f89894614",
+    "apps/server/src/modules/project-manager/application/audit.js": "3da492f8405be092558d1277787cd58cd9b3eeb6d28048d18a81e94f0c5c9fb0",
+    "docs/features/FEAT-029/feature.md": "1fe3eecc868d219df8ae1fd3c607c9470bf85e4b79301b0697acfd139cc7d3d6",
+    "docs/features/FEAT-029/requirements/FR-195.md": "3b591d149f2e9a0e2976fff0232ccb899a7b6f628882fde90f985b7c099348c0",
+    "docs/domains/identity/CHARTER.md": "52f25c0fc9bcfc0da75a992471c68bb957cb6b8e805f1c14c97a704ae053e2bd"
+  },
+  "privateHarnessSha256": {
+    "vitest.fr195.config.mjs": "8089d9d93dbabc8ea384bfd5e649f66de2d04c03d2d6c5ea1784b1544f8e21c7",
+    "setup.mjs": "f25fffecfe56f242cecdbe7647cbed870be89f5a60d4af63e10499c821ddbe8d",
+    "guard.mjs": "248b04cdacfc4bed6ca069eb7ca5ea9b74bb8eccebd878b312836ed0628de863"
+  },
+  "limits": [
+    "Direct service integration only; no HTTP/UI/session-resolver acceptance",
+    "No native PostgreSQL runtime-role or concurrency acceptance",
+    "No invite/email/LINE delivery exercised",
+    "No canonical lifecycle or full FEAT-029 closure",
+    "Private harness/database retained locally, not published"
+  ]
+}
