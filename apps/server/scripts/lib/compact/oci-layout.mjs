@@ -1,5 +1,5 @@
 // @spec ADR-115 — complete OCI graph verification and deterministic USTAR transport.
-// @tested tests/node/compact-package.test.mjs
+// @tested tests/node/compact-package.test.mjs, tests/node/compact-oci-reference.test.mjs
 import { open } from 'node:fs/promises'
 import { createHash } from 'node:crypto'
 import { CompactError } from './manifest.mjs'
@@ -10,8 +10,45 @@ const INDEXES = new Set([OCI_INDEX, 'application/vnd.docker.distribution.manifes
 const IMAGES = new Set(['application/vnd.oci.image.manifest.v1+json', 'application/vnd.docker.distribution.manifest.v2+json'])
 const CONFIGS = new Set(['application/vnd.oci.image.config.v1+json', 'application/vnd.docker.container.image.v1+json'])
 const LAYERS = new Set(['application/vnd.oci.image.layer.v1.tar', 'application/vnd.oci.image.layer.v1.tar+gzip', 'application/vnd.oci.image.layer.v1.tar+zstd', 'application/vnd.docker.image.rootfs.diff.tar.gzip'])
+const CONTAINERD_IMAGE_NAME = 'io.containerd.image.name'
+const OCI_REF_NAME = 'org.opencontainers.image.ref.name'
+const OCI_REFERENCE_NAME = /^[A-Za-z0-9]+(?:(?:[-._:@+]|--)[A-Za-z0-9]+)*(?:\/[A-Za-z0-9]+(?:(?:[-._:@+]|--)[A-Za-z0-9]+)*)*$/
+const IMAGE_REFERENCE = /^[a-z0-9][a-z0-9._:/-]*@sha256:[a-f0-9]{64}$/
 const fail = () => { throw new CompactError('COMPACT_OCI_INVALID') }
 const MAX_TAR_SIZE = 0o77777777777
+function expectedImageReferences(images) {
+  if (!images || typeof images !== 'object' || Array.isArray(images) || !Object.keys(images).length) fail()
+  const references = new Map()
+  for (const reference of Object.values(images)) {
+    if (typeof reference !== 'string' || !IMAGE_REFERENCE.test(reference)) fail()
+    references.set(reference, reference.slice(reference.lastIndexOf('@') + 1))
+  }
+  return references
+}
+function rootImageReference(descriptor, expectedReferences) {
+  if (!descriptor || typeof descriptor !== 'object' || Array.isArray(descriptor)) fail()
+  const annotations = descriptor.annotations
+  if (annotations !== undefined && (!annotations || typeof annotations !== 'object' || Array.isArray(annotations))) fail()
+  const hasContainerdName = Object.hasOwn(annotations ?? {}, CONTAINERD_IMAGE_NAME)
+  const hasOciName = Object.hasOwn(annotations ?? {}, OCI_REF_NAME)
+  const containerdName = hasContainerdName ? annotations[CONTAINERD_IMAGE_NAME] : undefined
+  const ociName = hasOciName ? annotations[OCI_REF_NAME] : undefined
+  if ((hasContainerdName && (typeof containerdName !== 'string' || !containerdName)) || (hasOciName && (typeof ociName !== 'string' || !ociName))) fail()
+
+  // Containerd prefers its full image-name annotation over OCI ref.name. Never infer a repository
+  // alias from a matching digest alone; ref.name is a fallback only when it names the exact pin.
+  if (hasContainerdName) {
+    if (expectedReferences.get(containerdName) !== descriptor.digest) fail()
+    if (hasOciName) {
+      const ociDigest = expectedReferences.get(ociName)
+      if (ociDigest !== undefined && (ociName !== containerdName || ociDigest !== descriptor.digest)) fail()
+      if (ociDigest === undefined && ociName.includes('@')) fail()
+    }
+    return containerdName
+  }
+  if (!hasOciName || !OCI_REFERENCE_NAME.test(ociName) || expectedReferences.get(ociName) !== descriptor.digest) fail()
+  return ociName
+}
 export async function verifyOciLayout(directory, images) {
   const allowed = new Set(['oci-layout', 'index.json']), verified = new Map(), expectedHashes = new Map()
   const decode = raw => { try { return JSON.parse(raw.toString('utf8')) } catch { fail() } }
@@ -21,9 +58,13 @@ export async function verifyOciLayout(directory, images) {
   const indexBytes = await bytes(directory, 'index.json', 4 * 1024 * 1024), index = decode(indexBytes)
   expectedHashes.set('index.json', digest(indexBytes))
   if (index?.schemaVersion !== 2 || !Array.isArray(index.manifests) || !index.manifests.length) fail()
-  const expected = [...new Set(Object.values(images).map(ref => ref.split('@')[1]))].sort()
-  const roots = index.manifests.map(d => d.digest).sort()
-  if (new Set(roots).size !== roots.length || JSON.stringify(expected) !== JSON.stringify(roots)) fail()
+  const expectedReferences = expectedImageReferences(images), namedReferences = new Set()
+  for (const root of index.manifests) {
+    const reference = rootImageReference(root, expectedReferences)
+    if (namedReferences.has(reference)) fail()
+    namedReferences.add(reference)
+  }
+  if (namedReferences.size !== expectedReferences.size || [...expectedReferences.keys()].some(reference => !namedReferences.has(reference))) fail()
   let descriptors = 0
   async function descriptor(d, kind, depth = 0) {
     if (++descriptors > 100000 || depth > 8 || !d || !/^sha256:[a-f0-9]{64}$/.test(d.digest) || !Number.isSafeInteger(d.size) || d.size < 0 || d.size > MAX_TAR_SIZE) fail()

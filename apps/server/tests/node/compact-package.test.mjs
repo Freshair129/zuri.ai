@@ -45,6 +45,24 @@ test('identical inputs produce identical package bytes in different directories'
   await a.packageCompactRelease({ manifest: f.filename, outputDirectory: path.join(root, 'two') })
   assert.deepEqual(await inventory(path.join(root, 'one')), await inventory(path.join(root, 'two')))
 })
+
+test('pins primary Asset and catalog storage to the same-host Compose service', async () => {
+  const { a, f } = await setup(), { parse } = await import('yaml')
+  const rendered = await a.renderCompactRuntimeFiles(f.m), compose = parse(rendered['compose.yml'])
+  const privateEnvironment = {
+    ZURI_ASSET_STORAGE_PROVIDER: 'supabase',
+    ZURI_ASSET_STORAGE_ENDPOINT: 'https://remote.invalid',
+    ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: 'supabase',
+    ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT: 'https://remote.invalid',
+  }
+  const effective = { ...privateEnvironment, ...compose.services.web.environment }
+  for (const prefix of ['ZURI_ASSET_STORAGE', 'ZURI_KNOWLEDGE_CATALOG_STORAGE']) {
+    assert.equal(effective[`${prefix}_PROVIDER`], 's3')
+    assert.equal(effective[`${prefix}_ENDPOINT`], 'http://storage:9000')
+  }
+  assert.deepEqual(compose.services.storage.networks, compose.services.web.networks)
+  assert.equal(compose.services.storage.ports, undefined)
+})
 for (const kind of ['manifest', 'hash', 'missing', 'qualification', 'template']) test(`rejects ${kind} before output or exporter side effects`, async () => {
   const { a, root, f } = await setup(); let calls = 0
   if (kind === 'manifest') f.m.images.web = 'untrusted:latest'

@@ -59,13 +59,17 @@ export async function ociLayout(directory, m) {
   const configDigest = hash(config)
   const image = Buffer.from(JSON.stringify({ schemaVersion: 2, mediaType: 'application/vnd.oci.image.manifest.v1+json', config: { mediaType: 'application/vnd.oci.image.config.v1+json', digest: `sha256:${configDigest}`, size: config.length }, layers: [] }))
   const imageDigest = hash(image)
-  await mkdir(path.join(directory, 'blobs/sha256'), { recursive: true })
-  await writeFile(path.join(directory, 'oci-layout'), JSON.stringify({ imageLayoutVersion: '1.0.0' }))
-  await writeFile(path.join(directory, 'index.json'), JSON.stringify({ schemaVersion: 2, manifests: [{ mediaType: 'application/vnd.oci.image.manifest.v1+json', digest: `sha256:${imageDigest}`, size: image.length }] }))
-  await writeFile(path.join(directory, 'blobs/sha256', configDigest), config)
-  await writeFile(path.join(directory, 'blobs/sha256', imageDigest), image)
   for (const key of Object.keys(m.images)) m.images[key] = `test/${key.toLowerCase()}@sha256:${imageDigest}`
   m.storageQualification.image = m.images.storage
+  await mkdir(path.join(directory, 'blobs/sha256'), { recursive: true })
+  await writeFile(path.join(directory, 'oci-layout'), JSON.stringify({ imageLayoutVersion: '1.0.0' }))
+  const manifests = [...new Set(Object.values(m.images))].sort().map(reference => ({
+    mediaType: 'application/vnd.oci.image.manifest.v1+json', digest: `sha256:${imageDigest}`, size: image.length,
+    annotations: { 'io.containerd.image.name': reference },
+  }))
+  await writeFile(path.join(directory, 'index.json'), JSON.stringify({ schemaVersion: 2, manifests }))
+  await writeFile(path.join(directory, 'blobs/sha256', configDigest), config)
+  await writeFile(path.join(directory, 'blobs/sha256', imageDigest), image)
   return { imageDigest, configDigest, config, image }
 }
 export async function inventory(directory) {

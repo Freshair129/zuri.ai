@@ -11,13 +11,14 @@ import { buildCompactBaseline } from './lib/compact/baseline.mjs'
 import { compactProcessEnvironment } from './lib/compact/docker.mjs'
 import { stableJson, digest } from './lib/compact/files.mjs'
 import { CURRENT_SCHEMA_CONTRACTS } from './lib/compact/security.mjs'
+import { assertCompactBaselineSourceIntegrity } from './lib/compact/baseline-source.mjs'
 const ROOT = fileURLToPath(new URL('../', import.meta.url))
 export async function writeCompactBaseline({ outputDirectory, sourceRevision } = {}) {
   let temporary
   try {
     if (typeof outputDirectory !== 'string' || !/^[a-f0-9]{40}$/.test(sourceRevision)) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
+    assertCompactBaselineSourceIntegrity({ root: ROOT, sourceRevision })
     const git = args => execFileSync('git', args, { cwd: ROOT, encoding: 'utf8', windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] }).trimEnd()
-    if (git(['rev-parse', 'HEAD']) !== sourceRevision) throw new CompactError('COMPACT_SOURCE_REVISION_MISMATCH')
     const canonicalSchema = (await readFile(path.join(ROOT, 'prisma/schema.prisma'), 'utf8')).replaceAll('\r\n', '\n')
     if (git(['show', `${sourceRevision}:apps/server/prisma/schema.prisma`]).replaceAll('\r\n', '\n') !== canonicalSchema.trimEnd()) throw new CompactError('COMPACT_SOURCE_REVISION_MISMATCH')
     const sources = (await readdir(path.join(ROOT, 'supabase/migrations'))).filter(p => p.endsWith('.sql')).map(p => `supabase/migrations/${p}`).sort()

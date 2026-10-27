@@ -21,6 +21,10 @@ services:
       PUBLIC_BASE_URL: ${COMPACT_PUBLIC_BASE_URL:?Set the qualified origin}
       ZURI_SECRET_STORE: envelope
       ZURI_KNOWLEDGE_STUDIO_ROOT: /app/knowledge-studio-data
+      ZURI_ASSET_STORAGE_PROVIDER: s3
+      ZURI_ASSET_STORAGE_ENDPOINT: http://storage:9000
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: s3
+      ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT: http://storage:9000
     ports: ['127.0.0.1:${COMPACT_WEB_PORT:-3000}:3000']
     volumes:
       - type: bind

@@ -73,9 +73,15 @@ npm run compact:package -- --manifest /prepared/release-manifest.json --output /
 
 An optional trusted `imageExporter` callback returns `{layoutDirectory}`. The
 CLI's `--oci-layout` is its local-filesystem implementation: no Docker, network,
-build, pull or shell is invoked. The OCI index must contain exactly the selected
-image digest set; every referenced blob, size, hash and image config platform is
-verified. Any root or nested descriptor platform must also match linux/amd64.
+build, pull or shell is invoked. The OCI index must name every distinct selected
+immutable image reference with a descriptor matching its digest. Use the exact
+full reference in `io.containerd.image.name`, or a valid full immutable
+`org.opencontainers.image.ref.name` when the containerd name is absent. A tag-only
+OCI name is supported alongside an exact containerd name. Unnamed, duplicate and
+foreign reference mappings are rejected, including multiple repository aliases
+for the same digest unless each selected alias has its own named descriptor.
+Every referenced blob, size, hash and image config platform is verified. Any root
+or nested descriptor platform must also match linux/amd64.
 Additional OS/CPU/variant constraints are outside this v1 platform qualification
 and rejected in descriptors/configs. Extra/unreferenced files, links and foreign images are rejected. The
 result is a deterministic regular-file USTAR `images.oci.tar` with the same OCI
@@ -115,8 +121,13 @@ npm run compact:baseline -- --output /new/schema --source-revision <exact-HEAD-c
 
 This produces `baseline.sql` and `baseline.json` in a new directory. Copy both
 under the prepared package's `schema/` directory and declare their hashes before
-rendering generated roots. The producer verifies the canonical schema at HEAD,
-generates PostgreSQL DDL with Prisma `migrate diff --from-empty` without connecting
+rendering generated roots. The producer first requires the requested revision to
+be HEAD and its generator, compact library, schema, migrations and Server package
+manifests to match that commit, including staged edits and untracked scoped
+source files. Unrelated files and ignored session notes do not block generation.
+This binds repository inputs; it does not attest the installed Prisma executable.
+The producer verifies the canonical schema at HEAD, generates PostgreSQL DDL
+with Prisma `migrate diff --from-empty` without connecting
 to a database, and appends the reviewed fresh security snapshot. It neither runs
 Supabase history nor writes a migration ledger. The snapshot preserves current
 grants, all 108 current CHECK constraints and eight Phase B scoped policies;
@@ -290,15 +301,19 @@ qualification.
 
 ### Private Asset/catalog storage (Task4)
 
-Existing factory exports and the `supabase` default remain compatible. Explicitly
-select `ZURI_ASSET_STORAGE_PROVIDER=s3` and/or
-`ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER=s3` in the private app environment to use
-the S3 bridge. For each selected purpose, supply the following outside the release:
+The rendered Compact web service selects `s3` for Asset and catalog storage and
+pins both endpoints to `http://storage:9000` on its private Compose network.
+These explicit environment entries override provider/endpoint values in private
+env files. The qualified storage image and startup command must serve S3 on
+container port9000; the storage service publishes no host port. External primary
+storage remains outside ADR-115 v1. Off-host backup retains its separate purpose.
+For each purpose, supply the following in the private app environment outside
+the release:
 
 | Purpose | Configuration keys |
 |---|---|
-| Asset | `ZURI_ASSET_EVIDENCE_BUCKET`, `ZURI_ASSET_STORAGE_ENDPOINT`, `ZURI_ASSET_STORAGE_ACCESS_KEY`, `ZURI_ASSET_STORAGE_SECRET_KEY`, optional `ZURI_ASSET_STORAGE_REGION` |
-| Catalog | `ZURI_KNOWLEDGE_CATALOG_BUCKET`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_ENDPOINT`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_ACCESS_KEY`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_SECRET_KEY`, optional `ZURI_KNOWLEDGE_CATALOG_STORAGE_REGION` |
+| Asset | `ZURI_ASSET_EVIDENCE_BUCKET`, `ZURI_ASSET_STORAGE_ACCESS_KEY`, `ZURI_ASSET_STORAGE_SECRET_KEY`, optional `ZURI_ASSET_STORAGE_REGION` |
+| Catalog | `ZURI_KNOWLEDGE_CATALOG_BUCKET`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_ACCESS_KEY`, `ZURI_KNOWLEDGE_CATALOG_STORAGE_SECRET_KEY`, optional `ZURI_KNOWLEDGE_CATALOG_STORAGE_REGION` |
 
 Buckets must be distinct from one another and the configured Knowledge bucket.
 Enable versioning before use. Provision separate service credentials restricted
