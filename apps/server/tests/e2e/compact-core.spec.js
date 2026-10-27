@@ -3,6 +3,9 @@
 // @spec ADR-115 — packaged app on disposable PostgreSQL, isolated HTTPS and no auth bypass.
 // @tested tests/e2e/compact-core.spec.js
 const { test, expect } = require('@playwright/test')
+const { readFile } = require('node:fs/promises')
+const { createHash } = require('node:crypto')
+const path = require('node:path')
 
 test('fresh Compact operator, signup, Business/PM scope, seven views and restart persistence', async ({ playwright }) => {
   const api = await import('../helpers/compact-core-target.mjs')
@@ -22,6 +25,9 @@ test('fresh Compact operator, signup, Business/PM scope, seven views and restart
     return response.body
   }
   try {
+    expect(f.candidate?.status).toBe('ARTIFACT_INSPECTED_NOT_QUALIFIED')
+    if (process.env.COMPACT_PACKAGE_DIRECTORY) expect(f.candidate.packageInventorySha256).toBe(createHash('sha256').update(await readFile(path.join(process.env.COMPACT_PACKAGE_DIRECTORY, 'SHA256SUMS'))).digest('hex'))
+    expect(typeof f.recreateWeb).toBe('function')
     expect(f.providerChecks).toEqual({ versioning: true, conditionalWrite: true, exactRead: true, exactErase: true })
     expect(f.bootstrapResult.status).toBe('BOOTSTRAPPED')
     expect('initialPassword' in f.bootstrapResult).toBe(false)
@@ -80,11 +86,15 @@ test('fresh Compact operator, signup, Business/PM scope, seven views and restart
     expect((await request(strangerPage, 'GET', `/api/projects/${project.id}`)).status).toBe(404)
     expect((await request(strangerPage, 'PATCH', `/api/projects/${project.id}`, { name: 'Foreign change' })).status).toBe(404)
     await f.restartWeb()
+    await f.recreateWeb()
     const retained = await checked(await request(page, 'GET', `/api/projects/${project.id}`))
     expect(retained.name).toBe('Compact updated project')
     expect(retained.workstreams).toHaveLength(7)
     expect(await f.operatorCount()).toBe(1)
     const modelTables = await f.modelTableCount(); expect(modelTables).toBe(210)
-    await f.recordEvidence({ coreFlows: true, httpsLogin: true, signupUnprivileged: true, crossBusinessDenied: true, sevenExecutionViews: true, restartPersistence: true, modelTables })
+    expect(await f.retryInstalled()).toMatchObject({ status: 'INSTALLED', initialized: false })
+    const evidence = await f.recordEvidence({ coreFlows: true, httpsLogin: true, signupUnprivileged: true, crossBusinessDenied: true, sevenExecutionViews: true, restartPersistence: true, appRecreationPersistence: true, installedRetrySafe: true, modelTables })
+    expect(evidence.runtimeEnvelope.samples).toHaveLength(3)
+    expect(evidence.runtimeEnvelope.volumes.database.allocatedBytes).toBeGreaterThan(0)
   } finally { await browser?.close(); await f.close() }
 })

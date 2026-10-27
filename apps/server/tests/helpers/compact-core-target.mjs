@@ -4,21 +4,23 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { randomBytes, randomUUID, createHash, X509Certificate } from 'node:crypto'
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises'
+import { readFile, writeFile, mkdir, access, stat } from 'node:fs/promises'
 import { createServer as tcpServer } from 'node:net'
 import { createServer as tlsServer } from 'node:https'
 import { request as httpRequest } from 'node:http'
 import path from 'node:path'
+import os from 'node:os'
 import { fileURLToPath } from 'node:url'
 import { createS3ObjectStoragePort } from '../../src/platform/storage/s3-object-storage.js'
-import { compactFixture } from './compact-postgres-target.mjs'
+import { compactFixture, completeCompactFixtureCleanup, compactFixtureSetupFailure } from './compact-postgres-target.mjs'
 import * as packageApi from '../../scripts/compact-package.mjs'
 import * as baselineApi from '../../scripts/lib/compact/baseline.mjs'
 import * as executorApi from '../../scripts/lib/compact/executor.mjs'
 import { compactProcessEnvironment, runCompactDocker } from '../../scripts/lib/compact/docker.mjs'
 import { readCompactPrivateFile } from '../../scripts/lib/compact/executor.mjs'
-import { digest } from '../../scripts/lib/compact/files.mjs'
+import { digest, listFiles, stableJson } from '../../scripts/lib/compact/files.mjs'
 import { isPortablePayloadPath } from '../../scripts/lib/compact/manifest.mjs'
+import { inspectCompactQualificationCandidate, retainCompactQualificationPackage } from '../../scripts/lib/compact/qualify.mjs'
 
 const SERVER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..'), REPO = path.resolve(SERVER, '../..')
 const freePort = () => new Promise((resolve, reject) => { const server = tcpServer(); server.once('error', reject); server.listen(0, '127.0.0.1', () => { const port = server.address().port; server.close(() => resolve(port)) }) })
@@ -32,7 +34,7 @@ function bucketRequest(url, method, accessKeyId, secretAccessKey, body = '') {
     return execFileSync(process.platform === 'win32' ? 'curl.exe' : 'curl', ['--disable', '--noproxy', '*', '--aws-sigv4', 'aws:amz:us-east-1:s3', '--config', '-'], { input: config, env: compactProcessEnvironment(), encoding: 'utf8', windowsHide: true, timeout: 10000, stdio: ['pipe', 'pipe', 'pipe'] })
   } catch { throw new Error('COMPACT_CORE_BUCKET_FAILED') }
 }
-async function canonicalInput({ input, manifest }) {
+export async function canonicalInput({ input, manifest }) {
   const files = execFileSync('git', ['ls-files', '--', 'docs', 'registry/document-registry/index.json'], { cwd: REPO, encoding: 'utf8', windowsHide: true }).trim().split(/\r?\n/)
   files.push('docs/.doc-graph.json')
   for (const relative of files.filter(isPortablePayloadPath)) {
@@ -58,12 +60,17 @@ async function browserExecutable() {
   return undefined
 }
 export async function startCompactCoreTarget() {
-  assert(process.env.COMPACT_CORE_IMAGE_FILE, 'COMPACT_CORE_IMAGE_FILE must select explicit local immutable TEST images')
+  assert(process.env.COMPACT_CORE_IMAGE_FILE && process.env.COMPACT_PACKAGE_DIRECTORY, 'COMPACT_CORE_EXPLICIT_ARTIFACT_REQUIRED')
   const images = JSON.parse(await readCompactPrivateFile(process.env.COMPACT_CORE_IMAGE_FILE))
   assert.deepEqual(Object.keys(images).sort(), ['postgres', 'storage', 'tools', 'web'])
   const sourceRevision = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: REPO, encoding: 'utf8', windowsHide: true }).trim()
-  const f = await compactFixture({ packageApi, baselineApi, executorApi, componentImages: images, sourceRevision, prepareInput: canonicalInput })
-  const owned = new Map(); let proxy
+  let f
+  try { f = await compactFixture({ packageApi, baselineApi, executorApi, componentImages: images, sourceRevision, prepareInput: canonicalInput, packageDirectory: process.env.COMPACT_PACKAGE_DIRECTORY }) }
+  catch (error) {
+    if (process.env.COMPACT_CORE_EVIDENCE_DIRECTORY) await writeFile(path.join(process.env.COMPACT_CORE_EVIDENCE_DIRECTORY, `${randomUUID()}-core-setup.json`), stableJson({ environment: 'TEST', scope: 'CORE_FLOW_TEST_ONLY', ...compactFixtureSetupFailure(error) }), { flag: 'wx', mode: 0o600 })
+    throw error
+  }
+  const owned = new Map(); let proxy, pendingEvidence
   const run = async (args, options) => {
     const result = await runCompactDocker(['--host', endpoint, ...args], options)
     if (result.status !== 0) throw new Error('COMPACT_CORE_DOCKER_FAILED')
@@ -74,19 +81,32 @@ export async function startCompactCoreTarget() {
     const info = JSON.parse(await run(['container', 'inspect', id]))[0]
     assert(id === info.Id || info.Name === '/' + id); assert.equal(info.Config.Labels['com.zuri-ai.compact.target'], f.target.targetId)
     assert.equal(info.Config.Labels['com.zuri-ai.compact.environment'], 'TEST')
+    assert.equal(info.Config.Labels['com.zuri-ai.compact.project'], f.target.project)
     return info
   }
   const close = async () => {
-    if (proxy) { proxy.closeAllConnections(); await new Promise(resolve => proxy.close(resolve)) }
-    for (const id of [...owned.keys()].reverse()) {
+    let cleanupError
+    try {
+    await completeCompactFixtureCleanup([
+    async () => { if (proxy) { proxy.closeAllConnections(); await new Promise(resolve => proxy.close(resolve)) } },
+    ...[...owned.keys()].reverse().map(id => async () => {
       const result = await runCompactDocker(['--host', endpoint, 'container', 'inspect', id])
-      if (result.status !== 0 && /No such (?:container|object)/i.test(result.stderr)) continue
+      if (result.status !== 0 && /No such (?:container|object)/i.test(result.stderr)) return
       assert.equal(result.status, 0, 'COMPACT_CORE_CLEANUP_UNVERIFIED')
       const info = await assertOwned(id); await run(['container', 'rm', '--force', info.Id])
+    }),
+    () => f.close(),
+    ])
+    } catch (error) { cleanupError = error }
+    if (process.env.COMPACT_CORE_EVIDENCE_DIRECTORY) {
+      const checks = pendingEvidence?.checks || { coreFlows: false }
+      const complete = ['coreFlows', 'httpsLogin', 'signupUnprivileged', 'crossBusinessDenied', 'sevenExecutionViews', 'restartPersistence', 'appRecreationPersistence', 'installedRetrySafe'].every(k => checks[k] === true) && checks.modelTables === 210 && pendingEvidence?.runtimeEnvelope?.samples?.length === 3
+      await writeFile(path.join(process.env.COMPACT_CORE_EVIDENCE_DIRECTORY, `${f.target.targetId}-core.json`), stableJson({ environment: 'TEST', targetId: f.target.targetId, ...pendingEvidence, status: complete && !cleanupError ? 'PASS' : 'FAIL', cleanup: cleanupError ? 'FAIL' : 'PASS', scope: 'CORE_FLOW_TEST_ONLY', checks }), { flag: 'wx', mode: 0o600 })
     }
-    await f.close()
+    if (cleanupError) throw cleanupError
   }
   try {
+    const candidate = await inspectCompactQualificationCandidate({ packageDirectory: f.release, target: f.target, driver: f.driver })
     await f.install()
     endpoint = (await f.driver.inspect({ manifest: f.manifest, target: f.target })).daemon.endpoint
     const labels = ['--label', `com.zuri-ai.compact.target=${f.target.targetId}`, '--label', `com.zuri-ai.compact.project=${f.target.project}`, '--label', 'com.zuri-ai.compact.environment=TEST']
@@ -138,20 +158,67 @@ export async function startCompactCoreTarget() {
     const existing = await runCompactDocker(['--host', endpoint, 'container', 'inspect', `${f.target.project}-web-1`]); assert.notEqual(existing.status, 0, 'COMPACT_CORE_TARGET_EXISTS')
     owned.set(`${f.target.project}-web-1`, 'web')
     await run([...composeArgs, 'up', '--detach', '--no-deps', '--pull', 'never', 'web'], { timeoutMs: 90000 })
-    const web = JSON.parse(await run(['container', 'inspect', `${f.target.project}-web-1`]))[0], webId = web.Id
+    const web = JSON.parse(await run(['container', 'inspect', `${f.target.project}-web-1`]))[0]
+    let webId = web.Id
     await assertOwned(webId); assert.equal(web.Config.Image, images.web)
     const ready = async () => { for (let i = 0; i < 150; i++) { try { if ((await fetch(`http://127.0.0.1:${webPort}/api/health`, { signal: AbortSignal.timeout(1500) })).status === 200) return } catch {} await pause(200) } throw new Error('COMPACT_CORE_HEALTH_FAILED') }
     await ready()
+    const measureRuntimeEnvelope = async () => {
+      const measureRun = async (args, phase) => {
+        const result = await runCompactDocker(['--host', endpoint, ...args])
+        if (result.status !== 0) throw new Error(`COMPACT_CORE_MEASURE_${phase}_${/\b(EACCES|ENOENT|EPERM|ENOSPC)\b/.exec(result.stderr)?.[1] || 'FAILED'}`)
+        return result.stdout.trim()
+      }
+      const observed = await f.driver.inspect({ manifest: f.manifest, target: f.target })
+      const ids = [observed.container.id, webId, storageId], roles = ['database', 'web', 'storage'], logicalImageBytes = {}
+      for (let i = 0; i < ids.length; i++) { const c = await assertOwned(ids[i]); assert(c.State.Running); logicalImageBytes[roles[i]] = JSON.parse(await run(['image', 'inspect', '--format', '{{json .Size}}', c.Image])) }
+      const stats = (await run(['stats', '--no-stream', '--no-trunc', '--format', '{{json .}}', ...ids])).split(/\r?\n/).filter(Boolean).map(row => JSON.parse(row))
+      const samples = ids.map((id, index) => {
+        const rows = stats.filter(row => { const actual = row.ID || row.Container; return /^[a-f0-9]{12,64}$/.test(actual || '') && id.startsWith(actual) })
+        assert.equal(rows.length, 1); const row = rows[0]
+        assert(/^\d+(?:\.\d+)?%$/.test(row.CPUPerc)); assert(/^\d+$/.test(row.PIDs)); assert(/^[\d.]+[KMGTPE]?i?B \/ [\d.]+[KMGTPE]?i?B$/.test(row.MemUsage))
+        return { role: roles[index], containerId: id, cpuPercent: row.CPUPerc, memoryUsage: row.MemUsage, pids: Number(row.PIDs) }
+      })
+      for (const name of Object.values(f.target.volumes)) { const v = JSON.parse(await run(['volume', 'inspect', name]))[0]; for (const [key, value] of Object.entries({ target: f.target.targetId, project: f.target.project, environment: 'TEST' })) assert.equal(v.Labels[`com.zuri-ai.compact.${key}`], value) }
+      const measureArgs = ['run', '--rm', '--pull', 'never', ...labels, '--network', 'none', '--log-driver', 'none', '--read-only', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges']
+      const owners = JSON.parse(await measureRun([...measureArgs, '--name', `${f.target.project}-measure-owner-${randomUUID()}`, '--mount', `type=volume,source=${f.target.volumes.database},target=/database,readonly`, '--mount', `type=volume,source=${f.target.volumes.objects},target=/objects,readonly`, '--entrypoint', 'node', images.tools, '-e', 'const f=require("node:fs");const r={};for(const k of ["database","objects"]){const s=f.lstatSync("/"+k);r[k]={uid:s.uid,gid:s.gid}}process.stdout.write(JSON.stringify(r))'], 'OWNER'))
+      const measureScript = 'const fs=require("node:fs");function walk(p){let logicalBytes=0,allocatedBytes=0;for(const n of fs.readdirSync(p)){const q=p+"/"+n;let s;try{s=fs.lstatSync(q)}catch(e){if(e.code==="ENOENT")continue;throw e}if(s.isSymbolicLink())throw Error("MEASURE_LINK_REFUSED");if(s.isDirectory()){const a=walk(q);logicalBytes+=a.logicalBytes;allocatedBytes+=a.allocatedBytes}else if(s.isFile()){logicalBytes+=s.size;allocatedBytes+=s.blocks*512}}return{logicalBytes,allocatedBytes}}process.stdout.write(JSON.stringify(walk("/measure")))'
+      const volumes = {}
+      for (const role of ['database', 'objects']) {
+        assert(Number.isInteger(owners[role]?.uid) && Number.isInteger(owners[role]?.gid))
+        volumes[role] = JSON.parse(await measureRun([...measureArgs, '--name', `${f.target.project}-measure-${role}-${randomUUID()}`, '--user', `${owners[role].uid}:${owners[role].gid}`, '--mount', `type=volume,source=${f.target.volumes[role]},target=/measure,readonly`, '--entrypoint', 'node', images.tools, '-e', measureScript], `VOLUME_${role.toUpperCase()}`))
+      }
+      const engine = JSON.parse(await run(['info', '--format', '{"cpuCount":{{.NCPU}},"memoryBytes":{{.MemTotal}}}']))
+      let packageBytes = 0; for (const file of await listFiles(f.release)) packageBytes += (await stat(path.join(f.release, file))).size
+      return { measuredAt: new Date().toISOString(), samplePoint: 'AFTER_CORE_FLOW_NOT_A_PEAK_OR_MINIMUM', host: { platform: process.platform, architecture: process.arch, cpuCount: os.cpus().length, memoryBytes: os.totalmem() }, engine, samples, logicalImageBytes, volumes, packageBytes, minimumHardware: 'NOT_QUALIFIED' }
+    }
     // Real operator/signup sessions drive all browser authorization; no viewer is manufactured.
-    return { baseURL, spkiPin, executablePath: await browserExecutable(), operator, initialPassword, bootstrapResult, providerChecks,
+    return { baseURL, spkiPin, executablePath: await browserExecutable(), operator, initialPassword, bootstrapResult, providerChecks, candidate,
       signupEmail: `stranger-${f.target.targetId}@example.invalid`, signupPassword: randomBytes(18).toString('base64url'),
       ownerEmail: `owner-${f.target.targetId}@example.invalid`, ownerPassword: randomBytes(18).toString('base64url'),
       repeatBootstrap: async () => cli('bootstrap', ['--operator', operatorFile, '--private-output', path.join(f.root, 'private refused repeat.json')]),
       authorityCounts: async personId => { const rows = (await f.query('SELECT (SELECT count(*)::int FROM "PlatformGrant" WHERE "personId"=$1) AS grants,(SELECT count(*)::int FROM "Membership" WHERE "personId"=$1) AS memberships', [personId])).rows; return rows[0] },
       operatorCount: async () => (await f.query('SELECT count(*)::int AS n FROM "PlatformGrant" WHERE capability=\'OPERATOR\' AND status=\'ACTIVE\'')).rows[0].n,
       modelTableCount: async () => (await f.query('SELECT count(*)::int AS n FROM pg_tables WHERE schemaname=\'public\'')).rows[0].n,
+      retryInstalled: () => f.install(),
       restartWeb: async () => { await assertOwned(webId); await run(['container', 'restart', '--time', '15', webId]); await ready() },
-      recordEvidence: async checks => { if (process.env.COMPACT_CORE_EVIDENCE_DIRECTORY) { const observed = await f.driver.inspect({ manifest: f.manifest, target: f.target }); await writeFile(path.join(process.env.COMPACT_CORE_EVIDENCE_DIRECTORY, `${f.target.targetId}-core.json`), JSON.stringify({ environment: 'TEST', sourceBase: sourceRevision, targetId: f.target.targetId, project: f.target.project, images, manifestSha256: observed.database.installation.manifestSha256, hostCliSha256: f.manifest.files['compact-self-host.mjs'], baselineSha256: f.manifest.schemaBaseline.sha256, databaseIdentity: { systemIdentifier: observed.database.systemIdentifier, oid: observed.database.oid, catalogSha256: observed.database.catalogSha256 }, webContainerId: webId, providerChecks, checks, limits: ['TEST candidate with a working host-tool patch, not a production release', 'Asset/catalog parity, LINE/Knowledge and complete recovery remain separate'] }, null, 2) + '\n', { flag: 'wx' }) } }, close,
+      recreateWeb: async () => {
+        await assertOwned(webId); const previous = webId
+        await run([...composeArgs, 'up', '--detach', '--no-deps', '--pull', 'never', '--force-recreate', 'web'], { timeoutMs: 90000 })
+        const current = await assertOwned(`${f.target.project}-web-1`); assert.equal(current.Config.Image, images.web); assert.notEqual(current.Id, previous)
+        webId = current.Id; await ready()
+      },
+      recordEvidence: async checks => {
+        let retained
+        if (checks.coreFlows === true && process.env.COMPACT_RETAIN_PACKAGE_DIRECTORY) {
+          const relative = path.relative(f.root, path.resolve(process.env.COMPACT_RETAIN_PACKAGE_DIRECTORY))
+          assert(relative && (relative === '..' || relative.startsWith('..' + path.sep) || path.isAbsolute(relative)), 'COMPACT_RETENTION_INSIDE_TEMP_REFUSED')
+          retained = await retainCompactQualificationPackage({ packageDirectory: f.release, destination: process.env.COMPACT_RETAIN_PACKAGE_DIRECTORY })
+        }
+        const observed = await f.driver.inspect({ manifest: f.manifest, target: f.target }), runtimeEnvelope = checks.coreFlows === true ? await measureRuntimeEnvelope() : null
+        pendingEvidence = { sourceBase: sourceRevision, project: f.target.project, images, manifestSha256: observed.database.installation.manifestSha256, packageInventorySha256: candidate.packageInventorySha256, suppliedArtifact: Boolean(process.env.COMPACT_PACKAGE_DIRECTORY), retained, hostCliSha256: f.manifest.files['compact-self-host.mjs'], baselineSha256: f.manifest.schemaBaseline.sha256, databaseIdentity: { systemIdentifier: observed.database.systemIdentifier, oid: observed.database.oid, catalogSha256: observed.database.catalogSha256 }, webContainerId: webId, providerChecks, runtimeEnvelope, checks, limits: ['TEST candidate with a working host-tool patch, not a production release', 'Asset/catalog parity, LINE/Knowledge and complete recovery remain separate'] }
+        return pendingEvidence
+      }, close,
     }
-  } catch (error) { await close(); throw error }
+  } catch (error) { try { await close() } catch { error.cleanupFailed = true }; throw error }
 }

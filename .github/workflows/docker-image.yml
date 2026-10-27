@@ -27,6 +27,10 @@ on:
         description: Package explicit prepared Compact inputs (no publish/deploy)
         type: boolean
         default: false
+      compact_qualify_core:
+        description: Run owned disposable core/recovery tests on the packaged OCI candidate
+        type: boolean
+        default: false
       compact_input_run_id:
         description: Same-repository workflow run containing prepared inputs
         type: string
@@ -103,6 +107,61 @@ jobs:
           path: ${{ runner.temp }}/compact-package
           if-no-files-found: error
           include-hidden-files: true
+  compact-core:
+    needs: compact-package
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.compact_package && inputs.compact_qualify_core }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    defaults:
+      run:
+        working-directory: apps/server
+    env:
+      COMPACT_PACKAGE_DIRECTORY: ${{ runner.temp }}/compact-package
+      COMPACT_CORE_IMAGE_FILE: ${{ runner.temp }}/compact-images.json
+      COMPACT_CORE_EVIDENCE_DIRECTORY: ${{ runner.temp }}/compact-core-observations
+      COMPACT_RECOVERY_PRIVATE_DIRECTORY: ${{ runner.temp }}/compact-recovery-private
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+      # Job-local engine: OCI imports need the containerd image store. This does
+      # not reconfigure any operator's Docker Desktop or use a live environment.
+      - uses: docker/setup-docker-action@v5
+        with:
+          daemon-config: '{"features":{"containerd-snapshotter":true}}'
+      - uses: actions/download-artifact@v4
+        with:
+          name: compact-candidate-${{ github.sha }}
+          path: ${{ runner.temp }}/compact-package
+      - run: npm ci
+      - name: Verify exact OCI candidate before image load
+        shell: bash
+        run: |
+          node scripts/compact-qualify-input.mjs --package "$COMPACT_PACKAGE_DIRECTORY" --expected-revision "$GITHUB_SHA" > "$COMPACT_CORE_IMAGE_FILE"
+          mkdir "$COMPACT_CORE_EVIDENCE_DIRECTORY" "$COMPACT_RECOVERY_PRIVATE_DIRECTORY"
+      - name: Load selected candidate images
+        shell: bash
+        run: docker image load --input "$COMPACT_PACKAGE_DIRECTORY/images.oci.tar"
+      - run: npx --no-install playwright install --with-deps chromium
+      - name: Exact artifact core HTTPS and recreation
+        run: npm run test:compact:core
+      - name: Exact artifact bounded synthetic recovery
+        run: npm run test:compact:recovery
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compact-core-observations-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/compact-core-observations/*.json
+            ${{ runner.temp }}/compact-recovery-private/*/sanitized-observation.json
+          if-no-files-found: warn
+          # Never upload private SQL/object backups, keys, env or browser traces.
   compose-config:
     # The Compose file must interpolate from nothing but .env.example plus the two
     # values a real deployment supplies — a variable added to the file without a

@@ -39,6 +39,24 @@ test('manual package job preserves existing build-only jobs and read-only author
   assert.equal(upload.with['include-hidden-files'], true, 'the required docs/.doc-graph.json must survive candidate upload')
 })
 
+test('cold core CI is explicit, consumes the same-run verified OCI candidate and uploads only sanitized observations', async () => {
+  const workflow = parse(await readFile(new URL('../../../../.github/workflows/docker-image.yml', import.meta.url), 'utf8'))
+  const job = workflow.jobs['compact-core']
+  assert(job, 'explicit compact-core job must exist')
+  assert.equal(workflow.on.workflow_dispatch.inputs.compact_qualify_core.default, false)
+  assert.equal(job.needs, 'compact-package'); assert.match(job.if, /inputs.compact_qualify_core/); assert.match(job.if, /inputs.compact_package/)
+  assert.deepEqual(job.permissions, { contents: 'read', actions: 'read' })
+  const steps = job.steps, verification = steps.findIndex(s => s.name === 'Verify exact OCI candidate before image load'), load = steps.findIndex(s => s.name === 'Load selected candidate images')
+  assert(verification >= 0 && load > verification)
+  assert(steps.some(s => s.uses === 'docker/setup-docker-action@v5' && JSON.parse(s.with['daemon-config']).features['containerd-snapshotter'] === true))
+  const download = steps.find(s => s.uses?.startsWith('actions/download-artifact')); assert.equal(download.with.name, 'compact-candidate-${{ github.sha }}'); assert.equal(download.with['run-id'], undefined)
+  const commands = steps.filter(s => s.run).map(s => s.run).join('\n')
+  assert.match(commands, /--expected-revision/); assert.match(commands, /npm run test:compact:core/); assert.match(commands, /npm run test:compact:recovery/)
+  assert.doesNotMatch(commands, /docker (?:pull|push|login|system prune)|db push|--deploy/i)
+  const upload = steps.find(s => s.uses?.startsWith('actions/upload-artifact'))
+  assert.equal(upload.if, 'always()'); assert.match(upload.with.path, /sanitized-observation\.json/); assert.doesNotMatch(upload.with.path, /\.sql|\.bin|compact-package|private target|\.env/)
+})
+
 test('prepared artifact origin guard accepts only an exact successful same-repository run', async () => {
   const script = await provenance(), sha = 'a'.repeat(40)
   const fixtures = () => ({

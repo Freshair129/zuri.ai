@@ -11,8 +11,11 @@ import { fileURLToPath } from 'node:url'
 import pg from 'pg'
 import { prepared, hash, refreshEvidence, saveManifest } from '../node/compact-fixtures.mjs'
 import { targetFixture } from '../node/compact-task2-fixtures.mjs'
-import { compactIpv4Range } from '../../scripts/lib/compact/target.mjs'
+import { compactIpv4Range, compactOwnerLabels } from '../../scripts/lib/compact/target.mjs'
 import { runCompactDocker } from '../../scripts/lib/compact/docker.mjs'
+import { loadCompactPackage } from '../../scripts/lib/compact/executor.mjs'
+import { CompactError } from '../../scripts/lib/compact/manifest.mjs'
+import { stableJson, json } from '../../scripts/lib/compact/files.mjs'
 
 export const COMPACT_TEST_IMAGE = 'postgres@sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea'
 const SERVER = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
@@ -22,8 +25,51 @@ export function fixtureDocker(context, args) {
 }
 const port = () => new Promise((resolve, reject) => { const s = createServer(); s.once('error', reject); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => resolve(p)) }) })
 
-export async function compactFixture({ packageApi, baselineApi, executorApi, corruptDdl = false, componentImages = {}, sourceRevision, prepareInput }) {
-  const root = await mkdtemp(path.join(os.tmpdir(), 'zuri-compact-test ; $() ')), target = targetFixture()
+export async function readCompactFixturePackage({ packageDirectory, sourceRevision, componentImages = {} }) {
+  if (packageDirectory === undefined) return null
+  const loaded = await loadCompactPackage(packageDirectory)
+  if (loaded.manifest.profiles.length !== 1 || loaded.manifest.profiles[0] !== 'core' || sourceRevision && loaded.manifest.sourceRevision !== sourceRevision || Object.keys(componentImages).length && stableJson(componentImages) !== stableJson(loaded.manifest.images)) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
+  return loaded
+}
+export function assertCompactFixtureOwnership(kind, resource, target) {
+  const labels = kind === 'container' ? resource?.Config?.Labels : resource?.Labels
+  if (Object.entries(compactOwnerLabels(target)).some(([k, v]) => labels?.[k] !== v)) throw new CompactError('COMPACT_FIXTURE_FOREIGN_RESOURCE')
+}
+export async function completeCompactFixtureCleanup(actions) {
+  let firstError
+  for (const action of actions) try { await action() } catch (error) { firstError ||= error }
+  if (firstError) throw firstError
+}
+async function removeCompactFixtureRoot(root) {
+  const physical = await realpath(root), temporary = await realpath(os.tmpdir())
+  assert.equal((await lstat(root)).isSymbolicLink(), false)
+  assert.equal(path.dirname(physical), temporary); assert(path.basename(physical).startsWith('zuri-compact-test ; $() '))
+  await rm(physical, { recursive: true })
+}
+export async function withCompactFixtureRoot(operation) {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'zuri-compact-test ; $() '))
+  try { return await operation(root) }
+  catch (error) { try { await removeCompactFixtureRoot(root) } catch { error.cleanupFailed = true }; throw error }
+}
+export function compactFixtureSetupFailure(error) {
+  return { status: 'FAIL', cleanup: error?.cleanupFailed === true ? 'FAIL' : 'PASS', stage: 'FIXTURE_SETUP', failureCode: /^COMPACT_[A-Z0-9_]+$/.test(error?.code || '') ? error.code : 'COMPACT_FIXTURE_SETUP_FAILED' }
+}
+export async function inspectCompactFixtureResource(context, kind, name, run = runCompactDocker) {
+  if (!['container', 'volume', 'network'].includes(kind)) throw new CompactError('COMPACT_FIXTURE_CLEANUP_UNVERIFIED')
+  const result = await run(['--context', context, kind, 'inspect', name])
+  if (result.status !== 0) {
+    if (/No such (?:container|object|volume|network)|(?:volume|network).+not found/i.test(result.stderr)) return null
+    throw new CompactError('COMPACT_FIXTURE_CLEANUP_UNVERIFIED')
+  }
+  try { const rows = JSON.parse(result.stdout); if (!Array.isArray(rows) || rows.length !== 1 || !rows[0] || typeof rows[0] !== 'object') throw 0; return rows[0] } catch { throw new CompactError('COMPACT_FIXTURE_CLEANUP_UNVERIFIED') }
+}
+export async function compactFixture({ packageApi, baselineApi, executorApi, corruptDdl = false, componentImages = {}, sourceRevision, prepareInput, packageDirectory }) {
+  // Verify a supplied artifact before even creating private files or inspecting
+  // Docker. Its baseline/manifest are consumed directly, never regenerated.
+  const loaded = await readCompactFixturePackage({ packageDirectory, sourceRevision, componentImages })
+  if (loaded && corruptDdl) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
+  return withCompactFixtureRoot(async root => {
+  const target = targetFixture()
   target.targetId = randomUUID(); target.project = `zuri-compact-${target.targetId.slice(0, 13)}`
   target.network = `${target.project}-private`; target.database.container = `${target.project}-db`; target.database.port = await port()
   target.database.name = `compact_${target.targetId.replaceAll('-', '').slice(0, 16)}`
@@ -46,7 +92,13 @@ export async function compactFixture({ packageApi, baselineApi, executorApi, cor
   target.secretFiles = { bootstrapEnvironment: path.join(root, 'private bootstrap.env'), runtimeEnvironment: path.join(root, 'private runtime.env') }
   await writeFile(target.secretFiles.bootstrapEnvironment, `POSTGRES_USER=compact_bootstrap\nPOSTGRES_PASSWORD=${bootstrapPassword}\nPOSTGRES_DB=${target.database.name}\n`, { mode: 0o600 })
   await writeFile(target.secretFiles.runtimeEnvironment, ['DATABASE_URL', 'DIRECT_URL', 'POSTGRES_PRISMA_URL', 'POSTGRES_URL', 'POSTGRES_URL_NON_POOLING', 'DATABASE_POSTGRES_URL'].map(k => `${k}=postgresql://zuri_web_login:${runtimePassword}@db:5432/${target.database.name}`).join('\n') + '\n', { mode: 0o600 })
-  const input = path.join(root, 'input'), f = await prepared(input, packageApi)
+  const input = path.join(root, 'input')
+  let f, baseline, schemaSourceCommit, release
+  if (loaded) {
+    f = { m: loaded.manifest }; release = loaded.root; schemaSourceCommit = loaded.manifest.sourceRevision
+    baseline = { sql: loaded.baseline, metadata: await json(loaded.root, 'schema/baseline.json') }
+  } else {
+  f = await prepared(input, packageApi)
   assert.equal(componentImages.postgres ?? COMPACT_TEST_IMAGE, COMPACT_TEST_IMAGE)
   for (const key of Object.keys(f.m.images)) f.m.images[key] = componentImages[key] ?? COMPACT_TEST_IMAGE
   f.m.storageQualification.image = f.m.images.storage
@@ -55,20 +107,22 @@ export async function compactFixture({ packageApi, baselineApi, executorApi, cor
   if (prepareInput) await prepareInput({ input, manifest: f.m })
   const canonicalSchema = await readFile(path.join(SERVER, 'prisma/schema.prisma'), 'utf8')
   const postgresSchema = await readFile(path.join(SERVER, 'prisma/schema.postgres.prisma'), 'utf8')
-  const schemaSourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: SERVER, encoding: 'utf8', windowsHide: true }).trim()
+  schemaSourceCommit = execFileSync('git', ['rev-parse', 'HEAD'], { cwd: SERVER, encoding: 'utf8', windowsHide: true }).trim()
   assert.equal(canonicalSchema.replaceAll('\r\n', '\n').trimEnd(), execFileSync('git', ['show', `${schemaSourceCommit}:apps/server/prisma/schema.prisma`], { cwd: SERVER, encoding: 'utf8', windowsHide: true }).replaceAll('\r\n', '\n').trimEnd())
   let ddl = execFileSync(process.execPath, [path.join(SERVER, 'node_modules/prisma/build/index.js'), 'migrate', 'diff', '--from-empty', '--to-schema-datamodel', 'prisma/schema.postgres.prisma', '--script'], { cwd: SERVER, encoding: 'utf8', windowsHide: true, timeout: 120000, maxBuffer: 16 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] })
   if (corruptDdl) ddl += '\nCREATE TABLE "MustRollback" (id text); ALTER TABLE "DeliberatelyAbsent" ADD COLUMN x text;\n'
-  const baseline = baselineApi.buildCompactBaseline({ ddl, canonicalSchema, postgresSchema, sourceRevision: f.m.sourceRevision })
+  baseline = baselineApi.buildCompactBaseline({ ddl, canonicalSchema, postgresSchema, sourceRevision: f.m.sourceRevision })
   for (const [file, bytes] of Object.entries({ 'schema/baseline.sql': baseline.sql, 'schema/baseline.json': JSON.stringify(baseline.metadata) })) { await writeFile(path.join(input, file), bytes); f.m.files[file] = hash(bytes) }
   f.m.schemaBaseline.sha256 = f.m.files[f.m.schemaBaseline.file]
   for (const [file, bytes] of Object.entries(await packageApi.renderCompactRuntimeFiles(f.m))) f.m.files[file] = hash(bytes)
   await saveManifest(f)
-  const release = path.join(root, 'relocated candidate'), driver = executorApi.createCompactDockerDriver({ run: async (args, options) => {
+  release = path.join(root, 'relocated candidate')
+  await packageApi.packageCompactRelease({ manifest: f.filename, outputDirectory: release })
+  }
+  const driver = executorApi.createCompactDockerDriver({ run: async (args, options) => {
     assert.equal(args.some(value => value.includes(bootstrapPassword) || value.includes(runtimePassword)), false, 'private database password entered subprocess argv')
     return runCompactDocker(args, options)
   } })
-  await packageApi.packageCompactRelease({ manifest: f.filename, outputDirectory: release })
   const targetFile = path.join(root, 'private target.json'); await writeFile(targetFile, JSON.stringify(target), { mode: 0o600 })
   const clients = [], foreignVolumes = new Set()
   return { root, release, targetFile, target, driver, manifest: f.m, runtimePassword, bootstrapPassword,
@@ -81,7 +135,7 @@ export async function compactFixture({ packageApi, baselineApi, executorApi, cor
         volumes: Object.fromEntries(Object.entries(o.volumes).map(([k, v]) => [k, v && { name: v.name, driver: v.driver, created: v.created }])),
         container: o.container && { id: o.container.id, name: o.container.name, imageId: o.container.imageId, running: o.container.running }, database: o.database })
       const output = await realpath(process.env.COMPACT_TEST_EVIDENCE_DIRECTORY)
-      await writeFile(path.join(output, `${target.targetId}-${caseName}.json`), JSON.stringify({ schemaVersion: 'compact-test-observation.v1', syntheticPackage: true, caseName, environment: 'TEST', targetId: target.targetId, project: target.project, schemaSourceCommit, baseline: baseline.metadata, before: view(before), after: view(after), checks }, null, 2) + '\n', { flag: 'wx', mode: 0o600 })
+      await writeFile(path.join(output, `${target.targetId}-${caseName}.json`), JSON.stringify({ schemaVersion: 'compact-test-observation.v1', syntheticPackage: !loaded, caseName, environment: 'TEST', targetId: target.targetId, project: target.project, schemaSourceCommit, baseline: baseline.metadata, before: view(before), after: view(after), checks }, null, 2) + '\n', { flag: 'wx', mode: 0o600 })
     },
     async query(sql, values = [], runtime = false) {
       // Resource ownership is verified before any host SQL connection is opened.
@@ -95,20 +149,24 @@ export async function compactFixture({ packageApi, baselineApi, executorApi, cor
       fixtureDocker(target.dockerContext, ['volume', 'create', '--label', `com.zuri-ai.compact.fixture=${target.targetId}`, target.volumes.database]); foreignVolumes.add(target.volumes.database)
     },
     async close() {
-      await Promise.all(clients.map(c => c.end()))
-      const json = args => { try { return JSON.parse(fixtureDocker(target.dockerContext, args))[0] } catch { return null } }
-      const c = json(['container', 'inspect', target.database.container])
-      if (c) { assert.equal(c.Config.Labels['com.zuri-ai.compact.target'], target.targetId); fixtureDocker(target.dockerContext, ['container', 'rm', '--force', c.Id]) }
-      for (const name of Object.values(target.volumes)) {
-        const v = json(['volume', 'inspect', name])
-        if (v) { assert.equal(v.Labels[foreignVolumes.has(name) ? 'com.zuri-ai.compact.fixture' : 'com.zuri-ai.compact.target'], target.targetId); fixtureDocker(target.dockerContext, ['volume', 'rm', name]) }
-      }
-      const n = json(['network', 'inspect', target.network])
-      if (n) { assert.equal(n.Labels['com.zuri-ai.compact.target'], target.targetId); fixtureDocker(target.dockerContext, ['network', 'rm', n.Id]) }
-      const physical = await realpath(root), temporary = await realpath(os.tmpdir())
-      assert.equal((await lstat(root)).isSymbolicLink(), false)
-      assert.equal(path.dirname(physical), temporary); assert(path.basename(physical).startsWith('zuri-compact-test ; $() '))
-      await rm(physical, { recursive: true })
+      const inspect = (kind, name) => inspectCompactFixtureResource(target.dockerContext, kind, name)
+      await completeCompactFixtureCleanup([
+      ...clients.map(c => () => c.end()),
+      async () => {
+      const c = await inspect('container', target.database.container)
+      if (c) { assertCompactFixtureOwnership('container', c, target); assert.equal(c.Name, '/' + target.database.container); assert(/^[a-f0-9]{64}$/.test(c.Id)); fixtureDocker(target.dockerContext, ['container', 'rm', '--force', c.Id]) }
+      },
+      ...Object.values(target.volumes).map(name => async () => {
+        const v = await inspect('volume', name)
+        if (v) { assert.equal(v.Name, name); if (foreignVolumes.has(name)) assert.equal(v.Labels['com.zuri-ai.compact.fixture'], target.targetId); else assertCompactFixtureOwnership('volume', v, target); fixtureDocker(target.dockerContext, ['volume', 'rm', name]) }
+      }),
+      async () => {
+      const n = await inspect('network', target.network)
+      if (n) { assertCompactFixtureOwnership('network', n, target); assert.equal(n.Name, target.network); assert(/^[a-f0-9]{64}$/.test(n.Id)); fixtureDocker(target.dockerContext, ['network', 'rm', n.Id]) }
+      },
+      () => removeCompactFixtureRoot(root),
+      ])
     },
   }
+  })
 }

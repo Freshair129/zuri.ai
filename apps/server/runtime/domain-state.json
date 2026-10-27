@@ -4025,7 +4025,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -5539,7 +5539,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -7224,7 +7224,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-046",
@@ -8229,7 +8229,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -9441,7 +9441,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 48
+          "testCount": 49
         },
         {
           "id": "FR-058",
@@ -9506,6 +9506,7 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-contract-regressions.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
+        "apps/server/tests/postgres/compact-recovery.test.js",
         "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/authorization-seam-list-routes.test.js",
@@ -13683,7 +13684,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 40
+          "testCount": 41
         },
         {
           "id": "FR-224",
@@ -13795,6 +13796,7 @@
         "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
+        "apps/server/tests/postgres/compact-recovery.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/connection-health.test.js",
         "apps/server/tests/unit/context-composer.test.js",

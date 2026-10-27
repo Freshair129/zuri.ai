@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 6
-version: "0.1.6"
+selected_task: 7
+version: "0.1.8"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -344,6 +344,13 @@ hashes; no domain lifecycle adoption or inference-pool implementation.
 
 ## Task7: Install/restart/recovery matrix and release handoff
 
+The [Task7 working evidence](../../reports/compact-selfhost-2026-10-27/task7-core-matrix.md)
+records the core-only artifact/recreation proof and pre-code recovery review.
+SEC-030/FR-223 exclude envelope ciphertext/KEK from export; restored credential
+metadata must use the existing re-entry transition. Synthetic fixture remapping
+cannot qualify a missing managed-blob operator recovery contract. Keep those
+support/release gates explicit while executing the owned TEST matrix below.
+
 **Files:** New `scripts/lib/compact/qualify.mjs`,
 `tests/node/compact-qualification.test.mjs`, isolated install harness and compact
 runbook; modify appropriate CI configuration with scoped job selection preserved.
@@ -352,11 +359,11 @@ runbook; modify appropriate CI configuration with scoped job selection preserved
 **Produces:** Exact-artifact package/core/selected-capability evidence and recovery
 instructions; no production access or permission token.
 
-- [ ] Add failing tests for corrupted/foreign artifact, storage-version loss,
+- [x] Add failing tests for corrupted/foreign artifact, storage-version loss,
   interrupted initialization, app recreation, missing KEK/model and retry against
   an existing target. Cleanup may remove only resources created by that run;
   test missing ownership labels as a refusal. Never prune Docker globally.
-- [ ] Implement the harness with injected targets, sanitized logs and retained
+- [x] Implement the harness with injected targets, sanitized logs and retained
   first failures. A second volume on the same host is not a backup failure domain.
   App rollback may reuse compatible persistent data; it must not reverse a schema
   change implicitly. Existing-data upgrade remains outside fresh-only v1.

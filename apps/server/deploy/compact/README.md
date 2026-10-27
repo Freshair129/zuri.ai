@@ -1,9 +1,9 @@
-# Compact package, fresh database and private core bootstrap (Tasks1–3)
+# Compact package, fresh database and private core qualification
 
-ADR-115 Tasks1–5 provide build-time packaging, a fresh-only PostgreSQL installer,
+ADR-115 provides build-time packaging, a fresh-only PostgreSQL installer,
 private first-operator wrapping and isolated core qualification for explicit TEST
 targets. `INSTALLED` describes the database baseline. Asset/catalog, Marketing,
-LINE/Knowledge and release qualification remain later milestones. The Compose
+LINE/Knowledge and release qualification retain their separate gates. The Compose
 template must be rendered by the packager; do not run it directly.
 
 `compact:package` consumes a prepared `release-manifest.json`. All non-generated
@@ -18,8 +18,9 @@ Images use `repository@sha256:<64 lowercase hex>` references. Core requires
 web/tools/postgres/storage only. LINE reuses the web image; Knowledge additionally
 requires the worker, pinned MSP/GKS/Genesis identities and exact model files.
 Public ingress requires a separate pinned ngrok image. The first image platform
-is linux/amd64; Windows Docker Desktop host and real package acceptance are later
-qualifications. No GPU pool is required.
+is linux/amd64. Report host and exact-package acceptance separately: a local
+Windows Docker Desktop probe does not certify Linux-host or release support.
+No GPU pool is required.
 
 The strict JSON schema is `release-manifest.schema.json`; the validator adds
 portable path/case-collision and selected-profile/hash-reference invariants.
@@ -406,3 +407,72 @@ directory so the graph and hash inventory stay together; it never uploads the
 prepared source directory or an ambient checkout.
 Without supplied exact inputs/evidence the job fails; there is no fake sample
 release or fallback image/provider. Current automatic build/PR jobs remain active.
+
+### Exact artifact core matrix and bounded recovery (Task7)
+
+Core/recovery acceptance requires `COMPACT_PACKAGE_DIRECTORY` selecting an
+already hashed package, and `COMPACT_CORE_IMAGE_FILE` containing exactly its
+`web`, `tools`, `postgres`, `storage` pinned references. It never produces its own
+acceptance artifact from a dirty checkout. The manifest source revision must
+match the current test checkout; actual web/tools image source labels and
+platforms must match. The harness binds manifest, inventory, CLI and baseline
+hashes. `ARTIFACT_INSPECTED_NOT_QUALIFIED` is inspection only.
+
+Use `npm run test:compact:core` with an existing private
+`COMPACT_CORE_EVIDENCE_DIRECTORY`. It drives real HTTPS login/signup, Business/PM
+flows, all seven views, cross-Business denial, restart, app recreation and safe
+installed retry. It selects free loopback ports and a pinned ephemeral certificate;
+it never uses the primary preview. Evidence records post-flow CPU/RAM, logical
+image size, package size and owned-volume byte samples. These are neither peak
+load measurements nor a minimum hardware recommendation.
+
+For the selected TEST provider, `npm run test:compact:provider` takes a private
+`COMPACT_PROVIDER_INPUT_FILE` JSON `{image,command}` and exclusive
+`COMPACT_PROVIDER_EVIDENCE_FILE`. It runs real versioning, conditional write,
+version-pinned read and exact erase while preserving the replacement version.
+Provider evidence is valid only for that image/platform/command. TEST license
+review does not establish production license or distribution permission.
+
+`npm run test:compact:recovery` additionally requires an existing private
+`COMPACT_RECOVERY_PRIVATE_DIRECTORY`. It creates two distinct owned targets from
+the same artifact. Synthetic portable DB rows and actual Asset/catalog bytes are
+backed up there before deleting only the source fixture. The destination retains
+its own installation marker, roles, catalog and physical DB identity. Unknown
+nonempty security families refuse transfer. Protected Marketing report rows stay
+append-only after restoration. This is not the legacy snapshot importer.
+
+SEC-030/FR-223/ADR-089 prohibit exporting envelope ciphertext or the KEK. This
+harness tests missing/wrong KEK refusal only on the source, excludes the envelope
+table from transfer, and invokes credential re-entry on destination metadata.
+Never copy a source key/ciphertext into a backup or destination. Credentials must
+be re-entered under the existing authority contract before use.
+
+The object probe demonstrates missing-version refusal, exact recovered bytes,
+current authorization and a clearly TEST-only FileAsset ref remap with preserved
+scope/version/audit. There is no supported managed-blob operator restore/rebind
+operation; operator recovery remains `NOT_QUALIFIED`. Keep the private backup
+files for inspection. Never upload SQL, object backups, keys, env or traces as CI
+evidence. A second volume or private file on this host does not establish an
+off-host backup failure domain. Physical/off-host recovery remains unqualified.
+
+Cleanup verifies all target/project/TEST labels before each deletion and continues
+attempting other independently owned resources after a refusal. Missing labels or
+an unavailable daemon produce `cleanup: FAIL`; preserve the refused resource for
+inspection. No global prune is used. Run the disposable Docker harnesses serially on one
+daemon: free-subnet discovery is an observation, not a reservation. Concurrent
+fixture requests may be refused safely; do not treat a retry-only pass as green.
+Failed initialization must roll back; retry
+cannot repair partial, foreign, existing-data or drifted targets. Keep the first
+failure. App rollback may reuse only compatible persistent data and cannot reverse
+schema changes; existing-data upgrade is outside fresh-only v1.
+
+The manual image workflow offers `compact_qualify_core` together with
+`compact_package`. The dependent job consumes only that run's packaged candidate,
+checks exact source/core/OCI hashes before image import, uses a job-local
+containerd image store, then runs core and bounded recovery. It uploads only
+sanitized observation JSON. See the official [Docker job-local image-store
+example](https://docs.docker.com/build/ci/github-actions/multi-platform/).
+No registry login, publication, deploy or production environment is used.
+Workflow code and local fixtures do not prove a hosted run: exact-head hosted CI,
+provider/legal review, supported operator recovery, physical backup recovery and
+release approval remain separate gates. Unselected AI profiles remain unqualified.

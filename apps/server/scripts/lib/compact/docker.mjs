@@ -61,6 +61,15 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
     return invoke(endpoint, args, { input: sql, environment, timeoutMs: atomic ? 120000 : 15000 })
   }
   const driver = {
+    async inspectCandidateImages({ manifest, target }) {
+      const m = validateCompactManifest(manifest), t = validateCompactTarget(target), daemon = await local(t), result = {}
+      for (const key of ['web', 'tools']) {
+        const image = await read(daemon.endpoint, 'image', m.images[key])
+        if (!image?.RepoDigests?.includes(m.images[key])) fail('COMPACT_IMAGE_SOURCE_MISMATCH')
+        result[key] = { reference: m.images[key], id: image.Id, platform: `${image.Os}/${image.Architecture}`, sourceRevision: image.Config?.Labels?.['org.opencontainers.image.revision'] ?? null }
+      }
+      return result
+    },
     async inspectCohort({ manifest, target, modelDirectory }) {
       const m = validateCompactManifest(manifest), t = validateCompactTarget(target), daemon = await local(t)
       const ids = (await invoke(daemon.endpoint, ['container', 'ls', '--all', '--quiet', '--no-trunc', '--filter', `label=com.docker.compose.project=${t.project}`])).split(/\r?\n/).filter(Boolean)
