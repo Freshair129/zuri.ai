@@ -10,6 +10,7 @@ const PURPOSES = Object.freeze({
 const invalid = (status = 400, code = 'BUSINESS_STORAGE_REF_INVALID') => Object.assign(new Error('Private business object storage request refused'), { status, code })
 const BUCKET = /^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$/
 const SEGMENT = /^[A-Za-z0-9_-]+$/
+const SHA256 = /^[a-f0-9]{64}$/i
 const immutableVersion = version => typeof version === 'string' && version.trim() !== '' && version.trim().toLowerCase() !== 'null'
 
 export function businessStorageProvider(purpose, env = process.env) {
@@ -88,9 +89,16 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
       const ref = `s3-business://${purpose}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}?versionId=${encodeURIComponent(stored.versionId)}`
       return { ref, sha256: stored.sha256, byteLength: stored.byteLength }
     },
-    async get({ ref, tenantId, businessId }) {
+    async get({ ref, tenantId, businessId, expectedSha256, expectedByteLength }) {
       const { key, versionId } = owned(ref, { tenantId, businessId })
-      return safe(async () => (await transport.readExact({ key, versionId })).bytes)
+      if (expectedSha256 !== undefined && (typeof expectedSha256 !== 'string' || !SHA256.test(expectedSha256))
+        || expectedByteLength !== undefined && (!Number.isSafeInteger(expectedByteLength) || expectedByteLength < 0)) throw invalid()
+      return safe(async () => {
+        const stored = await transport.readExact({ key, versionId })
+        if (expectedSha256 !== undefined && stored.sha256 !== expectedSha256.toLowerCase()
+          || expectedByteLength !== undefined && stored.byteLength !== expectedByteLength) throw invalid(409)
+        return stored.bytes
+      })
     },
     async remove({ ref, tenantId, businessId }) {
       const { key, versionId } = owned(ref, { tenantId, businessId })

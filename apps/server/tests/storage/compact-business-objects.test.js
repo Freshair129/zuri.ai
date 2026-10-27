@@ -12,6 +12,9 @@ import { resolveFileAssetContent, createManagedBlobFileAsset } from '@/modules/p
 import { uploadAssetEvidence, extractAssetEvidence } from '@/modules/asset-management/application/asset-evidence-service'
 import { startCompactBusinessStorage, businessStorageObservation } from '../helpers/compact-business-storage.mjs'
 import { createS3ObjectStoragePort } from '@/platform/storage/s3-object-storage'
+import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
+import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
+import { compactPricingCatalogFixture } from '../helpers/compact-pricing-catalog'
 
 describe('Compact actual private business objects', () => {
   let fixture, business, owner, assetPort, catalogPort, reader, uploaded
@@ -71,6 +74,78 @@ describe('Compact actual private business objects', () => {
     await expect(extractAssetEvidence(evidence.id, { viewer: stranger, objectStoragePort: reader, extractor })).rejects.toMatchObject({ status: 404 })
     expect(extractor.extract).not.toHaveBeenCalled()
     completedCases.add('extraction')
+  })
+
+  it('refuses pinned bytes inconsistent with FileAsset metadata before extraction effects', async () => {
+    const bytes = Buffer.from('%PDF-1.7\nmetadata integrity test')
+    const file = await uploadAssetEvidence({ businessId: business.id, name: 'integrity.pdf', mime: 'application/pdf', content: bytes }, { viewer: owner, objectStoragePort: assetPort })
+    const suffix = randomUUID(), intake = await prisma.assetIntake.create({ data: { tenantId: business.tenantId, businessId: business.id, intakeCode: `COMPACT-${suffix}`, schemaVersion: '1.0', sourceChannel: 'WEB', sourceCorrelationId: suffix, origin: 'MANUAL' } })
+    const evidence = await prisma.assetEvidence.create({ data: { tenantId: business.tenantId, businessId: business.id, intakeId: intake.id, fileAssetId: file.id, role: 'RECEIPT' } })
+    const extractor = { extract: vi.fn().mockResolvedValue({ provider: 'TEST', model: 'none', responseId: 'integrity-read', fields: [] }) }, before = await prisma.auditEvent.count()
+    for (const changed of [{ sha256: '0'.repeat(64) }, { size: bytes.length + 1 }, { sha256: null, size: bytes.length + 1 }]) {
+      await prisma.fileAsset.update({ where: { id: file.id }, data: { sha256: file.sha256, size: bytes.length, ...changed } })
+      await expect(extractAssetEvidence(evidence.id, { viewer: owner, objectStoragePort: reader, extractor })).rejects.toMatchObject({ status: 409, code: 'BUSINESS_STORAGE_UNAVAILABLE' })
+      expect(extractor.extract).not.toHaveBeenCalled()
+      expect(await prisma.assetEvidence.findUnique({ where: { id: evidence.id } })).toEqual(evidence)
+      expect(await prisma.auditEvent.count()).toBe(before)
+    }
+    // Nullable legacy hashes remain supported; known size is still checked.
+    await prisma.fileAsset.update({ where: { id: file.id }, data: { sha256: null, size: bytes.length } })
+    await expect(resolveFileAssetContent(file.id, { visibleBusinessIds: owner.visibleBusinessIds, objectStoragePort: reader })).resolves.toMatchObject({ content: bytes })
+    await prisma.fileAsset.update({ where: { id: file.id }, data: { sha256: file.sha256, size: bytes.length } })
+    await expect(resolveFileAssetContent(file.id, { visibleBusinessIds: owner.visibleBusinessIds, objectStoragePort: reader })).resolves.toMatchObject({ content: bytes })
+    completedCases.add('integrity')
+  })
+
+  it('admits real owner-reviewed pricing through configured S3, with stable replay and no unauthorized writes', async () => {
+    const catalog = await compactPricingCatalogFixture({ db: prisma, business, storageEnv: fixture.env })
+    const options = { db: prisma, viewer: catalog.owner, now: catalog.now, env: catalog.env }
+    const requests = [], originalFetch = globalThis.fetch
+    vi.stubGlobal('fetch', async (raw, init) => {
+      const url = new URL(raw)
+      if (url.origin !== fixture.endpoint) throw new Error('COMPACT_TEST_UNEXPECTED_STORAGE_TARGET')
+      requests.push({ method: init?.method, path: url.pathname, version: url.searchParams.get('versionId') })
+      return originalFetch(raw, init)
+    })
+    try {
+      const counts = async () => ({ assets: await prisma.fileAsset.count(), prices: await prisma.pricingCalculation.count(), jobs: await prisma.knowledgeIngestion.count(), audits: await prisma.auditEvent.count() })
+      const before = await counts()
+      const stranger = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
+      await expect(admitPricingCatalog({ ...catalog.request, previewOnly: true }, { ...options, viewer: stranger })).rejects.toMatchObject({ status: 404 })
+      const preview = await admitPricingCatalog({ ...catalog.request, previewOnly: true }, options)
+      expect(await counts()).toEqual(before)
+      expect(requests).toHaveLength(0)
+      const request = { ...catalog.request, previewHash: preview.previewHash }
+      const result = await admitPricingCatalog(request, options)
+      expect(result).toMatchObject({ status: 'ADMITTED', publicationStatus: 'NOT_VERIFIED', admission: { recordCount: 3, admittedCount: 3, deniedCount: 0 } })
+      const file = await prisma.fileAsset.findUnique({ where: { id: result.fileAssetId } })
+      expect(file.blobRef).toMatch(/^s3-business:\/\/catalog\//)
+      const admissionReads = requests.filter(row => row.method === 'GET')
+      expect(admissionReads.length).toBeGreaterThan(0)
+      expect(admissionReads.every(row => row.version === new URL(file.blobRef).searchParams.get('versionId'))).toBe(true)
+      const { content: storedBytes } = await resolveFileAssetContent(file.id, { visibleBusinessIds: catalog.owner.visibleBusinessIds, objectStoragePort: reader })
+      expect(createHash('sha256').update(storedBytes).digest('hex')).toBe(file.sha256)
+      expect(storedBytes.length).toBe(file.size)
+      const records = JSON.parse(storedBytes.toString('utf8'))
+      expect(records.map(row => row.entityType)).toEqual(['ProductMaster', 'PriceListEntry', 'PriceListEntry'])
+      expect(storedBytes.toString('utf8')).not.toMatch(/costSatang|unitLandedCost|grossProfit|rulesJson|receiptId|margin/i)
+      const sources = await prisma.knowledgeSource.findMany({ where: { fileAssetId: file.id } })
+      const jobs = await prisma.knowledgeIngestion.findMany({ where: { sourceId: { in: sources.map(source => source.id) } } })
+      expect(jobs).toHaveLength(3)
+      expect(jobs.every(job => job.status === 'QUEUED' && job.executionRunId === null)).toBe(true)
+      await recordMovement({ businessId: business.id, productId: catalog.product.id, kind: 'RECEIPT', quantity: 100, costSatang: 15000 }, options)
+      const replay = await admitPricingCatalog(request, options)
+      expect(replay.fileAssetId).toBe(file.id)
+      expect(replay.calculationIds).toEqual(result.calculationIds)
+      expect(requests.filter(row => row.method === 'PUT')).toHaveLength(1)
+      expect(requests.every(row => row.path.startsWith(`/${fixture.buckets.catalog}/business-catalog/`))).toBe(true)
+      expect(requests.filter(row => row.method === 'GET').every(row => typeof row.version === 'string' && row.version.length > 0)).toBe(true)
+      const after = await counts(), requestCount = requests.length
+      await expect(admitPricingCatalog(request, { ...options, viewer: stranger })).rejects.toMatchObject({ status: 404 })
+      expect(await counts()).toEqual(after)
+      expect(requests).toHaveLength(requestCount)
+      completedCases.add('pricingAdmission')
+    } finally { vi.unstubAllGlobals() }
   })
 
   it('removes the exact just-written object on metadata failure and does not report success', async () => {
