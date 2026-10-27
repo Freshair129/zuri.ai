@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: draft
-version: "0.2.0"
+version: "0.2.1"
 recorded_at: "2026-10-27"
 implementation_base: "05c62592da91cc6087b29adafab2ccf6c690514a"
 ---
@@ -175,3 +175,35 @@ The final code-milestone governance chain and corpus freshness check passed:
 0 critical / 0 warning / 43 info, 553 records and 96 generated views. Only the
 tracked runtime/feature verification projections are included; ignored graph,
 reports/corpus, private targets, backups and session notes are not staged.
+
+
+## Post-commit CI context correction
+
+Code milestone `f6654411392407d98e510f54577d92457027fd34` passed Node179 and its
+web/tools images built successfully from immutable archive SHA256
+`bf6c5c50a7c66a23e3c976f6daf51e3ded3b28020dd968e660776e70b5e54fcf`.
+Those build artifacts are retained; no final qualification is attributed to them.
+
+A subsequent primary-source check of the [Docker action inputs](https://github.com/docker/setup-docker-action#inputs)
+showed that the setup action creates its own named context. The first workflow
+used that active context for image loading while the Linux fixtures selected
+`default`, so the two could observe different daemons. The bounded correction
+binds action setup, image load and both fixtures to `compact-core-ci`. Local
+Windows/Linux defaults remain unchanged unless `COMPACT_TEST_DOCKER_CONTEXT` is
+explicitly selected. Context names must be valid; endpoints must be a local
+Docker Desktop Linux pipe or Unix socket before any engine inventory query.
+The original current-state/identity/TEST ownership checks remain in force.
+
+Missing context binding first failed two regression cases; local endpoint
+validation then failed its own new case before implementation. The composed
+Node suite now passes 181/181 with zero skips. Review caught and corrected the
+pre-inventory remote-endpoint gap. Hosted CI remains NOT_RUN; configuration
+inspection cannot establish a successful hosted run. The corrected source commit
+must supply the final archive/images/package and serial acceptance below.
+
+Independent GPT-6 Luna Max review of the bounded context correction is clean.
+The explicit `desktop-linux` provider rerun passed 1/1 (9.56 seconds), and
+correction governance passed with 0 critical / 0 warning / 43 info. No application
+source/build input changed in this correction: the changed Server files are
+under `tests/`, excluded by the existing Docker context policy. New source labels
+and the final package still require their own immutable-commit rerun.

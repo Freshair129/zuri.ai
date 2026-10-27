@@ -5,7 +5,7 @@ import { randomBytes, randomUUID } from 'node:crypto'
 import os from 'node:os'
 import { compactIpv4Range } from '../../scripts/lib/compact/target.mjs'
 import { runCompactDocker } from '../../scripts/lib/compact/docker.mjs'
-import { completeCompactFixtureCleanup } from './compact-postgres-target.mjs'
+import { completeCompactFixtureCleanup, compactFixtureDockerContext, assertCompactFixtureLocalEndpoint } from './compact-postgres-target.mjs'
 
 export const BUSINESS_STORAGE_TEST_IMAGE = 'sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f'
 export function businessStorageObservation({ evidence = {}, completedCases = new Set(), cleanup = 'FAIL' }) {
@@ -18,14 +18,14 @@ export async function startCompactBusinessStorage({ image = BUSINESS_STORAGE_TES
   assert(typeof image === 'string' && /^(?:[A-Za-z0-9._:/-]+@)?sha256:[a-f0-9]{64}$/.test(image), 'COMPACT_BUSINESS_STORAGE_PIN_REQUIRED')
   assert(Array.isArray(command) && command.length > 0 && command.length <= 32 && command.every(s => typeof s === 'string' && /^[A-Za-z0-9_./:=+@-]{1,256}$/.test(s) && !/password|secret|token|credential|access.?key|api.?key/i.test(s)), 'COMPACT_BUSINESS_STORAGE_COMMAND_INVALID')
   const runId = randomUUID(), name = `zuri-compact-storage-${runId.slice(0, 13)}`, network = `${name}-net`, volume = `${name}-data`
-  const context = process.platform === 'win32' ? 'desktop-linux' : 'default'
+  const context = compactFixtureDockerContext()
   const run = async (args, options) => {
     const result = await runCompactDocker(['--context', context, ...args], options)
     if (result.status !== 0) throw new Error('COMPACT_BUSINESS_STORAGE_TOOL_FAILED')
     return result.stdout.trim()
   }
   const host = JSON.parse(await run(['context', 'inspect', context]))[0].Endpoints.docker.Host
-  assert(/^(?:npipe:\/\/\/\/\.\/pipe\/dockerDesktopLinuxEngine|unix:\/\/\/)/i.test(host), 'COMPACT_BUSINESS_STORAGE_LOCAL_ONLY')
+  assertCompactFixtureLocalEndpoint(host)
   const selectedImage = JSON.parse(await run(['image', 'inspect', image]))[0]
   assert.equal(selectedImage.Os + '/' + selectedImage.Architecture, 'linux/amd64')
   assert(/^sha256:[a-f0-9]{64}$/.test(selectedImage.Id))

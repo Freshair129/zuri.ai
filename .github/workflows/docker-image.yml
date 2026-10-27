@@ -119,6 +119,7 @@ jobs:
       run:
         working-directory: apps/server
     env:
+      COMPACT_TEST_DOCKER_CONTEXT: compact-core-ci
       COMPACT_PACKAGE_DIRECTORY: ${{ runner.temp }}/compact-package
       COMPACT_CORE_IMAGE_FILE: ${{ runner.temp }}/compact-images.json
       COMPACT_CORE_EVIDENCE_DIRECTORY: ${{ runner.temp }}/compact-core-observations
@@ -134,6 +135,7 @@ jobs:
       # not reconfigure any operator's Docker Desktop or use a live environment.
       - uses: docker/setup-docker-action@v5
         with:
+          context: compact-core-ci
           daemon-config: '{"features":{"containerd-snapshotter":true}}'
       - uses: actions/download-artifact@v4
         with:
@@ -147,7 +149,7 @@ jobs:
           mkdir "$COMPACT_CORE_EVIDENCE_DIRECTORY" "$COMPACT_RECOVERY_PRIVATE_DIRECTORY"
       - name: Load selected candidate images
         shell: bash
-        run: docker image load --input "$COMPACT_PACKAGE_DIRECTORY/images.oci.tar"
+        run: docker --context "$COMPACT_TEST_DOCKER_CONTEXT" image load --input "$COMPACT_PACKAGE_DIRECTORY/images.oci.tar"
       - run: npx --no-install playwright install --with-deps chromium
       - name: Exact artifact core HTTPS and recreation
         run: npm run test:compact:core

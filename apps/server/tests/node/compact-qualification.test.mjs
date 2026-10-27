@@ -142,6 +142,22 @@ test('failed setup cannot call an unregistered private-temp cleanup failure PASS
   assert.equal(helper.compactFixtureSetupFailure(new Error('setup failed before resource creation')).cleanup, 'PASS')
 })
 
+test('owned fixtures select the explicit CI Docker context while preserving local defaults and refusing endpoint strings', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs')
+  assert.equal(typeof helper.compactFixtureDockerContext, 'function')
+  assert.equal(helper.compactFixtureDockerContext({}, 'win32'), 'desktop-linux')
+  assert.equal(helper.compactFixtureDockerContext({}, 'linux'), 'default')
+  assert.equal(helper.compactFixtureDockerContext({ COMPACT_TEST_DOCKER_CONTEXT: 'compact-core-ci' }, 'linux'), 'compact-core-ci')
+  for (const value of ['', 'tcp://remote:2375', 'unix:///socket', 'bad context', '--host']) assert.throws(() => helper.compactFixtureDockerContext({ COMPACT_TEST_DOCKER_CONTEXT: value }, 'linux'), { code: 'COMPACT_FIXTURE_CONTEXT_INVALID' })
+})
+
+test('selected context endpoints must be local before any engine network inventory is requested', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs')
+  assert.equal(typeof helper.assertCompactFixtureLocalEndpoint, 'function')
+  for (const endpoint of ['unix:///var/run/docker.sock', 'unix:///home/runner/setup-docker-action/docker.sock', 'npipe:////./pipe/dockerDesktopLinuxEngine']) assert.doesNotThrow(() => helper.assertCompactFixtureLocalEndpoint(endpoint))
+  for (const endpoint of ['tcp://remote:2375', 'ssh://production', 'unix://remote/path', 'npipe:////server/pipe/dockerDesktopLinuxEngine', undefined]) assert.throws(() => helper.assertCompactFixtureLocalEndpoint(endpoint), { code: 'COMPACT_FIXTURE_REMOTE_REFUSED' })
+})
+
 test('core acceptance refuses an omitted artifact before creating any target', async () => {
   const helper = await implementation('../helpers/compact-core-target.mjs')
   const previous = process.env.COMPACT_PACKAGE_DIRECTORY

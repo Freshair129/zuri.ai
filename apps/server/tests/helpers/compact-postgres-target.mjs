@@ -54,6 +54,14 @@ export async function withCompactFixtureRoot(operation) {
 export function compactFixtureSetupFailure(error) {
   return { status: 'FAIL', cleanup: error?.cleanupFailed === true ? 'FAIL' : 'PASS', stage: 'FIXTURE_SETUP', failureCode: /^COMPACT_[A-Z0-9_]+$/.test(error?.code || '') ? error.code : 'COMPACT_FIXTURE_SETUP_FAILED' }
 }
+export function compactFixtureDockerContext(env = process.env, platform = process.platform) {
+  const context = env.COMPACT_TEST_DOCKER_CONTEXT ?? (platform === 'win32' ? 'desktop-linux' : 'default')
+  if (typeof context !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_.-]{0,63}$/.test(context)) throw new CompactError('COMPACT_FIXTURE_CONTEXT_INVALID')
+  return context
+}
+export function assertCompactFixtureLocalEndpoint(endpoint) {
+  if (typeof endpoint !== 'string' || !/^(?:npipe:\/\/\/\/\.\/pipe\/dockerDesktopLinuxEngine|unix:\/\/\/[^\x00\r\n?#]+)$/i.test(endpoint)) throw new CompactError('COMPACT_FIXTURE_REMOTE_REFUSED')
+}
 export async function inspectCompactFixtureResource(context, kind, name, run = runCompactDocker) {
   if (!['container', 'volume', 'network'].includes(kind)) throw new CompactError('COMPACT_FIXTURE_CLEANUP_UNVERIFIED')
   const result = await run(['--context', context, kind, 'inspect', name])
@@ -73,7 +81,12 @@ export async function compactFixture({ packageApi, baselineApi, executorApi, cor
   target.targetId = randomUUID(); target.project = `zuri-compact-${target.targetId.slice(0, 13)}`
   target.network = `${target.project}-private`; target.database.container = `${target.project}-db`; target.database.port = await port()
   target.database.name = `compact_${target.targetId.replaceAll('-', '').slice(0, 16)}`
-  target.dockerContext = process.platform === 'win32' ? 'desktop-linux' : 'default'
+  target.dockerContext = compactFixtureDockerContext()
+  // Context inspection reads local CLI metadata; refuse remote endpoints before
+  // the first Docker engine inventory query, not merely before installation.
+  let endpoint
+  try { endpoint = JSON.parse(fixtureDocker(target.dockerContext, ['context', 'inspect', target.dockerContext]))[0]?.Endpoints?.docker?.Host } catch { throw new CompactError('COMPACT_FIXTURE_CONTEXT_INVALID') }
+  assertCompactFixtureLocalEndpoint(endpoint)
   const ids = fixtureDocker(target.dockerContext, ['network', 'ls', '--quiet']).split(/\r?\n/).filter(Boolean)
   const allocated = fixtureDocker(target.dockerContext, ['network', 'inspect', '--format', '{{json .IPAM.Config}}', ...ids]).split(/\r?\n/).flatMap(row => JSON.parse(row) || []).map(item => compactIpv4Range(item.Subnet)).filter(Boolean)
   for (const item of Object.values(os.networkInterfaces()).flat()) {
