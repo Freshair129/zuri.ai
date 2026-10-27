@@ -7,6 +7,7 @@ import { CompactError } from './manifest.mjs'
 import { inspectCompactInstall, readCompactCredentials } from './executor.mjs'
 import { planCompactInstall, exactKeys, assertCompactJson } from './target.mjs'
 import { stableJson, digest } from './files.mjs'
+import { compactEnvelopeConfigured, inspectCompactProfilePrerequisites } from './profiles.mjs'
 
 const fail = code => { throw new CompactError(code) }
 function operatorInput(value) {
@@ -55,10 +56,11 @@ export async function bootstrapCompactOperator({ packageDirectory, target, priva
 export function inspectCompactCapabilities({ manifest, target, observed, configuration = {} }) {
   assertCompactJson(configuration)
   const plan = planCompactInstall({ manifest, target, observed })
-  const envelope = configuration.ZURI_SECRET_STORE === 'envelope' && typeof configuration.ZURI_SECRET_KEK === 'string' && /^[a-f0-9]{64}$/i.test(configuration.ZURI_SECRET_KEK) && /^[1-9]\d{0,5}$/.test(String(configuration.ZURI_SECRET_KEK_VERSION ?? '1'))
+  const envelope = compactEnvelopeConfigured(configuration)
   return Object.freeze({ status: 'INSPECTED', targetId: target.targetId,
     database: plan.action === 'INSPECT_INSTALLED' ? 'INSTALLED' : 'NOT_INSTALLED', core: 'NOT_QUALIFIED',
     secretStore: envelope ? 'CONFIGURED_NOT_QUALIFIED' : 'UNAVAILABLE', storage: 'UNAVAILABLE',
     line: manifest.profiles.includes('line') ? 'NOT_QUALIFIED' : 'NOT_SELECTED',
-    knowledge: manifest.profiles.includes('knowledge') ? 'NOT_QUALIFIED' : 'NOT_SELECTED' })
+    knowledge: manifest.profiles.includes('knowledge') ? 'NOT_QUALIFIED' : 'NOT_SELECTED',
+    profilePrerequisites: inspectCompactProfilePrerequisites({ manifest, databaseInstalled: plan.action === 'INSPECT_INSTALLED', configuration }) })
 }

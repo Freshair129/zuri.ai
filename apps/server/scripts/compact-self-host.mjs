@@ -8,6 +8,7 @@ import { planCompactInstall, validateCompactTarget } from './lib/compact/target.
 import { inspectCompactInstall, executeCompactInstall, readCompactPrivateFile } from './lib/compact/executor.mjs'
 import { createCompactDockerDriver } from './lib/compact/docker.mjs'
 import { bootstrapCompactOperator, inspectCompactCapabilities } from './lib/compact/bootstrap.mjs'
+import { inspectCompactCohort } from './lib/compact/profiles.mjs'
 export async function runCompactSelfHost(argv, { driver = createCompactDockerDriver() } = {}) {
   const [verb, ...rest] = argv, options = { inspect: [], plan: [], install: ['--plan'], status: [], stop: [], bootstrap: ['--operator', '--private-output'], diagnostics: ['--configuration'] }
   if (!Object.hasOwn(options, verb)) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
@@ -34,7 +35,11 @@ export async function runCompactSelfHost(argv, { driver = createCompactDockerDri
       if (!match || Object.hasOwn(configuration, match[1])) throw new CompactError('COMPACT_PRIVATE_FILE_INVALID')
       configuration[match[1]] = match[2]
     }
-    return inspectCompactCapabilities({ manifest: loaded.manifest, target, observed, configuration })
+    const result = inspectCompactCapabilities({ manifest: loaded.manifest, target, observed, configuration })
+    if (!loaded.manifest.profiles.some(p => ['line', 'knowledge'].includes(p))) return result
+    const modelDirectory = loaded.manifest.profiles.includes('knowledge') ? path.join(loaded.root, 'models', loaded.manifest.modelArtifacts[0].id) : undefined
+    const cohort = await driver.inspectCohort({ manifest: loaded.manifest, target, modelDirectory })
+    return { ...result, cohort: inspectCompactCohort({ ...cohort, manifest: loaded.manifest, target }) }
   }
   if (verb === 'stop') return driver.stop({ manifest: loaded.manifest, target })
   if (verb === 'status' && !observed.container?.running) return { status: observed.container ? 'STOPPED_UNVERIFIED' : 'NOT_INSTALLED', project: target.project, targetId: target.targetId }

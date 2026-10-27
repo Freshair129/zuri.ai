@@ -61,6 +61,25 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
     return invoke(endpoint, args, { input: sql, environment, timeoutMs: atomic ? 120000 : 15000 })
   }
   const driver = {
+    async inspectCohort({ manifest, target, modelDirectory }) {
+      const m = validateCompactManifest(manifest), t = validateCompactTarget(target), daemon = await local(t)
+      const ids = (await invoke(daemon.endpoint, ['container', 'ls', '--all', '--quiet', '--no-trunc', '--filter', `label=com.docker.compose.project=${t.project}`])).split(/\r?\n/).filter(Boolean)
+      const containers = [], volumes = []
+      for (const id of ids) {
+        if (!/^[a-f0-9]{64}$/.test(id)) fail('COMPACT_DOCKER_FAILED')
+        const c = await read(daemon.endpoint, 'container', id), service = c?.Config?.Labels?.['com.docker.compose.service']
+        if (!['web', 'line-worker', 'genesis-worker'].includes(service)) continue
+        const networks = Object.keys(c.NetworkSettings?.Networks || {})
+        containers.push({ id: c.Id, service, reference: c.Config.Image, running: c.State.Running, labels: c.Config.Labels || {}, network: networks.length === 1 ? networks[0] : '', networkMode: c.HostConfig.NetworkMode,
+          mounts: c.Mounts.map(v => ({ type: v.Type, name: v.Name || '', source: v.Source, destination: v.Destination, readOnly: v.RW === false })),
+          safeConfiguration: c.HostConfig.Privileged === false && !c.HostConfig.PidMode && !c.HostConfig.CapAdd?.length && !c.HostConfig.Devices?.length })
+      }
+      if (m.profiles.includes('knowledge')) for (const name of ['genesis', 'knowledge-state']) {
+        const v = await read(daemon.endpoint, 'volume', `${t.project}-${name}`)
+        if (v) volumes.push({ name: v.Name, driver: v.Driver, labels: v.Labels || {} })
+      }
+      return { containers, volumes, modelDirectory }
+    },
     async bootstrap({ manifest, target, observed, credentials, operator }) {
       const t = validateCompactTarget(target), m = validateCompactManifest(manifest)
       const current = await driver.inspect({ manifest: m, target: t })

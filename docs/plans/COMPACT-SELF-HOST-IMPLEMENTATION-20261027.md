@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 5
-version: "0.1.5"
+selected_task: 6
+version: "0.1.6"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -307,6 +307,14 @@ records the source conflict and this test binding before application code.
   this supplies no live Marketing integration or migration claim.
 
 ## Task6: Qualify optional LINE and Knowledge profiles
+
+The [Task6 preparation evidence](../../reports/compact-selfhost-2026-10-27/task6-profile-prerequisites.md)
+records strict offline model prerequisites and an owned inert Docker cohort
+probe. This is not AI qualification: the core shipping lane keeps LINE/Knowledge
+unselected, and the actual selected-profile gates below remain open. Diagnostics
+never import a report as permission or assert current authority from env shape.
+The same report records the remaining P2 found by the later full-range Task5
+review; Task5's local milestone checks do not close that follow-up.
 
 **Files:** Extend compact manifest/Compose/CLI diagnostics; add
 `tests/node/compact-profile.test.mjs` and

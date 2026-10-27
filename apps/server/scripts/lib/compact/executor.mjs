@@ -6,6 +6,7 @@ import { CompactError, validateCompactManifest } from './manifest.mjs'
 import { bytes, digest, hashFile, listFiles, stableJson } from './files.mjs'
 import { validateCompactTarget, planCompactInstall, assertCompactResources, exactKeys, assertCompactJson } from './target.mjs'
 import { validateCompactBaseline } from './baseline.mjs'
+import { assertCompactKnowledgeProfile } from './profiles.mjs'
 export { createCompactDockerDriver } from './docker.mjs'
 const fail = code => { throw new CompactError(code) }
 const safe = async (code, operation) => { try { return await operation() } catch (e) { if (e instanceof CompactError) throw e; fail(code) } }
@@ -43,6 +44,7 @@ export async function loadCompactPackage(directory) {
     if (typeof directory !== 'string') fail('COMPACT_ARGUMENTS_INVALID')
     const root = await realpath(directory)
     const rawManifest = await bytes(root, 'release-manifest.json', 4 * 1024 * 1024), manifest = validateCompactManifest(JSON.parse(rawManifest))
+    assertCompactKnowledgeProfile(manifest)
     const transportBytes = await bytes(root, 'transport.json', 4 * 1024 * 1024), transport = JSON.parse(transportBytes)
     if (!exactKeys(transport, ['schemaVersion', 'kind', 'images', 'archives']) || transport.schemaVersion !== 'compact-transport.v1' || !['registry', 'oci'].includes(transport.kind) || stableJson(transport.images) !== stableJson(manifest.images) || !exactKeys(transport.archives, transport.kind === 'oci' ? ['images.oci.tar'] : [])) fail('COMPACT_PACKAGE_INVALID')
     const expected = [...Object.keys(manifest.files), 'release-manifest.json', 'transport.json', ...Object.keys(transport.archives)].sort(), snapshots = new Map([['release-manifest.json', rawManifest], ['transport.json', transportBytes]])
@@ -55,6 +57,7 @@ export async function loadCompactPackage(directory) {
       const actual = snapshots.has(file) ? digest(snapshots.get(file)) : await hashFile(root, file)
       if (actual !== recorded.get(file) || manifest.files[file] && actual !== manifest.files[file] || transport.archives[file] && actual !== transport.archives[file]) fail('COMPACT_PAYLOAD_HASH_MISMATCH')
     }
+    if (manifest.profiles.includes('knowledge')) assertCompactKnowledgeProfile(manifest, JSON.parse((await bytes(root, 'pins/ki17.json', 65536)).toString('utf8')))
     const baseline = snapshots.get(manifest.schemaBaseline.file).toString('utf8'), metadata = JSON.parse(snapshots.get('schema/baseline.json'))
     validateCompactBaseline(baseline, metadata, manifest)
     return Object.freeze({ root, manifest, baseline })

@@ -11,6 +11,7 @@ import { build } from 'esbuild'
 import { CompactError, validateCompactManifest } from './lib/compact/manifest.mjs'
 import { bytes, json, digest, stableJson, openRegular, destination, writeExclusive, hashFile, listFiles } from './lib/compact/files.mjs'
 import { writeOciArchive } from './lib/compact/oci-layout.mjs'
+import { assertCompactKnowledgeProfile } from './lib/compact/profiles.mjs'
 
 const ASSETS = fileURLToPath(new URL('../deploy/compact/', import.meta.url))
 export async function renderCompactRuntimeFiles(input) {
@@ -54,7 +55,9 @@ function validateEvidence(snapshots, m) {
   const graph = snapshotJson(snapshots, 'docs/.doc-graph.json', 'COMPACT_GRAPH_INCOMPLETE')
   if (!Array.isArray(graph?.nodes) || !Array.isArray(graph?.edges) || graph.nodes.some(n => typeof n?.path === 'string' && n.path.startsWith('docs/') && !Object.hasOwn(m.files, n.path.split('#')[0]))) throw new CompactError('COMPACT_GRAPH_INCOMPLETE')
   if (m.profiles.includes('knowledge')) {
+    assertCompactKnowledgeProfile(m)
     const pins = snapshotJson(snapshots, 'pins/ki17.json', 'COMPACT_PINS_INVALID')
+    assertCompactKnowledgeProfile(m, pins)
     if (['msp', 'gks', 'genesisblock'].some(k => pins.repositories?.[k]?.commit !== m.componentPins[k]) || m.modelArtifacts.length !== 1 || m.modelArtifacts[0].repository !== pins.runtime?.modelRepository || m.modelArtifacts[0].revision !== pins.runtime?.modelRevision) throw new CompactError('COMPACT_PINS_INVALID')
   }
 }

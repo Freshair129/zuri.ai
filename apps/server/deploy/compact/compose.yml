@@ -72,6 +72,10 @@ services:
     networks: [private]
   line-worker:
     image: '@image.lineWorker'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
     profiles: [line]
     user: node
     restart: unless-stopped
@@ -89,9 +93,15 @@ services:
     networks: [private]
   genesis-worker:
     image: '@image.genesisWorker'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
     profiles: [knowledge]
     restart: unless-stopped
     network_mode: service:web
+    environment:
+      GENESIS_WORKER_MODEL_DIR: /opt/ki17/model
     env_file:
       - path: ${COMPACT_KNOWLEDGE_ENV_FILE:?Set a private Knowledge env file}
         required: true
@@ -121,5 +131,15 @@ networks:
 volumes:
   database: {external: true, name: '${COMPACT_DATABASE_VOLUME:?Set the owned database volume}'}
   objects: {external: true, name: '${COMPACT_OBJECTS_VOLUME:?Set the owned objects volume}'}
-  genesis: {}
-  knowledge-state: {}
+  genesis:
+    name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-genesis'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
+  knowledge-state:
+    name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-knowledge-state'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST

@@ -361,6 +361,38 @@ current SQLite models. Both runners reject zero-test success. Paired Go cases ne
 their separately selected counterpart and remain skipped when absent; no live
 Marketing transfer or production operation is part of this qualification.
 
+### Optional profile prerequisites (Task6 preparation)
+
+Keep the core qualification lane separate from optional AI profiles. The package
+producer/loader require the reviewed stdio KI17 tuple and all five pinned E5
+model files for selected Knowledge. They verify actual payload hashes; a model
+descriptor alone cannot create a usable release. The runtime never downloads a
+model or searches sibling repositories. New model/tuple support needs review.
+
+`diagnostics` now includes non-authoritative profile prerequisites and read-only
+cohort observations when LINE/Knowledge is selected. `CONFIGURATION_PRESENT`
+means only that the listed selectors/key/token are present. It never establishes
+Business authority, native model/runtime health, bootstrap, queue recovery or AI
+acceptance. Secrets and their fingerprints are omitted. Selected profiles stay
+`NOT_QUALIFIED`; unselected profiles stay `NOT_SELECTED`.
+
+After an independently authorized web recreation, the dependent cohort must be
+recreated: Genesis uses the current web container's network namespace. Stop the
+dependent workers, recreate the selected web image, then force-recreate the
+selected workers against that web. Retain the labelled native/shared state
+volumes and the read-only packaged model mount. Re-run diagnostics and the actual
+selected-profile acceptance before resuming work. The CLI only inspects this
+cohort; it does not perform this recreation or drain pending jobs. Existing queue
+lease/replay contracts still own draining; a cohort observation is not a receipt
+for no duplicate sends. Live LINE remains separately authorized test-account UAT.
+
+`npm run test:compact:profiles` explicitly selects an owned disposable Docker
+namespace/state probe. It uses inert processes and synthetic bytes, not real AI
+or a sender. It must not be counted as KI17, native Stage9+ recovery, object/DB
+restore, source authorization or current release-image acceptance. The normal
+Server suite excludes that Docker-dependent file; its dedicated wrapped runner
+fails zero-test runs. Actual selected AI gates remain open in the approved plan.
+
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the
 workflow commit and checks that the artifact originated in a successful completed

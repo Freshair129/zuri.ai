@@ -76,7 +76,7 @@ test('rejects output hidden inside the prepared input by an ancestor junction', 
   await assert.rejects(a.packageCompactRelease({ manifest: f.filename, outputDirectory: path.join(root, 'alias/nested/output') }), { code: 'COMPACT_OUTPUT_INVALID' })
   await absent(path.join(root, 'input/nested/output'))
 })
-test('Knowledge includes only its pinned worker/model and shared namespace inputs', async () => {
+test('Knowledge render preserves shared namespace but packaging refuses an incomplete synthetic model tuple', async () => {
   const { a, root, f } = await setup(), revision = 'd'.repeat(40), modelFile = 'models/embedding/model.bin', pinsFile = 'pins/ki17.json'
   f.m.profiles.push('knowledge'); f.m.capabilities.knowledge = 'NOT_QUALIFIED'; f.m.images.genesisWorker = f.m.images.web
   f.m.componentPins = { msp: 'a'.repeat(40), gks: 'b'.repeat(40), genesisblock: 'c'.repeat(40) }
@@ -85,15 +85,16 @@ test('Knowledge includes only its pinned worker/model and shared namespace input
   for (const [file, content] of [[modelFile, 'TEST MODEL'], [pinsFile, pins]]) { await mkdir(path.dirname(path.join(root, 'input', file)), { recursive: true }); await writeFile(path.join(root, 'input', file), content); f.m.files[file] = hash(content) }
   for (const [file, content] of Object.entries(await a.renderCompactRuntimeFiles(f.m))) f.m.files[file] = hash(content)
   await saveManifest(f); const out = path.join(root, 'knowledge')
-  await a.packageCompactRelease({ manifest: f.filename, outputDirectory: out })
-  const { parse } = await import('yaml'), compose = parse(await readFile(path.join(out, 'compose.yml'), 'utf8'))
+  await assert.rejects(a.packageCompactRelease({ manifest: f.filename, outputDirectory: out }), { code: 'COMPACT_KNOWLEDGE_PROFILE_INVALID' })
+  await absent(out)
+  const { parse } = await import('yaml'), compose = parse((await a.renderCompactRuntimeFiles(f.m))['compose.yml'])
   assert.equal(compose.services['genesis-worker'].network_mode, 'service:web')
   assert.equal(compose.services['genesis-worker'].volumes[2].source, './models/embedding')
   assert.equal(compose.services['genesis-worker'].volumes[2].read_only, true)
   assert.equal(compose.services['line-worker'], undefined)
   const wrongPins = pins.replace('"gks":{"commit":"' + f.m.componentPins.gks, '"gks":{"commit":"' + 'f'.repeat(40))
   await writeFile(path.join(root, 'input', pinsFile), wrongPins); f.m.files[pinsFile] = hash(wrongPins); await saveManifest(f)
-  await assert.rejects(a.packageCompactRelease({ manifest: f.filename, outputDirectory: path.join(root, 'wrong-pins') }), { code: 'COMPACT_PINS_INVALID' })
+  await assert.rejects(a.packageCompactRelease({ manifest: f.filename, outputDirectory: path.join(root, 'wrong-pins') }), { code: 'COMPACT_KNOWLEDGE_PROFILE_INVALID' })
 })
 test('requires every registry record file in the package', async () => {
   const { a, root, f } = await setup(), content = JSON.stringify({ records: [{ path: 'docs/requirements/FR-MISSING.md' }] })
