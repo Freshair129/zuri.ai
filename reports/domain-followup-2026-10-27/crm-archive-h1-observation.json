@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "existing-contract-test-observation.v1",
+  "sourceRevision": "3041e62175f7ea1084628d03d7ea7099ddb4e072",
+  "applicationCodeBaseline": "4061f5112cf9f336d1a089785738f4975d305a08",
+  "environment": "TEST",
+  "canonicalRecords": {
+    "ZAI:FEAT-037": 1,
+    "ZAI:FR-230": 1,
+    "ZAI:FEAT-041": 1,
+    "ZAI:FR-245": 1,
+    "ZAI:SEC-034": 1,
+    "ZAI:SDD-103": 1
+  },
+  "adr093Version": "1.2.1",
+  "status": "PASS",
+  "provider": "sqlite",
+  "testFile": "apps/server/tests/integration/crm-retention-consent.test.js",
+  "selectedCase": "H1: after the hold ends the expiry run destroys the hold key but keeps the file; the chain stays valid, later expiry runs are not skipped and a later re-seal still works",
+  "results": {
+    "passed": 1,
+    "failed": 0,
+    "skippedUnselected": 23,
+    "durationSeconds": 8.19
+  },
+  "initialAppRows": 0,
+  "sharedClientSchemas": {
+    "sqliteSchema": "1e6a28377bdf70480b18ec31cc6702d37892bc60825b61f36d2d8ead47f63000",
+    "postgresSchema": "f8208ea7df90fc4b4bc9d182e79805dc05e51c54e773945aa865990da19fe139"
+  },
+  "sharedClientsUnchanged": true,
+  "protectedAuthRowsAbsent": true,
+  "syntheticMfaOnly": true,
+  "retainedSyntheticCounts": {
+    "Person": 6,
+    "PlatformGrant": 0,
+    "WorkspaceMembership": 0,
+    "AccessInvite": 0,
+    "PersonCredential": 0,
+    "PasswordResetToken": 0,
+    "PluginSession": 0,
+    "Membership": 0,
+    "Session": 0,
+    "MfaFactor": 2,
+    "PasskeyCredential": 0,
+    "RoleBinding": 0,
+    "BusinessWigSession": 0,
+    "Customer": 3,
+    "Conversation": 1,
+    "Message": 6,
+    "ConversationSession": 1,
+    "CustomerArchiveKey": 1,
+    "ArchiveManifest": 4,
+    "CustomerLegalHold": 2,
+    "CustomerRetentionConsent": 1,
+    "LegalHoldArchiveKey": 1,
+    "IntegrationCredential": 0,
+    "IntegrationCredentialVersion": 0,
+    "ApiAccessKey": 0,
+    "EdgeDeviceCredential": 0,
+    "HarnessCredential": 0
+  },
+  "retainedArchiveKeyLabels": {
+    "CustomerArchiveKey": [
+      "v0"
+    ],
+    "LegalHoldArchiveKey": [
+      "v0"
+    ]
+  },
+  "archiveFilesRetained": 4,
+  "harness": {
+    "fixtureAllocationOnlyChanged": true,
+    "sourceTestSha256": "5efba7f2862e3aab60b2ce1718b443969d4decf4a381dcab04ddf26887a7a11d",
+    "transformedSha256": "3691a96130ce5a2806b2a34cafcfa19098096ea7e04239231950108c04dd0ce9",
+    "h1AssertionBodySha256": "b1547914e29cb508958643baf1ecb2ed4ee63f88e63601f403824070c03dc5c6",
+    "h1BodyUnchanged": true,
+    "singleCurrentFixtureRealpathScope": true,
+    "archiveRootOutsideDefaultTeardown": true,
+    "blockedCreates": 0,
+    "blockedDeletes": 0,
+    "fetchAttempts": 0,
+    "scopedFileDeleteAttempts": 0,
+    "dbRetained": true,
+    "archiveDirectoryRetained": true,
+    "dbLoginCredentialCreated": false,
+    "schedulerOrSenderStarted": false
+  },
+  "sourceSha256": {
+    "apps/server/tests/integration/crm-retention-consent.test.js": "5efba7f2862e3aab60b2ce1718b443969d4decf4a381dcab04ddf26887a7a11d",
+    "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js": "4ad152986c51069266ec9213156aea8320de80b7003db277d88628abcd52255a",
+    "apps/server/src/modules/crm/chat-evidence-archive-service.js": "97a2cb61d7a6f3914513df9c15ebf111477ffb0e7a23b941fb6d905cff4472fd",
+    "apps/server/src/modules/crm/chat-evidence-archive-crypto.js": "9159c73199d5fc17b21e3ff002a62a111d98dd4651e5f5371b25818aa7af09c4",
+    "apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js": "0b8eada3d76e3d60d9f5bf80087143aac8be6192ee35b3b6b9fc1aa42b218203",
+    "apps/server/src/modules/crm/retention-sweep-service.js": "967717a6c702fc6618a2210282e30423cd62dd5b9f765bae33234ea745aa676b",
+    "apps/server/src/modules/identity/erase-principal.js": "9bcd5109e06104dfaf2dc42e16d21a21b4de5b1670f8ac692796a01388ba7027",
+    "docs/features/FEAT-037/requirements/FR-230.md": "76122620c1d885602f3be255179b7ed3083c318fe1e88bc15ed1a37e2700335b",
+    "docs/features/FEAT-041/requirements/FR-245.md": "247dced9a17a91c9e84d92c50bd90b17bb62d8f179be0f14c21ce44576b343b3",
+    "docs/decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md": "cca8ed9964a6bcad9d636558f5a84a7e31da20b4363c7b8774fe7ddde080b056"
+  },
+  "privateHarnessSha256": {
+    "vitest.h1.config.mjs": "c16d117fe7d0a2a6d81160aaf0a2fb285ccfdecdbafbab4ca930b7c76df367ef",
+    "setup.mjs": "12da44f8f413407e50d24187ecb6346b539075afffc858a0dae606a7c353ac85",
+    "guard.mjs": "b9e3d799c9a22b3759ab2e93d46fb62776d6125d8cbb6444a423c9b273ed1635"
+  },
+  "limits": [
+    "Only selected H1; other23cases unselected/skipped",
+    "SQLite/direct service/synthetic step-up only; no HTTP/native PostgreSQL acceptance",
+    "No scheduler/invocation contract/production mount/off-host or counsel decision",
+    "No actual LINE/MSP/provider delivery or erasure acknowledgement",
+    "No canonical phase/lifecycle or full feature closure"
+  ]
+}
