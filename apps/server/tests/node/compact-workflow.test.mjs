@@ -60,6 +60,23 @@ test('cold core CI is explicit, consumes the same-run verified OCI candidate and
   assert.equal(upload.if, 'always()'); assert.match(upload.with.path, /sanitized-observation\.json/); assert.doesNotMatch(upload.with.path, /\.sql|\.bin|compact-package|private target|\.env/)
 })
 
+test('runner-local paths are initialized after job allocation, never in job-level expressions', async () => {
+  const workflow = parse(await readFile(new URL('../../../../.github/workflows/docker-image.yml', import.meta.url), 'utf8'))
+  for (const [name, job] of Object.entries(workflow.jobs)) {
+    for (const value of Object.values(job.env || {})) {
+      assert.doesNotMatch(String(value), /\$\{\{\s*runner\./, `${name}: runner context is unavailable in jobs.<job_id>.env`)
+    }
+  }
+  const steps = workflow.jobs['compact-core'].steps
+  const initialize = steps.findIndex(s => s.name === 'Set job-local qualification paths')
+  assert(initialize >= 0 && initialize < steps.findIndex(s => s.name === 'Verify exact OCI candidate before image load'))
+  const script = steps[initialize].run
+  for (const key of ['COMPACT_PACKAGE_DIRECTORY', 'COMPACT_CORE_IMAGE_FILE', 'COMPACT_CORE_EVIDENCE_DIRECTORY', 'COMPACT_RECOVERY_PRIVATE_DIRECTORY']) {
+    assert.match(script, new RegExp(`${key}=\\$RUNNER_TEMP/`))
+  }
+  assert.match(script, />>\s*"\$GITHUB_ENV"/)
+})
+
 test('prepared artifact origin guard accepts only an exact successful same-repository run', async () => {
   const script = await provenance(), sha = 'a'.repeat(40)
   const fixtures = () => ({

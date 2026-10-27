@@ -120,12 +120,16 @@ jobs:
         working-directory: apps/server
     env:
       COMPACT_TEST_DOCKER_CONTEXT: compact-core-ci
-      COMPACT_PACKAGE_DIRECTORY: ${{ runner.temp }}/compact-package
-      COMPACT_CORE_IMAGE_FILE: ${{ runner.temp }}/compact-images.json
-      COMPACT_CORE_EVIDENCE_DIRECTORY: ${{ runner.temp }}/compact-core-observations
-      COMPACT_RECOVERY_PRIVATE_DIRECTORY: ${{ runner.temp }}/compact-recovery-private
     steps:
       - uses: actions/checkout@v4
+      - name: Set job-local qualification paths
+        shell: bash
+        run: |
+          printf '%s\n' \
+            "COMPACT_PACKAGE_DIRECTORY=$RUNNER_TEMP/compact-package" \
+            "COMPACT_CORE_IMAGE_FILE=$RUNNER_TEMP/compact-images.json" \
+            "COMPACT_CORE_EVIDENCE_DIRECTORY=$RUNNER_TEMP/compact-core-observations" \
+            "COMPACT_RECOVERY_PRIVATE_DIRECTORY=$RUNNER_TEMP/compact-recovery-private" >> "$GITHUB_ENV"
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
