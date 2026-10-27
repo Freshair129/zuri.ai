@@ -120,6 +120,57 @@ test('cleanup retains the first refusal while still attempting other independent
   assert.deepEqual(completed, ['foreign-refused', 'owned-volume-removed', 'daemon-refused', 'owned-network-attempted'])
 })
 
+test('fixture finalization records identity only after every owned cleanup action', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs'), calls = [], identity = { targetId: 'synthetic' }
+  const result = await helper.observeAndCleanCompactFixture({ observe: async () => identity,
+    cleanup: [async () => { calls.push('disconnect') }, async () => { calls.push('close') }],
+    record: async view => { calls.push('record'); assert.deepEqual(view, { identity, observation: 'PASS', cleanup: 'PASS', cleanupChecks: ['PASS', 'PASS'] }) },
+  })
+  assert.deepEqual(calls, ['disconnect', 'close', 'record'])
+  assert.equal(result.error, null); assert.equal(result.record, 'PASS')
+})
+
+test('an uncreated fixture is not reported as observed or successfully cleaned', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs')
+  const result = await helper.observeAndCleanCompactFixture({ observe: async () => undefined, cleanup: [], record: async view => {
+    assert.equal(view.observation, 'NOT_RUN'); assert.equal(view.cleanup, 'NOT_REQUIRED')
+    assert.deepEqual(view.cleanupChecks, [])
+  } })
+  assert.equal(result.observation, 'NOT_RUN'); assert.equal(result.cleanup, 'NOT_REQUIRED')
+  assert.equal(result.error, null); assert.equal(result.record, 'PASS')
+})
+
+test('failed observation still disconnects and closes the owned target before recording FAIL', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs'), calls = [], first = new Error('SYNTHETIC_OBSERVATION_FAILURE')
+  const result = await helper.observeAndCleanCompactFixture({ observe: async () => { throw first },
+    cleanup: [async () => { calls.push('disconnect') }, async () => { calls.push('close') }],
+    record: async view => { calls.push('record'); assert.equal(view.observation, 'FAIL'); assert.equal(view.cleanup, 'PASS') },
+  })
+  assert.deepEqual(calls, ['disconnect', 'close', 'record'])
+  assert.equal(result.error, first); assert.equal(result.record, 'PASS')
+})
+
+test('failed disconnect cannot skip later disconnects or owned target closure', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs'), calls = [], first = new Error('SYNTHETIC_DISCONNECT_FAILURE')
+  const result = await helper.observeAndCleanCompactFixture({ observe: async () => ({}),
+    cleanup: [async () => { calls.push('first'); throw first }, async () => { calls.push('second') }, async () => { calls.push('close') }],
+    record: async view => { calls.push('record'); assert.equal(view.cleanup, 'FAIL'); assert.deepEqual(view.cleanupChecks, ['FAIL', 'PASS', 'PASS']) },
+  })
+  assert.deepEqual(calls, ['first', 'second', 'close', 'record'])
+  assert.equal(result.error, first); assert.equal(result.record, 'PASS')
+})
+
+test('combined observation, cleanup and record errors survive without entering the safe evidence view', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs'), errors = ['observation', 'cleanup', 'record'].map(stage => new Error(`DO_NOT_ECHO_${stage}`))
+  let closed = false
+  const result = await helper.observeAndCleanCompactFixture({ observe: async () => { throw errors[0] },
+    cleanup: [async () => { throw errors[1] }, async () => { closed = true }],
+    record: async view => { assert.equal(closed, true); assert.equal(view.observation, 'FAIL'); assert.equal(view.cleanup, 'FAIL'); assert(!JSON.stringify(view).includes('DO_NOT_ECHO')); throw errors[2] },
+  })
+  assert.equal(result.record, 'FAIL'); assert(result.error instanceof AggregateError)
+  assert.deepEqual(result.error.errors, errors)
+})
+
 test('failed fixture setup removes its verified private temp root and preserves the setup failure', async () => {
   const helper = await implementation('../helpers/compact-postgres-target.mjs')
   assert.equal(typeof helper.withCompactFixtureRoot, 'function')

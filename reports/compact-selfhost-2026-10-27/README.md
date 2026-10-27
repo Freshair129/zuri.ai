@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.7"
+version: "0.1.8"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -28,6 +28,9 @@ the current consumer path and persisted integrity against the private S3 provide
 it retains the original Task4 snapshot and separate release/provider gates.
 [Task5 PostgreSQL Marketing evidence](task5-marketing-postgres.md) records the
 fresh-only TEST exception, source reconciliation and independent native sessions.
+The [2026-10-28 Task5 requalification](task5-requalification-20261028.md) adds
+real-client selection/Plan-hint retry evidence and safe cleanup on failed TEST
+observation, bound to the current inspected source.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 
@@ -129,6 +132,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.7 → 0.1.8: links source-bound Task5 requalification and fixture-finalization
+correction; preserves prior qualification snapshots and separate release gates.
 
 0.1.6: links the bounded Task3 requalification and shared first-operator fence
 correction; preserves this planning snapshot and earlier delivery evidence.
