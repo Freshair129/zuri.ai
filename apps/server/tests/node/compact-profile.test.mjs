@@ -9,6 +9,72 @@ import { targetFixture, emptyObservation } from './compact-task2-fixtures.mjs'
 
 const api = () => implementation('../../scripts/lib/compact/profiles.mjs')
 
+test('actual idle cohort config isolates native TEST credentials and leaves web admission disabled', async () => {
+  const { compactKnowledgeCohortConfiguration } = await implementation('../helpers/compact-knowledge-cohort.mjs')
+  const target = targetFixture(), root = path.dirname(target.secretFiles.bootstrapEnvironment)
+  const config = compactKnowledgeCohortConfiguration({ target, root, webPort: 39123 })
+  assert.equal(/^ZURI_KNOWLEDGE_ENABLED=0$/m.test(config.app), true)
+  assert.equal(/^ZURI_KNOWLEDGE_STORAGE_ENABLED=0$/m.test(config.app), true)
+  assert.equal(/LINE|THREAD|ZURI_MSP_|MSP_PIPELINE_/.test(config.app), false)
+  assert.equal(/^(?:DATABASE_URL|POSTGRES_|ZURI_LINE_|ZURI_MSP_THREAD_|MSP_THREAD_|ZURI_SESSION_SECRET|ZURI_SECRET_KEK)/m.test(config.knowledge), false)
+  const values = Object.fromEntries(config.knowledge.trim().split('\n').map(line => { const at = line.indexOf('='); return [line.slice(0, at), line.slice(at + 1)] }))
+  const principals = JSON.parse(values.MSP_PIPELINE_PRINCIPALS)
+  assert.equal(principals.length, 2)
+  assert.deepEqual(principals.map(p => p.role).sort(), ['source', 'worker'])
+  assert.deepEqual(principals[0].scope, config.scope); assert.deepEqual(principals[1].scope, config.scope)
+  assert.equal(principals.find(p => p.role === 'worker').credential === values.GENESIS_WORKER_CREDENTIAL, true)
+  assert.equal(values.GENESIS_WORKER_QUERY_TOKEN === values.MSP_PIPELINE_WORKER_TOKEN, true)
+  assert.equal(values.MSP_GKS_PIPELINE_CREDENTIAL === values.GKS_PIPELINE_RELAY_CREDENTIAL, true)
+  assert.equal(config.scope.workspaceId, ''); assert.equal(config.scope.agentId, ''); assert.equal(config.scope.visibility, 'private')
+  assert.match(values.GENESIS_WORKER_MSP_ARGS, /ki17-worker-msp-launcher\.mjs/)
+  assert.equal(config.selectors.COMPACT_PROJECT_NAME, target.project)
+})
+
+test('idle cohort configuration refuses production targets and invalid local selector inputs', async () => {
+  const { compactKnowledgeCohortConfiguration } = await implementation('../helpers/compact-knowledge-cohort.mjs')
+  const target = targetFixture(), root = path.dirname(target.secretFiles.bootstrapEnvironment)
+  for (const change of [{ target: { ...target, environment: 'PRODUCTION' } }, { root: 'relative' }, { webPort: 0 }, { webPort: 65536 }]) {
+    assert.throws(() => compactKnowledgeCohortConfiguration({ target, root, webPort: 39123, ...change }))
+  }
+})
+
+test('idle cohort mutations require the exact owned service and immutable package image', async () => {
+  const { assertCompactKnowledgeCohortContainer } = await implementation('../helpers/compact-knowledge-cohort.mjs')
+  const target = targetFixture(), m = selected(), labels = { 'com.zuri-ai.compact.target': target.targetId, 'com.zuri-ai.compact.project': target.project, 'com.zuri-ai.compact.environment': 'TEST' }
+  const expectedImageId = `sha256:${'b'.repeat(64)}`, container = { Id: 'a'.repeat(64), Image: expectedImageId, Name: `/${target.project}-genesis-worker-1`, Config: { Labels: labels, Image: m.images.genesisWorker } }
+  assert.doesNotThrow(() => assertCompactKnowledgeCohortContainer({ container, role: 'genesis-worker', target, manifest: m, expectedImageId }))
+  for (const mutate of [c => { delete c.Config.Labels['com.zuri-ai.compact.target'] }, c => { c.Config.Labels['com.zuri-ai.compact.environment'] = 'PRODUCTION' }, c => { c.Name += '-foreign' }, c => { c.Config.Image = 'foreign:latest' }, c => { c.Id = 'not-an-id' }, c => { c.Image = `sha256:${'f'.repeat(64)}` }]) {
+    const changed = structuredClone(container); mutate(changed)
+    assert.throws(() => assertCompactKnowledgeCohortContainer({ container: changed, role: 'genesis-worker', target, manifest: m, expectedImageId }))
+  }
+  assert.throws(() => assertCompactKnowledgeCohortContainer({ container, role: 'line-worker', target, manifest: m, expectedImageId }))
+  for (const role of ['toString', 'constructor', '__proto__']) {
+    const changed = structuredClone(container); changed.Name = `/${target.project}-${role}-1`; delete changed.Config.Image
+    assert.throws(() => assertCompactKnowledgeCohortContainer({ container: changed, role, target, manifest: m, expectedImageId }))
+  }
+})
+
+test('cohort project preflight permits only its already-installed owned database', async () => {
+  const { assertCompactKnowledgeProjectInventory } = await implementation('../helpers/compact-knowledge-cohort.mjs')
+  const target = targetFixture(), m = manifest(), database = { Id: 'd'.repeat(64), Name: '/' + target.database.container,
+    Config: { Image: m.images.postgres, Labels: { 'com.zuri-ai.compact.target': target.targetId, 'com.zuri-ai.compact.project': target.project, 'com.zuri-ai.compact.environment': 'TEST', 'com.docker.compose.project': target.project, 'com.docker.compose.service': 'db' } } }
+  assert.doesNotThrow(() => assertCompactKnowledgeProjectInventory({ ids: [database.Id], database, target, manifest: m }))
+  for (const ids of [[], [database.Id, 'f'.repeat(64)], ['f'.repeat(64)], [database.Id, database.Id]]) assert.throws(() => assertCompactKnowledgeProjectInventory({ ids, database, target, manifest: m }))
+  const foreign = structuredClone(database); delete foreign.Config.Labels['com.zuri-ai.compact.target']
+  assert.throws(() => assertCompactKnowledgeProjectInventory({ ids: [database.Id], database: foreign, target, manifest: m }))
+})
+
+test('negative-probe cleanup accepts only the intended pinned isolated no-shared-store container', async () => {
+  const { assertCompactKnowledgeNegativeProbe } = await implementation('../helpers/compact-knowledge-cohort.mjs')
+  const target = targetFixture(), m = selected(), probeName = `${target.project}-missing-token-${target.targetId}`, expectedImageId = `sha256:${'b'.repeat(64)}`
+  const container = { Id: 'a'.repeat(64), Name: '/' + probeName, Image: expectedImageId, Config: { Image: m.images.genesisWorker, Labels: { 'com.zuri-ai.compact.target': target.targetId, 'com.zuri-ai.compact.project': target.project, 'com.zuri-ai.compact.environment': 'TEST' } }, HostConfig: { NetworkMode: 'none', Privileged: false }, Mounts: [] }
+  assert.doesNotThrow(() => assertCompactKnowledgeNegativeProbe({ container, probeName, target, manifest: m, expectedImageId }))
+  for (const mutate of [c => { c.HostConfig.NetworkMode = 'host' }, c => { c.Mounts.push({ Type: 'volume', Destination: '/var/lib/zuri-ki17/genesis' }) }, c => { c.Mounts.push({ Type: 'bind', Destination: '/private' }) }, c => { c.Config.Image = 'foreign:latest' }, c => { c.Image = `sha256:${'f'.repeat(64)}` }, c => { c.Name += '-foreign' }, c => { c.Config.Labels = {} }]) {
+    const changed = structuredClone(container); mutate(changed)
+    assert.throws(() => assertCompactKnowledgeNegativeProbe({ container: changed, probeName, target, manifest: m, expectedImageId }))
+  }
+})
+
 test('profile cleanup continues after an ownership refusal and removes only its inert model directory', async () => {
   const { cleanupCompactProfileFixture } = await import('../helpers/compact-profile-target.mjs')
   const modelDirectory = await mkdtemp(path.join(os.tmpdir(), 'compact inert model '))
