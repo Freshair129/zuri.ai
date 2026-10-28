@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.13"
+version: "0.1.14"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -418,6 +418,10 @@ Version 0.1.11 → 0.1.12 adds this bounded TEST execution detail. AI remains
 gates remain unchanged. No publication or production activation follows.
 
 ### Task6 continuation: scoped HTTP admission and pending-work resume
+
+The [2026-10-29 TEXT journey evidence](../../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
+records this bounded milestone separately from complete Task6 qualification.
+Version 0.1.13 → 0.1.14 links that evidence; no acceptance group is closed.
 
 The next owner-selected continuation starts at `1dd72707` on the same primary
 branch. Reuse the immutable `bafe11aa` package with a separately committed clean

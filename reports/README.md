@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.10.2"
+version: "0.10.3"
 ---
 
 # Engineering assessments
@@ -12,6 +12,7 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-29 Compact scoped TEXT HTTP journey](compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md) | Real HTTPS self-provisioned Business authority, same-run TEXT publication across web replacement, query/citation/withdrawal on an owned TEST stack; storage/native recovery/LINE/full AI qualification remain open. |
 | [2026-10-28 Compact actual idle Knowledge cohort TEST](compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md) | Packaged web/native startup, idle stop, manual namespace rebind and retained-store markers passed 3/3 at harness `ec809e2b`; Business/serving authority, active-work/recovery and AI qualification remain open. |
 | [2026-10-28 Compact selected Knowledge package TEST](compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md) | Relocated OCI package `bafe11aa`, fresh PostgreSQL baseline and offline native/model probes passed 4/4 with harness `3b58fcc9`; full application/cohort/recovery and release gates remain open, AI NOT_QUALIFIED. |
 | [2026-10-27 Portfolio invite HTTP TEST](domain-followup-2026-10-27/portfolio-invite-http-existing-contract.md) | One real-session HTTP scenario passed at source764b480d using only fresh synthetic Portfolio data; initial report-format parser failure retained/reconciled, no Tenant/Business grants, native PostgreSQL or live delivery acceptance. |

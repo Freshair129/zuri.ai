@@ -1,5 +1,5 @@
 ---
-version: "0.7.12"
+version: "0.7.13"
 status: active
 superseded_by: null
 ---
@@ -52,6 +52,9 @@ plans and historical test receipts are separate from the build specification.
   The [actual idle Knowledge cohort TEST](../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
   verifies manual web/native namespace rebind and retained-volume markers;
   Business authority, active-work replay and native recovery remain separate gates.
+  The [scoped TEXT HTTP journey](../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
+  adds real TEST Business authority and durable same-run publication/query/withdrawal;
+  storage, native recovery, LINE and full AI qualification remain open.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -170,3 +173,6 @@ TEST snapshot and preserves the remaining application/cohort/recovery gates.
 
 Version diff 0.7.11 → 0.7.12 (2026-10-28): links the actual idle-cohort TEST
 snapshot without promoting Business authority, active-work or recovery claims.
+
+Version diff 0.7.12 → 0.7.13 (2026-10-29): links the bounded scoped TEXT HTTP
+journey and preserves the first-run timestamp caveat and remaining AI gates.
