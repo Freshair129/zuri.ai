@@ -69,6 +69,9 @@ plans and historical test receipts are separate from the build specification.
   The [2026-11-01 OR5 prerequisite assessment](../reports/compact-selfhost-2026-10-27/or5-prerequisite-assessment-20261101.md)
   records the still-blocking supported transfer/activation dependency at `59145776`;
   OR5 is not complete and the existing deferred minors and qualification gates remain open.
+  The [selected Knowledge package TEST](../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
+  adds relocated OCI, fresh-baseline and offline model evidence; application/cohort
+  recovery and AI qualification remain open.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -185,3 +188,5 @@ its remaining selected-profile gates; no AI qualification or production authorit
 Version diff 0.7.15 → 0.7.16 (2026-10-30): links the 117-page UI dimensional
 drawing atlas as a schematic visual companion; the interface inventory and
 application source remain authoritative, and unspecified measurements stay `[TBD]`.
+Version diff 0.7.10 → 0.7.11 (2026-10-28): links the selected Knowledge package
+TEST snapshot and preserves the remaining application/cohort/recovery gates.

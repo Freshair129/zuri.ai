@@ -38,6 +38,9 @@ observation, bound to the current inspected source.
 The [2026-10-28 Task6 verification](task6-requalification-20261028.md) records
 the profile-probe cleanup correction and isolated native/provider checks, with
 selected-profile packaging, cohort and native recovery gates still explicit.
+The [selected Knowledge package evidence](task6-knowledge-package-20261028.md)
+records a later relocated OCI/fresh-baseline/offline-inference TEST at package
+source `bafe11aa`; full application/cohort/native recovery qualification remains open.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 
@@ -139,6 +142,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.9 → 0.1.10: links selected Knowledge artifact TEST evidence, retaining
+NOT_QUALIFIED and separate application/cohort/recovery gates.
 
 0.1.8 → 0.1.9: links bounded Task6 verification; preserves the original
 preparation evidence and does not close selected-profile qualification.
