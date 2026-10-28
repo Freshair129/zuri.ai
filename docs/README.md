@@ -1,5 +1,5 @@
 ---
-version: "0.7.10"
+version: "0.7.11"
 status: active
 superseded_by: null
 ---
@@ -46,6 +46,9 @@ plans and historical test receipts are separate from the build specification.
   records PostgreSQL provider/retry evidence and honest failed-fixture cleanup.
   The [2026-10-28 Task6 verification](../reports/compact-selfhost-2026-10-27/task6-requalification-20261028.md)
   separates isolated native/provider evidence from the still-unqualified AI profiles.
+  The [selected Knowledge package TEST](../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
+  adds relocated OCI, fresh-baseline and offline model evidence; application/cohort
+  recovery and AI qualification remain open.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -158,3 +161,6 @@ canonical lifecycle and release authority remain unchanged.
 
 Version diff 0.7.9 → 0.7.10 (2026-10-28): links bounded Task6 verification and
 its remaining selected-profile gates; no AI qualification or production authority.
+
+Version diff 0.7.10 → 0.7.11 (2026-10-28): links the selected Knowledge package
+TEST snapshot and preserves the remaining application/cohort/recovery gates.
