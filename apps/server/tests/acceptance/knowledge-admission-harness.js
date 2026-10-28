@@ -7,12 +7,13 @@ import net from 'node:net'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { request as playwrightRequest } from '@playwright/test'
-import { isolatedEnvironment, startWorkerProcess, temporaryPipeline } from './harness'
+import { isolatedEnvironment, ki17NodeExecutable, startWorkerProcess, temporaryPipeline } from './harness'
 
 // @req FR-173 — the admission acceptance drives the real Next entrypoint and
 // keeps the native/MSP/GKS processes outside the test's in-process mocks.
 // @spec ADR-072, ADR-073
 // @tested tests/acceptance/knowledge-admission-native.test.js
+// @tested tests/unit/ki17-acceptance-harness.test.js
 
 const here = path.dirname(fileURLToPath(import.meta.url))
 const serverRoot = path.resolve(here, '../..')
@@ -134,7 +135,7 @@ async function launchNext({ env, port }) {
   }
 }
 
-function addRuntimeEnvironment(env, scope, port) {
+export function addRuntimeEnvironment(env, scope, port) {
   return {
     ...env,
     DATABASE_URL: disposableDatabaseUrl(),
@@ -142,7 +143,7 @@ function addRuntimeEnvironment(env, scope, port) {
     ZURI_SEED_OWNER_PASSWORD: E2E_PASSWORD,
     ZURI_KNOWLEDGE_ENABLED: '1',
     ZURI_KNOWLEDGE_BINDINGS: JSON.stringify([{ scope, policy: { allowEmbedding: true, allowPublication: true } }]),
-    ZURI_MSP_COMMAND: process.execPath,
+    ZURI_MSP_COMMAND: ki17NodeExecutable(env),
     ZURI_MSP_ARGS: JSON.stringify([path.join(env.KI17_MSP_ROOT, 'apps/msp-server/bin/msp-server.mjs')]),
     ZURI_MSP_CWD: env.KI17_MSP_ROOT,
     ZURI_MSP_TIMEOUT_MS: '120000',

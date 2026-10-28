@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
+import path from 'node:path'
 import { ki17NodeExecutable, isolatedEnvironment, mspTransport } from '../acceptance/harness'
+import * as admission from '../acceptance/knowledge-admission-harness'
 
 // @req FR-110 — the four-process acceptance spawns MSP, GKS and the worker as real
 //   processes; which Node binary it spawns them with is part of what it certifies.
@@ -12,6 +14,21 @@ import { ki17NodeExecutable, isolatedEnvironment, mspTransport } from '../accept
 // /opt/ki17/node/bin/node. `process.execPath` names only the first of those, so the
 // harness needed a way to address the second. These are the guards on that seam.
 describe('the Node the acceptance harness spawns its ki17 children with', () => {
+  it('refuses a missing pinned MSP runtime in the actual Next admission environment', () => {
+    expect(typeof admission.addRuntimeEnvironment).toBe('function')
+    expect(() => admission.addRuntimeEnvironment({ KI17_NODE: '/not-installed/ki17/node', KI17_MSP_ROOT: '/isolated/msp' }, { tenantId: 't', businessId: 'b' }, 19417))
+      .toThrow(/KI17_NODE must name an existing absolute Node executable/)
+  })
+
+  it('uses the selected runtime for Next admission as well as the direct transports', () => {
+    expect(typeof admission.addRuntimeEnvironment).toBe('function')
+    // An existing absolute executable spelling distinct from process.execPath:
+    // a hardcoded runner fallback fails on every platform, without a second Node install.
+    const selected = `${path.dirname(process.execPath)}${path.sep}.${path.sep}${path.basename(process.execPath)}`
+    const env = admission.addRuntimeEnvironment({ KI17_NODE: selected, KI17_MSP_ROOT: '/isolated/msp' }, { tenantId: 't', businessId: 'b' }, 19417)
+    expect(env.ZURI_MSP_COMMAND).toBe(selected)
+  })
+
   it('is the runner own Node when KI17_NODE is unset, so a native run is unchanged', () => {
     expect(ki17NodeExecutable({})).toBe(process.execPath)
     expect(ki17NodeExecutable({ KI17_NODE: '' })).toBe(process.execPath)
