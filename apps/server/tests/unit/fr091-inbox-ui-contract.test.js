@@ -110,6 +110,38 @@ describe('FR-091 inbox page contract', () => {
     expect(source).toMatch(/รีเฟรช/)
     expect(source).toMatch(/inbox\.reload/)
   })
+
+  it('loads analysis per selected thread only when its current consent is GRANTED', () => {
+    const source = inboxPage()
+    expect(source).toContain('/analysis?businessId=${encodeURIComponent(businessId)}')
+    expect(source).toMatch(/consentStatus !== 'GRANTED'/)
+    expect(source).toMatch(/conversationId=\{conversationId\}/)
+    expect(source).toMatch(/refreshKey=\{analysisRefreshKey\}/)
+    expect(source).toMatch(/getConversationAnalyses|ConversationAnalysisPanel/)
+  })
+
+  it('clears stale analysis during navigation and ignores late fetch responses', () => {
+    const source = inboxPage()
+    expect(source).toContain('new AbortController()')
+    expect(source).toContain('controller.abort()')
+    expect(source).toMatch(/setState\(\{ key: requestKey, data: null, loading: true, error: false \}\)/)
+    expect(source).toContain('payload.conversationId !== conversationId')
+    expect(source).toContain('refreshKey, retryKey')
+    expect(source).toMatch(/if \(active\) setState\(\{ key: requestKey, data, loading: false, error: false \}\)/)
+  })
+
+  it('has distinct loading, non-disclosing error/retry, empty, advisory, and redacted DTO states', () => {
+    const source = inboxPage()
+    expect(source).toContain('กำลังโหลดผลวิเคราะห์')
+    expect(source).toContain('ไม่สามารถแสดงผลวิเคราะห์ได้')
+    expect(source).toContain('ลองอีกครั้ง')
+    expect(source).toContain('ยังไม่มีผลวิเคราะห์สำหรับบทสนทนานี้')
+    expect(source).toContain('ไม่ใช่ข้อเท็จจริงที่ยืนยันแล้ว')
+    expect(source).toContain('item.summary')
+    expect(source).toContain('item.cta')
+    expect(source).toContain('item.tags')
+    expect(source).not.toContain('rawOutputJson')
+  })
 })
 
 describe('FR-091 dashboard page contract', () => {

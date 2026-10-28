@@ -229,11 +229,108 @@ function ErasureControl({ businessId, customer, isOwner, onErased }) {
   )
 }
 
+// @req FR-127 — CRM-READ-01: show only the existing, consent-gated analysis DTO
+//   for the selected Inbox conversation. Clear every previous result on scope,
+//   conversation, consent, erasure refresh, or retry; ignore late responses.
+function ConversationAnalysisPanel({ businessId, conversationId, consentStatus, refreshKey }) {
+  const [state, setState] = useState({ key: null, data: null, loading: false, error: false })
+  const [retryKey, setRetryKey] = useState(0)
+  const requestKey = `${businessId}:${conversationId}:${consentStatus}:${refreshKey}:${retryKey}`
+
+  useEffect(() => {
+    let active = true
+    const controller = new AbortController()
+
+    if (!conversationId || consentStatus !== 'GRANTED') {
+      setState({ key: requestKey, data: null, loading: false, error: false })
+      return () => { active = false; controller.abort() }
+    }
+
+    setState({ key: requestKey, data: null, loading: true, error: false })
+    const path = `/api/crm/conversations/${encodeURIComponent(conversationId)}/analysis?businessId=${encodeURIComponent(businessId)}`
+    fetch(path, { signal: controller.signal })
+      .then(async (response) => {
+        const payload = await response.json().catch(() => ({}))
+        if (!response.ok || payload.conversationId !== conversationId) throw new Error('ANALYSIS_UNAVAILABLE')
+        return payload
+      })
+      .then((data) => {
+        if (active) setState({ key: requestKey, data, loading: false, error: false })
+      })
+      .catch((error) => {
+        if (active && error.name !== 'AbortError') setState({ key: requestKey, data: null, loading: false, error: true })
+      })
+
+    return () => { active = false; controller.abort() }
+  }, [businessId, conversationId, consentStatus, refreshKey, retryKey])
+
+  if (!conversationId) return null
+  if (consentStatus !== 'GRANTED') {
+    return (
+      <section aria-label="ผลวิเคราะห์บทสนทนา" className="mt-3 border-t border-[var(--border)] pt-3">
+        <p className="text-xs font-semibold">ผลวิเคราะห์บทสนทนา</p>
+        <p className="mt-1 text-[11px] text-muted">ไม่สามารถแสดงผลวิเคราะห์ได้ในสถานะ consent ปัจจุบัน</p>
+      </section>
+    )
+  }
+
+  if (state.key !== requestKey || state.loading || (!state.data && !state.error)) {
+    return <p role="status" className="mt-3 border-t border-[var(--border)] pt-3 text-xs text-muted">กำลังโหลดผลวิเคราะห์…</p>
+  }
+  if (state.error) {
+    return (
+      <section aria-label="ผลวิเคราะห์บทสนทนา" className="mt-3 border-t border-[var(--border)] pt-3">
+        <p role="alert" className="text-xs text-[var(--danger)]">ไม่สามารถแสดงผลวิเคราะห์ได้</p>
+        <button type="button" className="btn mt-1 h-7 px-2.5 text-[11px]" onClick={() => setRetryKey((value) => value + 1)}>
+          ลองอีกครั้ง
+        </button>
+      </section>
+    )
+  }
+
+  const analyses = [...(state.data.analyses || [])].sort((left, right) =>
+    new Date(right.analyzedAt).getTime() - new Date(left.analyzedAt).getTime())
+  return (
+    <section aria-label="ผลวิเคราะห์บทสนทนา" className="mt-3 border-t border-[var(--border)] pt-3">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-xs font-semibold">ผลวิเคราะห์บทสนทนา</p>
+        <span className="text-[10px] text-muted">ข้อมูลสรุปเพื่อช่วยประกอบการพิจารณา · ไม่ใช่ข้อเท็จจริงที่ยืนยันแล้ว</span>
+      </div>
+      {analyses.length === 0 ? (
+        <p className="mt-2 text-[11px] text-muted">ยังไม่มีผลวิเคราะห์สำหรับบทสนทนานี้</p>
+      ) : (
+        <ul className="mt-2 space-y-2">
+          {analyses.map((item) => (
+            <li key={item.id} className="rounded-lg border border-[var(--border)] p-2.5">
+              <div className="flex flex-wrap items-center gap-2 text-[10px] text-muted">
+                <StatusPill status={item.contactType} />
+                <StatusPill status={item.state} />
+                <time dateTime={item.analyzedAt}>{timeOf(item.analyzedAt)}</time>
+              </div>
+              <p className="mt-1.5 whitespace-pre-wrap break-words text-xs">{item.summary}</p>
+              {item.cta && <p className="mt-1 text-[11px]">CTA: {item.cta}</p>}
+              {item.tags?.length > 0 && (
+                <p className="mt-1 break-words text-[10px] text-muted">Tags: {item.tags.join(' · ')}</p>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
+  )
+}
+
 function Thread({ businessId, conversationId, isOwner }) {
   const path = conversationId
     ? `/api/crm/conversations/${encodeURIComponent(conversationId)}?businessId=${encodeURIComponent(businessId)}`
     : null
   const thread = useFetch(path, [conversationId, businessId])
+  const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0)
+
+  function reloadCustomerThread() {
+    setAnalysisRefreshKey((value) => value + 1)
+    thread.reload()
+  }
 
   if (!conversationId) {
     return <EmptyState title="เลือกห้องสนทนาทางซ้าย" hint="เพื่อดูข้อความทั้งหมดของลูกค้ารายนั้น" />
@@ -265,13 +362,13 @@ function Thread({ businessId, conversationId, isOwner }) {
             businessId={businessId}
             customer={conversation.customer}
             isOwner={isOwner}
-            onRecorded={thread.reload}
+            onRecorded={reloadCustomerThread}
           />
           <ErasureControl
             businessId={businessId}
             customer={conversation.customer}
             isOwner={isOwner}
-            onErased={thread.reload}
+            onErased={reloadCustomerThread}
           />
         </div>
       </div>
@@ -314,6 +411,13 @@ function Thread({ businessId, conversationId, isOwner }) {
           )
         })}
       </div>
+
+      <ConversationAnalysisPanel
+        businessId={businessId}
+        conversationId={conversationId}
+        consentStatus={conversation.customer.consentStatus}
+        refreshKey={analysisRefreshKey}
+      />
 
       {isOwner && (
         <ReplyComposer businessId={businessId} conversationId={conversationId} onSent={thread.reload} />
