@@ -425,6 +425,20 @@ Its own corrupted-model control restores only its newly retained copy. The
 package, retained copy and observation remain available after owned TEST cleanup;
 success still leaves Knowledge `NOT_QUALIFIED` and Task6 open.
 
+`npm run test:compact:cohort` is a separate explicit idle-cohort lane, using the
+same five input variables with fresh retention/observation outputs. It records
+the package revision separately from the Git revision of the running harness.
+It starts the packaged web/native images only, on a new disposable TEST database
+and network, with private generated credentials and no application Business or
+membership. Web Knowledge admission stays disabled; LINE/thread-memory inputs
+are unset. Checkout environment files are never reused, and packages requiring
+an external storage license are refused. The lane checks missing-token refusal,
+idle SIGTERM exit, stale namespace detection, explicit manual web/native
+recreation, pinned image/namespace/model bindings, and retained-store markers.
+Generated private files leave with the owned fixture cleanup. Success is bounded
+idle topology/state evidence; active-work drain/replay, send deduplication,
+Business/serving authority, full KI17 and native Stage9+ restore remain unproven.
+
 `diagnostics` now includes non-authoritative profile prerequisites and read-only
 cohort observations when LINE/Knowledge is selected. `CONFIGURATION_PRESENT`
 means only that the listed selectors/key/token are present. It never establishes

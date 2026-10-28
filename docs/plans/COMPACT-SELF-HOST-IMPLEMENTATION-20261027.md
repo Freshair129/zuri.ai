@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.11"
+version: "0.1.12"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -370,6 +370,52 @@ owner after PR757; baseline `f63378bee8b059b898960f287bfd3b8d0a9fdcb6`:
 
 Version 0.1.10 → 0.1.11 adds this bounded execution detail; ADR-115, canonical
 records, profile lifecycle and the acceptance groups below are unchanged.
+
+### Task6 continuation: actual idle Knowledge cohort
+
+The next owner-selected continuation starts at `aa4f8c50` on the same primary
+checkout branch. The [selected package evidence](../../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
+proves transport, baseline and offline contents only. Extend its TEST evidence
+without changing product worker ownership, credentials or shutdown semantics:
+
+1. Require an explicit verified `core + knowledge` OCI package, exact package
+   revision/image map and fresh retained/output destinations. Reuse the immutable
+   `bafe11aa` candidate while recording the new test harness revision separately;
+   do not relabel its bytes. Refuse foreign resources before Compose mutations.
+2. Add an explicit heavyweight cohort test lane, excluded from ordinary Server
+   tests. Use a new owned disposable PostgreSQL target and the packaged Compose
+   file for the actual web/native images. Use private run-generated TEST session,
+   envelope and MSP/native credentials with a synthetic six-field scope. This
+   scope has no application Tenant/Business/membership; it is not a serving grant.
+   Keep web Knowledge admission disabled and LINE/thread-memory credentials unset.
+   Do not start LINE/public ingress or point at existing runtime/store paths.
+   Generate app/session/envelope, database bootstrap/runtime, storage-admin and
+   Knowledge/MSP/native private files inside the new fixture root only; never
+   reuse checkout `.env`/`.env.knowledge`. This lane refuses a package requiring
+   an external storage license rather than importing a persistent license. Never
+   log secret values/hashes, and remove only these fixture-created credential
+   files through the existing verified temporary-root cleanup.
+3. Start web/native only, using the fixture-owned database/network and labelled
+   native/shared volumes. Observe actual web health, loopback native bearer
+   refusal, ownership/images/current namespace and readonly packaged model mount.
+   Verify missing native query-token configuration fails on a separate owned,
+   network-disabled container before opening any shared native store.
+4. Stop the idle native worker through its existing SIGTERM/close path and check
+   its exit. Recreate web explicitly, detect the stopped worker's stale namespace,
+   then force-recreate native against the current web. Recheck health, refusal,
+   pinned image bindings, the new native-to-current-web namespace, readonly
+   model and retained native/shared state. This proves manual idle
+   recreation only: no active job, queue drain/replay, send deduplication, current
+   Business authority, full KI17 journey or physical native-store recovery claim.
+5. Run failing-first guard/fixture tests and actual cohort acceptance; preserve
+   first failures and record only safe IDs/hashes/status. Cleanup only run-created
+   resources after ownership checks, independently attempt later cleanup actions,
+   retain package/model/evidence, and compare existing runtime inventories.
+   Complete independent review and serial documentation governance.
+
+Version 0.1.11 → 0.1.12 adds this bounded TEST execution detail. AI remains
+`NOT_QUALIFIED`; Task6 acceptance groups, native Stage9+, live LINE and release
+gates remain unchanged. No publication or production activation follows.
 
 - [ ] Write failures for absent/unpinned model, partial bootstrap, stale worker
   namespace, missing secret, disabled profile and storage/native-state loss.
