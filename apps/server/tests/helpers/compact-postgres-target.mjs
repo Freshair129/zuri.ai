@@ -32,6 +32,28 @@ export async function readCompactFixturePackage({ packageDirectory, sourceRevisi
   if (loaded.manifest.profiles.length !== 1 || loaded.manifest.profiles[0] !== 'core' || sourceRevision && loaded.manifest.sourceRevision !== sourceRevision || Object.keys(componentImages).length && stableJson(componentImages) !== stableJson(loaded.manifest.images)) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
   return loaded
 }
+export async function readCompactKnowledgeFixturePackage({ packageDirectory, sourceRevision, componentImages = {} }) {
+  if (typeof sourceRevision !== 'string' || !/^[a-f0-9]{40}$/.test(sourceRevision) || !Object.keys(componentImages).length) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
+  const loaded = await loadCompactPackage(packageDirectory), m = loaded.manifest
+  if (m.profiles.length !== 2 || !m.profiles.includes('core') || !m.profiles.includes('knowledge') || m.sourceRevision !== sourceRevision ||
+      stableJson(componentImages) !== stableJson(m.images) || (await json(loaded.root, 'transport.json')).kind !== 'oci') throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
+  return loaded
+}
+export async function assertCompactKnowledgeEvidencePath({ packageDirectory, retainedDirectory, evidenceFile }) {
+  try {
+    const source = await realpath(packageDirectory)
+    const output = async file => {
+      if (typeof file !== 'string' || !path.isAbsolute(file)) throw 0
+      const parent = path.dirname(file), info = await lstat(parent), physical = await realpath(parent)
+      if (!info.isDirectory() || info.isSymbolicLink() || path.relative(physical, parent) !== '') throw 0
+      try { await lstat(file); throw 0 } catch (error) { if (error?.code !== 'ENOENT') throw error }
+      return path.join(physical, path.basename(file))
+    }
+    const retained = await output(retainedDirectory), evidence = await output(evidenceFile)
+    const within = (root, file) => { const relative = path.relative(root, file); return !relative || relative !== '..' && !relative.startsWith('..' + path.sep) && !path.isAbsolute(relative) }
+    if (within(source, evidence) || within(retained, evidence) || evidence === retained) throw 0
+  } catch { throw new CompactError('COMPACT_KNOWLEDGE_EVIDENCE_PATH_INVALID') }
+}
 export function assertCompactFixtureOwnership(kind, resource, target) {
   const labels = kind === 'container' ? resource?.Config?.Labels : resource?.Labels
   if (Object.entries(compactOwnerLabels(target)).some(([k, v]) => labels?.[k] !== v)) throw new CompactError('COMPACT_FIXTURE_FOREIGN_RESOURCE')
@@ -89,10 +111,13 @@ export async function inspectCompactFixtureResource(context, kind, name, run = r
   }
   try { const rows = JSON.parse(result.stdout); if (!Array.isArray(rows) || rows.length !== 1 || !rows[0] || typeof rows[0] !== 'object') throw 0; return rows[0] } catch { throw new CompactError('COMPACT_FIXTURE_CLEANUP_UNVERIFIED') }
 }
-export async function compactFixture({ packageApi, baselineApi, executorApi, corruptDdl = false, componentImages = {}, sourceRevision, prepareInput, packageDirectory }) {
+export async function compactFixture({ packageApi, baselineApi, executorApi, corruptDdl = false, componentImages = {}, sourceRevision, prepareInput, packageDirectory, knowledgePackageDirectory }) {
   // Verify a supplied artifact before even creating private files or inspecting
   // Docker. Its baseline/manifest are consumed directly, never regenerated.
-  const loaded = await readCompactFixturePackage({ packageDirectory, sourceRevision, componentImages })
+  if (packageDirectory !== undefined && knowledgePackageDirectory !== undefined) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
+  const loaded = knowledgePackageDirectory === undefined
+    ? await readCompactFixturePackage({ packageDirectory, sourceRevision, componentImages })
+    : await readCompactKnowledgeFixturePackage({ packageDirectory: knowledgePackageDirectory, sourceRevision, componentImages })
   if (loaded && corruptDdl) throw new CompactError('COMPACT_FIXTURE_PACKAGE_MISMATCH')
   return withCompactFixtureRoot(async root => {
   const target = targetFixture()

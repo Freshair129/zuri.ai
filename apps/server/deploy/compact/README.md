@@ -385,6 +385,46 @@ model files for selected Knowledge. They verify actual payload hashes; a model
 descriptor alone cannot create a usable release. The runtime never downloads a
 model or searches sibling repositories. New model/tuple support needs review.
 
+For the exact profile set `core + knowledge`, inspect a verified package and its
+locally available immutable images with the bundled command:
+
+```text
+node compact-self-host.mjs knowledge-inspect --package <package-directory> --target <private-target.json> --expected-revision <40-character-source-commit>
+```
+
+This command verifies the full package/model inventory before querying the local
+Docker daemon. It binds every image reference, observed ID and platform, and
+requires matching assembly source labels on web/tools/Genesis. Vendor source
+labels and image environment values are not returned. Source labels are declared
+assembly metadata, not a signed build attestation or proof of runtime contents.
+The result is always `ARTIFACT_INSPECTED_NOT_QUALIFIED`; `databaseInstallation`
+describes only the fresh baseline marker, not an installed/qualified Knowledge
+application. Runtime contents/model loading, current authority, cohort recovery,
+exact-image KI17 and native Stage9+ recovery remain separate gates.
+
+Core-only, LINE and public selections are refused by this Knowledge-specific
+inspection lane. Existing core-only qualification entry points continue to
+refuse optional profiles. No inspect command starts/stops containers, initializes
+a database, changes credentials, grants authority or promotes a profile.
+
+Repository acceptance uses the separate `npm run test:compact:knowledge` command
+from `apps/server`. It requires `COMPACT_KNOWLEDGE_PACKAGE` (verified OCI package),
+`COMPACT_KNOWLEDGE_REVISION` (its exact source commit),
+`COMPACT_KNOWLEDGE_IMAGES` (JSON containing the entire selected image map),
+`COMPACT_KNOWLEDGE_RETAIN` (a new absolute directory under an existing parent),
+and `COMPACT_KNOWLEDGE_OBSERVATION` (a new absolute evidence filename).
+Missing inputs fail; this heavyweight lane is excluded from ordinary Server
+tests. The exact immutable selected images must already be available in the local
+Docker daemon; archive import is a separate prepared step, not performed by the
+test. The observation must be outside both package directories. A failed copy
+may leave its exclusive partial destination for inspection; select a new output
+for a retry. The test retains a relocated copy, installs only a newly owned disposable TEST
+database baseline, and probes actual images/model bytes offline with a readonly
+model bind. It creates no Business, integration credential or serving authority.
+Its own corrupted-model control restores only its newly retained copy. The
+package, retained copy and observation remain available after owned TEST cleanup;
+success still leaves Knowledge `NOT_QUALIFIED` and Task6 open.
+
 `diagnostics` now includes non-authoritative profile prerequisites and read-only
 cohort observations when LINE/Knowledge is selected. `CONFIGURATION_PRESENT`
 means only that the listed selectors/key/token are present. It never establishes

@@ -5,7 +5,8 @@ import path from 'node:path'
 import { constants } from 'node:fs'
 import { copyFile, mkdir, lstat, realpath } from 'node:fs/promises'
 import { inspectCompactInstall, loadCompactPackage } from './executor.mjs'
-import { planCompactInstall, exactKeys } from './target.mjs'
+import { planCompactInstall, exactKeys, validateCompactTarget, assertCompactResources } from './target.mjs'
+import { assertCompactKnowledgeImageBindings } from './profiles.mjs'
 import { bytes, json, digest, stableJson, listFiles, destination as compactDestination } from './files.mjs'
 
 export async function readCompactCoreCiInput({ packageDirectory, expectedRevision }) {
@@ -29,6 +30,32 @@ export async function inspectCompactQualificationCandidate({ packageDirectory, t
   } catch (error) {
     if (error instanceof CompactError) throw error
     throw new CompactError('COMPACT_CANDIDATE_INSPECTION_FAILED')
+  }
+}
+
+// Source labels are bounded image evidence; runtime contents and serving
+// authority still need actual selected-profile acceptance, never this report.
+export async function inspectCompactKnowledgeCandidate({ packageDirectory, expectedRevision, target, driver }) {
+  try {
+    if (typeof expectedRevision !== 'string' || !/^[a-f0-9]{40}$/.test(expectedRevision)) throw new CompactError('COMPACT_SOURCE_REVISION_MISMATCH')
+    const loaded = await loadCompactPackage(packageDirectory), m = loaded.manifest
+    if (m.sourceRevision !== expectedRevision) throw new CompactError('COMPACT_SOURCE_REVISION_MISMATCH')
+    if (m.profiles.length !== 2 || !m.profiles.includes('core') || !m.profiles.includes('knowledge')) throw new CompactError('COMPACT_KNOWLEDGE_SELECTION_REQUIRED')
+    const selected = validateCompactTarget(target), observed = await driver.inspect({ manifest: m, target: selected })
+    assertCompactResources(selected, m, observed)
+    const images = await driver.inspectKnowledgeCandidateImages({ manifest: m, target: selected })
+    assertCompactKnowledgeImageBindings({ manifest: m, observed, images })
+    const plan = planCompactInstall({ manifest: m, target: selected, observed })
+    return { status: 'ARTIFACT_INSPECTED_NOT_QUALIFIED', sourceRevision: m.sourceRevision, targetId: selected.targetId, project: selected.project,
+      manifestSha256: digest(stableJson(m)), packageInventorySha256: digest(await bytes(loaded.root, 'SHA256SUMS', 32 * 1024 * 1024)),
+      hostCliSha256: m.files['compact-self-host.mjs'], baselineSha256: m.schemaBaseline.sha256,
+      databaseInstallation: plan.action === 'INSPECT_INSTALLED' ? 'INSTALLED' : 'NOT_INSTALLED', images,
+      imageEvidence: 'REFERENCE_PLATFORM_AND_ASSEMBLY_LABELS_ONLY', componentPins: m.componentPins, models: m.modelArtifacts,
+      capabilities: { line: 'NOT_SELECTED', knowledge: 'NOT_QUALIFIED' },
+      remainingGates: ['RUNTIME_CONTENTS_AND_READINESS', 'BOOTSTRAP_AND_CURRENT_AUTHORITY', 'WORKER_COHORT_RESTART_REPLAY', 'EXACT_IMAGE_KI17', 'OBJECT_AND_DATABASE_RESTORE', 'SOURCE_WITHDRAWAL_AND_SERVING_AUTHORIZATION', 'NATIVE_STAGE9_RECOVERY'] }
+  } catch (error) {
+    if (error instanceof CompactError) throw error
+    throw new CompactError('COMPACT_KNOWLEDGE_CANDIDATE_INSPECTION_FAILED')
   }
 }
 

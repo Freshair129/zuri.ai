@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.10"
+version: "0.1.11"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -331,6 +331,45 @@ artifacts and Server worker scripts without changing MSP/GKS ownership.
 **Consumes:** Core package and existing accepted LINE/Knowledge contracts/pins.
 **Produces:** Profile-specific qualification reports bound to image/model/config
 hashes; no domain lifecycle adoption or inference-pool implementation.
+
+### Task6 continuation: selected Knowledge artifact boundary
+
+Implementation detail under the approved Task6 scope, selected again by the
+owner after PR757; baseline `f63378bee8b059b898960f287bfd3b8d0a9fdcb6`:
+
+1. Add a separate read-only `knowledge-inspect` command/API for the exact profile
+   set `core + knowledge`, with an explicit expected source revision. Preserve
+   both existing core-only qualification guards. LINE/public selections are
+   outside this first selected-artifact inspection lane.
+2. Load and verify the entire package inventory, baseline and five pinned model
+   files before Docker inspection. Bind all five image references, observed IDs
+   and platforms; additionally require the web/tools/Genesis assembly source
+   labels to match the manifest revision. Source labels identify the declared
+   assembly, not a signed build attestation or proof of runtime contents. Return
+   `ARTIFACT_INSPECTED_NOT_QUALIFIED`, never readiness or serving authority.
+3. Build a clean-source TEST candidate using the accepted runtime tuple, actual
+   model bytes, canonical documentation/registry/graph and fresh baseline. Carry
+   pinned runtime layers only with their resolved pin receipt and explicit build
+   provenance. Export the selected immutable OCI graph and retain the complete
+   package; do not substitute the earlier acceptance images for shipped roles.
+4. Verify a relocated package through its bundled CLI, then install its exact
+   baseline only on a newly owned disposable TEST target. Probe packaged-image
+   runtime contents/model mounts offline, separately from source-label checks.
+   Existing TEST-only storage/license evidence is not production/legal approval.
+5. Exercise selected TEST Compose startup and explicit web/Genesis recreation
+   when the existing contracts make that operation safe. Preserve native/shared
+   volumes and the readonly model mount. Existing durable lease/replay rules own
+   work recovery; neither topology inspection nor manual recreation proves a
+   global drain or recall of in-flight external sends. Do not invent a coordinator
+   protocol or physical native-store restoration. Keep those acceptance gates
+   open unless separately demonstrated, and do not select live LINE.
+6. Run failing-first image/profile/source/corruption controls, the unchanged core
+   regressions, actual selected-package TEST acceptance and independent review.
+   Regenerate governance serially and record actual revisions, hashes, commands,
+   failures and remaining gates. No publication/production activation follows.
+
+Version 0.1.10 → 0.1.11 adds this bounded execution detail; ADR-115, canonical
+records, profile lifecycle and the acceptance groups below are unchanged.
 
 - [ ] Write failures for absent/unpinned model, partial bootstrap, stale worker
   namespace, missing secret, disabled profile and storage/native-state loss.

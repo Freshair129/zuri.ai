@@ -9,21 +9,23 @@ import { inspectCompactInstall, executeCompactInstall, readCompactPrivateFile } 
 import { createCompactDockerDriver } from './lib/compact/docker.mjs'
 import { bootstrapCompactOperator, inspectCompactCapabilities } from './lib/compact/bootstrap.mjs'
 import { inspectCompactCohort } from './lib/compact/profiles.mjs'
+import { inspectCompactKnowledgeCandidate } from './lib/compact/qualify.mjs'
 export async function runCompactSelfHost(argv, { driver = createCompactDockerDriver() } = {}) {
-  const [verb, ...rest] = argv, options = { inspect: [], plan: [], install: ['--plan'], status: [], stop: [], bootstrap: ['--operator', '--private-output'], diagnostics: ['--configuration'] }
+  const [verb, ...rest] = argv, options = { inspect: [], plan: [], install: ['--plan'], status: [], stop: [], bootstrap: ['--operator', '--private-output'], diagnostics: ['--configuration'], 'knowledge-inspect': ['--expected-revision'] }
   if (!Object.hasOwn(options, verb)) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
   const flags = new Set(['--package', '--target', ...options[verb]]), args = Object.create(null)
   for (let i = 0; i < rest.length; i += 2) {
     if (!flags.has(rest[i]) || args[rest[i]] !== undefined || !rest[i + 1] || rest[i + 1].startsWith('--')) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
     args[rest[i]] = rest[i + 1]
   }
-  if (!args['--package'] || !args['--target'] || verb === 'bootstrap' && (!args['--operator'] || !args['--private-output'])) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
+  if (!args['--package'] || !args['--target'] || verb === 'bootstrap' && (!args['--operator'] || !args['--private-output']) || verb === 'knowledge-inspect' && !args['--expected-revision']) throw new CompactError('COMPACT_ARGUMENTS_INVALID')
   let target, plan, operator
   try {
     target = validateCompactTarget(JSON.parse(await readCompactPrivateFile(args['--target'])))
     if (args['--plan']) plan = JSON.parse(await readCompactPrivateFile(args['--plan']))
     if (args['--operator']) operator = JSON.parse(await readCompactPrivateFile(args['--operator']))
   } catch (e) { if (e instanceof CompactError) throw e; throw new CompactError('COMPACT_PRIVATE_FILE_INVALID') }
+  if (verb === 'knowledge-inspect') return inspectCompactKnowledgeCandidate({ packageDirectory: args['--package'], expectedRevision: args['--expected-revision'], target, driver })
   if (verb === 'install') return executeCompactInstall({ packageDirectory: args['--package'], target, plan, driver })
   if (verb === 'bootstrap') return bootstrapCompactOperator({ packageDirectory: args['--package'], target, operator, privateOutput: args['--private-output'], driver })
   const { loaded, observed } = await inspectCompactInstall({ packageDirectory: args['--package'], target, driver, verifyCredentials: verb === 'plan' })

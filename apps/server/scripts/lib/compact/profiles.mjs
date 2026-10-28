@@ -2,8 +2,8 @@
 // @tested tests/node/compact-profile.test.mjs
 import pins from '../../../deploy/ki17/pins.json' with { type: 'json' }
 import path from 'node:path'
-import { CompactError } from './manifest.mjs'
-import { assertCompactJson, compactOwnerLabels, validateCompactTarget } from './target.mjs'
+import { CompactError, validateCompactManifest } from './manifest.mjs'
+import { assertCompactJson, compactOwnerLabels, validateCompactTarget, exactKeys } from './target.mjs'
 
 // GenesisBlock 5156f412, genesisrag17-worker/src/worker.mjs is the authority for
 // these five offline model bytes. A new tuple/model requires explicit review.
@@ -28,6 +28,19 @@ export function assertCompactKnowledgeProfile(manifest, packagedPins) {
     const name = `models/${model.id}/${file}`
     if (model.files[name] !== descriptor.sha256 || manifest.files[name] !== descriptor.sha256) invalid()
   }
+}
+export function assertCompactKnowledgeImageBindings({ manifest, observed, images }) {
+  const m = validateCompactManifest(manifest)
+  if (m.profiles.length !== 2 || !m.profiles.includes('core') || !m.profiles.includes('knowledge')) throw new CompactError('COMPACT_KNOWLEDGE_SELECTION_REQUIRED')
+  assertCompactKnowledgeProfile(m)
+  assertCompactJson(observed); assertCompactJson(images)
+  const assembly = new Set(['web', 'tools', 'genesisWorker']), keys = Object.keys(m.images)
+  if (!exactKeys(images, keys) || keys.some(key => {
+    const image = images[key]
+    return !exactKeys(image, ['reference', 'id', 'platform', 'sourceRevision']) || image.reference !== m.images[key] ||
+      !/^sha256:[a-f0-9]{64}$/.test(image.id) || image.id !== observed.images?.[key]?.id || image.platform !== m.platform ||
+      image.sourceRevision !== (assembly.has(key) ? m.sourceRevision : null)
+  })) throw new CompactError('COMPACT_IMAGE_SOURCE_MISMATCH')
 }
 export function compactEnvelopeConfigured(configuration) {
   return configuration.ZURI_SECRET_STORE === 'envelope' && typeof configuration.ZURI_SECRET_KEK === 'string' && /^[a-f0-9]{64}$/i.test(configuration.ZURI_SECRET_KEK) && /^[1-9]\d{0,5}$/.test(String(configuration.ZURI_SECRET_KEK_VERSION ?? '1'))
