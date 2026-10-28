@@ -19,6 +19,15 @@ const harnessRevision = git(['rev-parse', 'HEAD'])
 let f, owner, stranger, fixture, requestBody, admission, beforeReplacement, published, citationId
 const ok = checkedJourneyResponse, pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const job = body => ({ ...(body.ingestion || body.job || body), source: body.source || body.ingestion?.source || body.job?.source })
+// Prisma stores this lease as timestamp without time zone. Read its raw value
+// instead of pg OID1114's host-local Date conversion; keep the DB clock separate.
+const pendingSql = 'SELECT id,"sourceId","sourceVersion","contentHash",status,attempts,"claimToken" IS NOT NULL AS "claimPresent","leaseExpiresAt"::text AS "leaseExpiresAtRaw",pg_typeof("leaseExpiresAt")::text AS "leaseStorageType",clock_timestamp()::text AS "databaseObservedAt",pg_typeof(clock_timestamp())::text AS "databaseClockType","executionRunId","rawArtifactId","parsedArtifactId" FROM "KnowledgeIngestion" WHERE id=$1'
+function pendingRow(row) {
+  expect(row.leaseStorageType).toBe('timestamp without time zone')
+  expect(row.leaseExpiresAtRaw === null || typeof row.leaseExpiresAtRaw === 'string').toBe(true)
+  expect(row.databaseClockType).toBe('timestamp with time zone'); expect(typeof row.databaseObservedAt).toBe('string')
+  return row
+}
 beforeAll(async () => {
   f = await createCompactKnowledgeJourney({ packageDirectory, retainedDirectory, expectedRevision, componentImages, evidenceFile, harnessRevision })
   await f.setup()
@@ -49,7 +58,7 @@ it('preserves the exact durable TEXT job and observed run across web replacement
   expect(job(retry).id).toBe(admission.id); expect(retry.unchanged ?? retry.ingestion?.unchanged).toBe(true); f.checks.idempotent = true
   const deadline = Date.now() + 60000
   while (Date.now() < deadline) {
-    const row = (await f.query('SELECT id,"sourceId","sourceVersion","contentHash",status,attempts,"claimToken" IS NOT NULL AS "claimPresent","leaseExpiresAt","executionRunId","rawArtifactId","parsedArtifactId" FROM "KnowledgeIngestion" WHERE id=$1', [admission.id])).rows[0]
+    const row = pendingRow((await f.query(pendingSql, [admission.id])).rows[0])
     if (row.status === 'FAILED') throw new Error('COMPACT_JOURNEY_ADMISSION_FAILED_BEFORE_REPLACEMENT')
     if (row.executionRunId) {
       const batches = (await f.query('SELECT id,"stage9AttemptId" FROM "GenesisRag17Batch" WHERE "executionRunId"=$1', [row.executionRunId])).rows
@@ -63,7 +72,7 @@ it('preserves the exact durable TEXT job and observed run across web replacement
   await f.replaceWeb()
   const retained = job(ok(await owner.http.request('GET', `/api/knowledge/ingestions/${encodeURIComponent(admission.id)}`)))
   expect(retained.id).toBe(admission.id); expect(retained.executionRunId).toBe(beforeReplacement.executionRunId); expect(retained.status).not.toBe('PUBLISHED')
-  const after = (await f.query('SELECT id,"sourceId","sourceVersion","contentHash",status,attempts,"claimToken" IS NOT NULL AS "claimPresent","leaseExpiresAt","executionRunId","rawArtifactId","parsedArtifactId" FROM "KnowledgeIngestion" WHERE id=$1', [admission.id])).rows[0]
+  const after = pendingRow((await f.query(pendingSql, [admission.id])).rows[0])
   for (const key of ['id', 'sourceId', 'sourceVersion', 'contentHash', 'executionRunId', 'rawArtifactId', 'parsedArtifactId']) expect(after[key]).toBe(beforeReplacement[key])
   expect(['QUEUED', 'RUNNING']).toContain(after.status)
   f.snapshots.afterReplacement = { ...after, observedAt: new Date().toISOString() }
