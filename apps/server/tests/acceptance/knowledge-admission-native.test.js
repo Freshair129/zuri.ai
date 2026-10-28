@@ -401,7 +401,13 @@ async function verifyConsolePublication(harness, published) {
     await playwrightExpect(page.getByTestId('console-run-detail')).toContainText(published.snapshotId)
 
     await page.getByRole('button', { name: 'Corpus generations', exact: true }).click()
+    const generationsStarted = Date.now()
+    const generationsResponse = page.waitForResponse(response => response.request().method() === 'GET' &&
+      new URL(response.url()).pathname === `/api/knowledge/corpora/${published.corpus.id}/generations`)
     await page.getByRole('button', { name: 'Business corpus', exact: true }).click()
+    const generations = await requireOk(await generationsResponse, 'Console native generations')
+    expect(generations.items.some(generation => generation.entries.some(entry => entry.snapshotId === published.snapshotId))).toBe(true)
+    console.info(JSON.stringify({ check: 'console-generation-response', elapsedMs: Date.now() - generationsStarted, snapshotVerified: true }))
     await playwrightExpect(page.getByTestId('console-generation-detail')).toContainText(published.snapshotId)
     await page.getByRole('button', { name: 'Search knowledge', exact: true }).click()
     await page.getByTestId('console-query').getByLabel('Search corpus').selectOption(published.corpus.id)
@@ -412,9 +418,22 @@ async function verifyConsolePublication(harness, published) {
     expect(query.corpusId).toBe(published.corpus.id)
     expect(query.corpusGeneration).toBeGreaterThan(0)
     expect(query.results.length).toBeGreaterThan(0)
+    const citationId = query.results.find(hit => hit.citationId)?.citationId
+    expect(citationId).toBeTruthy()
+    const artifactPath = `/api/knowledge/citations/${encodeURIComponent(citationId)}/artifact`
+    const artifactResponse = kind => page.waitForResponse(response => {
+      const url = new URL(response.url())
+      return response.request().method() === 'GET' && url.pathname === artifactPath &&
+        url.searchParams.get('kind') === kind && !url.searchParams.has('download')
+    })
+    const chunkResponse = artifactResponse('chunk')
     await page.getByRole('button', { name: 'Open evidence', exact: true }).first().click()
-    for (const label of ['Cited chunk', 'Parsed document', 'Original source']) {
+    await requireOk(await chunkResponse, 'Console native chunk')
+    await playwrightExpect(page.getByTestId('console-artifact-content')).toContainText('Alice works for Acme Ltd.')
+    for (const [kind, label] of [['parsed', 'Parsed document'], ['raw', 'Original source']]) {
+      const response = artifactResponse(kind)
       await page.getByRole('button', { name: label, exact: true }).click()
+      await requireOk(await response, `Console native ${kind}`)
       await playwrightExpect(page.getByTestId('console-artifact-content')).toContainText('Alice works for Acme Ltd.')
     }
     const download = await Promise.all([

@@ -1,0 +1,234 @@
+{
+  "schemaVersion": "compact-task6-observation.v1",
+  "environment": "TEST",
+  "implementationBase": "9fd5f4b65d4a1d2d9eabeb34eb1eee96fb6cf110",
+  "cleanupRevision": "42df4a4e01d9e13070513f64d16fce3e4fe605bc",
+  "qualificationSource": "ca661631b6c5af72c073e3912f82052f1edee1b5",
+  "admissionTestSource": {
+    "sourceRevision": "ca661631b6c5af72c073e3912f82052f1edee1b5",
+    "file": "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+    "sha256": "e20f182ca8777484395ede3e193c08f8196d43efcbe91d004587c42141829a5a",
+    "committedRevision": "ef7cf7d2e5235c63279b75acc8a5659096c68a07"
+  },
+  "profiles": {
+    "line": "NOT_QUALIFIED",
+    "knowledge": "NOT_QUALIFIED"
+  },
+  "applicationOrSchemaChanged": false,
+  "productionTouched": false,
+  "liveLineUat": "NOT_RUN",
+  "worktreeCreated": false,
+  "runtime": {
+    "runner": "Node22",
+    "ki17Child": "Node24.18.0",
+    "platform": "linux/amd64",
+    "host": "Windows Docker Desktop",
+    "hostLinuxQualification": "NOT_RUN",
+    "versions": {
+      "runner": "v22.23.4",
+      "ki17": "v24.18.0"
+    }
+  },
+  "model": {
+    "repository": "intfloat/multilingual-e5-small",
+    "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+    "files": {
+      "onnx/model.onnx": {
+        "size": 470268510,
+        "sha256": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665"
+      },
+      "tokenizer.json": {
+        "size": 17082730,
+        "sha256": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39"
+      },
+      "tokenizer_config.json": {
+        "size": 443,
+        "sha256": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+      },
+      "special_tokens_map.json": {
+        "size": 167,
+        "sha256": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7"
+      },
+      "config.json": {
+        "size": 655,
+        "sha256": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959"
+      }
+    },
+    "downloaded": false,
+    "readOnlyMount": true
+  },
+  "componentPins": {
+    "msp": "d0d48c1a8e833478525d9a6ce5ee16af2c85444d",
+    "gks": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+    "genesisblock": "5156f412da73905a23d74775a82cc14d1f6d04d0"
+  },
+  "checks": {
+    "compactNode": {
+      "passed": 209,
+      "failed": 0,
+      "deselected": 0,
+      "revision": "42df4a4e01d9e13070513f64d16fce3e4fe605bc"
+    },
+    "inertCohort": {
+      "passed": 3,
+      "failed": 0,
+      "semanticAiAcceptance": false
+    },
+    "workerTransportContracts": {
+      "passed": 74,
+      "failed": 0,
+      "liveSend": false
+    },
+    "runtimeRegressionWindows": {
+      "passed": 7,
+      "failed": 0
+    },
+    "corpusRuntimeLinux": {
+      "passed": 21,
+      "failed": 0
+    },
+    "sourceExport": {
+      "filesVerified": 2835,
+      "status": "PASS"
+    },
+    "native": {
+      "passed": 38,
+      "failed": 0,
+      "deselected": 4,
+      "total": 42,
+      "success": true,
+      "sourceRevision": "ca661631b6c5af72c073e3912f82052f1edee1b5",
+      "imageId": "sha256:1c37c4eefef9b4c5e7510db8b71410fc6bfa3f2669f7d08d5eb9744332c67d16",
+      "containerId": "2c77429d06a5551d98c684fb707a19a571845ec302cfa160918b716a399685eb",
+      "runId": "019537b2-95b9-40b3-8b89-1acf3c5091f5",
+      "network": "none",
+      "modelReadOnly": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "scope": "Knowledge actual four-process + SmartGift + B4; TASK-ZAI-094 LINE describe explicitly deselected"
+    },
+    "admission": {
+      "passed": 2,
+      "failed": 0,
+      "deselected": 0,
+      "total": 2,
+      "success": true,
+      "sourceRevision": "ca661631b6c5af72c073e3912f82052f1edee1b5",
+      "imageId": "sha256:1ac1dcf8d5036894f05a0d5df1586b3a9c71d7e4704e4f7debf11746e55bc2b3",
+      "containerId": "c4d1c06810151b40c3ad61467de2d8a84e90208a0bf39252dc8401568bfcd453",
+      "runId": "7b79ef26-4aa2-4e3f-841d-00faa2eb1282",
+      "network": "none",
+      "modelReadOnly": true,
+      "exitCode": 0,
+      "oomKilled": false,
+      "scope": "Knowledge browser/HTTP/MCP admission, native process restart, correction, withdrawal; no LINE",
+      "reportStatus": "PASSED",
+      "scenariosPassed": [
+        "browser-console-text",
+        "console-native-run-publication-query-artifacts",
+        "mcp-text",
+        "http-correction",
+        "browser-managed-file",
+        "binary-file-rejected"
+      ],
+      "generationResponseElapsedMs": 2391
+    },
+    "providerRestore": {
+      "passed": 1,
+      "failed": 0,
+      "imageId": "sha256:ca499c729f62921367079f685d29e03e262b2d1be31e0af9fa6f6b564dc8850f",
+      "fixture": "isolated embedded PostgreSQL + MinIO, not Compact artifact installation",
+      "restoredObjects": 1,
+      "withheldObjects": 1,
+      "manifestSha256": "196e89b8188ff07c6c29b9faab2d037246691a683dc4a6809b01a7026988a256",
+      "mapReceiptSha256": "8b9d1be55c64bb09f636545059628dec9af2559eac2848c018572785185dd51d",
+      "tier1Stages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8
+      ],
+      "stage9": "PENDING",
+      "nativeFactCheckpoint": "NOT_PROVEN",
+      "servingEnabled": false,
+      "fullAcceptance": false,
+      "separateHostDisasterRecovery": false,
+      "cleanup": {
+        "containerAbsent": true,
+        "volumeAbsent": true
+      }
+    }
+  },
+  "attempts": [
+    {
+      "stage": "native-first",
+      "status": "FAIL",
+      "passed": 36,
+      "deselected": 4,
+      "failedSuites": 1,
+      "reason": "Build export inherited CRLF and merged fixture failed to parse; not exact-source acceptance"
+    },
+    {
+      "stage": "admission-first",
+      "status": "INTERRUPTED",
+      "reason": "Wrong child runtime discovered; no acceptance claim"
+    },
+    {
+      "stage": "admission-ca661631",
+      "status": "FAIL",
+      "failed": 2,
+      "reason": "Generation DOM assertion observed Loading before HTTP synchronization; dependent FILE case failed"
+    }
+  ],
+  "remainingGates": [
+    "SELECTED_RELEASE_PACKAGE_AND_INSTALL",
+    "ACTUAL_COHORT_RECREATE_DRAIN_REPLAY",
+    "NATIVE_STAGE9_STORE_LOSS_RECOVERY",
+    "LIVE_LINE_UAT",
+    "SUPPORTED_LINUX_HOST",
+    "OFF_HOST_DISASTER_RECOVERY",
+    "HOSTED_EXACT_HEAD_CI_AND_RELEASE"
+  ],
+  "evidenceHashes": {
+    "baseline-node.log": "c0aa22183db994ad561cec6d39195bb56d6dde8f247b72d7bcd32f92f1d6e331",
+    "cleanup-red.log": "d69616a164a41d1ea640224b115cec40048c6b85f375992ca34f40d63e07d78e",
+    "cleanup-green.log": "dc7997fb68e35898e093b3a9ab22bfe71c41b9e294bedab6e2678c58aca7f0f9",
+    "node-after.log": "b251b96bd50c778196ee17c825b12c8a98264cda97812b4521b623707236eaa0",
+    "profile-docker.log": "0411f96eaf5187eaa6374cb31eb9b39f9d916569da5937cb4c538c430fbe57f7",
+    "line-worker-contracts.log": "5a8b42d8c528b5409bd5b6f56380aa17f67dea12a089c7c1810f417250a20d01",
+    "provider-restore.log": "e7a60875dc4b2aa772db1ffd289e536f407516b27d40460781743bd11f67904d",
+    "runtime-final-red.log": "7b00c729892dede53f8c217c3beb02abb2de5dce318ec82c784026d219a04869",
+    "runtime-green.log": "7c7985011323830973e396c792430638101b4bb0202dd6f63edcae205ea47949",
+    "runtime-corpus-linux.log": "1111d0e69da8a1be7996b9148beec51bd6fb69c7da7663dc4349087ed55d0189",
+    "native-selected.log": "fd883714ea688731f7b33ecae452ad6f6550db6cd5c114bf29ba86567692b406",
+    "native-selected-final.log": "cfe17862b55b8275746c24dca9dbff02c24f9c82bb488f78ffac9c937eb715aa",
+    "admission-native.log": "68382c469af1270734bece614a2304c7be8c162e39dda9fa692ede1c387aa2b7",
+    "admission-native-final.log": "09066fdf01d927919139826a94984a7f3607a3293e2d667d3105d4a4e3cbf576",
+    "admission-native-sync.log": "2a391796392e47b0540e4049b29eb78f1bf6088d27180acd217c7e727e7f8ab0",
+    "source-export-ca661631.json": "85432248509469e002543b9fd7e16347bf96d124fcb241ea9d6a34d41eaa1054",
+    "current-build.log": "49e3b826c47c3a7ee8cf72e8c697cbd7ca03f70b504cb8abd48f36a9bee44d1b",
+    "sync-build.log": "e1db353f7ff62b65893b2ac7e1f6d5c190a39218982b0f6f251dacd1b3273230",
+    "admission-native-sync-report.json": "7a28ec6271fc6bcd0885d33ec491f25e23b7f9d415771089d822502f4fd32675"
+  },
+  "cleanup": [
+    {
+      "runId": "019537b2-95b9-40b3-8b89-1acf3c5091f5",
+      "containerId": "2c77429d06a5551d98c684fb707a19a571845ec302cfa160918b716a399685eb",
+      "containerAbsent": true
+    },
+    {
+      "runId": "7b79ef26-4aa2-4e3f-841d-00faa2eb1282",
+      "containerId": "c4d1c06810151b40c3ad61467de2d8a84e90208a0bf39252dc8401568bfcd453",
+      "containerAbsent": true
+    },
+    {
+      "runId": "dfe508c7-909d-43d3-858d-2a833a5b1560",
+      "containerId": "7875befaf1fab0a1a302e3b432dada08e6e8b31296416102cfe49e1f58c97c68",
+      "containerAbsent": true
+    }
+  ]
+}

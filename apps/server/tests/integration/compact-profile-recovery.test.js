@@ -9,6 +9,7 @@ import { manifest } from '../node/compact-fixtures.mjs'
 import { createCompactDockerDriver, runCompactDocker } from '../../scripts/lib/compact/docker.mjs'
 import { compactOwnerLabels, compactIpv4Range } from '../../scripts/lib/compact/target.mjs'
 import { inspectCompactCohort } from '../../scripts/lib/compact/profiles.mjs'
+import { cleanupCompactProfileFixture } from '../helpers/compact-profile-target.mjs'
 
 // A pinned cached Node tools image executes tiny inert processes only. No MSP,
 // GKS, model, app server, credentials, live sender or existing runtime is used.
@@ -60,8 +61,9 @@ beforeAll(async () => {
   initialState = await docker(['container', 'exec', worker, 'node', '-e', 'process.stdout.write(require("node:fs").readFileSync("/var/lib/zuri-ki17/genesis/probe","utf8"))'])
 }, 120000)
 afterAll(async () => {
-  for (const id of [...resources.containers].reverse()) await removeContainer(id)
-  for (const [kind, ids] of [['volume', resources.volumes], ['network', resources.networks]]) for (const id of ids) { await owned(kind, id); await docker([kind, 'rm', id]); ids.delete(id) }
+  await cleanupCompactProfileFixture({ resources, modelDirectory, removeContainer,
+    removeResource: async (kind, id) => { await owned(kind, id); await docker([kind, 'rm', id]) },
+  })
 })
 it('observes an owned inert cohort with immutable model mount without qualifying AI', async () => {
   expect(await inspect()).toEqual({ status: 'COHORT_PRESENT_NOT_QUALIFIED', missing: [] })

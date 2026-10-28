@@ -1,10 +1,42 @@
 // @spec ADR-115 — profile prerequisites never confer qualification or authority.
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { mkdtemp, writeFile, access, rm } from 'node:fs/promises'
+import os from 'node:os'
+import path from 'node:path'
 import { manifest, implementation } from './compact-fixtures.mjs'
 import { targetFixture } from './compact-task2-fixtures.mjs'
 
 const api = () => implementation('../../scripts/lib/compact/profiles.mjs')
+
+test('profile cleanup continues after an ownership refusal and removes only its inert model directory', async () => {
+  const { cleanupCompactProfileFixture } = await import('../helpers/compact-profile-target.mjs')
+  const modelDirectory = await mkdtemp(path.join(os.tmpdir(), 'compact inert model '))
+  await writeFile(path.join(modelDirectory, 'inert.txt'), 'INERT')
+  const refused = new Error('COMPACT_PROFILE_PROBE_FOREIGN_RESOURCE'), calls = []
+  const resources = { containers: new Set(['owned', 'foreign']), volumes: new Set(['volume']), networks: new Set(['network']) }
+  try {
+    await assert.rejects(cleanupCompactProfileFixture({ resources, modelDirectory,
+      removeContainer: async id => { calls.push(id); if (id === 'foreign') throw refused },
+      removeResource: async (kind, id) => { calls.push(`${kind}:${id}`) },
+    }), error => error === refused)
+    assert.deepEqual(calls, ['foreign', 'owned', 'volume:volume', 'network:network'])
+    await assert.rejects(access(modelDirectory), { code: 'ENOENT' })
+  } finally { await rm(modelDirectory, { recursive: true, force: true }) }
+})
+
+test('profile cleanup refuses a foreign temp directory while attempting other owned cleanup', async () => {
+  const { cleanupCompactProfileFixture } = await import('../helpers/compact-profile-target.mjs')
+  const modelDirectory = await mkdtemp(path.join(os.tmpdir(), 'foreign compact model ')), calls = []
+  try {
+    await assert.rejects(cleanupCompactProfileFixture({ modelDirectory,
+      resources: { containers: new Set(), volumes: new Set(['owned']), networks: new Set() },
+      removeContainer: async () => {}, removeResource: async (kind, id) => calls.push(`${kind}:${id}`),
+    }), /COMPACT_PROFILE_PROBE_TEMP_REFUSED/)
+    await access(modelDirectory)
+    assert.deepEqual(calls, ['volume:owned'])
+  } finally { await rm(modelDirectory, { recursive: true }) }
+})
 function selected() {
   const m = manifest()
   m.profiles.push('knowledge'); m.capabilities.knowledge = 'NOT_QUALIFIED'

@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.8"
+version: "0.1.9"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -31,6 +31,9 @@ fresh-only TEST exception, source reconciliation and independent native sessions
 The [2026-10-28 Task5 requalification](task5-requalification-20261028.md) adds
 real-client selection/Plan-hint retry evidence and safe cleanup on failed TEST
 observation, bound to the current inspected source.
+The [2026-10-28 Task6 verification](task6-requalification-20261028.md) records
+the profile-probe cleanup correction and isolated native/provider checks, with
+selected-profile packaging, cohort and native recovery gates still explicit.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 
@@ -132,6 +135,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.8 → 0.1.9: links bounded Task6 verification; preserves the original
+preparation evidence and does not close selected-profile qualification.
 
 0.1.7 → 0.1.8: links source-bound Task5 requalification and fixture-finalization
 correction; preserves prior qualification snapshots and separate release gates.
