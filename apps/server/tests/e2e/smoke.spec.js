@@ -191,6 +191,7 @@ test.describe('plan import', () => {
     expect(response.ok()).toBeTruthy()
     const result = await response.json()
     expect(result.valid).toBe(true)
+    expect(result.errors).toEqual([])
     expect(result.preview).toMatchObject({
       inserts: expect.any(Array),
       updates: expect.any(Array),
@@ -198,6 +199,22 @@ test.describe('plan import', () => {
     })
     await expect(page.getByText('Dry-run preview')).toBeVisible()
     await expect(page.getByRole('button', { name: 'Confirm import' })).toBeEnabled()
+    // The documented full-envelope sample imports entities. A new bare edge
+    // still requires the declared RegisterDelta lane; a sample correction
+    // must not weaken that runtime guard.
+    expect(result.preview.conflicts).toEqual([])
+    const project = await (await api(page.request).get(`/api/projects/${resolved.id}`)).json()
+    const bareEdge = await api(page.request).post('/api/import/dry-run', {
+      data: { projectId: resolved.id, workspaceId: project.workspaceId, plan: {
+        ...samplePlan,
+        dependencies: [{ sourceRef: 'GATE-DATA-ID', targetRef: 'WST-ZURI-DEV', type: 'RELATES_TO' }],
+      } },
+    })
+    expect(bareEdge.status()).toBe(200)
+    const refused = await bareEdge.json()
+    expect(refused.valid).toBe(false)
+    expect(refused.errors.join(' ')).toContain('CONTRACT_REQUIRED')
+    expect(refused.preview.conflicts).toContainEqual(expect.objectContaining({ kind: 'dependency', reason: expect.stringContaining('RegisterDelta1.3') }))
     expect(commitRequests).toBe(0)
   })
 })
@@ -389,7 +406,8 @@ test.describe('FR-019 enterprise API', () => {
     const doc = await res.json()
     expect(doc.openapi).toMatch(/^3\./)
     expect(doc.paths['/api/import/commit']).toBeTruthy()
-    expect(doc.components.schemas.PlanEnvelope.properties.project.properties.externalRefs).toBeTruthy()
+    expect(doc.components.schemas.PlanEnvelope.anyOf).toContainEqual(doc.components.schemas.FullPlanEnvelope)
+    expect(doc.components.schemas.FullPlanEnvelope.properties.project.properties.externalRefs).toBeTruthy()
   })
 
   // @req FR-065 — the route-level half of the change, over real HTTP. The
