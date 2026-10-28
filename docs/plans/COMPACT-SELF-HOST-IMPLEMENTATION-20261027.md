@@ -5,8 +5,8 @@ doc_type: implementation-plan
 status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
-selected_task: 7
-version: "0.1.9"
+selected_task: 6
+version: "0.1.10"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -313,6 +313,11 @@ records strict offline model prerequisites and an owned inert Docker cohort
 probe. This is not AI qualification: the core shipping lane keeps LINE/Knowledge
 unselected, and the actual selected-profile gates below remain open. Diagnostics
 never import a report as permission or assert current authority from env shape.
+The owner's 2026-10-28 Task6 selection adds [source-bound verification and gap evidence](../../reports/compact-selfhost-2026-10-27/task6-requalification-20261028.md).
+It corrects probe finalization and distinguishes native/provider acceptance from
+the selected release package, actual cohort drain/replay and native-store-loss
+recovery gates. The Task6 acceptance groups below remain open; live LINE UAT is
+explicitly excluded from this selection.
 The same report records the P2 found by the later full-range Task5 review; the
 selected [Task5 scope correction](../../reports/compact-selfhost-2026-10-27/task5-policy-scope-correction.md)
 tracks its separate correction/re-review. Task5's original local milestone checks
