@@ -5,7 +5,7 @@ import { mkdtemp, writeFile, access, rm } from 'node:fs/promises'
 import os from 'node:os'
 import path from 'node:path'
 import { manifest, implementation } from './compact-fixtures.mjs'
-import { targetFixture } from './compact-task2-fixtures.mjs'
+import { targetFixture, emptyObservation } from './compact-task2-fixtures.mjs'
 
 const api = () => implementation('../../scripts/lib/compact/profiles.mjs')
 
@@ -45,6 +45,75 @@ function selected() {
   m.files['pins/ki17.json'] = 'd'.repeat(64)
   return m
 }
+async function imageCandidate() {
+  const a = await api(), m = selected()
+  m.images.genesisWorker = `test/genesis@sha256:${'c'.repeat(64)}`
+  m.modelArtifacts = [{ id: 'e5-small', repository: a.COMPACT_KI17_MODEL.repository, revision: a.COMPACT_KI17_MODEL.revision,
+    files: Object.fromEntries(Object.entries(a.COMPACT_KI17_MODEL.files).map(([file, value]) => [`models/e5-small/${file}`, value.sha256])) }]
+  Object.assign(m.files, m.modelArtifacts[0].files)
+  const observed = emptyObservation(m)
+  const images = Object.fromEntries(Object.entries(observed.images).map(([key, image]) => [key, { ...image,
+    sourceRevision: ['web', 'tools', 'genesisWorker'].includes(key) ? m.sourceRevision : null }]))
+  return { manifest: m, observed, images }
+}
+
+test('selected Knowledge image evidence binds every image without granting readiness', async () => {
+  const a = await api(), candidate = await imageCandidate(), before = structuredClone(candidate)
+  assert.equal(typeof a.assertCompactKnowledgeImageBindings, 'function')
+  assert.doesNotThrow(() => a.assertCompactKnowledgeImageBindings(candidate))
+  assert.deepEqual(candidate, before)
+  assert.equal(candidate.manifest.capabilities.knowledge, 'NOT_QUALIFIED')
+})
+
+test('the selected Knowledge lane refuses core-only and LINE selections', async () => {
+  const a = await api(), candidate = await imageCandidate()
+  for (const m of [manifest(), (() => { const value = manifest(); value.profiles.push('line'); value.capabilities.line = 'NOT_QUALIFIED'; value.images.lineWorker = value.images.web; return value })()]) {
+    assert.throws(() => a.assertCompactKnowledgeImageBindings({ ...candidate, manifest: m }), { code: 'COMPACT_KNOWLEDGE_SELECTION_REQUIRED' })
+  }
+})
+
+for (const key of ['web', 'tools', 'postgres', 'storage', 'genesisWorker']) {
+  for (const field of ['reference', 'id', 'platform']) test(`Knowledge image inspection refuses a mismatched ${key} ${field}`, async () => {
+    const a = await api(), candidate = await imageCandidate()
+    candidate.images[key][field] = field === 'id' ? `sha256:${'f'.repeat(64)}` : field === 'platform' ? 'linux/arm64' : 'foreign/image@sha256:' + 'f'.repeat(64)
+    assert.throws(() => a.assertCompactKnowledgeImageBindings(candidate), { code: 'COMPACT_IMAGE_SOURCE_MISMATCH' })
+  })
+}
+for (const key of ['web', 'tools', 'genesisWorker']) test(`Knowledge inspection refuses an old ${key} assembly source`, async () => {
+  const a = await api(), candidate = await imageCandidate()
+  candidate.images[key].sourceRevision = 'f'.repeat(40)
+  assert.throws(() => a.assertCompactKnowledgeImageBindings(candidate), { code: 'COMPACT_IMAGE_SOURCE_MISMATCH' })
+})
+test('Knowledge inspection refuses missing/extra image evidence and private metadata', async () => {
+  const a = await api()
+  for (const mutate of [v => { delete v.images.genesisWorker }, v => { v.images.lineWorker = v.images.web }, v => { v.images.web.environment = 'DO_NOT_ECHO_PRIVATE' }]) {
+    const candidate = await imageCandidate(); mutate(candidate)
+    assert.throws(() => a.assertCompactKnowledgeImageBindings(candidate), error => error.code === 'COMPACT_IMAGE_SOURCE_MISMATCH' && !String(error).includes('DO_NOT_ECHO_PRIVATE'))
+  }
+})
+
+test('the Knowledge Docker inspector reads all pins and exposes no environment or vendor source label', async () => {
+  const { createCompactDockerDriver } = await implementation('../../scripts/lib/compact/docker.mjs'), c = await imageCandidate(), calls = []
+  const run = async args => {
+    calls.push(args)
+    if (args.includes('context')) return { status: 0, stdout: JSON.stringify([{ Endpoints: { docker: { Host: 'npipe:////./pipe/dockerDesktopLinuxEngine' } } }]) }
+    if (args.includes('info')) return { status: 0, stdout: JSON.stringify('owned-test-daemon') }
+    if (args.includes('image') && args.includes('inspect')) {
+      const reference = args.at(-1), key = Object.keys(c.manifest.images).find(k => c.manifest.images[k] === reference)
+      return { status: 0, stdout: JSON.stringify([{ Id: c.images[key].id, RepoDigests: [reference], Os: 'linux', Architecture: 'amd64',
+        Config: { Env: ['PRIVATE_KEY=DO_NOT_ECHO_PRIVATE'], Labels: { 'org.opencontainers.image.revision': ['postgres', 'storage'].includes(key) ? 'DO_NOT_ECHO_VENDOR' : c.manifest.sourceRevision } } }]) }
+    }
+    throw new Error('UNEXPECTED_DOCKER_MUTATION')
+  }
+  const driver = createCompactDockerDriver({ run })
+  assert.equal(typeof driver.inspectKnowledgeCandidateImages, 'function')
+  const result = await driver.inspectKnowledgeCandidateImages({ manifest: c.manifest, target: targetFixture() })
+  assert.deepEqual(Object.keys(result).sort(), Object.keys(c.manifest.images).sort())
+  assert.equal(result.postgres.sourceRevision, null); assert.equal(result.storage.sourceRevision, null)
+  assert.equal(JSON.stringify(result).includes('DO_NOT_ECHO'), false)
+  assert.equal(calls.filter(args => args.includes('image') && args.includes('inspect')).length, 5)
+  assert(calls.every(args => args.includes('context') || args.includes('info') || args.includes('image') && args.includes('inspect')))
+})
 test('selected Knowledge rejects an absent model instead of accepting pinned metadata alone', async () => {
   const a = await api()
   assert.throws(() => a.assertCompactKnowledgeProfile(selected()), { code: 'COMPACT_KNOWLEDGE_PROFILE_INVALID' })
