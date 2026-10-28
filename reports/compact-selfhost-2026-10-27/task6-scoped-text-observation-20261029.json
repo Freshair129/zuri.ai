@@ -1,0 +1,375 @@
+{
+  "environment": "TEST",
+  "packageSource": "bafe11aac924150ff442078dd92292c00101f10f",
+  "harnessRevision": "6aca5b08c0d309ac2074ac18c25d915345a88ecc",
+  "status": "PASS",
+  "observation": "PASS",
+  "cleanup": "PASS",
+  "cleanupChecks": [
+    "PASS",
+    "PASS",
+    "PASS",
+    "PASS",
+    "PASS",
+    "PASS"
+  ],
+  "identity": {
+    "targetId": "c19de513-9021-4d45-aaf7-2f947aba2ed1",
+    "project": "zuri-compact-c19de513-9021"
+  },
+  "checks": {
+    "package": true,
+    "baseline": true,
+    "bootstrap": true,
+    "startup": true,
+    "authority": true,
+    "binding": true,
+    "idempotent": true,
+    "durable": true,
+    "replacement": true,
+    "native": true,
+    "published": true,
+    "serving": true,
+    "withdrawn": true
+  },
+  "snapshots": {
+    "artifact": {
+      "manifestSha256": "0c56d22e2bd2108aae006cacfa863cda8aaf62aced34c6440fff19baf94e7ccb",
+      "packageInventorySha256": "81325ccb5502cce3806ed0465252edb29aeac03b10a5184972f171cf3b5d9150",
+      "images": {
+        "genesisWorker": {
+          "reference": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+          "id": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        },
+        "postgres": {
+          "reference": "zuri-compact.local/fixtures/postgres-1a66d744c1b4@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+          "id": "sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+          "platform": "linux/amd64",
+          "sourceRevision": null
+        },
+        "storage": {
+          "reference": "zuri-compact.local/fixtures/storage-c256d3e46c78@sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+          "id": "sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+          "platform": "linux/amd64",
+          "sourceRevision": null
+        },
+        "tools": {
+          "reference": "zuri-compact.local/fixtures/tools-e55dac88fbf2@sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+          "id": "sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        },
+        "web": {
+          "reference": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "id": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        }
+      }
+    },
+    "bootstrap": {
+      "status": "BOOTSTRAPPED",
+      "personId": "394fd8be-74d2-4086-b46b-cb03ca016c6b",
+      "grantId": "c4eaad3a-5c6e-4b62-9f87-9e6bf171c418"
+    },
+    "corpus": {
+      "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f",
+      "sha256": "6a5f4077a9ae7c67782c18f8994ec1cbb066f5c1f2f9f704de450debd614b5de",
+      "nativeBakedSha256": "6a5f4077a9ae7c67782c18f8994ec1cbb066f5c1f2f9f704de450debd614b5de"
+    },
+    "authority": {
+      "ownerPersonId": "126eac12-2e03-4d5e-aa11-0a5b590a3748",
+      "strangerPersonId": "efa80e28-6518-4f24-8823-13ea1d8c51a6",
+      "ownerScope": {
+        "businessId": "d0067458-71c4-4da2-9ad3-93873e6e6dbf",
+        "tenantId": "c60174b7-95c9-4c8a-aaad-ead64d99fd13",
+        "portfolioId": "bc38229a-7b61-43fc-bc5e-d8561c896af0"
+      },
+      "strangerScope": {
+        "businessId": "3d4d6916-ee29-4ae0-8331-3c2f12b78179",
+        "tenantId": "80fdc709-6d65-4ca4-8043-624ab7ac97f4",
+        "portfolioId": "bc38229a-7b61-43fc-bc5e-d8561c896af0"
+      },
+      "owner": {
+        "grants": 0,
+        "memberships": 1
+      },
+      "stranger": {
+        "grants": 0,
+        "memberships": 1
+      },
+      "ownerMembership": [
+        {
+          "tenantId": "c60174b7-95c9-4c8a-aaad-ead64d99fd13",
+          "businessId": null,
+          "scopeType": "TENANT",
+          "role": "OWNER",
+          "grantSource": "SELF_PROVISION"
+        }
+      ],
+      "strangerMembership": [
+        {
+          "tenantId": "80fdc709-6d65-4ca4-8043-624ab7ac97f4",
+          "businessId": null,
+          "scopeType": "TENANT",
+          "role": "OWNER",
+          "grantSource": "SELF_PROVISION"
+        }
+      ],
+      "wrongCertificateDenied": true,
+      "anonymousStatus": 401,
+      "crossBusinessStatus": 404,
+      "disabledStatus": 503
+    },
+    "beforeReplacement": {
+      "id": "371f29d7-dbbd-4b8b-b241-3c3cb45febdb",
+      "sourceId": "7a09f717-06b5-4607-8abb-b9e7d34e8d6e",
+      "sourceVersion": "1",
+      "contentHash": "36d7004f66ec8f52be669b8e2e89d482e3c14de0498f0d4e9694eb777c7f1d56",
+      "status": "RUNNING",
+      "attempts": 1,
+      "claimPresent": true,
+      "leaseExpiresAtRaw": "2026-10-28 17:30:58.133",
+      "leaseStorageType": "timestamp without time zone",
+      "databaseObservedAt": "2026-10-28 17:28:59.879249+00",
+      "databaseClockType": "timestamp with time zone",
+      "executionRunId": "bdc5119f-b63c-4f01-9ead-123fe119e245",
+      "rawArtifactId": "kra_f4b52f3486fa3d9b94ad596fcd9afd82954f688c977ab039",
+      "parsedArtifactId": "kpa_9c0f7f656b7c8f96e8f61dc2e1746291b3c130d3926e72b0",
+      "batch": {
+        "id": "grb_5fbd69c347a9b2638de775b196cd57d9d0568888a5ec3b55",
+        "stage9AttemptId": "0c602c00-9913-4376-994e-a008597fd3e3"
+      },
+      "observedAt": "2026-10-28T17:29:02.093Z"
+    },
+    "webReplacement": {
+      "beforeId": "f11d039c0c6fbe7f34fcc39bad570606f9ec6acf0dce1ec180aae044530cb854",
+      "afterId": "53ae5f6138e06afb536056f9f34c67b4ccd4656f7657be5d546f0c670e68247d",
+      "actualImageId": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+      "nativeAbsent": true
+    },
+    "afterReplacement": {
+      "id": "371f29d7-dbbd-4b8b-b241-3c3cb45febdb",
+      "sourceId": "7a09f717-06b5-4607-8abb-b9e7d34e8d6e",
+      "sourceVersion": "1",
+      "contentHash": "36d7004f66ec8f52be669b8e2e89d482e3c14de0498f0d4e9694eb777c7f1d56",
+      "status": "RUNNING",
+      "attempts": 5,
+      "claimPresent": false,
+      "leaseExpiresAtRaw": null,
+      "leaseStorageType": "timestamp without time zone",
+      "databaseObservedAt": "2026-10-28 17:29:10.591267+00",
+      "databaseClockType": "timestamp with time zone",
+      "executionRunId": "bdc5119f-b63c-4f01-9ead-123fe119e245",
+      "rawArtifactId": "kra_f4b52f3486fa3d9b94ad596fcd9afd82954f688c977ab039",
+      "parsedArtifactId": "kpa_9c0f7f656b7c8f96e8f61dc2e1746291b3c130d3926e72b0",
+      "observedAt": "2026-10-28T17:29:10.596Z"
+    },
+    "cohort": {
+      "status": "COHORT_PRESENT_NOT_QUALIFIED",
+      "missing": [],
+      "webId": "53ae5f6138e06afb536056f9f34c67b4ccd4656f7657be5d546f0c670e68247d",
+      "nativeId": "e04b111dd7c0b15caca24fa395e452c9f8ec8cdc172850d5229ddff80a603571",
+      "networkMode": "container:53ae5f6138e06afb536056f9f34c67b4ccd4656f7657be5d546f0c670e68247d",
+      "imageIds": {
+        "web": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+        "genesisWorker": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+      },
+      "references": {
+        "web": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+        "genesisWorker": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+      }
+    },
+    "publication": {
+      "admissionId": "371f29d7-dbbd-4b8b-b241-3c3cb45febdb",
+      "runId": "bdc5119f-b63c-4f01-9ead-123fe119e245",
+      "snapshotId": "snap-5c2cf430e7691636379c60f7269b616c",
+      "sourceId": "7a09f717-06b5-4607-8abb-b9e7d34e8d6e",
+      "rawArtifactId": "kra_f4b52f3486fa3d9b94ad596fcd9afd82954f688c977ab039",
+      "parsedArtifactId": "kpa_9c0f7f656b7c8f96e8f61dc2e1746291b3c130d3926e72b0",
+      "attempts": 14,
+      "receiptHash": "9aae087781c2e6997c7bb1baafd010fc2495afd5a5b048d006c9fc004b0f3ebb",
+      "modelRevision": "614241f622f53c4eeff9890bdc4f31cfecc418b3",
+      "steps": [
+        {
+          "sequence": 10,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 20,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 30,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 40,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 50,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 60,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 70,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 80,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 90,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 100,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 110,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 120,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 130,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 140,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 150,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 160,
+          "status": "SUCCEEDED"
+        },
+        {
+          "sequence": 170,
+          "status": "SUCCEEDED"
+        }
+      ],
+      "evidence": [
+        {
+          "stageNumber": 1,
+          "outcome": "SUCCEEDED",
+          "attemptId": "9731d78e-1bb0-414c-bd2f-3875397001f4"
+        },
+        {
+          "stageNumber": 2,
+          "outcome": "SUCCEEDED",
+          "attemptId": "10c32534-c1f3-4add-ba9c-ecf789de2c71"
+        },
+        {
+          "stageNumber": 3,
+          "outcome": "SUCCEEDED",
+          "attemptId": "6b27e350-ce00-4856-bf82-66ac830237e0"
+        },
+        {
+          "stageNumber": 4,
+          "outcome": "SUCCEEDED",
+          "attemptId": "1237b9fc-90ed-4f7a-8f14-c87ecc284462"
+        },
+        {
+          "stageNumber": 5,
+          "outcome": "SUCCEEDED",
+          "attemptId": "67167813-cfe9-4dbd-a160-299f41bab8dd"
+        },
+        {
+          "stageNumber": 6,
+          "outcome": "SUCCEEDED",
+          "attemptId": "77e207cc-b092-4be0-9910-f21ee58ec58f"
+        },
+        {
+          "stageNumber": 7,
+          "outcome": "SUCCEEDED",
+          "attemptId": "4ab58b34-5c95-4f5d-8f97-e7b43bb413e8"
+        },
+        {
+          "stageNumber": 8,
+          "outcome": "SUCCEEDED",
+          "attemptId": "d97f9f75-4754-4e99-91d5-e7e5f6f8c1c6"
+        },
+        {
+          "stageNumber": 9,
+          "outcome": "SUCCEEDED",
+          "attemptId": "0c602c00-9913-4376-994e-a008597fd3e3"
+        },
+        {
+          "stageNumber": 10,
+          "outcome": "SUCCEEDED",
+          "attemptId": "b0d7f5a9-5a9f-4a59-949f-ae533a9c4011"
+        },
+        {
+          "stageNumber": 11,
+          "outcome": "SUCCEEDED",
+          "attemptId": "5f9227a6-812c-42fd-83c4-950d88340fd9"
+        },
+        {
+          "stageNumber": 12,
+          "outcome": "SUCCEEDED",
+          "attemptId": "7ad3682a-bbb9-4592-9497-b302fe718143"
+        },
+        {
+          "stageNumber": 13,
+          "outcome": "SUCCEEDED",
+          "attemptId": "88b0c2e5-0bcc-464c-8e96-3a3cf73f6732"
+        },
+        {
+          "stageNumber": 14,
+          "outcome": "SUCCEEDED",
+          "attemptId": "164438f2-4ed3-40c1-8256-58859638814e"
+        },
+        {
+          "stageNumber": 15,
+          "outcome": "SUCCEEDED",
+          "attemptId": "93f18e0e-0b9a-4563-83fe-a7b02939066d"
+        },
+        {
+          "stageNumber": 16,
+          "outcome": "SUCCEEDED",
+          "attemptId": "2b23b7da-dca5-4b22-9799-88fd86d81c41"
+        },
+        {
+          "stageNumber": 17,
+          "outcome": "SUCCEEDED",
+          "attemptId": "0334f989-1613-45ec-8797-e26be5a80b9e"
+        }
+      ]
+    },
+    "withdrawal": {
+      "sourceId": "7a09f717-06b5-4607-8abb-b9e7d34e8d6e",
+      "status": "WITHDRAWN",
+      "priorCitationStatus": 404,
+      "currentQueryExcluded": true
+    },
+    "profile": {
+      "knowledge": "NOT_QUALIFIED",
+      "prerequisites": "UNAVAILABLE",
+      "missing": [
+        "KNOWLEDGE_STORAGE_ENABLED"
+      ]
+    }
+  },
+  "unresolvedComposeIntents": [],
+  "applicationAdmission": "ENABLED_FOR_SCOPED_TEST",
+  "objectStorage": "DISABLED_INLINE_TEXT_ONLY",
+  "knowledge": "NOT_QUALIFIED",
+  "line": "NOT_SELECTED",
+  "nativeStage9Recovery": "NOT_PROVEN",
+  "liveLineUat": "NOT_RUN",
+  "task6Closed": false
+}

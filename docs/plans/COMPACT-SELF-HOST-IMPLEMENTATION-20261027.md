@@ -419,6 +419,10 @@ gates remain unchanged. No publication or production activation follows.
 
 ### Task6 continuation: scoped HTTP admission and pending-work resume
 
+The [2026-10-29 TEXT journey evidence](../../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
+records this bounded milestone separately from complete Task6 qualification.
+Version 0.1.13 → 0.1.14 links that evidence; no acceptance group is closed.
+
 The next owner-selected continuation starts at `1dd72707` on the same primary
 branch. Reuse the immutable `bafe11aa` package with a separately committed clean
 harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)

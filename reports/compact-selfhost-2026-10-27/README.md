@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.11"
+version: "0.1.12"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -44,6 +44,9 @@ source `bafe11aa`; full application/cohort/native recovery qualification remains
 The [actual idle cohort TEST](task6-idle-cohort-20261028.md) then records packaged
 web/native startup, manual namespace rebind and retained-volume markers with
 harness `ec809e2b`; active-work and serving/native recovery gates remain open.
+The [scoped TEXT HTTP journey](task6-scoped-text-journey-20261029.md) follows with
+actual TEST sessions/Business authority, same-run publication across web replacement,
+query/citation and withdrawal; storage, native recovery and full AI gates remain open.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 
@@ -145,6 +148,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.11 → 0.1.12: links the bounded scoped TEXT HTTP journey; does not close
+selected AI profiles, native-store recovery, LINE or release gates.
 
 0.1.10 → 0.1.11: links the actual idle web/native cohort TEST; does not close
 active-work, Business/serving or native recovery qualification.
