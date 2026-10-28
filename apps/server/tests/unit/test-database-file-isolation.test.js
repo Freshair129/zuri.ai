@@ -1,7 +1,7 @@
 // @spec docs/architecture/VERIFICATION-POLICY.md — prove file boundaries with real Prisma queries.
 // @tested tests/unit/test-database-file-isolation.test.js
 import { describe, expect, it, afterAll } from 'vitest'
-import { mkdtempSync, rmSync, readFileSync, readdirSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -28,6 +28,19 @@ describe('per-file SQLite test databases', () => {
     ]
     const env = { ...process.env, ZURI_FILE_DB_PROBE_OUTPUT: PROBE_OUTPUT }
     for (const key of postgresKeys) delete env[key]
+
+    // The bounded child must use installed tools, not start npm/npx just to
+    // locate Prisma. Keep the real schema push and every isolation assertion.
+    const packageManagerBin = path.join(PROBE_OUTPUT, 'package-manager-bin')
+    mkdirSync(packageManagerBin)
+    for (const name of ['npm', 'npx']) {
+      const windows = process.platform === 'win32'
+      writeFileSync(path.join(packageManagerBin, `${name}${windows ? '.cmd' : ''}`), windows
+        ? '@echo off\r\necho FILE_DB_PROBE_PACKAGE_MANAGER_FORBIDDEN 1>&2\r\nexit /b 77\r\n'
+        : '#!/bin/sh\necho FILE_DB_PROBE_PACKAGE_MANAGER_FORBIDDEN >&2\nexit 77\n', { mode: 0o755 })
+    }
+    const pathKey = Object.keys(env).find(key => key.toUpperCase() === 'PATH') ?? 'PATH'
+    env[pathKey] = `${packageManagerBin}${path.delimiter}${env[pathKey] ?? ''}`
 
     const result = spawnSync(
       process.execPath,

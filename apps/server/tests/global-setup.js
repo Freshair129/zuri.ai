@@ -1,4 +1,6 @@
-import { execSync } from 'child_process'
+// @spec docs/architecture/VERIFICATION-POLICY.md — verified, run-owned test schema setup.
+// @tested tests/unit/test-database-file-isolation.test.js, tests/unit/test-database-reset.test.js, tests/unit/prisma-generate-gate.test.js
+import { execFileSync } from 'child_process'
 import {
   closeSync,
   existsSync,
@@ -166,7 +168,7 @@ export function withGenerateLock(work, options = {}) {
   }
 }
 
-// A synchronous wait that does not spin a core. globalSetup is sync (execSync
+// A synchronous wait that does not spin a core. globalSetup is sync (execFileSync
 // throughout), so a promise-based sleep is not available here.
 function sleepSync(ms) {
   Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms)
@@ -299,8 +301,12 @@ export default function globalSetup({ provide }) {
     ? process.env.RUST_LOG
     : 'info'
   const push = (generate) =>
-    execSync(`npx prisma db push${generate ? '' : ' --skip-generate'}`, {
+    // Use this checkout's installed CLI and the current Node executable. Going
+    // through a shell and npm/npx adds variable startup work inside nested probes.
+    execFileSync(process.execPath, [nodeRequire.resolve('prisma/build/index.js'), 'db', 'push',
+      ...(generate ? [] : ['--skip-generate'])], {
       cwd: ROOT,
+      windowsHide: true,
       // Prisma 5.22's Windows schema engine can terminate during silent startup
       // under the repository's Node 24 toolchain. Keep a deterministic log mode
       // for the child process while allowing CI/debug callers to override it.
