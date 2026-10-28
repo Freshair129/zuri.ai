@@ -3,9 +3,21 @@
 // @spec SDD-018, ADR-011, ADR-096
 // @tested tests/unit/domain-navigation.test.js
 import { describe, expect, it } from 'vitest'
-import { DOMAINS, domainForPath } from '@/config/domains'
+import { DOMAINS, domainForPath, domainBarSlots } from '@/config/domains'
 import { modules } from '@/config/modules'
 import { PM_MODULES } from '@/modules/project-manager/navigation'
+
+it('reserves Operations identity without exposing its standalone domain-bar slot', () => {
+  expect(DOMAINS.find(domain => domain.key === 'operations')).toMatchObject({
+    label: 'Operations', soon: true,
+    sub: [{ label: 'Dashboard', path: '/operations' }],
+  })
+  expect(domainForPath('/operations').key).toBe('operations')
+  const barKeys = domainBarSlots().filter(slot => slot.kind === 'domain').map(slot => slot.domain.key)
+  expect(barKeys).not.toContain('operations')
+  expect(barKeys).toEqual(expect.arrayContaining(['business-home', 'growth', 'people', 'projects', 'assets', 'line-oa', 'platform']))
+  expect(DOMAINS.find(domain => domain.key === 'growth').sub.map(tab => tab.path)).toContain('/growth/operations')
+})
 
 describe('Business domain navigation', () => {
   // @req FR-250 — Projects & Work keeps the existing route key and `/projects`

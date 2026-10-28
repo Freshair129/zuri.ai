@@ -54,8 +54,9 @@ describe('CRM groups the customer-facing domains without becoming one', () => {
     const barKeys = slots.filter((slot) => slot.kind === 'domain').map((slot) => slot.domain.key)
     for (const key of crm().childKeys) expect(barKeys).not.toContain(key)
 
-    // Every ungrouped domain (across BOTH groups) still gets its own slot.
-    const ungrouped = DOMAINS.filter((domain) => !groupForDomainKey(domain.key)).map((d) => d.key)
+    // The reserved Operations key stays ungrouped but off the bar; the other
+    // ungrouped domains (across BOTH groups) retain their own slots.
+    const ungrouped = DOMAINS.filter((domain) => !groupForDomainKey(domain.key) && domain.key !== 'operations').map((d) => d.key)
     expect(barKeys).toEqual(ungrouped)
   })
 

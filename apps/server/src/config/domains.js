@@ -98,7 +98,9 @@ export const DOMAINS = [
     ],
   },
   {
-    key: 'operations', label: 'Operations', icon: UtensilsCrossed, soon: true,
+    // Reserved for future scope; omit its standalone bar slot without removing
+    // the registry identity used by grants and domain projections.
+    key: 'operations', label: 'Operations', icon: UtensilsCrossed, soon: true, hiddenFromDomainBar: true,
     sub: [{ label: 'Dashboard', path: '/operations', icon: LayoutDashboard }],
   },
   {
@@ -396,6 +398,7 @@ export function domainBarSlots(business) {
   const slots = []
   const placed = new Set()
   for (const domain of DOMAINS) {
+    if (domain.hiddenFromDomainBar) continue
     const group = groupForDomainKey(domain.key)
     if (!group) {
       slots.push({ kind: 'domain', domain })

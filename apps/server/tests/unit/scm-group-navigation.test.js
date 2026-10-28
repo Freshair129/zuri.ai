@@ -52,8 +52,9 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
     const barKeys = slots.filter((slot) => slot.kind === 'domain').map((slot) => slot.domain.key)
     for (const key of scm().childKeys) expect(barKeys).not.toContain(key)
 
-    // Every other domain still gets its own slot, and Business Home stays first.
-    const ungrouped = DOMAINS.filter((domain) => !groupForDomainKey(domain.key)).map((d) => d.key)
+    // Operations remains reserved off the bar; all other ungrouped domains
+    // keep their slots and Business Home stays first.
+    const ungrouped = DOMAINS.filter((domain) => !groupForDomainKey(domain.key) && domain.key !== 'operations').map((d) => d.key)
     expect(barKeys).toEqual(ungrouped)
     expect(slots[0].kind).toBe('domain')
     expect(slots[0].domain.key).toBe('business-home')

@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|-------|
-| **Version** | 0.9.0b |
+| **Version** | 0.9.1b |
 | **Status** | Accepted |
 | **Author** | Claude |
 | **Date** | 2026-09-16 |
@@ -44,7 +44,7 @@ sub-features, with an explicit root contract per domain** — and binds it to V2
 
 ```
 Tier 1  Context    Portfolio → Tenant → Business  (Workspace → Organization → Business in UI; shell stops here)
-Tier 2  Domain     Business Home · Commerce · CRM · Market Intelligence · Marketing · Operations ·
+Tier 2  Domain     Business Home · Commerce · CRM · Market Intelligence · Marketing ·
                    HR / People · Asset Management · LINE OA Studio · Development · Platform
                    (a NEW bar under the topbar; the set is BOUND to the Business)
 Tier 3  Sub-domain the active domain's sidebar; each domain defines its own root contract
@@ -80,11 +80,17 @@ as `technicalOwnerDomainId` (FR-070).
   Organization, and Business. Schema Workspace and Project are module-local resources: they do not
   appear as shell selectors, breadcrumb switchers, or sidebar parents.
 - **Business binds the domain bar.** A Business exposes only the domains it has enabled
-  (per-business module registry). TVS shows *Operations → Courses*; a pure-retail business hides
-  it — FR-020's adaptive shell one level deeper. Single business ⇒ Home skips straight to it.
+  through the applicable visibility and capability rules; for example, `physicalStock`
+  gates Warehouse within SCM. Reserved Operations stays hidden for every Business
+  until future scope is selected. The per-business module registry remains deferred.
 - **Domain root is explicit.** Each domain opens its own first sub-domain. Reserved
   domains keep their `Dashboard` as the first sub-domain. A domain label in the sidebar
   is context text, not a navigation target.
+- **Operations reservation amendment (owner, 2026-10-29).** The `operations`
+  registry key and reserved Dashboard remain available for future scope, while
+  its standalone slot is hidden from the domain bar. This presentation choice
+  changes no grants, domain identities, data, Marketing Operations, or the PM
+  `OPERATIONS` execution mode.
 - **Amended by FR-060 (2026-08-17).** `/overview` is no longer Development's root. It
   became the **Business Home** Dashboard — a shell-level, cross-domain slot placed first
   in the bar — because it already rendered Business strategy and per-domain health while
@@ -101,7 +107,7 @@ as `technicalOwnerDomainId` (FR-070).
 ┌──────────────────────────────────────────────────────────────┐
 │ Zuri   Workspace › Organization › Business    ERP · PM   ⌘K   ◐   👤 │  Base Context Bar — exactly 3 levels
 ├──────────────────────────────────────────────────────────────┤     (no Space or Project selector)
-│ Business Home  Commerce  CRM  Market Intelligence  Marketing  Operations  HR / People  Asset Management  LINE OA Studio  Development · Platform │  Domain bar (Tier 2, per-business)
+│ Business Home  Commerce  CRM  Market Intelligence  Marketing  HR / People  Asset Management  LINE OA Studio  Development · Platform │  Domain bar (Tier 2, per-business)
 ├──────────────────────────────────────────────────────────────┤
 │ 🏠  Workspace › Organization › Business › PRJ-x › Files          │  Breadcrumb — context plus opened resource
 ├───────────────┬──────────────────────────────────────────────┤
@@ -227,7 +233,12 @@ Social, Partners, Live, Website, SEO, Analytics, Operations and Team. Their
 planned until each owner contract and functional UI exists. Meta Ads, TikTok Ads,
 Instagram, GA4 and SEO in a draft are channel intent, not connected accounts.
 
-### Operations — ปฏิบัติการ  *(V1: operations — culinary-school core)*
+### Operations — ปฏิบัติการ (reserved)
+
+Current reservation: hidden from the domain bar by the amendment above. The
+historical culinary-school lift list below is provenance, not an implementation
+scope under ADR-024. A future standalone Operations workflow remains undecided.
+
 1. **Dashboard** — คิวครัว · คลาสวันนี้ · พนักงานเข้ากะ
 2. ครัว / Kitchen *(lift)*
 3. จอครัว / Runner — tablet display *(lift)*
@@ -380,6 +391,10 @@ Shared Project action: Import plan (one action, current-page cue, return path)
 
 ## 6. Mapping onto today's app (what changes)
 
+> Historical mapping proposal retained for provenance. ADR-024 supersedes the
+> ADR-003 lift/cutover program below; it is not the current implementation plan.
+> Operations remains reserved and hidden under the 2026-10-29 amendment.
+
 - Today's single left rail becomes the **Development** sidebar. Workspace is removed because it
   is a resource, not a Development capability.
 - The Base Context Bar is the Tier-1 binder; the Business binds the domain bar.
@@ -390,7 +405,7 @@ Shared Project action: Import plan (one action, current-page cue, return path)
 
 ## 7. Decisions (resolved — [ADR-008](decisions/ADR-008-BUSINESS-CENTRIC-SHELL-AND-SCOPE-LENS.md) §D6)
 
-1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · Operations · HR / People · Asset Management · LINE OA Studio (local Phase 1 slices are wired; remaining charter capabilities stay separately bounded) · Development · Platform.
+1. **Domain order & labels** — ✅ Business Overview root; Commerce · CRM · Market Intelligence · Marketing · HR / People · Asset Management · LINE OA Studio (local Phase 1 slices are wired; remaining charter capabilities stay separately bounded) · Development · Platform. Operations remains reserved in the registry and hidden from the bar by the 2026-10-29 amendment.
 2. **Development — peer domain or folded into Platform?** — ✅ a **peer domain** (cross-cutting
    delivery view), never the app root.
 3. **B2B & Products** — ✅ under Commerce for now; may split out if they grow.
@@ -401,3 +416,6 @@ Shared Project action: Import plan (one action, current-page cue, return path)
 Version diff 0.7.0 → 0.8.0b: replace the retired Growth sketch with approved native Marketing navigation and explicit first-slice boundaries.
 
 Version diff 0.8.0b → 0.8.1b: reconcile LINE OA Studio from a reserved slot to the locally implemented dashboard, account shell, Design Studio Rich Menu owner, and Platform Integrations compatibility redirect.
+
+Version diff 0.9.0b → 0.9.1b: hide the reserved Operations domain-bar slot at the
+owner's request while preserving its registry identity and future reservation.
