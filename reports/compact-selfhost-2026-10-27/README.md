@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.10"
+version: "0.1.11"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
@@ -37,6 +37,9 @@ selected-profile packaging, cohort and native recovery gates still explicit.
 The [selected Knowledge package evidence](task6-knowledge-package-20261028.md)
 records a later relocated OCI/fresh-baseline/offline-inference TEST at package
 source `bafe11aa`; full application/cohort/native recovery qualification remains open.
+The [actual idle cohort TEST](task6-idle-cohort-20261028.md) then records packaged
+web/native startup, manual namespace rebind and retained-volume markers with
+harness `ec809e2b`; active-work and serving/native recovery gates remain open.
 It creates no requirement, changes no canonical lifecycle and proves no runtime
 or production readiness. The owner selected one host with AI qualified separately.
 
@@ -138,6 +141,9 @@ The final handoff reports the post-review freshness run separately; a linked
 future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
+
+0.1.10 → 0.1.11: links the actual idle web/native cohort TEST; does not close
+active-work, Business/serving or native recovery qualification.
 
 0.1.9 → 0.1.10: links selected Knowledge artifact TEST evidence, retaining
 NOT_QUALIFIED and separate application/cohort/recovery gates.

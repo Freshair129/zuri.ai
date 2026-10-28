@@ -1,5 +1,5 @@
 ---
-version: "0.7.11"
+version: "0.7.12"
 status: active
 superseded_by: null
 ---
@@ -49,6 +49,9 @@ plans and historical test receipts are separate from the build specification.
   The [selected Knowledge package TEST](../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
   adds relocated OCI, fresh-baseline and offline model evidence; application/cohort
   recovery and AI qualification remain open.
+  The [actual idle Knowledge cohort TEST](../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
+  verifies manual web/native namespace rebind and retained-volume markers;
+  Business authority, active-work replay and native recovery remain separate gates.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -164,3 +167,6 @@ its remaining selected-profile gates; no AI qualification or production authorit
 
 Version diff 0.7.10 → 0.7.11 (2026-10-28): links the selected Knowledge package
 TEST snapshot and preserves the remaining application/cohort/recovery gates.
+
+Version diff 0.7.11 → 0.7.12 (2026-10-28): links the actual idle-cohort TEST
+snapshot without promoting Business authority, active-work or recovery claims.
