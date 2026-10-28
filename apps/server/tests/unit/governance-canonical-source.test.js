@@ -54,12 +54,36 @@ function canonical(id, family, row, filePath, requirementCells = [], featureId) 
 const fr = canonical('FR-252', 'FR', '| FR-252 | **Bind** the canonical requirement. |', 'docs/requirements/FR-252.md', [], 'FEAT-001')
 const feature = canonical('FEAT-001', 'FEAT', '| FEAT-001 | Feature one | FR-252 | live |', 'docs/features/FEAT-001/feature.md', [3])
 
-async function git(args, cwd) {
-  const { stdout } = await execFile('git', ['-c', 'core.autocrlf=false', ...args], {
+async function git(args, cwd, input) {
+  const pending = execFile('git', ['-c', 'core.autocrlf=false', ...args], {
     cwd, shell: false, windowsHide: true,
     env: { ...process.env, GIT_CONFIG_NOSYSTEM: '1', GIT_CONFIG_GLOBAL: process.platform === 'win32' ? 'NUL' : '/dev/null', GIT_TERMINAL_PROMPT: '0' },
   })
+  if (input !== undefined) {
+    pending.child.stdin.once('error', () => {})
+    pending.child.stdin.end(input)
+  }
+  const { stdout } = await pending
   return stdout.trim()
+}
+
+async function commitFixtureFiles(files, root) {
+  // Import the known bytes as one pack instead of re-reading every working
+  // file through git add and writing a separate loose object per record.
+  const message = 'canonical fixture\n'
+  const ref = await git(['symbolic-ref', 'HEAD'], root)
+  const stream = [Buffer.from(`commit ${ref}\n`
+    + 'committer Canonical fixture <fixture@example.test> 946684800 +0000\n'
+    + `data ${Buffer.byteLength(message)}\n${message}`)]
+  for (const [name, content] of Object.entries(files)) {
+    const bytes = Buffer.from(content)
+    stream.push(Buffer.from(`M 100644 inline ${JSON.stringify(name)}\ndata ${bytes.length}\n`), bytes, Buffer.from('\n'))
+  }
+  stream.push(Buffer.from('\ndone\n'))
+  await git(['-c', 'fastimport.unpackLimit=0', 'fast-import', '--quiet', '--done'], root, Buffer.concat(stream))
+  // fast-import updates commits/refs, not the index. Keep later authored
+  // commits and working-copy mutations exercising a normal checkout.
+  await git(['read-tree', 'HEAD'], root)
 }
 
 function fixtureTrace(label = 'canonical-fixture') {
@@ -72,7 +96,7 @@ function fixtureTrace(label = 'canonical-fixture') {
   }
 }
 
-async function makeFixture(transform = (value) => value, trace = () => {}) {
+async function makeFixture(transform = (value) => value, trace = () => {}, { packed = false } = {}) {
   trace('fixture-start')
   const root = await mkdtemp(path.join(os.tmpdir(), 'zuri-canonical-proof-'))
   rootPaths.push(root)
@@ -95,10 +119,15 @@ async function makeFixture(transform = (value) => value, trace = () => {}) {
     if (++written % 32 === 0) trace(`files-written-${written}`)
   }
   trace('files-written')
-  await git(['add', '--', '.'], root)
-  trace('git-add')
-  await git(['commit', '--quiet', '-m', 'canonical fixture'], root)
-  trace('git-commit')
+  if (packed) {
+    await commitFixtureFiles(files, root)
+    trace('git-import-and-index')
+  } else {
+    await git(['add', '--', '.'], root)
+    trace('git-add')
+    await git(['commit', '--quiet', '-m', 'canonical fixture'], root)
+    trace('git-commit')
+  }
   const commitSha = await git(['rev-parse', 'HEAD'], root)
   trace('git-head')
   const normalized = normalizeSourceManifest({ schemaVersion: CANONICAL_SOURCE_MANIFEST_SCHEMA_VERSION,
@@ -243,6 +272,24 @@ afterAll(async () => {
 })
 
 describe('canonical source snapshot v2', () => {
+  it('preserves fixture bytes and a synchronized index before later working-copy changes', async () => {
+    const file = 'docs/byte parity.txt'
+    const content = 'ภาษาไทย\r\nline two\nno final newline'
+    const value = await makeFixture(original => {
+      original.files[file] = content
+      return original
+    }, fixtureTrace('canonical-byte-parity'), { packed: true })
+    const { stdout } = await execFile('git', ['cat-file', 'blob', `${value.commitSha}:${file}`], {
+      cwd: value.root, shell: false, windowsHide: true, encoding: null,
+    })
+    expect(stdout).toEqual(Buffer.from(content))
+    expect(await readFile(path.join(value.root, file))).toEqual(Buffer.from(content))
+    expect(await git(['diff', '--cached', 'HEAD', '--', file], value.root)).toBe('')
+    await writeFile(path.join(value.root, file), 'dirty working copy')
+    expect(await git(['diff', 'HEAD', '--', file], value.root)).toContain('-ภาษาไทย')
+    expect((await capture(value)).validationStatus).toBe('VALID')
+  })
+
   it('reads committed canonical blobs with a bounded number of Git processes', async () => {
     const calls = []
     const gitRunner = async (args, options) => {
@@ -408,8 +455,14 @@ describe('canonical source snapshot v2', () => {
         files[record.entry.path] = record.text
       }
       return { index: { version: 1, sourceRevision, records }, files }
-    }, trace)
+    }, trace, { packed: true })
     expect(full.manifest.entries).toHaveLength(324)
+    // A full registry must not create a loose object file for every record:
+    // CI previously spent 46s staging these already-known fixture bytes.
+    const storage = Object.fromEntries((await git(['count-objects', '-v'], full.root))
+      .split('\n').map(line => line.split(': ')))
+    expect(Number(storage.count)).toBe(0)
+    expect(Number(storage['in-pack'])).toBeGreaterThanOrEqual(324)
     trace('capture-start')
     expect((await capture(full)).validationStatus).toBe('VALID')
     trace('capture-complete')
