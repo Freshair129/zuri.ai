@@ -14,6 +14,20 @@ async function chooseBusiness(page, name = 'Business 01') {
 }
 
 test.describe('FR-041/042 Business-first shell', () => {
+  test('keeps reserved Operations out of the domain bar', async ({ page }) => {
+    // This case exercises navigation. Use the existing real signed-session
+    // API fixture; the other cases retain their credential-UI entry coverage.
+    const login = await loginRequest(api(page.request))
+    expect(login.ok()).toBe(true)
+    await page.goto('/businesses')
+    await page.getByRole('button', { name: /Open Business Business 01/ }).click()
+    await expect(page).toHaveURL(/overview/)
+    const bar = page.getByRole('navigation', { name: 'Domains', exact: true })
+    await expect(bar.getByRole('link', { name: 'Marketing', exact: true })).toBeVisible()
+    await expect(bar.getByText('Operations', { exact: true })).toHaveCount(0)
+    await expect(bar.getByRole('link', { name: 'Projects & Work', exact: true })).toBeVisible()
+  })
+
   test('Business Overview shows strategy and Business-owned Projects, not Group cards', async ({ page }) => {
     await chooseBusiness(page)
     await expect(page.getByRole('heading', { name: 'Business 01 — Command Center' })).toBeVisible()

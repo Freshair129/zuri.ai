@@ -22,7 +22,7 @@ import { useFetch } from '@/modules/project-manager/components/useApi'
 // LIGHTER than the workspace/scope topbar above it, so the two chrome layers alternate
 // and the workspace layer visibly wraps the domain layer. Picking a domain lands on its
 // root path (Business Overview for Development, otherwise the first sub-domain).
-// `soon` domains are visible but disabled.
+// Visible slots marked `soon` are disabled; reserved hidden slots stay in the registry.
 // @tested tests/unit/domain-navigation.test.js, tests/e2e/fr041-business-first.spec.js
 export default function DomainBar() {
   const pathname = usePathname()
