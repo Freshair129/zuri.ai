@@ -2,6 +2,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
+import { execFileSync } from 'node:child_process'
 import { writeFile, lstat, mkdir } from 'node:fs/promises'
 import { implementation, ociLayout, refreshEvidence, hash } from './compact-fixtures.mjs'
 import { executorFixture, emptyObservation, ownedObservation } from './compact-task2-fixtures.mjs'
@@ -16,6 +17,14 @@ async function fixture() {
   return { ...f, observed, imageMetadata, driver, mutations: () => mutations }
 }
 const api = () => implementation('../../scripts/lib/compact/qualify.mjs')
+
+test('offline runtime probe renders valid executable JavaScript for every assembly role', async () => {
+  const { renderCompactKnowledgeProbeProgram } = await import('../helpers/compact-knowledge-probe.mjs')
+  for (const role of ['web', 'tools', 'genesisWorker']) {
+    const program = renderCompactKnowledgeProbeProgram({ role, expectedPins: { msp: 'a'.repeat(40), gks: 'b'.repeat(40), genesisblock: 'c'.repeat(40) } })
+    assert.doesNotThrow(() => execFileSync(process.execPath, ['--input-type=module', '--check'], { input: program, encoding: 'utf8', windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }))
+  }
+})
 
 test('Knowledge evidence refuses package overlap and existing output before creating a retained copy', async () => {
   const f = await fixture(), { assertCompactKnowledgeEvidencePath } = await import('../helpers/compact-postgres-target.mjs')
