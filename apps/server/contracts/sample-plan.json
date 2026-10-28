@@ -11,7 +11,7 @@
   "project": {
     "code": "PRJ-B01-TRANSFORM",
     "name": "Business 01 Transformation Program",
-    "description": "Mixed-mode example for PM import.",
+    "description": "Mixed-mode entity import example. Declare new dependency handoffs separately through RegisterDelta 1.3.",
     "type": "TRANSFORMATION",
     "status": "ACTIVE"
   },
@@ -93,11 +93,5 @@
       "pathScope": "src/"
     }
   ],
-  "dependencies": [
-    {
-      "sourceRef": "GATE-DATA-ID",
-      "targetRef": "WST-ZURI-DEV",
-      "type": "RELATES_TO"
-    }
-  ]
+  "dependencies": []
 }
