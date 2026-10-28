@@ -439,6 +439,21 @@ Generated private files leave with the owned fixture cleanup. Success is bounded
 idle topology/state evidence; active-work drain/replay, send deduplication,
 Business/serving authority, full KI17 and native Stage9+ restore remain unproven.
 
+`npm run test:compact:journey` uses the same five inputs with fresh outputs and
+a clean, committed harness. It starts an owned TEST stack, bootstraps the
+operator through the bundled CLI, and creates two ordinary users and separate
+Businesses through certificate-verified loopback HTTPS. Source admission uses
+the actual owner's session; anonymous and foreign-Business requests are denied.
+It records the pending job's real claim/lease/run state, replaces web while
+native is absent, and waits under the existing lease contract for the same run
+to publish all 17 stages. Query, citation and withdrawal use the same HTTP
+authority. The baked generic synthetic TEXT fixture is used without SQL domain
+seeding or lease edits. Storage stays disabled for this inline TEXT lane;
+diagnostics must retain its missing storage prerequisite and `NOT_QUALIFIED`.
+This is not FILE/S3, native-store loss/restore, active-work drain, LINE or complete
+profile qualification. Private keys/cookies stay in fixture memory or its owned
+temporary directory; retained observations contain only selected safe evidence.
+
 `diagnostics` now includes non-authoritative profile prerequisites and read-only
 cohort observations when LINE/Knowledge is selected. `CONFIGURATION_PRESENT`
 means only that the listed selectors/key/token are present. It never establishes
