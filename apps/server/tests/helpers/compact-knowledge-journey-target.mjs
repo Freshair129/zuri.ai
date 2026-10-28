@@ -96,22 +96,25 @@ export async function createCompactKnowledgeJourney({ packageDirectory, retained
         { cwd: f.root, env: compactProcessEnvironment(), windowsHide: true, encoding: 'utf8', timeout: 120000, stdio: ['ignore', 'pipe', 'pipe'] }))
       assert.equal(bootstrap.status, 'BOOTSTRAPPED'); checks.bootstrap = true
       snapshots.bootstrap = { status: bootstrap.status, personId: bootstrap.personId, grantId: bootstrap.grantId }
-      const webPort = await port(), tlsPort = await port()
-      config = compactKnowledgeCohortConfiguration({ target: f.target, root: f.root, webPort }); baseURL = `https://127.0.0.1:${tlsPort}`
-      config.selectors.COMPACT_PUBLIC_BASE_URL = baseURL
-      for (const key of ['app', 'knowledge', 'storage']) await writeFile(config.files[key], config[key], { flag: 'wx', mode: 0o600 })
       const cert = path.join(f.root, 'public certificate.pem'), key = path.join(f.root, 'private TLS key.pem'), opensslConfig = path.join(f.root, 'private openssl.cnf')
       await writeFile(opensslConfig, '[req]\ndistinguished_name=dn\n[dn]\n', { flag: 'wx', mode: 0o600 })
       execFileSync(process.platform === 'win32' ? 'C:/Program Files/Git/usr/bin/openssl.exe' : 'openssl', ['req', '-x509', '-newkey', 'rsa:2048', '-nodes', '-keyout', key, '-out', cert, '-days', '1', '-subj', '/CN=localhost', '-addext', 'subjectAltName=DNS:localhost,IP:127.0.0.1', '-config', opensslConfig],
         { env: compactProcessEnvironment(), windowsHide: true, timeout: 30000, stdio: 'ignore' })
       certificate = await readFile(cert)
+      let tlsPort, webPort
       proxy = httpsServer({ cert: certificate, key: await readFile(key) }, (request, response) => {
         if (request.headers.host !== `127.0.0.1:${tlsPort}`) { response.writeHead(421); response.end(); return }
         const upstream = httpRequest({ hostname: '127.0.0.1', port: webPort, path: request.url, method: request.method,
           headers: { ...request.headers, 'x-forwarded-proto': 'https', 'x-forwarded-host': request.headers.host } }, incoming => { response.writeHead(incoming.statusCode, incoming.headers); incoming.pipe(response) })
         upstream.on('error', () => { if (!response.headersSent) response.writeHead(502, { 'content-type': 'application/json' }); response.end('{"error":"UPSTREAM_UNAVAILABLE"}') }); request.pipe(upstream)
       })
-      await new Promise((resolve, reject) => { proxy.once('error', reject); proxy.listen(tlsPort, '127.0.0.1', resolve) })
+      // Keep TLS bound while selecting web's port, so the OS cannot reuse it.
+      await new Promise((resolve, reject) => { proxy.once('error', reject); proxy.listen(0, '127.0.0.1', resolve) })
+      tlsPort = proxy.address().port; webPort = await port()
+      assert.notEqual(tlsPort, webPort); assert.notEqual(tlsPort, f.target.database.port)
+      config = compactKnowledgeCohortConfiguration({ target: f.target, root: f.root, webPort }); baseURL = `https://127.0.0.1:${tlsPort}`
+      config.selectors.COMPACT_PUBLIC_BASE_URL = baseURL
+      for (const key of ['app', 'knowledge', 'storage']) await writeFile(config.files[key], config[key], { flag: 'wx', mode: 0o600 })
       const selectors = path.join(f.root, 'private selectors.env')
       await writeFile(selectors, Object.entries(config.selectors).map(([k, v]) => `${k}='${String(v).replaceAll('\\', '/')}'`).join('\n') + '\n', { flag: 'wx', mode: 0o600 })
       compose = ['compose', '--project-name', f.target.project, '--env-file', selectors, '--file', path.join(retainedRoot, 'compose.yml')]
