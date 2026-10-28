@@ -4006,7 +4006,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 63
+          "testCount": 64
         },
         {
           "id": "FR-187",
@@ -4942,7 +4942,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 63
+          "testCount": 64
         },
         {
           "id": "FR-187",
@@ -8011,7 +8011,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 63
+          "testCount": 64
         },
         {
           "id": "FR-174",
@@ -10858,7 +10858,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 63
+          "testCount": 64
         },
         {
           "id": "FR-254",
@@ -10940,6 +10940,7 @@
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/compact-knowledge-journey.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr109-ingestion-run-identity.test.js",

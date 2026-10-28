@@ -13,7 +13,7 @@ export default defineConfig({
   test: {
     environment: 'node',
     include: ['tests/unit/**/*.test.js', 'tests/integration/**/*.test.js'],
-    exclude: ['**/node_modules/**', '**/.git/**', 'tests/integration/compact-profile-recovery.test.js', 'tests/integration/compact-knowledge-package.test.js', 'tests/integration/compact-knowledge-cohort.test.js'],
+    exclude: ['**/node_modules/**', '**/.git/**', 'tests/integration/compact-profile-recovery.test.js', 'tests/integration/compact-knowledge-package.test.js', 'tests/integration/compact-knowledge-cohort.test.js', 'tests/integration/compact-knowledge-journey.test.js'],
     globalSetup: ['tests/global-setup.js'],
     setupFiles: ['tests/setup.js'],
     // Per-file SQLite clones isolate data; keep files serial to bound fixture/process load.

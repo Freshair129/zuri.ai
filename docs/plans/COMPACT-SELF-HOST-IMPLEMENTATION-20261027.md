@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.12"
+version: "0.1.13"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -416,6 +416,61 @@ without changing product worker ownership, credentials or shutdown semantics:
 Version 0.1.11 → 0.1.12 adds this bounded TEST execution detail. AI remains
 `NOT_QUALIFIED`; Task6 acceptance groups, native Stage9+, live LINE and release
 gates remain unchanged. No publication or production activation follows.
+
+### Task6 continuation: scoped HTTP admission and pending-work resume
+
+The next owner-selected continuation starts at `1dd72707` on the same primary
+branch. Reuse the immutable `bafe11aa` package with a separately committed clean
+harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
+does not establish application authority or pending-work recovery.
+
+1. Add a separate explicit TEST journey lane; retain both existing core-only and
+   idle-cohort guards. Use a fresh disposable PostgreSQL target, private files,
+   labelled volumes/network and the actual packaged web/native images. Reuse
+   the existing bundled operator bootstrap and generated-key HTTPS fixture
+   pattern. Trust only that fixture certificate; do not disable TLS validation.
+2. Exercise actual signup/onboarding/Business self-provisioning through HTTPS
+   sessions. Observe no Business/operator grant at signup, then the product's
+   normal ownership membership after self-provisioning. Read the real resulting
+   Tenant/Portfolio/Business IDs to configure the existing single Knowledge
+   binding; never seed a hand-built viewer, membership or universal admin.
+   Use a second ordinary signup/session and separately self-provisioned Business
+   for actual cross-Business denial; nonexistent IDs are not that proof.
+3. Configure the private MSP/native scope from that real Business, preserving
+   the existing credentials, session/envelope keys and current scope/policy
+   checks. Initially withhold the native process. Admit one immutable TEXT source
+   through the existing HTTP service, assert a same-request retry returns the
+   same admission, and capture actual non-published status, attempts, claim state,
+   lease timestamp and admission/PipelineRun identity at replacement. The web
+   poller may already have claimed work while native is absent; do not label this
+   queue-only or lease recovery without observed expiry/reclaim evidence.
+4. Replace web explicitly while native is absent, then start native in the new
+   web namespace with the same labelled stores and readonly packaged model.
+   Observe recovery of the same immutable job/run under existing leases, retry
+   and ownership rules. Do not backdate leases, clear claim fields, lower
+   backoff, fabricate receipts or add a coordinator/drain protocol.
+5. Use the existing generic synthetic benchmark already baked into the native
+   image. Require actual successful 17-stage evidence, receipt/publication and
+   source lineage before calling the job published. Check scoped HTTP query and
+   citation, foreign denial, then source withdrawal excluding current serving
+   and citation access. This is one TEXT/session journey, not browser/MCP,
+   managed-FILE, arbitrary crash-phase, LINE delivery or native-store DR proof.
+6. Keep optional object storage disabled for this existing inline-TEXT lineage
+   path, explicitly record that missing profile prerequisite, and do not qualify
+   the full Knowledge profile. Object-backed FILE, object/DB remap, native
+   Stage9+ loss recovery, off-host and release acceptance remain separate.
+   No hosted fallback or external provider call is selected.
+7. Use the existing native acceptance operation class (15-minute test,
+   five-minute hook, 12-minute publication wait). Existing runtime/native stop,
+   transport, lease and backoff defaults remain unchanged. Fail on terminal
+   failure immediately; retain failures rather than extending deadlines.
+   Complete failing-first tests, real journey acceptance, independent review,
+   serial governance and owned cleanup; retain package/model/evidence.
+
+Version 0.1.12 → 0.1.13 adds this bounded TEST execution detail without changing
+canonical behavior, profile lifecycle or the unchecked Task6 groups. Knowledge
+and LINE remain `NOT_QUALIFIED`; no live LINE, production, worktree or publication
+operation follows from this continuation.
 
 - [ ] Write failures for absent/unpinned model, partial bootstrap, stale worker
   namespace, missing secret, disabled profile and storage/native-state loss.
