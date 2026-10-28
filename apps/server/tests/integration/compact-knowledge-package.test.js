@@ -9,6 +9,7 @@ import * as packageApi from '../../scripts/compact-package.mjs'
 import * as baselineApi from '../../scripts/lib/compact/baseline.mjs'
 import * as executorApi from '../../scripts/lib/compact/executor.mjs'
 import { inspectCompactKnowledgeCandidate, readCompactCoreCiInput, retainCompactQualificationPackage } from '../../scripts/lib/compact/qualify.mjs'
+import { renderCompactKnowledgeProbeProgram } from '../helpers/compact-knowledge-probe.mjs'
 import { compactOwnerLabels } from '../../scripts/lib/compact/target.mjs'
 import { compactProcessEnvironment } from '../../scripts/lib/compact/docker.mjs'
 import { digest, bytes, stableJson } from '../../scripts/lib/compact/files.mjs'
@@ -85,20 +86,8 @@ it('installs the packaged fresh baseline through the bundled CLI without a check
 async function probe(role) {
   const image = images[role], metadata = JSON.parse(docker(['image', 'inspect', image]))[0]
   expect(Object.keys(metadata.Config.Volumes || {}).length).toBe(0) // No anonymous volumes may be created.
-  const expectedPins = f.manifest.componentPins, worker = role === 'genesisWorker'
-  const program = `import fs from 'node:fs';import {spawnSync} from 'node:child_process';import {createRequire} from 'node:module';
-const result={role:${JSON.stringify(role)},runner:process.version};
-if(${JSON.stringify(role)}==='tools'){if(!fs.existsSync('/app/node_modules/prisma/build/index.js'))throw Error('TOOLS_MISSING')}
-else{const r=JSON.parse(fs.readFileSync('/opt/ki17/pins/resolved.json'));const pins=${JSON.stringify(expectedPins)};
-if(r.profile!=='stdio'||Object.entries(pins).some(([k,v])=>r.contexts.find(c=>c.name===k)?.commit!==v))throw Error('PINS_MISMATCH');
-for(const p of ['/opt/ki17/msp/apps/msp-server/bin/msp-server.mjs','/opt/ki17/gks/apps/gks-server/bin/gks-server.mjs'])if(!fs.existsSync(p))throw Error('RUNTIME_MISSING');
-const n=spawnSync('/opt/ki17/node/bin/node',['--version'],{encoding:'utf8'});if(n.status!==0||n.stdout.trim()!=='v24.18.0')throw Error('NODE_MISMATCH');result.ki17=n.stdout.trim();result.pinsMatch=true}
-if(${worker}){const root='/opt/ki17/genesisblock';const req=createRequire(root+'/package.json');req(root+'/index.js');const w=await import(root+'/genesisrag17-worker/src/worker.mjs');
-result.modelFiles=Object.keys(w.verifyModelArtifacts('/opt/ki17/model')).length;
-const p=spawnSync('/opt/ki17/venv/bin/python',[root+'/genesisrag17-worker/src/embedder.py','/opt/ki17/model'],{input:JSON.stringify({id:1,texts:['เครื่องทดสอบที่แยกต่างหาก'],mode:'query'})+'\n',encoding:'utf8',timeout:45000,env:{...process.env,PYTHONDONTWRITEBYTECODE:'1',HF_HUB_OFFLINE:'1',TRANSFORMERS_OFFLINE:'1'}});
-if(p.status!==0)throw Error('EMBEDDER_UNAVAILABLE');const messages=p.stdout.trim().split('\n').map(JSON.parse),v=messages.find(m=>m.id===1)?.vectors?.[0];
-if(!messages[0].ready||!Array.isArray(v)||v.length!==384||!v.every(Number.isFinite)||Math.abs(Math.sqrt(v.reduce((n,x)=>n+x*x,0))-1)>0.00001)throw Error('EMBEDDER_INVALID');result.embeddingDimensions=v.length;result.nativeAddonLoaded=true}
-console.log(JSON.stringify(result));`
+  const worker = role === 'genesisWorker'
+  const program = renderCompactKnowledgeProbeProgram({role,expectedPins:f.manifest.componentPins})
   const labels = Object.entries(compactOwnerLabels(f.target)).flatMap(([key, value]) => ['--label', `${key}=${value}`])
   const id = docker(['container', 'create', '--pull', 'never', '--name', `${f.target.project}-probe-${randomUUID()}`, ...labels,
     '--network', 'none', '--read-only', '--user', 'node', '--cap-drop', 'ALL', '--security-opt', 'no-new-privileges', '--log-driver', 'none',
