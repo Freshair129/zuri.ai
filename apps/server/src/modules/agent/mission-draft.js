@@ -263,6 +263,9 @@ function normalizeCurrentProvenance(result, claims, turnId, executionId) {
  *   allowlisted snapshot plus its digest. The snapshot carries WorkItem ID/version,
  *   state, subtype, null assignee, scope, title, and optional containerId. Mission
  *   summary stays in the immutable draft snapshot; it is not a WorkItem field.
+ *   Evidence insertion receives missionSnapshotJson plus missionSnapshotDigest
+ *   over {mission:{title,summary},workItem:{workstreamId,containerId?,subtype,
+ *   title,status,assigneeRef}} and a server-computed flat-scope idempotency hash.
  * - transaction(fn), tx.resolveCurrentAgentTurn({turnId, executionId, authClaims,
  *   missionDigest}), tx.findMissionDraftBySource(identity), tx.insertMissionDraft(row),
  *   and repository.findMissionDraftBySource(identity) for a post-rollback unique race.
@@ -421,8 +424,26 @@ export function createMissionDraftPort({ repository, now = () => new Date() } = 
         const idempotencyKey = sha256(canonicalJson({
           sourceAgentRef: draft.sourceAgentRef,
           missionId: draft.missionId,
-          scope: draft.scope,
+          tenantId: draft.scope.tenantId,
+          businessId: draft.scope.businessId,
+          workspaceId: draft.scope.workspaceId,
+          projectId: draft.scope.projectId,
+          workstreamId: draft.scope.workstreamId,
         }))
+        const missionSnapshot = Object.freeze({
+          mission: Object.freeze({ title: draft.title, summary: draft.summary }),
+          workItem: Object.freeze({
+            workstreamId: target.scope.workstreamId,
+            ...(target.normalizedSnapshot.containerId == null ? {} : { containerId: target.normalizedSnapshot.containerId }),
+            subtype: target.normalizedSnapshot.subtype,
+            title: target.normalizedSnapshot.title,
+            status: target.normalizedSnapshot.status,
+            assigneeRef: null,
+          }),
+        })
+        const missionSnapshotJson = canonicalJson(missionSnapshot)
+        if (Buffer.byteLength(missionSnapshotJson, 'utf8') > MAX_SNAPSHOT_BYTES) fail('MISSION_TARGET_INVALID')
+        const missionSnapshotDigest = sha256(missionSnapshotJson)
         const submittedAt = parseCreatedAt(now(), 'MISSION_SOURCE_UNAVAILABLE')
         const stored = await transactionRepository.insertPmSubmissionEvidence({
           draftId: draft.draftId,
@@ -437,8 +458,8 @@ export function createMissionDraftPort({ repository, now = () => new Date() } = 
           sourceDigest: draft.digest,
           workItemId: target.workItemId,
           workItemVersion: target.workItemVersion,
-          normalizedWorkItemSnapshot: target.normalizedSnapshot,
-          workItemSnapshotDigest: target.snapshotDigest,
+          missionSnapshotJson,
+          missionSnapshotDigest,
           idempotencyKey,
         })
         const evidenceId = requiredText(stored?.evidenceId, 'MISSION_SOURCE_UNAVAILABLE')

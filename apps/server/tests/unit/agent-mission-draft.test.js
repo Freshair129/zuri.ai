@@ -328,10 +328,26 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29c)', () => {
       sourceDigest: draftDigest,
       workItemId: ids.workItem,
       workItemVersion: 1,
-      workItemSnapshotDigest: sha256(canonicalJson(target().workItem.normalizedSnapshot)),
+      missionSnapshotJson: canonicalJson({
+        mission: content,
+        workItem: {
+          workstreamId: scope.workstreamId,
+          subtype: 'TASK', title: content.title, status: 'PLANNED', assigneeRef: null,
+        },
+      }),
+      missionSnapshotDigest: sha256(canonicalJson({
+        mission: content,
+        workItem: {
+          workstreamId: scope.workstreamId,
+          subtype: 'TASK', title: content.title, status: 'PLANNED', assigneeRef: null,
+        },
+      })),
     })
     expect(repo.calls.insert[0].idempotencyKey).toBe(sha256(canonicalJson({
-      sourceAgentRef: ids.sourceAgent, missionId: ids.mission, scope,
+      sourceAgentRef: ids.sourceAgent, missionId: ids.mission,
+      tenantId: scope.tenantId, businessId: scope.businessId,
+      workspaceId: scope.workspaceId, projectId: scope.projectId,
+      workstreamId: scope.workstreamId,
     })))
     expect(repo.calls.target).toEqual([{ workItemId: ids.workItem }])
   })
