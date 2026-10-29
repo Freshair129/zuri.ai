@@ -1,11 +1,12 @@
+import { randomUUID } from 'node:crypto'
 import { canonicalJson, sha256 } from './execution-trace'
 
-// TASK-ZAI-012 revision 2026-10-29b. This is an injected Agent service seam only.
-// No Prisma adapter or authenticated mission-draft producer is wired here.
+// TASK-ZAI-012 revision 2026-10-29c. Injected Agent service seam; no Prisma adapter
+// or runtime caller is wired in this checkpoint.
 
 const SCOPE_KEYS = Object.freeze(['tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId'])
 const WORK_ITEM_SNAPSHOT_KEYS = new Set([
-  'workItemId', 'workItemVersion', 'status', 'subtype', 'scope', 'title', 'summary', 'containerId',
+  'workItemId', 'workItemVersion', 'status', 'subtype', 'assigneeRef', 'scope', 'title', 'containerId',
 ])
 const HASH = /^[a-f0-9]{64}$/
 const SECRET_OR_EXECUTABLE_KEY = /(?:prompt|reason|thought|secret|token|credential|authori[sz]ation|payload|action|effect|execute|provider|raw)/i
@@ -17,7 +18,7 @@ const MAX_SNAPSHOT_BYTES = 16 * 1024
 const MISSION_ERRORS = new Set([
   'MISSION_NOT_FOUND', 'MISSION_FORBIDDEN', 'MISSION_SOURCE_UNAVAILABLE',
   'MISSION_SOURCE_CONFLICT', 'MISSION_SCOPE_INVALID', 'MISSION_TARGET_INVALID',
-  'MISSION_ALREADY_SUBMITTED', 'MISSION_TRANSACTION_REQUIRED',
+  'MISSION_ALREADY_SUBMITTED', 'MISSION_TRANSACTION_REQUIRED', 'MISSION_DRAFT_IDEMPOTENCY_CONFLICT',
 ])
 
 function fail(code) {
@@ -74,7 +75,7 @@ function normalizeDraft(result, missionId) {
 
   const row = result.draft
   if (!row || row.missionId !== missionId || row.status !== 'ACTIVE'
-    || !Number.isSafeInteger(row.revision) || row.revision < 1
+    || row.schemaVersion !== 'agent-mission-draft.v1' || row.revision !== 1
     || !Number.isSafeInteger(row.version) || row.version < 1
     || !HASH.test(row.digest ?? '')
     || !row.content || typeof row.content !== 'object' || Array.isArray(row.content)
@@ -108,7 +109,7 @@ function normalizeTarget(result, draft, workItemId) {
   if (result.status !== 'found' || result.eligible !== true) fail('MISSION_TARGET_INVALID')
   const target = result.workItem
   if (!target || target.workItemId !== workItemId || target.status !== 'PLANNED' || target.subtype !== 'TASK'
-    || !Number.isSafeInteger(target.workItemVersion) || target.workItemVersion < 1) fail('MISSION_TARGET_INVALID')
+    || target.assigneeRef !== null || !Number.isSafeInteger(target.workItemVersion) || target.workItemVersion < 1) fail('MISSION_TARGET_INVALID')
   const scope = normalizeScope(target.scope)
   assertSameScope(draft.scope, scope)
   const snapshot = safeJson(target.normalizedSnapshot)
@@ -117,8 +118,9 @@ function normalizeTarget(result, draft, workItemId) {
     || snapshot.workItemId !== workItemId
     || snapshot.workItemVersion !== target.workItemVersion
     || snapshot.status !== 'PLANNED' || snapshot.subtype !== 'TASK'
+    || snapshot.assigneeRef !== null
     || canonicalJson(normalizeScope(snapshot.scope)) !== canonicalJson(scope)
-    || snapshot.title !== draft.title || snapshot.summary !== draft.summary) fail('MISSION_TARGET_INVALID')
+    || snapshot.title !== draft.title) fail('MISSION_TARGET_INVALID')
   const snapshotJson = canonicalJson(snapshot)
   if (Buffer.byteLength(snapshotJson, 'utf8') > MAX_SNAPSHOT_BYTES) fail('MISSION_TARGET_INVALID')
   const snapshotDigest = sha256(snapshotJson)
@@ -137,6 +139,112 @@ function typedResult(status) {
   if (status === 'revoked' || status === 'erased') fail('MISSION_SOURCE_CONFLICT')
 }
 
+function verifiedAuthClaims(authorization) {
+  const context = authorization?.authContext
+  const actor = context?.actor
+  const scope = context?.scope
+  const agentId = context?.request?.agentId
+  if (!context || !Object.isFrozen(context) || !Object.isFrozen(context.transport)
+    || !Object.isFrozen(actor) || !Object.isFrozen(scope) || !Object.isFrozen(context.request)
+    || context.transport?.signatureVerified !== true || actor?.identityVerified !== true
+    || actor?.principalType === 'UNKNOWN' || context.authorization?.decision?.allowed !== true) {
+    fail('MISSION_SOURCE_UNAVAILABLE')
+  }
+  return Object.freeze({
+    actorPersonId: requiredText(actor.principalId, 'MISSION_SOURCE_UNAVAILABLE'),
+    sourceAgentRef: requiredText(agentId, 'MISSION_SOURCE_UNAVAILABLE'),
+    tenantId: requiredText(scope.tenantId, 'MISSION_SOURCE_UNAVAILABLE'),
+    businessId: requiredText(scope.businessId, 'MISSION_SOURCE_UNAVAILABLE'),
+    workspaceId: scope.workspaceId == null ? null : requiredText(scope.workspaceId, 'MISSION_SOURCE_UNAVAILABLE'),
+    projectId: scope.projectId == null ? null : requiredText(scope.projectId, 'MISSION_SOURCE_UNAVAILABLE'),
+  })
+}
+
+function normalizeMissionInput(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)
+    || Object.getPrototypeOf(value) !== Object.prototype
+    || Object.keys(value).length !== 2
+    || Object.keys(value).some(key => !['title', 'summary'].includes(key))) fail('MISSION_SOURCE_CONFLICT')
+  const mission = Object.freeze({
+    title: requiredText(value.title, 'MISSION_SOURCE_CONFLICT', MAX_TITLE_LENGTH),
+    summary: requiredText(value.summary, 'MISSION_SOURCE_CONFLICT', MAX_SUMMARY_LENGTH),
+  })
+  return Object.freeze({ mission, digest: sha256(canonicalJson(mission)) })
+}
+
+function sourceIdentity(provenance) {
+  return Object.freeze({
+    tenantId: provenance.scope.tenantId,
+    businessId: provenance.scope.businessId,
+    sourceAgentRef: provenance.sourceAgentRef,
+    sourceTurnId: provenance.sourceTurnId,
+    executionId: provenance.executionId,
+  })
+}
+
+function sameSourceDraft(existing, expected) {
+  try {
+    const actualScope = normalizeScope(existing.scope)
+    return existing.status === 'ACTIVE'
+      && existing.schemaVersion === 'agent-mission-draft.v1'
+      && existing.revision === 1
+      && existing.sourceAgentRef === expected.sourceAgentRef
+      && existing.sourceTurnId === expected.sourceTurnId
+      && existing.executionId === expected.executionId
+      && existing.actorPersonId === expected.actorPersonId
+      && existing.sourceTraceEventId === expected.sourceTraceEventId
+      && existing.digest === expected.digest
+      && canonicalJson(actualScope) === canonicalJson(expected.scope)
+      && sha256(canonicalJson(existing.content)) === expected.digest
+  } catch {
+    return false
+  }
+}
+
+function draftReceipt(row) {
+  return Object.freeze({
+    draftId: requiredText(row.draftId, 'MISSION_SOURCE_UNAVAILABLE'),
+    missionId: requiredText(row.missionId, 'MISSION_SOURCE_UNAVAILABLE'),
+    revision: 1,
+    schemaVersion: 'agent-mission-draft.v1',
+    tenantId: requiredText(row.scope.tenantId, 'MISSION_SOURCE_UNAVAILABLE'),
+    businessId: requiredText(row.scope.businessId, 'MISSION_SOURCE_UNAVAILABLE'),
+    workspaceId: requiredText(row.scope.workspaceId, 'MISSION_SOURCE_UNAVAILABLE'),
+    projectId: requiredText(row.scope.projectId, 'MISSION_SOURCE_UNAVAILABLE'),
+    workstreamId: requiredText(row.scope.workstreamId, 'MISSION_SOURCE_UNAVAILABLE'),
+    sourceAgentRef: requiredText(row.sourceAgentRef, 'MISSION_SOURCE_UNAVAILABLE'),
+    sourceTurnId: requiredText(row.sourceTurnId, 'MISSION_SOURCE_UNAVAILABLE'),
+    executionId: requiredText(row.executionId, 'MISSION_SOURCE_UNAVAILABLE'),
+    sourceEventId: requiredText(row.sourceEventId, 'MISSION_SOURCE_UNAVAILABLE'),
+    sourceTraceEventId: requiredText(row.sourceTraceEventId, 'MISSION_SOURCE_UNAVAILABLE'),
+    digest: row.digest,
+    status: 'ACTIVE',
+  })
+}
+
+function normalizeCurrentProvenance(result, claims, turnId, executionId) {
+  if (!result || result.status !== 'verified' || result.agentVerified !== true
+    || result.turnExecutionVerified !== true || result.traceLinked !== true || result.scopeVerified !== true) {
+    fail('MISSION_SOURCE_UNAVAILABLE')
+  }
+  if (result.sourceAgentRef !== claims.sourceAgentRef || result.actorPersonId !== claims.actorPersonId
+    || result.sourceTurnId !== turnId || result.executionId !== executionId) fail('MISSION_SOURCE_UNAVAILABLE')
+  const scope = normalizeScope(result.scope)
+  if (scope.tenantId !== claims.tenantId || scope.businessId !== claims.businessId
+    || (claims.workspaceId && scope.workspaceId !== claims.workspaceId)
+    || (claims.projectId && scope.projectId !== claims.projectId)) fail('MISSION_SCOPE_INVALID')
+  const sourceTraceEventId = requiredText(result.sourceTraceEventId, 'MISSION_SOURCE_UNAVAILABLE')
+  return Object.freeze({
+    sourceAgentRef: claims.sourceAgentRef,
+    actorPersonId: claims.actorPersonId,
+    sourceTurnId: turnId,
+    executionId,
+    sourceEventId: randomUUID(),
+    sourceTraceEventId,
+    scope,
+  })
+}
+
 /**
  * Creates the Agent read and PM submission association port over an injected
  * persistence adapter. The adapter is the trust boundary for authenticated
@@ -145,23 +253,114 @@ function typedResult(status) {
  *
  * Adapter contract:
  * - resolveAuthorizedMissionDraft({missionId, requesterPersonId}) validates the
- *   authenticated requester, current scope, active draft, and its source event /
- *   trace reference before returning {status:'found', sourceVerified:true,draft}.
+ *   PM session viewer and current scope, then returns a bounded draft or typed status.
  * - forTransaction(tx) binds these methods to the exact PM transaction without
  *   opening another transaction: resolveMissionDraft({missionId}),
  *   findSubmissionBySource({sourceAgentRef, missionId}),
  *   resolveEligibleWorkItem({workItemId}), insertPmSubmissionEvidence(input).
  * - resolveEligibleWorkItem is a schema-specific current DB query that proves
  *   non-deleted eligibility and complete scope ancestry, and returns a normalized
- *   allowlisted snapshot plus its digest. This seam currently requires
- *   workItemId/workItemVersion/status/subtype/scope/title/summary and optional
- *   containerId; reconcile that allowlist with PM/Integrator before runtime wiring.
+ *   allowlisted snapshot plus its digest. The snapshot carries WorkItem ID/version,
+ *   state, subtype, null assignee, scope, title, and optional containerId. Mission
+ *   summary stays in the immutable draft snapshot; it is not a WorkItem field.
+ * - transaction(fn), tx.resolveCurrentAgentTurn({turnId, executionId, authClaims,
+ *   missionDigest}), tx.findMissionDraftBySource(identity), tx.insertMissionDraft(row),
+ *   and repository.findMissionDraftBySource(identity) for a post-rollback unique race.
+ *   resolveCurrentAgentTurn must verify the current runtime claim, authenticated
+ *   Agent provenance, trace linkage, and DB-derived scope in the same transaction.
+ *   It must resolve active Project and Workstream IDs because current Agent auth
+ *   context carries no Workstream identifier.
  */
 export function createMissionDraftPort({ repository, now = () => new Date() } = {}) {
   if (!repository || typeof repository.resolveAuthorizedMissionDraft !== 'function'
     || typeof repository.forTransaction !== 'function') fail('MISSION_SOURCE_UNAVAILABLE')
 
   return Object.freeze({
+    async createMissionDraftFromTurn({ authorization, turnId, executionId, mission } = {}) {
+      if (typeof repository.transaction !== 'function') fail('MISSION_SOURCE_UNAVAILABLE')
+      turnId = requiredText(turnId, 'MISSION_SOURCE_UNAVAILABLE')
+      executionId = requiredText(executionId, 'MISSION_SOURCE_UNAVAILABLE')
+      const claims = verifiedAuthClaims(authorization)
+      const { mission: content, digest } = normalizeMissionInput(mission)
+      const authClaims = Object.freeze({ ...claims })
+      let verifiedSource = null
+      let expectedDraft = null
+      try {
+        return await repository.transaction(async tx => {
+          const txRepository = repository.forTransaction(tx)
+          if (!txRepository || typeof txRepository.resolveCurrentAgentTurn !== 'function'
+            || typeof txRepository.findMissionDraftBySource !== 'function'
+            || typeof txRepository.insertMissionDraft !== 'function') fail('MISSION_SOURCE_UNAVAILABLE')
+          const sourceResult = await txRepository.resolveCurrentAgentTurn({
+            turnId,
+            executionId,
+            authClaims,
+            missionDigest: digest,
+          })
+          verifiedSource = normalizeCurrentProvenance(sourceResult, authClaims, turnId, executionId)
+          const identity = sourceIdentity(verifiedSource)
+          const expected = {
+            ...identity, actorPersonId: verifiedSource.actorPersonId,
+            sourceTraceEventId: verifiedSource.sourceTraceEventId,
+            digest, scope: verifiedSource.scope,
+          }
+          expectedDraft = expected
+
+          const existing = await txRepository.findMissionDraftBySource(identity)
+          if (existing) {
+            if (!sameSourceDraft(existing, expected)) fail('MISSION_DRAFT_IDEMPOTENCY_CONFLICT')
+            return Object.freeze({ status: 'existing', draft: draftReceipt(existing) })
+          }
+
+          const row = Object.freeze({
+            draftId: randomUUID(),
+            missionId: randomUUID(),
+            revision: 1,
+            schemaVersion: 'agent-mission-draft.v1',
+            tenantId: verifiedSource.scope.tenantId,
+            businessId: verifiedSource.scope.businessId,
+            workspaceId: verifiedSource.scope.workspaceId,
+            projectId: verifiedSource.scope.projectId,
+            workstreamId: verifiedSource.scope.workstreamId,
+            sourceAgentRef: verifiedSource.sourceAgentRef,
+            actorPersonId: verifiedSource.actorPersonId,
+            sourceTurnId: verifiedSource.sourceTurnId,
+            executionId: verifiedSource.executionId,
+            sourceEventId: verifiedSource.sourceEventId,
+            sourceTraceEventId: verifiedSource.sourceTraceEventId,
+            scope: verifiedSource.scope,
+            content,
+            digest,
+            status: 'ACTIVE',
+            createdAt: parseCreatedAt(now(), 'MISSION_SOURCE_UNAVAILABLE'),
+            version: 1,
+          })
+          const inserted = await txRepository.insertMissionDraft(row)
+          if (!inserted || inserted.draftId !== row.draftId || inserted.missionId !== row.missionId
+            || inserted.sourceEventId !== row.sourceEventId || !sameSourceDraft(inserted, expected)) {
+            fail('MISSION_SOURCE_UNAVAILABLE')
+          }
+          return Object.freeze({ status: 'created', draft: draftReceipt(inserted) })
+        })
+      } catch (error) {
+        if (error?.code === 'P2002' || error?.code === 'MISSION_UNIQUE_CONFLICT') {
+          if (!verifiedSource || !expectedDraft || typeof repository.findMissionDraftBySource !== 'function') {
+            fail('MISSION_SOURCE_UNAVAILABLE')
+          }
+          try {
+            const winner = await repository.findMissionDraftBySource(sourceIdentity(verifiedSource))
+            if (winner && sameSourceDraft(winner, expectedDraft)) {
+              return Object.freeze({ status: 'existing', draft: draftReceipt(winner) })
+            }
+          } catch (lookupError) {
+            rethrowMissionError(lookupError)
+          }
+          fail('MISSION_DRAFT_IDEMPOTENCY_CONFLICT')
+        }
+        rethrowMissionError(error)
+      }
+    },
+
     async readMissionDraft({ missionId, requesterPersonId } = {}) {
       missionId = requiredText(missionId, 'MISSION_NOT_FOUND')
       requesterPersonId = requiredText(requesterPersonId, 'MISSION_FORBIDDEN')

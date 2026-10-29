@@ -32,7 +32,8 @@ function draft(overrides = {}) {
     draftId: ids.draft,
     sourceAgentRef: ids.sourceAgent,
     missionId: ids.mission,
-    revision: 3,
+    schemaVersion: 'agent-mission-draft.v1',
+    revision: 1,
     version: 1,
     scope: { ...scope },
     actorPersonId: ids.actor,
@@ -54,9 +55,9 @@ function target(overrides = {}) {
     workItemVersion: 1,
     status: 'PLANNED',
     subtype: 'TASK',
+    assigneeRef: null,
     scope: { ...scope },
     title: content.title,
-    summary: content.summary,
     containerId: null,
   }
   return {
@@ -67,6 +68,7 @@ function target(overrides = {}) {
       workItemVersion: 1,
       status: 'PLANNED',
       subtype: 'TASK',
+      assigneeRef: null,
       scope: { ...scope },
       normalizedSnapshot,
       snapshotDigest: sha256(canonicalJson(normalizedSnapshot)),
@@ -77,7 +79,8 @@ function target(overrides = {}) {
 
 function repository({ readResult = { status: 'found', sourceVerified: true, draft: draft() }, draftResult,
   targetResult = target(), existing = null, insertResult = { evidenceId: ids.evidence } } = {}) {
-  const calls = { read: [], forTransaction: [], resolveDraft: [], existing: [], target: [], insert: [], openedTransactions: 0 }
+  const calls = { read: [], forTransaction: [], resolveDraft: [], existing: [], target: [], insert: [], openedTransactions: 0, resolveTurn: [], sourceDraft: [], insertDraft: [] }
+  let storedDraft = null
   const repo = {
     calls,
     async resolveAuthorizedMissionDraft(input) {
@@ -87,6 +90,25 @@ function repository({ readResult = { status: 'found', sourceVerified: true, draf
     forTransaction(tx) {
       calls.forTransaction.push(tx)
       return {
+        async resolveCurrentAgentTurn(input) {
+          calls.resolveTurn.push(input)
+          return {
+            status: 'verified', agentVerified: true, turnExecutionVerified: true,
+            traceLinked: true, scopeVerified: true,
+            sourceAgentRef: ids.sourceAgent, actorPersonId: ids.actor,
+            sourceTurnId: ids.turn, executionId: ids.execution,
+            sourceTraceEventId: ids.traceEvent, scope: { ...scope },
+          }
+        },
+        async findMissionDraftBySource(input) {
+          calls.sourceDraft.push(input)
+          return storedDraft
+        },
+        async insertMissionDraft(row) {
+          calls.insertDraft.push(row)
+          storedDraft = row
+          return row
+        },
         async resolveMissionDraft(input) {
           calls.resolveDraft.push(input)
           return draftResult ?? { status: 'found', sourceVerified: true, draft: draft() }
@@ -105,7 +127,11 @@ function repository({ readResult = { status: 'found', sourceVerified: true, draf
         },
       }
     },
-    async transaction() { calls.openedTransactions += 1; throw new Error('nested transaction forbidden') },
+    async findMissionDraftBySource(input) {
+      calls.sourceDraft.push(input)
+      return storedDraft
+    },
+    async transaction(callback) { calls.openedTransactions += 1; return callback(Object.freeze({ transaction: 'synthetic' })) },
   }
   return repo
 }
@@ -114,27 +140,109 @@ function codeOf(promise, code) {
   return expect(promise).rejects.toMatchObject({ code, message: code })
 }
 
-describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
+function authorization() {
+  const authContext = Object.freeze({
+    transport: Object.freeze({ signatureVerified: true }),
+    actor: Object.freeze({ principalId: ids.actor, principalType: 'CUSTOMER', identityVerified: true }),
+    scope: Object.freeze({ tenantId: scope.tenantId, businessId: scope.businessId, workspaceId: scope.workspaceId, projectId: scope.projectId }),
+    request: Object.freeze({ agentId: ids.sourceAgent }),
+    authorization: Object.freeze({ decision: Object.freeze({ allowed: true }) }),
+  })
+  return Object.freeze({ authContext })
+}
+
+describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29c)', () => {
+  it('creates a draft from a current authenticated turn and returns the same receipt on an identical retry', async () => {
+    const repo = repository()
+    const port = createMissionDraftPort({ repository: repo, now: () => new Date('2026-10-29T10:00:00.000Z') })
+    const request = {
+      authorization: authorization(), turnId: ids.turn, executionId: ids.execution,
+      mission: content, callerIdentity: 'attacker', scope: { tenantId: 'caller-tenant' },
+    }
+    const created = await port.createMissionDraftFromTurn(request)
+    const retried = await port.createMissionDraftFromTurn(request)
+    expect(created.status).toBe('created')
+    expect(retried).toEqual({ status: 'existing', draft: created.draft })
+    expect(created.draft).toMatchObject({
+      revision: 1, schemaVersion: 'agent-mission-draft.v1',
+      tenantId: scope.tenantId, businessId: scope.businessId,
+      workspaceId: scope.workspaceId, projectId: scope.projectId,
+      sourceAgentRef: ids.sourceAgent, sourceTurnId: ids.turn,
+      executionId: ids.execution, sourceTraceEventId: ids.traceEvent,
+      digest: draftDigest, status: 'ACTIVE',
+    })
+    expect(created.draft).not.toHaveProperty('summary')
+    expect(repo.calls.openedTransactions).toBe(2)
+    expect(repo.calls.resolveTurn[0].authClaims).toMatchObject({
+      sourceAgentRef: ids.sourceAgent, actorPersonId: ids.actor,
+      tenantId: scope.tenantId, businessId: scope.businessId,
+    })
+    expect(repo.calls.insertDraft).toHaveLength(1)
+  })
+
+  it('fails closed without authenticated current-turn provenance and rejects changed retries', async () => {
+    const repo = repository()
+    const port = createMissionDraftPort({ repository: repo })
+    const request = { authorization: authorization(), turnId: ids.turn, executionId: ids.execution, mission: content }
+    const noProofRepo = repository()
+    noProofRepo.forTransaction = () => ({
+      resolveCurrentAgentTurn: async () => ({ status: 'unavailable' }),
+      findMissionDraftBySource: async () => null,
+      insertMissionDraft: async () => { throw new Error('must not insert') },
+    })
+    await codeOf(createMissionDraftPort({ repository: noProofRepo }).createMissionDraftFromTurn(request), 'MISSION_SOURCE_UNAVAILABLE')
+
+    const created = await port.createMissionDraftFromTurn(request)
+    const changed = port.createMissionDraftFromTurn({ ...request, mission: { ...content, summary: 'Changed content' } })
+    expect(created.status).toBe('created')
+    await codeOf(changed, 'MISSION_DRAFT_IDEMPOTENCY_CONFLICT')
+    expect(repo.calls.insertDraft).toHaveLength(1)
+  })
+
+  it('rejects caller-fabricated or unverified Agent authorization', async () => {
+    const port = createMissionDraftPort({ repository: repository() })
+    await codeOf(port.createMissionDraftFromTurn({
+      authorization: { authContext: { request: { agentId: ids.sourceAgent } } },
+      turnId: ids.turn, executionId: ids.execution, mission: content,
+    }), 'MISSION_SOURCE_UNAVAILABLE')
+  })
+
+  it('resolves a unique-source race only after the create transaction rolls back', async () => {
+    const repo = repository()
+    let transactionFinished = false
+    repo.transaction = async callback => {
+      try { return await callback(Object.freeze({ transaction: 'race' })) }
+      finally { transactionFinished = true }
+    }
+    const txFactory = repo.forTransaction.bind(repo)
+    repo.forTransaction = tx => {
+      const adapter = txFactory(tx)
+      adapter.insertMissionDraft = async () => { throw Object.assign(new Error('unique'), { code: 'P2002' }) }
+      return adapter
+    }
+    repo.findMissionDraftBySource = async () => {
+      expect(transactionFinished).toBe(true)
+      return draft({ revision: 1 })
+    }
+    const port = createMissionDraftPort({ repository: repo })
+    const result = await port.createMissionDraftFromTurn({
+      authorization: authorization(), turnId: ids.turn, executionId: ids.execution, mission: content,
+    })
+    expect(result.status).toBe('existing')
+    expect(result.draft.digest).toBe(draftDigest)
+  })
+
   it('returns only the verified display snapshot and provenance fields', async () => {
     const repo = repository()
     const port = createMissionDraftPort({ repository: repo })
     const result = await port.readMissionDraft({ missionId: ids.mission, requesterPersonId: ids.submitter })
     expect(result).toEqual({
-      missionId: ids.mission,
-      sourceAgentRef: ids.sourceAgent,
-      revision: 3,
-      digest: draftDigest,
-      scope,
-      sourceTurnId: ids.turn,
-      executionId: ids.execution,
-      sourceEventId: ids.event,
-      sourceTraceEventId: ids.traceEvent,
-      title: content.title,
-      summary: content.summary,
-      createdAt: '2026-10-29T09:00:00.000Z',
+      missionId: ids.mission, sourceAgentRef: ids.sourceAgent, revision: 1,
+      digest: draftDigest, scope, sourceTurnId: ids.turn, executionId: ids.execution,
+      sourceEventId: ids.event, sourceTraceEventId: ids.traceEvent,
+      title: content.title, summary: content.summary, createdAt: '2026-10-29T09:00:00.000Z',
     })
     expect(result).not.toHaveProperty('actorPersonId')
-    expect(result).not.toHaveProperty('draftId')
     expect(result).not.toHaveProperty('content')
     expect(repo.calls.read).toEqual([{ missionId: ids.mission, requesterPersonId: ids.submitter }])
   })
@@ -191,7 +299,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     const tx = Object.freeze({ marker: 'PM transaction' })
     const result = await port.recordPmSubmissionInTransaction(tx, {
       missionId: ids.mission,
-      expectedRevision: 3,
+      expectedRevision: 1,
       expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter,
       workItemId: ids.workItem,
@@ -199,7 +307,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     expect(result).toEqual({
       evidenceId: ids.evidence,
       sourceMissionId: ids.mission,
-      sourceRevision: 3,
+      sourceRevision: 1,
       sourceDigest: draftDigest,
       workItemId: ids.workItem,
       workItemVersion: 1,
@@ -216,7 +324,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
       submittedByPersonId: ids.submitter,
       submittedAt: '2026-10-29T10:00:00.000Z',
       scope,
-      sourceRevision: 3,
+      sourceRevision: 1,
       sourceDigest: draftDigest,
       workItemId: ids.workItem,
       workItemVersion: 1,
@@ -255,7 +363,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     }
     await expect(pmTransaction(async tx => {
       await port.recordPmSubmissionInTransaction(tx, {
-        missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+        missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
         submittedByPersonId: ids.submitter, workItemId: ids.workItem,
       })
       throw Object.assign(new Error('synthetic PM writer failure'), { code: 'PM_WRITE_FAILED' })
@@ -268,7 +376,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     const stale = repository({ draftResult: { status: 'found', sourceVerified: true, draft: draft({ revision: 4 }) } })
     const port = createMissionDraftPort({ repository: stale })
     await codeOf(port.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_SOURCE_CONFLICT')
     expect(stale.calls.insert).toEqual([])
@@ -280,7 +388,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     }) })
     const port1 = createMissionDraftPort({ repository: mismatchedScope })
     await codeOf(port1.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_SCOPE_INVALID')
 
@@ -291,7 +399,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
       const repo = repository({ targetResult: result })
       const port = createMissionDraftPort({ repository: repo })
       await codeOf(port.recordPmSubmissionInTransaction({}, {
-        missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+        missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
         submittedByPersonId: ids.submitter, workItemId: ids.workItem,
       }), 'MISSION_TARGET_INVALID')
     }
@@ -301,7 +409,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     unsafeSnapshot.workItem.snapshotDigest = sha256(canonicalJson(unsafeSnapshot.workItem.normalizedSnapshot))
     const port2 = createMissionDraftPort({ repository: repository({ targetResult: unsafeSnapshot }) })
     await codeOf(port2.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_TARGET_INVALID')
 
@@ -310,7 +418,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     unexpectedSnapshotField.workItem.snapshotDigest = sha256(canonicalJson(unexpectedSnapshotField.workItem.normalizedSnapshot))
     const port2b = createMissionDraftPort({ repository: repository({ targetResult: unexpectedSnapshotField }) })
     await codeOf(port2b.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_TARGET_INVALID')
 
@@ -318,7 +426,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     wrongDigest.workItem.snapshotDigest = 'b'.repeat(64)
     const port3 = createMissionDraftPort({ repository: repository({ targetResult: wrongDigest }) })
     await codeOf(port3.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_TARGET_INVALID')
   })
@@ -327,11 +435,11 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     const repo = repository({ existing: { evidenceId: 'already-submitted' } })
     const port = createMissionDraftPort({ repository: repo })
     await codeOf(port.recordPmSubmissionInTransaction(null, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_TRANSACTION_REQUIRED')
     await codeOf(port.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_ALREADY_SUBMITTED')
     expect(repo.calls.insert).toEqual([])
@@ -347,7 +455,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
     }
     const port = createMissionDraftPort({ repository: repo })
     await codeOf(port.recordPmSubmissionInTransaction({}, {
-      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      missionId: ids.mission, expectedRevision: 1, expectedDigest: draftDigest,
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_ALREADY_SUBMITTED')
   })
