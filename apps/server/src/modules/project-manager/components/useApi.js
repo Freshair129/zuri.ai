@@ -69,24 +69,30 @@ export function useFetch(path, deps = [], scopeKey = path) {
   const requestSequence = useRef(0)
   const currentScope = useRef(scopeKey)
   currentScope.current = scopeKey
-  const [state, setState] = useState({ data: null, loading: true, error: null, requestKey: null })
+  const [state, setState] = useState({ data: null, loading: true, error: null, requestKey: null, requestPath: null })
 
   const reload = useCallback(async () => {
     const requestKey = scopeKey
     const sequence = ++requestSequence.current
     if (!path) {
-      setState({ data: null, loading: false, error: null, requestKey })
+      setState({ data: null, loading: false, error: null, requestKey, requestPath: path })
       return
     }
-    setState((s) => ({ ...s, loading: true, error: null, requestKey }))
+    setState((s) => ({
+      data: s.requestKey === requestKey && s.requestPath === path ? s.data : null,
+      loading: true,
+      error: null,
+      requestKey,
+      requestPath: path,
+    }))
     try {
       const data = await api(path)
       if (sequence === requestSequence.current && currentScope.current === requestKey) {
-        setState({ data, loading: false, error: null, requestKey })
+        setState({ data, loading: false, error: null, requestKey, requestPath: path })
       }
     } catch (err) {
       if (sequence === requestSequence.current && currentScope.current === requestKey) {
-        setState({ data: null, loading: false, error: err.message, requestKey })
+        setState({ data: null, loading: false, error: err.message, requestKey, requestPath: path })
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,7 +103,7 @@ export function useFetch(path, deps = [], scopeKey = path) {
     return () => { requestSequence.current += 1 }
   }, [reload])
 
-  return { ...state, reload }
+  return { data: state.data, loading: state.loading, error: state.error, requestKey: state.requestKey, reload }
 }
 
 // Written with createElement instead of JSX (this file keeps the plain .js
