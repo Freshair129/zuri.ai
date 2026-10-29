@@ -305,6 +305,15 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29b)', () => {
       submittedByPersonId: ids.submitter, workItemId: ids.workItem,
     }), 'MISSION_TARGET_INVALID')
 
+    const unexpectedSnapshotField = target()
+    unexpectedSnapshotField.workItem.normalizedSnapshot.internalNotes = 'not in the evidence snapshot allowlist'
+    unexpectedSnapshotField.workItem.snapshotDigest = sha256(canonicalJson(unexpectedSnapshotField.workItem.normalizedSnapshot))
+    const port2b = createMissionDraftPort({ repository: repository({ targetResult: unexpectedSnapshotField }) })
+    await codeOf(port2b.recordPmSubmissionInTransaction({}, {
+      missionId: ids.mission, expectedRevision: 3, expectedDigest: draftDigest,
+      submittedByPersonId: ids.submitter, workItemId: ids.workItem,
+    }), 'MISSION_TARGET_INVALID')
+
     const wrongDigest = target()
     wrongDigest.workItem.snapshotDigest = 'b'.repeat(64)
     const port3 = createMissionDraftPort({ repository: repository({ targetResult: wrongDigest }) })

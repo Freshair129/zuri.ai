@@ -4,6 +4,9 @@ import { canonicalJson, sha256 } from './execution-trace'
 // No Prisma adapter or authenticated mission-draft producer is wired here.
 
 const SCOPE_KEYS = Object.freeze(['tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId'])
+const WORK_ITEM_SNAPSHOT_KEYS = new Set([
+  'workItemId', 'workItemVersion', 'status', 'subtype', 'scope', 'title', 'summary', 'containerId',
+])
 const HASH = /^[a-f0-9]{64}$/
 const SECRET_OR_EXECUTABLE_KEY = /(?:prompt|reason|thought|secret|token|credential|authori[sz]ation|payload|action|effect|execute|provider|raw)/i
 const MAX_IDENTIFIER_LENGTH = 512
@@ -110,6 +113,7 @@ function normalizeTarget(result, draft, workItemId) {
   assertSameScope(draft.scope, scope)
   const snapshot = safeJson(target.normalizedSnapshot)
   if (!snapshot || Array.isArray(snapshot) || typeof snapshot !== 'object'
+    || Object.keys(snapshot).some(key => !WORK_ITEM_SNAPSHOT_KEYS.has(key))
     || snapshot.workItemId !== workItemId
     || snapshot.workItemVersion !== target.workItemVersion
     || snapshot.status !== 'PLANNED' || snapshot.subtype !== 'TASK'
@@ -207,12 +211,13 @@ export function createMissionDraftPort({ repository, now = () => new Date() } = 
         const draft = normalizeDraft(draftResult, missionId)
         if (draft.revision !== expectedRevision || draft.digest !== expectedDigest) fail('MISSION_SOURCE_CONFLICT')
 
-        const targetResult = await transactionRepository.resolveEligibleWorkItem({ workItemId })
-        const target = normalizeTarget(targetResult, draft, workItemId)
         const existing = await transactionRepository.findSubmissionBySource({
           sourceAgentRef: draft.sourceAgentRef, missionId: draft.missionId,
         })
         if (existing) fail('MISSION_ALREADY_SUBMITTED')
+
+        const targetResult = await transactionRepository.resolveEligibleWorkItem({ workItemId })
+        const target = normalizeTarget(targetResult, draft, workItemId)
 
         const idempotencyKey = sha256(canonicalJson({
           sourceAgentRef: draft.sourceAgentRef,
