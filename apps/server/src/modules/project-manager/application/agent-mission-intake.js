@@ -77,7 +77,7 @@ function validateDraft(draft, request, scope) {
   }
   if (!sameScope(draft.scope, scope)) throw refusal('MISSION_SCOPE_INVALID', 409)
   if (typeof draft.title !== 'string' || !draft.title.trim() || draft.title.length > 240 ||
-      typeof draft.summary !== 'string' || draft.summary.length > 4000) {
+      typeof draft.summary !== 'string' || draft.summary.length > 4096) {
     throw refusal('MISSION_SOURCE_UNAVAILABLE', 503)
   }
   return {
@@ -213,7 +213,6 @@ export function createAgentMissionIntakeService({
         title: draft.title,
         status: 'PLANNED',
         assigneeRef: null,
-        metadata: { summary: draft.summary },
       }, { viewer, db: tx })
 
       let recordedEvidence

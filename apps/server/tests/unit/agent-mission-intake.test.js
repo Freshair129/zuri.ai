@@ -153,6 +153,22 @@ describe('PM Agent mission intake', () => {
     }
   })
 
+  it('accepts the 4096-character evidence summary bound but never projects it onto WorkItem metadata', async () => {
+    const exactLimit = setup({ agentMissionPort: {
+      ...setup().agentMissionPort,
+      readMissionDraft: vi.fn().mockResolvedValue({ ...draft, summary: 's'.repeat(4096) }),
+    } })
+    await exactLimit.service.submit(input, { viewer })
+    expect(exactLimit.workItemWriter).toHaveBeenCalledWith(expect.not.objectContaining({ metadata: expect.anything() }), expect.anything())
+
+    const overLimit = setup({ agentMissionPort: {
+      ...setup().agentMissionPort,
+      readMissionDraft: vi.fn().mockResolvedValue({ ...draft, summary: 's'.repeat(4097) }),
+    } })
+    await expect(overLimit.service.submit(input, { viewer })).rejects.toMatchObject({ code: 'MISSION_SOURCE_UNAVAILABLE', status: 503 })
+    expect(overLimit.transaction).not.toHaveBeenCalled()
+  })
+
   it('creates one PLANNED unassigned TASK through the canonical writer and records evidence plus bounded audit in the same transaction', async () => {
     const f = setup()
     const result = await f.service.submit(input, { viewer })
@@ -165,7 +181,6 @@ describe('PM Agent mission intake', () => {
       title: draft.title,
       status: 'PLANNED',
       assigneeRef: null,
-      metadata: { summary: draft.summary },
     }, { viewer, db: f.tx })
     expect(f.agentMissionPort.recordPmSubmissionInTransaction).toHaveBeenCalledWith(f.tx, {
       missionId: draft.missionId,
