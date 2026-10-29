@@ -4742,6 +4742,7 @@ model AgentMissionDraft {
   evidence AgentMissionEvidence?
 
   @@unique([sourceAgentRef, missionId, revision], map: "AgentMissionDraft_source_revision_key")
+  @@unique([tenantId, businessId, sourceAgentRef, sourceTurnId, executionId], map: "AgentMissionDraft_scope_source_turn_execution_key")
   @@index([tenantId, businessId, status, createdAt])
   @@index([sourceTurnId, status])
   @@index([actorPersonId, status])
