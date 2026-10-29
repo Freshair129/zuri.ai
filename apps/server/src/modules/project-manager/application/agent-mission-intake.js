@@ -10,7 +10,7 @@ import { recordAudit } from './audit'
 // evidence is associated in that same transaction; it grants no execution,
 // approval, or release authority.
 
-const zSubmission = z.object({
+export const zAgentMissionSubmission = z.object({
   missionId: z.string().trim().min(1).max(200),
   expectedRevision: z.number().int().positive(),
   expectedDigest: z.string().regex(/^[a-f0-9]{64}$/i),
@@ -205,7 +205,7 @@ export function createAgentMissionIntakeService({
   }
 
   async function submit(input, { viewer } = {}) {
-    const parsed = zSubmission.safeParse(input)
+    const parsed = zAgentMissionSubmission.safeParse(input)
     if (!parsed.success) throw refusal('MISSION_INPUT_INVALID', 400)
     const request = parsed.data
     const personId = viewer?.principal?.id

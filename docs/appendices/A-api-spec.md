@@ -1,6 +1,6 @@
 # Appendix A — API Specification
 
-Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration, main merge or deployment is claimed.
+Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration or deployment is claimed.
 
 Version diff 1.115.0b to 1.116.0b (2026-10-24): FR-173/FR-071 add the session OWNER-only exact-source Knowledge replay command. Inventory: 356 route handlers. Retry queues a new full-run child, not a publication or disclosure grant.
 
@@ -173,7 +173,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=356 -->
+<!-- api-spec-counts: route_handlers=358 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

@@ -32,6 +32,7 @@ const inventory = await loadFrozenSchemaInventory()
 if (!inventory) throw new Error('The committed Phase B target inventory could not be loaded')
 const validRecovery = async () => ({ valid: true })
 const MARKETING_CUSTODY = ['MarketingExternalReport', 'MarketingReportBinding', 'MarketingReportPolicy']
+const MISSION_MODELS = ['AgentMissionDraft', 'AgentMissionEvidence']
 const POST_204_MODELS = ['BusinessAgentConfig', 'AgentApprovalRequest', 'AgentApprovalDecision', 'AgentApprovalNotification']
 const POST_204_DELEGATES = POST_204_MODELS.map(name => name[0].toLowerCase() + name.slice(1))
 
@@ -117,10 +118,11 @@ describe('Phase B offline recovery runners', () => {
   // @req TASK-ZAI-010 — Agent approval request and decision models join the census;
   // both histories are portable, while restore invalidates every nonterminal request.
   // @req TASK-ZAI-011 — notification history joins portable snapshots and the pinned census.
-  it('loads the committed pinned 210-table inventory and preserves prior mappings', () => {
-    expect(inventory.applicationTables).toHaveLength(210)
-    expect(inventory.schemaSha256).toBe('d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9')
-    expect(inventory.targetSchemaSha256).toBe('a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7')
+  // @req TASK-ZAI-012 — mission draft/evidence join the complete portable recovery census.
+  it('loads the committed pinned 212-table inventory and preserves prior mappings', () => {
+    expect(inventory.applicationTables).toHaveLength(212)
+    expect(inventory.schemaSha256).toBe('cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18')
+    expect(inventory.targetSchemaSha256).toBe('f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -132,6 +134,9 @@ describe('Phase B offline recovery runners', () => {
     ]))
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
       'AgentApprovalRequest', 'AgentApprovalDecision', 'AgentApprovalNotification',
+    ]))
+    expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(expect.arrayContaining([
+      'AgentMissionDraft', 'AgentMissionEvidence',
     ]))
     expect(PHASE_B_FAMILY_MODEL_NAMES).not.toContain('AgentApprovalRequest')
     expect(PHASE_B_FAMILY_MODEL_NAMES).not.toContain('AgentApprovalDecision')
@@ -147,7 +152,7 @@ describe('Phase B offline recovery runners', () => {
     expect(SNAPSHOT_MODELS).not.toContain('lineStockDisclosurePolicy')
 
     const previous208 = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: '579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8',
     })
     expect(previous208.applicationTables).toHaveLength(208)
@@ -156,7 +161,7 @@ describe('Phase B offline recovery runners', () => {
 
   it('refuses the previous 209-table Pipeline C1 binding after FR-235 composition', async () => {
     const previous = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: 'd8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21',
     })
     expect(previous.applicationTables).toHaveLength(209)
@@ -170,8 +175,8 @@ describe('Phase B offline recovery runners', () => {
       const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
       expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
-      expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 210-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_pipeline_c1_old_qa', inventory: previous })).toThrow(/approved 210-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 212-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_pipeline_c1_old_qa', inventory: previous })).toThrow(/approved 212-table inventory/)
       expect(adapter.events).not.toContain('begin')
     } finally { await rm(dir, { recursive: true, force: true }) }
   })
@@ -234,7 +239,7 @@ describe('Phase B offline recovery runners', () => {
   it('preserves the exact previous 194 mappings and covers every current Prisma model', async () => {
     const previous = inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
       && modelName !== 'MemoryProjectionReceipt' && !BUSINESS_ADDED_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName)
-      && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy')
+      && !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy')
     expect(previous).toHaveLength(194)
     expect(createHash('sha256').update(JSON.stringify(previous)).digest('hex')).toBe('f170d8b0246546bdf903e7bc4142a85486dc2e20e76e1a532a5fb93a12a98c93')
     expect(completeSnapshot().tables).toHaveProperty('businessAgentConfig')
@@ -257,7 +262,7 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
-  it('includes all 210 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+  it('includes all 212 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
     const queries = []
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
@@ -271,14 +276,14 @@ describe('Phase B offline recovery runners', () => {
     const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
     try {
       const tx = await adapter.begin()
-      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 210, catalogCount: 210 })
+      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 212, catalogCount: 212 })
       await tx.assertPrivileges({ write: true })
       await tx.lockApplicationTables()
       expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
       const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
       expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
       expect(queries.filter(query => query.sql.startsWith('LOCK TABLE') && query.sql.includes('SHARE ROW EXCLUSIVE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
-      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(210)
+      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(212)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }
   })
@@ -304,7 +309,7 @@ describe('Phase B offline recovery runners', () => {
 
   it('refuses the previous 204-model binding after the FR-285 rebind', async () => {
     const previous = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !POST_204_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: '1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175',
     })
     expect(previous.applicationTables).toHaveLength(204)
@@ -325,7 +330,7 @@ describe('Phase B offline recovery runners', () => {
   it('refuses the last valid 194-model binding at every runner and loader boundary', async () => {
     const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
       && modelName !== 'MemoryProjectionReceipt' && !BUSINESS_ADDED_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName)
-      && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'), schemaSha256: '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4' })
+      && !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'), schemaSha256: '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4' })
     expect(previous.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
     const dir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-marketing-old-'))
     try {
@@ -341,16 +346,16 @@ describe('Phase B offline recovery runners', () => {
   })
 
   for (const historical of [
-    { name: 'FR-291 209-model predecessor', schemaSha256: 'fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808', targetSchemaSha256: 'db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633', omit: ['LineProductDisclosurePolicy'] },
+    { name: 'FR-291 209-model predecessor', schemaSha256: 'fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808', targetSchemaSha256: 'db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633', omit: [...MISSION_MODELS, 'LineProductDisclosurePolicy'] },
     // FR-001 adds archive/version columns without adding or remapping tables.
     // The previous same-count schema must not pass the current recovery fence.
-    { name: 'FR-001 208-model predecessor', schemaSha256: '579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8', targetSchemaSha256: 'af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683', omit: ['LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
-    { name: 'TASK-ZAI-011 208-model predecessor', schemaSha256: '47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b', targetSchemaSha256: 'cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c', omit: ['LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
+    { name: 'FR-001 208-model predecessor', schemaSha256: '579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8', targetSchemaSha256: 'af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683', omit: [...MISSION_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
+    { name: 'TASK-ZAI-011 208-model predecessor', schemaSha256: '47efde1279bc107458cfa28b9e80920df60555089b8763d7634b550c0e9e661b', targetSchemaSha256: 'cb2449ec562fbf9217956442a48b34eac948c74873d7c24f85a2593fd12df38c', omit: [...MISSION_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
     // FR-286 changes columns, not the 205 model mappings. A same-count prior
     // schema is still a distinct historical binding, refused at every boundary.
-    { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: ['AgentApprovalRequest', 'AgentApprovalDecision', 'AgentApprovalNotification', 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
-    { name: 'API-010 195-model', schemaSha256: '73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1', targetSchemaSha256: '9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9', omit: [...MARKETING_CUSTODY, ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
-    { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: ['MemoryProjectionReceipt', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
+    { name: 'FR-285 205-model predecessor', schemaSha256: '9dc731a7fb749d147f285e0c5eafa3b494b0c67007bdba48f1c094ef06e8aefa', targetSchemaSha256: '9d8c464cbe8d07500dfe0515e85e434b9ab1454ac141f999978e1b8b6987a1c4', omit: [...MISSION_MODELS, 'AgentApprovalRequest', 'AgentApprovalDecision', 'AgentApprovalNotification', 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
+    { name: 'API-010 195-model', schemaSha256: '73bbbff14159ed2549b9555d8bcb8fb851fec6fcb4a4ceeebd35196cbd33fbf1', targetSchemaSha256: '9b68b9b1faeb7960576a0f0a85ad8c82d7e0a941d8ab9499d80e97f7860a73a9', omit: [...MISSION_MODELS, ...MARKETING_CUSTODY, ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
+    { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: [...MISSION_MODELS, 'MemoryProjectionReceipt', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
   ]) {
     it(`preserves and refuses the historical ${historical.name} binding at every runner and loader boundary`, async () => {
       const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !historical.omit.includes(modelName)), schemaSha256: historical.schemaSha256 })
@@ -364,8 +369,8 @@ describe('Phase B offline recovery runners', () => {
         const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
         expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
         expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
-        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 210-table inventory/)
-        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 210-table inventory/)
+        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 212-table inventory/)
+        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 212-table inventory/)
         expect(adapter.events).not.toContain('begin')
       } finally { await rm(dir, { recursive: true, force: true }) }
     })
@@ -452,6 +457,7 @@ describe('Phase B offline recovery runners', () => {
         ...MARKETING_CUSTODY,
         ...BUSINESS_ADDED_MODELS,
         ...POST_204_MODELS,
+        ...MISSION_MODELS,
         'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy',
       ]
       const previous = {
@@ -628,7 +634,7 @@ describe('Phase B offline recovery runners', () => {
     // models are also excluded because those historical schemas predate them.
     // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
     // @req FR-285 — reconstructed pre-factory bodies also exclude BusinessAgentConfig.
-    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt', 'MarketingReportPolicy', 'MarketingReportBinding', 'MarketingExternalReport', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy']
+    const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt', 'MarketingReportPolicy', 'MarketingReportBinding', 'MarketingExternalReport', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, ...MISSION_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy']
     const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
@@ -672,8 +678,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 210-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 210-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 212-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 212-table inventory/)
     }
   })
 

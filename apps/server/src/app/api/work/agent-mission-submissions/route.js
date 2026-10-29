@@ -1,5 +1,5 @@
-// @req TASK-ZAI-012 — explicitly submit one verified Agent Mission draft
-// through the authenticated Project Manager write boundary.
+// @req FR-005 — create the ordinary WorkItem through the existing PM writer.
+// @task TASK-ZAI-012 — submit verified Agent Mission provenance; PLANNED only.
 import { handle, httpError } from '../../_helpers'
 import { createSessionPort } from '@/modules/identity/session-port'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'

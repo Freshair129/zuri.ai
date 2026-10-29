@@ -47,9 +47,11 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-001 — retain the archive/version schema with all 208 predecessor mappings preserved.
 // @req FR-291 — include stock disclosure policy in the complete target census while excluding it from portable snapshots.
 // @req FR-235 — include excluded product disclosure authority in the complete census.
-const FROZEN_SCHEMA_SHA256 = 'd02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7'
-const FROZEN_APPLICATION_TABLE_COUNT = 210
+// @req TASK-ZAI-012 — include mission draft/evidence in the complete census;
+// portable snapshots preserve the rows and erasure tombstones redact personal source fields.
+const FROZEN_SCHEMA_SHA256 = 'cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18'
+const FROZEN_TARGET_SCHEMA_SHA256 = 'f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e'
+const FROZEN_APPLICATION_TABLE_COUNT = 212
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0

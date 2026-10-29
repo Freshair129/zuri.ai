@@ -143,6 +143,7 @@ status: generated
 - [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/server-line-webhook.test.js](../../../apps/server/tests/integration/server-line-webhook.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/conversation-session-ui.test.js](../../../apps/server/tests/unit/conversation-session-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
