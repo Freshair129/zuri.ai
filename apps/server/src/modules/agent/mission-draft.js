@@ -408,7 +408,7 @@ export function createMissionDraftPort({ repository, now = () => new Date() } = 
         || typeof transactionRepository.insertPmSubmissionEvidence !== 'function') fail('MISSION_TRANSACTION_REQUIRED')
 
       try {
-        const draftResult = await transactionRepository.resolveMissionDraft({ missionId })
+        const draftResult = await transactionRepository.resolveMissionDraft({ missionId, submittedByPersonId })
         typedResult(draftResult?.status)
         const draft = normalizeDraft(draftResult, missionId)
         if (draft.revision !== expectedRevision || draft.digest !== expectedDigest) fail('MISSION_SOURCE_CONFLICT')
@@ -418,7 +418,7 @@ export function createMissionDraftPort({ repository, now = () => new Date() } = 
         })
         if (existing) fail('MISSION_ALREADY_SUBMITTED')
 
-        const targetResult = await transactionRepository.resolveEligibleWorkItem({ workItemId })
+        const targetResult = await transactionRepository.resolveEligibleWorkItem({ workItemId, submittedByPersonId })
         const target = normalizeTarget(targetResult, draft, workItemId)
 
         const idempotencyKey = sha256(canonicalJson({

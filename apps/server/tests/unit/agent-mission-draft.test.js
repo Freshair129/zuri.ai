@@ -349,7 +349,7 @@ describe('Agent Mission draft port (TASK-ZAI-012 revision 2026-10-29c)', () => {
       workspaceId: scope.workspaceId, projectId: scope.projectId,
       workstreamId: scope.workstreamId,
     })))
-    expect(repo.calls.target).toEqual([{ workItemId: ids.workItem }])
+    expect(repo.calls.target).toEqual([{ workItemId: ids.workItem, submittedByPersonId: ids.submitter }])
   })
 
   it('does not open a nested transaction and evidence rolls back with the PM transaction', async () => {

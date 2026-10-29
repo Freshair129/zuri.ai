@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const pipelineTransaction = vi.hoisted(() => vi.fn(async (db, callback) => callback(db)))
+
 const stream = { id: 'workstream-1' }
 const project = { id: 'project-1', workspaceId: 'workspace-1', businessId: 'business-1', deletedAt: null }
 
-vi.mock('@/modules/project-manager/application/pipeline-transaction', () => ({
-  withPipelineTransaction: async (db, callback) => callback(db),
-}))
+vi.mock('@/modules/project-manager/application/pipeline-transaction', () => ({ withPipelineTransaction: pipelineTransaction }))
 vi.mock('@/lib/db', () => ({ default: {} }))
 vi.mock('@/modules/identity/channel-identity', () => ({
   findChannelIdentity: vi.fn(async () => ({ id: 'identity-1', personId: 'person-owner', version: 4, linkedAt: new Date('2026-10-01T00:00:00.000Z') })),
@@ -26,11 +26,12 @@ vi.mock('@/modules/agent/auth-context', () => ({
   resolveAgentAuthorization: vi.fn(),
 }))
 
-import { createLineProjectWorkTools } from '@/modules/agent/line-project-work-tools'
+import { createLineMissionDraftRepository, createLineProjectWorkTools } from '@/modules/agent/line-project-work-tools'
 import { createMissionDraftPort } from '@/modules/agent/mission-draft'
 import { canonicalJson, sha256 } from '@/modules/agent/execution-trace'
 import { createItem } from '@/modules/project-manager/application/work-service'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
+import { resolveViewer } from '@/modules/identity/resolve-viewer'
 
 const at = new Date('2026-10-29T12:00:00.000Z')
 const claim = Object.freeze({
@@ -67,24 +68,35 @@ function testDb({ streamRows = [stream] } = {}) {
   let storedDraft = null
   const db = {
     job,
-    workstream: {
-      findMany: vi.fn(async () => streamRows),
-    },
     project: {
       async findUnique() { return project },
+    },
+    business: { async findUnique() { return { id: 'business-1', tenantId: 'tenant-1', status: 'ACTIVE' } } },
+    workspace: { async findUnique() { return { id: 'workspace-1', tenantId: 'tenant-1', businessId: 'business-1', scopeType: 'BUSINESS', status: 'ACTIVE' } } },
+    auditEvent: {
+      rows: new Map(),
+      async findUnique({ where }) { return this.rows.get(where.id) ?? null },
+      async findFirst({ where }) { return [...this.rows.values()].find(row => row.entityType === where.entityType && row.entityId === where.entityId && row.action === where.action) ?? null },
+      create: vi.fn(async ({ data }) => { db.auditEvent.rows.set(data.id, data); return data }),
     },
     lineConversationJob: { findUnique: vi.fn(async () => job) },
     agentTraceEvent: {
       async findFirst() { return {
         id: 'trace-context-1', tenantId: 'tenant-1', businessId: 'business-1',
-        turnId: 'turn-1', executionId: 'execution-1',
+        turnId: 'turn-1', executionId: 'execution-1', kind: 'CONTEXT_COMMITTED',
       } },
     },
     agentMissionDraft: {
       findFirst: vi.fn(async () => storedDraft),
+      findMany: vi.fn(async ({ where }) => storedDraft?.missionId === where.missionId ? [storedDraft] : []),
       create: vi.fn(async ({ data }) => { storedDraft = data; return data }),
     },
+    agentMissionEvidence: { async findFirst() { return null }, create: vi.fn(async ({ data }) => data) },
     workItem: { create: vi.fn() },
+    workstream: {
+      findMany: vi.fn(async () => streamRows),
+      async findUnique() { return { id: 'workstream-1', projectId: 'project-1', deletedAt: null, status: 'PLANNED' } },
+    },
   }
   return { db, storedDraft: () => storedDraft }
 }
@@ -92,6 +104,7 @@ function testDb({ streamRows = [stream] } = {}) {
 describe('LINE structured Agent Mission draft tool', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    pipelineTransaction.mockImplementation(async (db, callback) => callback(db))
     vi.mocked(ownsBusiness).mockReturnValue(true)
   })
 
@@ -116,6 +129,13 @@ describe('LINE structured Agent Mission draft tool', () => {
     })
     expect(db.agentMissionDraft.findFirst).toHaveBeenCalled()
     expect(db.agentMissionDraft.create).toHaveBeenCalledTimes(1)
+    expect(db.auditEvent.create).toHaveBeenCalledTimes(1)
+    const sourceEvent = [...db.auditEvent.rows.values()][0]
+    expect(sourceEvent).toMatchObject({
+      id: storedDraft().sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: first.draft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: 'person-owner',
+      requestId: 'turn-1', tenantId: 'tenant-1', businessId: 'business-1',
+    })
     expect(authorizationResolver).toHaveBeenCalledWith(expect.objectContaining({
       tenantId: 'tenant-1', businessId: 'business-1', lineUserId: 'line-user-1',
       serverScope: expect.objectContaining({ agentId: 'zuri-line-agent', workspaceId: 'workspace-1', projectId: 'project-1' }),
@@ -192,5 +212,110 @@ describe('LINE structured Agent Mission draft tool', () => {
     expect(() => tool.handler({ title: 'Plan', summary: 'Review', workstreamId: 'workstream-1' }))
       .toThrow('MISSION_SOURCE_CONFLICT')
     expect(db.lineConversationJob.findUnique).not.toHaveBeenCalled()
+  })
+
+  it('serves only a current member with verified source event, trace, and active scope', async () => {
+    const { db } = testDb()
+    const tools = createLineProjectWorkTools('turn-1', { db, now: at, expectedClaim: claim, authorizationResolver: async () => authResult() })
+    const tool = tools.find(item => item.name === 'create_mission_draft')
+    const created = await tool.handler({ title: 'Prepare a launch plan', summary: 'A bounded mission for human review.' })
+    const port = createMissionDraftPort({ repository: createLineMissionDraftRepository({ db, jobId: 'turn-1', expectedClaim: claim, at, authorization: authResult() }) })
+    const read = await port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-owner' })
+    expect(read).toMatchObject({ missionId: created.draft.missionId, title: 'Prepare a launch plan', sourceEventId: expect.any(String) })
+    expect(read).not.toHaveProperty('actorPersonId')
+    expect(read).not.toHaveProperty('content')
+
+    vi.mocked(resolveViewer).mockResolvedValueOnce({ visibleBusinessIds: [], domainsByBusinessId: {} })
+    await expect(port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-outsider' }))
+      .rejects.toMatchObject({ code: 'MISSION_FORBIDDEN' })
+    for (const [status, field] of [['REVOKED', 'revokedAt'], ['ERASED', 'erasedAt']]) {
+      db.agentMissionEvidence.findFirst = vi.fn(async () => ({ status, [field]: at }))
+      await expect(port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-owner' }))
+        .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT' })
+    }
+  })
+
+  it('fails closed when the persisted source event is missing or mismatched', async () => {
+    const { db, storedDraft } = testDb()
+    const tools = createLineProjectWorkTools('turn-1', { db, now: at, expectedClaim: claim, authorizationResolver: async () => authResult() })
+    const tool = tools.find(item => item.name === 'create_mission_draft')
+    const created = await tool.handler({ title: 'Prepare a launch plan', summary: 'A bounded mission for human review.' })
+    const port = createMissionDraftPort({ repository: createLineMissionDraftRepository({ db, jobId: 'turn-1', expectedClaim: claim, at, authorization: authResult() }) })
+    db.auditEvent.rows.clear()
+    await expect(port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-owner' }))
+      .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT' })
+    db.auditEvent.rows.set(storedDraft().sourceEventId, { id: storedDraft().sourceEventId, entityType: 'LINE_WORK_PROPOSAL' })
+    await expect(port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-owner' }))
+      .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT' })
+  })
+
+  it('returns explicit fail-closed revoked and erased outcomes', async () => {
+    for (const [status, timestamp] of [['REVOKED', 'revokedAt'], ['ERASED', 'erasedAt']]) {
+      const { db, storedDraft } = testDb()
+      const tools = createLineProjectWorkTools('turn-1', { db, now: at, expectedClaim: claim, authorizationResolver: async () => authResult() })
+      const created = await tools.find(item => item.name === 'create_mission_draft').handler({ title: 'Plan', summary: 'Review' })
+      storedDraft().status = status
+      storedDraft()[timestamp] = at
+      if (status === 'ERASED') {
+        storedDraft().missionId = null
+        storedDraft().sourceAgentRef = null
+        storedDraft().sourceTurnId = null
+        storedDraft().executionId = null
+        storedDraft().sourceEventId = null
+        storedDraft().sourceTraceEventId = null
+        storedDraft().digest = null
+        storedDraft().actorPersonId = null
+        storedDraft().snapshotJson = '{}'
+      }
+      const port = createMissionDraftPort({ repository: createLineMissionDraftRepository({ db, jobId: 'turn-1', expectedClaim: claim, at, authorization: authResult() }) })
+      await expect(port.readMissionDraft({ missionId: created.draft.missionId, requesterPersonId: 'person-owner' }))
+        .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT' })
+    }
+  })
+
+  it('submits the bound work item through the real transaction adapter after active-owner checks', async () => {
+    const { db } = testDb()
+    const workItem = { id: 'work-item-1', workstreamId: 'workstream-1', containerId: null,
+      title: 'Prepare a launch plan', status: 'PLANNED', subtype: 'TASK', assigneeRef: null, version: 1, deletedAt: null }
+    db.workItem.findFirst = vi.fn(async () => workItem)
+    const tools = createLineProjectWorkTools('turn-1', { db, now: at, expectedClaim: claim, authorizationResolver: async () => authResult() })
+    const created = await tools.find(item => item.name === 'create_mission_draft').handler({ title: workItem.title, summary: 'A bounded mission for human review.' })
+    const port = createMissionDraftPort({ repository: createLineMissionDraftRepository({ db, jobId: 'turn-1', expectedClaim: claim, at, authorization: authResult() }), now: () => at })
+    const intake = await port.recordPmSubmissionInTransaction(db, {
+      missionId: created.draft.missionId, expectedRevision: 1, expectedDigest: created.draft.digest,
+      submittedByPersonId: 'person-owner', workItemId: workItem.id,
+    })
+    expect(intake).toMatchObject({ evidenceId: expect.any(String), sourceMissionId: created.draft.missionId, workItemId: workItem.id })
+    expect(db.agentMissionEvidence.create).toHaveBeenCalledWith(expect.objectContaining({
+      data: expect.objectContaining({
+        origin: 'AGENT_DRAFT_HUMAN_CONFIRMED', confirmationKind: 'PM_SUBMISSION',
+        submittedByPersonId: 'person-owner', actorId: 'person-owner',
+        sourceEventId: expect.any(String), sourceTraceEventId: 'trace-context-1',
+      }),
+    }))
+    vi.mocked(ownsBusiness).mockReturnValue(false)
+    await expect(port.recordPmSubmissionInTransaction(db, {
+      missionId: created.draft.missionId, expectedRevision: 1, expectedDigest: created.draft.digest,
+      submittedByPersonId: 'person-outsider', workItemId: workItem.id,
+    })).rejects.toMatchObject({ code: 'MISSION_FORBIDDEN' })
+    expect(db.agentMissionEvidence.create).toHaveBeenCalledTimes(1)
+  })
+
+  it('rolls back the MISSION_DRAFT_CREATED source event when draft persistence fails', async () => {
+    const { db, storedDraft } = testDb()
+    pipelineTransaction.mockImplementationOnce(async (tx, callback) => {
+      const beforeEvents = new Map(tx.auditEvent.rows)
+      try { return await callback(tx) } catch (error) {
+        tx.auditEvent.rows = beforeEvents
+        throw error
+      }
+    })
+    db.agentMissionDraft.create = vi.fn(async () => { throw Object.assign(new Error('synthetic write failure'), { code: 'MISSION_SOURCE_CONFLICT' }) })
+    const tools = createLineProjectWorkTools('turn-1', { db, now: at, expectedClaim: claim, authorizationResolver: async () => authResult() })
+    await expect(tools.find(item => item.name === 'create_mission_draft').handler({ title: 'Plan', summary: 'Review' }))
+      .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT' })
+    expect(db.auditEvent.create).toHaveBeenCalledTimes(1)
+    expect(db.auditEvent.rows.size).toBe(0)
+    expect(storedDraft()).toBeNull()
   })
 })
