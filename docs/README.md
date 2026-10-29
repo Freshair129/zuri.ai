@@ -1,5 +1,5 @@
 ---
-version: "0.7.12"
+version: "0.7.13"
 status: active
 superseded_by: null
 ---
@@ -50,7 +50,8 @@ plans and historical test receipts are separate from the build specification.
   records source-bound managed-blob recovery gaps and the candidate plan;
   operator recovery, PostgreSQL installation restore and AI remain unqualified.
   The [OR0 contract proposal](change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
-  specifies proposed transport/custody and the source writer audit before canonical adoption.
+  specifies proposed transport/custody, source writer audit and owner-selected
+  backup transfer prerequisite before canonical adoption and recovery activation.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every

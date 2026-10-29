@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.3.0"
+version: "0.4.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -54,7 +54,7 @@ planning scope, not a new canonical behavior or implementation.
 | Approach | Decision and tradeoff |
 |---|---|
 | Supported per-file application workflow | Proposed. Reuses trusted request identity and File Management ownership; needs a reviewed operation contract and durable recovery/cleanup protocol. |
-| Extend legacy `/api/backup/import` | Excluded. Installation-wide replacement and protected-family rules exceed the selected managed-blob scope. |
+| Extend legacy `/api/backup/import` | Generic restore remains outside per-file recovery. The later owner-selected transfer prerequisite proposes a bounded backup-orchestrator mapping adapter, preserving installation authority and every protected-family rule; it does not qualify whole-installation restore. |
 | Promote fixture SQL to a host CLI | Excluded. Bootstrap database authority and a fabricated Viewer cannot substitute for product authorization, CAS and supported audit/retry behavior. |
 
 The term **operator** here means the human running the recovery procedure with
@@ -224,6 +224,28 @@ not approved records created by this planning task.
   registry, graph and views. Obtain independent review before application code.
 
 ### OR1 — Pure descriptor/protocol and supported preparation path
+
+**Additional owner-selected prerequisite (2026-10-29):** the
+[backup transfer contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#backup-transfer-prerequisite--selected-design-not-implemented)
+must be adopted and implemented before recovery activation, so the first
+reserved ref does not disable normal backup. Before selecting application work,
+reconcile its versioned package/HTTP/UI, PM transfer-job/receipt persistence,
+shared export/import fence and fresh target mapping with OR1–OR5. No runtime
+implementation is authorized by this candidate revision.
+
+- [ ] Implement the separately selected transfer export/preview/confirm path
+  under installation-operator authority, without an invented Business OWNER.
+  Exclude runtime tokens/journals; preserve old JSON/local snapshots and every
+  protected-family/credential refusal.
+- [ ] Prove a clean disposable TEST product-ingestion → per-file recovery →
+  supported backup → new-target transfer restore → content/consumer-read round
+  trip, with complete row/byte coverage and source provider absent after export.
+- [ ] Prove snapshot/cleanup races, exact target-local mapping/audit/result,
+  quota/crash/expiry, new authentication and separately required restore admission.
+  Keep actual installation-wide restore/off-host/AI gates distinct and open.
+
+The tasks below may be selected for isolated development only after their
+contracts are adopted; they may not be enabled without this backup prerequisite.
 
 **Proposed implementation files:** PM `application/managed-blob-recovery-contract.js`
 and `application/managed-blob-recovery-service.js`; corresponding
@@ -548,3 +570,8 @@ audit, native concurrency proof and provider evidence are still missing; OR0 is
 **in progress, not complete**. PostgreSQL installation restore provenance remains
 external. Candidate lifecycle, implementation authorization false, aggregate
 operatorRecovery and AI profiles **NOT_QUALIFIED** are unchanged.
+
+Continuation v0.4.0 records the owner's choice of transfer/backup design before
+activation, replacing temporary full-export loss as an acceptable rollout option.
+The linked proposed contract now specifies the additional backup subject and
+acceptance; it remains unadopted, with native/provider/round-trip proof NOT_RUN.
