@@ -1,157 +1,226 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { createAgentMissionIntakeService, agentMissionRequestHash } from '@/modules/project-manager/application/agent-mission-intake'
+import { describe, expect, it, vi } from 'vitest'
+import { createAgentMissionIntakeService } from '@/modules/project-manager/application/agent-mission-intake'
 
 const viewer = { principal: { id: 'person-human-submit' } }
 const scope = {
+  tenantId: 'tenant-1',
+  businessId: 'business-1',
+  workspaceId: 'workspace-1',
   projectId: 'project-1',
   workstreamId: 'workstream-1',
-  businessId: 'business-1',
-  tenantId: 'tenant-1',
+}
+const draft = {
+  missionId: 'mission-1',
+  sourceAgentRef: 'agent-ref-1',
+  revision: 2,
+  digest: 'a'.repeat(64),
+  scope,
+  sourceTurnId: 'turn-1',
+  executionId: 'execution-1',
+  sourceEventId: 'event-1',
+  sourceTraceEventId: 'trace-1',
+  title: 'Review replenishment exceptions',
+  summary: 'Check the unresolved replenishment exceptions.',
+  createdAt: new Date('2026-10-29T00:00:00Z'),
+}
+const input = {
+  missionId: draft.missionId,
+  expectedRevision: draft.revision,
+  expectedDigest: draft.digest,
+  workstreamId: scope.workstreamId,
+  optionalContainerId: null,
+}
+
+function priorEvidence(overrides = {}) {
+  return {
+    evidenceId: 'evidence-1',
+    sourceAgentRef: draft.sourceAgentRef,
+    missionId: draft.missionId,
+    origin: 'AGENT_DRAFT_HUMAN_CONFIRMED',
+    confirmationKind: 'PM_SUBMISSION',
+    status: 'ACTIVE',
+    submittedByPersonId: viewer.principal.id,
+    sourceRevision: draft.revision,
+    sourceDigest: draft.digest,
+    workItemId: 'work-item-1',
+    workItemVersion: 1,
+    ...scope,
+    ...overrides,
+  }
 }
 
 function setup(overrides = {}) {
   const tx = {
-    membership: { findFirst: vi.fn().mockResolvedValue({ id: 'membership-1' }) },
-    workItem: { findFirst: vi.fn() },
+    workItem: { findFirst: vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED', version: 1 }) },
+    marker: 'transaction-client',
   }
-  const db = { marker: 'root-db' }
+  const db = {
+    marker: 'root-db',
+    workItem: { findFirst: vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED', version: 1 }) },
+  }
   const authorizeWorkstream = vi.fn().mockResolvedValue({ id: scope.workstreamId })
   const resolveScope = vi.fn().mockResolvedValue(scope)
   const transaction = vi.fn(async (_db, callback) => callback(tx))
-  const workItemWriter = vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED' })
-  const provenancePort = {
-    verify: vi.fn().mockResolvedValue({ verified: true, opaqueReceipt: 'verified-source' }),
-    findByIdempotencyKey: vi.fn().mockResolvedValue(null),
-    record: vi.fn().mockResolvedValue({ id: 'provenance-1' }),
+  const workItemWriter = vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED', version: 1 })
+  const findExistingSubmission = vi.fn().mockResolvedValue(null)
+  const auditWriter = vi.fn().mockResolvedValue({ id: 'audit-1' })
+  const agentMissionPort = {
+    readMissionDraft: vi.fn().mockResolvedValue(draft),
+    recordPmSubmissionInTransaction: vi.fn().mockResolvedValue({
+      evidenceId: 'evidence-1',
+      sourceMissionId: draft.missionId,
+      sourceRevision: draft.revision,
+      sourceDigest: draft.digest,
+      workItemId: 'work-item-1',
+      workItemVersion: 1,
+    }),
   }
   const service = createAgentMissionIntakeService({
     db,
-    provenancePort,
+    agentMissionPort,
     workItemWriter,
     authorizeWorkstream,
     resolveScope,
+    findExistingSubmission,
     transaction,
+    auditWriter,
     ...overrides,
   })
-  const input = {
-    idempotencyKey: 'mission-1-v1',
-    workstreamId: scope.workstreamId,
-    title: 'Review replenishment exceptions',
-    subtype: 'CHECKLIST_ITEM',
-    sourceProof: { opaque: 'source-reference' },
+  return {
+    service, db, tx, authorizeWorkstream, resolveScope, transaction,
+    workItemWriter, findExistingSubmission, auditWriter, agentMissionPort,
   }
-  return { service, input, db, tx, authorizeWorkstream, resolveScope, transaction, workItemWriter, provenancePort }
 }
 
-describe('PM Agent mission intake boundary', () => {
-  it('rejects caller-supplied assignee, role, approval tier or status fields', async () => {
+describe('PM Agent mission intake', () => {
+  it('accepts only the source identity, revision/digest and PM target fields', async () => {
     for (const extra of [
+      { sourceAgentRef: draft.sourceAgentRef },
+      { scope },
+      { workItemId: 'caller-item' },
       { assigneeRef: 'agent:OPERATIONS' },
-      { agentRoleId: 'OPERATIONS' },
-      { approvalTier: 'L4' },
       { status: 'IN_PROGRESS' },
-      { sourceProof: null },
+      { approvalTier: 'L4' },
+      { execution: { runId: 'run-1' } },
+      { release: true },
     ]) {
       const f = setup()
-      await expect(f.service.submit({ ...f.input, ...extra }, { viewer }))
+      await expect(f.service.submit({ ...input, ...extra }, { viewer }))
         .rejects.toMatchObject({ code: 'MISSION_INPUT_INVALID', status: 400 })
       expect(f.authorizeWorkstream).not.toHaveBeenCalled()
       expect(f.workItemWriter).not.toHaveBeenCalled()
     }
   })
 
-  it('fails closed when the verified provenance adapter is unavailable', async () => {
-    const f = setup({ provenancePort: null })
-    await expect(f.service.submit(f.input, { viewer }))
-      .rejects.toMatchObject({ code: 'MISSION_PROVENANCE_UNAVAILABLE', status: 503 })
+  it('fails closed when Agent receipt methods are not wired', async () => {
+    const f = setup({ agentMissionPort: null })
+    await expect(f.service.submit(input, { viewer }))
+      .rejects.toMatchObject({ code: 'MISSION_SOURCE_UNAVAILABLE', status: 503 })
     expect(f.authorizeWorkstream).toHaveBeenCalledOnce()
     expect(f.workItemWriter).not.toHaveBeenCalled()
   })
 
-  it('authorizes the target before asking the provenance port to inspect it', async () => {
-    const f = setup({ authorizeWorkstream: vi.fn().mockRejectedValue(Object.assign(new Error('not found'), { status: 404 })) })
-    await expect(f.service.submit(f.input, { viewer })).rejects.toMatchObject({ status: 404 })
-    expect(f.provenancePort.verify).not.toHaveBeenCalled()
-    expect(f.workItemWriter).not.toHaveBeenCalled()
+  it('authorizes PM write scope before asking Agent to read a mission', async () => {
+    const f = setup({ authorizeWorkstream: vi.fn().mockRejectedValue(Object.assign(new Error('hidden'), { status: 404 })) })
+    await expect(f.service.submit(input, { viewer })).rejects.toMatchObject({ status: 404 })
+    expect(f.agentMissionPort.readMissionDraft).not.toHaveBeenCalled()
   })
 
-  it('rejects an unverified source before opening a write transaction', async () => {
-    const f = setup({
-      provenancePort: {
-        ...setup().provenancePort,
-        verify: vi.fn().mockResolvedValue({ verified: false }),
-      },
-    })
-    await expect(f.service.submit(f.input, { viewer }))
-      .rejects.toMatchObject({ code: 'MISSION_PROVENANCE_INVALID', status: 403 })
-    expect(f.transaction).not.toHaveBeenCalled()
-    expect(f.workItemWriter).not.toHaveBeenCalled()
-  })
-
-  it('creates exactly one PLANNED WorkItem assigned to the authenticated human and records provenance atomically', async () => {
+  it('passes only authenticated requester identity to Agent reader', async () => {
     const f = setup()
-    const result = await f.service.submit(f.input, { viewer })
-    expect(result).toMatchObject({ workItem: { id: 'work-item-1', status: 'PLANNED' }, provenance: { id: 'provenance-1' }, replayed: false })
-    expect(f.transaction).toHaveBeenCalledWith(f.db, expect.any(Function))
+    await f.service.submit(input, { viewer })
+    expect(f.agentMissionPort.readMissionDraft).toHaveBeenCalledWith({ missionId: draft.missionId, requesterPersonId: viewer.principal.id })
+  })
+
+  it('maps fixed Agent refusals without exposing exception text', async () => {
+    const f = setup({ agentMissionPort: {
+      ...setup().agentMissionPort,
+      readMissionDraft: vi.fn().mockRejectedValue(Object.assign(new Error('private source payload'), { code: 'MISSION_FORBIDDEN' })),
+    } })
+    await expect(f.service.submit(input, { viewer })).rejects.toMatchObject({ code: 'MISSION_FORBIDDEN', status: 403, message: 'MISSION_FORBIDDEN' })
+  })
+
+  it('rejects changed source revision, digest, or scope before opening the write transaction', async () => {
+    for (const changed of [
+      { revision: draft.revision + 1 },
+      { digest: 'b'.repeat(64) },
+      { scope: { ...scope, businessId: 'other-business' } },
+    ]) {
+      const f = setup({ agentMissionPort: { ...setup().agentMissionPort, readMissionDraft: vi.fn().mockResolvedValue({ ...draft, ...changed }) } })
+      await expect(f.service.submit(input, { viewer })).rejects.toMatchObject({ status: 409 })
+      expect(f.transaction).not.toHaveBeenCalled()
+      expect(f.workItemWriter).not.toHaveBeenCalled()
+    }
+  })
+
+  it('creates one PLANNED unassigned TASK through the canonical writer and records evidence plus bounded audit in the same transaction', async () => {
+    const f = setup()
+    const result = await f.service.submit(input, { viewer })
+    expect(result).toMatchObject({ workItem: { id: 'work-item-1', status: 'PLANNED' }, evidence: { evidenceId: 'evidence-1' }, replayed: false })
     expect(f.workItemWriter).toHaveBeenCalledOnce()
-    expect(f.workItemWriter).toHaveBeenCalledWith(expect.objectContaining({
-      status: 'PLANNED',
-      assigneeRef: viewer.principal.id,
+    expect(f.workItemWriter).toHaveBeenCalledWith({
       workstreamId: scope.workstreamId,
-    }), { viewer, db: f.tx })
-    expect(f.provenancePort.record).toHaveBeenCalledWith(expect.objectContaining({
-      scope,
-      idempotencyKey: f.input.idempotencyKey,
-      requestHash: expect.stringMatching(/^[a-f0-9]{64}$/),
-      workItemId: 'work-item-1',
+      containerId: null,
+      subtype: 'TASK',
+      title: draft.title,
+      status: 'PLANNED',
+      assigneeRef: null,
+      metadata: { summary: draft.summary },
+    }, { viewer, db: f.tx })
+    expect(f.agentMissionPort.recordPmSubmissionInTransaction).toHaveBeenCalledWith(f.tx, {
+      missionId: draft.missionId,
+      expectedRevision: draft.revision,
+      expectedDigest: draft.digest,
       submittedByPersonId: viewer.principal.id,
-      verifiedSource: { verified: true, opaqueReceipt: 'verified-source' },
-    }), { db: f.tx })
-  })
-
-  it('replays an exact same-key binding without creating another WorkItem', async () => {
-    const f = setup()
-    f.provenancePort.findByIdempotencyKey.mockResolvedValue({
-      requestHash: agentMissionRequestHash({
-        scope,
-        item: { containerId: null, title: f.input.title, subtype: f.input.subtype, weight: 1, startAt: null, targetAt: null },
-        sourceProof: f.input.sourceProof,
-        submittedByPersonId: viewer.principal.id,
-      }),
       workItemId: 'work-item-1',
     })
-    f.tx.workItem.findFirst.mockResolvedValue({ id: 'work-item-1', status: 'PLANNED' })
-    const result = await f.service.submit(f.input, { viewer })
-    expect(result).toMatchObject({ workItem: { id: 'work-item-1' }, replayed: true })
-    expect(f.workItemWriter).not.toHaveBeenCalled()
-    expect(f.provenancePort.record).not.toHaveBeenCalled()
+    expect(f.auditWriter).toHaveBeenCalledWith(f.tx, expect.objectContaining({
+      entityType: 'WORK_ITEM',
+      entityId: 'work-item-1',
+      action: 'MISSION_SUBMITTED',
+      payload: { evidenceId: 'evidence-1', sourceRevision: draft.revision },
+      actorId: viewer.principal.id,
+    }))
+    expect(f.auditWriter.mock.invocationCallOrder[0]).toBeLessThan(f.authorizeWorkstream.mock.invocationCallOrder.at(-1))
   })
 
-  it('refuses same-key reuse when the content or accountable human differs', async () => {
-    const f = setup()
-    f.provenancePort.findByIdempotencyKey.mockResolvedValue({ requestHash: 'different-hash', workItemId: 'work-item-1' })
-    await expect(f.service.submit(f.input, { viewer })).rejects.toMatchObject({
-      code: 'MISSION_IDEMPOTENCY_CONFLICT', status: 409,
-    })
+  it('returns the already-bound WorkItem on an exact authorized retry without creating another', async () => {
+    const f = setup({ findExistingSubmission: vi.fn().mockResolvedValue(priorEvidence()) })
+    const result = await f.service.submit(input, { viewer })
+    expect(result).toMatchObject({ workItem: { id: 'work-item-1' }, evidence: { evidenceId: 'evidence-1' }, replayed: true })
     expect(f.workItemWriter).not.toHaveBeenCalled()
-    expect(f.provenancePort.record).not.toHaveBeenCalled()
+    expect(f.agentMissionPort.recordPmSubmissionInTransaction).not.toHaveBeenCalled()
+    expect(f.tx.workItem.findFirst).toHaveBeenCalledWith({ where: { id: 'work-item-1', workstreamId: scope.workstreamId, deletedAt: null } })
   })
 
-  it('fails if the authorized Project/Workstream scope changes before commit', async () => {
-    const f = setup()
-    f.resolveScope.mockResolvedValueOnce(scope).mockResolvedValueOnce({ ...scope, projectId: 'project-2' })
-    await expect(f.service.submit(f.input, { viewer })).rejects.toMatchObject({
-      code: 'MISSION_SCOPE_CHANGED', status: 409,
-    })
-    expect(f.workItemWriter).not.toHaveBeenCalled()
+  it('conflicts on revision/digest reuse and refuses inactive or cross-scope evidence', async () => {
+    for (const existing of [
+      priorEvidence({ sourceRevision: draft.revision - 1 }),
+      priorEvidence({ sourceDigest: 'b'.repeat(64) }),
+      priorEvidence({ status: 'REVOKED' }),
+      priorEvidence({ businessId: 'other-business' }),
+    ]) {
+      const f = setup({ findExistingSubmission: vi.fn().mockResolvedValue(existing) })
+      await expect(f.service.submit(input, { viewer })).rejects.toMatchObject({ status: 409 })
+      expect(f.workItemWriter).not.toHaveBeenCalled()
+    }
   })
 
-  it('rejects a submitter without an active, unexpired Business membership', async () => {
-    const f = setup()
-    f.tx.membership.findFirst.mockResolvedValue(null)
-    await expect(f.service.submit(f.input, { viewer })).rejects.toMatchObject({
-      code: 'MISSION_SUBMITTER_NOT_IN_BUSINESS', status: 403,
+  it('rolls back and resolves a unique-race winner outside the failed transaction', async () => {
+    const winner = priorEvidence()
+    let calls = 0
+    const findExistingSubmission = vi.fn(async () => ++calls === 1 ? null : winner)
+    const transaction = vi.fn(async (_db, callback) => {
+      await callback({ ...setup().tx, workItem: { findFirst: vi.fn() } })
+      const error = new Error('unique constraint detail')
+      error.code = 'P2002'
+      throw error
     })
-    expect(f.workItemWriter).not.toHaveBeenCalled()
+    const f = setup({ transaction, findExistingSubmission })
+    const result = await f.service.submit(input, { viewer })
+    expect(result).toMatchObject({ replayed: true, workItem: { id: 'work-item-1' } })
+    expect(findExistingSubmission).toHaveBeenNthCalledWith(1, expect.anything(), draft.sourceAgentRef, draft.missionId)
+    expect(findExistingSubmission).toHaveBeenNthCalledWith(2, f.db, draft.sourceAgentRef, draft.missionId)
+    expect(f.workItemWriter).toHaveBeenCalledOnce()
   })
 })
