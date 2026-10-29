@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.11"
+version: "0.1.12"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -382,12 +382,24 @@ instructions; no production access or permission token.
 - [x] Obtain independent review of the composed code and CI-context correction;
   update runbook and sanitized local evidence. The final artifact is bound to the
   clean qualification revision above, not a later documentation-only commit.
-- [ ] Complete required hosted exact-head CI and normal PR/release controls when
-  separately selected. The manual job is implemented but NOT_RUN. No merge,
-  release publication or production activation follows from the local pass.
+- [x] Record the separately selected hosted TEST continuation at
+  `5b5131a0f5bf8706baf52b9dd0ec8b786df00972`: ordinary main CI and manual
+  [producer](https://github.com/Freshair129/zuri.ai/actions/runs/40818222990) /
+  [package/core/recovery](https://github.com/Freshair129/zuri.ai/actions/runs/40819105575)
+  passed. This is source-bound package/core and bounded synthetic recovery
+  evidence; normal release approval, production and the remaining operator/
+  off-host gates do not follow from it. Earlier NOT_RUN evidence remains historical.
 - [ ] Qualify supported operator managed-blob restore/rebind and an actual
   off-host backup failure domain under their owning contracts before claiming
   complete operational recovery. The TEST-only remap does not close these gates.
+
+The owner selected planning for the Asset/catalog managed-blob portion on
+2026-10-29. The [source assessment](../../reports/compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md)
+and [candidate OR0–OR5 plan](COMPACT-MANAGED-BLOB-RECOVERY-20261029.md) propose a
+supported per-file application workflow with contract adoption before code.
+PostgreSQL installation restore is a separate prerequisite, not part of that
+planning selection. The candidate issues no route/model/permission or canonical
+record, and neither the managed-blob nor aggregate operator gate is closed.
 
 ## Dependency and approval handoff
 

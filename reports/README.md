@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.10.0"
+version: "0.10.1"
 ---
 
 # Engineering assessments
@@ -12,6 +12,7 @@ ROADMAP delivery state.
 
 | Assessment | Scope and limit |
 |---|---|
+| [2026-10-29 Compact operator restore/rebind assessment](compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md) | Source-bound managed-blob recovery gaps at 5b5131a0 and candidate-plan inputs; no supported operator, PostgreSQL installation restore, off-host or AI qualification. |
 | [2026-10-27 Portfolio invite HTTP TEST](domain-followup-2026-10-27/portfolio-invite-http-existing-contract.md) | One real-session HTTP scenario passed at source764b480d using only fresh synthetic Portfolio data; initial report-format parser failure retained/reconciled, no Tenant/Business grants, native PostgreSQL or live delivery acceptance. |
 | [2026-10-27 CRM L2 consent-boundary TEST](domain-followup-2026-10-27/crm-consent-l2-existing-contract.md) | One existing L2 passed at source7c628d14 on a fresh private SQLite fixture; 23 other cases unselected, deterministic ordering only, no native PostgreSQL race/scheduler/production acceptance. |
 | [2026-10-27 CRM M4 broken-chain TEST](domain-followup-2026-10-27/crm-archive-m4-existing-contract.md) | One existing M4 passed at source62728e73 on a private SQLite/archive fixture; 23 other cases unselected, no scheduler/native PostgreSQL/production or full FR-245 adoption. |

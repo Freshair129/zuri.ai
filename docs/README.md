@@ -1,5 +1,5 @@
 ---
-version: "0.7.10"
+version: "0.7.11"
 status: active
 superseded_by: null
 ---
@@ -46,6 +46,9 @@ plans and historical test receipts are separate from the build specification.
   records PostgreSQL provider/retry evidence and honest failed-fixture cleanup.
   The [2026-10-28 Task6 verification](../reports/compact-selfhost-2026-10-27/task6-requalification-20261028.md)
   separates isolated native/provider evidence from the still-unqualified AI profiles.
+  The [2026-10-29 operator restore/rebind assessment](../reports/compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md)
+  records source-bound managed-blob recovery gaps and the candidate plan;
+  operator recovery, PostgreSQL installation restore and AI remain unqualified.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every

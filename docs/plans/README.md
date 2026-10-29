@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.3.11"
+version: "0.3.12"
 checked_at: "2026-10-25"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -34,6 +34,16 @@ capability gates; production and sensitive/release actions remain separate.
 |---|---|
 | [Compact self-host](COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md) | Approved one-host profile; package/database/core and Asset/catalog evidence, Task5 fresh TEST Marketing PostgreSQL qualification. LINE/Knowledge and release milestones remain pending. |
 
+### Candidate Compact managed-blob recovery plan
+
+The owner selected assessment/planning for Asset/catalog managed-blob
+restore/rebind on 2026-10-29, after source-bound core/synthetic recovery passed
+at `5b5131a0`. [The candidate plan](COMPACT-MANAGED-BLOB-RECOVERY-20261029.md)
+requires canonical contract review/adoption before application code. It does not
+approve PostgreSQL installation restore, close operator/off-host recovery, qualify
+AI profiles or authorize production. The approved parent Compact plan retains
+its separate authority; this candidate is not an amendment to a canonical row.
+
 ### Existing Project Manager plans
 
 The owner approved the linked PM SRS and explicitly requested the following
@@ -54,9 +64,11 @@ procedures.
 
 The 2026-10-23 selected base contained fourteen tracked direct files and no
 child directories. Two standalone implementation plans were indexed after
-that base. At `2b424364` the filesystem had seventeen direct files; the proposed
-Compact plan brings the current on-disk count to eighteen. This count is
-navigation, not plan approval.
+that base. At the recorded `2b424364` checkpoint the filesystem had seventeen
+direct files; the initial Compact plan made eighteen. A fresh 2026-10-29
+enumeration at `5b5131a0` found eighteen tracked direct files plus the new
+managed-blob candidate, nineteen files on disk. These dated counts are navigation,
+not plan approval or an assertion about files added after that enumeration.
 
 ## Approved implementation plans
 

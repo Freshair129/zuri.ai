@@ -40,6 +40,7 @@ Feature record: [ZAI:FEAT-001 canonical record](feature.md).
 > ✅ implemented (beta); W0-W9 and AC-045-01..12 complete
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-016 — SQLite authority and managed local file workspace](../../decisions/ADR-016-SQLITE-AUTHORITY-AND-MANAGED-LOCAL-FILE-WORKSPACE.md) — `relates` · `control-block` · `current`
+- [Compact managed-blob operator restore/rebind implementation plan](../../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md) — `references` · `metadata` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
