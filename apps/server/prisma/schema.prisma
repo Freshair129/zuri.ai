@@ -502,6 +502,8 @@ model Person {
   agentMissionEvidenceAuthored       AgentMissionEvidence[]       @relation("AgentMissionEvidenceActor")
   agentMissionEvidenceConfirmed      AgentMissionEvidence[]       @relation("AgentMissionEvidenceConfirmationActor")
   agentMissionEvidenceRevoked        AgentMissionEvidence[]       @relation("AgentMissionEvidenceRevoker")
+  agentMissionEvidenceSubmitted      AgentMissionEvidence[]       @relation("AgentMissionEvidenceSubmitter")
+  agentMissionDrafts                 AgentMissionDraft[]           @relation("AgentMissionDraftActor")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -4701,14 +4703,48 @@ model LineConversationJob {
   @@index([sessionId])
 }
 
-// @req TASK-ZAI-012 — immutable, scope-bound evidence for human-authored or
-// Agent-drafted missions. An Agent draft reaches Work only after a distinct
-// human confirmation through line-project-work-tools; this row grants no
-// execution or release authority. Source turn/execution/proposal references
-// are normalized IDs only; Identity erasure scrubs them and tombstones the row.
+// @req TASK-ZAI-012 — immutable Mission source drafts and provenance links.
+// PM submission creates a PLANNED WorkItem through the existing writer and
+// records evidence in that transaction; this row grants no execution/release.
+// @req TASK-ZAI-012 — immutable, server-issued Agent Mission draft source.
+model AgentMissionDraft {
+  id                String   @id @default(uuid())
+  schemaVersion     String   @default("agent-mission-draft.v1")
+  sourceAgentRef    String?
+  missionId         String?
+  revision          Int
+  tenantId          String
+  businessId        String
+  workspaceId       String
+  projectId         String
+  workstreamId      String
+  actorPersonId     String?
+  sourceTurnId      String?
+  executionId       String?
+  sourceEventId     String?
+  sourceTraceEventId String?
+  digest            String?
+  snapshotJson      String   @default("{}")
+  status            String   @default("ACTIVE")
+  revokedAt         DateTime?
+  erasedAt          DateTime?
+  createdAt         DateTime @default(now())
+  version           Int      @default(1)
+
+  actor Person? @relation("AgentMissionDraftActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
+  evidence AgentMissionEvidence?
+
+  @@unique([sourceAgentRef, missionId, revision], map: "AgentMissionDraft_source_revision_key")
+  @@index([tenantId, businessId, status, createdAt])
+  @@index([sourceTurnId, status])
+  @@index([actorPersonId, status])
+}
 model AgentMissionEvidence {
   id                          String    @id @default(uuid())
   schemaVersion               String    @default("agent-mission-evidence.v1")
+  draftId                     String    @unique
+  sourceAgentRef              String?
+  missionId                   String?
   tenantId                    String
   businessId                  String
   workspaceId                 String
@@ -4718,6 +4754,9 @@ model AgentMissionEvidence {
   workItemVersion             Int
   origin                      String
   actorId                     String?
+  submittedByPersonId         String?
+  submittedAt                 DateTime?
+  confirmationKind            String    @default("LINE_JOB")
   sourceTurnId                String?
   executionId                 String?
   sourceEventId               String?
@@ -4741,12 +4780,15 @@ model AgentMissionEvidence {
   createdAt                   DateTime  @default(now())
   version                     Int       @default(1)
 
+  draft AgentMissionDraft @relation(fields: [draftId], references: [id], onDelete: Restrict)
   workItem WorkItem @relation(fields: [workItemId], references: [id], onDelete: Restrict)
   actor Person? @relation("AgentMissionEvidenceActor", fields: [actorId], references: [id], onDelete: SetNull)
+  submittedBy Person? @relation("AgentMissionEvidenceSubmitter", fields: [submittedByPersonId], references: [id], onDelete: SetNull)
   confirmationActor Person? @relation("AgentMissionEvidenceConfirmationActor", fields: [confirmationActorId], references: [id], onDelete: SetNull)
   revoker Person? @relation("AgentMissionEvidenceRevoker", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
 
   @@unique([tenantId, businessId, idempotencyKey], map: "AgentMissionEvidence_scope_idempotency_key")
+  @@unique([sourceAgentRef, missionId], map: "AgentMissionEvidence_source_mission_key")
   @@unique([tenantId, businessId, sourceTurnId, origin], map: "AgentMissionEvidence_scope_turn_origin_key")
   @@index([tenantId, businessId, status, createdAt])
   @@index([tenantId, businessId, projectId, workstreamId, status])

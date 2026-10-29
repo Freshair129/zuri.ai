@@ -36,7 +36,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     // together with the OA it was issued for.
     ...subjects.map(({ channelAccountId, providerSubject }) => ({ channelAccountId, sourceUserId: providerSubject })),
   ]
-  if (!tenantId || selectors.length === 0) return { redactedLineJobs: 0, inboundMessageIds: [] }
+  if (!tenantId || selectors.length === 0) return { redactedLineJobs: 0, erasedMissionDrafts: 0, erasedMissionEvidence: 0, inboundMessageIds: [] }
   const jobs = await tx.lineConversationJob.findMany({
     where: {
       tenantId,
@@ -60,18 +60,41 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     status: { not: 'ERASED' },
     OR: [
       ...(missionSourceTurnIds.length ? [{ sourceTurnId: { in: missionSourceTurnIds } }] : []),
-      ...(erasedPrincipalId ? [{ actorId: erasedPrincipalId }, { confirmationActorId: erasedPrincipalId }] : []),
+      ...(erasedPrincipalId
+        ? [{ actorId: erasedPrincipalId }, { confirmationActorId: erasedPrincipalId }, { submittedByPersonId: erasedPrincipalId }]
+        : []),
     ],
   }
+  const missionDraftWhere = {
+    tenantId,
+    status: { not: 'ERASED' },
+    OR: [
+      ...(missionSourceTurnIds.length ? [{ sourceTurnId: { in: missionSourceTurnIds } }] : []),
+      ...(erasedPrincipalId ? [{ actorPersonId: erasedPrincipalId }] : []),
+    ],
+  }
+  const erasedMissionDrafts = missionDraftWhere.OR.length
+    ? await tx.agentMissionDraft.updateMany({
+      where: missionDraftWhere,
+      data: {
+        status: 'ERASED', erasedAt: new Date(), revokedAt: null, version: { increment: 1 },
+        sourceAgentRef: null, missionId: null, sourceTurnId: null, executionId: null,
+        sourceEventId: null, sourceTraceEventId: null, digest: null, snapshotJson: '{}',
+        actorPersonId: null,
+      },
+    })
+    : { count: 0 }
   const erasedMissionEvidence = missionEvidenceWhere.OR.length
     ? await tx.agentMissionEvidence.updateMany({
       where: missionEvidenceWhere,
       data: {
         status: 'ERASED', erasedAt: new Date(), revokedAt: null, version: { increment: 1 },
         sourceTurnId: null, executionId: null, sourceEventId: null, sourceTraceEventId: null,
+        sourceAgentRef: null, missionId: null,
         confirmationJobId: null, confirmationInboundMessageId: null, confirmationExecutionId: null,
         sourceDigest: null, missionSnapshotDigest: null, missionSnapshotJson: '{}', idempotencyKey: null,
         actorId: null, confirmationActorId: null,
+        submittedByPersonId: null, submittedAt: null,
         channelIdentityId: null, confirmationIdentityVersion: null, channelIdentityLinkedAt: null,
         revokedByPersonId: null,
       },
@@ -123,6 +146,6 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }
-  return { redactedLineJobs: jobs.length, erasedMissionEvidence: erasedMissionEvidence.count,
+  return { redactedLineJobs: jobs.length, erasedMissionDrafts: erasedMissionDrafts.count, erasedMissionEvidence: erasedMissionEvidence.count,
     inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
 }

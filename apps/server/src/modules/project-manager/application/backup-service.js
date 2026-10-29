@@ -115,8 +115,8 @@ export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-reco
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
 export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v3'
 const PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v2'
-const AGENT_MISSION_EVIDENCE_RECOVERY_VERSION = 'agent-mission-evidence-recovery.v1'
-const AGENT_MISSION_EVIDENCE_RECOVERY_TABLES = Object.freeze(['agentMissionEvidence'])
+const AGENT_MISSION_EVIDENCE_RECOVERY_VERSION = 'agent-mission-evidence-recovery.v2'
+const AGENT_MISSION_EVIDENCE_RECOVERY_TABLES = Object.freeze(['agentMissionDraft', 'agentMissionEvidence'])
 const AGENT_MISSION_EVIDENCE_ORIGINS = Object.freeze(['HUMAN_AUTHORED', 'AGENT_DRAFT_HUMAN_CONFIRMED'])
 const AGENT_MISSION_EVIDENCE_STATES = Object.freeze(['ACTIVE', 'REVOKED', 'ERASED'])
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
@@ -297,7 +297,9 @@ export const SNAPSHOT_MODELS = [
   // no secret, exported whole.
   'lineOaLiffApp',
   'planImportReceipt', 'projectExecutionRun', 'projectExecutionStep', 'projectApprovalRequest', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
-  // @req TASK-ZAI-012 — restore the Mission provenance association after its WorkItem.
+  // @req TASK-ZAI-012 — restore immutable Mission source drafts before their
+  // evidence association, and after the WorkItem they name.
+  'agentMissionDraft',
   'agentMissionEvidence',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
@@ -1534,6 +1536,7 @@ function agentMissionEvidenceRecovery(snapshot) {
   const tables = snapshot?.tables || {}
   const manifest = snapshot?.agentMissionEvidenceRecovery
   const rows = Array.isArray(tables.agentMissionEvidence) ? tables.agentMissionEvidence : []
+  const draftRows = Array.isArray(tables.agentMissionDraft) ? tables.agentMissionDraft : []
   const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
   if (manifest === undefined) {
     result.warnings.push('AGENT_MISSION_EVIDENCE_RECOVERY_UNAVAILABLE: snapshot has no mission evidence manifest')
@@ -1555,9 +1558,79 @@ function agentMissionEvidenceRecovery(snapshot) {
   const projects = new Map((Array.isArray(tables.project) ? tables.project : []).map(row => [row?.id, row]))
   const workspaces = new Map((Array.isArray(tables.workspace) ? tables.workspace : []).map(row => [row?.id, row]))
   const businesses = new Map((Array.isArray(tables.business) ? tables.business : []).map(row => [row?.id, row]))
+  const drafts = new Map(draftRows.map(row => [row?.id, row]))
+  const seenDraftRevisions = new Set()
+  for (const draft of draftRows) {
+    const label = draft?.id || '<unknown>'
+    if (!draft || typeof draft !== 'object' || Array.isArray(draft)) {
+      result.errors.push(`Agent mission draft ${label} is not an object`)
+      continue
+    }
+    for (const field of ['id', 'schemaVersion', 'tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId', 'status']) {
+      if (typeof draft[field] !== 'string' || !draft[field].trim()) result.errors.push(`Agent mission draft ${label} has an invalid ${field}`)
+    }
+    if (draft.schemaVersion !== 'agent-mission-draft.v1') result.errors.push(`Agent mission draft ${label} has an unsupported schemaVersion`)
+    if (!['ACTIVE', 'REVOKED', 'ERASED'].includes(draft.status)) result.errors.push(`Agent mission draft ${label} has an invalid status`)
+    if (!Number.isInteger(draft.revision) || draft.revision < 1) result.errors.push(`Agent mission draft ${label} has an invalid revision`)
+    if (!validSnapshotDate(draft.createdAt)) result.errors.push(`Agent mission draft ${label} has an invalid createdAt`)
+    const sourceKey = draft.sourceAgentRef && draft.missionId ? `${draft.sourceAgentRef}|${draft.missionId}|${draft.revision}` : null
+    if (draft.status === 'ACTIVE') {
+      for (const field of ['sourceAgentRef', 'missionId', 'sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId']) {
+        if (typeof draft[field] !== 'string' || !draft[field].trim()) result.errors.push(`Agent mission draft ${label} has no ${field}`)
+      }
+      if (typeof draft.digest !== 'string' || !/^[a-f0-9]{64}$/i.test(draft.digest)) result.errors.push(`Agent mission draft ${label} has an invalid digest`)
+      try {
+        const body = JSON.parse(draft.snapshotJson)
+        if (!body || typeof body !== 'object' || Array.isArray(body)
+          || typeof body.title !== 'string' || typeof body.summary !== 'string'
+          || Object.keys(body).some(key => !['title', 'summary'].includes(key))) throw new Error('invalid bounded draft snapshot')
+      } catch {
+        result.errors.push(`Agent mission draft ${label} has an invalid bounded snapshot`)
+      }
+      const stream = workstreams.get(draft.workstreamId)
+      const project = projects.get(draft.projectId)
+      const workspace = workspaces.get(draft.workspaceId)
+      const business = businesses.get(draft.businessId)
+      if (!stream || stream.projectId !== draft.projectId || !project || project.businessId !== draft.businessId
+        || project.workspaceId !== draft.workspaceId || !workspace || workspace.businessId !== draft.businessId
+        || workspace.tenantId !== draft.tenantId || !business || business.tenantId !== draft.tenantId) {
+        result.errors.push(`Agent mission draft ${label} has inconsistent Workspace/Project/Workstream scope`)
+      }
+      const sourceJob = jobs.get(draft.sourceTurnId)
+      const proposal = auditEvents.get(draft.sourceEventId)
+      const trace = traceEvents.get(draft.sourceTraceEventId)
+      if (!sourceJob || sourceJob.tenantId !== draft.tenantId || sourceJob.businessId !== draft.businessId
+        || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== draft.executionId) {
+        result.errors.push(`Agent mission draft ${label} has no matching retained source turn`)
+      }
+      if (!proposal || proposal.entityType !== 'LINE_WORK_PROPOSAL' || proposal.requestId !== draft.sourceTurnId
+        || proposal.tenantId !== draft.tenantId || proposal.businessId !== draft.businessId
+        || proposal.actorId !== draft.actorPersonId) {
+        result.errors.push(`Agent mission draft ${label} has no matching persisted proposal event`)
+      }
+      if (!trace || trace.tenantId !== draft.tenantId || trace.businessId !== draft.businessId
+        || trace.turnId !== draft.sourceTurnId || trace.executionId !== draft.executionId
+        || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+        result.errors.push(`Agent mission draft ${label} has no matching source trace event`)
+      }
+    } else if (sourceKey === null && draft.status !== 'ERASED') {
+      result.errors.push(`Agent mission draft ${label} has no stable source identity`)
+    }
+    if (sourceKey && seenDraftRevisions.has(sourceKey)) result.errors.push(`Agent mission draft ${label} duplicates a source revision`)
+    if (sourceKey) seenDraftRevisions.add(sourceKey)
+    if (draft.status === 'REVOKED' && !validSnapshotDate(draft.revokedAt)) result.errors.push(`Agent mission draft ${label} has no revocation timestamp`)
+    if (draft.status === 'ERASED') {
+      if (!validSnapshotDate(draft.erasedAt)) result.errors.push(`Agent mission draft ${label} has no erasure timestamp`)
+      for (const field of ['sourceAgentRef', 'missionId', 'sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId', 'digest', 'actorPersonId']) {
+        if (draft[field] !== null) result.errors.push(`Agent mission draft ${label} retains erased ${field}`)
+      }
+      if (draft.snapshotJson !== '{}') result.errors.push(`Agent mission draft ${label} retains erased snapshot data`)
+    }
+  }
   const seenWorkItems = new Set()
   const seenTurns = new Set()
   const seenIdempotencyKeys = new Set()
+  const seenSourceMissions = new Set()
   for (const row of rows) {
     const label = row?.id || '<unknown>'
     if (!row || typeof row !== 'object' || Array.isArray(row)) {
@@ -1568,6 +1641,17 @@ function agentMissionEvidenceRecovery(snapshot) {
       if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Agent mission evidence ${label} has an invalid ${field}`)
     }
     if (row.schemaVersion !== 'agent-mission-evidence.v1') result.errors.push(`Agent mission evidence ${label} has an unsupported schemaVersion`)
+    if (!['LINE_JOB', 'PM_SUBMISSION'].includes(row.confirmationKind)) result.errors.push(`Agent mission evidence ${label} has an invalid confirmationKind`)
+    const sourceDraft = drafts.get(row.draftId)
+    if (typeof row.draftId !== 'string' || !sourceDraft) {
+      result.errors.push(`Agent mission evidence ${label} has no matching Mission draft receipt`)
+    } else if (row.status === 'ACTIVE' && (sourceDraft.status !== 'ACTIVE'
+      || sourceDraft.sourceAgentRef !== row.sourceAgentRef || sourceDraft.missionId !== row.missionId
+      || sourceDraft.revision !== row.sourceRevision || sourceDraft.digest !== row.sourceDigest)) {
+      result.errors.push(`Agent mission evidence ${label} does not match its active Mission draft receipt`)
+    } else if (row.status === 'ERASED' && sourceDraft.status !== 'ERASED') {
+      result.errors.push(`Agent mission evidence ${label} has an active draft after evidence erasure`)
+    }
     if (!AGENT_MISSION_EVIDENCE_ORIGINS.includes(row.origin)) result.errors.push(`Agent mission evidence ${label} has an invalid origin`)
     if (!AGENT_MISSION_EVIDENCE_STATES.includes(row.status)) result.errors.push(`Agent mission evidence ${label} has an invalid status`)
     if (!Number.isInteger(row.sourceRevision) || row.sourceRevision < 1) result.errors.push(`Agent mission evidence ${label} has an invalid sourceRevision`)
@@ -1587,10 +1671,19 @@ function agentMissionEvidenceRecovery(snapshot) {
     }
     if (seenWorkItems.has(row.workItemId)) result.errors.push(`Agent mission evidence ${label} duplicates a WorkItem`)
     seenWorkItems.add(row.workItemId)
+    if (row.sourceAgentRef && row.missionId) {
+      const sourceMission = `${row.sourceAgentRef}|${row.missionId}`
+      if (seenSourceMissions.has(sourceMission)) result.errors.push(`Agent mission evidence ${label} duplicates a source Mission`)
+      seenSourceMissions.add(sourceMission)
+    }
     if (row.status === 'ACTIVE') {
       if (!Number.isInteger(row.workItemVersion) || row.workItemVersion < 1) result.errors.push(`Agent mission evidence ${label} has an invalid workItemVersion`)
       if (typeof row.sourceDigest !== 'string' || !/^[a-f0-9]{64}$/i.test(row.sourceDigest)) result.errors.push(`Agent mission evidence ${label} has an invalid sourceDigest`)
       if (typeof row.missionSnapshotDigest !== 'string' || !/^[a-f0-9]{64}$/i.test(row.missionSnapshotDigest)) result.errors.push(`Agent mission evidence ${label} has an invalid missionSnapshotDigest`)
+      if (row.confirmationKind === 'PM_SUBMISSION' && (!validSnapshotDate(row.submittedAt)
+        || typeof row.submittedByPersonId !== 'string' || !row.submittedByPersonId.trim())) {
+        result.errors.push(`Agent mission evidence ${label} has no accountable PM submitter`)
+      }
       if (typeof row.actorId !== 'string' || !row.actorId.trim()) result.errors.push(`Agent mission evidence ${label} has no authenticated actor`)
       if (typeof row.idempotencyKey !== 'string' || !row.idempotencyKey.trim()) result.errors.push(`Agent mission evidence ${label} has no idempotency key`)
       const idempotencyKey = `${row.tenantId}|${row.businessId}|${row.idempotencyKey}`
@@ -1605,9 +1698,14 @@ function agentMissionEvidenceRecovery(snapshot) {
       if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED'
         && (typeof row.sourceTurnId !== 'string' || typeof row.sourceEventId !== 'string'
           || typeof row.sourceTraceEventId !== 'string' || typeof row.executionId !== 'string'
-          || typeof row.confirmationJobId !== 'string' || typeof row.confirmationInboundMessageId !== 'string'
-          || typeof row.confirmationActorId !== 'string' || row.actorId !== row.confirmationActorId
-          || !Number.isInteger(row.confirmationIdentityVersion))) {
+          || !['LINE_JOB', 'PM_SUBMISSION'].includes(row.confirmationKind)
+          || (row.confirmationKind === 'LINE_JOB'
+            && (typeof row.confirmationJobId !== 'string' || typeof row.confirmationInboundMessageId !== 'string'
+              || typeof row.confirmationActorId !== 'string' || row.actorId !== row.confirmationActorId
+              || !Number.isInteger(row.confirmationIdentityVersion)))
+          || (row.confirmationKind === 'PM_SUBMISSION'
+            && (typeof row.submittedByPersonId !== 'string' || !row.submittedByPersonId.trim()
+              || !validSnapshotDate(row.submittedAt))))) {
         result.errors.push(`Agent mission evidence ${label} has no Agent draft and distinct human confirmation turn/proposal reference`)
       }
       if (row.sourceTurnId) {
@@ -1617,16 +1715,21 @@ function agentMissionEvidenceRecovery(snapshot) {
       }
       if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED') {
         const sourceJob = jobs.get(row.sourceTurnId)
-        const confirmationJob = jobs.get(row.confirmationJobId)
         const proposal = auditEvents.get(row.sourceEventId)
         if (!sourceJob || sourceJob.tenantId !== row.tenantId || sourceJob.businessId !== row.businessId
           || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== row.executionId) {
           result.errors.push(`Agent mission evidence ${label} has no matching retained source turn`)
         }
-        if (!confirmationJob || confirmationJob.tenantId !== row.tenantId || confirmationJob.businessId !== row.businessId
-          || confirmationJob.errorCode === 'PDPA_ERASURE' || confirmationJob.inboundMessageId !== row.confirmationInboundMessageId
-          || confirmationJob.executionId !== row.confirmationExecutionId) {
-          result.errors.push(`Agent mission evidence ${label} has no matching retained human confirmation job`)
+        if (row.confirmationKind === 'LINE_JOB') {
+          const confirmationJob = jobs.get(row.confirmationJobId)
+          if (!confirmationJob || confirmationJob.tenantId !== row.tenantId || confirmationJob.businessId !== row.businessId
+            || confirmationJob.errorCode === 'PDPA_ERASURE' || confirmationJob.inboundMessageId !== row.confirmationInboundMessageId
+            || confirmationJob.executionId !== row.confirmationExecutionId) {
+            result.errors.push(`Agent mission evidence ${label} has no matching retained human confirmation job`)
+          }
+        } else if (row.confirmationKind === 'PM_SUBMISSION' && row.submittedByPersonId === row.actorId) {
+          // A PM submitter may be the source actor, but accountability is recorded
+          // separately and must not be inferred from the Agent draft author.
         }
         if (!proposal || proposal.entityType !== 'LINE_WORK_PROPOSAL' || proposal.requestId !== row.sourceTurnId
           || proposal.tenantId !== row.tenantId || proposal.businessId !== row.businessId || proposal.actorId !== row.actorId) {
@@ -1645,7 +1748,8 @@ function agentMissionEvidenceRecovery(snapshot) {
       if (!validSnapshotDate(row.erasedAt)) result.errors.push(`Agent mission evidence ${label} has no erasure tombstone timestamp`)
       for (const field of ['sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId', 'confirmationJobId',
         'confirmationInboundMessageId', 'confirmationExecutionId', 'sourceDigest', 'missionSnapshotDigest',
-        'idempotencyKey', 'actorId', 'confirmationActorId', 'channelIdentityId', 'confirmationIdentityVersion',
+        'idempotencyKey', 'sourceAgentRef', 'missionId', 'actorId', 'submittedByPersonId', 'submittedAt',
+        'confirmationActorId', 'channelIdentityId', 'confirmationIdentityVersion',
         'channelIdentityLinkedAt', 'revokedAt', 'revokedByPersonId']) {
         if (row[field] !== null) result.errors.push(`Agent mission evidence ${label} retains erased ${field}`)
       }
@@ -2046,7 +2150,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   } })
   const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
   const currentMemoryProjections = await db.memoryProjectionReceipt.count()
-  const currentMissionEvidence = current.agentMissionEvidence ?? 0
+  const currentMissionEvidence = (current.agentMissionEvidence ?? 0) + (current.agentMissionDraft ?? 0)
   // An older snapshot may be useful for read-only inspection, but importing it
   // while any billing row exists would silently turn omitted arrays into deletes.
   // An installation with no billing rows can still restore the older snapshot;
@@ -2157,7 +2261,8 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
   if (missionEvidence.errors.length) {
     throw new BackupRestoreSafetyError('BACKUP_MISSION_EVIDENCE_RECOVERY_INVALID', missionEvidence.errors.join('; '))
   }
-  if (missionEvidence.status === 'UNAVAILABLE' && await tx.agentMissionEvidence.count() > 0) {
+  if (missionEvidence.status === 'UNAVAILABLE'
+    && ((await tx.agentMissionEvidence.count()) > 0 || (await tx.agentMissionDraft.count()) > 0)) {
     throw new BackupRestoreSafetyError('BACKUP_MISSION_EVIDENCE_RECOVERY_LIVE_DATA_APPEARED',
       'Agent mission evidence appeared after preview while the snapshot lacks its recovery manifest; refusing to erase provenance or tombstones')
   }
