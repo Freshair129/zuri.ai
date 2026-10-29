@@ -73,6 +73,35 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
       ...(erasedPrincipalId ? [{ actorPersonId: erasedPrincipalId }] : []),
     ],
   }
+  const missionDraftsToErase = missionDraftWhere.OR.length
+    ? await tx.agentMissionDraft.findMany({
+      where: missionDraftWhere,
+      select: { id: true, missionId: true, sourceEventId: true, sourceTurnId: true,
+        tenantId: true, businessId: true, workspaceId: true, projectId: true,
+        workstreamId: true, actorPersonId: true },
+    })
+    : []
+  for (const draft of missionDraftsToErase) {
+    if (!draft.missionId || !draft.sourceEventId || !draft.sourceTurnId || !draft.actorPersonId) continue
+    const scope = { tenantId: draft.tenantId, businessId: draft.businessId,
+      workspaceId: draft.workspaceId, projectId: draft.projectId, workstreamId: draft.workstreamId }
+    // Keep only the locator and authorized lookup scope needed to answer a later
+    // read with an erased result. The original actor, turn, execution, trace and
+    // digest are erased from this event in the same transaction as the draft.
+    const redactedMissionEvent = await tx.auditEvent.updateMany({
+      where: { id: draft.sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: draft.missionId,
+        action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: draft.actorPersonId,
+        tenantId, businessId: draft.businessId, requestId: draft.sourceTurnId },
+      data: {
+        actorType: 'SYSTEM', actorId: null, requestId: null, sessionId: null,
+        reason: 'PERSON_ERASED', beforeJson: null, afterJson: null,
+        payloadJson: JSON.stringify({ eventType: 'MISSION_DRAFT_CREATED', missionId: draft.missionId, scope }),
+      },
+    })
+    if (redactedMissionEvent.count !== 1) {
+      throw new Error('Agent mission draft source event could not be safely redacted')
+    }
+  }
   const erasedMissionDrafts = missionDraftWhere.OR.length
     ? await tx.agentMissionDraft.updateMany({
       where: missionDraftWhere,

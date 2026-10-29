@@ -1597,16 +1597,14 @@ function agentMissionEvidenceRecovery(snapshot) {
         result.errors.push(`Agent mission draft ${label} has inconsistent Workspace/Project/Workstream scope`)
       }
       const sourceJob = jobs.get(draft.sourceTurnId)
-      const proposal = auditEvents.get(draft.sourceEventId)
+      const sourceEvent = auditEvents.get(draft.sourceEventId)
       const trace = traceEvents.get(draft.sourceTraceEventId)
       if (!sourceJob || sourceJob.tenantId !== draft.tenantId || sourceJob.businessId !== draft.businessId
         || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== draft.executionId) {
         result.errors.push(`Agent mission draft ${label} has no matching retained source turn`)
       }
-      if (!proposal || proposal.entityType !== 'LINE_WORK_PROPOSAL' || proposal.requestId !== draft.sourceTurnId
-        || proposal.tenantId !== draft.tenantId || proposal.businessId !== draft.businessId
-        || proposal.actorId !== draft.actorPersonId) {
-        result.errors.push(`Agent mission draft ${label} has no matching persisted proposal event`)
+      if (!missionDraftCreatedEventMatches(sourceEvent, draft)) {
+        result.errors.push(`Agent mission draft ${label} has no matching MISSION_DRAFT_CREATED event`)
       }
       if (!trace || trace.tenantId !== draft.tenantId || trace.businessId !== draft.businessId
         || trace.turnId !== draft.sourceTurnId || trace.executionId !== draft.executionId
@@ -1713,9 +1711,9 @@ function agentMissionEvidenceRecovery(snapshot) {
         if (seenTurns.has(key)) result.errors.push(`Agent mission evidence ${label} duplicates a source turn`)
         seenTurns.add(key)
       }
-      if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED') {
+      if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED' && row.status !== 'ERASED') {
         const sourceJob = jobs.get(row.sourceTurnId)
-        const proposal = auditEvents.get(row.sourceEventId)
+        const sourceEvent = auditEvents.get(row.sourceEventId)
         if (!sourceJob || sourceJob.tenantId !== row.tenantId || sourceJob.businessId !== row.businessId
           || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== row.executionId) {
           result.errors.push(`Agent mission evidence ${label} has no matching retained source turn`)
@@ -1731,9 +1729,25 @@ function agentMissionEvidenceRecovery(snapshot) {
           // A PM submitter may be the source actor, but accountability is recorded
           // separately and must not be inferred from the Agent draft author.
         }
-        if (!proposal || proposal.entityType !== 'LINE_WORK_PROPOSAL' || proposal.requestId !== row.sourceTurnId
-          || proposal.tenantId !== row.tenantId || proposal.businessId !== row.businessId || proposal.actorId !== row.actorId) {
-          result.errors.push(`Agent mission evidence ${label} has no matching persisted Agent draft event`)
+        if (row.confirmationKind === 'LINE_JOB') {
+          // Legacy LINE confirmation evidence remains tied to its original proposal event.
+          if (!sourceEvent || sourceEvent.entityType !== 'LINE_WORK_PROPOSAL' || sourceEvent.requestId !== row.sourceTurnId
+            || sourceEvent.tenantId !== row.tenantId || sourceEvent.businessId !== row.businessId || sourceEvent.actorId !== row.actorId) {
+            result.errors.push(`Agent mission evidence ${label} has no matching legacy LINE proposal event`)
+          }
+        } else {
+          const draft = drafts.get(row.draftId)
+          if (!draft || draft.status === 'ERASED' || draft.id !== row.draftId
+            || draft.sourceEventId !== row.sourceEventId || draft.sourceTraceEventId !== row.sourceTraceEventId
+            || draft.sourceTurnId !== row.sourceTurnId || draft.executionId !== row.executionId
+            || draft.sourceAgentRef !== row.sourceAgentRef || draft.missionId !== row.missionId
+            || draft.actorPersonId !== row.actorId || draft.tenantId !== row.tenantId
+            || draft.businessId !== row.businessId || draft.workspaceId !== row.workspaceId
+            || draft.projectId !== row.projectId || draft.workstreamId !== row.workstreamId
+            || draft.digest !== row.sourceDigest || draft.revision !== row.sourceRevision
+            || !missionDraftCreatedEventMatches(sourceEvent, draft)) {
+            result.errors.push(`Agent mission evidence ${label} has no matching persisted MISSION_DRAFT_CREATED event and draft`)
+          }
         }
         const trace = traceEvents.get(row.sourceTraceEventId)
         if (!trace || trace.tenantId !== row.tenantId || trace.businessId !== row.businessId
@@ -1756,8 +1770,70 @@ function agentMissionEvidenceRecovery(snapshot) {
       if (row.missionSnapshotJson !== '{}') result.errors.push(`Agent mission evidence ${label} retains erased mission snapshot data`)
     }
   }
+  const referencedMissionEventIds = new Set(draftRows
+    .filter(draft => draft && draft.status !== 'ERASED' && typeof draft.sourceEventId === 'string')
+    .map(draft => draft.sourceEventId))
+  for (const event of (Array.isArray(tables.auditEvent) ? tables.auditEvent : [])) {
+    if (event?.entityType !== 'AGENT_MISSION_DRAFT' || event?.action !== 'MISSION_DRAFT_CREATED'
+      || referencedMissionEventIds.has(event.id)) continue
+    if (!missionDraftTombstoneEventMatches(event)) {
+      result.errors.push(`Agent mission source event ${event?.id || '<unknown>'} is neither linked to a draft nor a minimal erasure tombstone`)
+    }
+  }
   if (!result.errors.length) result.status = 'AVAILABLE'
   return result
+}
+
+function missionDraftCreatedEventMatches(event, draft) {
+  if (!event || !draft || event.entityType !== 'AGENT_MISSION_DRAFT'
+    || event.entityId !== draft.missionId || event.action !== 'MISSION_DRAFT_CREATED'
+    || event.actorType !== 'LINE_USER' || event.requestId !== draft.sourceTurnId
+    || event.tenantId !== draft.tenantId || event.businessId !== draft.businessId
+    || event.actorId !== draft.actorPersonId) return false
+  let payload
+  try { payload = JSON.parse(event.payloadJson) } catch { return false }
+  const expectedKeys = ['schemaVersion', 'eventType', 'missionId', 'draftId', 'revision', 'sourceAgentRef',
+    'sourceTurnId', 'executionId', 'sourceTraceEventId', 'actorPersonId', 'scope', 'digest']
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).length !== expectedKeys.length
+    || Object.keys(payload).some(key => !expectedKeys.includes(key))) return false
+  const scope = payload.scope
+  return event.id === draft.sourceEventId
+    && payload.schemaVersion === 'agent-mission-draft-event.v1' && payload.eventType === 'MISSION_DRAFT_CREATED'
+    && payload.draftId === draft.id && payload.missionId === draft.missionId
+    && payload.revision === draft.revision && payload.sourceAgentRef === draft.sourceAgentRef
+    && payload.actorPersonId === draft.actorPersonId && payload.sourceTurnId === draft.sourceTurnId
+    && payload.executionId === draft.executionId
+    && payload.sourceTraceEventId === draft.sourceTraceEventId && payload.digest === draft.digest
+    && scope && typeof scope === 'object' && !Array.isArray(scope)
+    && Object.keys(scope).length === 5
+    && scope.tenantId === draft.tenantId && scope.businessId === draft.businessId
+    && scope.workspaceId === draft.workspaceId && scope.projectId === draft.projectId
+    && scope.workstreamId === draft.workstreamId
+}
+
+function missionDraftTombstoneEventMatches(event) {
+  if (!event || event.entityType !== 'AGENT_MISSION_DRAFT' || event.action !== 'MISSION_DRAFT_CREATED'
+    || typeof event.entityId !== 'string' || !event.entityId.trim() || event.actorType !== 'SYSTEM'
+    || event.reason !== 'PERSON_ERASED'
+    || event.actorId !== null || event.requestId !== null || event.sessionId !== null
+    || event.beforeJson !== null || event.afterJson !== null) return false
+  let payload
+  try { payload = JSON.parse(event.payloadJson) } catch { return false }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).length !== 3
+    || Object.keys(payload).some(key => !['eventType', 'missionId', 'scope'].includes(key))) return false
+  const scope = payload.scope
+  return payload.eventType === 'MISSION_DRAFT_CREATED' && payload.missionId === event.entityId
+    && scope && typeof scope === 'object' && !Array.isArray(scope) && Object.keys(scope).length === 5
+    && scope.tenantId === event.tenantId && scope.businessId === event.businessId
+    && ['tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId'].every(key =>
+      typeof scope[key] === 'string' && scope[key].trim().length > 0)
+}
+
+// @tested tests/unit/agent-mission-recovery.test.js — focused validator fixture surface.
+export function validateAgentMissionEvidenceRecovery(snapshot) {
+  return agentMissionEvidenceRecovery(snapshot)
 }
 
 function marketingBroadcastRecovery(snapshot) {

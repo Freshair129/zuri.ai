@@ -120,6 +120,21 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       digest: 'e'.repeat(64),
       snapshotJson: JSON.stringify({ title: 'Private draft', summary: 'Sensitive summary' }),
     } })
+    const missionDraftScope = { tenantId: tenantA.id, businessId: busA1.id,
+      workspaceId: missionDraft.workspaceId, projectId: missionDraft.projectId,
+      workstreamId: missionDraft.workstreamId }
+    const missionDraftEvent = await prisma.auditEvent.create({ data: {
+      id: missionDraft.sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: missionDraft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: missionActor.personId,
+      tenantId: tenantA.id, businessId: busA1.id, requestId: missionDraft.sourceTurnId,
+      payloadJson: JSON.stringify({
+        schemaVersion: 'agent-mission-draft-event.v1', eventType: 'MISSION_DRAFT_CREATED',
+        missionId: missionDraft.missionId, draftId: missionDraft.id, revision: missionDraft.revision,
+        sourceAgentRef: missionDraft.sourceAgentRef, sourceTurnId: missionDraft.sourceTurnId,
+        executionId: missionDraft.executionId, sourceTraceEventId: missionDraft.sourceTraceEventId,
+        actorPersonId: missionDraft.actorPersonId, scope: missionDraftScope, digest: missionDraft.digest,
+      }),
+    } })
     const conversation = await prisma.conversation.findFirst({ where: { customerId: r.customerId } })
     await prisma.conversationAnalysis.create({
       data: {
@@ -174,6 +189,18 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       digest: null,
       snapshotJson: '{}',
     })
+    const erasedMissionDraftEvent = await prisma.auditEvent.findUnique({ where: { id: missionDraftEvent.id } })
+    expect(erasedMissionDraftEvent).toMatchObject({
+      entityType: 'AGENT_MISSION_DRAFT', entityId: missionDraft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'SYSTEM', actorId: null,
+      tenantId: tenantA.id, businessId: busA1.id, requestId: null,
+    })
+    expect(JSON.parse(erasedMissionDraftEvent.payloadJson)).toEqual({
+      eventType: 'MISSION_DRAFT_CREATED', missionId: missionDraft.missionId, scope: missionDraftScope,
+    })
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain('personId')
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain('Sensitive summary')
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain(missionDraft.digest)
     // The receipt is counts only. A caller who has just erased a person must not be
     // handed their name back in the response.
     expect(JSON.stringify(result)).not.toContain('ลูกค้าทดสอบ')
