@@ -67,6 +67,9 @@ jobs:
       COMPACT_TEST_DOCKER_CONTEXT: compact-prepare-ci
     steps:
       - uses: actions/checkout@v4
+        with:
+          # Canonical registry governance verifies pinned historical source trees.
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: '22'

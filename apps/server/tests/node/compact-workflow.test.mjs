@@ -13,6 +13,7 @@ test('prepared input producer is manual, isolated and publishes only its validat
   assert.match(job.if, /github.event_name == 'workflow_dispatch'/)
   assert.match(job.if, /inputs.compact_prepare_input/)
   assert.deepEqual(job.permissions, { contents: 'read' })
+  assert.equal(job.steps.find(s => s.uses === 'actions/checkout@v4').with?.['fetch-depth'], 0, 'canonical governance needs its pinned historical source objects')
   assert.equal(job.env.COMPACT_TEST_DOCKER_CONTEXT, 'compact-prepare-ci')
   const commands = job.steps.filter(s => s.run).map(s => s.run).join('\n')
   assert.match(commands, /git -C \.\.\/\.\. archive "\$GITHUB_SHA" apps\/server/); assert.match(commands, /--provenance=false/)
