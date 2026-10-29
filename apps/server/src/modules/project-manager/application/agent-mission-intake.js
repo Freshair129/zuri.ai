@@ -96,6 +96,22 @@ async function findEvidence(db, sourceAgentRef, missionId) {
   return db.agentMissionEvidence.findFirst({ where: { sourceAgentRef, missionId } })
 }
 
+async function assertActiveBusinessMembership(db, scope, personId) {
+  const membership = await db.membership.findFirst({
+    where: {
+      tenantId: scope.tenantId,
+      businessId: scope.businessId,
+      personId,
+      status: 'ACTIVE',
+      OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+      suspendedAt: null,
+      revokedAt: null,
+    },
+    select: { id: true },
+  })
+  if (!membership) throw refusal('MISSION_SUBMITTER_NOT_IN_BUSINESS', 403)
+}
+
 function evidenceScope(evidence) {
   return evidence?.scope || Object.fromEntries(SCOPE_FIELDS.map(key => [key, evidence?.[key] ?? null]))
 }
@@ -203,6 +219,7 @@ export function createAgentMissionIntakeService({
     const execute = async tx => {
       const currentScope = await authorizedScope(viewer, request.workstreamId, tx)
       if (!sameScope(currentScope, initialScope)) throw refusal('MISSION_SCOPE_INVALID', 409)
+      await assertActiveBusinessMembership(tx, currentScope, personId)
       const existing = await findExistingSubmission(tx, draft.sourceAgentRef, draft.missionId)
       if (existing) return replay(existing, draft, request, viewer, personId, currentScope, tx)
 

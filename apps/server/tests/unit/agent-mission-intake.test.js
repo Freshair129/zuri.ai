@@ -51,6 +51,7 @@ function priorEvidence(overrides = {}) {
 
 function setup(overrides = {}) {
   const tx = {
+    membership: { findFirst: vi.fn().mockResolvedValue({ id: 'membership-1' }) },
     workItem: { findFirst: vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED', version: 1 }) },
     marker: 'transaction-client',
   }
@@ -62,7 +63,7 @@ function setup(overrides = {}) {
   const resolveScope = vi.fn().mockResolvedValue(scope)
   const transaction = vi.fn(async (_db, callback) => callback(tx))
   const workItemWriter = vi.fn().mockResolvedValue({ id: 'work-item-1', status: 'PLANNED', version: 1 })
-  const findExistingSubmission = vi.fn().mockResolvedValue(null)
+  const findExistingSubmission = overrides.findExistingSubmission || vi.fn().mockResolvedValue(null)
   const auditWriter = vi.fn().mockResolvedValue({ id: 'audit-1' })
   const agentMissionPort = {
     readMissionDraft: vi.fn().mockResolvedValue(draft),
@@ -96,6 +97,8 @@ describe('PM Agent mission intake', () => {
   it('accepts only the source identity, revision/digest and PM target fields', async () => {
     for (const extra of [
       { sourceAgentRef: draft.sourceAgentRef },
+      { draftId: 'database-row-id' },
+      { idempotencyKey: 'client-selected-key' },
       { scope },
       { workItemId: 'caller-item' },
       { assigneeRef: 'agent:OPERATIONS' },
@@ -205,7 +208,26 @@ describe('PM Agent mission intake', () => {
     expect(result).toMatchObject({ workItem: { id: 'work-item-1' }, evidence: { evidenceId: 'evidence-1' }, replayed: true })
     expect(f.workItemWriter).not.toHaveBeenCalled()
     expect(f.agentMissionPort.recordPmSubmissionInTransaction).not.toHaveBeenCalled()
+    expect(f.findExistingSubmission).toHaveBeenCalledWith(f.tx, draft.sourceAgentRef, draft.missionId)
     expect(f.tx.workItem.findFirst).toHaveBeenCalledWith({ where: { id: 'work-item-1', workstreamId: scope.workstreamId, deletedAt: null } })
+  })
+
+  it('requires a current active, unexpired membership in the resolved Business before replay or creation', async () => {
+    const f = setup()
+    f.tx.membership.findFirst.mockResolvedValue(null)
+    await expect(f.service.submit(input, { viewer })).rejects.toMatchObject({ code: 'MISSION_SUBMITTER_NOT_IN_BUSINESS', status: 403 })
+    expect(f.tx.membership.findFirst).toHaveBeenCalledWith(expect.objectContaining({
+      where: expect.objectContaining({
+        tenantId: scope.tenantId,
+        businessId: scope.businessId,
+        personId: viewer.principal.id,
+        status: 'ACTIVE',
+        suspendedAt: null,
+        revokedAt: null,
+      }),
+    }))
+    expect(f.findExistingSubmission).not.toHaveBeenCalled()
+    expect(f.workItemWriter).not.toHaveBeenCalled()
   })
 
   it('conflicts on revision/digest reuse and refuses inactive or cross-scope evidence', async () => {
