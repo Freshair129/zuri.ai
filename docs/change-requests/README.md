@@ -1,20 +1,25 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.11.0"
-updated_at: "2026-10-29"
+version: "1.12.0"
+updated_at: "2026-10-30"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.11.0
+**Version:** 1.12.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
 
 ## Current contract proposals
+
+- [Compact OR0 canonical-adoption decision](project-manager/compact-managed-blob-recovery-adoption-20261030.md)
+  (0.1.0, approved for documentation issuance): two planned standalone subjects
+  under the sanctioned record writer; candidate implementation and unqualified
+  operator recovery/AI remain unchanged.
 
 - [Compact managed-blob recovery OR0 contract](project-manager/compact-managed-blob-recovery-or0-20261029.md)
   (0.2.0, proposed): source-bound writer audit, transport/custody choices and
