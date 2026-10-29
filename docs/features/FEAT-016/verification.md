@@ -33,6 +33,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/asset-evidence-intake-execution.test.js](../../../apps/server/tests/integration/asset-evidence-intake-execution.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/managed-blob-recovery.test.js](../../../apps/server/tests/integration/managed-blob-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-extractor-contract.test.js](../../../apps/server/tests/unit/asset-evidence-extractor-contract.test.js) — `verifies` (`transitive`)

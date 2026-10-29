@@ -83,6 +83,13 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
     }
   }
   return Object.freeze({
+    // @req FR-292 — preparation validates the configured exact ref without IO.
+    // @tested tests/integration/managed-blob-recovery.test.js
+    validateRef({ ref, tenantId, businessId }) {
+      if (!tenantId || !businessId) throw invalid()
+      owned(ref, { tenantId, businessId })
+      return true
+    },
     async put({ key, content, mime = 'application/octet-stream' }) {
       scopedKey(key, definition)
       const stored = await safe(() => transport.putImmutable({ key, content, contentType: mime }))
