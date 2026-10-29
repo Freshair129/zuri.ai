@@ -12,6 +12,7 @@ const ids = Object.freeze({
   business: '77777777-7777-4777-8777-777777777777',
   project: '88888888-8888-4888-8888-888888888888',
   workstream: '99999999-9999-4999-8999-999999999999',
+  workItem: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
   execution: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   trace: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   traceEvent: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
@@ -29,6 +30,7 @@ function producerSource(overrides = {}) {
     sourceTurnId: ids.sourceTurn,
     executionId: ids.execution,
     scope: { tenantId: ids.tenant, businessId: ids.business, projectId: ids.project, workstreamId: ids.workstream },
+    target: { workItemId: ids.workItem, workItemVersion: 1 },
     confirmation: { jobId: ids.confirmation, inboundId: ids.inbound, actorId: ids.actor, identityVersion: '7' },
     missionSnapshot,
     ...overrides,
@@ -39,24 +41,37 @@ function createMemoryRepository() {
   const rows = new Map()
   let currentSource = producerSource()
   let readResult = null
+  let transactionCount = 0
+  function txAdapter() {
+    return {
+      resolveConfirmedMissionSource: async refs => {
+        expect(refs).toEqual({ proposalId: ids.proposal, confirmationJobId: ids.confirmation })
+        return currentSource
+      },
+      findByIdempotencyKey: async key => rows.get(key) ?? null,
+      insertImmutable: async row => {
+        if (rows.has(row.idempotencyKey)) throw Object.assign(new Error('unique'), { code: 'P2002' })
+        rows.set(row.idempotencyKey, structuredClone(row))
+        return rows.get(row.idempotencyKey)
+      },
+    }
+  }
   const repository = {
     rows,
+    get transactionCount() { return transactionCount },
     setSource(source) { currentSource = source },
     setReadResult(result) { readResult = result },
     async transaction(callback) {
-      return callback({
-        resolveConfirmedMissionSource: async refs => {
-          expect(refs).toEqual({ proposalId: ids.proposal, confirmationJobId: ids.confirmation })
-          return currentSource
-        },
-        findByIdempotencyKey: async key => rows.get(key) ?? null,
-        insertImmutable: async row => {
-          if (rows.has(row.idempotencyKey)) throw Object.assign(new Error('unique'), { code: 'P2002' })
-          rows.set(row.idempotencyKey, structuredClone(row))
-          return rows.get(row.idempotencyKey)
-        },
-      })
+      transactionCount += 1
+      const before = new Map([...rows.entries()].map(([key, value]) => [key, structuredClone(value)]))
+      try { return await callback(txAdapter()) }
+      catch (error) {
+        rows.clear()
+        for (const [key, value] of before) rows.set(key, value)
+        throw error
+      }
     },
+    forTransaction(transactionClient) { return transactionClient },
     async findByIdempotencyKey(key) { return rows.get(key) ?? null },
     async authorizedRead({ evidenceId }) {
       if (readResult) return readResult
@@ -83,9 +98,33 @@ describe('Agent mission evidence port (PM-MISSION-02)', () => {
       source: { turnId: ids.sourceTurn, executionId: ids.execution },
       confirmation: { jobId: ids.confirmation, inboundId: ids.inbound, actorId: ids.actor },
       scope: { tenantId: ids.tenant, businessId: ids.business, projectId: ids.project, workstreamId: ids.workstream },
+      target: { workItemId: ids.workItem, workItemVersion: 1 },
     } })
     expect(result.evidence).not.toHaveProperty('missionSnapshot')
     expect([...repository.rows.values()][0]).not.toHaveProperty('missionSnapshot')
+  })
+
+  it('uses an existing PM transaction without opening a second transaction', async () => {
+    await repository.transaction(async current => {
+      const recorded = await port.recordConfirmedInTransaction(current, {
+        proposalId: ids.proposal, confirmationJobId: ids.confirmation,
+      })
+      expect(recorded).toMatchObject({ status: 'verified', duplicate: false, evidence: {
+        target: { workItemId: ids.workItem, workItemVersion: 1 },
+      } })
+      expect(repository.transactionCount).toBe(1)
+    })
+    expect(repository.transactionCount).toBe(1)
+    expect(repository.rows.size).toBe(1)
+  })
+
+  it('rolls evidence back with the PM transaction when the WorkItem writer fails', async () => {
+    await expect(repository.transaction(async current => {
+      await port.recordConfirmedInTransaction(current, { proposalId: ids.proposal, confirmationJobId: ids.confirmation })
+      throw Object.assign(new Error('synthetic PM writer failure'), { code: 'WORK_ITEM_WRITE_FAILED' })
+    })).rejects.toMatchObject({ code: 'WORK_ITEM_WRITE_FAILED' })
+    expect(repository.transactionCount).toBe(1)
+    expect(repository.rows.size).toBe(0)
   })
 
   it('does not accept caller-supplied identity or scope as authority', async () => {
@@ -154,7 +193,8 @@ describe('Agent mission evidence port (PM-MISSION-02)', () => {
   it('does not expose trace or mission payloads through a verified read', async () => {
     const created = await port.recordConfirmed({ proposalId: ids.proposal, confirmationJobId: ids.confirmation })
     const read = await port.read({ evidenceId: created.evidence.evidenceId, scope: { businessId: ids.tenant } })
-    expect(read).toMatchObject({ status: 'verified', evidence: { digest: missionDigest, origin: 'HUMAN_AUTHORED' } })
+    expect(read).toMatchObject({ status: 'verified', evidence: { digest: missionDigest, origin: 'HUMAN_AUTHORED',
+      target: { workItemId: ids.workItem, workItemVersion: 1 } } })
     expect(JSON.stringify(read)).not.toContain('Review customer onboarding flow')
     expect(read.evidence).not.toHaveProperty('missionSnapshot')
   })

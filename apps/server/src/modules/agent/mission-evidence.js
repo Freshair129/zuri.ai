@@ -66,6 +66,8 @@ function normalizeProducer(source, proposalId, confirmationJobId) {
   const origin = source.origin
   if (!ORIGINS.has(origin)) fail('MISSION_EVIDENCE_INVALID')
   const verifiedScope = scopeOf(source.scope)
+  const target = Object.freeze({ workItemId: uuid(source.target?.workItemId), workItemVersion: source.target?.workItemVersion })
+  if (!Number.isSafeInteger(target.workItemVersion) || target.workItemVersion < 1) fail('MISSION_EVIDENCE_INVALID')
   const actorId = uuid(source.actorId)
   const sourceTurnId = uuid(source.sourceTurnId)
   const executionId = uuid(source.executionId)
@@ -106,6 +108,7 @@ function normalizeProducer(source, proposalId, confirmationJobId) {
     origin,
     actorId,
     scope: verifiedScope,
+    target,
     source: Object.freeze({ turnId: sourceTurnId, executionId }),
     confirmation: Object.freeze(confirmation),
     agentDraft,
@@ -132,6 +135,7 @@ function sameImmutableEvidence(existing, expected) {
       && existing?.actorId === expected.actorId
       && existing?.digest === expected.digest
       && canonicalJson(existing?.scope) === canonicalJson(expected.scope)
+      && canonicalJson(existing?.target) === canonicalJson(expected.target)
       && canonicalJson(existing?.source) === canonicalJson(expected.source)
       && canonicalJson(existing?.agentDraft ?? null) === canonicalJson(expected.agentDraft)
       && existing?.origin === expected.origin
@@ -146,6 +150,8 @@ function validateStoredRow(row, evidenceId) {
     || !HASH.test(row.digest ?? '') || !ORIGINS.has(row.origin)) fail('MISSION_EVIDENCE_INVALID')
   const actorId = uuid(row.actorId)
   const scope = scopeOf(row.scope)
+  const target = Object.freeze({ workItemId: uuid(row.target?.workItemId), workItemVersion: row.target?.workItemVersion })
+  if (!Number.isSafeInteger(target.workItemVersion) || target.workItemVersion < 1) fail('MISSION_EVIDENCE_INVALID')
   const source = Object.freeze({ turnId: uuid(row.source?.turnId), executionId: uuid(row.source?.executionId) })
   const confirmation = Object.freeze({
     jobId: uuid(row.confirmation?.jobId),
@@ -163,7 +169,7 @@ function validateStoredRow(row, evidenceId) {
       || !HASH.test(row.agentDraft.digest)) fail('MISSION_EVIDENCE_INVALID')
     agentDraft = Object.freeze({ traceId, eventId, revision, digest: row.agentDraft.digest })
   } else if (row.agentDraft != null) fail('MISSION_EVIDENCE_INVALID')
-  return { ...row, actorId, scope, source, confirmation, agentDraft }
+  return { ...row, actorId, scope, target, source, confirmation, agentDraft }
 }
 
 function redact(row) {
@@ -175,6 +181,7 @@ function redact(row) {
       origin: row.origin,
       actorId: row.actorId,
       scope: Object.freeze({ ...row.scope }),
+      target: Object.freeze({ ...row.target }),
       source: Object.freeze({ ...row.source }),
       confirmation: Object.freeze({ ...row.confirmation }),
       agentDraft: row.agentDraft ? Object.freeze({ ...row.agentDraft }) : null,
@@ -188,9 +195,13 @@ function redact(row) {
  *
  * Repository contract:
  * - transaction(fn)
+ * - forTransaction(prismaTransactionClient): binds the existing PM write transaction
+ *   to the same repository methods used by transaction(fn); it must not start another
+ *   transaction.
  * - tx.resolveConfirmedMissionSource({proposalId, confirmationJobId}): resolves
  *   signed/claimed jobs, verified identity, explicit distinct human confirmation,
- *   ownership, target versions and DB-validated Tenant/Business/Project/Workstream.
+ *   ownership, target versions, canonical WorkItem ID/version and DB-validated
+ *   Tenant/Business/Project/Workstream from the same transaction.
  *   It may set AGENT_DRAFT_HUMAN_CONFIRMED only when it resolves a persisted,
  *   authorized Agent draft receipt (never a generic trace event).
  * - tx.findByIdempotencyKey / tx.insertImmutable for immutable record creation;
@@ -211,32 +222,31 @@ export function createMissionEvidencePort({ repository } = {}) {
       confirmationJobId = uuid(confirmationJobId)
       if (proposalId === confirmationJobId) fail('MISSION_EVIDENCE_CONFIRMATION_INVALID')
       let expectedRow = null
-      return repository.transaction(async tx => {
-        if (typeof tx.resolveConfirmedMissionSource !== 'function'
-          || typeof tx.findByIdempotencyKey !== 'function' || typeof tx.insertImmutable !== 'function') {
-          fail('MISSION_EVIDENCE_REPOSITORY_UNAVAILABLE')
-        }
-        const source = await tx.resolveConfirmedMissionSource({ proposalId, confirmationJobId })
-        if (!source || typeof source !== 'object') fail('MISSION_EVIDENCE_CONFIRMATION_INVALID')
-        const evidence = normalizeProducer(source, proposalId, confirmationJobId)
-        const row = Object.freeze({ ...evidence, proposalId })
-        expectedRow = row
-        const existing = await tx.findByIdempotencyKey(evidence.idempotencyKey)
-        if (existing) {
-          if (!sameImmutableEvidence(existing, row)) fail('MISSION_EVIDENCE_IDEMPOTENCY_CONFLICT')
-          return Object.freeze({ ...redact(existing), duplicate: true })
-        }
-        const inserted = await tx.insertImmutable(row)
-        if (!sameImmutableEvidence(inserted, row)) fail('MISSION_EVIDENCE_IDEMPOTENCY_CONFLICT')
-        return Object.freeze({ ...redact(inserted), duplicate: false })
-      }).catch(async error => {
+      try {
+        return await repository.transaction(tx => recordInTransaction(tx, { proposalId, confirmationJobId }, row => { expectedRow = row }))
+      } catch (error) {
         if (error?.code !== 'P2002' && error?.code !== 'MISSION_EVIDENCE_UNIQUE_CONFLICT') throw error
         if (!expectedRow || typeof repository.findByIdempotencyKey !== 'function') fail('MISSION_EVIDENCE_REPOSITORY_UNAVAILABLE')
         // Resolve the winner only after the failed transaction has rolled back.
         const winner = await repository.findByIdempotencyKey(expectedRow.idempotencyKey)
         if (sameImmutableEvidence(winner, expectedRow)) return Object.freeze({ ...redact(winner), duplicate: true })
         fail('MISSION_EVIDENCE_IDEMPOTENCY_CONFLICT')
-      })
+      }
+    },
+
+    /**
+     * Record inside the PM writer's already-open transaction. The repository binds
+     * the Prisma tx to its methods but must not call `$transaction` again. Any unique
+     * race is allowed to abort the caller's whole transaction; retry the whole PM
+     * operation to resolve the winner safely after rollback.
+     */
+    async recordConfirmedInTransaction(transactionClient, { proposalId, confirmationJobId } = {}) {
+      proposalId = uuid(proposalId)
+      confirmationJobId = uuid(confirmationJobId)
+      if (proposalId === confirmationJobId) fail('MISSION_EVIDENCE_CONFIRMATION_INVALID')
+      if (typeof repository.forTransaction !== 'function') fail('MISSION_EVIDENCE_REPOSITORY_UNAVAILABLE')
+      const tx = repository.forTransaction(transactionClient)
+      return recordInTransaction(tx, { proposalId, confirmationJobId })
     },
 
     async read({ evidenceId } = {}) {
@@ -261,4 +271,24 @@ export function createMissionEvidencePort({ repository } = {}) {
       }
     },
   })
+}
+
+async function recordInTransaction(tx, { proposalId, confirmationJobId }, onExpected = () => {}) {
+  if (!tx || typeof tx.resolveConfirmedMissionSource !== 'function'
+    || typeof tx.findByIdempotencyKey !== 'function' || typeof tx.insertImmutable !== 'function') {
+    fail('MISSION_EVIDENCE_REPOSITORY_UNAVAILABLE')
+  }
+  const source = await tx.resolveConfirmedMissionSource({ proposalId, confirmationJobId })
+  if (!source || typeof source !== 'object') fail('MISSION_EVIDENCE_CONFIRMATION_INVALID')
+  const evidence = normalizeProducer(source, proposalId, confirmationJobId)
+  const row = Object.freeze({ ...evidence, proposalId })
+  onExpected(row)
+  const existing = await tx.findByIdempotencyKey(evidence.idempotencyKey)
+  if (existing) {
+    if (!sameImmutableEvidence(existing, row)) fail('MISSION_EVIDENCE_IDEMPOTENCY_CONFLICT')
+    return Object.freeze({ ...redact(existing), duplicate: true })
+  }
+  const inserted = await tx.insertImmutable(row)
+  if (!sameImmutableEvidence(inserted, row)) fail('MISSION_EVIDENCE_IDEMPOTENCY_CONFLICT')
+  return Object.freeze({ ...redact(inserted), duplicate: false })
 }
