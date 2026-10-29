@@ -404,7 +404,7 @@ export async function createLineMissionDraft(jobId, mission, {
     tenantId: context.binding.tenantId, businessId: context.binding.businessId,
     lineUserId: context.job.sourceUserId,
     serverScope: {
-      agentId: DEFAULT_AGENT_ID, transportVerified: true,
+      agentId: DEFAULT_AGENT_ID, businessId: context.binding.businessId, transportVerified: true,
       channelAccountId: context.binding.channelAccountId, audienceKind: context.job.audienceKind,
       workspaceId: scope.workspaceId, projectId: scope.projectId,
     },

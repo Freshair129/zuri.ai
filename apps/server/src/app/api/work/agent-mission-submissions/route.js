@@ -2,7 +2,7 @@
 // through the authenticated Project Manager write boundary.
 import { handle } from '../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { agentMissionIntakeService } from '@/modules/project-manager/application/agent-mission-intake'
+import { agentMissionIntakeService } from '@/modules/project-manager/application/agent-mission-intake-runtime'
 
 export const dynamic = 'force-dynamic'
 

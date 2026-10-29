@@ -279,7 +279,3 @@ export function createAgentMissionIntakeService({
 
   return { submit }
 }
-
-// Runtime adapter wiring is completed only after the Agent-owned receipt port
-// and Integrator-owned Prisma schema are present. This default is fail-closed.
-export const agentMissionIntakeService = createAgentMissionIntakeService()
