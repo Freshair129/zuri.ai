@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.10"
+version: "0.1.11"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -390,6 +390,56 @@ instructions; no production access or permission token.
   complete operational recovery. The TEST-only remap does not close these gates.
 
 ## Dependency and approval handoff
+
+### Hosted prepared-input producer continuation (2026-10-29)
+
+The owner selected a producer PR followed by qualification on a new commit.
+The package/core jobs at `c82b6bb5b0d4df6c6b2e7ef40aacdc8df3e91018`
+remain **NOT_RUN**: its successful main push supplied no prepared input artifact.
+Its separate local Compact contract run passed 209/209 with no skips; this is
+not package/core acceptance. No canonical behavior, AI qualification, production
+selection or release/publication authority changes here.
+
+**Design and alternatives.** Extend the existing manual `docker-image` workflow
+with an opt-in producer job, default false. Two dispatches at the same reviewed
+new revision preserve the existing explicit successful-run/artifact-origin guard.
+A new workflow would first need default-branch registration; a consumer that
+builds its own input would conflate provenance and acceptance. Neither is needed.
+The producer uses an exact Git archive for web/tools build contexts, source labels,
+the current schema baseline generator and current canonical docs/registry/graph.
+It builds linux/amd64 OCI exports without attestations, validates their content
+and exact source labels, and assembles only the four core image identities.
+
+The former MinIO image was local-only. Add a TEST-only source recipe pinned to
+the recorded full MinIO commit, a pinned mc commit and pinned Go/runtime images.
+Run the existing real provider transport test before accepting its evidence.
+This is a new measured TEST image, not the historical image or production license
+approval. Keep the image's license notices and source pointers. All private
+provider/bootstrap/recovery files stay outside the uploaded prepared directory.
+
+**Implementation map and checks (execute inline with independent final review):**
+
+- [ ] Add failing producer tests for foreign source labels, corrupt/unreachable
+  OCI blobs, extra components and invalid provider evidence; assert no output
+  success after refusal. Add manual opt-in/source/archive/no-publish workflow tests.
+- [ ] Add `scripts/compact-prepare-input.mjs` for strict OCI assembly and prepared
+  payload creation, reusing the existing validators, baseline and renderer.
+  Unknown fields, dirty source, symlinks and existing outputs fail closed.
+- [ ] Add `deploy/compact/Minio.test.Dockerfile` and the opt-in `compact-prepare`
+  job in `.github/workflows/docker-image.yml`. Build from committed sources,
+  load only the verified OCI images into a job-local engine, run the existing
+  provider test, and upload only the prepared directory after successful checks.
+- [ ] Run RED/GREEN and the whole Compact contract suite; govern and relevant
+  document/runtime contracts. Obtain independent GPT-6 Luna Max patch review.
+- [ ] Commit/push/open the authorized PR. At its exact new head, dispatch producer,
+  verify its successful immutable artifact identity, then dispatch package/core
+  using explicit run/artifact IDs. Preserve first failures and sanitized evidence.
+  No guard relaxation, fabricated evidence, image publication, production access,
+  local engine start, Knowledge checkout access or new worktree is involved.
+
+AI profiles remain **NOT_QUALIFIED** overall and unselected in this core-only
+manifest (`NOT_SELECTED` is the existing strict manifest value). Live LINE,
+operator-supported restore/rebind and off-host recovery remain separate gates.
 
 Tasks1→2→3 establish the package/core lane. Tasks4 and5 qualify the corresponding
 exposed business flows after the common storage/DB contracts are fixed. Task6

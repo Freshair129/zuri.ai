@@ -409,6 +409,22 @@ restore, source authorization or current release-image acceptance. The normal
 Server suite excludes that Docker-dependent file; its dedicated wrapped runner
 fails zero-test runs. Actual selected AI gates remain open in the approved plan.
 
+The manual `docker-image` workflow can first run `compact_prepare_input=true`
+alone. Its job-local engine builds web/tools from an exact Git archive, labels
+their source revision, and assembles only the four linux/amd64 core OCI images.
+The TEST MinIO/mc recipe pins their source commits and Go/runtime image digests;
+its actual provider transport probe must pass before preparation. The generated
+baseline, canonical docs/registry/graph, rendered files and OCI bytes then pass
+the unchanged packager preflight. Only that prepared directory is uploaded.
+Private provider input and recovery/bootstrap files are outside it. A false or
+failed probe cannot become a prepared artifact. This TEST recipe and its retained
+license notices do not approve production selection or distribution.
+
+After that entire producer run succeeds, dispatch again at the **same commit**
+with `compact_package=true`, `compact_qualify_core=true` and its explicit run ID
+and immutable artifact ID. Do not advance the branch between dispatches.
+AI profiles remain unqualified overall and `NOT_SELECTED` in this core manifest.
+
 CI packaging is manual-only and consumes an explicitly selected prepared input
 artifact from this repository. It checks the manifest revision against the
 workflow commit and checks that the artifact originated in a successful completed
