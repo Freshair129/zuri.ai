@@ -51,6 +51,32 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
   })
+  // @req TASK-ZAI-012 — the mission evidence feed is private derived provenance.
+  // Tombstone it in the same Identity erasure transaction before source job and
+  // ChannelIdentity data are redacted; never leave an active source link behind.
+  const missionSourceTurnIds = jobs.map(job => job.id)
+  const missionEvidenceWhere = {
+    tenantId,
+    status: { not: 'ERASED' },
+    OR: [
+      ...(missionSourceTurnIds.length ? [{ sourceTurnId: { in: missionSourceTurnIds } }] : []),
+      ...(erasedPrincipalId ? [{ actorId: erasedPrincipalId }, { confirmationActorId: erasedPrincipalId }] : []),
+    ],
+  }
+  const erasedMissionEvidence = missionEvidenceWhere.OR.length
+    ? await tx.agentMissionEvidence.updateMany({
+      where: missionEvidenceWhere,
+      data: {
+        status: 'ERASED', erasedAt: new Date(), revokedAt: null, version: { increment: 1 },
+        sourceTurnId: null, executionId: null, sourceEventId: null, sourceTraceEventId: null,
+        confirmationJobId: null, confirmationInboundMessageId: null, confirmationExecutionId: null,
+        sourceDigest: null, missionSnapshotDigest: null, missionSnapshotJson: '{}', idempotencyKey: null,
+        actorId: null, confirmationActorId: null,
+        channelIdentityId: null, confirmationIdentityVersion: null, channelIdentityLinkedAt: null,
+        revokedByPersonId: null,
+      },
+    })
+    : { count: 0 }
   // @req FR-022 — before any job is overwritten: a person with any memory-sync turn
   // (DIRECT, GROUP or ROOM) gets one pending, Core-owned tenant-wide MSP principal
   // erasure (owner decision 2026-09-28, option A).
@@ -97,5 +123,6 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }
-  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
+  return { redactedLineJobs: jobs.length, erasedMissionEvidence: erasedMissionEvidence.count,
+    inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
 }

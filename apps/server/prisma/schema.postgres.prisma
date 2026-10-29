@@ -68,6 +68,9 @@ model Tenant {
   agentApprovalRequests     AgentApprovalRequest[]
   agentApprovalDecisions    AgentApprovalDecision[]
   agentApprovalNotifications AgentApprovalNotification[]
+  agentMissionEvidenceActor     AgentMissionEvidence[] @relation("AgentMissionEvidenceActor")
+  agentMissionEvidenceConfirmed AgentMissionEvidence[] @relation("AgentMissionEvidenceConfirmationActor")
+  agentMissionEvidenceRevoked  AgentMissionEvidence[] @relation("AgentMissionEvidenceRevoker")
   // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
@@ -1723,6 +1726,7 @@ model WorkItem {
   // @req FR-252 — WorkItem is the existing work identity referenced by a
   // FeatureWorkLink; link writes never mutate Workstream progress.
   featureWorkLinks FeatureWorkLink[]
+  agentMissionEvidence AgentMissionEvidence?
 
   @@index([workstreamId])
   @@index([containerId])
@@ -4702,6 +4706,58 @@ model LineConversationJob {
   @@index([tenantId, businessId, status])
   @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
   @@index([sessionId])
+}
+
+// @req TASK-ZAI-012 — immutable, scope-bound evidence for human-authored or
+// Agent-drafted missions. An Agent draft reaches Work only after a distinct
+// human confirmation through line-project-work-tools; this row grants no
+// execution or release authority. Source turn/execution/proposal references
+// are normalized IDs only; Identity erasure scrubs them and tombstones the row.
+model AgentMissionEvidence {
+  id                          String    @id @default(uuid())
+  schemaVersion               String    @default("agent-mission-evidence.v1")
+  tenantId                    String
+  businessId                  String
+  workspaceId                 String
+  projectId                   String
+  workstreamId                String
+  workItemId                  String    @unique
+  workItemVersion             Int
+  origin                      String
+  actorId                     String?
+  sourceTurnId                String?
+  executionId                 String?
+  sourceEventId               String?
+  sourceTraceEventId          String?
+  sourceRevision              Int       @default(1)
+  sourceDigest                String?
+  missionSnapshotJson         String    @default("{}")
+  missionSnapshotDigest       String?
+  idempotencyKey              String?
+  confirmationJobId           String?
+  confirmationInboundMessageId String?
+  confirmationActorId         String?
+  confirmationIdentityVersion Int?
+  channelIdentityId           String?
+  channelIdentityLinkedAt     DateTime?
+  confirmationExecutionId     String?
+  status                      String    @default("ACTIVE")
+  revokedAt                   DateTime?
+  revokedByPersonId           String?
+  erasedAt                    DateTime?
+  createdAt                   DateTime  @default(now())
+  version                     Int       @default(1)
+
+  workItem WorkItem @relation(fields: [workItemId], references: [id], onDelete: Restrict)
+  actor Person? @relation("AgentMissionEvidenceActor", fields: [actorId], references: [id], onDelete: SetNull)
+  confirmationActor Person? @relation("AgentMissionEvidenceConfirmationActor", fields: [confirmationActorId], references: [id], onDelete: SetNull)
+  revoker Person? @relation("AgentMissionEvidenceRevoker", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, businessId, idempotencyKey], map: "AgentMissionEvidence_scope_idempotency_key")
+  @@unique([tenantId, businessId, sourceTurnId, origin], map: "AgentMissionEvidence_scope_turn_origin_key")
+  @@index([tenantId, businessId, status, createdAt])
+  @@index([tenantId, businessId, projectId, workstreamId, status])
+  @@index([actorId, status])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.
