@@ -8,6 +8,10 @@ let prisma
 let businessId
 let siblingBusinessId
 let ownerPersonId
+let runId
+let firstLabel
+let secondLabel
+let missingLabel
 let first
 let second
 let sibling
@@ -56,6 +60,10 @@ async function makeConversation(label, targetBusinessId, { consentStatus = 'GRAN
 }
 
 test.beforeAll(async () => {
+  runId = randomUUID().slice(0, 8)
+  firstLabel = `CRM E2E ${runId} first`
+  secondLabel = `CRM E2E ${runId} second`
+  missingLabel = `CRM E2E ${runId} missing analysis`
   const port = Number(process.env.E2E_PORT || 3100)
   process.env.DATABASE_URL = `file:./e2e-${port}.db`
   const { PrismaClient } = require('@prisma/client')
@@ -77,10 +85,10 @@ test.beforeAll(async () => {
     },
   })
   siblingBusinessId = siblingRecord.id
-  first = await makeConversation('CRM E2E first', businessId, { summary: 'FIRST SAFE SUMMARY' })
-  second = await makeConversation('CRM E2E second', businessId, { summary: 'SECOND SAFE SUMMARY' })
-  sibling = await makeConversation('CRM E2E sibling', siblingBusinessId, { summary: 'SIBLING PRIVATE SUMMARY' })
-  missing = await makeConversation('CRM E2E missing analysis', businessId)
+  first = await makeConversation(firstLabel, businessId, { summary: 'FIRST SAFE SUMMARY' })
+  second = await makeConversation(secondLabel, businessId, { summary: 'SECOND SAFE SUMMARY' })
+  sibling = await makeConversation(`CRM E2E ${runId} sibling`, siblingBusinessId, { summary: 'SIBLING PRIVATE SUMMARY' })
+  missing = await makeConversation(missingLabel, businessId)
 })
 
 test.afterAll(async () => {
@@ -94,8 +102,8 @@ test('Inbox displays consented selected-Business analysis and clears stale respo
   await expect(page).toHaveURL(/\/customer\/conversations$/)
   await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
 
-  const firstRow = page.getByRole('button', { name: /CRM E2E first/ })
-  const secondRow = page.getByRole('button', { name: /CRM E2E second/ })
+  const firstRow = page.getByRole('button', { name: new RegExp(firstLabel) })
+  const secondRow = page.getByRole('button', { name: new RegExp(secondLabel) })
   await expect(firstRow).toBeVisible()
   await expect(secondRow).toBeVisible()
 
@@ -118,8 +126,8 @@ test('Inbox displays consented selected-Business analysis and clears stale respo
   releaseFirstThread()
   await firstThreadSettled
   await expect(page.getByText('SECOND SAFE SUMMARY')).toBeVisible()
-  await expect(page.getByText('CRM E2E first', { exact: true })).toHaveCount(1)
-  await expect(page.getByText('CRM E2E second', { exact: true })).toHaveCount(2)
+  await expect(page.getByText(firstLabel, { exact: true })).toHaveCount(1)
+  await expect(page.getByText(secondLabel, { exact: true })).toHaveCount(2)
   await page.unroute(`**/api/crm/conversations/${first.conversationId}?*`)
 
   let releaseFirst
@@ -165,7 +173,7 @@ test('revoked consent, erased Customers, and missing analyses fail closed in the
   await loginAsOwner(page)
   await page.getByRole('button', { name: /Open Business Business 01/ }).click()
   await page.goto('/customer/conversations')
-  const firstRow = page.getByRole('button', { name: /CRM E2E first/ })
+  const firstRow = page.getByRole('button', { name: new RegExp(firstLabel) })
   await firstRow.click()
   await expect(page.getByText('ไม่สามารถแสดงผลวิเคราะห์ได้ในสถานะ consent ปัจจุบัน')).toBeVisible()
   const revoked = await page.request.get(`/api/crm/conversations/${first.conversationId}/analysis?businessId=${businessId}`)
@@ -177,14 +185,14 @@ test('revoked consent, erased Customers, and missing analyses fail closed in the
   expect(erased.status()).toBe(404)
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
-  const erasedThread = page.getByRole('button', { name: /CRM E2E second/ })
+  const erasedThread = page.getByRole('button', { name: new RegExp(secondLabel) })
   await expect(erasedThread).toHaveCount(1)
   await erasedThread.click()
   await expect(page.getByText('เปิดห้องสนทนาไม่ได้')).toBeVisible()
   await expect(page.getByText('SECOND SAFE SUMMARY')).toHaveCount(0)
 
   await page.reload()
-  await page.getByRole('button', { name: /CRM E2E missing analysis/ }).click()
+  await page.getByRole('button', { name: new RegExp(missingLabel) }).click()
   await expect(page.getByText('ยังไม่มีผลวิเคราะห์สำหรับบทสนทนานี้')).toBeVisible()
   const noAnalysis = await page.request.get(`/api/crm/conversations/${missing.conversationId}/analysis?businessId=${businessId}`)
   expect(noAnalysis.ok()).toBeTruthy()

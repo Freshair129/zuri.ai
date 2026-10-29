@@ -16,8 +16,9 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, { params }) {
   try {
     const viewer = await resolveRequestViewer(request)
+    const { id } = await params
     const { businessId } = parseConversationThreadQuery(queryParams(request))
-    const data = await getConversationAnalyses({ viewer, businessId, conversationId: params.id })
+    const data = await getConversationAnalyses({ viewer, businessId, conversationId: id })
     return NextResponse.json(data)
   } catch (err) {
     if (err instanceof ZodError) {
