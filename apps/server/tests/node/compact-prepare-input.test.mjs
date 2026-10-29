@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { mkdtemp, mkdir, writeFile, readFile, access } from 'node:fs/promises'
 import path from 'node:path'
 import os from 'node:os'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { hash, implementation } from './compact-fixtures.mjs'
 
 const revision = 'c'.repeat(40)
@@ -62,4 +63,23 @@ test('missing producer inputs cannot emit a release manifest', async () => {
   const a = await api(), f = await fixture(), output = path.join(f.root, 'prepared')
   await assert.rejects(a.prepareCompactInput({ outputDirectory: output, sourceRevision: revision, images: {}, ociDirectory: f.output, baselineDirectory: f.root, providerEvidenceFile: path.join(f.root, 'absent') }))
   await assert.rejects(access(path.join(output, 'release-manifest.json')))
+})
+
+test('the TEST recipe copies notices from the selected module even when another mc version is cached', async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), 'compact-notices-'))
+  for (const dir of ['bin', 'mod/github.com/minio/minio@selected', 'mod/github.com/minio/mc@selected', 'mod/github.com/minio/mc@other']) await mkdir(path.join(root, dir), { recursive: true })
+  for (const [name, value] of [['minio@selected', 'selected-minio-license'], ['mc@selected', 'selected-mc-license'], ['mc@other', 'foreign-license']]) await writeFile(path.join(root, 'mod/github.com/minio', name, 'LICENSE'), value)
+  const gitPath = execFileSync('git', ['--exec-path'], { encoding: 'utf8', windowsHide: true }).trim()
+  const bash = process.platform === 'win32' ? path.resolve(gitPath, '../../../bin/bash.exe') : '/bin/bash'
+  const shellRoot = process.platform === 'win32' ? root.replaceAll('\\', '/').replace(/^([A-Za-z]):/, (_, drive) => `/${drive.toLowerCase()}`) : root
+  const quote = value => `'${value.replaceAll("'", "'\\''")}'`
+  await writeFile(path.join(root, 'bin/go'), '#!/bin/sh\nif [ "$1" = install ]; then exit 0; fi\ncase "$*" in *github.com/minio/minio@*) printf "%s\\n" "$NOTICE_ROOT/mod/github.com/minio/minio@selected";; *github.com/minio/mc@*) printf "%s\\n" "$NOTICE_ROOT/mod/github.com/minio/mc@selected";; *) exit 1;; esac\n', { mode: 0o755 })
+  const recipe = await readFile(new URL('../../deploy/compact/Minio.test.Dockerfile', import.meta.url), 'utf8')
+  const command = /^RUN ([\s\S]+?)\nFROM /m.exec(recipe)?.[1]
+  assert(command)
+  const bounded = command.replaceAll('/go/pkg/mod', `${quote(shellRoot)}/mod`).replaceAll('/notices', `${quote(shellRoot)}/notices`)
+  const result = spawnSync(bash, ['-c', `export NOTICE_ROOT=${quote(shellRoot)}; export PATH=${quote(shellRoot)}/bin:$PATH; ${bounded}`], { encoding: 'utf8', windowsHide: true })
+  assert.equal(result.status, 0, result.stderr)
+  assert.equal(await readFile(path.join(root, 'notices/MC-LICENSE'), 'utf8'), 'selected-mc-license')
+  assert.equal(await readFile(path.join(root, 'notices/MINIO-LICENSE'), 'utf8'), 'selected-minio-license')
 })

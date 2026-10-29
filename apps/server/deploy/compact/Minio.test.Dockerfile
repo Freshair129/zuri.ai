@@ -5,8 +5,8 @@ ENV CGO_ENABLED=0 GOTOOLCHAIN=local GOBIN=/out
 RUN go install github.com/minio/minio@7aac2a2c5b7c882e68c1ce017d8256be2feea27f \
  && go install github.com/minio/mc@7394ce0dd2a80935aded936b09fa12cbb3cb8096 \
  && mkdir /notices \
- && cp /go/pkg/mod/github.com/minio/minio@*/LICENSE /notices/MINIO-LICENSE \
- && cp /go/pkg/mod/github.com/minio/mc@*/LICENSE /notices/MC-LICENSE
+ && cp "$(go list -m -f '{{.Dir}}' github.com/minio/minio@7aac2a2c5b7c882e68c1ce017d8256be2feea27f)/LICENSE" /notices/MINIO-LICENSE \
+ && cp "$(go list -m -f '{{.Dir}}' github.com/minio/mc@7394ce0dd2a80935aded936b09fa12cbb3cb8096)/LICENSE" /notices/MC-LICENSE
 FROM debian@sha256:a3bba7dc7dbcc1f37c2856c51fc9a7fac96608f50cb87b1b4e4d8b8c85ae988e
 LABEL org.opencontainers.image.source="https://github.com/minio/minio" \
       org.opencontainers.image.revision="7aac2a2c5b7c882e68c1ce017d8256be2feea27f" \
