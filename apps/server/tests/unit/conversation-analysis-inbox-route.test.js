@@ -42,6 +42,33 @@ describe('GET /api/crm/conversations/:id/analysis', () => {
     resolveRequestViewer.mockRejectedValue(Object.assign(new Error('AUTH_REQUIRED'), { status: 401 }))
     const response = await get('http://local/api/crm/conversations/c-1/analysis?businessId=b-1')
     expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({ error: 'AUTH_REQUIRED' })
     expect(getConversationAnalyses).not.toHaveBeenCalled()
+  })
+
+  it('preserves refusal status while omitting service messages and details', async () => {
+    getConversationAnalyses.mockRejectedValue(Object.assign(
+      new Error('PRIVATE_REFUSAL_SENTINEL'),
+      { status: 403, details: ['PRIVATE_DETAIL_SENTINEL'] },
+    ))
+    const response = await get('http://local/api/crm/conversations/c-1/analysis?businessId=b-1')
+    expect(response.status).toBe(403)
+    const body = await response.json()
+    expect(body).toEqual({ error: 'ACCESS_DENIED' })
+    expect(JSON.stringify(body)).not.toContain('PRIVATE_REFUSAL_SENTINEL')
+    expect(JSON.stringify(body)).not.toContain('PRIVATE_DETAIL_SENTINEL')
+  })
+
+  it('sanitizes unexpected service failures and never exposes their message or details', async () => {
+    getConversationAnalyses.mockRejectedValue(Object.assign(
+      new Error('RAW_SECRET_SENTINEL'),
+      { details: ['SENSITIVE_DETAIL_SENTINEL'] },
+    ))
+    const response = await get('http://local/api/crm/conversations/c-1/analysis?businessId=b-1')
+    expect(response.status).toBe(500)
+    const body = await response.json()
+    expect(body).toEqual({ error: 'ANALYSIS_UNAVAILABLE' })
+    expect(JSON.stringify(body)).not.toContain('RAW_SECRET_SENTINEL')
+    expect(JSON.stringify(body)).not.toContain('SENSITIVE_DETAIL_SENTINEL')
   })
 })

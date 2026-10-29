@@ -1,4 +1,6 @@
-import { handle, queryParams } from '../../../../_helpers'
+import { NextResponse } from 'next/server'
+import { ZodError } from 'zod'
+import { queryParams } from '../../../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { getConversationAnalyses } from '@/modules/crm/conversation-analysis-service'
 import { parseConversationThreadQuery } from '@/modules/crm/conversation-read-model'
@@ -12,9 +14,35 @@ import { parseConversationThreadQuery } from '@/modules/crm/conversation-read-mo
 export const dynamic = 'force-dynamic'
 
 export async function GET(request, { params }) {
-  return handle(async () => {
+  try {
     const viewer = await resolveRequestViewer(request)
     const { businessId } = parseConversationThreadQuery(queryParams(request))
-    return getConversationAnalyses({ viewer, businessId, conversationId: params.id })
-  })
+    const data = await getConversationAnalyses({ viewer, businessId, conversationId: params.id })
+    return NextResponse.json(data)
+  } catch (err) {
+    if (err instanceof ZodError) {
+      return NextResponse.json(
+        { error: 'Validation failed', issues: err.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`) },
+        { status: 400 },
+      )
+    }
+
+    const requestedStatus = Number(err?.status)
+    const status = Number.isInteger(requestedStatus) && requestedStatus >= 400 && requestedStatus < 500
+      ? requestedStatus
+      : 500
+    const error = status === 401
+      ? 'AUTH_REQUIRED'
+      : status === 403
+        ? 'ACCESS_DENIED'
+        : status === 404
+          ? 'ANALYSIS_NOT_FOUND'
+          : status === 400
+            ? 'REQUEST_REFUSED'
+            : status < 500
+              ? 'REQUEST_REFUSED'
+              : 'ANALYSIS_UNAVAILABLE'
+
+    return NextResponse.json({ error }, { status })
+  }
 }

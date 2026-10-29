@@ -324,7 +324,8 @@ function Thread({ businessId, conversationId, isOwner }) {
   const path = conversationId
     ? `/api/crm/conversations/${encodeURIComponent(conversationId)}?businessId=${encodeURIComponent(businessId)}`
     : null
-  const thread = useFetch(path, [conversationId, businessId])
+  const threadKey = `${businessId}:${conversationId || ''}`
+  const thread = useFetch(path, [conversationId, businessId], threadKey)
   const [analysisRefreshKey, setAnalysisRefreshKey] = useState(0)
 
   function reloadCustomerThread() {
@@ -335,6 +336,7 @@ function Thread({ businessId, conversationId, isOwner }) {
   if (!conversationId) {
     return <EmptyState title="เลือกห้องสนทนาทางซ้าย" hint="เพื่อดูข้อความทั้งหมดของลูกค้ารายนั้น" />
   }
+  if (thread.requestKey !== threadKey) return <LoadingCard />
   if (thread.error) return <ErrorState title="เปิดห้องสนทนาไม่ได้" detail={thread.error} retry={thread.reload} />
   // `loading` is not the only not-yet state. `useFetch` starts its request in an
   // effect, so the render between "a conversation was selected" and "the fetch began"

@@ -99,6 +99,29 @@ test('Inbox displays consented selected-Business analysis and clears stale respo
   await expect(firstRow).toBeVisible()
   await expect(secondRow).toBeVisible()
 
+  let releaseFirstThread
+  let firstThreadResponseSeen
+  const firstThreadResponse = new Promise((resolve) => { firstThreadResponseSeen = resolve })
+  await page.route(`**/api/crm/conversations/${first.conversationId}?*`, async (route) => {
+    const response = await route.fetch()
+    firstThreadResponseSeen()
+    await new Promise((resolve) => { releaseFirstThread = resolve })
+    await route.fulfill({ response })
+  })
+  await firstRow.click()
+  await firstThreadResponse
+  await secondRow.click()
+  await expect(page.getByText('SECOND SAFE SUMMARY')).toBeVisible()
+  const firstThreadSettled = page.waitForResponse((response) =>
+    response.url().includes(`/api/crm/conversations/${first.conversationId}?`),
+  )
+  releaseFirstThread()
+  await firstThreadSettled
+  await expect(page.getByText('SECOND SAFE SUMMARY')).toBeVisible()
+  await expect(page.getByText('CRM E2E first', { exact: true })).toHaveCount(1)
+  await expect(page.getByText('CRM E2E second', { exact: true })).toHaveCount(2)
+  await page.unroute(`**/api/crm/conversations/${first.conversationId}?*`)
+
   let releaseFirst
   let firstRequestSeen
   const firstRequest = new Promise((resolve) => { firstRequestSeen = resolve })
@@ -154,7 +177,11 @@ test('revoked consent, erased Customers, and missing analyses fail closed in the
   expect(erased.status()).toBe(404)
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Inbox' })).toBeVisible()
-  await expect(page.getByRole('button', { name: /CRM E2E second/ })).toHaveCount(0)
+  const erasedThread = page.getByRole('button', { name: /CRM E2E second/ })
+  await expect(erasedThread).toHaveCount(1)
+  await erasedThread.click()
+  await expect(page.getByText('เปิดห้องสนทนาไม่ได้')).toBeVisible()
+  await expect(page.getByText('SECOND SAFE SUMMARY')).toHaveCount(0)
 
   await page.reload()
   await page.getByRole('button', { name: /CRM E2E missing analysis/ }).click()
