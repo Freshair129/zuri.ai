@@ -1278,5 +1278,6 @@ export const CURRENT_SCHEMA_CONTRACTS = Object.freeze({
   "supabase/migrations/20261023090000_scope_crud_metadata.sql": "29b08f93ac801e8eae0da520ac0c39ac769f39a7e2caf63f164ab9953d15f613",
   "supabase/migrations/20261023130000_line_product_facts.sql": "80cca13bd55516c4e0cf5ced3d14d033c12f8eb66c41db3dbc10dbd869cbf92d",
   "supabase/migrations/20261024010000_dependency_handoff.sql": "7ebd65cccbb049f92a8e0c246b7866888f65e39958b855ae43ffbb704e965d19",
-  "supabase/migrations/20261024120000_line_product_disclosure_policy.sql": "684408a8247a5e111baa4f0d6d523d8f6cfac5fc4dac99a65f292d90e055ce01"
+  "supabase/migrations/20261024120000_line_product_disclosure_policy.sql": "684408a8247a5e111baa4f0d6d523d8f6cfac5fc4dac99a65f292d90e055ce01",
+  "supabase/migrations/20261029140000_agent_mission_intake.sql": "a15fb25faca7b64328620fca145c0f3db5cde24cd8bf9e51f60cdf411d3ea95d"
 })
