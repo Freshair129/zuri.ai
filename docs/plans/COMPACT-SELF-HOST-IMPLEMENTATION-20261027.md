@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.12"
+version: "0.1.13"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -400,6 +400,14 @@ supported per-file application workflow with contract adoption before code.
 PostgreSQL installation restore is a separate prerequisite, not part of that
 planning selection. The candidate issues no route/model/permission or canonical
 record, and neither the managed-blob nor aggregate operator gate is closed.
+
+The later owner selection adds the
+[backup transfer prerequisite](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#backup-transfer-prerequisite--selected-design-not-implemented)
+before enabling managed-blob recovery, to preserve normal backup capability.
+That proposed versioned package and backup-orchestrator mapping extend only the
+managed-blob transfer portion; existing installation authority/protected-family
+guards and separate whole-PostgreSQL restore qualification remain unchanged.
+No application implementation or activation follows from this planning update.
 
 ## Dependency and approval handoff
 

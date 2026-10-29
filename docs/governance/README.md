@@ -66,6 +66,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Marketing report receiver — physical design proposal](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md)
 - [Zuri-Go report receiver — parent contract and record migration](../change-requests/marketing/ZURI-GO-REPORT-RECEIVER.md)
 - [Pipeline C0 adoption and canonical clarification](../change-requests/PM-PIPELINE-C0-ADOPTION-20261024.md)
+- [Compact managed-blob recovery OR0 contract proposal](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
 - [Portable managed file content](../change-requests/project-manager/portable-managed-files-20261014.md)
 - [`docs/change-requests/` — intake, not governance](../change-requests/README.md)
 - [Approved contract — Commerce Billing, PromptPay and POS](../change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
