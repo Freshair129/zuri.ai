@@ -4,17 +4,11 @@ title: Compact OR0 recovery and backup transfer canonical adoption
 doc_type: change-request
 status: approved
 superseded_by: null
-version: "0.1.0"
+version: "0.1.1"
 approved_on: "2026-10-30"
 source_revision: "047bb9c5f0e30fcbfd8d5cdeb326342035e25c92"
 implementation_authorized: false
-relations:
-  - type: references
-    target: ZAI:COMPACT-MBR-OR0-CONTRACT-20261029
-  - type: references
-    target: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
-  - type: references
-    target: ZAI:ADR-115
+relations: [{"type":"references","target":"ZAI:COMPACT-MBR-OR0-CONTRACT-20261029"},{"type":"references","target":"ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029"},{"type":"references","target":"ZAI:ADR-115"}]
 ---
 
 # Compact OR0 recovery and backup transfer canonical adoption
@@ -117,3 +111,8 @@ Here record migration means documentation issuance only, not a database migratio
 subjects from source v0.2.0. Adds no new behavior beyond that reviewed envelope.
 ADRs and existing canonical subjects remain unchanged; the parent plan gains
 issuance references while retaining all implementation/qualification gates.
+
+0.1.0 -> 0.1.1: serialize the same typed relations as one YAML flow-array line
+for the sanctioned approval reader's flat frontmatter grammar. No relation,
+statement, authority, implementation or qualification meaning changes. The
+earlier read-only plan refused the multiline source before any record apply.
