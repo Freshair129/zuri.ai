@@ -6,6 +6,36 @@ import { readFile } from 'node:fs/promises'
 import { parse } from 'yaml'
 import { runInNewContext } from 'node:vm'
 
+test('prepared input producer is manual, isolated and publishes only its validated directory', async () => {
+  const workflow = parse(await readFile(new URL('../../../../.github/workflows/docker-image.yml', import.meta.url), 'utf8'))
+  assert.equal(workflow.on.workflow_dispatch.inputs.compact_prepare_input?.default, false)
+  const job = workflow.jobs['compact-prepare']; assert(job)
+  assert.match(job.if, /github.event_name == 'workflow_dispatch'/)
+  assert.match(job.if, /inputs.compact_prepare_input/)
+  assert.deepEqual(job.permissions, { contents: 'read' })
+  assert.equal(job.steps.find(s => s.uses === 'actions/checkout@v4').with?.['fetch-depth'], 0, 'canonical governance needs its pinned historical source objects')
+  assert.equal(job.env.COMPACT_TEST_DOCKER_CONTEXT, 'compact-prepare-ci')
+  const commands = job.steps.filter(s => s.run).map(s => s.run).join('\n')
+  assert.match(commands, /git -C \.\.\/\.\. archive "\$GITHUB_SHA" apps\/server/); assert.match(commands, /--provenance=false/)
+  assert.match(commands, /org.opencontainers.image.revision/)
+  assert.match(commands, /test:compact:provider/)
+  assert.doesNotMatch(commands, /docker (?:push|login|system prune)|secrets\./)
+  const upload = job.steps.find(s => s.uses?.startsWith('actions/upload-artifact'))
+  assert.equal(upload.with.path, '${{ runner.temp }}/compact-prepared')
+  assert.equal(upload.with['include-hidden-files'], true)
+  assert.equal(upload.if, undefined, 'failed producer must not upload an input candidate')
+})
+
+test('the TEST provider recipe pins both source commits and base images and retains license notices', async () => {
+  const recipe = await readFile(new URL('../../deploy/compact/Minio.test.Dockerfile', import.meta.url), 'utf8')
+  assert.match(recipe, /go install github.com\/minio\/minio@[a-f0-9]{40}/)
+  assert.match(recipe, /go install github.com\/minio\/mc@[a-f0-9]{40}/)
+  assert.equal((recipe.match(/^FROM \S+@sha256:[a-f0-9]{64}/gm) || []).length, 2)
+  assert.match(recipe, /GOTOOLCHAIN=local/)
+  assert.match(recipe, /MINIO-LICENSE/); assert.match(recipe, /MC-LICENSE/)
+  assert.doesNotMatch(recipe, /@latest|secrets\.|password|token|production approval/i)
+})
+
 test('the default E2E profile excludes the independently owned Compact fixture', async () => {
   const source = await readFile(new URL('../../playwright.config.js', import.meta.url), 'utf8')
   assert.match(source, /testIgnore:\s*\[[^\]]*compact-core\.spec\.js/)
