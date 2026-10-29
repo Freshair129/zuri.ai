@@ -68,9 +68,6 @@ model Tenant {
   agentApprovalRequests     AgentApprovalRequest[]
   agentApprovalDecisions    AgentApprovalDecision[]
   agentApprovalNotifications AgentApprovalNotification[]
-  agentMissionEvidenceActor     AgentMissionEvidence[] @relation("AgentMissionEvidenceActor")
-  agentMissionEvidenceConfirmed AgentMissionEvidence[] @relation("AgentMissionEvidenceConfirmationActor")
-  agentMissionEvidenceRevoked  AgentMissionEvidence[] @relation("AgentMissionEvidenceRevoker")
   // @req FR-230 — this Tenant's per-data-class retention shortenings (ADR-091 D2).
   tenantRetentionOverrides   TenantRetentionOverride[]
   // @req SEC-034 — this Tenant's Customers' chat evidence archive legal holds (ADR-093 D6).
@@ -509,6 +506,9 @@ model Person {
   agentApprovalRequestsCreated      AgentApprovalRequest[]       @relation("AgentApprovalRequester")
   agentApprovalDecisions            AgentApprovalDecision[]      @relation("AgentApprovalDecisionPerson")
   agentApprovalNotificationsReceived AgentApprovalNotification[]  @relation("AgentApprovalNotificationRecipient")
+  agentMissionEvidenceAuthored       AgentMissionEvidence[]       @relation("AgentMissionEvidenceActor")
+  agentMissionEvidenceConfirmed      AgentMissionEvidence[]       @relation("AgentMissionEvidenceConfirmationActor")
+  agentMissionEvidenceRevoked        AgentMissionEvidence[]       @relation("AgentMissionEvidenceRevoker")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
