@@ -30,6 +30,8 @@ export { createAgentPorts } from './runtime'
 // @req FR-048, FR-049 — provider and grounded business-answer public surfaces.
 export { createModelProviderPort, PUBLIC_LINE_PROVIDERS } from './model-provider'
 export { answerBusinessQuestion } from './grounded-business-answer'
+// TASK-ZAI-012 / PM-MISSION-02 — redacted Agent mission provenance read/write port.
+export { createMissionEvidencePort } from './mission-evidence'
 export {
   createPhase1BusinessAgentPortsFromEnv,
   resolvePhase1RequestScope,
