@@ -16,8 +16,6 @@ import { createMissionDraftPort } from './mission-draft'
 import { DEFAULT_AGENT_ID, resolveAgentAuthorization } from './auth-context'
 import { canonicalJson, sha256 } from './execution-trace'
 import { randomUUID } from 'node:crypto'
-import { resolveViewer } from '@/modules/identity/resolve-viewer'
-import { ownsBusiness } from '@/modules/identity/viewer-authority'
 
 // @req FR-026, FR-072, FR-150 — scoped Project/Work reads and confirmation-gated LINE writes.
 // @spec SEC-001, SEC-008, ADR-061 — identity comes from the durable signed-inbound job;
