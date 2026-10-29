@@ -1,5 +1,5 @@
 ---
-version: "0.7.13"
+version: "0.7.15"
 status: active
 superseded_by: null
 ---
@@ -52,6 +52,10 @@ plans and historical test receipts are separate from the build specification.
   The [OR0 contract proposal](change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
   specifies proposed transport/custody, source writer audit and owner-selected
   backup transfer prerequisite before canonical adoption and recovery activation.
+  The [OR0 canonical-adoption decision](change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
+  is bound by the sanctioned migration issuing [ZAI:FR-292 recovery](requirements/FR-292.md)
+  and [ZAI:FR-293 backup transfer](requirements/FR-293.md), both delivery planned.
+  The implementation plan remains candidate and no runtime qualification is granted.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every

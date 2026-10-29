@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.74.0b"
+version: "1.75.0b"
 status: active
-last_update: "2026-10-23,Codex Root"
+last_update: "2026-10-30,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.74.0b to 1.75.0b (2026-10-30): adds standalone FR-292/FR-293 readiness presentation under Project Manager's existing FileAsset/ProjectFile compatibility boundary. Both remain planned; this metadata adds no FEAT membership, implementation, Files service ownership, runtime qualification or production activation.
 
 Version diff 1.73.0b to 1.74.0b (2026-10-23): adds standalone FR-291 readiness navigation under the Agent orchestration surface. Inventory, Commerce and Knowledge retain their separate authority; this presentation entry grants no ownership or production activation.
 
@@ -57,7 +59,7 @@ Version diff 1.55.0b → 1.56.0b: register FR-250 as a project-manager Standalon
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.73.0b |
+| **Version** | 1.75.0b |
 | **Status** | Active — hand-maintained source of truth |
 
 A **Feature (`FEAT-xxx`) is a product capability**; a **Functional Requirement
@@ -1072,6 +1074,16 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-291",
     "primaryDomain": "agent",
     "useCase": "Customer requests explicit LINE product facts with #product; show only authorized coarse availability and an exact verified published price, with deterministic replies and live checks before send."
+  },
+  {
+    "id": "FR-292",
+    "primaryDomain": "project-manager",
+    "useCase": "Business OWNER กู้ bytes เดิมของ Asset/catalog และผูก ref ใหม่กับ FileAsset เดิมบน Compact PostgreSQL โดยคงตัวตน ขอบเขต ลิงก์ และหลักฐานตามสิทธิ์ปัจจุบัน"
+  },
+  {
+    "id": "FR-293",
+    "primaryDomain": "project-manager",
+    "useCase": "installation operator ส่งออก metadata พร้อม bytes เดิมของ reserved managed-blob refs แล้ว preview/confirm การกู้เข้า Compact target ที่ผ่าน admission โดยใช้ target refs ใหม่และคง version ของข้อมูล"
   }
 ]
 ```

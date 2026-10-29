@@ -4,7 +4,7 @@ title: Compact managed-blob recovery OR0 contract proposal
 doc_type: change-request
 status: proposed
 superseded_by: null
-version: "0.2.0"
+version: "0.3.0"
 source_revision: "63749acd7a279e4cded6bc88f7f5315819e79acc"
 implementation_authorized: false
 relations:
@@ -12,18 +12,30 @@ relations:
     target: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
   - type: references
     target: ZAI:ADR-115
+  - type: references
+    target: ZAI:FR-292
+  - type: references
+    target: ZAI:FR-293
+  - type: references
+    target: ZAI:COMPACT-MBR-OR0-ADOPTION-20261030
 ---
 
 # Compact managed-blob recovery OR0 contract proposal
 
 ## Authority, decision and limits
 
-This is a proposed contract for review, not a canonical requirement or an
-implementation authorization. It resolves the technical choices left by the
+This intake remains proposed design provenance, not a requirement registry or
+an implementation authorization. Its frozen v0.2.0 envelope at `047bb9c5` was
+adopted through the separate [canonical-adoption approval](compact-managed-blob-recovery-adoption-20261030.md).
+Current statements are [ZAI:FR-292](../../requirements/FR-292.md) and
+[ZAI:FR-293](../../requirements/FR-293.md), delivery **planned**; subsequent
+statement changes belong to that sanctioned canonical workflow.
+
+The retained design resolves the technical choices left by the
 [candidate plan's OR0 review package](../../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md#or0-contract-review-package--draft-2026-10-29).
-The integrator proposes the choices below under the instruction to continue OR0;
-they are not attributed to the owner as approved decisions. Adoption and record
-issuance remain separate from review, implementation and qualification.
+The original scope selections below describe the earlier design task; they are
+not retroactively treated as its adoption approval. Record issuance is separate
+from implementation, enablement and qualification, all still unproved here.
 
 **Owner scope selection, 2026-10-29:** add the transfer/backup contract before
 enabling recovery to preserve backup capability. This selects the design work
@@ -669,16 +681,16 @@ task. Bounded transfer acceptance does not qualify aggregate operatorRecovery,
 all PostgreSQL installation restoration, off-host failure domains, AI, Knowledge
 or production. Those gates remain separate and cannot be closed by a fixture.
 
-## Canonical issuance candidate and acceptance
+## Canonical issuance and retained acceptance
 
-Propose **two standalone authored FR subjects, delivery planned**, under PM/File
-Management ownership: per-file recovery and backup transfer. No FEAT membership
-is issued; FEAT-001 links remain navigation only.
-This matches the current add-only writer's standalone scope and avoids changing
-FR-045's pinned local/SQLite subject. Select a fresh unreserved FR ID against
-committed main only after design approval; this proposal allocates none.
+The sanctioned writer issued **two standalone authored FR records, delivery
+planned**, under PM/File Management ownership: [ZAI:FR-292](../../requirements/FR-292.md)
+for per-file recovery and [ZAI:FR-293](../../requirements/FR-293.md) for backup
+transfer. No FEAT membership is issued; FEAT-001 links remain navigation only.
+FR-045's pinned local/SQLite subject is unchanged. The quoted v0.2.0 texts below
+are historical approval provenance, not independently editable statements.
 
-Proposed statement text (no issued ID):
+Historical v0.2.0 recovery statement (current source: ZAI:FR-292):
 
 > Managed-blob operator recovery on a Compact PostgreSQL target lets a currently
 > authorized Business owner prepare, preview, stage and explicitly confirm one
@@ -700,7 +712,7 @@ Proposed statement text (no issued ID):
 | Product boundary | Supported HTTP/UI path with CSRF, no-store and safe DTO/errors; no fixture SQL, injected Viewer authority, imported-plan or installation CLI writer. |
 | Compatibility | Existing local FileAsset, snapshot/secret guards, Asset evidence and pricing-catalog consumers; fresh Compact PostgreSQL baseline plus canonical registry/reader/governance checks. |
 
-Second proposed subject text (no issued ID):
+Historical v0.2.0 transfer statement (current source: ZAI:FR-293):
 
 > Managed-blob backup transfer preserves complete original-byte and metadata
 > evidence for reserved recovery refs through a bounded operator export/preview/
@@ -712,27 +724,29 @@ Second proposed subject text (no issued ID):
 > requires this supported backup round trip; transfer does not grant per-Business
 > authority or qualify whole-installation restore, AI or production.
 
-Adoption must use the current [canonical authored-record workflow](../../migrations/document-reintegration/CANONICAL-FORMAT.md#additive-authored-records--approved-writer-scope-2026-10-05):
-approved committed source, collision-free manifest, read-only plan, independent
-candidate review, sanctioned apply/ID writer, generated exports and receipt.
-Do not relabel this proposed note as approval evidence or hand-edit hashes to
-make that writer accept it. Earlier reviewed draft commits remain provenance.
+Adoption used the [canonical authored-record workflow](../../migrations/document-reintegration/CANONICAL-FORMAT.md#additive-authored-records--approved-writer-scope-2026-10-05):
+the committed approved v0.1.1 source at `472bf420`, collision-free manifest,
+read-only plan and independent candidate review preceded explicit apply and
+the sanctioned ID writer. The [APPLIED receipt](../../migrations/document-reintegration/record-migrations/compact-managed-blob-recovery-transfer-20261030.receipt.json)
+binds the issued records and generated exports. This proposed note was not
+relabeled as approval; the separate approval and sealed copy carry that role.
+Earlier draft commits, historical snapshots and identities remain unchanged.
 
 ## OR0 disposition and next gate
 
 This package selects concrete **proposed** routes/schema/retention and classifies
 the runtime writer surface at its source revision. It replaces no source code,
 does not assert a universal lock hierarchy and has run no native/provider test.
-OR0 adoption remains OPEN pending contract decision, canonical issuance and
-independent review of that exact composed migration. Actual authority/custody
-and provider proofs remain implementation/enablement gates, not document checks.
+Canonical issuance is complete on this branch under the current owner mandate.
+Composed migration checks/review remain delivery requirements. Actual authority/
+custody and provider proofs remain implementation/enablement gates, not document checks.
 The existing candidate plan stays candidate with implementation_authorized false.
 No production, live LINE, Knowledge checkout or AI qualification is selected.
 
-The owner-selected backup transfer prerequisite is now specified for review;
+The owner-selected backup transfer prerequisite has a planned canonical subject;
 its implementation, normal-backup compatibility acceptance and target restore
-admission are NOT_RUN/OPEN. Owner scope selection is not canonical adoption or
-permission to activate either workflow.
+admission are NOT_RUN/OPEN. The subsequent canonical-adoption instruction grants
+documentation issuance only, not permission to implement or activate either workflow.
 
 ## Version diff and parent/peer impact
 
@@ -751,3 +765,8 @@ recovery activation; adds typed package/coverage, separate installation authorit
 source/target jobs, exact-byte mapping and round-trip acceptance. The temporary
 export refusal is fallback only. Two unissued standalone subjects are proposed;
 the candidate plan, no-code mandate and all qualification boundaries remain.
+
+0.2.0 -> 0.3.0: reconcile sanctioned issuance of ZAI:FR-292 and ZAI:FR-293 with
+the approved source, manifest and receipt. Retain the original proposed lifecycle
+and frozen v0.2.0 design as provenance; current statement authority moves to the
+canonical records. No transport, authority, runtime or qualification claim changes.

@@ -1,14 +1,14 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.11.0"
-updated_at: "2026-10-29"
+version: "1.13.0"
+updated_at: "2026-10-30"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.11.0
+**Version:** 1.13.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
@@ -16,10 +16,16 @@ version-controlled.
 
 ## Current contract proposals
 
+- [Compact OR0 canonical-adoption decision](project-manager/compact-managed-blob-recovery-adoption-20261030.md)
+  (0.1.1, approved for documentation issuance): the sanctioned writer issued
+  [ZAI:FR-292](../requirements/FR-292.md) and [ZAI:FR-293](../requirements/FR-293.md)
+  as planned standalone records; candidate implementation and unqualified
+  operator recovery/AI remain unchanged.
+
 - [Compact managed-blob recovery OR0 contract](project-manager/compact-managed-blob-recovery-or0-20261029.md)
-  (0.2.0, proposed): source-bound writer audit, transport/custody choices and
-  owner-selected backup transfer before recovery activation. Two standalone
-  subjects remain unissued; the plan stays candidate and no code is authorized.
+  (0.3.0, retained design provenance): v0.2.0 is the frozen envelope adopted by
+  the separate approval above. Current statements live in the canonical records;
+  the plan stays candidate and no code is authorized.
 
 - [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
   (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
