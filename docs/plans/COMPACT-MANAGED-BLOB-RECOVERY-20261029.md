@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.2.0"
+version: "0.3.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -337,6 +337,10 @@ close none of them. The next authorized step is OR0 contract review/adoption;
 application code follows only the reviewed contract and selected implementation.
 
 ## OR0 contract review package — draft, 2026-10-29
+
+The [concrete OR0 contract proposal](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
+continues this draft with a classified writer inventory, proposed HTTP/persistence/
+retention contracts and an unissued canonical statement. It does not adopt them.
 
 **Source inspected:** `05a47191a65ca399b5ce1fcf072d5ce6caa29673`.
 This section refines the candidate for review; it does not adopt a canonical

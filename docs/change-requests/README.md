@@ -1,20 +1,25 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.9.0"
+version: "1.10.0"
 updated_at: "2026-10-24"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.9.0
+**Version:** 1.10.0
 
 This directory holds **proposals**. Nothing in it is a requirement of this
 product, and being here grants a document no standing beyond being readable and
 version-controlled.
 
 ## Current contract proposals
+
+- [Compact managed-blob recovery OR0 contract](project-manager/compact-managed-blob-recovery-or0-20261029.md)
+  (0.1.0, proposed): source-bound authority-writer audit, concrete transport and
+  custody/retention choices, and an unissued standalone-FR candidate. The plan
+  stays candidate; implementation, canonical adoption and qualification remain open.
 
 - [Customer-approved LINE product fields from GenesisRAG17](integration/line-customer-product-disclosure-20261024.md)
   (0.3.0, bounded implementation present; activation pending): per-product/per-field owner preview and approval,
