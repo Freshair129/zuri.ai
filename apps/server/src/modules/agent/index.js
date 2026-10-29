@@ -30,6 +30,10 @@ export { createAgentPorts } from './runtime'
 // @req FR-048, FR-049 — provider and grounded business-answer public surfaces.
 export { createModelProviderPort, PUBLIC_LINE_PROVIDERS } from './model-provider'
 export { answerBusinessQuestion } from './grounded-business-answer'
+// TASK-ZAI-012 legacy LINE-owned WorkItem evidence port; not PM Mission intake.
+export { createMissionEvidencePort } from './mission-evidence'
+// TASK-ZAI-012 revision 2026-10-29b — read and PM transaction-bound draft association seam.
+export { createMissionDraftPort } from './mission-draft'
 export {
   createPhase1BusinessAgentPortsFromEnv,
   resolvePhase1RequestScope,
