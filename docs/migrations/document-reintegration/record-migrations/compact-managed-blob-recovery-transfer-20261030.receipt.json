@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "migrationId": "compact-managed-blob-recovery-transfer-20261030",
+  "status": "APPLIED",
+  "manifestSha256": "728a9492bf4433c310c52ba601f3bfcdecc7f8b7fc3074d0d5f16fa3360144ea",
+  "base": {
+    "commit": "472bf4201ae26be38891c4ce81d07774e1d1d928",
+    "indexSha256": "2effccab27d1f4524d8b63110c20731f28c6309d5026c548fb2e724bfc8f82b8",
+    "ledgerSha256": "e12dde4fd02dfa54807ddca31d54d54d2dd1c0818038579bda5de82fd723e3a4"
+  },
+  "ids": [
+    "FR-292",
+    "FR-293"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/compact-managed-blob-recovery-transfer-20261030.approval.md": null,
+    "docs/requirements/FR-292.md": null,
+    "docs/requirements/FR-293.md": null,
+    "registry/document-registry/index.json": "2effccab27d1f4524d8b63110c20731f28c6309d5026c548fb2e724bfc8f82b8",
+    "docs/PRD-SDD-v1.0.md": "b188c45d6acdadb2fed318130cdfc3e883d965e80d84e0f9f736a833aa4c40af",
+    "docs/FEATURES.md": "ef5806bffbacd8a8f534de888df3b4e439227ed92a955b4c8e3857fdd17ab54d",
+    "docs/.id-ledger.json": "e12dde4fd02dfa54807ddca31d54d54d2dd1c0818038579bda5de82fd723e3a4"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/compact-managed-blob-recovery-transfer-20261030.approval.md": "9d8b91b374b6cdf7830ba90f21afed3872939be4d58fc70bf73f978c64eb5885",
+    "docs/requirements/FR-292.md": "e96825f7fe754a0b6f179fb01f0789923d3edfed9941f424a1f006eee680628a",
+    "docs/requirements/FR-293.md": "f3eb3685b3012b4f08fda88d3e8bca15d3dd278b2f90c5104cc65b4e9204253c",
+    "registry/document-registry/index.json": "859025a1059423b7b50e39efcb710a02123897ba1acb69161222bfd4a65d6937",
+    "docs/PRD-SDD-v1.0.md": "02ce8fdaadd4c39036257fe83f1d0ddc7270ddb406aa93883eaec24f50494305",
+    "docs/FEATURES.md": "ef5806bffbacd8a8f534de888df3b4e439227ed92a955b4c8e3857fdd17ab54d",
+    "docs/.id-ledger.json": "752f9f91831635aae7628c085ccc4983f4d810833743fbcb4bb39e9374d396df"
+  }
+}

@@ -37,11 +37,11 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 171,
+    "featureCount": 173,
     "readyFeatureCount": 121,
-    "requirementCount": 279,
+    "requirementCount": 281,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.8,
+    "progressPercent": 93.1,
     "gapCount": 78,
     "gaps": [
       {
@@ -9408,11 +9408,13 @@
         "FR-252",
         "FR-272",
         "FR-284",
-        "FR-286"
+        "FR-286",
+        "FR-292",
+        "FR-293"
       ],
-      "featureCount": 53,
+      "featureCount": 55,
       "readyFeatureCount": 48,
-      "progressPercent": 98
+      "progressPercent": 95.3
     }
   },
   "features": [
@@ -21405,6 +21407,64 @@
         "services/conversation-runtime/test/smoke-core.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js"
       ]
+    },
+    {
+      "id": "FR-292",
+      "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and explicitly confirm one existing active Asset/catalog FileAsset using exact persisted content evidence. The operation preserves identity, scope and consumer links while atomically committing one ref/version, durable result and redacted audit under current persisted-session and ownership fences. Durable operation custody distinguishes ambiguous external writes from failed writes; unqualified provider retries are refused, known cleanup is exact and scoped, and missing post-commit bytes fail closed as recovery-required. Installation restore, changed bytes, cross-scope moves and AI qualification are not conferred.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-292"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [],
+      "useCase": "Business OWNER กู้ bytes เดิมของ Asset/catalog และผูก ref ใหม่กับ FileAsset เดิมบน Compact PostgreSQL โดยคงตัวตน ขอบเขต ลิงก์ และหลักฐานตามสิทธิ์ปัจจุบัน",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-292 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-292",
+          "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and…",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
+    },
+    {
+      "id": "FR-293",
+      "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator export/preview/ confirm workflow, excluding source runtime authority and control state. A validated package binds every FileAsset/ProjectFile ref and byte witness; target-local jobs derive verified immutable refs from trusted target selection and commit their mapping with the authorized metadata replacement, audit and durable result. Existing snapshot refusals remain enforced. Recovery activation requires this supported backup round trip; transfer does not grant per-Business authority or qualify whole-installation restore, AI or production.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-293"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [],
+      "useCase": "installation operator ส่งออก metadata พร้อม bytes เดิมของ reserved managed-blob refs แล้ว preview/confirm การกู้เข้า Compact target ที่ผ่าน admission โดยใช้ target refs ใหม่และคง version ของข้อมูล",
+      "progressPercent": 0,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-293 is planned"
+      ],
+      "requirements": [
+        {
+          "id": "FR-293",
+          "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
+          "status": "planned",
+          "progressPercent": 0,
+          "codeCount": 0,
+          "testCount": 0
+        }
+      ],
+      "evidence": []
     }
   ],
   "historicalFeatures": [

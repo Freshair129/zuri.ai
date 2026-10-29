@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.4.0"
+version: "0.5.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -18,6 +18,12 @@ relations:
     target: ZAI:FR-075
   - type: references
     target: ZAI:SEC-030
+  - type: references
+    target: ZAI:FR-292
+  - type: references
+    target: ZAI:FR-293
+  - type: references
+    target: ZAI:COMPACT-MBR-OR0-ADOPTION-20261030
 ---
 
 # Compact managed-blob operator restore/rebind implementation plan
@@ -220,15 +226,18 @@ not approved records created by this planning task.
   sequential conditional-write evidence is insufficient for timeout retries.
 - [ ] Review the minimal wire/API and persistence contract before fixing public
   route/model names. Preserve existing native ports and snapshot refusal guards.
-- [ ] Adopt the sanctioned canonical record migration and regenerate/check
-  registry, graph and views. Obtain independent review before application code.
+- [x] Issue planned standalone ZAI:FR-292 and ZAI:FR-293 through the sanctioned
+  canonical record migration after independent source/manifest review. Registry,
+  graph/views checks and composed review remain required for every delivery;
+  this issuance does not select application code or close qualification gates.
 
 ### OR1 — Pure descriptor/protocol and supported preparation path
 
 **Additional owner-selected prerequisite (2026-10-29):** the
 [backup transfer contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#backup-transfer-prerequisite--selected-design-not-implemented)
-must be adopted and implemented before recovery activation, so the first
-reserved ref does not disable normal backup. Before selecting application work,
+now has canonical subjects ZAI:FR-292/FR-293; its implementation and supported
+round-trip proof must precede recovery activation, so the first reserved ref
+does not disable normal backup. Before selecting application work,
 reconcile its versioned package/HTTP/UI, PM transfer-job/receipt persistence,
 shared export/import fence and fresh target mapping with OR1–OR5. No runtime
 implementation is authorized by this candidate revision.
@@ -552,6 +561,9 @@ contract is adopted; it never enables automatic PUT retry.
 
 ### Canonical adoption delta and disposition
 
+The following v0.3.0 disposition is retained as history; the v0.5.0 issuance
+continuation below is current for documentation adoption only.
+
 Propose one new managed-blob recovery subject, covering authenticated preparation,
 preview/stage/confirm, scope/current authority, exact-byte rebind, durable retry,
 failure/custody and bounded acceptance above. Review explicit FEAT membership and
@@ -573,5 +585,30 @@ operatorRecovery and AI profiles **NOT_QUALIFIED** are unchanged.
 
 Continuation v0.4.0 records the owner's choice of transfer/backup design before
 activation, replacing temporary full-export loss as an acceptable rollout option.
-The linked proposed contract now specifies the additional backup subject and
-acceptance; it remains unadopted, with native/provider/round-trip proof NOT_RUN.
+At v0.4.0 the linked proposed contract specified the additional backup subject
+and acceptance but remained unadopted, with native/provider/round-trip proof NOT_RUN.
+
+### Canonical issuance continuation — 2026-10-30
+
+The owner selected canonical adoption only. The [approved adoption source v0.1.1](../change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
+at `472bf4201ae26be38891c4ce81d07774e1d1d928` binds the frozen v0.2.0 design at
+main `047bb9c5`. Independent source and read-only candidate review preceded
+the sanctioned writer's APPLIED [migration receipt](../migrations/document-reintegration/record-migrations/compact-managed-blob-recovery-transfer-20261030.receipt.json).
+Its active authored records [ZAI:FR-292](../requirements/FR-292.md) and
+[ZAI:FR-293](../requirements/FR-293.md) have delivery **planned**, with no FEAT
+membership or existing subject change. Original canonical blobs, ledger entries
+and FEAT membership were preserved; reapplication reports ALREADY_APPLIED.
+
+This closes the record-issuance part of OR0, not its native authority/provider,
+custody or product backup round-trip evidence. MBR-PROVIDER-CONDITIONAL and
+installation restore provenance remain NOT_RUN/OPEN. This plan stays
+**candidate**, implementation_authorized false, with AI profiles and aggregate
+operatorRecovery **NOT_QUALIFIED**. Further statement edits use canonical
+amendment; this plan is not a second requirement registry.
+
+Git delivery must preserve the approval/base commit ancestry validated by the
+canonical reader. Use a merge commit for this branch; squash/rebase would drop
+the pinned source commit from main ancestry and is not a valid provenance handoff.
+
+0.4.0 -> 0.5.0: reconcile documentation issuance and current canonical locators.
+No application task, release, runtime, database migration or production is selected.

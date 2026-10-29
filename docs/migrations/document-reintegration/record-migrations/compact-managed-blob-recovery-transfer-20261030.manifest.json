@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "migrationId": "compact-managed-blob-recovery-transfer-20261030",
+  "base": {
+    "commit": "472bf4201ae26be38891c4ce81d07774e1d1d928",
+    "indexSha256": "2effccab27d1f4524d8b63110c20731f28c6309d5026c548fb2e724bfc8f82b8",
+    "ledgerSha256": "e12dde4fd02dfa54807ddca31d54d54d2dd1c0818038579bda5de82fd723e3a4"
+  },
+  "approval": {
+    "path": "docs/change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md",
+    "revision": "472bf4201ae26be38891c4ce81d07774e1d1d928",
+    "version": "0.1.1",
+    "sha256": "9d8b91b374b6cdf7830ba90f21afed3872939be4d58fc70bf73f978c64eb5885"
+  },
+  "records": [
+    {
+      "id": "FR-292",
+      "family": "FR",
+      "statement": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and explicitly confirm one existing active Asset/catalog FileAsset using exact persisted content evidence. The operation preserves identity, scope and consumer links while atomically committing one ref/version, durable result and redacted audit under current persisted-session and ownership fences. Durable operation custody distinguishes ambiguous external writes from failed writes; unqualified provider retries are refused, known cleanup is exact and scoped, and missing post-commit bytes fail closed as recovery-required. Installation restore, changed bytes, cross-scope moves and AI qualification are not conferred.",
+      "statementSha256": "d3d2b98ccaf3e39f709f75e74dceefd17554f9352a1649cba82771c11bc42025",
+      "subjectAnchor": "managed blob operator recovery on a compact postgresql"
+    },
+    {
+      "id": "FR-293",
+      "family": "FR",
+      "statement": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator export/preview/ confirm workflow, excluding source runtime authority and control state. A validated package binds every FileAsset/ProjectFile ref and byte witness; target-local jobs derive verified immutable refs from trusted target selection and commit their mapping with the authorized metadata replacement, audit and durable result. Existing snapshot refusals remain enforced. Recovery activation requires this supported backup round trip; transfer does not grant per-Business authority or qualify whole-installation restore, AI or production.",
+      "statementSha256": "8e4d50a4031a1a407f5afe184735320943cb27ed6975b84b8ed6feb0b5b09865",
+      "subjectAnchor": "managed blob backup transfer preserves complete original"
+    }
+  ]
+}
