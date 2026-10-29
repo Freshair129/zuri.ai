@@ -1,7 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { canonicalJson } from './execution-trace'
 
-// TASK-ZAI-012 / PM-MISSION-02 — Agent-owned, redacted provenance port.
+// TASK-ZAI-012 legacy LINE confirmLineWork evidence only; not PM Mission intake.
 // The injected repository is the trust boundary: its producer resolver must use
 // the claimed LINE job and existing contextFor/assertWrite/targetFor checks, and
 // its reader must authorize from server-derived context and current DB scope.
@@ -191,7 +191,7 @@ function redact(row) {
 }
 
 /**
- * Create the Agent mission evidence port over an injected persistence adapter.
+ * Create the legacy LINE WorkItem evidence port over an injected persistence adapter.
  *
  * Repository contract:
  * - transaction(fn)
