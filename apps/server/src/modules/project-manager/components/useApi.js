@@ -2,7 +2,7 @@
 
 // @spec SDD-007 — the UI reads through client fetch to API handlers, which
 // delegate to services; there is no server-component read path in the MVP.
-import { createElement, useCallback, useEffect, useState } from 'react'
+import { createElement, useCallback, useEffect, useRef, useState } from 'react'
 
 // @req FR-045 - capability requests may add explicit, narrow headers without bypassing JSON error handling.
 // @tested tests/unit/fr045-api-ui-contract.test.js
@@ -65,29 +65,45 @@ async function requestJson(path, { method = 'GET', body, headers } = {}) {
 /**
  * Fetch hook with loading/error/reload.
  */
-export function useFetch(path, deps = []) {
-  const [state, setState] = useState({ data: null, loading: true, error: null })
+export function useFetch(path, deps = [], scopeKey = path) {
+  const requestSequence = useRef(0)
+  const currentScope = useRef(scopeKey)
+  currentScope.current = scopeKey
+  const [state, setState] = useState({ data: null, loading: true, error: null, requestKey: null, requestPath: null })
 
   const reload = useCallback(async () => {
+    const requestKey = scopeKey
+    const sequence = ++requestSequence.current
     if (!path) {
-      setState({ data: null, loading: false, error: null })
+      setState({ data: null, loading: false, error: null, requestKey, requestPath: path })
       return
     }
-    setState((s) => ({ ...s, loading: true, error: null }))
+    setState((s) => ({
+      data: s.requestKey === requestKey && s.requestPath === path ? s.data : null,
+      loading: true,
+      error: null,
+      requestKey,
+      requestPath: path,
+    }))
     try {
       const data = await api(path)
-      setState({ data, loading: false, error: null })
+      if (sequence === requestSequence.current && currentScope.current === requestKey) {
+        setState({ data, loading: false, error: null, requestKey, requestPath: path })
+      }
     } catch (err) {
-      setState({ data: null, loading: false, error: err.message })
+      if (sequence === requestSequence.current && currentScope.current === requestKey) {
+        setState({ data: null, loading: false, error: err.message, requestKey, requestPath: path })
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [path, ...deps])
+  }, [path, scopeKey, ...deps])
 
   useEffect(() => {
     reload()
+    return () => { requestSequence.current += 1 }
   }, [reload])
 
-  return { ...state, reload }
+  return { data: state.data, loading: state.loading, error: state.error, requestKey: state.requestKey, reload }
 }
 
 // Written with createElement instead of JSX (this file keeps the plain .js

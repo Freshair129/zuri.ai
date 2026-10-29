@@ -40,6 +40,16 @@ part that matters: tenant-sharing is a CRM rule, not a licence to hand someone
 a Business they cannot open. Each row is labelled with its owning Business (or
 `ทั้ง tenant`) so the reader is never guessing which one they are looking at.
 
+### CRM-READ-01 implementation boundary (2026-10-28)
+
+The current `conversation-read-model.js` query selects `businessId: null` or
+the selected Business only; it does not implement the broader
+`visibleBusinessIds` wording above. Until FR-091's broader wording is separately
+reconciled, the CRM-READ-01 conversation-analysis panel is limited to exactly
+the rows returned by the current Inbox query. Its reader also requires the same
+per-Business `customer` domain grant. This bounded decision does not widen the
+Inbox or grant sibling-Business access.
+
 ## Decision 2 — the inbox cannot reply
 
 There is no reply box, and adding one is not a small follow-up.
