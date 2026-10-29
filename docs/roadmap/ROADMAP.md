@@ -10,14 +10,21 @@ relations:
 title: "ROADMAP: zuri-ai — Live Delivery State"
 doc_id: "ROADMAP-ZURI-V2-LAB"
 status: "approved"
-version: "2.170.1b"
-updated: "2026-10-23"
+version: "2.171.0b"
+updated: "2026-10-30"
 owner: "Owen"
 source_of_truth: true
 live_document: true
 ---
 
 # ROADMAP: zuri-ai — Live Delivery State
+
+> Revision 2.171.0b (2026-10-30): add FR-292/FR-293 delivery-trace rows for the
+> separately owner-selected Compact OR1 foundation. Canonical delivery remains
+> planned; isolated protocol/preparation code is partial behavior, not completed
+> recovery or transfer. No phase/sprint progress, schedule, production acceptance
+> or OR2–OR5 activation is assigned. The plan remains candidate; AI profiles and
+> aggregate operatorRecovery remain NOT_QUALIFIED.
 
 > Revision 2.170.1b (2026-10-23): B4 is selected for PR/hosted-CI/release-readiness preparation only. B2 isolated role/recovery and B3 strategy adapter/browser evidence are recorded in the approved qualification plan; B3 local head is `4c31ab99`. The candidate incorporates main `77be99c8`, preserving both PostgreSQL test selections. Exact-head hosted checks and independent readiness review remain pending at preparation time; results belong to the PR at its final head. No PR merge, image release, migration, environment acceptance or production action is authorized by this increment. Historical B1/A1 findings below retain their dated source scope. Task states/counts remain unchanged.
 
@@ -669,6 +676,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-V2-CROSSBIZ | PHASE-V2-REPLACE | task | Ship one genuinely cross-business screen early (survives ADR-024 as ordinary product work — no longer tied to any migration) | P1 | Claude | planned | - | ADR-024 |
 | TASK-V2-LASTDATE | PHASE-V2-REPLACE | task | ~~Final per-tenant cutover date~~ — no cutover will occur | P0 | Owen | cancelled (ADR-024) | - | ADR-024 |
 | TASK-FR-045 | PHASE-V2-REPLACE | task | SQLite-authoritative managed local file workspace, Business/Project File Manager, disposable cache and legacy ProjectFile migration | P0 | Codex | done (beta) | ADR-016; ZV2-CR-001 | ../domains/project-manager/features/FR-045-managed-local-file-workspace.md; roadmap/PLAN-FR-045-MANAGED-LOCAL-FILE-WORKSPACE.md |
+| TASK-FR-292 | PHASE-V2-REPLACE | task | FR-292 Compact exact managed-blob recovery: OR1 descriptor, streamed integrity and persisted-authority preparation input only; durable custody, stage/confirm, native fence, product workflow and qualification remain open | P1 | Codex | in-progress (OR1 foundation; canonical delivery planned; recovery inactive) | FR-292; FR-293; ADR-115 | ../requirements/FR-292.md; ../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md |
+| TASK-FR-293 | PHASE-V2-REPLACE | task | FR-293 Compact backup transfer: OR1 bounded canonical TAR/manifest and complete row/byte witness codec only; live export/preview/confirm, target mapping, admission and supported backup round trip remain open | P1 | Codex | in-progress (OR1 pure protocol; canonical delivery planned; transfer inactive) | FR-293; FR-292; ADR-115 | ../requirements/FR-293.md; ../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md |
 | TASK-FR-284 | PHASE-V2-REPLACE | task | Portable Windows/POSIX managed FileAsset content, contained staging and promotion, case-aware reconciliation, and honest partial snapshot restore | P1 | Codex / Luna | done (PR #657 merged; local implementation and gates verified; production NOT_RUN) | FR-284; SDD-113; FR-045; SEC-007; ADR-016 | ../requirements/FR-284.md; ../requirements/SDD-113.md; ../change-requests/project-manager/portable-managed-files-20261014.md |
 | TASK-FR-046 | PHASE-V2-REPLACE | task | Trusted request viewer and atomic viewer-scoped `/api/entry` for production-safe Business Routing | P0 | Codex | done | FR-031; FR-044 | ADR-017; ../domains/identity/features/FR-046-production-viewer-entry-contract.md |
 | TASK-FR-053-054 | PHASE-V2-REPLACE | task | Phase 1 activation readiness: deterministic golden evaluation, live-role isolation probe and dry-run controlled canary plan | P0 | Codex | done (beta; external activation pending) | FR-047..052; ADR-018 | ADR-019; changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md |

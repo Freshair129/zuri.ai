@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.5.0"
+version: "0.6.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -233,14 +233,58 @@ not approved records created by this planning task.
 
 ### OR1 — Pure descriptor/protocol and supported preparation path
 
+**Owner-selected OR1 development (2026-10-30):** the direct task selects isolated
+OR1 implementation against ZAI:FR-292/FR-293, with tests and independent review.
+This document remains candidate and does not authorize the whole plan or runtime
+activation. The selection supersedes the historical planning-only restriction
+for this bounded slice only. Canonical records remain delivery **planned**.
+
+OR1 delivers strict recovery descriptor/request parsing, streamed exact-byte
+verification under byte caps, a persisted-cookie-session/current-OWNER read-only preparation
+input builder, and a pure bounded transfer TAR/manifest/snapshot binding codec.
+Preparation returns matching evidence only: it creates no durable operation,
+operation ID, confirmation binding or `PREPARED` result. OR2 owns the journal,
+atomic quotas, native authority fence and durable preparation transaction; OR3
+owns the supported request/UI entrypoint. No route imports these OR1 modules.
+The read-only snapshot is not the native write/revocation fence proof.
+The pure byte verifier does not independently bound iterator/transport duration.
+Before OR3 calls it, that layer must own cancellation and the existing bounded
+transport deadline, including stalled and infinite empty/tiny-chunk streams.
+That integration/liveness proof remains OPEN; no timeout increase or new public
+stream/chunk admission policy is introduced by this pure helper.
+
+Owner content limits come from the existing policy constants (Asset 20 MiB,
+SmartGift catalog 16 MiB), bounded further by the 32 MiB recovery ceiling. The
+preparation input also requires an exact-Tenant persisted OWNER witness and
+checks expiry at the read decision; no general Viewer/platform shortcut grants
+it. PostgreSQL uses database wall time for that final expiry check.
+
+The codec verifies consistency, canonical bytes, complete reserved-ref coverage
+(including FileAsset tombstones and ProjectFile aliases), exact byte witnesses
+and explicitly supplied finite profile bounds. It neither exports a live target
+nor replaces one. It preserves the existing snapshot JSON fields as evidence;
+it does not interpret exported identity/session history as target authority.
+Recovery journals/fences and transfer jobs/receipts are rejected as portable
+tables. Existing snapshot family/credential refusals, current operator checking,
+fresh authentication, target mapping and restore admission must still execute
+in the future orchestrator; codec validity cannot bypass them. Parsed JSON
+evidence is frozen, while owned byte buffers remain data: the orchestrator must
+rehash sealed bytes and revalidate bindings before provider IO and commit.
+
+The transfer prerequisite below is an **activation dependency spanning OR2–OR5**,
+not a claim that OR1 alone supplies its HTTP/UI/jobs/fences or round-trip proof.
+Its checkboxes remain open. No recovery/provider effect is enabled by this slice;
+AI profiles and aggregate operatorRecovery remain **NOT_QUALIFIED**.
+
 **Additional owner-selected prerequisite (2026-10-29):** the
 [backup transfer contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#backup-transfer-prerequisite--selected-design-not-implemented)
 now has canonical subjects ZAI:FR-292/FR-293; its implementation and supported
 round-trip proof must precede recovery activation, so the first reserved ref
-does not disable normal backup. Before selecting application work,
+does not disable normal backup. Before selecting activating application work,
 reconcile its versioned package/HTTP/UI, PM transfer-job/receipt persistence,
 shared export/import fence and fresh target mapping with OR1–OR5. No runtime
-implementation is authorized by this candidate revision.
+activation is authorized by this candidate revision; only the bounded OR1
+development slice above has been separately selected.
 
 - [ ] Implement the separately selected transfer export/preview/confirm path
   under installation-operator authority, without an invented Business OWNER.
@@ -262,15 +306,17 @@ and `application/managed-blob-recovery-service.js`; corresponding
 `tests/integration/managed-blob-recovery.test.js` under Server.
 
 **Consumes:** the OR0-approved protocol, persisted FileAsset scope and injected
-configured storage ports. **Produces:** bounded validated recovery input and
-server-owned operation identity, not an authority grant.
+configured storage ports. **Produces:** validated recovery input with a
+server-derived FileAsset tuple/evidence under the byte caps, not an operation
+identity or authority grant.
 
-- [ ] Write and observe RED for malformed/oversize/untrusted descriptors, source
+- [x] Write and observe RED for malformed/oversize/untrusted descriptors, source
   mismatches, noneligible states and unauthorized preparation; use real exact
   bytes for hash/length assertions.
-- [ ] Implement strict parsing and the authorized preparation flow. Keep bytes
+- [x] Implement strict parsing and the authorized preparation input boundary
+  described above, without claiming a durable PREPARED operation. Keep bytes
   private, scope derived from rows and all storage access behind existing ports.
-- [ ] Run the targeted protocol/preparation regressions and independent review
+- [x] Run the targeted protocol/preparation regressions and independent review
   of the delivered boundary; no live provider or existing installation mutation.
 
 ### OR2 — PM-owned stage/confirm/result/cleanup with native authority ordering
@@ -612,3 +658,8 @@ the pinned source commit from main ancestry and is not a valid provenance handof
 
 0.4.0 -> 0.5.0: reconcile documentation issuance and current canonical locators.
 No application task, release, runtime, database migration or production is selected.
+
+0.5.0 -> 0.6.0: record the separate owner selection of OR1 foundation development
+and its boundary with durable OR2 custody, OR3 product entrypoints and the
+cross-task transfer activation prerequisite. Candidate lifecycle, planned
+canonical delivery and NOT_QUALIFIED gates remain unchanged.
