@@ -36,7 +36,7 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     // together with the OA it was issued for.
     ...subjects.map(({ channelAccountId, providerSubject }) => ({ channelAccountId, sourceUserId: providerSubject })),
   ]
-  if (!tenantId || selectors.length === 0) return { redactedLineJobs: 0, inboundMessageIds: [] }
+  if (!tenantId || selectors.length === 0) return { redactedLineJobs: 0, erasedMissionDrafts: 0, erasedMissionEvidence: 0, inboundMessageIds: [] }
   const jobs = await tx.lineConversationJob.findMany({
     where: {
       tenantId,
@@ -51,6 +51,84 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     },
     orderBy: [{ accountId: 'asc' }, { id: 'asc' }],
   })
+  // @req TASK-ZAI-012 — the mission evidence feed is private derived provenance.
+  // Tombstone it in the same Identity erasure transaction before source job and
+  // ChannelIdentity data are redacted; never leave an active source link behind.
+  const missionSourceTurnIds = jobs.map(job => job.id)
+  const missionEvidenceWhere = {
+    tenantId,
+    status: { not: 'ERASED' },
+    OR: [
+      ...(missionSourceTurnIds.length ? [{ sourceTurnId: { in: missionSourceTurnIds } }] : []),
+      ...(erasedPrincipalId
+        ? [{ actorId: erasedPrincipalId }, { confirmationActorId: erasedPrincipalId }, { submittedByPersonId: erasedPrincipalId }]
+        : []),
+    ],
+  }
+  const missionDraftWhere = {
+    tenantId,
+    status: { not: 'ERASED' },
+    OR: [
+      ...(missionSourceTurnIds.length ? [{ sourceTurnId: { in: missionSourceTurnIds } }] : []),
+      ...(erasedPrincipalId ? [{ actorPersonId: erasedPrincipalId }] : []),
+    ],
+  }
+  const missionDraftsToErase = missionDraftWhere.OR.length
+    ? await tx.agentMissionDraft.findMany({
+      where: missionDraftWhere,
+      select: { id: true, missionId: true, sourceEventId: true, sourceTurnId: true,
+        tenantId: true, businessId: true, workspaceId: true, projectId: true,
+        workstreamId: true, actorPersonId: true },
+    })
+    : []
+  for (const draft of missionDraftsToErase) {
+    if (!draft.missionId || !draft.sourceEventId || !draft.sourceTurnId || !draft.actorPersonId) continue
+    const scope = { tenantId: draft.tenantId, businessId: draft.businessId,
+      workspaceId: draft.workspaceId, projectId: draft.projectId, workstreamId: draft.workstreamId }
+    // Keep only the locator and authorized lookup scope needed to answer a later
+    // read with an erased result. The original actor, turn, execution, trace and
+    // digest are erased from this event in the same transaction as the draft.
+    const redactedMissionEvent = await tx.auditEvent.updateMany({
+      where: { id: draft.sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: draft.missionId,
+        action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: draft.actorPersonId,
+        tenantId, businessId: draft.businessId, requestId: draft.sourceTurnId },
+      data: {
+        actorType: 'SYSTEM', actorId: null, requestId: null, sessionId: null,
+        reason: 'PERSON_ERASED', beforeJson: null, afterJson: null,
+        payloadJson: JSON.stringify({ eventType: 'MISSION_DRAFT_CREATED', missionId: draft.missionId, scope }),
+      },
+    })
+    if (redactedMissionEvent.count !== 1) {
+      throw new Error('Agent mission draft source event could not be safely redacted')
+    }
+  }
+  const erasedMissionDrafts = missionDraftWhere.OR.length
+    ? await tx.agentMissionDraft.updateMany({
+      where: missionDraftWhere,
+      data: {
+        status: 'ERASED', erasedAt: new Date(), revokedAt: null, version: { increment: 1 },
+        sourceAgentRef: null, missionId: null, sourceTurnId: null, executionId: null,
+        sourceEventId: null, sourceTraceEventId: null, digest: null, snapshotJson: '{}',
+        actorPersonId: null,
+      },
+    })
+    : { count: 0 }
+  const erasedMissionEvidence = missionEvidenceWhere.OR.length
+    ? await tx.agentMissionEvidence.updateMany({
+      where: missionEvidenceWhere,
+      data: {
+        status: 'ERASED', erasedAt: new Date(), revokedAt: null, version: { increment: 1 },
+        sourceTurnId: null, executionId: null, sourceEventId: null, sourceTraceEventId: null,
+        sourceAgentRef: null, missionId: null,
+        confirmationJobId: null, confirmationInboundMessageId: null, confirmationExecutionId: null,
+        sourceDigest: null, missionSnapshotDigest: null, missionSnapshotJson: '{}', idempotencyKey: null,
+        actorId: null, confirmationActorId: null,
+        submittedByPersonId: null, submittedAt: null,
+        channelIdentityId: null, confirmationIdentityVersion: null, channelIdentityLinkedAt: null,
+        revokedByPersonId: null,
+      },
+    })
+    : { count: 0 }
   // @req FR-022 — before any job is overwritten: a person with any memory-sync turn
   // (DIRECT, GROUP or ROOM) gets one pending, Core-owned tenant-wide MSP principal
   // erasure (owner decision 2026-09-28, option A).
@@ -97,5 +175,6 @@ export async function redactLineConversationJobs(tx, { tenantId, conversationIds
     await recordAudit(tx, { entityType: 'LINE_CONVERSATION_JOB', entityId: job.id, action: 'CONTENT_ERASED',
       payload: { tenantId, accountId: job.accountId, status, possibleDelivery: status === 'UNKNOWN' } })
   }
-  return { redactedLineJobs: jobs.length, inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
+  return { redactedLineJobs: jobs.length, erasedMissionDrafts: erasedMissionDrafts.count, erasedMissionEvidence: erasedMissionEvidence.count,
+    inboundMessageIds: jobs.map(job => job.inboundMessageId), pendingMemoryPrincipalErasures: pendingPrincipalErasures }
 }

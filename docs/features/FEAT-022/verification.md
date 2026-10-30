@@ -44,6 +44,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-management-navigation.test.js](../../../apps/server/tests/unit/asset-management-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/crm-group-navigation.test.js](../../../apps/server/tests/unit/crm-group-navigation.test.js) — `verifies` (`transitive`)

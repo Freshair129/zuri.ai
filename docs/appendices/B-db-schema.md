@@ -1,5 +1,7 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.72.0b to 1.73.0b (2026-10-29): TASK-ZAI-012 adds AgentMissionDraft and AgentMissionEvidence, immutable mission provenance linked transactionally to a human-submitted PLANNED WorkItem. The schema declares 212 models; snapshot recovery includes both tables and Identity erasure retains only their scoped tombstones. The Supabase source migration is not applied.
+
 Version diff 1.71.0b to 1.72.0b (2026-10-24): FR-235 adds default-OFF LineProductDisclosurePolicy. The schema declares 210 models; source migrations and verification do not apply any deployed migration.
 
 Version diff 1.70.0b to 1.71.0b (2026-10-23): adds FR-291 LineStockDisclosurePolicy with default-OFF stock disclosure and composite scope foreign keys. Source migrations are authored and isolated SQLite/PostgreSQL verification is separate from any deployed database apply.
@@ -34,6 +36,8 @@ Main history — Version diff 1.63.0b → 1.64.0b (2026-10-05): add three approv
 | AgentApprovalRequest | Tenant/Business, requester Person and ExternalIdentity FKs; action/tier/quorum; target kind, optional Conversation/Customer FK, target version, canonical input summary/digest, PENDING lifecycle, expiry and optimistic version | One immutable authorization request; decisions are separate immutable votes. Included in portable snapshot/restore; no external migration application is implied. |
 | AgentApprovalDecision | Request, Tenant, Business and voting Person FKs; APPROVE/REJECT decision and creation time; unique `(requestId, personId)` | One immutable vote per person/request; included in portable snapshot/restore. No external migration application is implied. |
 | AgentApprovalNotification | Tenant and Business FKs; recipient Person, approval request and recorded decision FKs; notification type, decision/status, created/read timestamps; unique `(decisionId, recipientPersonId)` | Recipient-bound in-app notice; indexed by recipient/read/time and Business scope. Included in portable snapshot/restore; no external delivery or migration apply is implied. |
+| AgentMissionDraft | Tenant/Business/Workspace/Project/Workstream scope, verified Agent source/turn/trace IDs, revision, digest, bounded mission snapshot and lifecycle | Immutable verified draft receipt; source event/scope/digest are checked on recovery. Identity erasure removes actor/source/digest/content and retains a minimal tombstone. No execution or release authority. |
+| AgentMissionEvidence | Draft, scope and WorkItem FKs; source revision/digest, human submitter/audit actor, mission snapshot and lifecycle; unique draft and WorkItem | Created in the PM submission transaction with a PLANNED WorkItem. Portable recovery validates source and scope relationships; erasure redacts personal source fields. No live Agent execution authority. |
 
 Physical invariants and exact tests: [receiver design](../change-requests/marketing/ZURI-GO-REPORT-PHYSICAL-DESIGN.md), [bounded verification](../change-requests/marketing/ZURI-GO-REPORT-IMPLEMENTATION-VERIFICATION.md). These records are intentionally excluded from unsupported legacy snapshots with fail-closed export/preview/import guards; a database containing them requires the approved whole-database custody procedure.
 
@@ -82,9 +86,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.71.0b |
+| **Version** | 1.73.0b |
 | **Status** | Candidate |
-| **Last Updated** | 2026-10-23 |
+| **Last Updated** | 2026-10-29 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)
@@ -118,6 +122,8 @@ roots · `deletedAt` soft delete · enums เป็น string (Zod validate) · 
 | KnowledgeIngestion | sourceId, sourceVersion, revision, contentHash, content, idempotencyKey, executionRunId?, status, claimToken?, leaseExpiresAt? | Immutable accepted Text/Markdown bytes and durable process lease; source/version is unique |
 | KnowledgeCorpusGeneration | corpusId, number, manifestJson, manifestHash, createdAt | Immutable source snapshot membership; unique corpus generation |
 | AgentTraceEvent | tenantId, businessId, turnId, executionId?, kind, idempotencyKey, payloadJson, occurredAt, createdAt, version | FR-171 / ADR-070 scoped append-only execution evidence; exact context and output snapshots, retention tombstones; no provider credentials. Restored after LineConversationJob. |
+| AgentMissionDraft | sourceAgentRef, missionId, revision, tenant/business/workspace/project/workstream, actor/turn/execution/event/trace IDs, digest, snapshotJson, status | TASK-ZAI-012 server-persisted, immutable draft evidence. Restored before its evidence link and after PM scope parents; erasure clears personal/source fields and content while retaining the scoped tombstone. |
+| AgentMissionEvidence | draftId, workItemId/version, tenant/business/workspace/project/workstream, origin, human actor/submitter, source IDs/digests, snapshotJson, status | TASK-ZAI-012 human-submitted PLANNED WorkItem provenance. Restored after WorkItem and draft; does not grant execution or release authority. |
 | LineGroundingShadowComparison | jobId (unique), tenantId, businessId, accountId?, primaryMode, shadowMode, status, primaryAnswerText?, shadowAnswerText?, shadowEvidenceSource?, shadowEvidenceReason?, shadowRetrievalRefsJson?, answersDiverge?, latencyMs?, errorCode?, createdAt | FR-277 / ADR-090 Phase 3 diagnostic-only shadow-compare row per LINE SERVER job; never read by the customer-facing answer path. No relation declared, matching AgentTraceEvent's own convention. |
 | Portfolio | code, name | รากของเครือ (BR-001) |
 | Tenant | portfolioId, status | ขอบเขต isolation + การแชร์ข้อมูล |

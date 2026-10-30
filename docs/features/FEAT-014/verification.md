@@ -28,14 +28,18 @@ No current binding of this type is present in the frozen graph.
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/(pm)/customer/conversations/page.jsx](../../../apps/server/src/app/%28pm%29/customer/conversations/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/api/crm/conversations/\[id\]/analysis/route.js](../../../apps/server/src/app/api/crm/conversations/%5Bid%5D/analysis/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/conversation-analysis-service.js](../../../apps/server/src/modules/crm/conversation-analysis-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/customer-memory-erasure.js](../../../apps/server/src/modules/identity/customer-memory-erasure.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/crm-staff-reply.test.js](../../../apps/server/tests/integration/crm-staff-reply.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/identity-erase-group-speakers.test.js](../../../apps/server/tests/integration/identity-erase-group-speakers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
@@ -43,9 +47,13 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/integration/line-stock-policy-backup.test.js](../../../apps/server/tests/integration/line-stock-policy-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/conversation-analysis-inbox-route.test.js](../../../apps/server/tests/unit/conversation-analysis-inbox-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr091-inbox-ui-contract.test.js](../../../apps/server/tests/unit/fr091-inbox-ui-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-128](requirements/FR-128.md)

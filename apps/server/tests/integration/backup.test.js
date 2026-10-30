@@ -431,6 +431,23 @@ describe('snapshot backup round trip', () => {
 
   })
 
+  it('includes Mission drafts and evidence in the recovery census and refuses a missing draft table', async () => {
+    const snapshot = await exportSnapshot()
+    expect(snapshot.agentMissionEvidenceRecovery).toEqual({
+      schemaVersion: 'agent-mission-evidence-recovery.v2',
+      requiredTables: ['agentMissionDraft', 'agentMissionEvidence'],
+    })
+    expect(snapshot.tables.agentMissionDraft).toEqual([])
+    expect(snapshot.tables.agentMissionEvidence).toEqual([])
+
+    const missingDraftTable = structuredClone(snapshot)
+    delete missingDraftTable.tables.agentMissionDraft
+    const preview = await previewImport(missingDraftTable, { nested: true, viewer: makeOperatorViewer() })
+    expect(preview.valid).toBe(false)
+    expect(preview.agentMissionEvidenceRecovery.status).toBe('UNAVAILABLE')
+    expect(preview.agentMissionEvidenceRecovery.errors.join(' ')).toContain('agentMissionDraft')
+  })
+
   it('export includes schema version, timestamp and table counts', async () => {
     const snapshot = await exportSnapshot()
     expect(snapshot.schemaVersion).toBe('1.0')

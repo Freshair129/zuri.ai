@@ -118,7 +118,12 @@ describe('ConversationAnalysis persistence and projected reads (FR-127)', () => 
   })
 
   it('allows a visible Member to read but requires Business ownership to write', async () => {
-    const member = makeViewer({ role: 'MEMBER', visibleBusinessIds: [business.id], ownedBusinessIds: [] })
+    const member = makeViewer({
+      role: 'MEMBER',
+      visibleBusinessIds: [business.id],
+      ownedBusinessIds: [],
+      visibleDomains: [...VIEWER_DOMAINS],
+    })
     const before = await prisma.conversationAnalysis.count({ where: { conversationId } })
     const auditBefore = await countAnalysisAuditsForConversation(conversationId)
     const read = await getConversationAnalyses({ viewer: member, businessId: business.id, conversationId })

@@ -56,11 +56,20 @@ Approved first Business P5 increment (beta): the SQLite schema, canonical enums,
 CRM-owned consent/owner-gated persistence and visibility-gated read service, snapshot list and
 PDPA erasure hook are implemented. The service uses `Conversation.id` plus a
 generated analysis id per run; same-day runs remain separate. Worker/LLM/provider
-processing, FR-126/FR-128 models, public routes and UI remain out of scope.
+processing, FR-126/FR-128 models and public routes remain out of scope. The
+original UI exclusion is narrowly amended by CRM-READ-01 (2026-10-28): an
+authenticated, read-only analysis route and per-thread panel may display the
+existing DTO in the FR-091 Inbox only for conversations returned by its current
+scope (tenant-shared plus the selected Business). The reader requires the same
+`customer` domain visibility as the Inbox and retains the existing live
+`deletedAt: null` and `consentStatus: GRANTED` checks. This does not authorize a
+producer, worker, provider integration, CustomerProfile, DailyBrief or broader
+conversation-intelligence runtime.
 
 **2026-09-03 — production migration applied.** `20260830221729_conversation_analysis`
 was applied to the production database and recorded in
 `supabase_migrations.schema_migrations` on the owner's explicit instruction (ADR-054 had
 withheld that authorization pending the owner). The table exists with forced RLS and the
-`zuri_app_runtime_all` policy and is empty: nothing above changes — there is still no
-worker/LLM producer, public route or UI.
+`zuri_app_runtime_all` policy and is empty: there is still no
+worker/LLM producer or public model route. The authenticated read-only Inbox
+panel is limited to the CRM-READ-01 extension above.
