@@ -383,6 +383,16 @@ Workspace
 Project
 ```
 
+For page-level structure, consult the [UI page dimensional atlas](docs/UI-PAGE-DIMENSIONAL-ATLAS.html):
+a monochrome, not-to-scale companion with schematic sheets for the 117 page
+routes in the 2026-10-30 source snapshot (`d804d28`). Use the
+[interface inventory](docs/INTERFACE-INVENTORY.md) for route scope and the
+[UI design system](docs/UI-DESIGN-SYSTEM.md) for accepted patterns and tokens.
+Current application source remains authoritative for implementation. Do not
+scale drawings to infer measurements: `[TBD]` values remain unknown, and
+`[CONFLICT]` callouts remain unresolved until their source documents or code
+settle them.
+
 ### 12. Agent plan import
 
 The application must accept a structured plan generated outside the app.
@@ -830,3 +840,7 @@ Product workflows, document governance and verification policy remain separate.
 Version diff (2026-10-26): names self-hosted PostgreSQL and cloud Supabase as
 separate production database targets, keeps environment distinct from hosting
 location, and makes no cross-target data synchronization assumption under ADR-114.
+
+Version diff (2026-10-30): points UI work to the 117-route dimensional drawing
+atlas and identifies its schematic limits and source authority; no UI behavior
+or design-system rule changes.
