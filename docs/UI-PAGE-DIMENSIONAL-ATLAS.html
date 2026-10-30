@@ -497,7 +497,7 @@ function rebuildOptions(query){
  select.textContent="";
  const matches=[];
  PAGES.forEach(function(p,i){if(!q||p.route.toLowerCase().indexOf(q)>=0||p.id.toLowerCase().indexOf(q)>=0){matches.push(i);const o=document.createElement("option");o.value=String(i);o.textContent=p.id+" · "+p.route;select.appendChild(o);}});
- if(!matches.length){titleBlock.textContent="";sheet.innerHTML="";status.textContent="0 SHEETS";document.getElementById("previous").disabled=true;document.getElementById("next").disabled=true;return;}
+ if(!matches.length){titleBlock.textContent="";sheet.innerHTML="";const emptyTitle=add(null,"title",{id:"svg-title"});emptyTitle.textContent="No matching technical drawing sheets";const emptyDesc=add(null,"desc",{id:"svg-desc"});emptyDesc.textContent="No UI page route or drawing ID matches the current filter.";status.textContent="0 SHEETS";document.getElementById("previous").disabled=true;document.getElementById("next").disabled=true;return;}
  let chosen=matches.indexOf(current)>=0?current:matches[0];
  if(old&&matches.some(function(i){return PAGES[i].route===old;}))chosen=matches.find(function(i){return PAGES[i].route===old;});
  select.value=String(chosen);setPage(chosen);
