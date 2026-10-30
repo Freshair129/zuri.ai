@@ -24,6 +24,7 @@ import { zAssetIntakeEnvelope } from '@/modules/asset-management/domain/asset-in
 import { AUTH_SESSION_COOKIE } from '@/modules/identity/auth-service'
 import { zApiWriteCsrfToken, zApiWriteCsrfError } from '@/modules/identity/api-write-csrf'
 import { knowledgeReplayInput } from '@/modules/knowledge/knowledge-replay-contract'
+import { zAgentMissionSubmission } from '../application/agent-mission-intake'
 
 // @req FR-019 — OpenAPI 3 generated FROM the Zod schemas that actually run at
 // request time, so the integration docs cannot drift from validation.
@@ -56,6 +57,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-026 — recipient-only in-app approval notifications and read acknowledgement.
   ['/api/agent/approval-notifications', ['GET']],
   ['/api/agent/approval-notifications/{id}', ['POST']],
+  // @req FR-127 — bounded read-only analysis projection for an existing Inbox thread.
+  ['/api/crm/conversations/{id}/analysis', ['GET']],
   ['/api/control/knowledge-studio/graph', ['GET']],
   ['/api/control/knowledge-studio/document', ['GET']],
   ['/api/projects/{id}/feature-view', ['GET']],
@@ -338,7 +341,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // GET renders the consent screen (it redirects there and mints nothing);
   // POST is the consent form's own submission and the only path that mints.
   ['/api/plugin/auth/authorize', ['GET', 'POST']], ['/api/plugin/auth/capabilities', ['GET']], ['/api/plugin/auth/revoke', ['POST']], ['/api/plugin/auth/token', ['POST']],
-  ['/api/work', ['GET', 'POST']], ['/api/work/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
+  ['/api/work', ['GET', 'POST']], ['/api/work/agent-mission-submissions', ['POST']], ['/api/work/{id}', ['GET', 'PATCH', 'DELETE']], ['/api/workspaces/{id}', ['PATCH', 'DELETE']], ['/api/workstreams', ['GET', 'POST']], ['/api/workstreams/{id}', ['PATCH', 'DELETE']],
   // @req FR-022, FR-097 — verified channel onboarding and identity link tokens (ADR-045).
   ['/api/identity/link-tokens', ['POST']],
   ['/api/identity/link-tokens/redeem', ['POST']],
@@ -652,15 +655,23 @@ function registerInventoryOperations(registry) {
       const runtimeContractVersion = conversationRuntime ? conversationRuntimeVersion(path) : null
       const approvalDecision = path === '/api/agent/approval-requests/{id}/decision' && methodName === 'post'
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'
+      const missionSubmission = path === '/api/work/agent-mission-submissions' && methodName === 'post'
+      const conversationAnalysis = path === '/api/crm/conversations/{id}/analysis' && methodName === 'get'
       registry.registerPath({
         method: methodName,
         path,
-        summary: conversationRuntime ? `Private Conversation Runtime ${method} adapter`
+        summary: conversationAnalysis ? 'Read consent-gated analysis for one CRM Inbox conversation'
+          : missionSubmission ? 'Submit a verified Agent draft as one planned WorkItem'
+          : conversationRuntime ? `Private Conversation Runtime ${method} adapter`
           : knowledgeReplay ? 'Retry one owner-authorized immutable Knowledge admission'
           : lineStockDisclosure ? 'Set explicit LINE stock-disclosure grant'
           : knowledgeStudio ? `Knowledge Studio ${method} read`
             : `Route inventory: ${method} ${path}`,
-        description: conversationRuntime
+        description: conversationAnalysis
+          ? 'Session-authenticated, read-only projection for a conversation already visible in the selected Business Inbox. Enforces customer-domain visibility and current consent and erasure state; the response omits raw analysis-provider output. It does not add sibling-Business visibility or inference/provider operations.'
+          : missionSubmission
+          ? 'An authenticated human with current write access to the selected Workstream submits the current Agent mission revision and digest. The server derives Tenant/Business/Workspace/Project scope, records source provenance in the same transaction as one PLANNED WorkItem, and returns the same item on an identical replay. Submission does not grant Agent execution, approval, or release authority.'
+          : conversationRuntime
           ? `Private ADR-106/SDD-110 service boundary. GET permits only health; POST accepts only the fixed ${runtimeContractVersion} operation enum. Core revalidates identity, Tenant/Business, account binding, consent/erasure, transport epoch, lease and ownership from authoritative state.${runtimeContractVersion === 'conversation-runtime.v2' ? ' v2 adds only the typed PRODUCT_FACTS deterministic turn; it does not expose general inventory access.' : ''} Request and response bodies are bounded to 64 KiB. Operation payload fields: services/conversation-runtime/contracts/${runtimeContractVersion.endsWith('.v2') ? 'v2' : 'v1'}/operation.schema.json.`
           : knowledgeReplay
             ? 'An authenticated same-Business OWNER retries only the current terminal Stage 16 benchmark-coverage failure. Revalidate exact source, file bytes and scope; attach one immutable FR-071 FULL_RUN child with CAS and audit. Keep the original source version and failed parent. The normal 17-stage and publication receipt gates still apply. An Enterprise API grant is not OWNER authority.'
@@ -680,7 +691,8 @@ function registerInventoryOperations(registry) {
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
             ...pathParameters(path),
-            ...((approvalDecision || approvalNotificationRead) ? [{
+            ...(conversationAnalysis ? [{ name: 'businessId', in: 'query', required: true, schema: { type: 'string', minLength: 1 } }] : []),
+            ...((approvalDecision || approvalNotificationRead || missionSubmission) ? [{
               name: 'X-CSRF-Token',
               in: 'header',
               required: true,
@@ -688,12 +700,38 @@ function registerInventoryOperations(registry) {
               description: 'Session-bound API-write token issued by GET /api/auth/csrf.',
             }] : []),
           ],
-        request: conversationRuntime && methodName === 'post'
+        request: missionSubmission
+          ? { body: { required: true, content: { 'application/json': { schema: zAgentMissionSubmission } } } }
+          : conversationRuntime && methodName === 'post'
           ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope(runtimeContractVersion) } } } }
           : genericRequest(path, methodName),
-        responses: conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
+        responses: conversationAnalysis
+          ? {
+            200: json(zRouteInventoryResponse, 'Read-only analysis projection and selected Inbox scope.'),
+            400: json(zError, 'A valid conversation ID and selected Business ID are required.'),
+            401: json(zError, 'Authenticated session required.'),
+            403: json(zError, 'Selected Business or customer-domain read authority is unavailable.'),
+            404: json(zError, 'The conversation is not present in the selected Inbox scope or its customer is erased.'),
+            500: json(zError, 'Analysis data is unavailable.'),
+          }
+          : missionSubmission
+          ? {
+            200: json(zRouteInventoryResponse, 'The newly created or replayed PLANNED WorkItem and its immutable mission evidence identifiers.'),
+            400: json(zError, 'The strict submission body is invalid.'),
+            401: json(zError, 'An authenticated human session is required.'),
+            403: json(zError, 'The human submitter lacks current write authority for the Workstream.'),
+            404: json(zError, 'The Workstream or authorized mission source is unavailable.'),
+            409: json(zError, 'The mission revision, digest, scope, or prior submission conflicts with current state.'),
+            500: json(zError, 'Unexpected submission failure.'),
+            503: json(zError, 'The verified Agent mission source is unavailable.'),
+          }
+          : conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
         ...(conversationRuntime
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': runtimeContractVersion }
+          : conversationAnalysis
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'crm-conversation-analysis-read/v1' }
+          : missionSubmission
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-mission-intake/v1' }
           : lineStockDisclosure
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
           : knowledgeReplay

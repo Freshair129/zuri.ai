@@ -11,7 +11,9 @@ import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-id
 import { resolveLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { admitLineConversation, runLineConversationWorker } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { appendTraceEvent } from '@/modules/agent/execution-trace'
-import { searchLineProjectWork, proposeLineWork, confirmLineWork, handleLineProjectWorkCommand, isLineWorkDomainError, lineWorkErrorReply } from '@/modules/agent/line-project-work-tools'
+import { searchLineProjectWork, proposeLineWork, confirmLineWork, handleLineProjectWorkCommand, isLineWorkDomainError, lineWorkErrorReply, createLineProjectWorkTools } from '@/modules/agent/line-project-work-tools'
+import { resolveViewer } from '@/modules/identity/resolve-viewer'
+import { agentMissionIntakeService, createAgentMissionIntakeRuntime } from '@/modules/project-manager/application/agent-mission-intake-runtime'
 
 // @req FR-026, FR-072, FR-150 — real isolated SQLite confirms permission, confirmation,
 // stale version, channel binding, replay and canonical writer transaction behavior.
@@ -296,4 +298,107 @@ it('recognizes hold and opaque scope as domain refusals in every LINE executor',
   expect(isLineWorkDomainError(error)).toBe(true)
   const reply=lineWorkErrorReply(error);expect(reply.text).toBeTruthy();expect(reply.text).not.toContain(code);expect(reply.errorCode).toBe('WORK_ACTION_UNAVAILABLE')
  }
+})
+
+describe('Agent mission draft through authenticated PM intake (SQLite)', () => {
+  async function createDraft(title = 'Mission draft from verified turn') {
+    const request = await toolJob('/create mission draft')
+    const expectedClaim = {
+      executionMode: request.executionMode, credentialId: request.claimantId,
+      version: request.version, executionId: request.executionId,
+      tenantId: request.tenantId, businessId: request.businessId,
+    }
+    const tool = createLineProjectWorkTools(request.id, { now: at, expectedClaim })
+      .find(candidate => candidate.name === 'create_mission_draft')
+    expect(tool?.effect).toBe('PREVIEW')
+    const result = await tool.handler({ title, summary: 'A bounded source-only mission summary' })
+    expect(result.status).toBe('created')
+    return result.draft
+  }
+
+  async function submitInput(draft, workstreamId = stream.id) {
+    return {
+      missionId: draft.missionId,
+      expectedRevision: draft.revision,
+      expectedDigest: draft.digest,
+      workstreamId,
+    }
+  }
+
+  it('persists the verified event, creates one PLANNED item, and resolves concurrent replay to one receipt', async () => {
+    const beforeDraftItems = await prisma.workItem.count({ where: { workstreamId: stream.id } })
+    const draft = await createDraft()
+    expect(await prisma.workItem.count({ where: { workstreamId: stream.id } })).toBe(beforeDraftItems)
+    const sourceEvent = await prisma.auditEvent.findUnique({ where: { id: draft.sourceEventId } })
+    expect(sourceEvent).toMatchObject({
+      entityType: 'AGENT_MISSION_DRAFT', entityId: draft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: person.id,
+      requestId: draft.sourceTurnId,
+    })
+    expect(JSON.parse(sourceEvent.payloadJson)).toMatchObject({
+      schemaVersion: 'agent-mission-draft-event.v1', eventType: 'MISSION_DRAFT_CREATED',
+      missionId: draft.missionId, draftId: draft.draftId, revision: 1, digest: draft.digest,
+      scope: { tenantId: tenant.id, businessId: business.id, projectId: stream.projectId, workstreamId: stream.id },
+    })
+    const viewer = await resolveViewer({ principalId: person.id, db: prisma })
+    const service = agentMissionIntakeService
+    const input = await submitInput(draft)
+    const beforeItems = await prisma.workItem.count({ where: { workstreamId: stream.id } })
+    const beforeEvidence = await prisma.agentMissionEvidence.count({ where: { missionId: draft.missionId } })
+
+    const outcomes = await Promise.allSettled([
+      service.submit(input, { viewer }),
+      service.submit(input, { viewer }),
+    ])
+    const rejected = outcomes.filter(outcome => outcome.status === 'rejected')
+    expect(rejected.map(outcome => rejected[0]?.reason?.code)).toEqual([])
+    const results = outcomes.map(outcome => outcome.value)
+    expect(results[0].workItem.id).toBe(results[1].workItem.id)
+    const evidenceIds = results.map(result => result.evidence.evidenceId ?? result.evidence.id)
+    expect(evidenceIds[0]).toBe(evidenceIds[1])
+    expect(results.some(result => result.replayed === false)).toBe(true)
+    expect(results.some(result => result.replayed === true)).toBe(true)
+
+    const evidence = await prisma.agentMissionEvidence.findUnique({ where: { id: evidenceIds[0] } })
+    const item = await prisma.workItem.findUnique({ where: { id: results[0].workItem.id } })
+    expect(item).toMatchObject({ title: 'Mission draft from verified turn', status: 'PLANNED', subtype: 'TASK', assigneeRef: null })
+    expect(evidence).toMatchObject({
+      draftId: draft.draftId, missionId: draft.missionId, sourceAgentRef: 'zuri-line-agent',
+      origin: 'AGENT_DRAFT_HUMAN_CONFIRMED', confirmationKind: 'PM_SUBMISSION',
+      actorId: person.id, submittedByPersonId: person.id, workItemId: item.id,
+      workItemVersion: item.version, sourceEventId: draft.sourceEventId,
+      sourceTraceEventId: draft.sourceTraceEventId, status: 'ACTIVE',
+    })
+    expect(await prisma.workItem.count({ where: { workstreamId: stream.id } })).toBe(beforeItems + 1)
+    expect(await prisma.agentMissionEvidence.count({ where: { missionId: draft.missionId } })).toBe(beforeEvidence + 1)
+  })
+
+  it('fails closed on a mismatched PM scope and rolls back item plus evidence if audit fails', async () => {
+    const draft = await createDraft('Mission rollback draft')
+    const viewer = await resolveViewer({ principalId: person.id, db: prisma })
+    const input = await submitInput(draft)
+    const service = createAgentMissionIntakeRuntime({ db: prisma })
+    const beforeItems = await prisma.workItem.count({ where: { workstreamId: stream.id } })
+    await expect(service.submit(await submitInput(draft, otherStream.id), { viewer })).rejects.toMatchObject({ status: 404 })
+
+    const failing = createAgentMissionIntakeRuntime({ db: prisma, auditWriter: async () => { throw new Error('TEST_AUDIT_FAILURE') } })
+    await expect(failing.submit(input, { viewer })).rejects.toThrow('TEST_AUDIT_FAILURE')
+    expect(await prisma.agentMissionEvidence.count({ where: { missionId: draft.missionId } })).toBe(0)
+    expect(await prisma.workItem.count({ where: { workstreamId: stream.id } })).toBe(beforeItems)
+
+    const result = await service.submit(input, { viewer })
+    expect(result.replayed).toBe(false)
+    expect(await prisma.agentMissionEvidence.count({ where: { missionId: draft.missionId } })).toBe(1)
+  })
+
+  it('rechecks source revocation and refuses submission without creating WorkItem', async () => {
+    const draft = await createDraft('Mission revoked draft')
+    await prisma.agentMissionDraft.update({ where: { id: draft.draftId }, data: { status: 'REVOKED', revokedAt: at, version: { increment: 1 } } })
+    const viewer = await resolveViewer({ principalId: person.id, db: prisma })
+    const beforeItems = await prisma.workItem.count({ where: { workstreamId: stream.id } })
+    await expect(createAgentMissionIntakeRuntime({ db: prisma }).submit(await submitInput(draft), { viewer }))
+      .rejects.toMatchObject({ code: 'MISSION_SOURCE_CONFLICT', status: 409 })
+    expect(await prisma.workItem.count({ where: { workstreamId: stream.id } })).toBe(beforeItems)
+    expect(await prisma.agentMissionEvidence.count({ where: { missionId: draft.missionId } })).toBe(0)
+  })
 })

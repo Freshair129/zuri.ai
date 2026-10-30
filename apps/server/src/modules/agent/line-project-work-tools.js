@@ -12,6 +12,10 @@ import { createItem, updateItem } from '@/modules/project-manager/application/wo
 import { assertWorkstreamWritable } from '@/modules/project-manager/application/project-authorization'
 import { activeWorkstream } from '@/modules/project-manager/application/active-filters'
 import { zWorkStatus } from '@/lib/validation/enums'
+import { createMissionDraftPort } from './mission-draft'
+import { DEFAULT_AGENT_ID, resolveAgentAuthorization } from './auth-context'
+import { canonicalJson, sha256 } from './execution-trace'
+import { randomUUID } from 'node:crypto'
 
 // @req FR-026, FR-072, FR-150 — scoped Project/Work reads and confirmation-gated LINE writes.
 // @spec SEC-001, SEC-008, ADR-061 — identity comes from the durable signed-inbound job;
@@ -27,6 +31,9 @@ const digest = value => createHash('sha256').update(JSON.stringify(value)).diges
 const receiptId = proposalId => `line-work-executed:${proposalId}`
 const fail = code => { throw Object.assign(new Error(code), { code }) }
 const clock = now => new Date(typeof now === 'function' ? now() : now ?? Date.now())
+const missionSchema = z.object({ title: z.string().trim().min(1).max(240), summary: z.string().trim().min(1).max(4096) }).strict()
+const MISSION_DRAFT_EVENT_TYPE = 'MISSION_DRAFT_CREATED'
+const MISSION_DRAFT_EVENT_SCHEMA = 'agent-mission-draft-event.v1'
 
 // This seam is server-only. Never accept a job body, actor, viewer, or scope from an LLM.
 async function contextFor(jobId, db, now, expectedClaim) {
@@ -80,6 +87,331 @@ async function targetFor(context, action, targetId, db) {
   if (project?.businessId !== context.binding.businessId || project.deletedAt) fail('WORK_TARGET_NOT_FOUND')
   return { version: item?.version ?? stream.version, workstreamId: stream.id, projectId: project.id,
     projectVersion: project.version, workstreamVersion: stream.version, title: item?.title ?? stream.name }
+}
+
+async function uniqueMissionScopeFor(context, db) {
+  const streams = await db.workstream.findMany({
+    where: { ...activeWorkstream(), project: { businessId: context.binding.businessId, deletedAt: null } },
+    select: { id: true }, take: 2,
+  })
+  if (streams.length !== 1) fail('MISSION_SCOPE_INVALID')
+  const target = await targetFor(context, 'create_work', streams[0].id, db)
+  const project = await db.project.findUnique({ where: { id: target.projectId },
+    select: { id: true, workspaceId: true, businessId: true, deletedAt: true } })
+  if (!project || project.deletedAt || project.businessId !== context.binding.businessId) fail('MISSION_SCOPE_INVALID')
+  return Object.freeze({
+    tenantId: context.binding.tenantId,
+    businessId: context.binding.businessId,
+    workspaceId: project.workspaceId,
+    projectId: project.id,
+    workstreamId: target.workstreamId,
+  })
+}
+
+function missionDraftRowFromDatabase(row) {
+  if (!row) return null
+  let content
+  try { content = JSON.parse(row.snapshotJson) } catch { return null }
+  return {
+    draftId: row.id, missionId: row.missionId, revision: row.revision,
+    schemaVersion: row.schemaVersion, tenantId: row.tenantId, businessId: row.businessId,
+    workspaceId: row.workspaceId, projectId: row.projectId, workstreamId: row.workstreamId,
+    scope: { tenantId: row.tenantId, businessId: row.businessId, workspaceId: row.workspaceId,
+      projectId: row.projectId, workstreamId: row.workstreamId },
+    sourceAgentRef: row.sourceAgentRef, actorPersonId: row.actorPersonId,
+    sourceTurnId: row.sourceTurnId, executionId: row.executionId,
+    sourceEventId: row.sourceEventId, sourceTraceEventId: row.sourceTraceEventId,
+    digest: row.digest, content, status: row.status, createdAt: row.createdAt, version: row.version,
+  }
+}
+
+function missionDraftEventPayload(row) {
+  return {
+    schemaVersion: MISSION_DRAFT_EVENT_SCHEMA,
+    eventType: MISSION_DRAFT_EVENT_TYPE,
+    missionId: row.missionId,
+    draftId: row.draftId,
+    revision: row.revision,
+    sourceAgentRef: row.sourceAgentRef,
+    sourceTurnId: row.sourceTurnId,
+    executionId: row.executionId,
+    sourceTraceEventId: row.sourceTraceEventId,
+    actorPersonId: row.actorPersonId,
+    scope: row.scope ?? {
+      tenantId: row.tenantId, businessId: row.businessId, workspaceId: row.workspaceId,
+      projectId: row.projectId, workstreamId: row.workstreamId,
+    },
+    digest: row.digest,
+  }
+}
+
+async function sourceEventMatches(db, row) {
+  if (!row || row.status !== 'ACTIVE' || !row.sourceEventId || !row.sourceTraceEventId) return false
+  const [event, trace] = await Promise.all([
+    db.auditEvent.findUnique({ where: { id: row.sourceEventId } }),
+    db.agentTraceEvent.findFirst({ where: {
+      id: row.sourceTraceEventId, tenantId: row.tenantId, businessId: row.businessId,
+      turnId: row.sourceTurnId, executionId: row.executionId, kind: 'CONTEXT_COMMITTED',
+    }, select: { id: true, tenantId: true, businessId: true, turnId: true, executionId: true, kind: true } }),
+  ])
+  if (!event || !trace || event.entityType !== 'AGENT_MISSION_DRAFT'
+    || event.entityId !== row.missionId || event.action !== MISSION_DRAFT_EVENT_TYPE
+    || event.actorType !== 'LINE_USER' || event.actorId !== row.actorPersonId
+    || event.tenantId !== row.tenantId || event.businessId !== row.businessId
+    || event.requestId !== row.sourceTurnId
+    || trace.tenantId !== row.tenantId || trace.businessId !== row.businessId
+    || trace.turnId !== row.sourceTurnId || trace.executionId !== row.executionId) return false
+  try {
+    return canonicalJson(JSON.parse(event.payloadJson)) === canonicalJson(missionDraftEventPayload({
+      ...row, draftId: row.id,
+    }))
+  } catch { return false }
+}
+
+async function resolveCurrentMissionViewer(personId, scope, db, at, { requireOwner = false } = {}) {
+  // Caller must supply this ID from the authenticated PM session, never from
+  // request JSON. This adapter rechecks active membership/scope; it does not
+  // authenticate a client-selected Person ID.
+  const viewer = await resolveViewer({ principalId: personId, db, now: at.getTime() })
+  if (!viewer.visibleBusinessIds.includes(scope.businessId)
+    || !viewer.domainsByBusinessId[scope.businessId]?.includes('projects')) fail('MISSION_FORBIDDEN')
+  if (requireOwner && !ownsBusiness(viewer, scope.businessId)) fail('MISSION_FORBIDDEN')
+  const [business, project, workstream] = await Promise.all([
+    db.business.findUnique({ where: { id: scope.businessId }, select: { id: true, tenantId: true, status: true } }),
+    db.project.findUnique({ where: { id: scope.projectId }, select: { id: true, workspaceId: true, businessId: true, deletedAt: true, status: true } }),
+    db.workstream.findUnique({ where: { id: scope.workstreamId }, select: { id: true, projectId: true, deletedAt: true, status: true } }),
+  ])
+  if (!business || business.tenantId !== scope.tenantId || business.status !== 'ACTIVE'
+    || !project || project.deletedAt || project.status === 'ARCHIVED'
+    || project.businessId !== scope.businessId || project.workspaceId !== scope.workspaceId
+    || !workstream || workstream.deletedAt || workstream.status === 'ARCHIVED'
+    || workstream.projectId !== scope.projectId) fail('MISSION_SOURCE_CONFLICT')
+  const workspace = await db.workspace.findUnique({ where: { id: scope.workspaceId }, select: { id: true, tenantId: true, businessId: true, scopeType: true, status: true } })
+  if (!workspace || workspace.status !== 'ACTIVE' || workspace.tenantId !== scope.tenantId
+    || workspace.businessId !== scope.businessId || workspace.scopeType !== 'BUSINESS') fail('MISSION_SOURCE_CONFLICT')
+  return viewer
+}
+
+async function resolveDraftSource(row, db) {
+  if (!row) return { status: 'not_found' }
+  if (row.status === 'ERASED' || row.erasedAt) return { status: 'erased' }
+  if (row.status === 'REVOKED' || row.revokedAt) return { status: 'revoked' }
+  if (row.status !== 'ACTIVE') return { status: 'conflict' }
+  if (!await sourceEventMatches(db, row)) return { status: 'conflict' }
+  const draft = missionDraftRowFromDatabase(row)
+  if (!draft) return { status: 'conflict' }
+  return { status: 'found', sourceVerified: true, draft }
+}
+
+export function createLineMissionDraftRepository({ db = prisma, jobId, expectedClaim, at = new Date(), authorization } = {}) {
+  const resolveCurrentAgentTurn = async (tx, { turnId, executionId, authClaims }) => {
+    const context = await contextFor(jobId, tx, at, expectedClaim)
+    assertWrite(context)
+    const scope = await uniqueMissionScopeFor(context, tx)
+    if (turnId !== context.job.id || executionId !== context.job.executionId
+      || authClaims.sourceAgentRef !== DEFAULT_AGENT_ID
+      || authClaims.actorPersonId !== context.binding.actorId
+      || authClaims.tenantId !== context.binding.tenantId
+      || authClaims.businessId !== context.binding.businessId
+      || authClaims.workspaceId !== scope.workspaceId || authClaims.projectId !== scope.projectId
+      || authorization?.authContext?.request?.agentId !== DEFAULT_AGENT_ID
+      || authorization?.authContext?.actor?.principalId !== context.binding.actorId) fail('MISSION_SOURCE_UNAVAILABLE')
+    const trace = await tx.agentTraceEvent.findFirst({
+      where: { tenantId: context.binding.tenantId, businessId: context.binding.businessId,
+        turnId: context.job.id, executionId: context.job.executionId, kind: 'CONTEXT_COMMITTED' },
+      orderBy: [{ occurredAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }],
+      select: { id: true, tenantId: true, businessId: true, turnId: true, executionId: true },
+    })
+    if (!trace || trace.turnId !== turnId || trace.executionId !== executionId
+      || trace.tenantId !== scope.tenantId || trace.businessId !== scope.businessId) fail('MISSION_SOURCE_UNAVAILABLE')
+    return {
+      status: 'verified', agentVerified: true, turnExecutionVerified: true,
+      traceLinked: true, scopeVerified: true, sourceAgentRef: DEFAULT_AGENT_ID,
+      actorPersonId: context.binding.actorId, sourceTurnId: turnId, executionId,
+      sourceTraceEventId: trace.id, scope,
+    }
+  }
+  const sourceWhere = identity => ({
+    tenantId: identity.tenantId, businessId: identity.businessId,
+    sourceAgentRef: identity.sourceAgentRef, sourceTurnId: identity.sourceTurnId,
+    executionId: identity.executionId,
+  })
+  const insertDraft = async (tx, row) => {
+    const eventPayload = missionDraftEventPayload(row)
+    await tx.auditEvent.create({ data: {
+      id: row.sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: row.missionId,
+      action: MISSION_DRAFT_EVENT_TYPE, actorType: 'LINE_USER', actorId: row.actorPersonId,
+      tenantId: row.tenantId, businessId: row.businessId, requestId: row.sourceTurnId,
+      payloadJson: canonicalJson(eventPayload),
+    } })
+    const inserted = await tx.agentMissionDraft.create({ data: {
+    id: row.draftId, schemaVersion: row.schemaVersion, missionId: row.missionId, revision: row.revision,
+    tenantId: row.tenantId, businessId: row.businessId, workspaceId: row.workspaceId,
+    projectId: row.projectId, workstreamId: row.workstreamId, sourceAgentRef: row.sourceAgentRef,
+    actorPersonId: row.actorPersonId, sourceTurnId: row.sourceTurnId, executionId: row.executionId,
+    sourceEventId: row.sourceEventId, sourceTraceEventId: row.sourceTraceEventId,
+    digest: row.digest, snapshotJson: canonicalJson(row.content), status: row.status,
+    createdAt: row.createdAt, version: row.version,
+    } })
+    const draft = missionDraftRowFromDatabase(inserted)
+    if (!draft || !await sourceEventMatches(tx, inserted)) fail('MISSION_SOURCE_UNAVAILABLE')
+    return draft
+  }
+  const findDraftByMissionId = async (tx, missionId, requesterPersonId, { requireOwner = false } = {}) => {
+    const rows = await tx.agentMissionDraft.findMany({ where: { missionId }, take: 2 })
+    if (!rows.length) {
+      // Erasure clears the draft's missionId/source fields. The append-only
+      // source event remains as a bounded tombstone locator, but is never
+      // returned to the caller and cannot authorize a read.
+      const tombstone = await tx.auditEvent.findFirst({ where: {
+        entityType: 'AGENT_MISSION_DRAFT', entityId: missionId, action: MISSION_DRAFT_EVENT_TYPE,
+      }, select: { entityType: true, entityId: true, action: true, tenantId: true, businessId: true, payloadJson: true } })
+      if (!tombstone) return { status: 'not_found' }
+      try {
+        const payload = JSON.parse(tombstone.payloadJson)
+        const scope = payload.scope
+        if (tombstone.entityType !== 'AGENT_MISSION_DRAFT' || tombstone.entityId !== missionId
+          || tombstone.action !== MISSION_DRAFT_EVENT_TYPE || payload.eventType !== MISSION_DRAFT_EVENT_TYPE
+          || payload.missionId !== missionId || !scope || scope.tenantId !== tombstone.tenantId
+          || scope.businessId !== tombstone.businessId) return { status: 'conflict' }
+        if (requesterPersonId) await resolveCurrentMissionViewer(requesterPersonId, scope, tx, at, { requireOwner })
+        return { status: 'erased' }
+      } catch (error) {
+        if (error?.code === 'MISSION_FORBIDDEN') throw error
+        return { status: 'conflict' }
+      }
+    }
+    if (rows.length !== 1) return { status: 'conflict' }
+    const scope = { tenantId: rows[0].tenantId, businessId: rows[0].businessId,
+      workspaceId: rows[0].workspaceId, projectId: rows[0].projectId, workstreamId: rows[0].workstreamId }
+    if (requesterPersonId) await resolveCurrentMissionViewer(requesterPersonId, scope, tx, at, { requireOwner })
+    return resolveDraftSource(rows[0], tx)
+  }
+  const resolveEligibleWorkItem = async (tx, { workItemId, submittedByPersonId }) => {
+    const item = await tx.workItem.findFirst({ where: { id: workItemId, deletedAt: null } })
+    if (!item) return { status: 'not_found' }
+    const workstream = await tx.workstream.findUnique({ where: { id: item.workstreamId }, select: { id: true, projectId: true, deletedAt: true, status: true } })
+    const project = workstream && await tx.project.findUnique({ where: { id: workstream.projectId }, select: { id: true, workspaceId: true, businessId: true, deletedAt: true, status: true } })
+    const business = project && await tx.business.findUnique({ where: { id: project.businessId }, select: { id: true, tenantId: true, status: true } })
+    if (!workstream || workstream.deletedAt || workstream.status === 'ARCHIVED' || !project || project.deletedAt
+      || project.status === 'ARCHIVED' || !business || business.status !== 'ACTIVE') return { status: 'not_found' }
+    if (item.containerId) {
+      const container = await tx.workContainer.findFirst({ where: { id: item.containerId, deletedAt: null }, select: { id: true, workstreamId: true } })
+      if (!container || container.workstreamId !== workstream.id) return { status: 'invalid' }
+    }
+    const scope = { tenantId: business.tenantId, businessId: business.id, workspaceId: project.workspaceId,
+      projectId: project.id, workstreamId: workstream.id }
+    await resolveCurrentMissionViewer(submittedByPersonId, scope, tx, at, { requireOwner: true })
+    if (item.status !== 'PLANNED' || item.subtype !== 'TASK' || item.assigneeRef !== null) return { status: 'invalid' }
+    const normalizedSnapshot = {
+      workItemId: item.id, workItemVersion: item.version, status: item.status,
+      subtype: item.subtype, assigneeRef: null, scope, title: item.title,
+      ...(item.containerId == null ? {} : { containerId: item.containerId }),
+    }
+    return { status: 'found', eligible: true, workItem: {
+      workItemId: item.id, workItemVersion: item.version, status: item.status,
+      subtype: item.subtype, assigneeRef: null, scope, normalizedSnapshot,
+      snapshotDigest: sha256(canonicalJson(normalizedSnapshot)),
+    } }
+  }
+  const validateHumanSubmitter = async (tx, input) => {
+    await resolveCurrentMissionViewer(input.submittedByPersonId, input.scope, tx, at, { requireOwner: true })
+  }
+  const txMethods = tx => ({
+    resolveCurrentAgentTurn: input => resolveCurrentAgentTurn(tx, input),
+    async findMissionDraftBySource(identity) {
+      const row = await tx.agentMissionDraft.findFirst({ where: sourceWhere(identity) })
+      if (row && row.status === 'ACTIVE' && !await sourceEventMatches(tx, row)) fail('MISSION_SOURCE_CONFLICT')
+      return missionDraftRowFromDatabase(row)
+    },
+    insertMissionDraft: row => insertDraft(tx, row),
+    resolveMissionDraft: ({ missionId, submittedByPersonId }) => findDraftByMissionId(tx, missionId, submittedByPersonId, { requireOwner: true }),
+    async findSubmissionBySource(identity) {
+      return tx.agentMissionEvidence.findFirst({ where: { sourceAgentRef: identity.sourceAgentRef, missionId: identity.missionId } })
+    },
+    resolveEligibleWorkItem: input => resolveEligibleWorkItem(tx, input),
+    async insertPmSubmissionEvidence(input) {
+      const draftRow = await tx.agentMissionDraft.findFirst({ where: { id: input.draftId } })
+      const result = await resolveDraftSource(draftRow, tx)
+      if (result.status !== 'found') fail(result.status === 'forbidden' ? 'MISSION_FORBIDDEN' : 'MISSION_SOURCE_CONFLICT')
+      const draft = result.draft
+      if (draft.missionId !== input.missionId || draft.sourceAgentRef !== input.sourceAgentRef
+        || draft.revision !== input.sourceRevision || draft.digest !== input.sourceDigest
+        || canonicalJson(draft.scope) !== canonicalJson(input.scope)) fail('MISSION_SOURCE_CONFLICT')
+      await validateHumanSubmitter(tx, input)
+      const target = await resolveEligibleWorkItem(tx, { workItemId: input.workItemId, submittedByPersonId: input.submittedByPersonId })
+      if (target.status !== 'found' || target.workItem.workItemVersion !== input.workItemVersion
+        || canonicalJson(target.workItem.scope) !== canonicalJson(input.scope)) fail('MISSION_TARGET_INVALID')
+      const evidence = await tx.agentMissionEvidence.create({ data: {
+        id: randomUUID(), schemaVersion: 'agent-mission-evidence.v1', draftId: draft.draftId,
+        sourceAgentRef: draft.sourceAgentRef, missionId: draft.missionId,
+        tenantId: draft.scope.tenantId, businessId: draft.scope.businessId, workspaceId: draft.scope.workspaceId,
+        projectId: draft.scope.projectId, workstreamId: draft.scope.workstreamId,
+        workItemId: input.workItemId, workItemVersion: input.workItemVersion,
+        origin: input.origin, actorId: draft.actorPersonId, submittedByPersonId: input.submittedByPersonId,
+        submittedAt: new Date(input.submittedAt), confirmationKind: input.confirmationKind,
+        sourceTurnId: draft.sourceTurnId, executionId: draft.executionId,
+        sourceEventId: draft.sourceEventId, sourceTraceEventId: draft.sourceTraceEventId,
+        sourceRevision: input.sourceRevision, sourceDigest: input.sourceDigest,
+        missionSnapshotJson: input.missionSnapshotJson, missionSnapshotDigest: input.missionSnapshotDigest,
+        idempotencyKey: input.idempotencyKey, status: 'ACTIVE',
+      }, select: { id: true } })
+      return { evidenceId: evidence.id }
+    },
+  })
+  return {
+    async resolveAuthorizedMissionDraft({ missionId, requesterPersonId }) {
+      try {
+        const found = await findDraftByMissionId(db, missionId, requesterPersonId)
+        if (found.status === 'not_found') return found
+        if (found.status === 'conflict') return found
+        if (found.status === 'erased' || found.status === 'revoked') return found
+        const evidence = await db.agentMissionEvidence.findFirst({ where: { draftId: found.draft.draftId }, select: { status: true, revokedAt: true, erasedAt: true } })
+        if (evidence?.status === 'ERASED' || evidence?.erasedAt) return { status: 'erased' }
+        if (evidence?.status === 'REVOKED' || evidence?.revokedAt) return { status: 'revoked' }
+        return found
+      } catch (error) {
+        if (error?.code === 'MISSION_FORBIDDEN') return { status: 'forbidden' }
+        if (error?.code === 'MISSION_SOURCE_CONFLICT') return { status: 'conflict' }
+        return { status: 'unavailable' }
+      }
+    },
+    transaction: callback => withPipelineTransaction(db, callback, { isolationLevel: 'Serializable' }),
+    async findMissionDraftBySource(identity) {
+      return missionDraftRowFromDatabase(await db.agentMissionDraft.findFirst({ where: sourceWhere(identity) }))
+    },
+    forTransaction(tx) {
+      return txMethods(tx)
+    },
+  }
+}
+
+/** Persist a source-only mission draft for the active verified LINE OWNER turn.
+ * It does not create a WorkItem or treat the LINE actor as an Agent principal.
+ */
+export async function createLineMissionDraft(jobId, mission, {
+  db = prisma, now, expectedClaim, authorizationResolver = resolveAgentAuthorization,
+} = {}) {
+  if (!expectedClaim) fail('WORK_CLAIM_STALE')
+  const at = clock(now)
+  const normalizedMission = missionSchema.strict().parse(mission)
+  const context = await contextFor(jobId, db, at, expectedClaim)
+  assertWrite(context)
+  const scope = await uniqueMissionScopeFor(context, db)
+  const authorization = await authorizationResolver({
+    tenantId: context.binding.tenantId, businessId: context.binding.businessId,
+    lineUserId: context.job.sourceUserId,
+    serverScope: {
+      agentId: DEFAULT_AGENT_ID, businessId: context.binding.businessId, transportVerified: true,
+      channelAccountId: context.binding.channelAccountId, audienceKind: context.job.audienceKind,
+      workspaceId: scope.workspaceId, projectId: scope.projectId,
+    },
+  })
+  const repository = createLineMissionDraftRepository({ db, jobId, expectedClaim, at, authorization })
+  const port = createMissionDraftPort({ repository, now: () => at })
+  return port.createMissionDraftFromTurn({
+    authorization, turnId: context.job.id, executionId: context.job.executionId, mission: normalizedMission,
+  })
 }
 
 export async function searchLineProjectWork(jobId, { kind = 'work', query = '' } = {}, { db = prisma, now, expectedClaim } = {}) {
@@ -218,7 +550,8 @@ const LINE_WORK_ERROR_TEXT = Object.freeze({
 // transport failure, a stale claim, a missing receipt) is not in this set.
 const LINE_WORK_DOMAIN_CODES = new Set(['WORK_CONFIRMATION_EXPIRED', 'WORK_VERSION_CONFLICT', 'WORK_SCOPE_DENIED',
   'WORK_IDENTITY_REQUIRED', 'WORK_TARGET_NOT_FOUND', 'WORK_ACTION_DENIED', 'WORK_PROPOSAL_CONFLICT',
-  'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID', 'RELEASE_HELD', 'SCOPE_UNAVAILABLE'])
+  'WORK_CONFIRMATION_REQUIRED', 'WORK_CONFIRMATION_INVALID', 'RELEASE_HELD', 'SCOPE_UNAVAILABLE',
+  'MISSION_SCOPE_INVALID', 'MISSION_SOURCE_UNAVAILABLE', 'MISSION_SOURCE_CONFLICT', 'MISSION_DRAFT_IDEMPOTENCY_CONFLICT'])
 const LINE_WORK_TARGET_MISSING_MESSAGES = new Set(['Work item not found', 'Workstream not found'])
 
 export function lineWorkReadText(result) {
@@ -309,6 +642,17 @@ export function createLineProjectWorkTools(jobId, options = {}) {
         return { proposalId, action: preview.action, targetId: preview.targetId, targetTitle: preview.target.title,
           targetVersion: preview.target.version, args: preview.args, argsHash: preview.argsHash, expiresAt: preview.expiresAt,
           confirmationCommand: `ยืนยันงาน ${proposalId}`, status: 'AWAITING_CONFIRMATION' }
+      } },
+    { name: 'create_mission_draft', effect: 'PREVIEW',
+      description: 'Create an immutable Agent source draft for human PM review. This does not create or assign a WorkItem; a human must submit it through the authenticated PM intake.',
+      parameters: { type: 'object', properties: {
+        title: { type: 'string', minLength: 1, maxLength: 240 },
+        summary: { type: 'string', minLength: 1, maxLength: 4096 },
+      }, required: ['title', 'summary'], additionalProperties: false },
+      handler: args => {
+        let mission
+        try { mission = missionSchema.parse(args) } catch { fail('MISSION_SOURCE_CONFLICT') }
+        return createLineMissionDraft(jobId, mission, options)
       } },
   ]
 }

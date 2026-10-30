@@ -620,6 +620,7 @@ still requires its existing independent and real-role gates.
 
 | 0.3.24b | 2026-10-24 | beta | Add excluded product-field disclosure authority to the complete 210-table census; preserve every predecessor mapping and historical binding refusal | working-tree | Codex Root |
 | 0.3.25b | 2026-10-24 | beta | Compose Pipeline C1 and FR-235 into the current 210-table recovery binding; retain predecessor bindings as historical | working-tree | Codex Root |
+| 0.3.26b | 2026-10-29 | beta | Add AgentMissionDraft and AgentMissionEvidence to the complete portable 212-table recovery census; preserve source validation and identity-erasure tombstones | working-tree | Codex Integrator |
 
 ### Historical FR-235 product disclosure binding before Pipeline C1
 
@@ -775,19 +776,22 @@ target visibility, clean-target, custody and production gates remain in force.
 | 0.2.0b | 2026-09-17 | candidate | Define offline command, actual visibility and locking proof, family matrix and Identity transaction/replay seam | bd99651f | RWANG |
 | 0.1.0b | 2026-09-17 | candidate | Propose bounded clean-target recovery and reviewed PM erasure targets to close source-audited W2 authority gaps | bd99651f | RWANG |
 
-## Current composed Pipeline C1 and FR-235 schema binding (2026-10-24)
+## Current composed Pipeline C1, FR-235 and TASK-ZAI-012 schema binding (2026-10-29)
 
-The owner-approved C0 v0.1.5 D1–D6 and C1 instruction authorize qualification
+The owner-approved C0 v0.1.5 D1–D6 and C1 instruction authorized qualification
 of the additive nullable Dependency.contractJson column. The current recovery
 reader selects [the Pipeline inventory](contracts/pipeline-target-schema.inventory.json).
-It preserves all 209 Pipeline C1 model/table mappings and adds
-`LineProductDisclosurePolicy` to the complete census, for 210 models. The
-default-OFF policy remains excluded from portable snapshots. The prior Phase B
-inventory file stays byte-for-byte historical. This records a static binding,
-not a production migration or recovery acceptance claim.
+It preserves the prior 210 model/table mappings and adds `AgentMissionDraft`
+and `AgentMissionEvidence` to the complete census, for 212 models. Both models
+are portable snapshot data; the Agent mission recovery validator checks their
+source-event, scope, digest and WorkItem relationships. Identity erasure keeps
+only the required tombstone and scope while clearing actor, source IDs, digests
+and mission content. This is a static recovery binding, not a production
+migration, restore or recovery acceptance claim. The prior Phase B inventory
+file stays byte-for-byte historical.
 
-- Current canonical LF schema SHA-256: `d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9`.
-- Current target inventory SHA-256, computed with `computeTargetSchemaSha256`: `a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7`.
+- Current canonical LF schema SHA-256: `cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18`.
+- Current target inventory SHA-256, computed with `computeTargetSchemaSha256`: `f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e`.
 - Historical Pipeline C1 209-table schema/target binding: `d8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21` / `dbbde65f8e637e738b0bc3fc5295871bd82641928828946092b11677647b1559`.
 - Historical pre-C1 FR-235 210-table schema/target binding: `291c8a43acdeb62e1839e262d663371a6c009c92a46fe60f3296c045c550e86e` / `3848d6a69c33dec8f6e49ece409bcc73854bb7493b7eb5d78e154e9b6c4814c1`.
 - Historical pre-C1 FR-291 Phase B 209-table schema/target binding: `fe67a5c5ed02710cdb67227e80380812f233f88ab5a3638f7079527c056b1808` / `db2e0014754558f8e21fdcad9960565cfccd150343e71b0ae614589b9429e633`.
@@ -797,5 +801,5 @@ not a production migration or recovery acceptance claim.
   before mutation; downgrade must not strip enforcement or content.
 
 The three prior bindings above remain historical and must be refused at loader,
-adapter, export and restore boundaries. The current inventory changes no recovery
-or erasure authority and does not authorize a live migration or recovery run.
+adapter, export and restore boundaries. The current inventory does not authorize
+a live migration or recovery run; existing recovery and erasure gates still apply.

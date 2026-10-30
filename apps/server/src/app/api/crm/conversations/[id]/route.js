@@ -18,7 +18,8 @@ export const dynamic = 'force-dynamic'
 export async function GET(request, { params }) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
+    const { id } = await params
     const { businessId } = parseConversationThreadQuery(queryParams(request))
-    return getConversationThread({ viewer, businessId, conversationId: params.id })
+    return getConversationThread({ viewer, businessId, conversationId: id })
   })
 }

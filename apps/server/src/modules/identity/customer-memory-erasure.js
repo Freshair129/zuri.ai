@@ -75,7 +75,7 @@ export async function eraseCustomerMemoryInTransaction(tx, {
         select: { externalMessageId: true, direction: true, createdAt: true },
       })
       : []
-    const { redactedLineJobs, inboundMessageIds, pendingMemoryPrincipalErasures } = await redactLineConversationJobs(tx, {
+    const { redactedLineJobs, erasedMissionDrafts, erasedMissionEvidence, inboundMessageIds, pendingMemoryPrincipalErasures } = await redactLineConversationJobs(tx, {
       tenantId,
       conversationIds: personalIds,
       speakers: subjectChannels.filter((row) => row.channel === 'LINE'),
@@ -169,6 +169,8 @@ export async function eraseCustomerMemoryInTransaction(tx, {
       sharedConversationIds: shared.conversationIds,
       redactedMessages,
       redactedLineJobs,
+      erasedMissionDrafts,
+      erasedMissionEvidence,
       pendingMemoryPrincipalErasures,
       analyses,
       knowledgeErasure,

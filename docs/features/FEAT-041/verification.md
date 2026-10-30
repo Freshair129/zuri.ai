@@ -44,6 +44,7 @@ status: generated
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/release-safety-backup.test.js](../../../apps/server/tests/integration/release-safety-backup.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/archive-storage-readiness.test.js](../../../apps/server/tests/unit/archive-storage-readiness.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js](../../../apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/crm-legal-hold-migration.test.js](../../../apps/server/tests/unit/crm-legal-hold-migration.test.js) — `verifies` (`test-reference`)

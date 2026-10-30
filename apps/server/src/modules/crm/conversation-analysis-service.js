@@ -2,12 +2,14 @@ import prisma from '@/lib/db'
 import { zConversationAnalysisInput } from '@/lib/validation/entities'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
+import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 
 // @req FR-127 — persist and read consent-gated, recomputable ConversationAnalysis
 // rows behind the CRM's existing Business ownership/read visibility boundaries.
 // @spec ADR-054 D3-D6, BR-001, SEC-001, SEC-005
 // RCA: .brain/rca/2026-08-31-conversation-analysis-tenant-binding.md
-// @tested tests/integration/crm-conversation-analysis.test.js
+// @tested tests/integration/crm-conversation-analysis.test.js,
+//   tests/unit/conversation-analysis-inbox-reader.test.js
 
 export const CONVERSATION_ANALYSIS_VERSION = '1.0'
 
@@ -47,13 +49,15 @@ function analysisDto(row) {
 }
 
 /**
- * Resolve the same tenant and visible Business set used by the CRM inbox.
- * A tenant-shared Conversation (businessId null) is visible when the viewer
- * can see a Business in that tenant; a Business-bound Conversation still needs
- * that specific Business in visibleBusinessIds.
+ * Resolve the same selected-Business-plus-tenant-shared scope as the current
+ * CRM inbox. FR-091 prose mentions all visible tenant Businesses, but the
+ * inbox query currently selects only this Business and null; this reader must
+ * not disclose a sibling Business the Inbox does not list. CRM-domain access
+ * is required in addition to Business visibility (FR-061).
  */
 async function resolveScope(db, viewer, businessId) {
   if (!seesBusiness(viewer, businessId)) throw failure(403, 'Business access denied')
+  assertDomainVisible(viewer, businessId, 'customer')
 
   const business = await db.business.findUnique({
     where: { id: businessId },
@@ -61,20 +65,12 @@ async function resolveScope(db, viewer, businessId) {
   })
   if (!business) throw failure(404, 'BUSINESS_NOT_FOUND')
 
-  const tenantBusinesses = await db.business.findMany({
-    where: { tenantId: business.tenantId },
-    select: { id: true, name: true },
-  })
-  const visible = tenantBusinesses.filter((candidate) => seesBusiness(viewer, candidate.id))
-
   return {
     business,
     tenantId: business.tenantId,
-    visibleBusinessIds: visible.map((candidate) => candidate.id),
-    businessNameById: new Map(visible.map((candidate) => [candidate.id, candidate.name])),
     where: {
       tenantId: business.tenantId,
-      OR: [{ businessId: null }, { businessId: { in: visible.map((candidate) => candidate.id) } }],
+      OR: [{ businessId: null }, { businessId: business.id }],
     },
   }
 }
@@ -193,9 +189,11 @@ export async function recordConversationAnalysis(
 }
 
 /**
- * Read the projected analyses for a scoped Conversation. The consented source
- * is checked in the same transaction immediately before its derived rows are
- * selected; rawOutputJson is intentionally absent from this contract.
+ * Read the projected analyses for a scoped Conversation. Business and CRM
+ * domain visibility are checked before any lookup. The conversation must be
+ * tenant-shared or belong to the selected Business, and its Customer's current
+ * consent and erasure state are checked in the same transaction before derived
+ * rows are selected. rawOutputJson is intentionally absent from the DTO.
  */
 export async function getConversationAnalyses({ viewer, businessId, conversationId, db = prisma } = {}) {
   if (!conversationId || typeof conversationId !== 'string') throw failure(400, 'CONVERSATION_ID_REQUIRED')

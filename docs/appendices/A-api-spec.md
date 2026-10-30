@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration or deployment is claimed.
+
 Version diff 1.115.0b to 1.116.0b (2026-10-24): FR-173/FR-071 add the session OWNER-only exact-source Knowledge replay command. Inventory: 356 route handlers. Retry queues a new full-run child, not a publication or disclosure grant.
 
 Version diff 1.114.0b to 1.115.0b (2026-10-24): FR-230 adds deployment-authenticated MSP session retention. Inventory: 355 route handlers. Scheduler qualification and production memory activation are separate.
@@ -171,7 +173,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=356 -->
+<!-- api-spec-counts: route_handlers=358 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -638,6 +640,7 @@ conversations owned by no Business or by one already in the viewer's scope.
 |---|---|---|
 | GET | `/api/crm/conversations` | implemented: authorized conversation list for the Business's tenant — customer, channel, message count, last-message preview, owning-Business label, plus counts by direction and channel. `limit` is capped server-side at 200 and the response says whether it truncated |
 | GET | `/api/crm/conversations/[id]` | implemented: one thread, messages oldest-first, with the customer behind it. A conversation outside the resolved scope answers **404**, never 403 — a "denied" would confirm the row exists |
+| GET | `/api/crm/conversations/[id]/analysis` | FR-127 bounded read-only analysis detail for an Inbox thread. Requires explicit `businessId`; only reads conversations returned by the existing Inbox scope, applies the same customer visibility and current consent/erasure gates, and returns the existing sanitized analysis DTO (never raw output). No persistence, audit or cache side effect; unavailable analysis returns a typed refusal |
 | POST | `/api/crm/conversations/[id]/reply` | implemented: FR-246 — a Business **owner** sends a reply from the Inbox composer, pushed through the account's LINE transport (never the Reply API) and recorded OUTBOUND with reply source `STAFF`, idempotent on a caller-supplied `clientRequestId` (never the inbound message, so several staff messages may follow one inbound). Refused before any push for a viewer without owner authority, the legacy channel, or an account that is not server-enabled — nothing is recorded on a push LINE does not accept |
 | GET | `/api/crm/conversations/search` | implemented: FR-233 third read-only reader — full-text search over `Message.body` (`pg_trgm` on Postgres, `LIKE` on SQLite), scoped to the viewer's visible Businesses within the Tenant `businessId` anchors, optionally to one LINE OA account (`channelAccountId`). A literal path segment ahead of `[id]/route.js`, so it never collides with a conversation id |
 | GET | `/api/crm/conversations/event-counts` | implemented: FR-233 per-account follow/unfollow counts from `ConversationEvent`, same scope as search and the inbox |
@@ -1072,6 +1075,7 @@ remain deferred.
 | PATCH/DELETE | `/api/workstreams/[id]` | update / archive |
 | GET/POST | `/api/work` | list work items (filter: projectId, workstreamId, executionMode, subtype, status, q) / create |
 | PATCH/DELETE | `/api/work/[id]` | update (metrics merge) / soft delete |
+| POST | `/api/work/agent-mission-submissions` | TASK-ZAI-012 bounded PM-MISSION-01 intake. Authenticated human submits `{ missionId, expectedRevision, expectedDigest, workstreamId, optionalContainerId? }`; server checks current Workstream write authority and scope, re-reads the verified Agent draft, then creates one ordinary `PLANNED` WorkItem and binds immutable evidence in the same transaction. Same-source replay returns the existing item; revision/digest/scope conflicts fail closed. Human remains submitter/audit actor; Agent is provenance only. No execution/release authority |
 | POST, PATCH | `/api/containers`, `/api/containers/[id]` | create / update container |
 | GET/POST, PATCH | `/api/milestones`, `/api/milestones/[id]` | list milestones+gates / create / update |
 | POST, PATCH | `/api/gates`, `/api/gates/[id]` | create / update gate (evidence merge) |

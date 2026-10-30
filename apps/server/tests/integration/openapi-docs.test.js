@@ -46,6 +46,30 @@ function currentRouteInventory() {
 const routeInventory = currentRouteInventory()
 
 describe('OpenAPI document', () => {
+  it('documents the scoped CRM Inbox analysis read without exposing raw provider output', () => {
+    const operation = doc.paths['/api/crm/conversations/{id}/analysis']?.get
+    expect(operation).toBeTruthy()
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBe('crm-conversation-analysis-read/v1')
+    expect(operation.parameters).toContainEqual(expect.objectContaining({ name: 'businessId', in: 'query', required: true }))
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '500'])
+    expect(operation.description).toContain('omits raw analysis-provider output')
+    expect(operation.description).toContain('does not add sibling-Business visibility')
+  })
+
+  it('documents human-submitted Agent mission intake as scoped PLANNED work only', () => {
+    const operation = doc.paths['/api/work/agent-mission-submissions']?.post
+    expect(operation).toBeTruthy()
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBe('agent-mission-intake/v1')
+    expect(operation.parameters).toContainEqual(expect.objectContaining({ name: 'X-CSRF-Token', in: 'header', required: true }))
+    const body = operation.requestBody.content['application/json'].schema
+    expect(body.additionalProperties).toBe(false)
+    expect(body.required).toEqual(['missionId', 'expectedRevision', 'expectedDigest', 'workstreamId'])
+    expect(Object.keys(operation.responses).sort()).toEqual(['200', '400', '401', '403', '404', '409', '500', '503'])
+    expect(operation.description).toContain('does not grant Agent execution, approval, or release authority')
+  })
+
   it('documents the owner-only immutable Knowledge retry and its strict idempotency request', () => {
     const operation = doc.paths['/api/knowledge/ingestions/{runId}/replay']?.post
     expect(operation).toBeTruthy()
@@ -355,9 +379,9 @@ describe('OpenAPI document', () => {
 // FR-230 retention and FR-235 product disclosure compose with prior inventory.
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
       // FR-235 adds owner-only product disclosure GET/POST on one path.
-      pathCount: 357,
+      pathCount: 359,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
-      operationCount: 471,
+      operationCount: 473,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

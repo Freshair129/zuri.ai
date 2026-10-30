@@ -100,6 +100,41 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       tenant: tenantA, business: busA1, lineUserId: 'U-erase-1',
       threadId: 'TH-ERASE-1', externalMessageId: 'MSG-ERASE-1', text: 'ขอสอบถามราคาครับ',
     })
+    const missionActor = await resolveLineIdentity({
+      tenantId: tenantA.id, lineUserId: 'U-erase-1', displayName: 'ลูกค้าทดสอบ',
+    })
+    const missionDraft = await prisma.agentMissionDraft.create({ data: {
+      sourceAgentRef: 'agent-erasure-fixture',
+      missionId: `mission-erasure-${token()}`,
+      revision: 1,
+      tenantId: tenantA.id,
+      businessId: busA1.id,
+      workspaceId: `workspace-erasure-${token()}`,
+      projectId: `project-erasure-${token()}`,
+      workstreamId: `workstream-erasure-${token()}`,
+      actorPersonId: missionActor.personId,
+      sourceTurnId: `turn-erasure-${token()}`,
+      executionId: `execution-erasure-${token()}`,
+      sourceEventId: `event-erasure-${token()}`,
+      sourceTraceEventId: `trace-erasure-${token()}`,
+      digest: 'e'.repeat(64),
+      snapshotJson: JSON.stringify({ title: 'Private draft', summary: 'Sensitive summary' }),
+    } })
+    const missionDraftScope = { tenantId: tenantA.id, businessId: busA1.id,
+      workspaceId: missionDraft.workspaceId, projectId: missionDraft.projectId,
+      workstreamId: missionDraft.workstreamId }
+    const missionDraftEvent = await prisma.auditEvent.create({ data: {
+      id: missionDraft.sourceEventId, entityType: 'AGENT_MISSION_DRAFT', entityId: missionDraft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'LINE_USER', actorId: missionActor.personId,
+      tenantId: tenantA.id, businessId: busA1.id, requestId: missionDraft.sourceTurnId,
+      payloadJson: JSON.stringify({
+        schemaVersion: 'agent-mission-draft-event.v1', eventType: 'MISSION_DRAFT_CREATED',
+        missionId: missionDraft.missionId, draftId: missionDraft.id, revision: missionDraft.revision,
+        sourceAgentRef: missionDraft.sourceAgentRef, sourceTurnId: missionDraft.sourceTurnId,
+        executionId: missionDraft.executionId, sourceTraceEventId: missionDraft.sourceTraceEventId,
+        actorPersonId: missionDraft.actorPersonId, scope: missionDraftScope, digest: missionDraft.digest,
+      }),
+    } })
     const conversation = await prisma.conversation.findFirst({ where: { customerId: r.customerId } })
     await prisma.conversationAnalysis.create({
       data: {
@@ -140,7 +175,32 @@ describe('PDPA erasure from the CRM surface (FR-022)', () => {
       redactedMessages: 1,
       tombstonedRawRecords: 2,
       revokedIdentities: 1,
+      erasedMissionDrafts: 1,
     })
+    expect(await prisma.agentMissionDraft.findUnique({ where: { id: missionDraft.id } })).toMatchObject({
+      status: 'ERASED',
+      sourceAgentRef: null,
+      missionId: null,
+      actorPersonId: null,
+      sourceTurnId: null,
+      executionId: null,
+      sourceEventId: null,
+      sourceTraceEventId: null,
+      digest: null,
+      snapshotJson: '{}',
+    })
+    const erasedMissionDraftEvent = await prisma.auditEvent.findUnique({ where: { id: missionDraftEvent.id } })
+    expect(erasedMissionDraftEvent).toMatchObject({
+      entityType: 'AGENT_MISSION_DRAFT', entityId: missionDraft.missionId,
+      action: 'MISSION_DRAFT_CREATED', actorType: 'SYSTEM', actorId: null,
+      tenantId: tenantA.id, businessId: busA1.id, requestId: null,
+    })
+    expect(JSON.parse(erasedMissionDraftEvent.payloadJson)).toEqual({
+      eventType: 'MISSION_DRAFT_CREATED', missionId: missionDraft.missionId, scope: missionDraftScope,
+    })
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain('personId')
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain('Sensitive summary')
+    expect(erasedMissionDraftEvent.payloadJson).not.toContain(missionDraft.digest)
     // The receipt is counts only. A caller who has just erased a person must not be
     // handed their name back in the response.
     expect(JSON.stringify(result)).not.toContain('ลูกค้าทดสอบ')
