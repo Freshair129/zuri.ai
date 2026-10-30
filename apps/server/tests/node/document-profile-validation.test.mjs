@@ -92,7 +92,7 @@ test('filesystem register parsers enumerate the documented direct root entries',
   assert.ok(api, 'document-profile-validation.mjs must exist before these checks can run')
   const rootFiles = readFileSync(path.join(REPOSITORY_ROOT, 'docs/governance/ROOT-FILE-REGISTER.md'), 'utf8')
   const directories = readFileSync(path.join(REPOSITORY_ROOT, 'docs/governance/DOCS-DIRECTORY-REGISTER.md'), 'utf8')
-  assert.equal(api.parseDirectRootFileRegister(rootFiles).length, 42)
+  assert.equal(api.parseDirectRootFileRegister(rootFiles).length, 43)
   assert.equal(api.parseDirectDirectoryRegister(directories).length, 20)
 })
 
