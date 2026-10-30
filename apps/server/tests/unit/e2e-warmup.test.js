@@ -1,5 +1,6 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
+import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { afterAll, describe, expect, it } from 'vitest'
@@ -45,6 +46,62 @@ describe('the e2e warm-up covers the domain registry', () => {
 })
 
 describe('the CI e2e server mode', () => {
+  it('records a real server event-loop stall without keeping an idle process alive', () => {
+    const preload = path.resolve('tests/e2e/server-timings.cjs')
+    const directory = mkdtempSync(path.join(tmpdir(), 'e2e-server-timing-'))
+    const entrypoint = path.join(directory, 'next')
+    try {
+      writeFileSync(entrypoint, `
+      setTimeout(() => {
+        const until = performance.now() + 250
+        while (performance.now() < until) {}
+      }, 100)
+      setTimeout(() => {}, 1250)
+    `)
+      const child = spawnSync(process.execPath, ['--require', preload, entrypoint, 'start'], {
+        encoding: 'utf8', timeout: 5000,
+      })
+      expect(child.error).toBeUndefined()
+      expect(child.status, child.stderr).toBe(0)
+      const samples = child.stderr.trim().split('\n').map(line => JSON.parse(line))
+      expect(samples.length).toBeGreaterThan(0)
+      expect(samples.some(sample => sample.eventLoopMaxMs >= 200)).toBe(true)
+      for (const sample of samples) {
+        expect(Object.keys(sample).sort()).toEqual([
+          'at', 'cpuSystemMs', 'cpuUserMs', 'eventLoopMaxMs', 'kind', 'pid', 'windowMs',
+        ])
+        expect(sample.kind).toBe('E2E_SERVER_TIMING')
+        expect(Number.isInteger(sample.pid) && sample.pid > 0).toBe(true)
+        expect(Number.isFinite(Date.parse(sample.at))).toBe(true)
+        for (const key of ['windowMs', 'cpuUserMs', 'cpuSystemMs']) {
+          expect(Number.isFinite(sample[key])).toBe(true)
+          expect(sample[key]).toBeGreaterThanOrEqual(0)
+        }
+        if (sample.eventLoopMaxMs !== null) {
+          expect(Number.isFinite(sample.eventLoopMaxMs)).toBe(true)
+          expect(sample.eventLoopMaxMs).toBeGreaterThanOrEqual(0)
+        }
+      }
+      // An unref'ed observer alone must not hold the Node process open.
+      writeFileSync(entrypoint, '')
+      const idle = spawnSync(process.execPath, ['--require', preload, entrypoint, 'start'], {
+        encoding: 'utf8', timeout: 5000,
+      })
+      expect(idle.error).toBeUndefined()
+      expect(idle.status, idle.stderr).toBe(0)
+      expect(idle.stderr).toBe('')
+      // Inherited NODE_OPTIONS must not monitor unrelated child entrypoints.
+      const other = spawnSync(process.execPath, ['--require', preload, '-e', 'setTimeout(() => {}, 1250)'], {
+        encoding: 'utf8', timeout: 5000,
+      })
+      expect(other.error).toBeUndefined()
+      expect(other.status, other.stderr).toBe(0)
+      expect(other.stderr).toBe('')
+    } finally {
+      rmSync(directory, { recursive: true, force: true })
+    }
+  })
+
   it('builds and selects the production server without the dev warm-up', () => {
     const config = readFileSync('playwright.config.js', 'utf8')
     const workflow = readFileSync('../../.github/workflows/governance.yml', 'utf8')
