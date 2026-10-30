@@ -1710,7 +1710,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-256",
@@ -2449,7 +2449,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 19,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-291",
@@ -4049,7 +4049,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 64
+          "testCount": 65
         },
         {
           "id": "FR-187",
@@ -4987,7 +4987,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 64
+          "testCount": 65
         },
         {
           "id": "FR-187",
@@ -5111,7 +5111,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-254",
@@ -8064,7 +8064,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 64
+          "testCount": 65
         },
         {
           "id": "FR-174",
@@ -8440,7 +8440,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 46
+          "testCount": 47
         },
         {
           "id": "FR-254",
@@ -10985,7 +10985,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 64
+          "testCount": 65
         },
         {
           "id": "FR-254",
@@ -20758,7 +20758,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 25,
-          "testCount": 46
+          "testCount": 47
         }
       ],
       "evidence": [
