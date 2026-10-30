@@ -497,7 +497,7 @@ function rebuildOptions(query){
  select.textContent="";
  const matches=[];
  PAGES.forEach(function(p,i){if(!q||p.route.toLowerCase().indexOf(q)>=0||p.id.toLowerCase().indexOf(q)>=0){matches.push(i);const o=document.createElement("option");o.value=String(i);o.textContent=p.id+" · "+p.route;select.appendChild(o);}});
- if(!matches.length){status.textContent="0 SHEETS";return;}
+ if(!matches.length){status.textContent="0 SHEETS";document.getElementById("previous").disabled=true;document.getElementById("next").disabled=true;return;}
  let chosen=matches.indexOf(current)>=0?current:matches[0];
  if(old&&matches.some(function(i){return PAGES[i].route===old;}))chosen=matches.find(function(i){return PAGES[i].route===old;});
  select.value=String(chosen);setPage(chosen);
@@ -509,15 +509,20 @@ function setPage(i){
  drawTitleBlock(p,current);
  renderSheet(p,current);
  status.textContent=(current+1)+" / "+PAGES.length+" SHEETS";
- document.getElementById("previous").disabled=current===0;
- document.getElementById("next").disabled=current===PAGES.length-1;
+ const selectedPosition=select.selectedIndex;
+ document.getElementById("previous").disabled=selectedPosition<=0;
+ document.getElementById("next").disabled=selectedPosition<0||selectedPosition>=select.options.length-1;
+}
+function stepPage(delta){
+ const nextPosition=select.selectedIndex+delta;
+ if(nextPosition>=0&&nextPosition<select.options.length)setPage(Number(select.options[nextPosition].value));
 }
 filter.addEventListener("input",function(){rebuildOptions(filter.value);});
 select.addEventListener("change",function(){setPage(Number(select.value));});
-document.getElementById("previous").addEventListener("click",function(){setPage(current-1);});
-document.getElementById("next").addEventListener("click",function(){setPage(current+1);});
+document.getElementById("previous").addEventListener("click",function(){stepPage(-1);});
+document.getElementById("next").addEventListener("click",function(){stepPage(1);});
 document.getElementById("print").addEventListener("click",function(){window.print();});
-document.addEventListener("keydown",function(e){if(e.altKey&&e.key==="ArrowRight")setPage(current+1);if(e.altKey&&e.key==="ArrowLeft")setPage(current-1);});
+document.addEventListener("keydown",function(e){if(e.altKey&&e.key==="ArrowRight")stepPage(1);if(e.altKey&&e.key==="ArrowLeft")stepPage(-1);});
 rebuildOptions("");
 const initial=PAGES.findIndex(function(p){return p.route==="/overview";});
 setPage(initial>=0?initial:0);

@@ -64,9 +64,10 @@ affected filesystem again before any later move or deletion.
 
 ## Findings and limits
 
-- Git enumeration at the reviewed base found 41 tracked direct files. This
-  change adds one visual companion; the resulting worktree has 42 tracked direct
-  files and no extra direct file. It also has the 20 registered direct directories.
+- Git enumeration at the reviewed base found 42 tracked direct files. This
+  change adds one visual companion, yielding 43 tracked direct files. Ignored
+  generated files are outside this tracked-file count. The register covers 20
+  tracked direct directories.
 - Exact-name reference scanning found path consumers for these sources, but a
   textual match does not prove semantic use. Dynamic paths and generated
   navigation must be checked before moving a source.
