@@ -18,7 +18,7 @@ const env = { ZURI_SESSION_SECRET: 'or2-isolated-session-test-secret', ZURI_ASSE
   ZURI_ASSET_EVIDENCE_BUCKET: 'asset-private', ZURI_ASSET_STORAGE_ENDPOINT: 'http://storage.test:9000',
   ZURI_ASSET_STORAGE_ACCESS_KEY: 'test', ZURI_ASSET_STORAGE_SECRET_KEY: 'test',
   ZURI_KNOWLEDGE_CATALOG_BUCKET: 'catalog-private', ZURI_KNOWLEDGE_STORAGE_BUCKET: 'knowledge-private' }
-let scope, person, membership, request, file, root, service, objects, putCount
+let scope, person, membership, request, file, root, service, objects, putCount, admittedFence = false
 beforeAll(async () => {
   const id = randomUUID(), portfolio = await createPortfolio({ name: 'OR2', code: 'PF-' + id })
   const tenant = await createTenant({ name: 'OR2', portfolioId: portfolio.id, code: 'T-' + id })
@@ -33,7 +33,18 @@ beforeAll(async () => {
   // runner temp paths can use an alias/casing different from filesystem realpath.
   root = await realpath(await mkdtemp(path.join(tmpdir(), 'zuri-or2-')))
 })
-afterAll(async () => { if (root) await rm(root, { recursive: true, force: true }) })
+afterAll(async () => {
+  try {
+    // The PostgreSQL profile shares one disposable database between files.
+    // Remove this suite's history/refs after its assertions; retaining them
+    // correctly blocks unrelated legacy backups in the following suites.
+    if (scope) {
+      await db.managedBlobRecoveryOperation.deleteMany({ where: scope })
+      await db.fileAsset.deleteMany({ where: scope })
+    }
+    if (admittedFence) await db.managedBlobRecoveryInstallationFence.deleteMany({ where: { id: 'installation' } })
+  } finally { if (root) await rm(root, { recursive: true, force: true }) }
+})
 beforeEach(async () => {
   objects = new Map(); putCount = 0
   if (!recovery.createManagedBlobRecoveryService) return
@@ -41,6 +52,7 @@ beforeEach(async () => {
   await db.managedBlobRecoveryInstallationFence.deleteMany()
   // Explicit fresh disposable TEST admission; runtime never bootstraps this row.
   await db.managedBlobRecoveryInstallationFence.create({ data: { id: 'installation', mode: 'READY', generation: 1 } })
+  admittedFence = true
   await db.membership.update({ where: { id: membership.id }, data: { role: 'OWNER', status: 'ACTIVE' } })
   file = await db.fileAsset.create({ data: { ...scope, code: 'FIL-' + randomUUID(), name: 'original.pdf',
     storageKind: 'MANAGED_BLOB', mime: 'application/pdf', size: 8, sha256: digest,
