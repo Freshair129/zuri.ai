@@ -1,15 +1,15 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.1"
-checked_at: "2026-10-26"
-checked_base_revision: "8276706c1f7bff5fe0c58330bf0e4d9836fa1e5b"
+version: "0.3.2"
+checked_at: "2026-10-30"
+checked_base_revision: "d804d28be37aa3b155da3144df99a2299856974e"
 ---
 
 # Direct files under `docs/`
 
-This register classifies the 41 tracked files directly under `docs/` at the
-reviewed base and records one visual companion added by this change (42 files in
+This register classifies the 42 tracked files directly under `docs/` at the
+reviewed base and records one visual companion added by this change (43 files in
 the resulting worktree). The entries record observed purpose, representative
 exact-path readers found in the repository, and a safe disposition. Reader paths
 are evidence of reference, not proof that a document is authoritative or current.
@@ -58,14 +58,16 @@ affected filesystem again before any later move or deletion.
 | [`STD-Multi agent workflow S-01.md`](../STD-Multi%20agent%20workflow%20S-01.md) | Retired developer-team controller proposal. `source-pins.json` preserves an admitted historical preimage hash; it does not assert that the current file bytes equal that hash. The runbook path is a navigation-only retirement pointer. | `docs/architecture/delivery-control/RETIREMENT.md`; `docs/runbooks/S-01.md`; ADR-113. | Preserve its historical source and pin; do not implement or treat its controller, global enforcement, or Mission Control closeout as active. |
 | [`SYSTEM-DIAGRAM.md`](../SYSTEM-DIAGRAM.md) | System diagram snapshot; its code/test annotations associate it with verification, but the diagram itself is not runtime evidence. | Server related-test selection; data-pipeline map; registry and migration records. | Keep while referenced; confirm diagram freshness against source before claiming current topology. |
 | [`UI-DESIGN-SYSTEM.md`](../UI-DESIGN-SYSTEM.md) | Zuri Heritage v2 design-system reference; ADR-010 is the accepted token decision. | Roadmap HTML/Markdown; PM interaction specification; `llms.txt` and change records. | Keep at the linked path; ADR-010 controls accepted tokens, and implementation remains subject to UI verification. |
+| [`UI-PAGE-DIMENSIONAL-ATLAS.html`](../UI-PAGE-DIMENSIONAL-ATLAS.html) | Monochrome, NTS schematic drawing atlas for the 117 routes in interface inventory v1.43.0b, generated from source snapshot `d804d28`; unknown viewport extents remain `[TBD]`. | `docs/README.md`; `docs/INTERFACE-INVENTORY.md`; `docs/UI-DESIGN-SYSTEM.md`. | Keep as a derived visual companion; the inventory and application source remain authoritative for routes and geometry. |
 | [`zuri_workspace_system.md`](../zuri_workspace_system.md) | Workspace/Space design explanation dated 2026-08-17; its old “implementation pending” label is stale for the core schema and authority flows, while FR-066 still tracks a Profile/Home UX correction. | `DOMAIN-MODEL.md`; current Server schema, services and unit tests; FR-043/066/067. | Keep as an explanatory design note, not a complete acceptance report. Current paths and evidence are linked in the document; preserve the remaining FR-066 UX follow-up. |
 | [`ZURI-HARNESS-PLUGIN-SPEC.md`](../ZURI-HARNESS-PLUGIN-SPEC.md) | Harness/plugin specification superseded by ADR-110; retained references include code/roadmap evidence. | Migration registry; roadmap and repository annotations. | Keep as superseded history; ADR-110 controls current behavior. |
 
 ## Findings and limits
 
-- Git enumeration at the reviewed base found 41 tracked direct files. This
-  change adds one visual companion; the resulting worktree has 42 tracked direct
-  files and no extra direct file. It also has the 20 registered direct directories.
+- Git enumeration at the reviewed base found 42 tracked direct files. This
+  change adds one visual companion, yielding 43 tracked direct files. Ignored
+  generated files are outside this tracked-file count. The register covers 20
+  tracked direct directories.
 - Exact-name reference scanning found path consumers for these sources, but a
   textual match does not prove semantic use. Dynamic paths and generated
   navigation must be checked before moving a source.
@@ -99,3 +101,7 @@ canonical architecture and pipeline records.
 0.3.0 → 0.3.1 (2026-10-26): updates the architecture overview version and dates
 the atlas production-target note separately from its 2026-10-25 flow/status
 snapshot; the atlas remains a derived view, not deployment evidence.
+
+0.3.1 → 0.3.2 (2026-10-30): records the 117-page UI dimensional drawing atlas
+as a derived visual companion and refreshes the direct-file enumeration from
+`d804d28`; interface and source authority remain unchanged.
