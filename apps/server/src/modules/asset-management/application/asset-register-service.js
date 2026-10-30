@@ -130,8 +130,8 @@ export async function listRegisteredAssets({
   const rows = await db.registeredAsset.findMany(queryArgs)
   let nextCursor = null
   if (rows.length > take) {
-    const nextItem = rows.pop()
-    nextCursor = nextItem.id
+    rows.pop()
+    nextCursor = rows[rows.length - 1]?.id ?? null
   }
 
   // Format active pointers for consumption

@@ -72,6 +72,82 @@ describe('Asset Register Service', () => {
       expect(result.items[0].currentLocation?.locationName).toBe('HQ Room 101')
       expect(result.stats.total).toBe(1)
     })
+
+    it('returns every asset across cursor pages without duplicating or omitting the page boundary', async () => {
+      const allAssets = ['ast-1', 'ast-2', 'ast-3', 'ast-4'].map((id) => ({
+        id,
+        assetCode: id.toUpperCase(),
+        name: id,
+        status: 'ACTIVE',
+        condition: 'GOOD',
+        responsibilities: [],
+        locations: [],
+        projectAllocations: [],
+        lot: null,
+        _count: { evidence: 0, procurementRefs: 0, depreciationCandidates: 0 },
+      }))
+
+      const findMany = vi.fn(async (args) => {
+        const cursorIndex = args.cursor
+          ? allAssets.findIndex((asset) => asset.id === args.cursor.id)
+          : -1
+        const startIndex = cursorIndex >= 0 ? cursorIndex + (args.skip || 0) : 0
+        return allAssets.slice(startIndex, startIndex + args.take)
+      })
+      const mockDb = {
+        registeredAsset: {
+          findMany,
+          count: vi.fn().mockResolvedValue(allAssets.length),
+        },
+      }
+
+      const seenIds = []
+      const queryCursors = []
+      let cursor = null
+      do {
+        const page = await listRegisteredAssets({ businessId: 'biz-1', db: mockDb, limit: 2, cursor })
+        seenIds.push(...page.items.map((asset) => asset.id))
+        queryCursors.push(findMany.mock.calls.at(-1)[0])
+        cursor = page.nextCursor
+      } while (cursor)
+
+      expect(seenIds).toEqual(['ast-1', 'ast-2', 'ast-3', 'ast-4'])
+      expect(new Set(seenIds).size).toBe(seenIds.length)
+      expect(queryCursors).toHaveLength(2)
+      expect(queryCursors.every((query) => query.where.businessId === 'biz-1')).toBe(true)
+      expect(queryCursors.every((query) => query.where.deletedAt === null)).toBe(true)
+      expect(queryCursors[1].cursor).toEqual({ id: 'ast-2' })
+      expect(queryCursors[1].skip).toBe(1)
+    })
+
+    it('does not emit a cursor when the result count is exactly the requested limit', async () => {
+      const mockAssets = ['ast-1', 'ast-2'].map((id) => ({
+        id,
+        assetCode: id.toUpperCase(),
+        name: id,
+        status: 'ACTIVE',
+        condition: 'GOOD',
+        responsibilities: [],
+        locations: [],
+        projectAllocations: [],
+        lot: null,
+        _count: { evidence: 0, procurementRefs: 0, depreciationCandidates: 0 },
+      }))
+      const mockDb = {
+        registeredAsset: {
+          findMany: vi.fn().mockResolvedValue(mockAssets),
+          count: vi.fn().mockResolvedValue(mockAssets.length),
+        },
+      }
+
+      const result = await listRegisteredAssets({ businessId: 'biz-1', db: mockDb, limit: 2 })
+
+      expect(result.items.map((asset) => asset.id)).toEqual(['ast-1', 'ast-2'])
+      expect(result.nextCursor).toBeNull()
+      expect(mockDb.registeredAsset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({ take: 3 })
+      )
+    })
   })
 
   describe('getRegisteredAssetById', () => {
