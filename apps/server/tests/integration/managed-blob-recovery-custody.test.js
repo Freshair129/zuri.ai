@@ -1,7 +1,7 @@
 // @req FR-292, FR-293 — durable custody cannot become authority or escape backup exclusion.
 // @spec ADR-115, SEC-008
 import { randomUUID } from 'node:crypto'
-import { mkdtemp, rm, unlink, mkdir } from 'node:fs/promises'
+import { mkdtemp, rm, unlink, mkdir, realpath } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { beforeAll, afterAll, beforeEach, describe, expect, it } from 'vitest'
@@ -29,7 +29,9 @@ beforeAll(async () => {
   const sessionId = randomUUID(), token = generateSessionToken(person.id, { secret: env.ZURI_SESSION_SECRET, sessionId })
   await persistSession({ token, sessionId, personId: person.id, db, env })
   request = new Request('http://localhost/api/files', { headers: { cookie: 'zuri_session=' + token } })
-  root = await mkdtemp(path.join(tmpdir(), 'zuri-or2-'))
+  // Trusted TEST configuration must satisfy the unchanged canonical-root guard;
+  // runner temp paths can use an alias/casing different from filesystem realpath.
+  root = await realpath(await mkdtemp(path.join(tmpdir(), 'zuri-or2-')))
 })
 afterAll(async () => { if (root) await rm(root, { recursive: true, force: true }) })
 beforeEach(async () => {

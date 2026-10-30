@@ -3,7 +3,7 @@
 import { beforeAll, afterAll, beforeEach, expect, it } from 'vitest'
 import { randomUUID, randomBytes, createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { mkdtemp, rm } from 'node:fs/promises'
+import { mkdtemp, rm, realpath } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import pg from 'pg'
@@ -41,7 +41,8 @@ beforeAll(async () => {
   otherRuntime = new PrismaClient({ datasources: { db: { url: runtimeUrl } } }); clients.push(otherRuntime)
   observer = new pg.Client({ connectionString: server.url }); await observer.connect()
   writer = new pg.Client({ connectionString: runtimeUrl }); await writer.connect()
-  root = await mkdtemp(path.join(tmpdir(), 'zuri-or2-native-'))
+  // Canonicalize trusted TEST configuration, retaining the strict spool guard.
+  root = await realpath(await mkdtemp(path.join(tmpdir(), 'zuri-or2-native-')))
 }, 120000)
 afterAll(async () => {
   try { await writer?.query('ROLLBACK'); await control?.query('ROLLBACK') } finally {
