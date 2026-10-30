@@ -1,6 +1,5 @@
 {
-  "schemaSha256": "cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18",
-  "targetSchemaSha256": "f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e",
+  "schemaSha256": "b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -563,6 +562,16 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
+      "modelName": "ManagedBlobRecoveryInstallationFence",
+      "schemaName": "public",
+      "tableName": "ManagedBlobRecoveryInstallationFence"
+    },
+    {
+      "modelName": "ManagedBlobRecoveryOperation",
+      "schemaName": "public",
+      "tableName": "ManagedBlobRecoveryOperation"
+    },
+    {
       "modelName": "MarketObservation",
       "schemaName": "public",
       "tableName": "MarketObservation"
@@ -1062,5 +1071,6 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ]
+  ],
+  "targetSchemaSha256": "9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3"
 }

@@ -1,5 +1,13 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.73.0b to 1.74.0b (2026-10-30): FR-292/FR-293 add PM-owned
+`ManagedBlobRecoveryOperation` and `ManagedBlobRecoveryInstallationFence`, for
+214 models. These installation-local journal/generation/quota records have scalar
+provenance, are excluded from portable snapshots and cannot be snapshot-replaced.
+The fence defaults to NEEDS_ADMISSION; runtime code does not create READY.
+SQLite/PostgreSQL migration sources and the fresh Compact baseline schema change
+together. No deployed migration or recovery activation is claimed.
+
 Version diff 1.72.0b to 1.73.0b (2026-10-29): TASK-ZAI-012 adds AgentMissionDraft and AgentMissionEvidence, immutable mission provenance linked transactionally to a human-submitted PLANNED WorkItem. The schema declares 212 models; snapshot recovery includes both tables and Identity erasure retains only their scoped tombstones. The Supabase source migration is not applied.
 
 Version diff 1.71.0b to 1.72.0b (2026-10-24): FR-235 adds default-OFF LineProductDisclosurePolicy. The schema declares 210 models; source migrations and verification do not apply any deployed migration.

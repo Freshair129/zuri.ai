@@ -1931,6 +1931,60 @@ model FileAsset {
   @@index([workItemId])
 }
 
+// @req FR-292, FR-293 — installation-local custody, never portable snapshot authority.
+// @spec ADR-115
+// @tested tests/integration/managed-blob-recovery-custody.test.js
+model ManagedBlobRecoveryInstallationFence {
+  id              String   @id
+  mode            String   @default("NEEDS_ADMISSION")
+  generation      Int      @default(1)
+  version         Int      @default(1)
+  retainedBytes   Int      @default(0)
+  restoreAttemptId String?
+  updatedAt       DateTime @updatedAt
+}
+
+// @req FR-292 — PM-owned operation journal; scalar provenance survives snapshot replacement.
+// @spec ADR-115
+// @tested tests/integration/managed-blob-recovery-custody.test.js
+model ManagedBlobRecoveryOperation {
+  id                  String    @id @default(uuid())
+  actorId             String
+  tenantId            String
+  businessId          String
+  fileId              String
+  expectedJson        String
+  configHash          String
+  spoolRootHash       String
+  generation          Int
+  destinationKey      String
+  state               String    @default("PREPARED")
+  version             Int       @default(1)
+  confirmationDigest  String?
+  expiresAt           DateTime
+  byteDeadline        DateTime
+  spoolId             String?
+  spoolBytes          Int       @default(0)
+  workerId            String?
+  epoch               Int       @default(0)
+  leaseExpiresAt      DateTime?
+  attempts            Int       @default(0)
+  receiptJson         String?
+  resultVersion       Int?
+  availability        String    @default("NOT_CHECKED")
+  cleanupState        String    @default("NONE")
+  unresolved          Boolean   @default(true)
+  reservedBytes       Int       @default(49152)
+  auditCount          Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  closedAt            DateTime?
+
+  @@index([actorId, unresolved])
+  @@index([businessId, unresolved])
+  @@index([state, leaseExpiresAt])
+}
+
 // @req FR-045 - typed secondary FileAsset relation with indexed entity lookup.
 // @spec ADR-016, SDD-023, ZV2-CR-001
 model FileLink {

@@ -119,10 +119,10 @@ describe('Phase B offline recovery runners', () => {
   // both histories are portable, while restore invalidates every nonterminal request.
   // @req TASK-ZAI-011 — notification history joins portable snapshots and the pinned census.
   // @req TASK-ZAI-012 — mission draft/evidence join the complete portable recovery census.
-  it('loads the committed pinned 212-table inventory and preserves prior mappings', () => {
-    expect(inventory.applicationTables).toHaveLength(212)
-    expect(inventory.schemaSha256).toBe('cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18')
-    expect(inventory.targetSchemaSha256).toBe('f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e')
+  it('loads the committed pinned 214-table inventory and preserves prior mappings', () => {
+    expect(inventory.applicationTables).toHaveLength(214)
+    expect(inventory.schemaSha256).toBe('b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1')
+    expect(inventory.targetSchemaSha256).toBe('9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )
@@ -152,16 +152,24 @@ describe('Phase B offline recovery runners', () => {
     expect(SNAPSHOT_MODELS).not.toContain('lineStockDisclosurePolicy')
 
     const previous208 = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: '579afacd11ae1ad34c11183a9617896812c2af94d6b5c7187f382d3f37f418e8',
     })
     expect(previous208.applicationTables).toHaveLength(208)
     expect(previous208.targetSchemaSha256).toBe('af3a57bba8079615e6f8c85718e731eade38aa8de5840e78958231e50fc5e683')
   })
 
+
+  it('refuses the previous published 212-model Mission binding after OR2 custody composition', () => {
+    const prior = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)), schemaSha256: 'cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18' })
+    expect(prior.applicationTables).toHaveLength(212)
+    expect(prior.targetSchemaSha256).toBe('f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e')
+    expect(() => createPrismaTransactionFacade({}, prior)).toThrow(/approved 214-table inventory/)
+    expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_or2_prior', inventory: prior })).toThrow(/approved 214-table inventory/)
+  })
   it('refuses the previous 209-table Pipeline C1 binding after FR-235 composition', async () => {
     const previous = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: 'd8ec4c28d9c3354305e4699f6d090148daedc52638da1c5bb2d17fbb136d8d21',
     })
     expect(previous.applicationTables).toHaveLength(209)
@@ -175,8 +183,8 @@ describe('Phase B offline recovery runners', () => {
       const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
       expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
-      expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 212-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_pipeline_c1_old_qa', inventory: previous })).toThrow(/approved 212-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 214-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_pipeline_c1_old_qa', inventory: previous })).toThrow(/approved 214-table inventory/)
       expect(adapter.events).not.toContain('begin')
     } finally { await rm(dir, { recursive: true, force: true }) }
   })
@@ -237,7 +245,7 @@ describe('Phase B offline recovery runners', () => {
   })
 
   it('preserves the exact previous 194 mappings and covers every current Prisma model', async () => {
-    const previous = inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
+    const previous = inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
       && modelName !== 'MemoryProjectionReceipt' && !BUSINESS_ADDED_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName)
       && !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy')
     expect(previous).toHaveLength(194)
@@ -262,7 +270,7 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
-  it('includes all 212 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+  it('includes all 214 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
     const queries = []
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
@@ -276,14 +284,14 @@ describe('Phase B offline recovery runners', () => {
     const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
     try {
       const tx = await adapter.begin()
-      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 212, catalogCount: 212 })
+      expect(await tx.reconcileCatalog()).toEqual({ expectedCount: 214, catalogCount: 214 })
       await tx.assertPrivileges({ write: true })
       await tx.lockApplicationTables()
       expect(Object.keys(await tx.countAllApplicationTables()).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
       const names = inventory.applicationTables.map(entry => `"public"."${entry.tableName}"`)
       expect(queries.filter(query => query.sql.includes('has_table_privilege')).map(query => query.values[0])).toEqual(names)
       expect(queries.filter(query => query.sql.startsWith('LOCK TABLE') && query.sql.includes('SHARE ROW EXCLUSIVE')).map(query => query.sql)).toEqual(names.map(name => `LOCK TABLE ${name} IN SHARE ROW EXCLUSIVE MODE`))
-      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(212)
+      expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(214)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }
   })
@@ -309,7 +317,7 @@ describe('Phase B offline recovery runners', () => {
 
   it('refuses the previous 204-model binding after the FR-285 rebind', async () => {
     const previous = inventoryVariant({
-      applicationTables: inventory.applicationTables.filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
+      applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !MISSION_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'),
       schemaSha256: '1bf50bdc16737c19116801eee4dd83cc8c0326e6c7b79d440b62caff29744175',
     })
     expect(previous.applicationTables).toHaveLength(204)
@@ -328,7 +336,7 @@ describe('Phase B offline recovery runners', () => {
   })
 
   it('refuses the last valid 194-model binding at every runner and loader boundary', async () => {
-    const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
+    const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !MARKETING_CUSTODY.includes(modelName)
       && modelName !== 'MemoryProjectionReceipt' && !BUSINESS_ADDED_MODELS.includes(modelName) && !POST_204_MODELS.includes(modelName)
       && !MISSION_MODELS.includes(modelName) && modelName !== 'LineStockDisclosurePolicy' && modelName !== 'LineProductDisclosurePolicy'), schemaSha256: '32eb25fc477a50457014e2e8b106fd58a4d5eed0666b46a3e98e7bcba66330d4' })
     expect(previous.targetSchemaSha256).toBe('9dfbf9b736a46b2191cc8c72b843b090563af0198359b7015b5654dd08506aa0')
@@ -358,7 +366,7 @@ describe('Phase B offline recovery runners', () => {
     { name: 'main 197-model', schemaSha256: '45d7a7001daa7ede78fe911d1752bf237a7c42218a51372ec4bb89bdd704de06', targetSchemaSha256: 'e9f5216b1e9368157dcfd5b926eb3798fac335f45d815615424324fe2909f65e', omit: [...MISSION_MODELS, 'MemoryProjectionReceipt', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy'] },
   ]) {
     it(`preserves and refuses the historical ${historical.name} binding at every runner and loader boundary`, async () => {
-      const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !historical.omit.includes(modelName)), schemaSha256: historical.schemaSha256 })
+      const previous = inventoryVariant({ applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !historical.omit.includes(modelName)), schemaSha256: historical.schemaSha256 })
       expect(previous.targetSchemaSha256).toBe(historical.targetSchemaSha256)
       const dir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-composed-old-'))
       try {
@@ -369,8 +377,8 @@ describe('Phase B offline recovery runners', () => {
         const bytes = Buffer.from(JSON.stringify(emptySnapshot()))
         expect(await runCleanTargetRestore({ inventory: previous, adapter, snapshotBytes: bytes, expectedSnapshotSha256: computeSnapshotSha256(bytes), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
         expect(await runProtectedExport({ inventory: previous, adapter, extractSnapshot: async () => ({ snapshot: historicalCompleteSnapshot(), ...historicalExportedModelContract() }), validateSnapshotRecovery: validRecovery })).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED', snapshot: null })
-        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 212-table inventory/)
-        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 212-table inventory/)
+        expect(() => createPrismaTransactionFacade({}, previous)).toThrow(/approved 214-table inventory/)
+        expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_composed_qa', inventory: previous })).toThrow(/approved 214-table inventory/)
         expect(adapter.events).not.toContain('begin')
       } finally { await rm(dir, { recursive: true, force: true }) }
     })
@@ -462,7 +470,7 @@ describe('Phase B offline recovery runners', () => {
       ]
       const previous = {
         ...inventory,
-        applicationTables: inventory.applicationTables.filter(({ modelName }) => !modelsAddedAfter192.includes(modelName)),
+        applicationTables: inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !modelsAddedAfter192.includes(modelName)),
         schemaSha256: '94b6e5a55ff719afb82d9c8896ca47db6192cf48709d6976fd4cb38870d5231d',
       }
       previous.targetSchemaSha256 = computeTargetSchemaSha256(previous)
@@ -635,7 +643,7 @@ describe('Phase B offline recovery runners', () => {
     // @req FR-022 — likewise excludes the two ADR-093 1.2.0 models added after FR-277.
     // @req FR-285 — reconstructed pre-factory bodies also exclude BusinessAgentConfig.
     const AFTER_FR277 = ['LineGroundingShadowComparison', 'CustomerRetentionConsent', 'LegalHoldArchiveKey', 'MemoryProjectionReceipt', 'MarketingReportPolicy', 'MarketingReportBinding', 'MarketingExternalReport', ...BUSINESS_ADDED_MODELS, ...POST_204_MODELS, ...MISSION_MODELS, 'LineStockDisclosurePolicy', 'LineProductDisclosurePolicy']
-    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !AFTER_FR277.includes(modelName))
+    const beforeFr277 = inventory.applicationTables.filter(({ modelName }) => !['ManagedBlobRecoveryInstallationFence','ManagedBlobRecoveryOperation'].includes(modelName)).filter(({ modelName }) => !AFTER_FR277.includes(modelName))
     const smaller = inventoryVariant({ applicationTables: inventory.applicationTables.slice(0, -1) })
     const rehashed = inventoryVariant({ schemaSha256: '0'.repeat(64) })
     const historical = inventoryVariant({
@@ -678,8 +686,8 @@ describe('Phase B offline recovery runners', () => {
       expect(exported).toMatchObject({ status: 'REFUSED', errorCode: 'TARGET_SCHEMA_UNVERIFIED' })
       expect(exportAdapter.events).not.toContain('begin')
 
-      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 212-table inventory/)
-      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 212-table inventory/)
+      expect(() => createPrismaTransactionFacade({}, candidate)).toThrow(/approved 214-table inventory/)
+      expect(() => createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/example', inventory: candidate })).toThrow(/approved 214-table inventory/)
     }
   })
 
