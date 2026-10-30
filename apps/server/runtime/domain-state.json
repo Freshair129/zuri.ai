@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 171,
+    "featureCount": 173,
     "readyFeatureCount": 121,
-    "requirementCount": 279,
+    "requirementCount": 281,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.8,
-    "gapCount": 78,
+    "progressPercent": 93.7,
+    "gapCount": 80,
     "gaps": [
       {
         "domain": "agent",
@@ -1354,6 +1354,32 @@
           "services/conversation-runtime/test/smoke-core.test.js",
           "services/conversation-runtime/test/turn-runtime.test.js"
         ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-292",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-292 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
+          "apps/server/tests/integration/managed-blob-recovery.test.js",
+          "apps/server/tests/storage/compact-business-objects.test.js",
+          "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
+          "apps/server/tests/unit/private-business-object-storage.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-293",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-293 is partial",
+        "evidence": [
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+          "apps/server/tests/unit/managed-blob-transfer-contract.test.js"
+        ]
       }
     ]
   },
@@ -2153,7 +2179,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-138",
@@ -7838,7 +7864,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-138",
@@ -8774,6 +8800,34 @@
             "services/conversation-runtime/test/smoke-core.test.js",
             "services/conversation-runtime/test/turn-runtime.test.js"
           ]
+        },
+        {
+          "id": "FR-292",
+          "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 2,
+          "testCount": 4,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
+            "apps/server/tests/integration/managed-blob-recovery.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
+            "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
+            "apps/server/tests/unit/private-business-object-storage.test.js"
+          ]
+        },
+        {
+          "id": "FR-293",
+          "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 1,
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/tests/unit/managed-blob-transfer-contract.test.js"
+          ]
         }
       ],
       "checks": {
@@ -9385,6 +9439,30 @@
             "services/conversation-runtime/test/smoke-core.test.js",
             "services/conversation-runtime/test/turn-runtime.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-292",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-292 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
+            "apps/server/tests/integration/managed-blob-recovery.test.js",
+            "apps/server/tests/storage/compact-business-objects.test.js",
+            "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
+            "apps/server/tests/unit/private-business-object-storage.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-293",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-293 is partial",
+          "evidence": [
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/tests/unit/managed-blob-transfer-contract.test.js"
+          ]
         }
       ],
       "details": {
@@ -9447,11 +9525,13 @@
         "FR-252",
         "FR-272",
         "FR-284",
-        "FR-286"
+        "FR-286",
+        "FR-292",
+        "FR-293"
       ],
-      "featureCount": 53,
+      "featureCount": 55,
       "readyFeatureCount": 48,
-      "progressPercent": 98
+      "progressPercent": 97.5
     }
   },
   "features": [
@@ -11014,6 +11094,7 @@
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
+        "apps/server/tests/integration/managed-blob-recovery.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -11362,7 +11443,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 11
+          "testCount": 12
         },
         {
           "id": "FR-138",
@@ -11414,6 +11495,7 @@
         "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/supabase-object-storage.js",
         "apps/server/tests/integration/asset-evidence-intake-execution.test.js",
+        "apps/server/tests/integration/managed-blob-recovery.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
@@ -20722,6 +20804,7 @@
         "apps/server/tests/integration/line-published-price-reader.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
+        "apps/server/tests/integration/managed-blob-recovery.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -21504,6 +21587,79 @@
         "services/conversation-runtime/test/core-ports.test.js",
         "services/conversation-runtime/test/smoke-core.test.js",
         "services/conversation-runtime/test/turn-runtime.test.js"
+      ]
+    },
+    {
+      "id": "FR-292",
+      "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and explicitly confirm one existing active Asset/catalog FileAsset using exact persisted content evidence. The operation preserves identity, scope and consumer links while atomically committing one ref/version, durable result and redacted audit under current persisted-session and ownership fences. Durable operation custody distinguishes ambiguous external writes from failed writes; unqualified provider retries are refused, known cleanup is exact and scoped, and missing post-commit bytes fail closed as recovery-required. Installation restore, changed bytes, cross-scope moves and AI qualification are not conferred.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-292"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Business OWNER กู้ bytes เดิมของ Asset/catalog และผูก ref ใหม่กับ FileAsset เดิมบน Compact PostgreSQL โดยคงตัวตน ขอบเขต ลิงก์ และหลักฐานตามสิทธิ์ปัจจุบัน",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-292 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-292",
+          "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and…",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 3,
+          "testCount": 4
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
+        "apps/server/src/platform/storage/private-business-object-storage.js",
+        "apps/server/tests/integration/managed-blob-recovery.test.js",
+        "apps/server/tests/storage/compact-business-objects.test.js",
+        "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
+        "apps/server/tests/unit/private-business-object-storage.test.js"
+      ]
+    },
+    {
+      "id": "FR-293",
+      "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator export/preview/ confirm workflow, excluding source runtime authority and control state. A validated package binds every FileAsset/ProjectFile ref and byte witness; target-local jobs derive verified immutable refs from trusted target selection and commit their mapping with the authorized metadata replacement, audit and durable result. Existing snapshot refusals remain enforced. Recovery activation requires this supported backup round trip; transfer does not grant per-Business authority or qualify whole-installation restore, AI or production.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-293"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "installation operator ส่งออก metadata พร้อม bytes เดิมของ reserved managed-blob refs แล้ว preview/confirm การกู้เข้า Compact target ที่ผ่าน admission โดยใช้ target refs ใหม่และคง version ของข้อมูล",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-293 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-293",
+          "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 1,
+          "testCount": 1
+        }
+      ],
+      "evidence": [
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+        "apps/server/tests/unit/managed-blob-transfer-contract.test.js"
       ]
     }
   ],

@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.1.0"
+version: "0.6.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -18,6 +18,12 @@ relations:
     target: ZAI:FR-075
   - type: references
     target: ZAI:SEC-030
+  - type: references
+    target: ZAI:FR-292
+  - type: references
+    target: ZAI:FR-293
+  - type: references
+    target: ZAI:COMPACT-MBR-OR0-ADOPTION-20261030
 ---
 
 # Compact managed-blob operator restore/rebind implementation plan
@@ -54,7 +60,7 @@ planning scope, not a new canonical behavior or implementation.
 | Approach | Decision and tradeoff |
 |---|---|
 | Supported per-file application workflow | Proposed. Reuses trusted request identity and File Management ownership; needs a reviewed operation contract and durable recovery/cleanup protocol. |
-| Extend legacy `/api/backup/import` | Excluded. Installation-wide replacement and protected-family rules exceed the selected managed-blob scope. |
+| Extend legacy `/api/backup/import` | Generic restore remains outside per-file recovery. The later owner-selected transfer prerequisite proposes a bounded backup-orchestrator mapping adapter, preserving installation authority and every protected-family rule; it does not qualify whole-installation restore. |
 | Promote fixture SQL to a host CLI | Excluded. Bootstrap database authority and a fabricated Viewer cannot substitute for product authorization, CAS and supported audit/retry behavior. |
 
 The term **operator** here means the human running the recovery procedure with
@@ -220,10 +226,79 @@ not approved records created by this planning task.
   sequential conditional-write evidence is insufficient for timeout retries.
 - [ ] Review the minimal wire/API and persistence contract before fixing public
   route/model names. Preserve existing native ports and snapshot refusal guards.
-- [ ] Adopt the sanctioned canonical record migration and regenerate/check
-  registry, graph and views. Obtain independent review before application code.
+- [x] Issue planned standalone ZAI:FR-292 and ZAI:FR-293 through the sanctioned
+  canonical record migration after independent source/manifest review. Registry,
+  graph/views checks and composed review remain required for every delivery;
+  this issuance does not select application code or close qualification gates.
 
 ### OR1 — Pure descriptor/protocol and supported preparation path
+
+**Owner-selected OR1 development (2026-10-30):** the direct task selects isolated
+OR1 implementation against ZAI:FR-292/FR-293, with tests and independent review.
+This document remains candidate and does not authorize the whole plan or runtime
+activation. The selection supersedes the historical planning-only restriction
+for this bounded slice only. Canonical records remain delivery **planned**.
+
+OR1 delivers strict recovery descriptor/request parsing, streamed exact-byte
+verification under byte caps, a persisted-cookie-session/current-OWNER read-only preparation
+input builder, and a pure bounded transfer TAR/manifest/snapshot binding codec.
+Preparation returns matching evidence only: it creates no durable operation,
+operation ID, confirmation binding or `PREPARED` result. OR2 owns the journal,
+atomic quotas, native authority fence and durable preparation transaction; OR3
+owns the supported request/UI entrypoint. No route imports these OR1 modules.
+The read-only snapshot is not the native write/revocation fence proof.
+The pure byte verifier does not independently bound iterator/transport duration.
+Before OR3 calls it, that layer must own cancellation and the existing bounded
+transport deadline, including stalled and infinite empty/tiny-chunk streams.
+That integration/liveness proof remains OPEN; no timeout increase or new public
+stream/chunk admission policy is introduced by this pure helper.
+
+Owner content limits come from the existing policy constants (Asset 20 MiB,
+SmartGift catalog 16 MiB), bounded further by the 32 MiB recovery ceiling. The
+preparation input also requires an exact-Tenant persisted OWNER witness and
+checks expiry at the read decision; no general Viewer/platform shortcut grants
+it. PostgreSQL uses database wall time for that final expiry check.
+
+The codec verifies consistency, canonical bytes, complete reserved-ref coverage
+(including FileAsset tombstones and ProjectFile aliases), exact byte witnesses
+and explicitly supplied finite profile bounds. It neither exports a live target
+nor replaces one. It preserves the existing snapshot JSON fields as evidence;
+it does not interpret exported identity/session history as target authority.
+Recovery journals/fences and transfer jobs/receipts are rejected as portable
+tables. Existing snapshot family/credential refusals, current operator checking,
+fresh authentication, target mapping and restore admission must still execute
+in the future orchestrator; codec validity cannot bypass them. Parsed JSON
+evidence is frozen, while owned byte buffers remain data: the orchestrator must
+rehash sealed bytes and revalidate bindings before provider IO and commit.
+
+The transfer prerequisite below is an **activation dependency spanning OR2–OR5**,
+not a claim that OR1 alone supplies its HTTP/UI/jobs/fences or round-trip proof.
+Its checkboxes remain open. No recovery/provider effect is enabled by this slice;
+AI profiles and aggregate operatorRecovery remain **NOT_QUALIFIED**.
+
+**Additional owner-selected prerequisite (2026-10-29):** the
+[backup transfer contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#backup-transfer-prerequisite--selected-design-not-implemented)
+now has canonical subjects ZAI:FR-292/FR-293; its implementation and supported
+round-trip proof must precede recovery activation, so the first reserved ref
+does not disable normal backup. Before selecting activating application work,
+reconcile its versioned package/HTTP/UI, PM transfer-job/receipt persistence,
+shared export/import fence and fresh target mapping with OR1–OR5. No runtime
+activation is authorized by this candidate revision; only the bounded OR1
+development slice above has been separately selected.
+
+- [ ] Implement the separately selected transfer export/preview/confirm path
+  under installation-operator authority, without an invented Business OWNER.
+  Exclude runtime tokens/journals; preserve old JSON/local snapshots and every
+  protected-family/credential refusal.
+- [ ] Prove a clean disposable TEST product-ingestion → per-file recovery →
+  supported backup → new-target transfer restore → content/consumer-read round
+  trip, with complete row/byte coverage and source provider absent after export.
+- [ ] Prove snapshot/cleanup races, exact target-local mapping/audit/result,
+  quota/crash/expiry, new authentication and separately required restore admission.
+  Keep actual installation-wide restore/off-host/AI gates distinct and open.
+
+The tasks below may be selected for isolated development only after their
+contracts are adopted; they may not be enabled without this backup prerequisite.
 
 **Proposed implementation files:** PM `application/managed-blob-recovery-contract.js`
 and `application/managed-blob-recovery-service.js`; corresponding
@@ -231,15 +306,17 @@ and `application/managed-blob-recovery-service.js`; corresponding
 `tests/integration/managed-blob-recovery.test.js` under Server.
 
 **Consumes:** the OR0-approved protocol, persisted FileAsset scope and injected
-configured storage ports. **Produces:** bounded validated recovery input and
-server-owned operation identity, not an authority grant.
+configured storage ports. **Produces:** validated recovery input with a
+server-derived FileAsset tuple/evidence under the byte caps, not an operation
+identity or authority grant.
 
-- [ ] Write and observe RED for malformed/oversize/untrusted descriptors, source
+- [x] Write and observe RED for malformed/oversize/untrusted descriptors, source
   mismatches, noneligible states and unauthorized preparation; use real exact
   bytes for hash/length assertions.
-- [ ] Implement strict parsing and the authorized preparation flow. Keep bytes
+- [x] Implement strict parsing and the authorized preparation input boundary
+  described above, without claiming a durable PREPARED operation. Keep bytes
   private, scope derived from rows and all storage access behind existing ports.
-- [ ] Run the targeted protocol/preparation regressions and independent review
+- [x] Run the targeted protocol/preparation regressions and independent review
   of the delivered boundary; no live provider or existing installation mutation.
 
 ### OR2 — PM-owned stage/confirm/result/cleanup with native authority ordering
@@ -335,3 +412,254 @@ provider/legal release selection, AI profiles and production/release remain
 separate. This candidate plan and the existing 5b core/synthetic recovery PASS
 close none of them. The next authorized step is OR0 contract review/adoption;
 application code follows only the reviewed contract and selected implementation.
+
+## OR0 contract review package — draft, 2026-10-29
+
+The [concrete OR0 contract proposal](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
+continues this draft with a classified writer inventory, proposed HTTP/persistence/
+retention contracts and an unissued canonical statement. It does not adopt them.
+
+**Source inspected:** `05a47191a65ca399b5ce1fcf072d5ce6caa29673`.
+This section refines the candidate for review; it does not adopt a canonical
+record, approve implementation, or mark any OR0 checkbox complete. The earlier
+`source_revision` remains the original assessment's source. No public route,
+Prisma model name, permission or requirement ID is issued here. The following
+choices are proposed together, rather than independently enabled shortcuts.
+
+### Authority inputs and proposed native fence
+
+Verified source inputs:
+
+- [Viewer resolution](../../apps/server/src/modules/identity/resolve-viewer.js)
+  derives ordinary ownership from ACTIVE, unexpired OWNER memberships, including
+  Tenant-wide expansion. `scopeType === TENANT` or a null Business is the current
+  legacy-compatible Tenant-wide predicate. A RoleBinding or visibility alone is
+  not this ownership. The recovery contract must preserve that compatibility.
+- The cookie-session branch of the
+  [session adapter](../../apps/server/src/modules/identity/session-port.js)
+  validates a persisted, hash-bound session when it has a session ID. The trusted
+  injected-context and legacy-session branches do not prove that persisted
+  binding; recovery must explicitly require and recheck it, even for an injected
+  context, rather than treating any authenticated adapter result as sufficient.
+  [Membership lifecycle](../../apps/server/src/modules/identity/membership-lifecycle-service.js)
+  updates Membership rows and can revoke stranded Sessions. A fresh request
+  Viewer is useful but does not serialize a concurrent revocation.
+- [Authorization context](../../apps/server/src/modules/identity/authorization-context.js)
+  checks Person access disablement, Tenant/Business state and Membership expiry.
+  Its generic membership/permission result is not a replacement for OWNER-only
+  FileAsset write authority. Its direct-owner approval-vote helper deliberately
+  excludes Tenant-wide ownership and is not the recovery resolver either.
+
+Proposed Compact PostgreSQL confirm transaction:
+
+1. Authenticate the current request through the existing session adapter; carry
+   server-trusted principal/session identity, never a caller-supplied Viewer.
+   Require a persisted authenticated session for this network operation. A local
+   synthetic operator or platform grant alone is insufficient.
+2. Derive Tenant/Business from the existing FileAsset, then acquire transaction
+   row locks in an adopted deterministic order: Tenant, Business, Person,
+   qualifying Membership witness, Session, operation, FileAsset. Membership
+   precedes Session to match the existing revoke/offboard pair, which updates
+   Membership before revoking stranded Sessions. Recheck every
+   scope binding after locks; never use pre-lock values as authority.
+3. Select one current OWNER Membership witness for this actor and target scope,
+   accepting an exact-Business or compatible Tenant-wide grant. Lock its actual
+   row and re-evaluate role/status/scope/expiry after waiting. If the witness was
+   revoked or changed, fail closed; selecting another grant requires a new
+   bounded resolution attempt, not bypassing the failed witness.
+4. Recheck ACTIVE session, token binding, expiry, principal identity and Person
+   disablement, ACTIVE Tenant/Business and their relationship, plus the witness.
+   Bind the operation to this principal and scope; a later authenticated session
+   for the same principal may resume it after full reauthorization. Session
+   identifiers/token hashes stay internal and never enter export/audit payloads.
+5. In the same final metadata statement/transaction, evaluate expiries against
+   current database time after lock acquisition, not transaction-start time or
+   a preview timestamp. Recheck expected FileAsset tuple and operation state,
+   perform one CAS/version increment, and commit result plus redacted audit.
+   Define the authorization serialization point at this final decision: a
+   revocation serialized earlier denies; one serialized later does not undo a
+   completed authorized operation. No provider IO occurs while these locks hold.
+
+These are proposed row locks on identified existing rows, not an invented global
+mutex or already implemented Identity protocol. Normal UPDATE/DELETE of a locked
+row conflicts with that lock, but that fact alone is not a complete writer audit.
+Before adopting the fence, enumerate session logout/reset/revoke, Membership
+permission/suspend/revoke/offboard/delete, Person disablement, Tenant/Business
+state/scope changes and cascades. Check each transaction's order and relevant
+inputs. Deadlock/serialization/lock failures must roll back and return an explicit
+retry/conflict outcome; retry reauthenticates and rechecks every predicate.
+Never retry provider PUT as a side effect of retrying this DB transaction.
+If a revocation transaction loses a deadlock/serialization race, its grant and
+session updates roll back together: it must report failure/retry, never a
+successful withdrawal. Its caller must retry through live authorization before
+claiming revocation. Native tests must make each side the transaction victim
+and prove both truthful outcomes. The pairwise order above is not a claim that
+every invalidation writer already shares one complete lock hierarchy.
+
+Native acceptance must exercise both orders for each authority invalidation,
+Tenant-wide and exact-Business OWNER, expiry while waiting on a lock, session
+revocation, Person disablement and FileAsset deletion/change. A membership-only
+race test does not qualify the entire fence. Until the writer audit and native
+proof exist, **MBR-AUTHORITY-FENCE remains OPEN**.
+
+### Proposed protocol and durable operation custody
+
+Use the existing authenticated, same-origin product request boundary and its
+anti-CSRF/session controls. Product transport review must fix concrete route,
+encoding, error/status and confirmation-token schemas before OR1. No bare
+installation CLI SQL writer or new installation-operator permission is proposed.
+
+The descriptor is strict, versioned and bounded at 64 KiB; bytes are separately
+bounded at 32 MiB and the owning content policy, whichever is lower. Persisted
+source identity/version/ref digest, purpose, actual SHA256 and byte length form
+the expected tuple. Unknown fields, raw provider routing/credentials and embedded
+archives are refused. Uploaded descriptors never supply authorization. These
+proposed recovery bounds change no general upload policy or hardware claim.
+
+The proposed PM-owned durable operation has: opaque identity; actor and persisted
+scope; expected tuple; server-generated destination key; provider configuration
+generation; byte hash/length; private staging custody locator; immutable receipt
+when known; preview binding; expiry; state/version and a redacted durable result.
+These are conceptual data requirements, not an adopted Prisma schema. Business
+scope permits only Asset/catalog purposes. Reuse of another domain's import
+receipt, AuditEvent as a mutable journal, raw session tokens and public staging
+paths is prohibited. An operation is not authority and cannot resurrect a grant.
+
+| Proposed state | Durable meaning and permitted next action |
+|---|---|
+| PREPARED | Authorized expected tuple and server intent recorded; no provider PUT yet. A confirmation binds this immutable tuple, purpose and configuration. |
+| STAGING | Private bounded bytes and a leased/serialized attempt are owned by this operation; persist the generated key before provider IO. |
+| UNKNOWN | PUT may have happened but no exact receipt is durable; scoped inspect first, with no blind PUT or cleanup. Conditional retry is allowed only by the separately qualified transition below; otherwise quarantine with zero retry PUT. |
+| STAGED | Exact immutable receipt and verified GET hash/size recorded; confirm still requires live authority, tuple/config checks and expiry. |
+| COMMITTED | CAS, one version increment, audit and result committed atomically; retry needs current authorization and matching recorded current target. |
+| CONFLICT | Tuple/state changed; no FileAsset write. Keep exact custody visible for authorized inspection/cleanup. |
+| QUARANTINED | Provider outcome or bytes cannot be verified; no attachment, broad erase, automatic retry PUT or false success. |
+| CLEANUP_PENDING | Exact known operation-owned unreferenced version awaits cleanup; failure remains visible and resumable. |
+| ABANDONED | No attachment; retain sanitized outcome and required custody accounting. Unknown objects do not become safe to delete by relabelling the operation. |
+
+The proposed preview/confirmation lease is 15 minutes, with no extension by retry.
+Expiry blocks new stage/confirm and marks known owned staging for cleanup; it
+does not erase durable committed results or unknown custody. A bounded collector
+may inspect expired operations through the same scoped authorization/custody
+contract; it cannot infer that an unknown PUT never arrived. Retention/erasure
+periods for business bytes and operation metadata must be adopted with the owning
+policy before enabling that collector. Thus **MBR-DURABILITY remains OPEN**;
+neither a timer nor a result table alone closes it.
+
+Confirmation binds the operation ID, principal, expected tuple, purpose, provider
+generation and expiry through a server-controlled single-use binding. Reject
+foreign/mutated bindings uniformly before disclosing metadata or doing IO.
+Loss of a confirm response is resolved from the durable result after live
+authorization, never by replaying PUT or trusting client state. A committed
+result whose target is no longer current is historical, not current recovery
+success. Later missing provider bytes produce a degraded/recovery-required
+read outcome without rewriting committed audit history.
+
+### Separate selected-provider proof contract
+
+The shared [S3 adapter](../../apps/server/src/platform/storage/s3-object-storage.js)
+already exposes `recoverImmutable`; the private-business boundary must expose
+only operation-scoped inspect using the persisted generated key and expected
+bytes. Inspect never accepts a caller-selected endpoint, key, version or scope.
+This extension remains a proposal until MBR-CONTRACT adoption.
+
+The qualification report must independently bind source SHA, exact provider
+image/digest and version, platform/architecture, command/SDK configuration,
+versioning and conditional-write settings, plus actual executed cases. Secrets,
+raw refs and bytes stay outside public evidence. This separate recovery report
+must not add fields to the existing four-check storage-qualification payload.
+
+Required cases for the same generated operation key and exact content:
+
+1. Hold the original PUT beyond client timeout. Permit it to win before the
+   conditional retry arrives; retry must not create/overwrite another version.
+2. Hold the original PUT, let the conditional retry win, then release the original;
+   original must not create/overwrite a second version. Assert provider-side
+   immutable version inventory as well as exact-version GET bytes/hash/size.
+3. Lose the successful PUT response, recover via exact receipt verification;
+   reject missing/null versions, wrong bytes, wrong scope/config generation and
+   an unverified HEAD result. A client wrapper returning a synthetic conflict
+   does not prove provider atomicity.
+4. With conditionality unqualified, exercise UNKNOWN plus absent inspect result:
+   quarantine and assert zero retry PUT. A late original remains accounted for;
+   no source delete or broad prune occurs.
+
+Proposed runtime transition after an UNKNOWN outcome: authorize and serialize
+the same durable operation, inspect its exact key/configuration/hash/size, then
+record STAGED if the exact receipt is verified. If inspect finds no object,
+UNKNOWN may return to STAGING for a conditional retry only when a successful
+selected-provider report matching this exact configuration is admitted, the
+operation/confirmation lease remains valid, and the generated key, bytes and
+intent are unchanged. Persist that attempt before IO. Reinspect on a conditional
+conflict; a lost response remains UNKNOWN. No receipt changes are accepted on
+HEAD evidence alone. Without admitted proof, absent/ambiguous inspect leads to
+QUARANTINED with zero retry PUT. An incompatible/corrupt result also quarantines
+regardless of provider proof. The two winner-order probes above are isolated
+qualification experiments; their success is a prerequisite to this proposed
+runtime transition, not permission to enable it in the current product.
+
+Each winner order needs its own trace, calls, version counts and outcome; a
+sequential duplicate refusal cannot substitute. Product integration later must
+also prove one metadata/audit result and safe cleanup. This turn runs no provider
+experiment: **MBR-PROVIDER-CONDITIONAL remains NOT_RUN/OPEN**. An unqualified
+provider permits the conservative quarantine path only after the rest of its
+contract is adopted; it never enables automatic PUT retry.
+
+### Canonical adoption delta and disposition
+
+The following v0.3.0 disposition is retained as history; the v0.5.0 issuance
+continuation below is current for documentation adoption only.
+
+Propose one new managed-blob recovery subject, covering authenticated preparation,
+preview/stage/confirm, scope/current authority, exact-byte rebind, durable retry,
+failure/custody and bounded acceptance above. Review explicit FEAT membership and
+PM/File Management ownership through the existing canonical migration. Preserve
+FR-045/ADR-016's SQLite/local-file subject; name the Compact PostgreSQL managed-
+blob metadata target in the new record. Link FR-072/FR-075, FR-191 and SEC-008
+without turning installation authority or a RoleBinding into Business ownership.
+FR-013/BR-008 and SEC-030/FR-223 retain their snapshot/overwrite/secret boundaries.
+
+The sanctioned addition writer, reviewed statement/acceptance, issued ID and
+subject anchor, registry/compatibility regeneration and independent review must
+be composed only after that migration is selected. This refinement allocates no
+ID and changes no canonical payload/hash, feature membership or ledger entry.
+Concrete transport/schema and retention adoption, complete invalidation-writer
+audit, native concurrency proof and provider evidence are still missing; OR0 is
+**in progress, not complete**. PostgreSQL installation restore provenance remains
+external. Candidate lifecycle, implementation authorization false, aggregate
+operatorRecovery and AI profiles **NOT_QUALIFIED** are unchanged.
+
+Continuation v0.4.0 records the owner's choice of transfer/backup design before
+activation, replacing temporary full-export loss as an acceptable rollout option.
+At v0.4.0 the linked proposed contract specified the additional backup subject
+and acceptance but remained unadopted, with native/provider/round-trip proof NOT_RUN.
+
+### Canonical issuance continuation — 2026-10-30
+
+The owner selected canonical adoption only. The [approved adoption source v0.1.1](../change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
+at `472bf4201ae26be38891c4ce81d07774e1d1d928` binds the frozen v0.2.0 design at
+main `047bb9c5`. Independent source and read-only candidate review preceded
+the sanctioned writer's APPLIED [migration receipt](../migrations/document-reintegration/record-migrations/compact-managed-blob-recovery-transfer-20261030.receipt.json).
+Its active authored records [ZAI:FR-292](../requirements/FR-292.md) and
+[ZAI:FR-293](../requirements/FR-293.md) have delivery **planned**, with no FEAT
+membership or existing subject change. Original canonical blobs, ledger entries
+and FEAT membership were preserved; reapplication reports ALREADY_APPLIED.
+
+This closes the record-issuance part of OR0, not its native authority/provider,
+custody or product backup round-trip evidence. MBR-PROVIDER-CONDITIONAL and
+installation restore provenance remain NOT_RUN/OPEN. This plan stays
+**candidate**, implementation_authorized false, with AI profiles and aggregate
+operatorRecovery **NOT_QUALIFIED**. Further statement edits use canonical
+amendment; this plan is not a second requirement registry.
+
+Git delivery must preserve the approval/base commit ancestry validated by the
+canonical reader. Use a merge commit for this branch; squash/rebase would drop
+the pinned source commit from main ancestry and is not a valid provenance handoff.
+
+0.4.0 -> 0.5.0: reconcile documentation issuance and current canonical locators.
+No application task, release, runtime, database migration or production is selected.
+
+0.5.0 -> 0.6.0: record the separate owner selection of OR1 foundation development
+and its boundary with durable OR2 custody, OR3 product entrypoints and the
+cross-task transfer activation prerequisite. Candidate lifecycle, planned
+canonical delivery and NOT_QUALIFIED gates remain unchanged.

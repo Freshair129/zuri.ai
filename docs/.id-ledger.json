@@ -418,6 +418,8 @@
     "FR-289",
     "FR-290",
     "FR-291",
+    "FR-292",
+    "FR-293",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5384,6 +5386,32 @@
       ],
       "statement_digest_reviewed_at": "2026-10-23",
       "statement_digest_reason": "Approved TEST ONLY natural-language entry preserves the customer line product facts subject and existing owner authority; reviewed proposal v0.1.1 and independent Luna review."
+    },
+    "FR-292": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "d3d2b98ccaf3e39f709f75e74dceefd17554f9352a1649cba82771c11bc42025",
+      "history": [
+        {
+          "anchor": "managed blob operator recovery on a compact postgresql",
+          "since": "2026-10-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-293": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "8e4d50a4031a1a407f5afe184735320943cb27ed6975b84b8ed6feb0b5b09865",
+      "history": [
+        {
+          "anchor": "managed blob backup transfer preserves complete original",
+          "since": "2026-10-29",
+          "reason": "declared"
+        }
+      ]
     },
     "NFR-001": {
       "family": "NFR",
