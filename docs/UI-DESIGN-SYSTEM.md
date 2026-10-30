@@ -147,6 +147,12 @@ Tables retain table semantics on smaller screens: full table, then horizontal sc
 They do not automatically become a grid of cards. Their density is Compact 36px,
 Default 44px, or Comfortable 52px.
 
+For route-level visual orientation, see the [UI page dimensional atlas](UI-PAGE-DIMENSIONAL-ATLAS.html)
+alongside the [Interface Inventory](INTERFACE-INVENTORY.md). The atlas is a dated
+schematic companion; it does not define tokens or exact page geometry. Use current
+application source for implementation values and preserve its `[TBD]` and
+`[CONFLICT]` callouts until authoritative sources resolve them.
+
 ## 6. Responsive and accessibility baseline
 
 Breakpoints are `640`, `768`, `1024`, `1280`, and `1536`px. Behaviour is structural:

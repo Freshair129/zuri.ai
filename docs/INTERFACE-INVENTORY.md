@@ -1,7 +1,7 @@
 ---
-version: "1.43.0b"
+version: "1.43.1b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-10-22T00:00:00+07:00,Codex"
+last_update: "2026-10-30T00:00:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -11,6 +11,9 @@ attributes:
 ---
 
 # Zuri V2 — Interface Inventory
+
+Version diff 1.43.0b → 1.43.1b (2026-10-30): link the 117-page UI dimensional
+atlas as a dated schematic companion; route and geometry authority remain unchanged.
 
 Version diff 1.42.0b → 1.43.0b (2026-10-22): retire the developer-only `/control/mission-control` surface with ADR-113; 117 page routes.
 
@@ -26,9 +29,9 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.43.0b |
+| **Version** | 1.43.1b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-10-22 |
+| **Last Updated** | 2026-10-30 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
@@ -51,6 +54,7 @@ It does not own facts that already have a stronger source of truth:
 | API endpoint catalog and DTO contracts | [Appendix A](appendices/A-api-spec.md), live `GET /api/docs` | records only the API dependency needed to understand a UI surface |
 | Feature, requirement and test traceability | generated [FEATURE-MAP.md](FEATURE-MAP.md), [TRACE.md](TRACE.md) | references FR/SDD ids; does not duplicate global counts |
 | Tokens, components and accessibility rules | [UI-DESIGN-SYSTEM.md](UI-DESIGN-SYSTEM.md) | names relevant patterns; does not restate token rules |
+| Page-level schematic drawings | [UI page dimensional atlas](UI-PAGE-DIMENSIONAL-ATLAS.html) | provides a dated, not-to-scale visual companion; it does not define route status or exact geometry |
 | Durable decisions and changes | ADRs, CRs and [RCA](../.brain/rca/2026-08-18-document-graph-did-not-govern-semantic-inventory.md) | links to rationale; does not contain a change ledger |
 
 Generated views are projections, not authorities. Regenerate them with
@@ -423,6 +427,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.43.1b | 2026-10-30 | candidate | Link the 117-route UI dimensional atlas as a derived schematic companion; route authority unchanged | working-tree | Codex |
 | 1.40.0b | 2026-10-05 | candidate | Add the FR-278 `/growth/line-sales` executive dashboard; 116 page routes | working-tree | Codex |
 | 1.39.0b | 2026-09-27 | candidate | Add the FR-275 `/growth/insights` page; 115 page routes | working-tree | Claude Opus 5.5 (MC0) |
 | 1.38.0b | 2026-09-24 | candidate | Retire Edge and harness pairing routes, describe the PRP LocalWorker API-key flow, and reconcile to 114 page routes | working-tree | RWANG |
