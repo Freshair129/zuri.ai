@@ -70,19 +70,31 @@ describe('Phase B web recovery boundary', () => {
   it('rechecks inside the replacement transaction after an earlier empty preview', async () => {
     const f = await fixture()
     const snapshot = await exportSnapshot()
-    let transactions = 0
+    let protectedReads = 0
     const db = new Proxy(prisma, { get(target, key) {
       if (key === '$transaction') return (work, options) => target.$transaction(async tx => {
-        transactions += 1
-        if (transactions === 2) await tx.projectFeature.create({ data: f.data })
-        return work(tx)
+        return work(new Proxy(tx, { get(transaction, model) {
+          if (model === 'projectFeature') return new Proxy(transaction.projectFeature, { get(delegate, method) {
+            if (method === 'count') return async (...args) => {
+              protectedReads += 1
+              // The first count is the empty preview. Inject immediately before
+              // the replacement guard's reread, independent of admission transactions.
+              if (protectedReads === 2) await transaction.projectFeature.create({ data: f.data })
+              return delegate.count(...args)
+            }
+            const value = delegate[method]
+            return typeof value === 'function' ? value.bind(delegate) : value
+          } })
+          const value = transaction[model]
+          return typeof value === 'function' ? value.bind(transaction) : value
+        } }))
       }, options)
       const value = target[key]
       return typeof value === 'function' ? value.bind(target) : value
     } })
     const count = await restoredAudits()
     expect(await importSnapshot(snapshot, { confirm: true, viewer: operator, db })).toMatchObject({ restored: false, errorCode: 'PHASE_B_RECOVERY_MAINTENANCE_REQUIRED' })
-    expect(transactions).toBe(2)
+    expect(protectedReads).toBe(2)
     expect(await prisma.project.findUnique({ where: { id: f.project.id } })).not.toBeNull()
     expect(await prisma.projectFeature.count({ where: { id: f.data.id } })).toBe(0)
     expect(await restoredAudits()).toBe(count)

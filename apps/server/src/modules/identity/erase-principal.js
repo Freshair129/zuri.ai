@@ -168,7 +168,7 @@ export async function erasePrincipal(input, {
     const memory = await eraseCustomerMemoryInTransaction(tx, {
       tenantId, personId, reason: 'PRINCIPAL_ERASURE', now, env, archiveBaseDir,
     })
-    const { redactedMessages, redactedLineJobs, tombstonedRawRecords, knowledgeErasure, analyses } = memory
+    const { redactedMessages, redactedLineJobs, erasedMissionDrafts, erasedMissionEvidence, tombstonedRawRecords, knowledgeErasure, analyses } = memory
     const shared = { conversationIds: memory.sharedConversationIds, attributedMessages: memory.shared.attributedMessages }
     const resealed = memory.resealed
     resealFile = memory.resealFile
@@ -245,6 +245,8 @@ export async function erasePrincipal(input, {
         erasedAnalyses: analyses.count,
         redactedMessages,
         redactedLineJobs,
+        erasedMissionDrafts,
+        erasedMissionEvidence,
         tombstonedKnowledgeCandidates: knowledgeErasure.tombstonedKnowledgeCandidates,
         withdrawnKnowledgeSources: knowledgeErasure.withdrawnKnowledgeSources,
         // Counts only: which threads they were would name the groups this person was in.
@@ -270,6 +272,8 @@ export async function erasePrincipal(input, {
       erasedAnalyses: analyses.count,
       redactedMessages,
       redactedLineJobs,
+      erasedMissionDrafts,
+      erasedMissionEvidence,
       tombstonedRawRecords,
       tombstonedKnowledgeCandidates: knowledgeErasure.tombstonedKnowledgeCandidates,
       withdrawnKnowledgeSources: knowledgeErasure.withdrawnKnowledgeSources,

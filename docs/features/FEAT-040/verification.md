@@ -56,6 +56,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-read-model.test.js](../../../apps/server/tests/unit/conversation-read-model.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-session-service.test.js](../../../apps/server/tests/unit/conversation-session-service.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/conversation-session-ui.test.js](../../../apps/server/tests/unit/conversation-session-ui.test.js) — `verifies` (`test-reference`)

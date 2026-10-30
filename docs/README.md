@@ -1,5 +1,5 @@
 ---
-version: "0.7.15"
+version: "0.7.16"
 status: active
 superseded_by: null
 ---
@@ -137,7 +137,7 @@ kit outside this execution repository.
 ## Existing source entrypoints
 
 - [Product](PRODUCT.md) · [Architecture](ARCHITECTURE.md)
-- [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
+- [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [UI page drawing atlas (visual companion)](UI-PAGE-DIMENSIONAL-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
@@ -168,3 +168,7 @@ canonical lifecycle and release authority remain unchanged.
 
 Version diff 0.7.9 → 0.7.10 (2026-10-28): links bounded Task6 verification and
 its remaining selected-profile gates; no AI qualification or production authority.
+
+Version diff 0.7.15 → 0.7.16 (2026-10-30): links the 117-page UI dimensional
+drawing atlas as a schematic visual companion; the interface inventory and
+application source remain authoritative, and unspecified measurements stay `[TBD]`.

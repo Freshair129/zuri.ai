@@ -21,7 +21,8 @@ import { eraseCustomerPrincipal } from '@/modules/identity/erase-customer-princi
 export const dynamic = 'force-dynamic'
 
 export async function POST(request, { params }) {
-  return handle(async () => eraseCustomerPrincipal(params.customerId, await request.json(), {
+  const { customerId } = await params
+  return handle(async () => eraseCustomerPrincipal(customerId, await request.json(), {
     viewer: await resolveRequestViewer(request),
   }))
 }

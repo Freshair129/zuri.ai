@@ -499,6 +499,11 @@ model Person {
   agentApprovalRequestsCreated      AgentApprovalRequest[]       @relation("AgentApprovalRequester")
   agentApprovalDecisions            AgentApprovalDecision[]      @relation("AgentApprovalDecisionPerson")
   agentApprovalNotificationsReceived AgentApprovalNotification[]  @relation("AgentApprovalNotificationRecipient")
+  agentMissionEvidenceAuthored       AgentMissionEvidence[]       @relation("AgentMissionEvidenceActor")
+  agentMissionEvidenceConfirmed      AgentMissionEvidence[]       @relation("AgentMissionEvidenceConfirmationActor")
+  agentMissionEvidenceRevoked        AgentMissionEvidence[]       @relation("AgentMissionEvidenceRevoker")
+  agentMissionEvidenceSubmitted      AgentMissionEvidence[]       @relation("AgentMissionEvidenceSubmitter")
+  agentMissionDrafts                 AgentMissionDraft[]           @relation("AgentMissionDraftActor")
   passkeyCredentials            PasskeyCredential[]
   // @req FR-268, ADR-101 — Key Results this Person owns, and check-ins this
   // Person recorded (distinct: an OWNER can check in a Key Result owned by
@@ -1716,6 +1721,7 @@ model WorkItem {
   // @req FR-252 — WorkItem is the existing work identity referenced by a
   // FeatureWorkLink; link writes never mutate Workstream progress.
   featureWorkLinks FeatureWorkLink[]
+  agentMissionEvidence AgentMissionEvidence?
 
   @@index([workstreamId])
   @@index([containerId])
@@ -1916,6 +1922,60 @@ model FileAsset {
   @@index([businessId])
   @@index([projectId])
   @@index([workItemId])
+}
+
+// @req FR-292, FR-293 — installation-local custody, never portable snapshot authority.
+// @spec ADR-115
+// @tested tests/integration/managed-blob-recovery-custody.test.js
+model ManagedBlobRecoveryInstallationFence {
+  id              String   @id
+  mode            String   @default("NEEDS_ADMISSION")
+  generation      Int      @default(1)
+  version         Int      @default(1)
+  retainedBytes   Int      @default(0)
+  restoreAttemptId String?
+  updatedAt       DateTime @updatedAt
+}
+
+// @req FR-292 — PM-owned operation journal; scalar provenance survives snapshot replacement.
+// @spec ADR-115
+// @tested tests/integration/managed-blob-recovery-custody.test.js
+model ManagedBlobRecoveryOperation {
+  id                  String    @id @default(uuid())
+  actorId             String
+  tenantId            String
+  businessId          String
+  fileId              String
+  expectedJson        String
+  configHash          String
+  spoolRootHash       String
+  generation          Int
+  destinationKey      String
+  state               String    @default("PREPARED")
+  version             Int       @default(1)
+  confirmationDigest  String?
+  expiresAt           DateTime
+  byteDeadline        DateTime
+  spoolId             String?
+  spoolBytes          Int       @default(0)
+  workerId            String?
+  epoch               Int       @default(0)
+  leaseExpiresAt      DateTime?
+  attempts            Int       @default(0)
+  receiptJson         String?
+  resultVersion       Int?
+  availability        String    @default("NOT_CHECKED")
+  cleanupState        String    @default("NONE")
+  unresolved          Boolean   @default(true)
+  reservedBytes       Int       @default(49152)
+  auditCount          Int       @default(0)
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
+  closedAt            DateTime?
+
+  @@index([actorId, unresolved])
+  @@index([businessId, unresolved])
+  @@index([state, leaseExpiresAt])
 }
 
 // @req FR-045 - typed secondary FileAsset relation with indexed entity lookup.
@@ -4695,6 +4755,99 @@ model LineConversationJob {
   @@index([tenantId, businessId, status])
   @@index([memoryDeliveryState, memoryDeliveryNextAttemptAt, createdAt])
   @@index([sessionId])
+}
+
+// @req TASK-ZAI-012 — immutable Mission source drafts and provenance links.
+// PM submission creates a PLANNED WorkItem through the existing writer and
+// records evidence in that transaction; this row grants no execution/release.
+// @req TASK-ZAI-012 — immutable, server-issued Agent Mission draft source.
+model AgentMissionDraft {
+  id                String   @id @default(uuid())
+  schemaVersion     String   @default("agent-mission-draft.v1")
+  sourceAgentRef    String?
+  missionId         String?
+  revision          Int
+  tenantId          String
+  businessId        String
+  workspaceId       String
+  projectId         String
+  workstreamId      String
+  actorPersonId     String?
+  sourceTurnId      String?
+  executionId       String?
+  sourceEventId     String?
+  sourceTraceEventId String?
+  digest            String?
+  snapshotJson      String   @default("{}")
+  status            String   @default("ACTIVE")
+  revokedAt         DateTime?
+  erasedAt          DateTime?
+  createdAt         DateTime @default(now())
+  version           Int      @default(1)
+
+  actor Person? @relation("AgentMissionDraftActor", fields: [actorPersonId], references: [id], onDelete: SetNull)
+  evidence AgentMissionEvidence?
+
+  @@unique([sourceAgentRef, missionId, revision], map: "AgentMissionDraft_source_revision_key")
+  @@unique([tenantId, businessId, sourceAgentRef, sourceTurnId, executionId], map: "AgentMissionDraft_scope_source_turn_execution_key")
+  @@index([tenantId, businessId, status, createdAt])
+  @@index([sourceTurnId, status])
+  @@index([actorPersonId, status])
+}
+model AgentMissionEvidence {
+  id                          String    @id @default(uuid())
+  schemaVersion               String    @default("agent-mission-evidence.v1")
+  draftId                     String    @unique
+  sourceAgentRef              String?
+  missionId                   String?
+  tenantId                    String
+  businessId                  String
+  workspaceId                 String
+  projectId                   String
+  workstreamId                String
+  workItemId                  String    @unique
+  workItemVersion             Int
+  origin                      String
+  actorId                     String?
+  submittedByPersonId         String?
+  submittedAt                 DateTime?
+  confirmationKind            String    @default("LINE_JOB")
+  sourceTurnId                String?
+  executionId                 String?
+  sourceEventId               String?
+  sourceTraceEventId          String?
+  sourceRevision              Int       @default(1)
+  sourceDigest                String?
+  missionSnapshotJson         String    @default("{}")
+  missionSnapshotDigest       String?
+  idempotencyKey              String?
+  confirmationJobId           String?
+  confirmationInboundMessageId String?
+  confirmationActorId         String?
+  confirmationIdentityVersion Int?
+  channelIdentityId           String?
+  channelIdentityLinkedAt     DateTime?
+  confirmationExecutionId     String?
+  status                      String    @default("ACTIVE")
+  revokedAt                   DateTime?
+  revokedByPersonId           String?
+  erasedAt                    DateTime?
+  createdAt                   DateTime  @default(now())
+  version                     Int       @default(1)
+
+  draft AgentMissionDraft @relation(fields: [draftId], references: [id], onDelete: Restrict)
+  workItem WorkItem @relation(fields: [workItemId], references: [id], onDelete: Restrict)
+  actor Person? @relation("AgentMissionEvidenceActor", fields: [actorId], references: [id], onDelete: SetNull)
+  submittedBy Person? @relation("AgentMissionEvidenceSubmitter", fields: [submittedByPersonId], references: [id], onDelete: SetNull)
+  confirmationActor Person? @relation("AgentMissionEvidenceConfirmationActor", fields: [confirmationActorId], references: [id], onDelete: SetNull)
+  revoker Person? @relation("AgentMissionEvidenceRevoker", fields: [revokedByPersonId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, businessId, idempotencyKey], map: "AgentMissionEvidence_scope_idempotency_key")
+  @@unique([sourceAgentRef, missionId], map: "AgentMissionEvidence_source_mission_key")
+  @@unique([tenantId, businessId, sourceTurnId, origin], map: "AgentMissionEvidence_scope_turn_origin_key")
+  @@index([tenantId, businessId, status, createdAt])
+  @@index([tenantId, businessId, projectId, workstreamId, status])
+  @@index([actorId, status])
 }
 
 // @req FR-159 — Business-scoped strategy identity and immutable evidence.

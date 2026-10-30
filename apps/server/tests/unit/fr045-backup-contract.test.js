@@ -8,13 +8,22 @@ import { makeOperatorViewer } from '../factories/viewer'
 describe('FR-045 portable backup contract', () => {
   it('exports FileAsset/FileLink and content manifest but excludes absolute mounts', async () => {
     const db = new Proxy({}, {
-      get: (_target, model) => model === '_activeProvider' ? 'sqlite' : ({
+      get: (_target, model) => {
+        if (model === '_activeProvider') return 'sqlite'
+        if (model === '$executeRawUnsafe') return vi.fn().mockResolvedValue(0)
+        if (model === '$queryRawUnsafe') return vi.fn(async sql => {
+          if (sql.includes('FROM "ManagedBlobRecoveryInstallationFence"')) return []
+          if (sql.includes('COUNT(*) AS "count" FROM "ManagedBlobRecoveryOperation"')) return [{ count: 0 }]
+          throw new Error(`Unexpected backup fixture query: ${sql}`)
+        })
+        return ({
         findMany: vi.fn().mockResolvedValue(model === 'fileAsset' ? [{
           id: 'a', businessId: 'business-a', storageKind: 'LOCAL_FILE', relativePath: 'Projects/P/a.txt', sha256: 'abc', size: 1, status: 'ACTIVE',
         }] : model === 'fileLink' ? [{ id: 'l', fileId: 'a', entityType: 'PROJECT', entityId: 'p', relationType: 'OWNER' }] : []),
         count: vi.fn().mockResolvedValue(0),
         create: vi.fn().mockResolvedValue({}),
-      }),
+        })
+      },
     })
     const snapshot = await exportSnapshot({ db })
     expect(snapshot.tables.fileAsset).toHaveLength(1)

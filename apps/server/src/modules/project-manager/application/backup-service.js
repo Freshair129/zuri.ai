@@ -1,4 +1,7 @@
 import { withPipelineTransaction } from './pipeline-writer'
+import { isPostgres } from './pipeline-writer'
+import { assertRecoverySnapshotQuiescent, beginRecoverySnapshotRestore, assertRecoveryRestoreClaim, finishRecoverySnapshotRestore } from './managed-blob-recovery-repository'
+import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
@@ -115,6 +118,10 @@ export const COMMERCE_BILLING_RECOVERY_MANIFEST_VERSION = 'commerce-billing-reco
 export const INVENTORY_STOCKTAKE_RECOVERY_MANIFEST_VERSION = 'inventory-stocktake-recovery.v1'
 export const LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v3'
 const PREVIOUS_LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION = 'line-worker-memory-recovery.v2'
+const AGENT_MISSION_EVIDENCE_RECOVERY_VERSION = 'agent-mission-evidence-recovery.v2'
+const AGENT_MISSION_EVIDENCE_RECOVERY_TABLES = Object.freeze(['agentMissionDraft', 'agentMissionEvidence'])
+const AGENT_MISSION_EVIDENCE_ORIGINS = Object.freeze(['HUMAN_AUTHORED', 'AGENT_DRAFT_HUMAN_CONFIRMED'])
+const AGENT_MISSION_EVIDENCE_STATES = Object.freeze(['ACTIVE', 'REVOKED', 'ERASED'])
 const COMMERCE_BILLING_RECOVERY_TABLES = Object.freeze([
   'businessBillingProfile',
   'commerceDocumentSequence',
@@ -293,6 +300,10 @@ export const SNAPSHOT_MODELS = [
   // no secret, exported whole.
   'lineOaLiffApp',
   'planImportReceipt', 'projectExecutionRun', 'projectExecutionStep', 'projectApprovalRequest', 'projectTeam', 'projectGoal', 'workstream', 'workContainer', 'workItem',
+  // @req TASK-ZAI-012 — restore immutable Mission source drafts before their
+  // evidence association, and after the WorkItem they name.
+  'agentMissionDraft',
+  'agentMissionEvidence',
   'milestone', 'gate', 'dependency', 'repository', 'projectRepository',
   'projectFile', 'fileAsset', 'fileLink',
   // @req FR-151 — a rich menu hangs off a LINE OA account (above) and its
@@ -488,6 +499,9 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  // @req FR-292, FR-293 — target-local custody cannot be exported as authority.
+  managedBlobRecoveryOperation: 'Private recovery custody/results remain installation-local; active recovery is not enabled before supported transfer qualification.',
+  managedBlobRecoveryInstallationFence: 'Installation exclusion/generation and quota accounting are never snapshot-replaced or imported.',
   // @req FR-235 — owner-approved public product fields are security authority.
   // @tested tests/integration/line-stock-policy-backup.test.js
   lineProductDisclosurePolicy:
@@ -1524,6 +1538,310 @@ function lineWorkerMemoryRecovery(snapshot) {
   return result
 }
 
+function agentMissionEvidenceRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const manifest = snapshot?.agentMissionEvidenceRecovery
+  const rows = Array.isArray(tables.agentMissionEvidence) ? tables.agentMissionEvidence : []
+  const draftRows = Array.isArray(tables.agentMissionDraft) ? tables.agentMissionDraft : []
+  const result = { status: 'UNAVAILABLE', manifestVersion: manifest?.schemaVersion || null, errors: [], warnings: [] }
+  if (manifest === undefined) {
+    result.warnings.push('AGENT_MISSION_EVIDENCE_RECOVERY_UNAVAILABLE: snapshot has no mission evidence manifest')
+    return result
+  }
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)
+    || manifest.schemaVersion !== AGENT_MISSION_EVIDENCE_RECOVERY_VERSION
+    || JSON.stringify(manifest.requiredTables) !== JSON.stringify(AGENT_MISSION_EVIDENCE_RECOVERY_TABLES)) {
+    result.errors.push(`Invalid Agent mission evidence recovery manifest (expected ${AGENT_MISSION_EVIDENCE_RECOVERY_VERSION})`)
+  }
+  for (const model of AGENT_MISSION_EVIDENCE_RECOVERY_TABLES) {
+    if (!Array.isArray(tables[model])) result.errors.push(`Agent mission evidence recovery snapshot is missing required table: ${model}`)
+  }
+  const workItems = new Map((Array.isArray(tables.workItem) ? tables.workItem : []).map(row => [row?.id, row]))
+  const jobs = new Map((Array.isArray(tables.lineConversationJob) ? tables.lineConversationJob : []).map(row => [row?.id, row]))
+  const auditEvents = new Map((Array.isArray(tables.auditEvent) ? tables.auditEvent : []).map(row => [row?.id, row]))
+  const traceEvents = new Map((Array.isArray(tables.agentTraceEvent) ? tables.agentTraceEvent : []).map(row => [row?.id, row]))
+  const workstreams = new Map((Array.isArray(tables.workstream) ? tables.workstream : []).map(row => [row?.id, row]))
+  const projects = new Map((Array.isArray(tables.project) ? tables.project : []).map(row => [row?.id, row]))
+  const workspaces = new Map((Array.isArray(tables.workspace) ? tables.workspace : []).map(row => [row?.id, row]))
+  const businesses = new Map((Array.isArray(tables.business) ? tables.business : []).map(row => [row?.id, row]))
+  const drafts = new Map(draftRows.map(row => [row?.id, row]))
+  const seenDraftRevisions = new Set()
+  for (const draft of draftRows) {
+    const label = draft?.id || '<unknown>'
+    if (!draft || typeof draft !== 'object' || Array.isArray(draft)) {
+      result.errors.push(`Agent mission draft ${label} is not an object`)
+      continue
+    }
+    for (const field of ['id', 'schemaVersion', 'tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId', 'status']) {
+      if (typeof draft[field] !== 'string' || !draft[field].trim()) result.errors.push(`Agent mission draft ${label} has an invalid ${field}`)
+    }
+    if (draft.schemaVersion !== 'agent-mission-draft.v1') result.errors.push(`Agent mission draft ${label} has an unsupported schemaVersion`)
+    if (!['ACTIVE', 'REVOKED', 'ERASED'].includes(draft.status)) result.errors.push(`Agent mission draft ${label} has an invalid status`)
+    if (!Number.isInteger(draft.revision) || draft.revision < 1) result.errors.push(`Agent mission draft ${label} has an invalid revision`)
+    if (!validSnapshotDate(draft.createdAt)) result.errors.push(`Agent mission draft ${label} has an invalid createdAt`)
+    const sourceKey = draft.sourceAgentRef && draft.missionId ? `${draft.sourceAgentRef}|${draft.missionId}|${draft.revision}` : null
+    if (draft.status === 'ACTIVE') {
+      for (const field of ['sourceAgentRef', 'missionId', 'sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId']) {
+        if (typeof draft[field] !== 'string' || !draft[field].trim()) result.errors.push(`Agent mission draft ${label} has no ${field}`)
+      }
+      if (typeof draft.digest !== 'string' || !/^[a-f0-9]{64}$/i.test(draft.digest)) result.errors.push(`Agent mission draft ${label} has an invalid digest`)
+      try {
+        const body = JSON.parse(draft.snapshotJson)
+        if (!body || typeof body !== 'object' || Array.isArray(body)
+          || typeof body.title !== 'string' || typeof body.summary !== 'string'
+          || Object.keys(body).some(key => !['title', 'summary'].includes(key))) throw new Error('invalid bounded draft snapshot')
+      } catch {
+        result.errors.push(`Agent mission draft ${label} has an invalid bounded snapshot`)
+      }
+      const stream = workstreams.get(draft.workstreamId)
+      const project = projects.get(draft.projectId)
+      const workspace = workspaces.get(draft.workspaceId)
+      const business = businesses.get(draft.businessId)
+      if (!stream || stream.projectId !== draft.projectId || !project || project.businessId !== draft.businessId
+        || project.workspaceId !== draft.workspaceId || !workspace || workspace.businessId !== draft.businessId
+        || workspace.tenantId !== draft.tenantId || !business || business.tenantId !== draft.tenantId) {
+        result.errors.push(`Agent mission draft ${label} has inconsistent Workspace/Project/Workstream scope`)
+      }
+      const sourceJob = jobs.get(draft.sourceTurnId)
+      const sourceEvent = auditEvents.get(draft.sourceEventId)
+      const trace = traceEvents.get(draft.sourceTraceEventId)
+      if (!sourceJob || sourceJob.tenantId !== draft.tenantId || sourceJob.businessId !== draft.businessId
+        || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== draft.executionId) {
+        result.errors.push(`Agent mission draft ${label} has no matching retained source turn`)
+      }
+      if (!missionDraftCreatedEventMatches(sourceEvent, draft)) {
+        result.errors.push(`Agent mission draft ${label} has no matching MISSION_DRAFT_CREATED event`)
+      }
+      if (!trace || trace.tenantId !== draft.tenantId || trace.businessId !== draft.businessId
+        || trace.turnId !== draft.sourceTurnId || trace.executionId !== draft.executionId
+        || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+        result.errors.push(`Agent mission draft ${label} has no matching source trace event`)
+      }
+    } else if (sourceKey === null && draft.status !== 'ERASED') {
+      result.errors.push(`Agent mission draft ${label} has no stable source identity`)
+    }
+    if (sourceKey && seenDraftRevisions.has(sourceKey)) result.errors.push(`Agent mission draft ${label} duplicates a source revision`)
+    if (sourceKey) seenDraftRevisions.add(sourceKey)
+    if (draft.status === 'REVOKED' && !validSnapshotDate(draft.revokedAt)) result.errors.push(`Agent mission draft ${label} has no revocation timestamp`)
+    if (draft.status === 'ERASED') {
+      if (!validSnapshotDate(draft.erasedAt)) result.errors.push(`Agent mission draft ${label} has no erasure timestamp`)
+      for (const field of ['sourceAgentRef', 'missionId', 'sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId', 'digest', 'actorPersonId']) {
+        if (draft[field] !== null) result.errors.push(`Agent mission draft ${label} retains erased ${field}`)
+      }
+      if (draft.snapshotJson !== '{}') result.errors.push(`Agent mission draft ${label} retains erased snapshot data`)
+    }
+  }
+  const seenWorkItems = new Set()
+  const seenTurns = new Set()
+  const seenIdempotencyKeys = new Set()
+  const seenSourceMissions = new Set()
+  for (const row of rows) {
+    const label = row?.id || '<unknown>'
+    if (!row || typeof row !== 'object' || Array.isArray(row)) {
+      result.errors.push(`Agent mission evidence ${label} is not an object`)
+      continue
+    }
+    for (const field of ['id', 'schemaVersion', 'tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId', 'workItemId', 'origin', 'status']) {
+      if (typeof row[field] !== 'string' || !row[field].trim()) result.errors.push(`Agent mission evidence ${label} has an invalid ${field}`)
+    }
+    if (row.schemaVersion !== 'agent-mission-evidence.v1') result.errors.push(`Agent mission evidence ${label} has an unsupported schemaVersion`)
+    if (!['LINE_JOB', 'PM_SUBMISSION'].includes(row.confirmationKind)) result.errors.push(`Agent mission evidence ${label} has an invalid confirmationKind`)
+    const sourceDraft = drafts.get(row.draftId)
+    if (typeof row.draftId !== 'string' || !sourceDraft) {
+      result.errors.push(`Agent mission evidence ${label} has no matching Mission draft receipt`)
+    } else if (row.status === 'ACTIVE' && (sourceDraft.status !== 'ACTIVE'
+      || sourceDraft.sourceAgentRef !== row.sourceAgentRef || sourceDraft.missionId !== row.missionId
+      || sourceDraft.revision !== row.sourceRevision || sourceDraft.digest !== row.sourceDigest)) {
+      result.errors.push(`Agent mission evidence ${label} does not match its active Mission draft receipt`)
+    } else if (row.status === 'ERASED' && sourceDraft.status !== 'ERASED') {
+      result.errors.push(`Agent mission evidence ${label} has an active draft after evidence erasure`)
+    }
+    if (!AGENT_MISSION_EVIDENCE_ORIGINS.includes(row.origin)) result.errors.push(`Agent mission evidence ${label} has an invalid origin`)
+    if (!AGENT_MISSION_EVIDENCE_STATES.includes(row.status)) result.errors.push(`Agent mission evidence ${label} has an invalid status`)
+    if (!Number.isInteger(row.sourceRevision) || row.sourceRevision < 1) result.errors.push(`Agent mission evidence ${label} has an invalid sourceRevision`)
+    if (!validSnapshotDate(row.createdAt)) result.errors.push(`Agent mission evidence ${label} has an invalid createdAt`)
+    const work = workItems.get(row.workItemId)
+    if (!work || work.workstreamId !== row.workstreamId || work.deletedAt !== null) {
+      result.errors.push(`Agent mission evidence ${label} has no matching active WorkItem/workstream`)
+    }
+    const stream = workstreams.get(row.workstreamId)
+    const project = projects.get(row.projectId)
+    const workspace = workspaces.get(row.workspaceId)
+    const business = businesses.get(row.businessId)
+    if (!stream || stream.projectId !== row.projectId || !project || project.businessId !== row.businessId
+      || project.workspaceId !== row.workspaceId || !workspace || workspace.businessId !== row.businessId
+      || workspace.tenantId !== row.tenantId || !business || business.tenantId !== row.tenantId) {
+      result.errors.push(`Agent mission evidence ${label} has inconsistent Workspace/Project/Workstream scope`)
+    }
+    if (seenWorkItems.has(row.workItemId)) result.errors.push(`Agent mission evidence ${label} duplicates a WorkItem`)
+    seenWorkItems.add(row.workItemId)
+    if (row.sourceAgentRef && row.missionId) {
+      const sourceMission = `${row.sourceAgentRef}|${row.missionId}`
+      if (seenSourceMissions.has(sourceMission)) result.errors.push(`Agent mission evidence ${label} duplicates a source Mission`)
+      seenSourceMissions.add(sourceMission)
+    }
+    if (row.status === 'ACTIVE') {
+      if (!Number.isInteger(row.workItemVersion) || row.workItemVersion < 1) result.errors.push(`Agent mission evidence ${label} has an invalid workItemVersion`)
+      if (typeof row.sourceDigest !== 'string' || !/^[a-f0-9]{64}$/i.test(row.sourceDigest)) result.errors.push(`Agent mission evidence ${label} has an invalid sourceDigest`)
+      if (typeof row.missionSnapshotDigest !== 'string' || !/^[a-f0-9]{64}$/i.test(row.missionSnapshotDigest)) result.errors.push(`Agent mission evidence ${label} has an invalid missionSnapshotDigest`)
+      if (row.confirmationKind === 'PM_SUBMISSION' && (!validSnapshotDate(row.submittedAt)
+        || typeof row.submittedByPersonId !== 'string' || !row.submittedByPersonId.trim())) {
+        result.errors.push(`Agent mission evidence ${label} has no accountable PM submitter`)
+      }
+      if (typeof row.actorId !== 'string' || !row.actorId.trim()) result.errors.push(`Agent mission evidence ${label} has no authenticated actor`)
+      if (typeof row.idempotencyKey !== 'string' || !row.idempotencyKey.trim()) result.errors.push(`Agent mission evidence ${label} has no idempotency key`)
+      const idempotencyKey = `${row.tenantId}|${row.businessId}|${row.idempotencyKey}`
+      if (row.idempotencyKey && seenIdempotencyKeys.has(idempotencyKey)) result.errors.push(`Agent mission evidence ${label} duplicates an idempotency key`)
+      if (row.idempotencyKey) seenIdempotencyKeys.add(idempotencyKey)
+      try {
+        const missionSnapshot = JSON.parse(row.missionSnapshotJson)
+        if (!missionSnapshot || typeof missionSnapshot !== 'object' || Array.isArray(missionSnapshot)) throw new Error('not an object')
+      } catch {
+        result.errors.push(`Agent mission evidence ${label} has invalid missionSnapshotJson`)
+      }
+      if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED'
+        && (typeof row.sourceTurnId !== 'string' || typeof row.sourceEventId !== 'string'
+          || typeof row.sourceTraceEventId !== 'string' || typeof row.executionId !== 'string'
+          || !['LINE_JOB', 'PM_SUBMISSION'].includes(row.confirmationKind)
+          || (row.confirmationKind === 'LINE_JOB'
+            && (typeof row.confirmationJobId !== 'string' || typeof row.confirmationInboundMessageId !== 'string'
+              || typeof row.confirmationActorId !== 'string' || row.actorId !== row.confirmationActorId
+              || !Number.isInteger(row.confirmationIdentityVersion)))
+          || (row.confirmationKind === 'PM_SUBMISSION'
+            && (typeof row.submittedByPersonId !== 'string' || !row.submittedByPersonId.trim()
+              || !validSnapshotDate(row.submittedAt))))) {
+        result.errors.push(`Agent mission evidence ${label} has no Agent draft and distinct human confirmation turn/proposal reference`)
+      }
+      if (row.sourceTurnId) {
+        const key = `${row.tenantId}|${row.businessId}|${row.sourceTurnId}|${row.origin}`
+        if (seenTurns.has(key)) result.errors.push(`Agent mission evidence ${label} duplicates a source turn`)
+        seenTurns.add(key)
+      }
+      if (row.origin === 'AGENT_DRAFT_HUMAN_CONFIRMED' && row.status !== 'ERASED') {
+        const sourceJob = jobs.get(row.sourceTurnId)
+        const sourceEvent = auditEvents.get(row.sourceEventId)
+        if (!sourceJob || sourceJob.tenantId !== row.tenantId || sourceJob.businessId !== row.businessId
+          || sourceJob.errorCode === 'PDPA_ERASURE' || sourceJob.executionId !== row.executionId) {
+          result.errors.push(`Agent mission evidence ${label} has no matching retained source turn`)
+        }
+        if (row.confirmationKind === 'LINE_JOB') {
+          const confirmationJob = jobs.get(row.confirmationJobId)
+          if (!confirmationJob || confirmationJob.tenantId !== row.tenantId || confirmationJob.businessId !== row.businessId
+            || confirmationJob.errorCode === 'PDPA_ERASURE' || confirmationJob.inboundMessageId !== row.confirmationInboundMessageId
+            || confirmationJob.executionId !== row.confirmationExecutionId) {
+            result.errors.push(`Agent mission evidence ${label} has no matching retained human confirmation job`)
+          }
+        } else if (row.confirmationKind === 'PM_SUBMISSION' && row.submittedByPersonId === row.actorId) {
+          // A PM submitter may be the source actor, but accountability is recorded
+          // separately and must not be inferred from the Agent draft author.
+        }
+        if (row.confirmationKind === 'LINE_JOB') {
+          // Legacy LINE confirmation evidence remains tied to its original proposal event.
+          if (!sourceEvent || sourceEvent.entityType !== 'LINE_WORK_PROPOSAL' || sourceEvent.requestId !== row.sourceTurnId
+            || sourceEvent.tenantId !== row.tenantId || sourceEvent.businessId !== row.businessId || sourceEvent.actorId !== row.actorId) {
+            result.errors.push(`Agent mission evidence ${label} has no matching legacy LINE proposal event`)
+          }
+        } else {
+          const draft = drafts.get(row.draftId)
+          if (!draft || draft.status === 'ERASED' || draft.id !== row.draftId
+            || draft.sourceEventId !== row.sourceEventId || draft.sourceTraceEventId !== row.sourceTraceEventId
+            || draft.sourceTurnId !== row.sourceTurnId || draft.executionId !== row.executionId
+            || draft.sourceAgentRef !== row.sourceAgentRef || draft.missionId !== row.missionId
+            || draft.actorPersonId !== row.actorId || draft.tenantId !== row.tenantId
+            || draft.businessId !== row.businessId || draft.workspaceId !== row.workspaceId
+            || draft.projectId !== row.projectId || draft.workstreamId !== row.workstreamId
+            || draft.digest !== row.sourceDigest || draft.revision !== row.sourceRevision
+            || !missionDraftCreatedEventMatches(sourceEvent, draft)) {
+            result.errors.push(`Agent mission evidence ${label} has no matching persisted MISSION_DRAFT_CREATED event and draft`)
+          }
+        }
+        const trace = traceEvents.get(row.sourceTraceEventId)
+        if (!trace || trace.tenantId !== row.tenantId || trace.businessId !== row.businessId
+          || trace.turnId !== row.sourceTurnId || trace.executionId !== row.executionId
+          || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+          result.errors.push(`Agent mission evidence ${label} has no matching source execution trace event`)
+        }
+      }
+    }
+    if (row.status === 'REVOKED' && !validSnapshotDate(row.revokedAt)) result.errors.push(`Agent mission evidence ${label} has no revocation timestamp`)
+    if (row.status === 'ERASED') {
+      if (!validSnapshotDate(row.erasedAt)) result.errors.push(`Agent mission evidence ${label} has no erasure tombstone timestamp`)
+      for (const field of ['sourceTurnId', 'executionId', 'sourceEventId', 'sourceTraceEventId', 'confirmationJobId',
+        'confirmationInboundMessageId', 'confirmationExecutionId', 'sourceDigest', 'missionSnapshotDigest',
+        'idempotencyKey', 'sourceAgentRef', 'missionId', 'actorId', 'submittedByPersonId', 'submittedAt',
+        'confirmationActorId', 'channelIdentityId', 'confirmationIdentityVersion',
+        'channelIdentityLinkedAt', 'revokedAt', 'revokedByPersonId']) {
+        if (row[field] !== null) result.errors.push(`Agent mission evidence ${label} retains erased ${field}`)
+      }
+      if (row.missionSnapshotJson !== '{}') result.errors.push(`Agent mission evidence ${label} retains erased mission snapshot data`)
+    }
+  }
+  const referencedMissionEventIds = new Set(draftRows
+    .filter(draft => draft && draft.status !== 'ERASED' && typeof draft.sourceEventId === 'string')
+    .map(draft => draft.sourceEventId))
+  for (const event of (Array.isArray(tables.auditEvent) ? tables.auditEvent : [])) {
+    if (event?.entityType !== 'AGENT_MISSION_DRAFT' || event?.action !== 'MISSION_DRAFT_CREATED'
+      || referencedMissionEventIds.has(event.id)) continue
+    if (!missionDraftTombstoneEventMatches(event)) {
+      result.errors.push(`Agent mission source event ${event?.id || '<unknown>'} is neither linked to a draft nor a minimal erasure tombstone`)
+    }
+  }
+  if (!result.errors.length) result.status = 'AVAILABLE'
+  return result
+}
+
+function missionDraftCreatedEventMatches(event, draft) {
+  if (!event || !draft || event.entityType !== 'AGENT_MISSION_DRAFT'
+    || event.entityId !== draft.missionId || event.action !== 'MISSION_DRAFT_CREATED'
+    || event.actorType !== 'LINE_USER' || event.requestId !== draft.sourceTurnId
+    || event.tenantId !== draft.tenantId || event.businessId !== draft.businessId
+    || event.actorId !== draft.actorPersonId) return false
+  let payload
+  try { payload = JSON.parse(event.payloadJson) } catch { return false }
+  const expectedKeys = ['schemaVersion', 'eventType', 'missionId', 'draftId', 'revision', 'sourceAgentRef',
+    'sourceTurnId', 'executionId', 'sourceTraceEventId', 'actorPersonId', 'scope', 'digest']
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).length !== expectedKeys.length
+    || Object.keys(payload).some(key => !expectedKeys.includes(key))) return false
+  const scope = payload.scope
+  return event.id === draft.sourceEventId
+    && payload.schemaVersion === 'agent-mission-draft-event.v1' && payload.eventType === 'MISSION_DRAFT_CREATED'
+    && payload.draftId === draft.id && payload.missionId === draft.missionId
+    && payload.revision === draft.revision && payload.sourceAgentRef === draft.sourceAgentRef
+    && payload.actorPersonId === draft.actorPersonId && payload.sourceTurnId === draft.sourceTurnId
+    && payload.executionId === draft.executionId
+    && payload.sourceTraceEventId === draft.sourceTraceEventId && payload.digest === draft.digest
+    && scope && typeof scope === 'object' && !Array.isArray(scope)
+    && Object.keys(scope).length === 5
+    && scope.tenantId === draft.tenantId && scope.businessId === draft.businessId
+    && scope.workspaceId === draft.workspaceId && scope.projectId === draft.projectId
+    && scope.workstreamId === draft.workstreamId
+}
+
+function missionDraftTombstoneEventMatches(event) {
+  if (!event || event.entityType !== 'AGENT_MISSION_DRAFT' || event.action !== 'MISSION_DRAFT_CREATED'
+    || typeof event.entityId !== 'string' || !event.entityId.trim() || event.actorType !== 'SYSTEM'
+    || event.reason !== 'PERSON_ERASED'
+    || event.actorId !== null || event.requestId !== null || event.sessionId !== null
+    || event.beforeJson !== null || event.afterJson !== null) return false
+  let payload
+  try { payload = JSON.parse(event.payloadJson) } catch { return false }
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)
+    || Object.keys(payload).length !== 3
+    || Object.keys(payload).some(key => !['eventType', 'missionId', 'scope'].includes(key))) return false
+  const scope = payload.scope
+  return payload.eventType === 'MISSION_DRAFT_CREATED' && payload.missionId === event.entityId
+    && scope && typeof scope === 'object' && !Array.isArray(scope) && Object.keys(scope).length === 5
+    && scope.tenantId === event.tenantId && scope.businessId === event.businessId
+    && ['tenantId', 'businessId', 'workspaceId', 'projectId', 'workstreamId'].every(key =>
+      typeof scope[key] === 'string' && scope[key].trim().length > 0)
+}
+
+// @tested tests/unit/agent-mission-recovery.test.js — focused validator fixture surface.
+export function validateAgentMissionEvidenceRecovery(snapshot) {
+  return agentMissionEvidenceRecovery(snapshot)
+}
+
 function marketingBroadcastRecovery(snapshot) {
   const tables = snapshot?.tables || {}
   const missing = MARKETING_BROADCAST_RECOVERY_TABLES.filter((model) => !Array.isArray(tables[model]))
@@ -1634,12 +1952,24 @@ function marketingBroadcastRecovery(snapshot) {
 // @req FR-252 — offline protected export shares extraction/redaction without
 // writing an audit or selecting an ambient application database.
 // @tested tests/integration/phase-b-web-recovery.test.js
+function assertNoReservedRecoveryRefs(snapshot) {
+  for (const model of ['fileAsset', 'projectFile']) for (const row of snapshot?.tables?.[model] || []) {
+    if (typeof row.blobRef !== 'string' || !row.blobRef.startsWith('s3-business:')) continue
+    let decoded
+    try { decoded = decodeURIComponent(row.blobRef) } catch { throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED') }
+    if (/^s3-business:\/\/(asset|catalog)\/[^/]+\/(asset-evidence|business-catalog)\/[^/]+\/[^/]+\/recovery(?:\/|\?)/.test(decoded)) {
+      throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
+    }
+  }
+}
+
 export async function extractSnapshot({
   db,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  await assertRecoverySnapshotQuiescent(db, isPostgres(db) || db._activeProvider === 'postgresql')
   await assertMarketingReportBackupSafe(db)
   const visibility = await readPhaseBCounts(db)
   if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
@@ -1675,6 +2005,10 @@ export async function extractSnapshot({
       schemaVersion: LINE_WORKER_MEMORY_RECOVERY_MANIFEST_VERSION,
       requiredTables: [...LINE_WORKER_MEMORY_RECOVERY_TABLES],
     },
+    agentMissionEvidenceRecovery: {
+      schemaVersion: AGENT_MISSION_EVIDENCE_RECOVERY_VERSION,
+      requiredTables: [...AGENT_MISSION_EVIDENCE_RECOVERY_TABLES],
+    },
     pricingRecovery: { schemaVersion: PRICING_RECOVERY_MANIFEST_VERSION, requiredTables: [...PRICING_RECOVERY_TABLES] },
     tables: {},
   }
@@ -1686,6 +2020,7 @@ export async function extractSnapshot({
       ? rows.map(({ sealedReplyToken, ...row }) => row)
       : rows
   }
+  assertNoReservedRecoveryRefs(snapshot)
 
   const mounts = includeBinaryContent
     ? await db.localWorkspaceMount.findMany({ where: { status: 'ACTIVE' }, orderBy: { updatedAt: 'desc' } })
@@ -1720,7 +2055,7 @@ export async function exportSnapshot({
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  const extract = (tx) => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
+  const extract = tx => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
   const snapshot = typeof db.$transaction === 'function'
     ? await db.$transaction(extract, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 120_000 })
     : await extract(db)
@@ -1823,12 +2158,18 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
 // Offline recovery reuses every existing protected-family validator and the
 // archive chain's normalized order without invoking the web authority wrapper.
 export function validateSnapshotRecovery(snapshot, { remounts = [] } = {}) {
+  try { assertNoReservedRecoveryRefs(snapshot) } catch (error) {
+    if (error?.code !== 'MANAGED_BLOB_TRANSFER_REQUIRED') throw error
+    return { valid: false, errorCode: 'MANAGED_BLOB_TRANSFER_REQUIRED',
+      errors: ['Managed recovery references require supported backup transfer'], warnings: [] }
+  }
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const recoveries = {
     billingRecovery: commerceBillingRecovery(snapshot),
     inventoryStocktakeRecovery: inventoryStocktakeRecovery(snapshot),
     lineWorkerMemoryRecovery: lineWorkerMemoryRecovery(snapshot),
+    agentMissionEvidenceRecovery: agentMissionEvidenceRecovery(snapshot),
     marketingBroadcastRecovery: marketingBroadcastRecovery(snapshot),
     archiveRecovery: archiveRecovery(snapshot),
     usageEventRollupRecovery: usageRollupRecovery(snapshot),
@@ -1847,6 +2188,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   // BACKUP_PREVIEW row here would double-count one act.
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
+  assertNoReservedRecoveryRefs(snapshot)
   await assertMarketingReportBackupSafe(db, snapshot)
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) {
@@ -1891,6 +2233,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   const marketingBroadcast = marketingBroadcastRecovery(snapshot)
   const inventory = inventoryStocktakeRecovery(snapshot)
   const lineWorkerMemory = lineWorkerMemoryRecovery(snapshot)
+  const missionEvidence = agentMissionEvidenceRecovery(snapshot)
   const archive = archiveRecovery(snapshot)
   const usageRollup = usageRollupRecovery(snapshot)
   const pricing = pricingRecovery(snapshot)
@@ -1908,6 +2251,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   } })
   const currentMemoryEvidence = await db.agentTraceEvent.count({ where: { kind: { in: [...LINE_WORKER_MEMORY_TRACE_KINDS] } } })
   const currentMemoryProjections = await db.memoryProjectionReceipt.count()
+  const currentMissionEvidence = (current.agentMissionEvidence ?? 0) + (current.agentMissionDraft ?? 0)
   // An older snapshot may be useful for read-only inspection, but importing it
   // while any billing row exists would silently turn omitted arrays into deletes.
   // An installation with no billing rows can still restore the older snapshot;
@@ -1928,6 +2272,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   }
   if (lineWorkerMemory.status === 'UNAVAILABLE' && (currentMemoryJobs > 0 || currentMemoryEvidence > 0 || currentMemoryProjections > 0)) {
     lineWorkerMemory.errors.push('LINE worker memory recovery is unavailable while the installation contains enrolled jobs or memory evidence; refusing a restore that would erase evidence')
+  }
+  if (missionEvidence.status === 'UNAVAILABLE' && currentMissionEvidence > 0) {
+    missionEvidence.errors.push('Agent mission evidence recovery is unavailable while the installation contains mission evidence; refusing a restore that would erase provenance or tombstones')
+    missionEvidence.status = 'INVALID'
   }
   if (archive.status === 'UNAVAILABLE' && ARCHIVE_RECOVERY_TABLES.some((model) => current[model] > 0)) {
     archive.errors.push('Chat evidence archive recovery is unavailable while the installation contains archive keys or manifests; refusing a restore that would erase evidence')
@@ -1959,12 +2307,13 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   }
   return {
     ...base,
-    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0 && pricing.errors.length === 0 && artifactStorage.errors.length === 0,
-    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors, ...pricing.errors, ...artifactStorage.errors],
-    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings, ...pricing.warnings],
+    valid: base.valid && billing.errors.length === 0 && inventory.errors.length === 0 && lineWorkerMemory.errors.length === 0 && missionEvidence.errors.length === 0 && marketingBroadcast.errors.length === 0 && archive.errors.length === 0 && usageRollup.errors.length === 0 && pricing.errors.length === 0 && artifactStorage.errors.length === 0,
+    errors: [...base.errors, ...billing.errors, ...inventory.errors, ...lineWorkerMemory.errors, ...missionEvidence.errors, ...marketingBroadcast.errors, ...archive.errors, ...usageRollup.errors, ...pricing.errors, ...artifactStorage.errors],
+    warnings: [...base.warnings, ...billing.warnings, ...inventory.warnings, ...lineWorkerMemory.warnings, ...missionEvidence.warnings, ...marketingBroadcast.warnings, ...archive.warnings, ...usageRollup.warnings, ...pricing.warnings],
     billingRecovery: billing,
     inventoryStocktakeRecovery: inventory,
     lineWorkerMemoryRecovery: lineWorkerMemory,
+    agentMissionEvidenceRecovery: missionEvidence,
     marketingBroadcastRecovery: marketingBroadcast,
     archiveRecovery: archive,
     usageEventRollupRecovery: usageRollup,
@@ -2009,6 +2358,15 @@ async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
   }
   const pricing = pricingRecovery(snapshot)
   if (pricing.errors.length) throw new BackupRestoreSafetyError('BACKUP_PRICING_RECOVERY_INVALID', pricing.errors.join('; '))
+  const missionEvidence = agentMissionEvidenceRecovery(snapshot)
+  if (missionEvidence.errors.length) {
+    throw new BackupRestoreSafetyError('BACKUP_MISSION_EVIDENCE_RECOVERY_INVALID', missionEvidence.errors.join('; '))
+  }
+  if (missionEvidence.status === 'UNAVAILABLE'
+    && ((await tx.agentMissionEvidence.count()) > 0 || (await tx.agentMissionDraft.count()) > 0)) {
+    throw new BackupRestoreSafetyError('BACKUP_MISSION_EVIDENCE_RECOVERY_LIVE_DATA_APPEARED',
+      'Agent mission evidence appeared after preview while the snapshot lacks its recovery manifest; refusing to erase provenance or tombstones')
+  }
   const holdKeysMissing = preview.archiveRecovery?.status === 'AVAILABLE' && preview.archiveRecovery?.holdKeysMissing
   if (holdKeysMissing && await tx.legalHoldArchiveKey.count() > 0) {
     throw new BackupRestoreSafetyError(
@@ -2111,8 +2469,10 @@ export async function importSnapshot(snapshot, {
     }
   })
 
+  const recoveryRestore = await beginRecoverySnapshotRestore(db)
   try {
     await withPipelineTransaction(db, async (tx) => {
+      await assertRecoveryRestoreClaim(tx, db, recoveryRestore)
       // Probe the additive field even on an empty target before any replacement.
       try { await tx.dependency.findFirst({select:{id:true,contractJson:true}}) }
       catch { throw new BackupRestoreSafetyError('DEPENDENCY_HANDOFF_SCHEMA_UNAVAILABLE','Dependency handoff target schema is unavailable') }
@@ -2231,6 +2591,7 @@ export async function importSnapshot(snapshot, {
     if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
   }
+  await finishRecoverySnapshotRestore(db, recoveryRestore)
   return {
     restored: true,
     counts: preview.counts,

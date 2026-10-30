@@ -1,6 +1,5 @@
 {
-  "schemaSha256": "d02a47eb5fd6e4ec850b2fa77b40abe854cef4d2a5a1a3c0a39e111666bb16f9",
-  "targetSchemaSha256": "a5299c23812a8c44f9590af29e15db6e6cdc06d6c1904a2b8b555f97564121e7",
+  "schemaSha256": "b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -21,6 +20,16 @@
       "modelName": "AgentApprovalRequest",
       "schemaName": "public",
       "tableName": "AgentApprovalRequest"
+    },
+    {
+      "modelName": "AgentMissionDraft",
+      "schemaName": "public",
+      "tableName": "AgentMissionDraft"
+    },
+    {
+      "modelName": "AgentMissionEvidence",
+      "schemaName": "public",
+      "tableName": "AgentMissionEvidence"
     },
     {
       "modelName": "AgentTraceEvent",
@@ -553,6 +562,16 @@
       "tableName": "LocalWorkspaceMount"
     },
     {
+      "modelName": "ManagedBlobRecoveryInstallationFence",
+      "schemaName": "public",
+      "tableName": "ManagedBlobRecoveryInstallationFence"
+    },
+    {
+      "modelName": "ManagedBlobRecoveryOperation",
+      "schemaName": "public",
+      "tableName": "ManagedBlobRecoveryOperation"
+    },
+    {
       "modelName": "MarketObservation",
       "schemaName": "public",
       "tableName": "MarketObservation"
@@ -1052,5 +1071,6 @@
       "schemaName": "public",
       "tableName": "Workstream"
     }
-  ]
+  ],
+  "targetSchemaSha256": "9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3"
 }

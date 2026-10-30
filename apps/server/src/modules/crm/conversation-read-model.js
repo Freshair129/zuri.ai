@@ -298,7 +298,9 @@ export async function getConversationThread({ viewer, businessId, conversationId
   const scope = await resolveScope({ viewer, businessId })
 
   const conversation = await prisma.conversation.findFirst({
-    where: { ...scope.where, id: conversationId },
+    // The inbox row may remain as a historical conversation, but a soft-deleted
+    // Customer must no longer expose a thread detail through the read surface.
+    where: { ...scope.where, id: conversationId, customer: { deletedAt: null } },
     select: {
       id: true,
       businessId: true,

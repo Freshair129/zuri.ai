@@ -72,6 +72,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-domain-map.test.js](../../../apps/server/tests/unit/platform-control-domain-map.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/platform-control-route-contract.test.js](../../../apps/server/tests/unit/platform-control-route-contract.test.js) — `verifies` (`transitive`)

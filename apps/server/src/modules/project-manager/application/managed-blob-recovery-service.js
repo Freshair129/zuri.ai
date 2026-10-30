@@ -9,6 +9,7 @@ import { ownsBusiness } from '@/modules/identity/viewer-authority'
 import { createPrivateBusinessObjectStoragePort } from '@/platform/storage/private-business-object-storage'
 import { recoveryDescriptorForFile, parseRecoveryRequest, recoveryError } from './managed-blob-recovery-contract'
 import { isPostgres } from './pipeline-writer'
+export { createManagedBlobRecoveryService } from './managed-blob-recovery-custody'
 
 // This is a read-only input builder, deliberately not the proposed HTTP create-
 // operation handler. No operation ID, PREPARED state, quota reservation, token or

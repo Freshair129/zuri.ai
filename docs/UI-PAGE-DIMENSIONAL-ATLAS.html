@@ -1,0 +1,532 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>UI Page Dimensional Atlas</title>
+<style>
+:root{color-scheme:light;--paper:#ececec;--sheet:#fff;--ink:#111;--ink2:#444;--ink3:#777;--fill:#f3f3f3;--fill2:#e6e6e6;--line:#bdbdbd;font-family:Arial,"Helvetica Neue",Helvetica,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,"Helvetica Neue",Helvetica,sans-serif}
+.wrap{max-width:1760px;margin:0 auto;padding:24px max(16px,env(safe-area-inset-left,0px)) 40px max(16px,env(safe-area-inset-right,0px))}
+.tb{background:var(--sheet);border:1.2px solid var(--ink);border-radius:16px;overflow:hidden;display:grid;grid-template-columns:2.2fr repeat(3,1fr);margin-bottom:16px}
+.tb>div{border-right:.8px solid var(--ink);border-bottom:.8px solid var(--ink);padding:9px 13px;min-width:0}
+.tb .big{grid-row:span 2;display:flex;flex-direction:column;justify-content:space-between;gap:10px}
+.tb h1{font-size:clamp(26px,3.2vw,42px);line-height:1.05;margin:2px 0 0;font-weight:400;letter-spacing:.1em;text-transform:uppercase}
+.lbl{text-transform:uppercase;letter-spacing:.08em;font-size:9.5px;color:var(--ink2)}
+.val{font-size:13px;margin-top:3px;overflow-wrap:anywhere}
+.tb .notes{grid-column:1/-1;border-right:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 24px;padding:11px 14px;font-size:11px;line-height:1.6;text-transform:uppercase;letter-spacing:.04em}
+.tb .notes ol{margin:4px 0 0;padding-left:18px}
+.tb .figs{grid-column:1/-1;border-right:0;border-bottom:0;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;padding:10px 14px}
+.tb .figs>div{border-left:.8px solid var(--ink);padding-left:12px;min-width:0}
+.tb .figs>div:first-child{border-left:0;padding-left:0}
+.tb .figs .val{font-size:15px;font-variant-numeric:tabular-nums}
+.controls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:0 0 14px;padding:10px 12px;border:1px solid #999;background:#fff}
+.controls input,.controls select,.controls button{min-height:36px;border:1px solid #777;border-radius:4px;background:#fff;color:#111;padding:6px 10px;font:inherit}
+.controls input{min-width:min(300px,100%);flex:1}
+.controls button{cursor:pointer}
+.controls button:disabled{opacity:.45;cursor:default}
+.status{font-size:12px;letter-spacing:.05em;text-transform:uppercase}
+.scroll{overflow-x:auto;background:var(--sheet);border:1px solid #999;box-shadow:0 1px 3px rgba(0,0,0,.12)}
+svg{display:block;width:100%;min-width:1100px;height:auto}
+.foot{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:10px;color:var(--ink2);padding:9px 2px 0;text-transform:uppercase;letter-spacing:.06em}
+.u{font-family:Arial,"Helvetica Neue",Helvetica,sans-serif;text-transform:uppercase;letter-spacing:.07em}
+.border{fill:none;stroke:var(--ink);stroke-width:1.2}
+.obj{fill:var(--sheet);stroke:var(--ink);stroke-width:1.5;stroke-linejoin:round}
+.well{fill:var(--fill);stroke:var(--ink);stroke-width:.9}
+.slot{fill:none;stroke:var(--ink2);stroke-width:.8;stroke-dasharray:4 3}
+.hug{fill:var(--fill2);stroke:var(--ink);stroke-width:.9}
+.solid{fill:var(--fill2);stroke:var(--ink);stroke-width:.8}
+.thin{fill:none;stroke:var(--ink);stroke-width:.8}
+.ph{fill:none;stroke:var(--ink3);stroke-width:.8;stroke-dasharray:14 3 3 3}
+.cl{fill:none;stroke:var(--ink3);stroke-width:.7;stroke-dasharray:16 3 2 3}
+.dl{stroke:var(--ink);stroke-width:.7;fill:none}
+.ext{stroke:var(--ink);stroke-width:.55;fill:none}
+.arrow{fill:var(--ink)}
+.hl{stroke:var(--ink2);stroke-width:.7}
+.dt{font:400 10.5px Arial,sans-serif;fill:var(--ink);paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
+.dts{font:400 9px Arial,sans-serif;fill:var(--ink2);letter-spacing:.05em;text-transform:uppercase;paint-order:stroke;stroke:#fff;stroke-width:2.5px}
+.sl{font:400 8.5px Arial,sans-serif;fill:var(--ink2);letter-spacing:.06em;text-transform:uppercase}
+.nt{font:400 9.5px Arial,sans-serif;fill:var(--ink);letter-spacing:.03em;text-transform:uppercase}
+.nth{font:700 12px Arial,sans-serif;fill:var(--ink);letter-spacing:.06em}
+.vt{font:400 11px Arial,sans-serif;fill:var(--ink);letter-spacing:.1em;text-transform:uppercase}
+.vtb{font:400 17px Arial,sans-serif;fill:var(--ink);letter-spacing:.05em}
+.nb{fill:#fff;stroke:var(--ink);stroke-width:.9}
+.nbt{font:400 9px Arial,sans-serif;fill:var(--ink)}
+.lead{stroke:var(--ink2);stroke-width:.7;fill:none}
+.dot{fill:var(--ink)}
+.th{font:400 9px Arial,sans-serif;fill:var(--ink);letter-spacing:.04em;text-transform:uppercase}
+.tc{font:400 9px Arial,sans-serif;fill:var(--ink)}
+.tbk{font:400 7.7px Arial,sans-serif;fill:var(--ink2);letter-spacing:.03em;text-transform:uppercase}
+.tbh{font:700 11px Arial,sans-serif;fill:var(--ink);letter-spacing:.06em}
+:focus-visible{outline:2px solid #111;outline-offset:2px}
+@media(max-width:800px){.wrap{padding-top:10px}.tb{grid-template-columns:1fr 1fr}.tb .big{grid-column:1/-1;grid-row:auto}.tb .notes,.tb .figs{grid-column:1/-1}.tb .figs{grid-template-columns:repeat(2,minmax(0,1fr))}.tb .figs>div:nth-child(odd){border-left:0;padding-left:0}}
+@media print{@page{size:A3 landscape;margin:8mm}body{background:#fff}.wrap{max-width:none;padding:0}.controls{display:none}.tb{margin-bottom:6mm}.scroll{overflow:visible;box-shadow:none;border:0}svg{min-width:0;width:100%}.foot{font-size:8px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="tb" id="title-block"></header>
+  <nav class="controls" aria-label="Drawing sheet navigation">
+    <label class="lbl" for="route-filter">FIND ROUTE</label>
+    <input id="route-filter" type="search" autocomplete="off" aria-label="Filter sheets by route" placeholder="Filter by route path">
+    <label class="lbl" for="route-select">SHEET</label>
+    <select id="route-select" aria-label="Select a drawing sheet"></select>
+    <button id="previous" type="button" aria-label="Previous drawing sheet">PREVIOUS</button>
+    <button id="next" type="button" aria-label="Next drawing sheet">NEXT</button>
+    <button id="print" type="button" aria-label="Print current drawing sheet">PRINT SHEET</button>
+    <span class="status" id="status" aria-live="polite"></span>
+  </nav>
+  <main class="scroll" aria-label="Current technical drawing sheet"><svg id="sheet" viewBox="0 0 1700 1060" role="img" aria-labelledby="svg-title svg-desc"></svg></main>
+  <footer class="foot"><span>2026-10-30 | UI PAGE ARCHITECTURE ATLAS | NTS</span><span id="footer-right"></span></footer>
+</div>
+<script>
+(function(){
+"use strict";
+const M={"head":"d804d28be37aa3b155da3144df99a2299856974e","inventoryVersion":"1.43.0b","inventoryStatus":"candidate","routeCount":117,"routes":[{"id":"UI-001","route":"/","name":"Landing","shell":"EntryShell","source":"apps/server/src/app/page.jsx"},{"id":"UI-002","route":"/login","name":"Credential Login","shell":"EntryShell","source":"apps/server/src/app/login/page.jsx"},{"id":"UI-003","route":"/reset-password","name":"Password Reset Redemption (ตั้งรหัสผ่านใหม่)","shell":"EntryShell","source":"apps/server/src/app/reset-password/page.jsx"},{"id":"UI-004","route":"/signup","name":"Self-Serve Signup (สมัครสมาชิก)","shell":"EntryShell","source":"apps/server/src/app/signup/page.jsx"},{"id":"UI-005","route":"/businesses","name":"Business Routing","shell":"BusinessRoutingShell","source":"apps/server/src/app/(entry)/businesses/page.jsx"},{"id":"UI-006","route":"/onboarding/profile","name":"Profile Setup (ตั้งค่าโปรไฟล์)","shell":"BusinessRoutingShell","source":"apps/server/src/app/(entry)/onboarding/profile/page.jsx"},{"id":"UI-007","route":"/waiting-room","name":"Waiting Room (ห้องรอ)","shell":"BusinessRoutingShell","source":"apps/server/src/app/(entry)/waiting-room/page.jsx"},{"id":"UI-008","route":"/plugin/authorize","name":"Plugin Authorization Consent (อนุมัติการเชื่อมต่อปลักอิน)","shell":"none — a bare server-rendered page, deliberately outside every shell so nothing about the granting account's scope surrounds a decision about delegating it","source":"apps/server/src/app/(entry)/plugin/authorize/page.jsx"},{"id":"UI-009","route":"/workspace-home","name":"Workspace Home","shell":"BusinessRoutingShell","source":"apps/server/src/app/(entry)/workspace-home/page.jsx"},{"id":"UI-010","route":"/overview","name":"Business Home Dashboard","shell":"BusinessShell; shell-level cross-domain projection","source":"apps/server/src/app/(pm)/overview/page.jsx"},{"id":"UI-011","route":"/notifications","name":"Agent Approval Notifications","shell":"BusinessShell; global Topbar destination","source":"apps/server/src/app/(pm)/notifications/page.jsx"},{"id":"UI-012","route":"/projects","name":"Projects","shell":"BusinessShell → Projects & Work → Project Management","source":"apps/server/src/app/(pm)/projects/page.jsx"},{"id":"UI-013","route":"/projects/new","name":"Objective intake","shell":"BusinessShell → Projects & Work → Project Management","source":"apps/server/src/app/(pm)/projects/new/page.jsx"},{"id":"UI-014","route":"/work","name":"All Work","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/work/page.jsx"},{"id":"UI-015","route":"/execution","name":"Execution overview","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/execution/page.jsx"},{"id":"UI-016","route":"/execution/[mode]","name":"Execution mode view","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/execution/[mode]/page.jsx"},{"id":"UI-017","route":"/timeline","name":"Global Timeline","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/timeline/page.jsx"},{"id":"UI-018","route":"/dependencies","name":"Dependency register","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/dependencies/page.jsx"},{"id":"UI-019","route":"/milestones","name":"Milestones and Gates","shell":"BusinessShell → Projects & Work → Work Management","source":"apps/server/src/app/(pm)/milestones/page.jsx"},{"id":"UI-020","route":"/files","name":"Managed Files","shell":"BusinessShell → Projects & Work → Resource Coordination","source":"apps/server/src/app/(pm)/files/page.jsx"},{"id":"UI-021","route":"/repositories","name":"Repositories","shell":"BusinessShell → Projects & Work → Resource Coordination","source":"apps/server/src/app/(pm)/repositories/page.jsx"},{"id":"UI-022","route":"/commerce","name":"Commerce Dashboard","shell":"BusinessShell → Commerce / Dashboard","source":"apps/server/src/app/(pm)/commerce/page.jsx"},{"id":"UI-023","route":"/commerce/orders","name":"Orders console","shell":"BusinessShell → Commerce / Orders","source":"apps/server/src/app/(pm)/commerce/orders/page.jsx"},{"id":"UI-024","route":"/commerce/invoices","name":"Billing and tax documents","shell":"BusinessShell → Commerce / Billing","source":"apps/server/src/app/(pm)/commerce/invoices/page.jsx"},{"id":"UI-025","route":"/commerce/pos","name":"POS checkout","shell":"BusinessShell → Commerce / POS","source":"apps/server/src/app/(pm)/commerce/pos/page.jsx"},{"id":"UI-026","route":"/commerce/pricing-rules","name":"สูตรคำนวณราคา","shell":"BusinessShell → Commerce / Pricing Rules","source":"apps/server/src/app/(pm)/commerce/pricing-rules/page.jsx"},{"id":"UI-027","route":"/procurement/receipts","name":"Goods Receipts workstation","shell":"BusinessShell → Procurement / Goods Receipts","source":"apps/server/src/app/(pm)/procurement/receipts/page.jsx"},{"id":"UI-028","route":"/procurement","name":"Procurement Dashboard","shell":"BusinessShell → Procurement / Dashboard","source":"apps/server/src/app/(pm)/procurement/page.jsx"},{"id":"UI-029","route":"/procurement/purchase-orders","name":"Purchase Orders console","shell":"BusinessShell → Procurement / Purchase Orders","source":"apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx"},{"id":"UI-030","route":"/customer","name":"CRM Dashboard","shell":"BusinessShell → CRM / Dashboard","source":"apps/server/src/app/(pm)/customer/page.jsx"},{"id":"UI-031","route":"/customer/conversations","name":"CRM Inbox","shell":"BusinessShell → CRM / Inbox","source":"apps/server/src/app/(pm)/customer/conversations/page.jsx"},{"id":"UI-032","route":"/customer/sales-tasks","name":"CRM Sales Tasks","shell":"BusinessShell → CRM / Sales Tasks","source":"apps/server/src/app/(pm)/customer/sales-tasks/page.jsx"},{"id":"UI-033","route":"/customer/line-crm","name":"LineCRM-MCP workspace","shell":"BusinessShell → CRM / LineCRM","source":"apps/server/src/app/(pm)/customer/line-crm/page.jsx"},{"id":"UI-034","route":"/market","name":"Market Intelligence Dashboard","shell":"BusinessShell → Market Intelligence / Dashboard","source":"apps/server/src/app/(pm)/market/page.jsx"},{"id":"UI-035","route":"/people","name":"People Dashboard","shell":"BusinessShell → HR / People","source":"apps/server/src/app/(pm)/people/page.jsx"},{"id":"UI-036","route":"/people/directory","name":"People Directory","shell":"BusinessShell → HR / People / Directory","source":"apps/server/src/app/(pm)/people/directory/page.jsx"},{"id":"UI-037","route":"/platform/product-readiness","name":"Product Readiness","shell":"BusinessShell → Platform / Product Readiness","source":"apps/server/src/app/(pm)/platform/product-readiness/page.jsx"},{"id":"UI-038","route":"/platform/product-readiness/[domain]","name":"Product Readiness — domain lane","shell":"BusinessShell → Platform / Product Readiness / domain","source":"apps/server/src/app/(pm)/platform/product-readiness/[domain]/page.jsx"},{"id":"UI-039","route":"/platform/users","name":"Users and Permissions","shell":"BusinessShell → Platform / Users","source":"apps/server/src/app/(pm)/platform/users/page.jsx"},{"id":"UI-040","route":"/platform/integrations","name":"Platform Integrations","shell":"BusinessShell → Platform / Integrations","source":"apps/server/src/app/(pm)/platform/integrations/page.jsx"},{"id":"UI-041","route":"/platform/customer-import-reviews","name":"Customer Duplicate Review","shell":"BusinessShell → Platform / Customer Review","source":"apps/server/src/app/(pm)/platform/customer-import-reviews/page.jsx"},{"id":"UI-042","route":"/platform/sot-pipeline","name":"SoT Pipeline Plan Board","shell":"BusinessShell → Platform / SoT Pipeline","source":"apps/server/src/app/(pm)/platform/sot-pipeline/page.jsx"},{"id":"UI-043","route":"/platform/sot-pipeline/graph","name":"SoT Pipeline Graph","shell":"BusinessShell → Platform / SoT Pipeline","source":"apps/server/src/app/(pm)/platform/sot-pipeline/graph/page.jsx"},{"id":"UI-044","route":"/platform/sot-pipeline/inbox","name":"SoT Approval Inbox","shell":"BusinessShell → Platform / SoT Pipeline","source":"apps/server/src/app/(pm)/platform/sot-pipeline/inbox/page.jsx"},{"id":"UI-045","route":"/profile","name":"My Profile","shell":"BusinessShell → Platform/identity","source":"apps/server/src/app/(pm)/profile/page.jsx"},{"id":"UI-046","route":"/settings","name":"Settings","shell":"BusinessShell → Platform / Settings","source":"apps/server/src/app/(pm)/settings/page.jsx"},{"id":"UI-047","route":"/audit","name":"Audit Log","shell":"BusinessShell → Platform / Audit","source":"apps/server/src/app/(pm)/audit/page.jsx"},{"id":"UI-048","route":"/backup","name":"Backup","shell":"BusinessShell → Platform / Backup","source":"apps/server/src/app/(pm)/backup/page.jsx"},{"id":"UI-049","route":"/assets","name":"Asset Management Dashboard","shell":"BusinessShell → Asset Management / Dashboard","source":"apps/server/src/app/(pm)/assets/page.jsx"},{"id":"UI-050","route":"/assets/receiving","name":"Asset Receiving & Evidence Review","shell":"BusinessShell → Asset Management / Receiving","source":"apps/server/src/app/(pm)/assets/receiving/page.jsx"},{"id":"UI-051","route":"/assets/register","name":"Asset Register Workspace","shell":"BusinessShell → Asset Management / Register","source":"apps/server/src/app/(pm)/assets/register/page.jsx"},{"id":"UI-052","route":"/assets/scanner","name":"Mobile Stocktake & QR Scanner","shell":"BusinessShell → Asset Management / Scanner","source":"apps/server/src/app/(pm)/assets/scanner/page.jsx"},{"id":"UI-053","route":"/inventory","name":"Warehouse Dashboard (domain `inventory`; labelled Warehouse because a Project's own Inventory tab, FR-077, shares the screen)","shell":"BusinessShell → Warehouse / Dashboard","source":"apps/server/src/app/(pm)/inventory/page.jsx"},{"id":"UI-054","route":"/inventory/stocktakes","name":"Physical stocktake","shell":"BusinessShell → Inventory / Stocktake","source":"apps/server/src/app/(pm)/inventory/stocktakes/page.jsx"},{"id":"UI-055","route":"/inventory/locations","name":"Locations & transfers (Inventory tab 2)","shell":"BusinessShell → Inventory / Locations","source":"apps/server/src/app/(pm)/inventory/locations/page.jsx"},{"id":"UI-056","route":"/inventory/work-orders","name":"Work orders (Inventory tab 3)","shell":"BusinessShell → Inventory / Work Orders","source":"apps/server/src/app/(pm)/inventory/work-orders/page.jsx"},{"id":"UI-057","route":"/inventory/reservations","name":"ATP & reservations (Inventory tab 4)","shell":"BusinessShell → Inventory / Reservations","source":"apps/server/src/app/(pm)/inventory/reservations/page.jsx"},{"id":"UI-058","route":"/inventory/hygiene","name":"SKU Hygiene (Inventory tab 6)","shell":"BusinessShell → Inventory / SKU Hygiene","source":"apps/server/src/app/(pm)/inventory/hygiene/page.jsx"},{"id":"UI-059","route":"/inventory/products/[productId]","name":"SKU detail — identifiers and unit conversions","shell":"BusinessShell → Inventory (from a SKU code on the Dashboard or the Dashboard's code lookup; not a tab)","source":"apps/server/src/app/(pm)/inventory/products/[productId]/page.jsx"},{"id":"UI-060","route":"/inventory/catalog-intake","name":"Import — catalogue intake (Inventory tab 7)","shell":"BusinessShell → Inventory / Import","source":"apps/server/src/app/(pm)/inventory/catalog-intake/page.jsx"},{"id":"UI-061","route":"/knowledge","name":"Knowledge Dashboard (domain `knowledge`)","shell":"BusinessShell → Knowledge (GKS) / Dashboard","source":"apps/server/src/app/(pm)/knowledge/page.jsx"},{"id":"UI-062","route":"/knowledge/documents","name":"Knowledge Documents & Intake","shell":"BusinessShell → Knowledge (GKS) / Documents","source":"apps/server/src/app/(pm)/knowledge/documents/page.jsx"},{"id":"UI-063","route":"/knowledge/data-pipeline","name":"Data Pipeline Map","shell":"BusinessShell → Knowledge (GKS) / Data Pipeline Map","source":"apps/server/src/app/(pm)/knowledge/data-pipeline/page.jsx"},{"id":"UI-064","route":"/knowledge/console","name":"Knowledge console","shell":"BusinessShell → Knowledge (GKS) / Knowledge console","source":"apps/server/src/app/(pm)/knowledge/console/page.jsx"},{"id":"UI-065","route":"/knowledge/candidates","name":"LINE FAQ candidates","shell":"BusinessShell → Knowledge (GKS) / LINE FAQ candidates","source":"apps/server/src/app/(pm)/knowledge/candidates/page.jsx"},{"id":"UI-066","route":"/knowledge/gap-report","name":"Knowledge gap report","shell":"BusinessShell → Knowledge (GKS) / Knowledge gap report","source":"apps/server/src/app/(pm)/knowledge/gap-report/page.jsx"},{"id":"UI-067","route":"/workspaces","name":"Workspace list","shell":"BusinessShell → Projects & Work/Space compatibility","source":"apps/server/src/app/(pm)/workspaces/page.jsx"},{"id":"UI-068","route":"/workspaces/[workspaceId]","name":"Workspace detail","shell":"BusinessShell → Projects & Work/Space compatibility","source":"apps/server/src/app/(pm)/workspaces/[workspaceId]/page.jsx"},{"id":"UI-069","route":"/projects/[projectId]","name":"Project Overview","shell":"ProjectResourceShell → Project Management","source":"apps/server/src/app/(pm)/projects/[projectId]/page.jsx"},{"id":"UI-070","route":"/projects/[projectId]/all-work","name":"Project All Work","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/all-work/page.jsx"},{"id":"UI-071","route":"/projects/[projectId]/board","name":"Project Board","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/board/page.jsx"},{"id":"UI-072","route":"/projects/[projectId]/dependencies","name":"Project Dependency Map","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/dependencies/page.jsx"},{"id":"UI-073","route":"/projects/[projectId]/domain-view","name":"Execution Domains","shell":"ProjectResourceShell → Delivery Design","source":"apps/server/src/app/(pm)/projects/[projectId]/domain-view/page.jsx"},{"id":"UI-074","route":"/projects/[projectId]/feature-view","name":"Project Features","shell":"ProjectResourceShell → Delivery Design","source":"apps/server/src/app/(pm)/projects/[projectId]/feature-view/page.jsx"},{"id":"UI-075","route":"/projects/[projectId]/roadmap","name":"Execution Roadmap","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/roadmap/page.jsx"},{"id":"UI-076","route":"/projects/[projectId]/execution/[mode]","name":"Project Execution Mode","shell":"ProjectResourceShell → Project Management","source":"apps/server/src/app/(pm)/projects/[projectId]/execution/[mode]/page.jsx"},{"id":"UI-077","route":"/projects/[projectId]/files","name":"Project Files","shell":"ProjectResourceShell → Resource Coordination","source":"apps/server/src/app/(pm)/projects/[projectId]/files/page.jsx"},{"id":"UI-078","route":"/projects/[projectId]/import","name":"Project Plan Import","shell":"ProjectResourceShell → shared Import plan action","source":"apps/server/src/app/(pm)/projects/[projectId]/import/page.jsx"},{"id":"UI-079","route":"/projects/[projectId]/inventory","name":"Project Inventory","shell":"ProjectResourceShell → Project Management","source":"apps/server/src/app/(pm)/projects/[projectId]/inventory/page.jsx"},{"id":"UI-080","route":"/projects/[projectId]/milestones","name":"Project Milestones and Gates","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/milestones/page.jsx"},{"id":"UI-081","route":"/projects/[projectId]/repositories","name":"Project Repositories","shell":"ProjectResourceShell → Resource Coordination","source":"apps/server/src/app/(pm)/projects/[projectId]/repositories/page.jsx"},{"id":"UI-082","route":"/projects/[projectId]/structure","name":"Structure Plan","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/structure/page.jsx"},{"id":"UI-083","route":"/projects/[projectId]/team","name":"Project Team","shell":"ProjectResourceShell → Resource Coordination","source":"apps/server/src/app/(pm)/projects/[projectId]/team/page.jsx"},{"id":"UI-084","route":"/projects/[projectId]/timeline","name":"Project Schedule","shell":"ProjectResourceShell → Work Management","source":"apps/server/src/app/(pm)/projects/[projectId]/timeline/page.jsx"},{"id":"UI-085","route":"/control/knowledge-studio","name":"Knowledge Studio","shell":"PlatformControlShell → local document graph","source":"apps/server/src/app/(control)/control/knowledge-studio/page.jsx"},{"id":"UI-086","route":"/control/roadmap","name":"Platform Programme Roadmap","shell":"PlatformControlShell → programme plan snapshot","source":"apps/server/src/app/(control)/control/roadmap/page.jsx"},{"id":"UI-087","route":"/control/errors","name":"Error events","shell":"PlatformControlShell → deduplicated error list","source":"apps/server/src/app/(control)/control/errors/page.jsx"},{"id":"UI-088","route":"/control/usage","name":"Feature usage","shell":"PlatformControlShell → route/action usage breakdown","source":"apps/server/src/app/(control)/control/usage/page.jsx"},{"id":"UI-089","route":"/roadmap","name":"Programme Roadmap — signed-in preview","shell":"PlatformControlShell (title \"Programme Roadmap\") → programme plan snapshot, `audience=\"member\"`","source":"apps/server/src/app/roadmap/page.jsx"},{"id":"UI-090","route":"/growth","name":"Marketing Dashboard","shell":"BusinessShell → Marketing","source":"apps/server/src/app/(pm)/growth/page.jsx"},{"id":"UI-091","route":"/growth/strategy","name":"Marketing Strategy","shell":"BusinessShell → Marketing / Strategy","source":"apps/server/src/app/(pm)/growth/strategy/page.jsx"},{"id":"UI-092","route":"/growth/paid-media","name":"Marketing Paid Media","shell":"BusinessShell → Marketing / Paid Media","source":"apps/server/src/app/(pm)/growth/paid-media/page.jsx"},{"id":"UI-093","route":"/growth/broadcast","name":"Marketing Broadcast Planning","shell":"BusinessShell → Marketing / Broadcast","source":"apps/server/src/app/(pm)/growth/broadcast/page.jsx"},{"id":"UI-094","route":"/growth/ask-marketing","name":"Ask Marketing","shell":"BusinessShell → Marketing / Ask Marketing","source":"apps/server/src/app/(pm)/growth/ask-marketing/page.jsx"},{"id":"UI-095","route":"/growth/line-sales","name":"Executive LINE OA Sales Dashboard","shell":"BusinessShell → Marketing; linked from Marketing Dashboard","source":"apps/server/src/app/(pm)/growth/line-sales/page.jsx"},{"id":"UI-096","route":"/growth/insights","name":"Marketing Insights","shell":"BusinessShell → Marketing (URL only; no Insights navigation entry until data exists)","source":"apps/server/src/app/(pm)/growth/insights/page.jsx"},{"id":"UI-097","route":"/growth/campaigns","name":"MKT-UI-006","shell":"Scoped list/board, search and phase filter","source":"apps/server/src/app/(pm)/growth/campaigns/page.jsx"},{"id":"UI-098","route":"/growth/campaigns/new","name":"MKT-UI-076","shell":"New initiative plus versioned Strategy brief","source":"apps/server/src/app/(pm)/growth/campaigns/new/page.jsx"},{"id":"UI-099","route":"/growth/campaigns/[initiativeId]","name":"MKT-UI-007–011","shell":"Brief, Plan, Timeline, Results, Decisions in one URL tab bar","source":"apps/server/src/app/(pm)/growth/campaigns/[initiativeId]/page.jsx"},{"id":"UI-100","route":"/growth/content","name":"MKT-UI-016/017/018","shell":"Briefs, Production and Library in one URL tab bar; real PM task projection and current approved outputs","source":"apps/server/src/app/(pm)/growth/content/page.jsx"},{"id":"UI-101","route":"/growth/content/new","name":"MKT-UI-077","shell":"Creative intent, channel and format, declared rights, optional source file and production task","source":"apps/server/src/app/(pm)/growth/content/new/page.jsx"},{"id":"UI-102","route":"/growth/content/briefs/[briefId]","name":"MKT-UI-058","shell":"Immutable versions, independent review, exact approval/rejection/revocation and archive","source":"apps/server/src/app/(pm)/growth/content/briefs/[briefId]/page.jsx"},{"id":"UI-103","route":"/growth/content/assets/[assetId]","name":"MKT-UI-059","shell":"One immutable output version, source/rights/review evidence and current usability","source":"apps/server/src/app/(pm)/growth/content/assets/[assetId]/page.jsx"},{"id":"UI-104","route":"/growth/operations","name":"MKT-UI-044–047","shell":"Intake, Calendar, Approvals and Handoffs in one URL tab bar over one aggregate DTO","source":"apps/server/src/app/(pm)/growth/operations/page.jsx"},{"id":"UI-105","route":"/growth/operations/new","name":"MKT-UI-082","shell":"Business-scoped Intake request form with capability, objective, required date, evidence and owner reference","source":"apps/server/src/app/(pm)/growth/operations/new/page.jsx"},{"id":"UI-106","route":"/growth/operations/intake/[intakeId]","name":"MKT-UI-069","shell":"Intake detail, edit and archive with exact Business identity guard","source":"apps/server/src/app/(pm)/growth/operations/intake/[intakeId]/page.jsx"},{"id":"UI-107","route":"/growth/operations/handoffs/[handoffId]","name":"MKT-UI-070","shell":"Validated owner receipt and PM roadmap detail","source":"apps/server/src/app/(pm)/growth/operations/handoffs/[handoffId]/page.jsx"},{"id":"UI-108","route":"/line-oa","name":"Account setup, execution policy and jobs","shell":"Business visibility; publishing requires owner/publisher","source":"apps/server/src/app/(pm)/line-oa/page.jsx"},{"id":"UI-109","route":"/line-oa/projects","name":"LINE OA Projects & Accounts","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/projects/page.jsx"},{"id":"UI-110","route":"/line-oa/design-studio","name":"LINE OA Design Studio","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/design-studio/page.jsx"},{"id":"UI-111","route":"/line-oa/rich-menus","name":"Rich Menu compatibility entry (FR-151, FR-152)","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/rich-menus/page.jsx"},{"id":"UI-112","route":"/line-oa/live-crm","name":"LINE OA Live CRM & Chat","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/live-crm/page.jsx"},{"id":"UI-113","route":"/line-oa/connections","name":"LINE OA Connections & API key","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/connections/page.jsx"},{"id":"UI-114","route":"/line-oa/integrations","name":"Compatibility entry","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/integrations/page.jsx"},{"id":"UI-115","route":"/line-oa/templates","name":"LINE Message & Component Templates","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/templates/page.jsx"},{"id":"UI-116","route":"/line-oa/team","name":"LINE Studio Team & RBAC","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/team/page.jsx"},{"id":"UI-117","route":"/line-oa/settings","name":"LINE Studio Settings","shell":"Business visibility","source":"apps/server/src/app/(pm)/line-oa/settings/page.jsx"}]};
+const PAGES=M.routes;
+const NS="http://www.w3.org/2000/svg";
+const sheet=document.getElementById("sheet");
+const titleBlock=document.getElementById("title-block");
+const select=document.getElementById("route-select");
+const filter=document.getElementById("route-filter");
+const status=document.getElementById("status");
+let current=0,arrowId="arrow0";
+
+function kindFor(p){
+ const r=p.route.toLowerCase(),n=p.name.toLowerCase(),s=p.shell.toLowerCase();
+ if(r==="/")return "LANDING";
+ if(s.indexOf("entryshell")>=0)return "FORM";
+ if(s.indexOf("businessrouting")>=0)return r.indexOf("onboarding/profile")>=0?"FORM":"COLLECTION";
+ if(r.indexOf("/scanner")>=0)return "SCANNER";
+ if(r.indexOf("conversations")>=0||r.indexOf("live-crm")>=0||r.indexOf("/inbox")>=0)return "MASTER DETAIL";
+ if(r.indexOf("/graph")>=0)return "GRAPH";
+ if(r.indexOf("data-pipeline")>=0)return "PIPELINE";
+ if(r.indexOf("timeline")>=0||n.indexOf("roadmap")>=0)return "TIMELINE";
+ if(r.endsWith("/board")||r.indexOf("/execution/")>=0)return "BOARD";
+ if(r.indexOf("growth/operations")>=0||r.indexOf("calendar")>=0)return "CALENDAR";
+ if(r.endsWith("/new")||r.indexOf("receipts")>=0||r.endsWith("/pos")||r.indexOf("invoices")>=0||r.indexOf("catalog-intake")>=0||r.indexOf("authorize")>=0)return "FORM";
+ if(/\/\[[^\]]+\]/.test(r))return "DETAIL";
+ if(r.indexOf("settings")>=0||r.indexOf("profile")>=0||r.indexOf("backup")>=0||r.indexOf("connections")>=0||r.indexOf("/team")>=0||r.indexOf("templates")>=0)return "SETTINGS";
+ if(n.toLowerCase().indexOf("dashboard")>=0||["/overview","/commerce","/procurement","/customer","/market","/people","/assets","/inventory","/knowledge","/growth"].indexOf(r)>=0)return "DASHBOARD";
+ if(r.indexOf("strategy")>=0)return "TIMELINE";
+ return "COLLECTION";
+}
+function shellKind(p){
+ const s=p.shell.toLowerCase();
+ if(s.indexOf("projectresourceshell")>=0)return "PROJECT RESOURCE SHELL";
+ if(s.indexOf("businessrouting")>=0)return "BUSINESS ROUTING SHELL";
+ if(s.indexOf("platformcontrol")>=0)return "PLATFORM CONTROL SHELL";
+ if(s.indexOf("entryshell")>=0)return "ENTRY SHELL";
+ if(s.indexOf("businessshell")>=0)return "BUSINESS SHELL";
+ return "BARE PAGE";
+}
+function add(parent,tag,attrs){
+ const e=document.createElementNS(NS,tag);
+ Object.keys(attrs||{}).forEach(function(k){if(attrs[k]!==null&&attrs[k]!==undefined)e.setAttribute(k,String(attrs[k]));});
+ (parent||sheet).appendChild(e);return e;
+}
+function text(x,y,value,cls,attrs,parent){
+ const a=Object.assign({x:x,y:y,class:cls||"dt"},attrs||{});
+ const e=add(parent||sheet,"text",a);e.textContent=String(value);return e;
+}
+function wrapText(x,y,value,maxChars,cls,parent,anchor){
+ const words=String(value).split(/\s+/),lines=[];let line="";
+ words.forEach(function(word){const next=line?line+" "+word:word;if(next.length>maxChars&&line){lines.push(line);line=word;}else line=next;});
+ if(line)lines.push(line);
+ const e=add(parent||sheet,"text",{x:x,y:y,class:cls||"nt","text-anchor":anchor||"start"});
+ lines.forEach(function(l,i){const t=add(e,"tspan",{x:x,dy:i===0?0:12});t.textContent=l;});
+ lines.forEach(function(l,i){e.children[i].textContent=l;});
+ return e;
+}
+function rect(x,y,w,h,r,cls,attrs,parent){return add(parent||sheet,"rect",Object.assign({x:x,y:y,width:w,height:h,rx:r||0,class:cls||"thin"},attrs||{}));}
+function line(x1,y1,x2,y2,cls,attrs,parent){return add(parent||sheet,"line",Object.assign({x1:x1,y1:y1,x2:x2,y2:y2,class:cls||"thin"},attrs||{}));}
+function poly(points,cls,parent){return add(parent||sheet,"polyline",{points:points,class:cls||"lead"},parent);}
+function boxNote(x,y,n){rect(x-6,y-8,12,12,0,"nb");text(x,y+1,String(n),"nbt",{"text-anchor":"middle"});}
+function dimH(x1,x2,y,e1,e2,label,below){
+ [[x1,e1],[x2,e2]].forEach(function(pair){const x=pair[0],e=pair[1];if(e===null||e===undefined)return;const d=Math.sign(y-e)||1;line(x,e+d*3,x,y+d*5,"ext");});
+ if(x2-x1>=28)line(x1,y,x2,y,"dl",{"marker-start":"url(#"+arrowId+")","marker-end":"url(#"+arrowId+")"});
+ else{line(x1-12,y,x1,y,"dl",{"marker-end":"url(#"+arrowId+")"});line(x2,y,x2+12,y,"dl",{"marker-end":"url(#"+arrowId+")"});}
+ text((x1+x2)/2,below?y+13:y-4,label,"dt",{"text-anchor":"middle"});
+}
+function dimV(y1,y2,x,e1,e2,label,side){
+ [[y1,e1],[y2,e2]].forEach(function(pair){const y=pair[0],e=pair[1];if(e===null||e===undefined)return;const d=Math.sign(x-e)||1;line(e+d*3,y,x+d*5,y,"ext");});
+ if(y2-y1>=26)line(x,y1,x,y2,"dl",{"marker-start":"url(#"+arrowId+")","marker-end":"url(#"+arrowId+")"});
+ else{line(x,y1-12,x,y1,"dl",{"marker-end":"url(#"+arrowId+")"});line(x,y2,x,y2+12,"dl",{"marker-end":"url(#"+arrowId+")"});}
+ const cy=(y1+y2)/2;text(side==="r"?x+7:x-7,cy+3,label,"dt",{"text-anchor":side==="r"?"start":"end"});
+}
+function callout(px,py,ex,ey,label,dir){
+ const d=dir||1;add(null,"circle",{cx:px,cy:py,r:1.8,class:"dot"});poly(px+","+py+" "+ex+","+ey+" "+(ex+d*10)+","+ey,"lead");
+ text(ex+d*14,ey+4,label,"dt",{"text-anchor":d>0?"start":"end"});
+}
+function panel(x,y,w,h,titleText,subtitle){
+ rect(x,y,w,h,0,"thin");text(x+8,y+15,titleText,"vt");
+ if(subtitle)text(x+8,y+29,subtitle,"dts");
+}
+function slot(x,y,w,h,label,kind){
+ rect(x,y,w,h,kind==="hug"?Math.min(8,h/2):1,kind==="hug"?"hug":"slot");
+ if(label)wrapText(x+w/2,y+h/2-1,label,Math.max(10,Math.floor(w/6)),"sl",null,"middle");
+}
+function table(x,y,titleText,rows){
+ const widths=[58,164,205],rowH=17;
+ text(x,y,titleText,"vt");
+ const all=[["CODE","VARIABLE","VALUE"]].concat(rows);
+ all.forEach(function(row,i){
+  let xx=x;
+  row.forEach(function(cell,j){
+   rect(xx,y+11+i*rowH,widths[j],rowH,0,"thin");
+   text(xx+(j===0?5:widths[j]/2),y+23+i*rowH,String(cell),i===0?"th":"tc",{"text-anchor":j===0?"start":"middle"});
+   xx+=widths[j];
+  });
+ });
+ return y+11+all.length*rowH+23;
+}
+function drawTitleBlock(p,index){
+ titleBlock.textContent="";
+ function cell(label,value,cls){
+  const d=document.createElement("div");if(cls)d.className=cls;
+  const l=document.createElement("div");l.className="lbl";l.textContent=label;
+  const v=document.createElement("div");v.className="val";v.textContent=value;
+  d.appendChild(l);d.appendChild(v);titleBlock.appendChild(d);
+ }
+ const big=document.createElement("div");big.className="big";
+ const bwrap=document.createElement("div");
+ const bl=document.createElement("div");bl.className="lbl";bl.textContent="UI PAGE · ARCHITECTURE DRAWING";
+ const h=document.createElement("h1");h.textContent=p.id;
+ const scope=document.createElement("div");scope.className="val";scope.textContent="SOURCE ROUTE: "+p.route+" · "+shellKind(p)+" · "+kindFor(p);
+ bwrap.appendChild(bl);bwrap.appendChild(h);bwrap.appendChild(scope);big.appendChild(bwrap);
+ const note=document.createElement("div");note.className="val";note.textContent="Slots and frame topology only. Screen wording, icon identity, data and per-route viewport extents are not specified here.";
+ big.appendChild(note);titleBlock.appendChild(big);
+ cell("Drawing number",p.id);
+ cell("Revision","A · 2026-10-30");
+ cell("Sheets",String(index+1).padStart(3,"0")+" / "+PAGES.length);
+ cell("Units","CSS px at 1×");
+ cell("Scale","NTS · schematic");
+ cell("Source",p.source);
+ const notes=document.createElement("div");notes.className="notes";
+ const n1=document.createElement("div");n1.innerHTML="<div class='lbl'>NOTES (UNLESS OTHERWISE SPECIFIED)</div><ol><li>Do not scale from screen. Read dimension codes and values.</li><li>Unknown viewport, safe-area and route-specific measurements are [TBD].</li><li>Slots stand in for interface structure. No product copy or icon artwork is shown.</li></ol>";
+ const n2=document.createElement("div");n2.innerHTML="<div class='lbl'>&nbsp;</div><ol start='4'><li>HUG = content-sized · FLEX = remaining space · FILL = parent width.</li><li>Shared shell values come from source classes and accepted UI tokens.</li><li>Monochrome by design. Layout family: "+kindFor(p)+".</li></ol>";
+ notes.appendChild(n1);notes.appendChild(n2);titleBlock.appendChild(notes);
+ const figs=document.createElement("div");figs.className="figs";
+ const hasBusinessNav=["BUSINESS SHELL","PROJECT RESOURCE SHELL"].indexOf(shellKind(p))>=0;
+ const figures=[
+  ["W1 · viewport","[TBD]"],
+  [hasBusinessNav?"W2 · nav width":"S1 · spacing",hasBusinessNav?"256 px · CONFLICT":"4 px"],
+  ["C1 · control min","36 px"],
+  ["BP2 · nav switch","768 px"],
+  ["R1 · card radius","12 px"],
+  ["H5 · viewport h","[TBD]"]
+ ];
+ figures.forEach(function(f){const d=document.createElement("div");const l=document.createElement("div");l.className="lbl";l.textContent=f[0];const v=document.createElement("div");v.className="val";v.textContent=f[1];d.appendChild(l);d.appendChild(v);figs.appendChild(d);});
+ titleBlock.appendChild(figs);
+ document.getElementById("footer-right").textContent=p.id+" · "+p.route+" · "+shellKind(p);
+}
+function drawNotes(p){
+ panel(34,54,258,218,"NOTES","UNLESS OTHERWISE SPECIFIED");
+ const hasBusinessNav=["BUSINESS SHELL","PROJECT RESOURCE SHELL"].indexOf(shellKind(p))>=0;
+ const items=[
+  "Viewport dimensions and page fold are [TBD]. Plan view is not to scale.",
+  "Dashed boxes are slots; no copy or icon shapes are specified.",
+  "Shell layers follow the route inventory and current layout components.",
+  hasBusinessNav?"Sidebar source is 256 px; accepted baseline is 240 px.":"Route-specific content width and fold are [TBD]."
+ ];
+ items.forEach(function(item,i){boxNote(47,98+i*39,i+1);wrapText(64,96+i*39,item,34,"nt");});
+ line(46,249,277,249,"ph");
+ text(47,265,"SEE TABLES FOR SOURCE-DEFINED VALUES","dts");
+}
+function drawVariableTables(p){
+ const sk=shellKind(p),rows=[
+  ["W1","viewport-width","[TBD]"],
+  ["H5","viewport-height","[TBD]"],
+  ["W2","business-nav-expanded","256 px · w-64; spec 240 px"],
+  ["W3","compact-nav-width","64 px · w-16"],
+  ["B1","border-width","1 px"],
+  ["S1","spacing-grid-step","4 px"],
+  ["C1","control-min-height","36 px"],
+  ["T1","touch-target-min","44 px"],
+  ["R1","card-radius","12 px"],
+  ["R2","control-radius","8 px"],
+  ["R3","modal-radius","16 px"]
+ ];
+ if(sk==="BUSINESS SHELL"||sk==="PROJECT RESOURCE SHELL"){
+  rows.push(["H1","topbar-height","max(44,36)+2×10+1=65 px"]);
+  rows.push(["H2","domainbar-height","56 px"]);
+  rows.push(["H3","breadcrumb-height","36 px"]);
+  rows.push(["H4","footer-height","28 px"]);
+  rows.push(["P1","content-pad-wide","24 px"]);
+  rows.push(["P2","content-pad-compact","16 px"]);
+  rows.push(["W4","content-width","[TBD]"]);
+ }else if(sk.indexOf("BUSINESS ROUTING")>=0){
+  rows.push(["W4","container-max","1024 px · max-w-5xl"]);
+  rows.push(["P1","horizontal-inset","16 px"]);
+  rows.push(["P2","vertical-inset","32 px"]);
+  rows.push(["C2","signout-control","36 px min"]);
+ }else if(sk.indexOf("ENTRY SHELL")>=0){
+  if(p.route==="/"){
+   rows.push(["H1","page-min-height","100vh"]);
+  }else{
+   rows.push(["W4","card-max","448 px · max-w-md"]);
+   rows.push(["P1","horizontal-inset","16 px"]);
+   rows.push(["P2","vertical-inset","32 px"]);
+   rows.push(["H1","min-page-height","100vh−64 px"]);
+  }
+ }else if(sk.indexOf("PLATFORM CONTROL")>=0){
+  rows.push(["H1","header-min-height","56 px"]);
+  rows.push(["P1","horizontal-inset-wide","24 px"]);
+  rows.push(["P2","horizontal-inset-compact","16 px"]);
+  rows.push(["C2","theme-control-height","30 px"]);
+ }else{
+  rows.push(["W4","content-width","[TBD]"]);
+ }
+ const top=table(1206,65,"LAYOUT VARIABLES",rows);
+ const responsive=[
+  ["BP1","breakpoint-1","640 px"],
+  ["BP2","breakpoint-2","768 px"],
+  ["BP3","breakpoint-3","1024 px"],
+  ["BP4","breakpoint-4","1280 px"],
+  ["BP5","breakpoint-5","1536 px"]
+ ];
+ const y=table(1206,top+18,"RESPONSIVE BREAKPOINTS",responsive);
+ text(1206,y+12,"[CONFLICT] DESIGN BASELINE SIDEBAR 240 PX; SOURCE w-64 = 256 PX.","nt");
+ text(1206,y+29,"PROJECTS & WORK MOBILE NAV USES A FULL-WIDTH TOGGLE PANEL.","nt");
+ text(1206,y+50,"SOURCE: "+M.inventoryVersion+" · "+M.inventoryStatus.toUpperCase()+" · "+M.head.slice(0,12),"dts");
+}
+function drawDesktopContent(p,box){
+ const k=kindFor(p),x=box.x,y=box.y,w=box.w,h=box.h;
+ const pad=15,ix=x+pad,iw=w-pad*2;
+ slot(ix,y+13,iw-86,25,"TITLE SLOT · FLEX","slot");
+ slot(ix+iw-76,y+13,76,25,"ACTION SLOT · HUG","hug");
+ slot(ix,y+45,iw,17,"META SLOT · FLEX · WRAPS","slot");
+ const contentY=y+74,contentH=h-83;
+ if(k==="DASHBOARD"){
+  const gap=8,cw=(iw-3*gap)/4;
+  for(let i=0;i<4;i++){rect(ix+i*(cw+gap),contentY,cw,50,4,"well");slot(ix+i*(cw+gap)+7,contentY+8,cw-14,14,"VALUE SLOT","slot");slot(ix+i*(cw+gap)+7,contentY+28,cw-14,12,"META SLOT","slot");}
+  rect(ix,contentY+60,iw*.64,contentH-62,5,"well");slot(ix+10,contentY+68,iw*.6-20,20,"CHART SLOT · FILL","slot");line(ix+20,contentY+contentH-22,ix+iw*.6,contentY+100,"ph");
+  rect(ix+iw*.64+8,contentY+60,iw*.36-8,contentH-62,5,"well");slot(ix+iw*.64+18,contentY+69,iw*.36-28,20,"QUEUE SLOT","slot");
+  for(let i=0;i<4;i++)line(ix+iw*.64+18,contentY+102+i*34,ix+iw-18,contentY+102+i*34,"ph");
+ }else if(k==="COLLECTION"){
+  slot(ix,contentY,iw*.48,26,"SEARCH SLOT · FLEX","slot");slot(ix+iw*.5,contentY,iw*.2,26,"FILTER SLOT · HUG","hug");slot(ix+iw*.73,contentY,iw*.27,26,"ACTION SLOT · HUG","hug");
+  const ty=contentY+36;rect(ix,ty,iw,25,0,"solid");["FLEX","FLEX","HUG","HUG"].forEach(function(label,i){const cw=iw*[.34,.28,.2,.18][i];slot(ix+iw*[0,.34,.62,.82][i]+4,ty+5,cw-8,15,label+" SLOT","slot");});
+  for(let i=0;i<5;i++){line(ix,ty+25+i*37,ix+iw,ty+25+i*37,"thin");slot(ix+8,ty+31+i*37,iw*.28,18,"VALUE SLOT","slot");slot(ix+iw*.34,ty+31+i*37,iw*.22,18,"META SLOT","slot");slot(ix+iw*.63,ty+31+i*37,iw*.17,18,"STATUS SLOT","slot");slot(ix+iw*.83,ty+31+i*37,iw*.13,18,"ACTION SLOT","slot");}
+  slot(ix+iw*.68,ty+25+5*37+5,iw*.32,20,"PAGINATION · HUG","hug");
+ }else if(k==="FORM"){
+  const g=10,fw=(iw-g)/2;
+  for(let row=0;row<3;row++){
+   for(let col=0;col<2;col++){
+    const fx=ix+col*(fw+g),fy=contentY+row*74;
+    slot(fx,fy,fw,16,"LABEL SLOT","slot");slot(fx,fy+20,fw,36,"VALUE SLOT · FILL","hug");
+   }
+  }
+  rect(ix,contentY+232,iw,54,4,"well");slot(ix+8,contentY+240,iw-16,38,"EVIDENCE / PREVIEW SLOT","slot");
+  line(ix,contentY+contentH-42,ix+iw,contentY+contentH-42,"ph");
+  slot(ix+iw*.60,contentY+contentH-35,iw*.18,28,"SECONDARY · HUG","hug");slot(ix+iw*.80,contentY+contentH-35,iw*.20,28,"PRIMARY · HUG","hug");
+ }else if(k==="MASTER DETAIL"){
+  const lw=iw*.32;rect(ix,contentY,lw,contentH,3,"well");slot(ix+8,contentY+8,lw-16,22,"SEARCH SLOT","slot");
+  for(let i=0;i<5;i++){line(ix,contentY+40+i*51,ix+lw,contentY+40+i*51,"thin");slot(ix+8,contentY+47+i*51,lw-16,34,"RECORD SLOT","slot");}
+  rect(ix+lw+8,contentY,iw-lw-8,contentH,3,"well");slot(ix+lw+17,contentY+8,iw-lw-26,24,"RECORD HEADER · FLEX","slot");
+  line(ix+lw+17,contentY+41,ix+iw-17,contentY+41,"ph");
+  for(let i=0;i<4;i++){slot(ix+lw+25+(i%2)*((iw-lw-64)/2),contentY+62+i*42,((iw-lw-72)/2),28,"CONTENT SLOT","hug");}
+  slot(ix+lw+17,contentY+contentH-43,iw-lw-26,30,"COMPOSER / ACTION SLOT","slot");
+ }else if(k==="TIMELINE"||k==="CALENDAR"){
+  const left=ix+70,head=contentY+31,lanes=contentH-44;
+  slot(ix,contentY,iw*.42,25,"FILTER SLOT · FLEX","slot");slot(ix+iw*.72,contentY,iw*.28,25,"RANGE ACTION · HUG","hug");
+  rect(left,head,iw-70,24,0,"solid");
+  for(let c=0;c<6;c++)line(left+c*(iw-70)/6,head,left+c*(iw-70)/6,head+lanes,"thin");
+  for(let r=0;r<5;r++){line(ix,head+24+r*lanes/5,ix+iw,head+24+r*lanes/5,"thin");slot(ix,head+29+r*lanes/5,62,14,"LABEL SLOT","slot");}
+  for(let i=0;i<7;i++){const xx=left+40+(i*73)%(iw-160);const yy=head+37+(i%5)*lanes/5;rect(xx,yy,58+(i%3)*24,12,3,"hug");}
+ }else if(k==="BOARD"){
+  const gap=8,cw=(iw-2*gap)/3;
+  for(let c=0;c<3;c++){rect(ix+c*(cw+gap),contentY,cw,contentH,4,"well");slot(ix+c*(cw+gap)+6,contentY+6,cw-12,20,"COLUMN · TITLE SLOT","slot");for(let r=0;r<3;r++){rect(ix+c*(cw+gap)+6,contentY+34+r*70,cw-12,58,3,"obj");slot(ix+c*(cw+gap)+12,contentY+40+r*70,cw-24,16,"TITLE SLOT","slot");slot(ix+c*(cw+gap)+12,contentY+61+r*70,cw-24,21,"META SLOT","slot");}}
+ }else if(k==="GRAPH"||k==="PIPELINE"){
+  const fw=iw*.23;rect(ix,contentY,fw,contentH,3,"well");slot(ix+7,contentY+8,fw-14,21,"FILTER SLOT","slot");for(let i=0;i<4;i++)slot(ix+7,contentY+38+i*42,fw-14,26,"FILTER · HUG","hug");
+  rect(ix+fw+8,contentY,iw-fw-8,contentH,3,"well");
+  const cx=ix+fw+8,cy=contentY,cw=iw-fw-8;
+  if(k==="PIPELINE"){
+   const steps=5,sw=(cw-36)/steps;for(let i=0;i<steps;i++){rect(cx+16+i*sw,cy+62,sw-10,72,3,"obj");slot(cx+21+i*sw,cy+72,sw-20,18,"STAGE SLOT","slot");if(i<steps-1)line(cx+sw-1+i*sw,cy+98,cx+sw+7+i*sw,cy+98,"dl",{"marker-end":"url(#"+arrowId+")"});}
+   for(let i=0;i<3;i++)slot(cx+20,cy+165+i*48,cw-40,34,"ARTIFACT / STATUS SLOT","slot");
+  }else{
+   const nodes=[[.22,.28],[.48,.2],[.72,.34],[.34,.62],[.68,.72],[.84,.54]];
+   [[0,1],[1,2],[0,3],[3,4],[4,2],[2,5]].forEach(function(e){line(cx+nodes[e[0]][0]*cw,cy+nodes[e[0]][1]*contentH,cx+nodes[e[1]][0]*cw,cy+nodes[e[1]][1]*contentH,"ph");});
+   nodes.forEach(function(pt,i){rect(cx+pt[0]*cw-34,cy+pt[1]*contentH-17,68,34,5,i===1?"hug":"obj");slot(cx+pt[0]*cw-27,cy+pt[1]*contentH-9,54,18,"NODE SLOT","slot");});
+  }
+ }else if(k==="SCANNER"){
+  const camW=iw*.64;rect(ix,contentY,camW,contentH-48,4,"well");line(ix+camW*.28,contentY+contentH*.27,ix+camW*.72,contentY+contentH*.27,"ph");line(ix+camW*.28,contentY+contentH*.68,ix+camW*.72,contentY+contentH*.68,"ph");
+  line(ix+camW*.28,contentY+contentH*.27,ix+camW*.28,contentY+contentH*.68,"ph");line(ix+camW*.72,contentY+contentH*.27,ix+camW*.72,contentY+contentH*.68,"ph");
+  rect(ix+camW+8,contentY,iw-camW-8,contentH-48,4,"well");slot(ix+camW+16,contentY+12,iw-camW-24,28,"RESULT SLOT","slot");slot(ix+camW+16,contentY+53,iw-camW-24,28,"LOCATION / CUSTODY","slot");
+  slot(ix,contentY+contentH-38,camW,28,"SCAN ACTION · HUG","hug");slot(ix+camW+8,contentY+contentH-38,iw-camW-8,28,"SUBMIT / VERIFY","hug");
+ }else if(k==="SETTINGS"){
+  const sw=iw*.26;rect(ix,contentY,sw,contentH,3,"well");for(let i=0;i<5;i++)slot(ix+7,contentY+10+i*39,sw-14,26,"SECTION SLOT","slot");
+  rect(ix+sw+9,contentY,iw-sw-9,contentH,3,"well");slot(ix+sw+18,contentY+9,iw-sw-27,22,"SECTION TITLE SLOT","slot");
+  for(let i=0;i<4;i++){slot(ix+sw+18,contentY+43+i*55,(iw-sw-43)*.35,16,"LABEL SLOT","slot");slot(ix+sw+18+(iw-sw-43)*.38,contentY+39+i*55,(iw-sw-43)*.62,36,"VALUE SLOT","hug");}
+  slot(ix+iw-120,contentY+contentH-38,112,28,"SAVE ACTION · HUG","hug");
+ }else{
+  rect(ix,contentY,iw,contentH,4,"well");slot(ix+10,contentY+10,iw-20,25,"CONTENT SLOT · FILL","slot");slot(ix+10,contentY+47,iw-20,contentH-59,"DETAIL / DATA SLOT","slot");
+ }
+}
+function drawShellPlan(p){
+ const sk=shellKind(p),x=330,y=111,w=825,h=612;
+ text(x,y-20,"PLAN VIEW · DESKTOP · SCHEMATIC","vt");
+ rect(x,y,w,h,3,"obj");
+ if(sk==="BUSINESS SHELL"||sk==="PROJECT RESOURCE SHELL"){
+  const top=50,domain=36,side=145,crumb=29,foot=17;
+  rect(x,y,w,top,0,"solid");slot(x+12,y+10,140,28,"LEAD SLOT","hug");slot(x+168,y+12,w-330,25,"CONTEXT SLOT · FLEX","slot");slot(x+w-150,y+10,138,28,"ACTION SLOTS · HUG","hug");
+  rect(x,y+top,w,domain,0,"solid");for(let i=0;i<6;i++)slot(x+12+i*92,y+top+8,84,20,"DOMAIN SLOT","slot");
+  const bodyY=y+top+domain,bodyH=h-top-domain-foot;
+  rect(x,bodyY,side,bodyH,0,"solid");slot(x+10,bodyY+10,side-20,38,"NAV CONTEXT","slot");for(let i=0;i<6;i++)slot(x+10,bodyY+60+i*40,side-20,29,"NAV SLOT","slot");
+  if(sk==="PROJECT RESOURCE SHELL")slot(x+10,bodyY+bodyH-47,side-20,34,"PROJECT NAV · HUG","hug");
+  rect(x+side,bodyY,w-side,crumb,0,"well");slot(x+side+10,bodyY+6,w-side-20,17,"BREADCRUMB SLOT · FLEX","slot");
+  rect(x+side,bodyY+crumb,w-side,bodyH-crumb,0,"obj");
+  drawDesktopContent(p,{x:x+side,y:bodyY+crumb,w:w-side,h:bodyH-crumb});
+  rect(x+side,y+h-foot,w-side,foot,0,"solid");slot(x+side+(w-side)*.48,y+h-foot+3,(w-side)*.48-12,11,"FOOTER SLOT","slot");
+  dimH(x,x+w,y-7,y,y,"W1 · VIEWPORT [TBD]");
+  boxNote(x+side+16,bodyY+crumb+44,2);
+ }else if(sk==="BUSINESS ROUTING SHELL"){
+  rect(x,y,w,40,0,"well");slot(x+w-115,y+7,102,26,"SIGN-OUT · HUG","hug");
+  rect(x+47,y+58,w-94,h-82,4,"obj");slot(x+72,y+79,w-144,26,"TITLE SLOT · FLEX","slot");slot(x+w-148,y+79,112,26,"ACTION SLOT","hug");
+  drawDesktopContent(p,{x:x+65,y:y+119,w:w-130,h:h-152});
+  dimH(x,x+w,y-7,y,y,"W1 · VIEWPORT [TBD]");
+ }else if(sk==="ENTRY SHELL"||sk==="BARE PAGE"){
+  if(kindFor(p)==="LANDING"){
+   rect(x,y,w,48,0,"solid");slot(x+18,y+9,170,29,"LEAD SLOT","hug");slot(x+w-225,y+9,205,29,"NAV / ACTION SLOTS","slot");
+   rect(x+14,y+63,w-28,190,4,"well");slot(x+34,y+84,(w-68)*.65,33,"TITLE SLOT · FLEX","slot");slot(x+34,y+127,(w-68)*.55,18,"META SLOT · FLEX","slot");slot(x+34,y+165,156,32,"ACTION SLOT · HUG","hug");
+   for(let i=0;i<3;i++)rect(x+34+i*((w-100)/3),y+211,(w-125)/3,22,2,"slot");
+   rect(x+14,y+264,w-28,128,4,"obj");for(let i=0;i<3;i++)rect(x+30+i*((w-80)/3),y+287,(w-110)/3,76,4,"well");
+   rect(x+14,y+403,w-28,102,4,"well");slot(x+32,y+419,w-64,64,"CONTENT SLOT · FILL","slot");rect(x+14,y+516,w-28,64,0,"solid");
+  }else{
+   const cardW=420,cardH=330,cx=x+(w-cardW)/2,cy=y+(h-cardH)/2;
+   rect(cx,cy,cardW,cardH,12,"obj");slot(cx+22,cy+20,cardW-44,30,"TITLE SLOT · FLEX","slot");slot(cx+22,cy+64,cardW-44,20,"META SLOT","slot");
+   for(let i=0;i<3;i++){slot(cx+22,cy+100+i*58,cardW-44,15,"LABEL SLOT","slot");slot(cx+22,cy+119+i*58,cardW-44,36,"VALUE SLOT · FILL","hug");}
+   slot(cx+cardW-188,cy+cardH-47,166,28,"PRIMARY ACTION · HUG","hug");
+   callout(cx+cardW,cy+cardH/2,cx+cardW+65,cy+cardH/2,"W4 · MAX 448 PX",1);
+  }
+  dimH(x,x+w,y-7,y,y,"W1 · VIEWPORT [TBD]");
+ }else if(sk==="PLATFORM CONTROL SHELL"){
+  const top=56;
+  rect(x,y,w,top,0,"solid");slot(x+15,y+12,180,30,"TITLE / CONTEXT SLOT","slot");slot(x+w-250,y+13,230,28,"NAV / THEME / SIGN-OUT","hug");
+  rect(x+18,y+top+18,w-36,h-top-36,3,"obj");drawDesktopContent(p,{x:x+31,y:y+top+26,w:w-62,h:h-top-52});
+  dimH(x,x+w,y-7,y,y,"W1 · VIEWPORT [TBD]");
+ }else{
+  rect(x,y,w,h,0,"obj");drawDesktopContent(p,{x:x+18,y:y+18,w:w-36,h:h-36});dimH(x,x+w,y-7,y,y,"W1 · VIEWPORT [TBD]");
+ }
+}
+function drawMobilePlan(p){
+ panel(34,294,258,386,"NARROW VIEW · NTS","VIEWPORT [TBD]");
+ const x=76,y=345,w=170,h=300,sk=shellKind(p),k=kindFor(p);
+ rect(x,y,w,h,10,"obj");
+ if(sk==="BUSINESS SHELL"||sk==="PROJECT RESOURCE SHELL"){
+  rect(x,y,w,27,7,"solid");slot(x+5,y+5,w-10,17,"TOPBAR SLOT","slot");
+  rect(x,y+27,w,19,0,"well");slot(x+5,y+30,w-10,13,"DOMAIN STRIP · SCROLL","slot");
+  if(sk==="PROJECT RESOURCE SHELL"){rect(x,y+46,w,22,0,"solid");slot(x+5,y+49,w-10,16,"MODULE TOGGLE","slot");}
+  else{rect(x,y+46,17,h-46,0,"solid");for(let i=0;i<4;i++)rect(x+5,y+56+i*42,7,7,0,"thin");}
+  const cx=sk==="PROJECT RESOURCE SHELL"?x+5:x+22,cw=sk==="PROJECT RESOURCE SHELL"?w-10:w-27,cy=y+(sk==="PROJECT RESOURCE SHELL"?73:49);
+  rect(cx,cy,cw,h-(cy-y)-6,0,"obj");slot(cx+5,cy+7,cw-10,18,"TITLE SLOT","slot");
+  if(k==="COLLECTION")slot(cx+5,cy+32,cw-10,24,"FILTER / SEARCH","slot");
+  for(let i=0;i<4;i++)slot(cx+5,cy+63+i*38,cw-10,29,k==="FORM"?"VALUE SLOT":"CONTENT ROW","hug");
+ }else if(sk==="PLATFORM CONTROL SHELL"){
+  rect(x,y,w,34,7,"solid");slot(x+5,y+5,w-10,23,"HEADER / THEME","slot");rect(x+6,y+41,w-12,h-50,3,"obj");slot(x+12,y+49,w-24,20,"TITLE SLOT","slot");for(let i=0;i<4;i++)slot(x+12,y+78+i*45,w-24,34,"CONTENT SLOT","slot");
+ }else if(sk==="BUSINESS ROUTING SHELL"){
+  rect(x+5,y+8,w-10,22,0,"well");slot(x+10,y+13,w-20,12,"SIGN-OUT","slot");rect(x+5,y+37,w-10,h-44,3,"obj");slot(x+12,y+45,w-24,20,"TITLE SLOT","slot");for(let i=0;i<4;i++)slot(x+12,y+76+i*44,w-24,32,"CONTENT SLOT","slot");
+ }else{
+  rect(x+7,y+19,w-14,h-38,12,"obj");slot(x+14,y+27,w-28,20,"TITLE SLOT","slot");for(let i=0;i<3;i++){slot(x+14,y+61+i*52,w-28,13,"LABEL SLOT","slot");slot(x+14,y+78+i*52,w-28,31,"VALUE SLOT","hug");}
+ }
+ text(48,668,"WIDTH / HEIGHT / SAFE AREA: [TBD] · NTS","dts");
+}
+function drawExploded(p){
+ panel(34,698,258,298,"LAYER STACK · AXONOMETRIC","Z-SEPARATION NOT TO SCALE");
+ const x=49,y=910,w=120,gap=24;
+ const layers=["L0 · VIEWPORT","L1 · SHELL","L2 · HEADER + TOOLBAR","L3 · CONTENT SLOTS"];
+ layers.forEach(function(label,i){
+  const xx=x+i*5,yy=y-i*gap;
+  const pts=xx+","+yy+" "+(xx+w)+","+yy+" "+(xx+w+18)+","+(yy+12)+" "+(xx+18)+","+(yy+12)+" "+xx+","+yy;
+  add(null,"polygon",{points:pts,class:i===3?"obj":i===2?"well":"solid"});
+  wrapText(x+145,yy+10,label,18,"dts");
+ });
+ text(48,978,"SLOT LAYER: TITLE · META · VALUE · ACTION","dts");
+}
+function drawDetails(p){
+ const y=744;
+ panel(400,y,245,252,"DETAIL A · CONTROL","SCALE NTS · SOURCE TOKEN");
+ rect(430,y+51,184,36,8,"hug");slot(438,y+59,168,20,"VALUE SLOT · FILL","slot");
+ dimV(y+51,y+87,420,430,430,"C1 · 36 PX","l");
+ text(431,y+111,"R2 · 8 PX · CONTROL RADIUS","dt");
+ line(431,y+127,614,y+127,"ph");
+ slot(430,y+145,184,28,"ACTION SLOT · HUG","hug");
+ text(431,y+197,"T1 · TOUCH TARGET MIN 44 PX","dt");
+ panel(663,y,245,252,"DETAIL B · SURFACE","CORNER DETAIL · NTS");
+ rect(695,y+52,172,100,12,"obj");
+ line(695,y+64,718,y+64,"dl");line(707,y+52,707,y+75,"dl");
+ callout(707,y+64,742,y+45,"R1 · 12 PX",1);
+ slot(709,y+82,144,45,"CONTENT SLOT · FILL","slot");
+ text(695,y+180,"B1 · BORDER WIDTH 1 PX","dt");
+ text(695,y+198,"PAGE-SPECIFIC INSETS · [TBD]","dts");
+ panel(926,y,238,252,"DETAIL C · NAV","DESKTOP ↔ COMPACT");
+ rect(948,y+52,181,48,0,"solid");rect(948,y+52,94,48,0,"obj");rect(1042,y+52,87,48,0,"well");
+ dimH(948,1042,y+116,y+100,y+100,"W2 · 256 PX");
+ text(950,y+145,"W3 · 64 PX COMPACT RAIL","dt");
+ text(950,y+167,"MOBILE PROJECT NAV: FULL WIDTH","dts");
+ text(950,y+186,"BREAKPOINT BP2 · 768 PX","dts");
+ text(950,y+217,"[CONFLICT] BASELINE: 240 PX","nt");
+}
+function drawLegend(){
+ panel(400,1014,764,1,"","");
+}
+function renderSheet(p,index){
+ sheet.innerHTML="";
+ const title=add(null,"title",{id:"svg-title"});title.textContent=p.id+" technical drawing";
+ const desc=add(null,"desc",{id:"svg-desc"});desc.textContent="Monochrome schematic for route "+p.route+", showing shell topology, layout slots, mobile behavior, dimension tables and unresolved measurements.";
+ const defs=add(null,"defs",{});
+ const marker=add(null,"marker",{id:"arrow"+index,viewBox:"0 0 10 10",refX:10,refY:5,markerWidth:7,markerHeight:7,orient:"auto-start-reverse",markerUnits:"userSpaceOnUse"},defs);
+ add(marker,"path",{d:"M0,1.7 L10,5 L0,8.3 z",class:"arrow"});
+ const hatch=add(null,"pattern",{id:"hatch"+index,width:5,height:5,patternUnits:"userSpaceOnUse",patternTransform:"rotate(45)"},defs);
+ add(hatch,"line",{x1:0,y1:0,x2:0,y2:5,class:"hl"},hatch);
+ arrowId="arrow"+index;
+ rect(20,20,1660,1020,16,"border");
+ text(34,42,"UI PAGE REFERENCE · "+p.id,"vt");
+ text(1662,42,"SOURCE ROUTE: "+p.route,"dts",{"text-anchor":"end"});
+ drawNotes(p);
+ drawMobilePlan(p);
+ drawExploded(p);
+ drawShellPlan(p);
+ drawDetails(p);
+ drawVariableTables(p);
+ drawTitleBlock(p,index);
+}
+function rebuildOptions(query){
+ const q=(query||"").trim().toLowerCase(),old=PAGES[current]&&PAGES[current].route;
+ select.textContent="";
+ const matches=[];
+ PAGES.forEach(function(p,i){if(!q||p.route.toLowerCase().indexOf(q)>=0||p.id.toLowerCase().indexOf(q)>=0){matches.push(i);const o=document.createElement("option");o.value=String(i);o.textContent=p.id+" · "+p.route;select.appendChild(o);}});
+ if(!matches.length){titleBlock.textContent="";sheet.innerHTML="";const emptyTitle=add(null,"title",{id:"svg-title"});emptyTitle.textContent="No matching technical drawing sheets";const emptyDesc=add(null,"desc",{id:"svg-desc"});emptyDesc.textContent="No UI page route or drawing ID matches the current filter.";document.getElementById("footer-right").textContent="";status.textContent="0 SHEETS";document.getElementById("previous").disabled=true;document.getElementById("next").disabled=true;return;}
+ let chosen=matches.indexOf(current)>=0?current:matches[0];
+ if(old&&matches.some(function(i){return PAGES[i].route===old;}))chosen=matches.find(function(i){return PAGES[i].route===old;});
+ select.value=String(chosen);setPage(chosen);
+}
+function setPage(i){
+ current=Math.max(0,Math.min(PAGES.length-1,Number(i)||0));
+ const p=PAGES[current];
+ select.value=String(current);
+ drawTitleBlock(p,current);
+ renderSheet(p,current);
+ status.textContent=(current+1)+" / "+PAGES.length+" SHEETS";
+ const selectedPosition=select.selectedIndex;
+ document.getElementById("previous").disabled=selectedPosition<=0;
+ document.getElementById("next").disabled=selectedPosition<0||selectedPosition>=select.options.length-1;
+}
+function stepPage(delta){
+ const nextPosition=select.selectedIndex+delta;
+ if(nextPosition>=0&&nextPosition<select.options.length)setPage(Number(select.options[nextPosition].value));
+}
+filter.addEventListener("input",function(){rebuildOptions(filter.value);});
+select.addEventListener("change",function(){setPage(Number(select.value));});
+document.getElementById("previous").addEventListener("click",function(){stepPage(-1);});
+document.getElementById("next").addEventListener("click",function(){stepPage(1);});
+document.getElementById("print").addEventListener("click",function(){window.print();});
+document.addEventListener("keydown",function(e){if(e.altKey&&e.key==="ArrowRight"){e.preventDefault();stepPage(1);}if(e.altKey&&e.key==="ArrowLeft"){e.preventDefault();stepPage(-1);}});
+rebuildOptions("");
+const initial=PAGES.findIndex(function(p){return p.route==="/overview";});
+setPage(initial>=0?initial:0);
+})();
+</script>
+</body>
+</html>

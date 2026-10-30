@@ -18,6 +18,11 @@ function mockDb(counts = {}, liveRows = []) {
     if (name === '_activeProvider') return 'sqlite'
     if (name === '$transaction') return async (work) => work(db)
     if (name === '$executeRawUnsafe') return vi.fn(async () => 0)
+    if (name === '$queryRawUnsafe') return vi.fn(async sql => {
+      if (sql.includes('FROM "ManagedBlobRecoveryInstallationFence"')) return []
+      if (sql.includes('COUNT(*) AS "count" FROM "ManagedBlobRecoveryOperation"')) return [{ count: 0 }]
+      throw new Error(`Unexpected pricing backup fixture query: ${sql}`)
+    })
     if (!models.has(name)) models.set(name, {
       count: vi.fn(async () => counts[name] || 0), findFirst: vi.fn(async () => null), findMany: vi.fn(async () => name === 'pricingRuleSet' ? liveRows : []),
       deleteMany: vi.fn(async () => { deletes.push(name) }), delete: vi.fn(async ({ where }) => { deletes.push(`${name}:${where.id}`) }),

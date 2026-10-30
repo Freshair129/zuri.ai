@@ -50,6 +50,7 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
   const bucket = env[definition.bucket]
   const configuredBuckets = [env.ZURI_ASSET_EVIDENCE_BUCKET, env.ZURI_KNOWLEDGE_CATALOG_BUCKET, env.ZURI_KNOWLEDGE_STORAGE_BUCKET].filter(Boolean)
   if (!BUCKET.test(bucket || '') || configuredBuckets.filter(value => value === bucket).length !== 1) throw invalid(503, 'BUSINESS_STORAGE_CONFIG_INVALID')
+  if (options.maxReadBytes !== undefined && (!Number.isSafeInteger(options.maxReadBytes) || options.maxReadBytes < 0 || options.maxReadBytes > 32 * 1024 * 1024)) throw invalid()
   let transport
   try {
     const fetchFn = options.fetchFn || fetch
@@ -60,6 +61,26 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
         // A null version can be replaced; a missing GET version cannot confirm
         // that the provider honored the pinned request. Never erase "latest".
         throw invalid(503, 'BUSINESS_STORAGE_VERSION_UNAVAILABLE')
+      }
+      if (response.ok && init.method === 'GET' && options.maxReadBytes !== undefined) {
+        // OR2 supplies the persisted byte witness, not a body/header limit.
+        // Preserve the existing transport's exact-version/hash verification.
+        return { ok: response.ok, status: response.status, headers: response.headers, async arrayBuffer() {
+          const reader = response.body?.getReader()
+          if (!reader) { if (options.maxReadBytes === 0) return new ArrayBuffer(0); throw invalid(503) }
+          const chunks = []; let size = 0
+          try {
+            for (;;) {
+              const { done, value } = await reader.read()
+              if (done) break
+              if (!(value instanceof Uint8Array) || value.byteLength > options.maxReadBytes - size) {
+                await reader.cancel().catch(() => {}); throw invalid(409)
+              }
+              size += value.byteLength; chunks.push(Buffer.from(value))
+            }
+            return Buffer.concat(chunks, size)
+          } finally { reader.releaseLock() }
+        } }
       }
       return response
     }
@@ -105,6 +126,21 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
         if (expectedSha256 !== undefined && stored.sha256 !== expectedSha256.toLowerCase()
           || expectedByteLength !== undefined && stored.byteLength !== expectedByteLength) throw invalid(409)
         return stored.bytes
+      })
+    },
+    // @req FR-292 — inspect only one server-owned recovery intent, never list.
+    // @tested tests/integration/managed-blob-recovery-custody.test.js
+    async recover({ key, tenantId, businessId, expectedSha256, expectedByteLength }) {
+      scopedKey(key, definition, { tenantId, businessId })
+      const parts = key.split('/')
+      if (!tenantId || !businessId || parts.length !== 6 || parts[3] !== 'recovery'
+        || !/^[a-f0-9-]{36}$/.test(parts[4]) || !/^[a-f0-9]{64}$/.test(parts[5])) throw invalid()
+      return safe(async () => {
+        const receipt = await transport.recoverImmutable({ key, expectedSha256, byteLength: expectedByteLength })
+        if (!receipt) return null
+        const ref = `s3-business://${purpose}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}?versionId=${encodeURIComponent(receipt.versionId)}`
+        owned(ref, { tenantId, businessId })
+        return { ref, sha256: receipt.sha256, byteLength: receipt.byteLength }
       })
     },
     async remove({ ref, tenantId, businessId }) {

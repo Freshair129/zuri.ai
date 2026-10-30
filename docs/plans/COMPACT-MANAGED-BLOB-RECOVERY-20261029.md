@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.6.0"
+version: "0.7.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -321,6 +321,45 @@ identity or authority grant.
 
 ### OR2 — PM-owned stage/confirm/result/cleanup with native authority ordering
 
+**Owner-selected OR2 development (2026-10-30):** the direct task selects this
+bounded application slice on an isolated clone branch, against ZAI:FR-292/FR-293.
+Candidate lifecycle, planned canonical delivery and whole-plan
+`implementation_authorized: false` remain unchanged. This selection does not
+enable recovery, provider cleanup, routes/UI or production.
+
+The internal service and installation-local journal implement persisted-session
+and current OWNER fencing, private byte custody, one journaled PUT, exact-version
+verification, atomic FileAsset CAS/audit/result, authorized history/inspection,
+and exact spool cleanup/retention. UNKNOWN never grants a retry PUT. Missing or
+unadmitted installation fences fail closed; the runtime never initializes READY.
+Resolved journal metadata expires after 30 days; retained audit remains counted
+against the adopted hard budget after journal removal. Deadlines do not prove
+a crashed worker stopped: byte-deadline maintenance invalidates its epoch and
+unlinks exact owned spool names while retaining unresolved intent/reservation
+until that worker's custody is accounted for.
+
+Provider deletion remains disabled until every attachment writer and native
+cleanup race is qualified. Windows staging ACLs, transport/provider deadline and
+cancellation qualification, erasure integration, supported transfer workflow and
+product ingestion/backup/new-target round trip remain activation gates. Internal
+TEST fixtures are not operator or whole-installation qualification.
+
+The real snapshot extraction and restore paths share the installation fence.
+Protected offline export retains its READ ONLY transaction: its bounded
+cross-process mutex is acquired before BEGIN and released on commit/rollback;
+recovery writers acquire the matching transaction mutex before row locks.
+Stable configured spool-root identity is stored separately from provider config,
+so credential rotation cannot strand exact local cleanup. A changed root refuses
+cleanup until trusted server composition selects the operation's original root;
+no caller-supplied path or provider deletion is introduced.
+Ordinary targets with no recovery admission/history retain existing behavior.
+Journal history or reserved refs (including ProjectFile aliases/tombstones) refuse
+legacy JSON export/restore with `MANAGED_BLOB_TRANSFER_REQUIRED`; this is an
+inactive prerequisite guard, not permission to ship a loss of normal backup.
+An admitted empty target enters durable RESTORING before replacement, stays
+excluded through postpass, and finishes NEEDS_ADMISSION. Failure does not reset
+READY. The supported FR-293 transfer workflow must precede activation.
+
 **Proposed files:** extend the OR1 service; add a PM-owned operation repository
 adapter only as approved by OR0. If a model is adopted, canonical Prisma,
 PostgreSQL generation and fresh Compact baseline inputs change together; never
@@ -334,14 +373,20 @@ business boundary. No new remote API or unscoped provider listing is assumed.
 operation custody and exact provider receipt. **Produces:** transactional rebind,
 safe repeat result or explicit recoverable refusal/unknown state.
 
-- [ ] RED: CAS conflict, owner revoke, double confirm, metadata/audit rollback,
+- [x] RED: CAS conflict, owner revoke, double confirm, metadata/audit rollback,
   response loss, crash boundaries, unknown provider result and cleanup failure.
-- [ ] Implement the OR0 authority fence and single FileAsset CAS/audit/result
+- [x] Implement the OR0 authority fence and single FileAsset CAS/audit/result
   transaction. Preserve all unrelated FileAsset fields and linked domain data.
-- [ ] Implement exact owned cleanup, durable ambiguity handling and authorized
+- [x] Implement exact owned spool cleanup, durable ambiguity handling and authorized
   inspection/retry. No raw provider cause, bytes or refs in returned diagnostics.
-- [ ] GREEN: SQLite service regressions and two independent native PostgreSQL
+- [x] GREEN: SQLite service regressions and two independent native PostgreSQL
   sessions for both race orders, runtime-role/RLS/ACL and crash postconditions.
+
+These checks describe the private OR2 application boundary and controlled
+fault/lease tests. They do not close selected-provider deletion/conditionality,
+real process/power-loss qualification or the cross-task activation prerequisites.
+The shared validator also refuses reserved refs in protected offline clean-target
+restore, before inserting any FileAsset/ProjectFile/audit row.
 
 ### OR3 — Supported operator application workflow
 
@@ -663,3 +708,8 @@ No application task, release, runtime, database migration or production is selec
 and its boundary with durable OR2 custody, OR3 product entrypoints and the
 cross-task transfer activation prerequisite. Candidate lifecycle, planned
 canonical delivery and NOT_QUALIFIED gates remain unchanged.
+
+0.6.0 -> 0.7.0: record separately selected OR2 development and its installation-local
+custody/snapshot exclusion behavior. AI profiles and aggregate operatorRecovery
+remain NOT_QUALIFIED; the two pre-existing E2E flake causes remain OPEN. No
+runtime, provider, operator or release qualification is conferred.
