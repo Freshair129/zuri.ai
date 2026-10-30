@@ -148,6 +148,27 @@ describe('Asset Register Service', () => {
         expect.objectContaining({ take: 3 })
       )
     })
+
+    it('uses the asset ID as a stable tie-breaker when registration timestamps are equal', async () => {
+      const mockDb = {
+        registeredAsset: {
+          findMany: vi.fn().mockResolvedValue([]),
+          count: vi.fn().mockResolvedValue(0),
+        },
+      }
+
+      await listRegisteredAssets({ businessId: 'biz-1', db: mockDb, limit: 2 })
+
+      expect(mockDb.registeredAsset.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          orderBy: [
+            { registeredAt: 'desc' },
+            { createdAt: 'desc' },
+            { id: 'desc' },
+          ],
+        })
+      )
+    })
   })
 
   describe('getRegisteredAssetById', () => {

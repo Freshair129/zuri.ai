@@ -90,7 +90,7 @@ export async function listRegisteredAssets({
   const queryArgs = {
     where,
     take: take + 1,
-    orderBy: [{ registeredAt: 'desc' }, { createdAt: 'desc' }],
+    orderBy: [{ registeredAt: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
     include: {
       lot: { select: { id: true, lotCode: true, expiresOn: true, status: true } },
       responsibilities: {
