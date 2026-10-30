@@ -1,4 +1,5 @@
 import { PIPELINE_GRAPH_LOCK } from '../src/modules/project-manager/application/pipeline-lock.js'
+import { acquireReadOnlyRecoveryFence, registerReadOnlyRecoveryFacade } from '../src/modules/project-manager/application/managed-blob-recovery-lock.js'
 import { dependencyHandoffRecoveryErrors } from '../src/modules/project-manager/application/pipeline-handoff-recovery.js'
 // @req FR-252 — process-only protected recovery and complete-family export.
 // @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
@@ -49,9 +50,9 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-235 — include excluded product disclosure authority in the complete census.
 // @req TASK-ZAI-012 — include mission draft/evidence in the complete census;
 // portable snapshots preserve the rows and erasure tombstones redact personal source fields.
-const FROZEN_SCHEMA_SHA256 = 'cb954d301f3c54229207b314df1bfe617eda83d8550bce450808be3743598a18'
-const FROZEN_TARGET_SCHEMA_SHA256 = 'f00f474c2917d2a9f8feb8ab0fe990c84afd82e60fb9f8c898546a26a240c76e'
-const FROZEN_APPLICATION_TABLE_COUNT = 212
+const FROZEN_SCHEMA_SHA256 = 'b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1'
+const FROZEN_TARGET_SCHEMA_SHA256 = '9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3'
+const FROZEN_APPLICATION_TABLE_COUNT = 214
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -241,7 +242,7 @@ export function createPrismaTransactionFacade(tx, inventory) {
       return result.rowCount
     },
   }
-  return new Proxy(target, {
+  return registerReadOnlyRecoveryFacade(new Proxy(target, {
     get(object, property, receiver) {
       if (Reflect.has(object, property)) return Reflect.get(object, property, receiver)
       const entry = byDelegate.get(String(property))
@@ -254,7 +255,7 @@ export function createPrismaTransactionFacade(tx, inventory) {
         },
       }
     },
-  })
+  }), tx.client)
 }
 
 export async function loadFrozenSchemaInventory({ modulePath = DEFAULT_INVENTORY_PATH, schemaPath = DEFAULT_SCHEMA_PATH } = {}) {
@@ -307,9 +308,10 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
     inventory: normalizedInventory,
     async begin({ readOnly = false } = {}) {
       if (closed) throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_CONNECTION_UNAVAILABLE, 'Recovery connection is closed')
-      let client
+      let client, releaseRecoveryFence
       try {
         client = await pool.connect()
+        if (readOnly) releaseRecoveryFence = await acquireReadOnlyRecoveryFence(client)
         await client.query(`BEGIN ISOLATION LEVEL SERIALIZABLE${readOnly ? ' READ ONLY' : ''}`)
         if (!readOnly) {
           await client.query(`SET LOCAL lock_timeout = '${Math.max(1, Math.floor(lockTimeoutMs))}ms'`)
@@ -317,10 +319,21 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
           await client.query('SELECT pg_advisory_xact_lock($1::bigint)', [PIPELINE_GRAPH_LOCK])
         }
       } catch {
-        client?.release()
+        if (client) {
+          await client.query('ROLLBACK').catch(() => {})
+          let failed = false
+          try { await releaseRecoveryFence?.() } catch { failed = true }
+          client.release(failed)
+        }
         throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_CONNECTION_UNAVAILABLE, 'Recovery connection could not begin a transaction')
       }
       let finished = false
+      const release = async () => {
+        let failed = false
+        try { await releaseRecoveryFence?.() } catch { failed = true }
+        finally { client.release(failed) }
+        if (failed) throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_LOCK_UNAVAILABLE, 'Recovery snapshot fence release failed')
+      }
       const tx = {
         client,
         async setRowSecurityOff() {
@@ -453,11 +466,11 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
           if (finished) return
           await client.query('COMMIT')
           finished = true
-          client.release()
+          await release()
         },
         async rollback() {
           if (finished) return
-          try { await client.query('ROLLBACK') } finally { finished = true; client.release() }
+          try { await client.query('ROLLBACK') } finally { finished = true; await release() }
         },
       }
       return tx

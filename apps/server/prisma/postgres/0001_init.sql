@@ -1041,6 +1041,56 @@ CREATE TABLE "FileAsset" (
 );
 
 -- CreateTable
+CREATE TABLE "ManagedBlobRecoveryInstallationFence" (
+    "id" TEXT NOT NULL,
+    "mode" TEXT NOT NULL DEFAULT 'NEEDS_ADMISSION',
+    "generation" INTEGER NOT NULL DEFAULT 1,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "retainedBytes" INTEGER NOT NULL DEFAULT 0,
+    "restoreAttemptId" TEXT,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "ManagedBlobRecoveryInstallationFence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ManagedBlobRecoveryOperation" (
+    "id" TEXT NOT NULL,
+    "actorId" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "fileId" TEXT NOT NULL,
+    "expectedJson" TEXT NOT NULL,
+    "configHash" TEXT NOT NULL,
+    "spoolRootHash" TEXT NOT NULL,
+    "generation" INTEGER NOT NULL,
+    "destinationKey" TEXT NOT NULL,
+    "state" TEXT NOT NULL DEFAULT 'PREPARED',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "confirmationDigest" TEXT,
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "byteDeadline" TIMESTAMP(3) NOT NULL,
+    "spoolId" TEXT,
+    "spoolBytes" INTEGER NOT NULL DEFAULT 0,
+    "workerId" TEXT,
+    "epoch" INTEGER NOT NULL DEFAULT 0,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "receiptJson" TEXT,
+    "resultVersion" INTEGER,
+    "availability" TEXT NOT NULL DEFAULT 'NOT_CHECKED',
+    "cleanupState" TEXT NOT NULL DEFAULT 'NONE',
+    "unresolved" BOOLEAN NOT NULL DEFAULT true,
+    "reservedBytes" INTEGER NOT NULL DEFAULT 49152,
+    "auditCount" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "closedAt" TIMESTAMP(3),
+
+    CONSTRAINT "ManagedBlobRecoveryOperation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "FileLink" (
     "id" TEXT NOT NULL,
     "fileId" TEXT NOT NULL,
@@ -2905,6 +2955,79 @@ CREATE TABLE "LineConversationJob" (
 );
 
 -- CreateTable
+CREATE TABLE "AgentMissionDraft" (
+    "id" TEXT NOT NULL,
+    "schemaVersion" TEXT NOT NULL DEFAULT 'agent-mission-draft.v1',
+    "sourceAgentRef" TEXT,
+    "missionId" TEXT,
+    "revision" INTEGER NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "workstreamId" TEXT NOT NULL,
+    "actorPersonId" TEXT,
+    "sourceTurnId" TEXT,
+    "executionId" TEXT,
+    "sourceEventId" TEXT,
+    "sourceTraceEventId" TEXT,
+    "digest" TEXT,
+    "snapshotJson" TEXT NOT NULL DEFAULT '{}',
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "revokedAt" TIMESTAMP(3),
+    "erasedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AgentMissionDraft_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "AgentMissionEvidence" (
+    "id" TEXT NOT NULL,
+    "schemaVersion" TEXT NOT NULL DEFAULT 'agent-mission-evidence.v1',
+    "draftId" TEXT NOT NULL,
+    "sourceAgentRef" TEXT,
+    "missionId" TEXT,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "projectId" TEXT NOT NULL,
+    "workstreamId" TEXT NOT NULL,
+    "workItemId" TEXT NOT NULL,
+    "workItemVersion" INTEGER NOT NULL,
+    "origin" TEXT NOT NULL,
+    "actorId" TEXT,
+    "submittedByPersonId" TEXT,
+    "submittedAt" TIMESTAMP(3),
+    "confirmationKind" TEXT NOT NULL DEFAULT 'LINE_JOB',
+    "sourceTurnId" TEXT,
+    "executionId" TEXT,
+    "sourceEventId" TEXT,
+    "sourceTraceEventId" TEXT,
+    "sourceRevision" INTEGER NOT NULL DEFAULT 1,
+    "sourceDigest" TEXT,
+    "missionSnapshotJson" TEXT NOT NULL DEFAULT '{}',
+    "missionSnapshotDigest" TEXT,
+    "idempotencyKey" TEXT,
+    "confirmationJobId" TEXT,
+    "confirmationInboundMessageId" TEXT,
+    "confirmationActorId" TEXT,
+    "confirmationIdentityVersion" INTEGER,
+    "channelIdentityId" TEXT,
+    "channelIdentityLinkedAt" TIMESTAMP(3),
+    "confirmationExecutionId" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'ACTIVE',
+    "revokedAt" TIMESTAMP(3),
+    "revokedByPersonId" TEXT,
+    "erasedAt" TIMESTAMP(3),
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "version" INTEGER NOT NULL DEFAULT 1,
+
+    CONSTRAINT "AgentMissionEvidence_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "MarketingPlan" (
     "id" TEXT NOT NULL,
     "tenantId" TEXT NOT NULL,
@@ -4762,6 +4885,15 @@ CREATE INDEX "FileAsset_projectId_idx" ON "FileAsset"("projectId");
 CREATE INDEX "FileAsset_workItemId_idx" ON "FileAsset"("workItemId");
 
 -- CreateIndex
+CREATE INDEX "ManagedBlobRecoveryOperation_actorId_unresolved_idx" ON "ManagedBlobRecoveryOperation"("actorId", "unresolved");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobRecoveryOperation_businessId_unresolved_idx" ON "ManagedBlobRecoveryOperation"("businessId", "unresolved");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobRecoveryOperation_state_leaseExpiresAt_idx" ON "ManagedBlobRecoveryOperation"("state", "leaseExpiresAt");
+
+-- CreateIndex
 CREATE INDEX "FileLink_entityType_entityId_idx" ON "FileLink"("entityType", "entityId");
 
 -- CreateIndex
@@ -5564,6 +5696,45 @@ CREATE INDEX "LineConversationJob_sessionId_idx" ON "LineConversationJob"("sessi
 
 -- CreateIndex
 CREATE UNIQUE INDEX "LineConversationJob_accountId_eventId_key" ON "LineConversationJob"("accountId", "eventId");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionDraft_tenantId_businessId_status_createdAt_idx" ON "AgentMissionDraft"("tenantId", "businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionDraft_sourceTurnId_status_idx" ON "AgentMissionDraft"("sourceTurnId", "status");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionDraft_actorPersonId_status_idx" ON "AgentMissionDraft"("actorPersonId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionDraft_source_revision_key" ON "AgentMissionDraft"("sourceAgentRef", "missionId", "revision");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionDraft_scope_source_turn_execution_key" ON "AgentMissionDraft"("tenantId", "businessId", "sourceAgentRef", "sourceTurnId", "executionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionEvidence_draftId_key" ON "AgentMissionEvidence"("draftId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionEvidence_workItemId_key" ON "AgentMissionEvidence"("workItemId");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionEvidence_tenantId_businessId_status_createdAt_idx" ON "AgentMissionEvidence"("tenantId", "businessId", "status", "createdAt");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionEvidence_tenantId_businessId_projectId_workstre_idx" ON "AgentMissionEvidence"("tenantId", "businessId", "projectId", "workstreamId", "status");
+
+-- CreateIndex
+CREATE INDEX "AgentMissionEvidence_actorId_status_idx" ON "AgentMissionEvidence"("actorId", "status");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionEvidence_scope_idempotency_key" ON "AgentMissionEvidence"("tenantId", "businessId", "idempotencyKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionEvidence_source_mission_key" ON "AgentMissionEvidence"("sourceAgentRef", "missionId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "AgentMissionEvidence_scope_turn_origin_key" ON "AgentMissionEvidence"("tenantId", "businessId", "sourceTurnId", "origin");
 
 -- CreateIndex
 CREATE INDEX "MarketingPlan_tenantId_businessId_status_idx" ON "MarketingPlan"("tenantId", "businessId", "status");
@@ -6830,6 +7001,27 @@ ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_inboundMes
 
 -- AddForeignKey
 ALTER TABLE "LineConversationJob" ADD CONSTRAINT "LineConversationJob_sessionId_fkey" FOREIGN KEY ("sessionId") REFERENCES "ConversationSession"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionDraft" ADD CONSTRAINT "AgentMissionDraft_actorPersonId_fkey" FOREIGN KEY ("actorPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_draftId_fkey" FOREIGN KEY ("draftId") REFERENCES "AgentMissionDraft"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_workItemId_fkey" FOREIGN KEY ("workItemId") REFERENCES "WorkItem"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_actorId_fkey" FOREIGN KEY ("actorId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_submittedByPersonId_fkey" FOREIGN KEY ("submittedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_confirmationActorId_fkey" FOREIGN KEY ("confirmationActorId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AgentMissionEvidence" ADD CONSTRAINT "AgentMissionEvidence_revokedByPersonId_fkey" FOREIGN KEY ("revokedByPersonId") REFERENCES "Person"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "MarketingPlan" ADD CONSTRAINT "MarketingPlan_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

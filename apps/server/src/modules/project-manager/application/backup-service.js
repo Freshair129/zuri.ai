@@ -1,4 +1,7 @@
 import { withPipelineTransaction } from './pipeline-writer'
+import { isPostgres } from './pipeline-writer'
+import { assertRecoverySnapshotQuiescent, beginRecoverySnapshotRestore, assertRecoveryRestoreClaim, finishRecoverySnapshotRestore } from './managed-blob-recovery-repository'
+import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
@@ -496,6 +499,9 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  // @req FR-292, FR-293 — target-local custody cannot be exported as authority.
+  managedBlobRecoveryOperation: 'Private recovery custody/results remain installation-local; active recovery is not enabled before supported transfer qualification.',
+  managedBlobRecoveryInstallationFence: 'Installation exclusion/generation and quota accounting are never snapshot-replaced or imported.',
   // @req FR-235 — owner-approved public product fields are security authority.
   // @tested tests/integration/line-stock-policy-backup.test.js
   lineProductDisclosurePolicy:
@@ -1946,12 +1952,24 @@ function marketingBroadcastRecovery(snapshot) {
 // @req FR-252 — offline protected export shares extraction/redaction without
 // writing an audit or selecting an ambient application database.
 // @tested tests/integration/phase-b-web-recovery.test.js
+function assertNoReservedRecoveryRefs(snapshot) {
+  for (const model of ['fileAsset', 'projectFile']) for (const row of snapshot?.tables?.[model] || []) {
+    if (typeof row.blobRef !== 'string' || !row.blobRef.startsWith('s3-business:')) continue
+    let decoded
+    try { decoded = decodeURIComponent(row.blobRef) } catch { throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED') }
+    if (/^s3-business:\/\/(asset|catalog)\/[^/]+\/(asset-evidence|business-catalog)\/[^/]+\/[^/]+\/recovery(?:\/|\?)/.test(decoded)) {
+      throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
+    }
+  }
+}
+
 export async function extractSnapshot({
   db,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  await assertRecoverySnapshotQuiescent(db, isPostgres(db) || db._activeProvider === 'postgresql')
   await assertMarketingReportBackupSafe(db)
   const visibility = await readPhaseBCounts(db)
   if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
@@ -2002,6 +2020,7 @@ export async function extractSnapshot({
       ? rows.map(({ sealedReplyToken, ...row }) => row)
       : rows
   }
+  assertNoReservedRecoveryRefs(snapshot)
 
   const mounts = includeBinaryContent
     ? await db.localWorkspaceMount.findMany({ where: { status: 'ACTIVE' }, orderBy: { updatedAt: 'desc' } })
@@ -2036,7 +2055,7 @@ export async function exportSnapshot({
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
-  const extract = (tx) => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
+  const extract = tx => extractSnapshot({ db: tx, includeBinaryContent, filesystemPort })
   const snapshot = typeof db.$transaction === 'function'
     ? await db.$transaction(extract, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 120_000 })
     : await extract(db)
@@ -2139,6 +2158,11 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
 // Offline recovery reuses every existing protected-family validator and the
 // archive chain's normalized order without invoking the web authority wrapper.
 export function validateSnapshotRecovery(snapshot, { remounts = [] } = {}) {
+  try { assertNoReservedRecoveryRefs(snapshot) } catch (error) {
+    if (error?.code !== 'MANAGED_BLOB_TRANSFER_REQUIRED') throw error
+    return { valid: false, errorCode: 'MANAGED_BLOB_TRANSFER_REQUIRED',
+      errors: ['Managed recovery references require supported backup transfer'], warnings: [] }
+  }
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) return base
   const recoveries = {
@@ -2164,6 +2188,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   // BACKUP_PREVIEW row here would double-count one act.
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
+  assertNoReservedRecoveryRefs(snapshot)
   await assertMarketingReportBackupSafe(db, snapshot)
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) {
@@ -2444,8 +2469,10 @@ export async function importSnapshot(snapshot, {
     }
   })
 
+  const recoveryRestore = await beginRecoverySnapshotRestore(db)
   try {
     await withPipelineTransaction(db, async (tx) => {
+      await assertRecoveryRestoreClaim(tx, db, recoveryRestore)
       // Probe the additive field even on an empty target before any replacement.
       try { await tx.dependency.findFirst({select:{id:true,contractJson:true}}) }
       catch { throw new BackupRestoreSafetyError('DEPENDENCY_HANDOFF_SCHEMA_UNAVAILABLE','Dependency handoff target schema is unavailable') }
@@ -2564,6 +2591,7 @@ export async function importSnapshot(snapshot, {
     if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
     await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
   }
+  await finishRecoverySnapshotRestore(db, recoveryRestore)
   return {
     restored: true,
     counts: preview.counts,

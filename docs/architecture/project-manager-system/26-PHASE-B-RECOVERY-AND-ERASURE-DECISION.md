@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.25b"
+version: "0.3.26b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-24,Codex Root, composed Pipeline C1 and FR-235 recovery binding"
+last_update: "2026-10-30,Codex Root, composed Mission and OR2 recovery binding"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -618,6 +618,8 @@ still requires its existing independent and real-role gates.
 
 ## CHANGELOG
 
+0.3.25b -> 0.3.26b (2026-10-30): compose the owner-selected OR2 installation-local journal/fence with the published Mission schema. Preserve all 212 prior model/table mappings; the complete census is 214. No live migration, activation or recovery/erasure authority is added.
+
 | 0.3.24b | 2026-10-24 | beta | Add excluded product-field disclosure authority to the complete 210-table census; preserve every predecessor mapping and historical binding refusal | working-tree | Codex Root |
 | 0.3.25b | 2026-10-24 | beta | Compose Pipeline C1 and FR-235 into the current 210-table recovery binding; retain predecessor bindings as historical | working-tree | Codex Root |
 | 0.3.26b | 2026-10-29 | beta | Add AgentMissionDraft and AgentMissionEvidence to the complete portable 212-table recovery census; preserve source validation and identity-erasure tombstones | working-tree | Codex Integrator |
@@ -803,3 +805,21 @@ file stays byte-for-byte historical.
 The three prior bindings above remain historical and must be refused at loader,
 adapter, export and restore boundaries. The current inventory does not authorize
 a live migration or recovery run; existing recovery and erasure gates still apply.
+
+## Current OR2 installation-local custody binding (2026-10-30)
+
+The separately selected OR2 implementation under ZAI:FR-292/FR-293 adds
+`ManagedBlobRecoveryInstallationFence` and `ManagedBlobRecoveryOperation` to the
+complete inventory, for 214 models. All 212 predecessor mappings above are
+unchanged. Both new models are excluded from portable snapshots; custody,
+generation and quotas never become imported authority. The ordinary snapshot
+paths refuse recovery history/reserved refs until supported transfer is available.
+No recovery activation or live migration follows from this static binding.
+
+- Canonical LF schema SHA-256: `b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1`.
+- Target inventory SHA-256: `9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3`.
+- The previous composed 212-table binding above remains historical and is refused
+  by the current loader and adapters; other historical bindings are unchanged.
+
+Candidate/AI/operatorRecovery qualification gates remain unchanged. Tests using
+administrative fixture arrangement are not installed operator restore acceptance.
