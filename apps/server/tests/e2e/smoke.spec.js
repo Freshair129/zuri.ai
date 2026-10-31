@@ -125,8 +125,20 @@ test.describe('seven execution views', () => {
       await page.goto(`/execution/${slug}`)
       await expect(page.getByRole('heading', { name: label, exact: true })).toBeVisible()
       await expect(page.getByText(wsCode, { exact: false }).first()).toBeVisible()
-      // Strategy-based progress with explanation affordance.
-      await expect(page.getByRole('button', { name: /Explain/i }).first()).toBeVisible()
+      if (slug === 'operations') {
+        // The global Business Operations view calculates progress in-place and
+        // exposes bounded evidence inline. It is intentionally read-only and
+        // does not use the cache-refreshing progress explanation endpoint.
+        await expect(page.getByText('56.2%', { exact: true })).toBeVisible()
+        await expect(page.getByText('Progress evidence', { exact: true })).toBeVisible()
+        await expect(page.getByText(/SLA checks met \d+\/\d+/)).toBeVisible()
+        await expect(page.getByText('No linked evidence reference is exposed in the current PM record.', { exact: true })).toBeVisible()
+        await expect(page.getByRole('link', { name: 'Open owning project' })).toBeVisible()
+        await expect(page.getByRole('button', { name: /Explain/i })).toHaveCount(0)
+      } else {
+        // Other execution modes retain the shared progress explanation affordance.
+        await expect(page.getByRole('button', { name: /Explain/i }).first()).toBeVisible()
+      }
     })
   }
 
