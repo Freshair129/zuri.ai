@@ -420,6 +420,8 @@
     "FR-291",
     "FR-292",
     "FR-293",
+    "FR-294",
+    "FR-295",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5409,6 +5411,32 @@
         {
           "anchor": "managed blob backup transfer preserves complete original",
           "since": "2026-10-29",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-294": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "5522e4ac8adfa33f2db681a4e057149988a8474faf524530e65747a477361629",
+      "history": [
+        {
+          "anchor": "visual office design handoff registration accepts the",
+          "since": "2026-10-31",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-295": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "2ebce834c60b23383a5612cc1768caa3edf0b20faed9a68f0c3239a8a6e4af3f",
+      "history": [
+        {
+          "anchor": "visual office handoff client transfers the design package",
+          "since": "2026-10-31",
           "reason": "declared"
         }
       ]

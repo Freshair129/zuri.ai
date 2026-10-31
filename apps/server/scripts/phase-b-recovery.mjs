@@ -50,9 +50,9 @@ const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
 // @req FR-235 — include excluded product disclosure authority in the complete census.
 // @req TASK-ZAI-012 — include mission draft/evidence in the complete census;
 // portable snapshots preserve the rows and erasure tombstones redact personal source fields.
-const FROZEN_SCHEMA_SHA256 = 'b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1'
-const FROZEN_TARGET_SCHEMA_SHA256 = '9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3'
-const FROZEN_APPLICATION_TABLE_COUNT = 214
+const FROZEN_SCHEMA_SHA256 = 'd31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4'
+const FROZEN_TARGET_SCHEMA_SHA256 = 'd8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2'
+const FROZEN_APPLICATION_TABLE_COUNT = 219
 
 function ordinalCompare(a, b) {
   return a < b ? -1 : a > b ? 1 : 0
@@ -100,14 +100,14 @@ function normalizeInventory(inventory) {
     for (const entry of normalized.applicationTables) {
       if (entry.schemaName !== 'public' || entry.tableName !== entry.modelName
         || modelNames.has(entry.modelName) || tableNames.has(entry.tableName)) {
-        throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the approved public model mapping')
+        throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, 'Frozen application table inventory is not the current public model mapping')
       }
       modelNames.add(entry.modelName)
       tableNames.add(entry.tableName)
     }
   }
   if (!pinned || modelNames.size !== FROZEN_APPLICATION_TABLE_COUNT || tableNames.size !== FROZEN_APPLICATION_TABLE_COUNT) {
-    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, `Frozen application table inventory is not the approved ${FROZEN_APPLICATION_TABLE_COUNT}-table inventory`)
+    throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_SCHEMA_UNVERIFIED, `Frozen application table inventory is not the current ${FROZEN_APPLICATION_TABLE_COUNT}-table inventory`)
   }
   return normalized
 }
@@ -511,6 +511,7 @@ export async function runCleanTargetRestore({ snapshotBytes, snapshot, expectedS
   if (snapshot !== undefined && comparableJson(snapshot) !== comparableJson(effectiveSnapshot)) {
     return redactedResult({ status: 'REFUSED', errorCode: PHASE_B_ERROR_CODES.SNAPSHOT_INVALID, ...base })
   }
+  if (Object.keys(effectiveSnapshot?.tables || {}).some(key => /^officeDesign/i.test(key))) return redactedResult({ status: 'REFUSED', errorCode: 'OFFICE_DESIGN_RECOVERY_UNAVAILABLE', ...base })
   if (dependencyHandoffRecoveryErrors(effectiveSnapshot).length) return redactedResult({ status: 'REFUSED', errorCode: PHASE_B_ERROR_CODES.SNAPSHOT_INVALID, ...base })
   if (unsupportedMarketingReportSnapshot(effectiveSnapshot)) return redactedResult({ status: 'REFUSED', errorCode: 'MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', ...base })
   try {
@@ -592,6 +593,7 @@ export async function runProtectedExport({ inventory, adapter, extractSnapshot, 
     await tx.assertPrivileges({ write: false })
     const targetCounts = await tx.countAllApplicationTables()
     if (!completeCounts(targetCounts, normalized)) throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.EXPORT_COMPLETENESS_UNAVAILABLE, 'Complete source application table counts could not be established')
+    if (['OfficeDesignRegistry', 'OfficeDesignIdentity', 'OfficeDesignRevision', 'OfficeDesignBlob', 'OfficeDesignImportReceipt'].some(model => targetCounts[model] !== 0)) throw new PhaseBRecoveryError('OFFICE_DESIGN_RECOVERY_UNAVAILABLE', 'Office design custody cannot be omitted from a JSON export')
     if (MARKETING_REPORT_TABLES.some(model => targetCounts[model[0].toUpperCase() + model.slice(1)] !== 0)) throw new PhaseBRecoveryError('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED', 'Retained Marketing custody cannot be omitted from a JSON export')
     const extracted = await extractSnapshot({ tx, adapter, includeBinaryContent: false })
     const snapshot = extracted && typeof extracted === 'object' && !Array.isArray(extracted) && extracted.snapshot

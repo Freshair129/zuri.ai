@@ -1,0 +1,5 @@
+# Raw producer/export digests must survive checkout on Windows and Unix.
+verifier.mjs -text -whitespace
+archive.mjs -text
+schema.json -text
+THREE-LICENSE.txt -text
