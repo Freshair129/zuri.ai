@@ -17,6 +17,7 @@ import { DOMAINS } from '@/config/domains'
 
 const require = createRequire(import.meta.url)
 const { ROUTES, discoverRoutes, warmupPlan, PLACEHOLDER } = require('../e2e/warmup-routes.js')
+const { appendServerTimingsPreload, createHostCleanupRecord, diagnosticsEnabled } = require('../e2e/server-timings.cjs')
 
 describe('the e2e warm-up covers the domain registry', () => {
   const listed = new Set(ROUTES)
@@ -46,11 +47,56 @@ describe('the e2e warm-up covers the domain registry', () => {
 })
 
 describe('the CI e2e server mode', () => {
-  it('records a real server event-loop stall without keeping an idle process alive', () => {
+  it('records opt-in server lifecycle and event-loop diagnostics with a closed schema', () => {
     const preload = path.resolve('tests/e2e/server-timings.cjs')
     const directory = mkdtempSync(path.join(tmpdir(), 'e2e-server-timing-'))
     const entrypoint = path.join(directory, 'next')
+    const env = {
+      ...process.env,
+      NODE_ENV: 'test',
+      E2E_SERVER_MODE: 'production',
+      E2E_EXTERNAL_SERVER: 'true',
+      ZURI_E2E_SERVER_DIAGNOSTICS: '1',
+      DATABASE_URL: 'file:./e2e-diagnostics.db',
+      ZURI_E2E_SENTINEL: 'must-not-be-logged',
+    }
     try {
+      expect(diagnosticsEnabled(env)).toBe(true)
+      expect(diagnosticsEnabled({ ...env, NODE_ENV: 'production' })).toBe(false)
+      expect(diagnosticsEnabled({ ...env, E2E_EXTERNAL_SERVER: 'false' })).toBe(false)
+      expect(diagnosticsEnabled({ ...env, DATABASE_URL: 'postgresql://sentinel' })).toBe(false)
+      expect(appendServerTimingsPreload('--trace-warnings')).toBe('--trace-warnings --require ./tests/e2e/server-timings.cjs')
+      expect(appendServerTimingsPreload(appendServerTimingsPreload('--trace-warnings')))
+        .toBe('--trace-warnings --require ./tests/e2e/server-timings.cjs')
+      const cleanup = createHostCleanupRecord({
+        pid: 123,
+        outcome: 'terminated',
+        at: '2026-10-31T00:00:00.000Z',
+        token: 'must-not-be-logged',
+        url: 'https://sentinel.invalid',
+      })
+      expect(cleanup).toEqual({
+        kind: 'E2E_SERVER_DIAGNOSTIC',
+        event: 'host-cleanup',
+        at: '2026-10-31T00:00:00.000Z',
+        pid: 123,
+        outcome: 'terminated',
+      })
+      expect(JSON.stringify(cleanup)).not.toContain('must-not-be-logged')
+      expect(JSON.stringify(cleanup)).not.toContain('sentinel.invalid')
+      const cleanupCli = spawnSync(process.execPath, ['tests/e2e/server-cleanup-record.cjs', '123', 'terminated'], {
+        encoding: 'utf8', timeout: 5000,
+      })
+      expect(cleanupCli.error).toBeUndefined()
+      expect(cleanupCli.status, cleanupCli.stderr).toBe(0)
+      expect(JSON.parse(cleanupCli.stdout)).toEqual({
+        kind: 'E2E_SERVER_DIAGNOSTIC',
+        event: 'host-cleanup',
+        at: expect.any(String),
+        pid: 123,
+        outcome: 'terminated',
+      })
+
       writeFileSync(entrypoint, `
       setTimeout(() => {
         const until = performance.now() + 250
@@ -58,41 +104,105 @@ describe('the CI e2e server mode', () => {
       }, 100)
       setTimeout(() => {}, 1250)
     `)
-      const child = spawnSync(process.execPath, ['--require', preload, entrypoint, 'start'], {
-        encoding: 'utf8', timeout: 5000,
+      const workflowOptions = spawnSync(process.execPath, ['tests/e2e/prepare-server-timings-options.cjs'], {
+        encoding: 'utf8', timeout: 5000, env: { ...env, NODE_OPTIONS: '--trace-warnings' },
+      })
+      expect(workflowOptions.error).toBeUndefined()
+      expect(workflowOptions.status, workflowOptions.stderr).toBe(0)
+      const child = spawnSync(process.execPath, [entrypoint, 'start'], {
+        encoding: 'utf8', timeout: 5000, env: { ...env, NODE_OPTIONS: workflowOptions.stdout },
       })
       expect(child.error).toBeUndefined()
       expect(child.status, child.stderr).toBe(0)
       const samples = child.stderr.trim().split('\n').map(line => JSON.parse(line))
-      expect(samples.length).toBeGreaterThan(0)
+      expect(samples.map(sample => sample.event)).toEqual(expect.arrayContaining(['started', 'heartbeat', 'exit']))
+      expect(samples.at(-1).event).toBe('exit')
       expect(samples.some(sample => sample.eventLoopMaxMs >= 200)).toBe(true)
+      const allowedKeys = new Set([
+        'at', 'cpuSystemMs', 'cpuUserMs', 'event', 'eventLoopMaxMs', 'kind', 'parentPid',
+        'pid', 'sequence', 'startedAt', 'uptimeMs', 'windowMs',
+      ])
       for (const sample of samples) {
-        expect(Object.keys(sample).sort()).toEqual([
-          'at', 'cpuSystemMs', 'cpuUserMs', 'eventLoopMaxMs', 'kind', 'pid', 'windowMs',
-        ])
-        expect(sample.kind).toBe('E2E_SERVER_TIMING')
+        expect(Object.keys(sample).every(key => allowedKeys.has(key))).toBe(true)
+        expect(sample).toHaveProperty('at')
+        expect(sample).toHaveProperty('pid')
+        expect(sample).toHaveProperty('parentPid')
+        expect(sample).toHaveProperty('sequence')
+        expect(sample).toHaveProperty('uptimeMs')
+        expect(sample.kind).toBe('E2E_SERVER_DIAGNOSTIC')
+        expect(['started', 'heartbeat', 'exit']).toContain(sample.event)
         expect(Number.isInteger(sample.pid) && sample.pid > 0).toBe(true)
+        expect(Number.isInteger(sample.parentPid) && sample.parentPid > 0).toBe(true)
+        expect(Number.isInteger(sample.sequence) && sample.sequence >= 0).toBe(true)
+        expect(Number.isFinite(sample.uptimeMs) && sample.uptimeMs >= 0).toBe(true)
         expect(Number.isFinite(Date.parse(sample.at))).toBe(true)
-        for (const key of ['windowMs', 'cpuUserMs', 'cpuSystemMs']) {
-          expect(Number.isFinite(sample[key])).toBe(true)
-          expect(sample[key]).toBeGreaterThanOrEqual(0)
+        if (sample.event === 'started') {
+          expect(Number.isFinite(Date.parse(sample.startedAt))).toBe(true)
+          expect(sample).not.toHaveProperty('windowMs')
         }
-        if (sample.eventLoopMaxMs !== null) {
+        if (sample.event === 'heartbeat') {
+          for (const key of ['windowMs', 'cpuUserMs', 'cpuSystemMs']) {
+            expect(Number.isFinite(sample[key])).toBe(true)
+            expect(sample[key]).toBeGreaterThanOrEqual(0)
+          }
+        }
+        if (typeof sample.eventLoopMaxMs === 'number') {
           expect(Number.isFinite(sample.eventLoopMaxMs)).toBe(true)
           expect(sample.eventLoopMaxMs).toBeGreaterThanOrEqual(0)
         }
       }
+      expect(child.stderr).not.toContain('must-not-be-logged')
+      expect(child.stderr).not.toContain('postgresql://')
+
+      // Exercise the actual Playwright webServer.env object, then launch the
+      // same guarded Next-shaped child without an explicit --require argument.
+      const configPath = require.resolve('../../playwright.config.js')
+      const e2eEnvKeys = [
+        'NODE_ENV', 'E2E_SERVER_MODE', 'E2E_EXTERNAL_SERVER', 'ZURI_E2E_SERVER_DIAGNOSTICS',
+        'DATABASE_URL', 'NODE_OPTIONS', 'E2E_PORT',
+      ]
+      const previousEnv = Object.fromEntries(e2eEnvKeys.map(key => [key, process.env[key]]))
+      let fallbackEnv
+      try {
+        Object.assign(process.env, {
+          NODE_ENV: 'test',
+          E2E_SERVER_MODE: 'production',
+          E2E_EXTERNAL_SERVER: 'true',
+          ZURI_E2E_SERVER_DIAGNOSTICS: '1',
+          DATABASE_URL: 'file:./e2e-diagnostics.db',
+          NODE_OPTIONS: '--trace-warnings',
+          E2E_PORT: '3100',
+        })
+        delete require.cache[configPath]
+        const configured = require(configPath)
+        fallbackEnv = configured.webServer.env
+      } finally {
+        delete require.cache[configPath]
+        for (const [key, value] of Object.entries(previousEnv)) {
+          if (value === undefined) delete process.env[key]
+          else process.env[key] = value
+        }
+      }
+      expect(fallbackEnv.NODE_OPTIONS).toBe(workflowOptions.stdout)
+      const fallback = spawnSync(process.execPath, [entrypoint, 'start'], {
+        encoding: 'utf8', timeout: 5000, env: fallbackEnv,
+      })
+      expect(fallback.error).toBeUndefined()
+      expect(fallback.status, fallback.stderr).toBe(0)
+      expect(fallback.stderr.trim().split('\n').map(line => JSON.parse(line).event))
+        .toEqual(expect.arrayContaining(['started', 'heartbeat', 'exit']))
+
       // An unref'ed observer alone must not hold the Node process open.
       writeFileSync(entrypoint, '')
       const idle = spawnSync(process.execPath, ['--require', preload, entrypoint, 'start'], {
-        encoding: 'utf8', timeout: 5000,
+        encoding: 'utf8', timeout: 5000, env,
       })
       expect(idle.error).toBeUndefined()
       expect(idle.status, idle.stderr).toBe(0)
-      expect(idle.stderr).toBe('')
+      expect(idle.stderr.trim().split('\n').map(line => JSON.parse(line).event)).toEqual(['started', 'exit'])
       // Inherited NODE_OPTIONS must not monitor unrelated child entrypoints.
       const other = spawnSync(process.execPath, ['--require', preload, '-e', 'setTimeout(() => {}, 1250)'], {
-        encoding: 'utf8', timeout: 5000,
+        encoding: 'utf8', timeout: 5000, env,
       })
       expect(other.error).toBeUndefined()
       expect(other.status, other.stderr).toBe(0)
@@ -118,7 +228,14 @@ describe('the CI e2e server mode', () => {
     expect(workflow).toContain('Stop production e2e server')
     expect(workflow).toContain("E2E_PORT: '3100'")
     expect(workflow).toContain("E2E_EXTERNAL_SERVER: 'true'")
+    expect(workflow.match(/ZURI_E2E_SERVER_DIAGNOSTICS: '1'/g)).toHaveLength(2)
     expect(workflow).toContain('E2E_SERVER_MODE: production')
+    expect(workflow).toContain('node ./tests/e2e/prepare-server-timings-options.cjs')
+    expect(workflow).toContain('node ./tests/e2e/server-cleanup-record.cjs')
+    expect(workflow).toContain('$env:NODE_OPTIONS = node ./tests/e2e/prepare-server-timings-options.cjs')
+    expect(workflow).toContain("Add-Content -Path 'node_modules/.cache/zuri-test-proof/e2e-server/stderr.log'")
+    expect(config).toContain('appendServerTimingsPreload(process.env.NODE_OPTIONS)')
+    expect(config).toContain("process.env.ZURI_E2E_SERVER_DIAGNOSTICS === '1'")
   })
 
   it('builds the real document graph in the E2E job before starting its server', () => {
