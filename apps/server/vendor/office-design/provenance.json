@@ -1,0 +1,155 @@
+{
+  "repository": "Freshair129/zuri-visual-office",
+  "revision": "b4e2d8edec9d8dbad32573d860cff3a6a27efbbd",
+  "threeVersion": "0.180.0",
+  "esbuildVersion": "0.28.2",
+  "bundleSha256": "c08086497314533b25b65d208f9a0707aab3d711ba8892c8710aada09a3c2642",
+  "schemaSha256": "80efbb49c0ce3c561d9e43adfa1dd8acdf93efae783a84e5c65fd30135c95b67",
+  "archiveSha256": "45e7282b30d30240b4abc9c9236eb58fe8fdf7ebdeea0e304f2a6df7d1d74a37",
+  "inputs": [
+    {
+      "path": "node_modules/three/build/three.core.js",
+      "sha256": "eb077d2417f61d3e6d9264c317cabc4ea35769ed6b0ab533067292a550784c20"
+    },
+    {
+      "path": "node_modules/three/build/three.module.js",
+      "sha256": "c8211c69345d2e9949dc7a8ac969380497aa0600a5a8ac6a459c8cd02dd9cb8a"
+    },
+    {
+      "path": "node_modules/three/examples/jsm/geometries/RoundedBoxGeometry.js",
+      "sha256": "c1b7c9bd2cddff2e3f3a0723f618a3d364a47450e3d25771d21faed88410bec8"
+    },
+    {
+      "path": "node_modules/three/examples/jsm/loaders/GLTFLoader.js",
+      "sha256": "67ac5551fdafa6e349bd80c8f8e5e39c136d6b2fb1ad647db9abb21dc86f9e4a"
+    },
+    {
+      "path": "node_modules/three/examples/jsm/utils/BufferGeometryUtils.js",
+      "sha256": "fda7e946b8e0b5ab39b779206589e7a1079a22eb24efb89d7223e03fdfb1f751"
+    },
+    {
+      "path": "web/custom-assets.js",
+      "sha256": "99128e6d5e11241a0a03341b17d959256db679c5912b2918342b3ea16d1310ab"
+    },
+    {
+      "path": "web/domain-office.js",
+      "sha256": "5547615a0d242c15d8ed45bc357633773b821502a06c2c92e0cc3519446ba28f"
+    },
+    {
+      "path": "web/office-architecture.js",
+      "sha256": "b5d6ba1f4002b381e0af6577c7e71edfb81e8859057e4eddc7d3c331b6b944ae"
+    },
+    {
+      "path": "web/office-blueprint-state.js",
+      "sha256": "15a9e6cd3644d3fba0ea0cbc205489416cdf0c14480c7f1b6d4214089219ce6d"
+    },
+    {
+      "path": "web/office-blueprints.js",
+      "sha256": "0d47e5dc466e2e0393c04698400b79c12914cb37deb69031a1da48367aa687c8"
+    },
+    {
+      "path": "web/office-characters.js",
+      "sha256": "fbfc3b614813bce9a7902a14b609d64b9fea6af172dc0036c2d7c9774bd526a2"
+    },
+    {
+      "path": "web/office-departments.js",
+      "sha256": "522457aea7966a1c25466342f1ca9d7d0052ad66dac536da2d426092806a6a21"
+    },
+    {
+      "path": "web/office-design-limits.js",
+      "sha256": "cfea35f1b1fab0b10331e3dfb581b7a04b4670c1e3c04a1dce2267128c5a72f8"
+    },
+    {
+      "path": "web/office-floor-registry.js",
+      "sha256": "e2d8c25e3768178cd21e6b04eba3b1bc7d021152818ab9071020b5da1b7dc11a"
+    },
+    {
+      "path": "web/office-handoff-assets.js",
+      "sha256": "a5e6f6b55a204ce9ecb9b8c4dbd2f3df547dfe4a013976ab9452495d38835c39"
+    },
+    {
+      "path": "web/office-handoff.js",
+      "sha256": "890b936ecfdc0d7986aa38fe19fef1c83f74183d4825ec7f072b6e9f23fd3417"
+    },
+    {
+      "path": "web/office-nav-state.js",
+      "sha256": "d313e52bbf3d324dd144dde8a487f56589e106232a2a36eca098d5af7d3d2b2e"
+    },
+    {
+      "path": "web/office-navigation.js",
+      "sha256": "09f832905ef313accc203219a4f10becf8a2209f39670e47cc87f93faaae1d64"
+    },
+    {
+      "path": "web/office-placement-grid.js",
+      "sha256": "3b85192bee25f703c3f02c9c41a1c7d2742c43c7129f425dd7705775e36c5f2d"
+    },
+    {
+      "path": "web/office-projection.js",
+      "sha256": "da42eba428b56fcafc88e89a8f0045a1bbdb8ab8468a542ede414398cec3cb79"
+    },
+    {
+      "path": "web/office-prop-models.js",
+      "sha256": "4cc9972534156e1eabb2a72f5d0d536b93929c0211e2c60ba8cc6323458d93e2"
+    },
+    {
+      "path": "web/office-rotation.js",
+      "sha256": "f61a4c30a29f803dcc971c907cc2914b8dd44a751be319b17c56c093f23eb7e3"
+    },
+    {
+      "path": "web/office-scene-sheet.js",
+      "sha256": "1caa1da9ba8c44bfd9506321c44d0ccd6618a1d7dfeee29107c7e2e3960b8a04"
+    },
+    {
+      "path": "web/office-sheet-bounds.js",
+      "sha256": "5cc18b7011336dec6e2897564c2efd9b71a9643e962c27286fbbbf75ea1cf8e0"
+    },
+    {
+      "path": "web/office-skeleton-alignment.js",
+      "sha256": "2290bec4d8c99a88d16ae5140e3a0517b930bf3e88e982b3415088de5e2056a1"
+    },
+    {
+      "path": "web/office-skeleton-parts.js",
+      "sha256": "5d3155c687edcdd0f89d33cdfed4beffc0d69709d361b63c3f4e79ad3dc9ee0d"
+    },
+    {
+      "path": "web/office-world-identity.js",
+      "sha256": "e07c5a6bd5154222e6c2919e6f9c7f271c9b7f244eaf2f54f374adc6593bc83a"
+    },
+    {
+      "path": "web/room-surfaces.js",
+      "sha256": "32ea792a6a50528e50710ddb131de09eaa7e905bada5e697fcb81ad1dd3be9f3"
+    },
+    {
+      "path": "web/studio-models.js",
+      "sha256": "0f19c8c7e3e87201a0ac4b65cbcc8c219e2d3e778f63a114e7e1254744163087"
+    },
+    {
+      "path": "web/tycoon-blueprint.js",
+      "sha256": "8355fdd4ddd33cd1dd02fa8299d28e64fd0edb08c3fece3f2bb55626b7b5580d"
+    },
+    {
+      "path": "web/tycoon-factory-assets.js",
+      "sha256": "56820e07fca0101fe47612231a465cb15322a2fe0d369c77ed37e0ded253075c"
+    },
+    {
+      "path": "web/tycoon-floor-plans.js",
+      "sha256": "f62f46acc46aea6318c2236f769b97c9d4369274da30cf73c9541a67dfed2ef1"
+    },
+    {
+      "path": "web/tycoon-furniture-models.js",
+      "sha256": "cb30d2803091af2b58e36bb675aa93ebbcf2248b268c54fecd6822c0ad7642ef"
+    },
+    {
+      "path": "web/tycoon-models.js",
+      "sha256": "189c24b9ca93616fea5499c6c4448e3e2ef0ea464c11d39b230b77552784e991"
+    },
+    {
+      "path": "web/tycoon-state.js",
+      "sha256": "fd0aee4002933976708e629e6eac896418e44e6d32aaa1f8aca9bd8ca4ecb9cc"
+    },
+    {
+      "path": "scripts/office-handoff-archive.mjs",
+      "sha256": "45e7282b30d30240b4abc9c9236eb58fe8fdf7ebdeea0e304f2a6df7d1d74a37"
+    }
+  ]
+}

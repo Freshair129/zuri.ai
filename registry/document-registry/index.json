@@ -8746,6 +8746,31 @@
       "requirementCells": [],
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 508
+    },
+    {
+      "id": "FR-294",
+      "namespace": "ZAI",
+      "family": "FR",
+      "recordVersion": 2,
+      "status": "active",
+      "path": "docs/requirements/FR-294.md",
+      "provenance": "authored",
+      "authoredBaseRevision": "f3abb4df9894aa065ab6697ad69e9463443f67b9",
+      "approvalRevision": "f3abb4df9894aa065ab6697ad69e9463443f67b9",
+      "approvalPath": "docs/change-requests/project-manager/office-design-receiver-20261031.md",
+      "approvalVersion": "0.1.0",
+      "approvalSha256": "869270c1d8564eae58417b1fd5d0ddefb0d36b72e0a67c5d52e2e03feb2f11c0",
+      "migrationId": "office-design-receiver-20261031",
+      "manifestPath": "docs/migrations/document-reintegration/record-migrations/office-design-receiver-20261031.manifest.json",
+      "manifestSha256": "264305249f748ce0eebd1217308696f6100190b45713587cdd88a00159f6d438",
+      "rowSha256": "3cea67fd53b06e99332ae69b731f9769884be18d8034031173e9c1eab82a3ff6",
+      "statementSha256": "5522e4ac8adfa33f2db681a4e057149988a8474faf524530e65747a477361629",
+      "subjectAnchor": "visual office design handoff registration accepts the",
+      "recordSha256": "4d5cbd21ec8304e80e4abce6fcf847a47a2fb2d74298f7bacbf086676af29261",
+      "statementCell": 2,
+      "requirementCells": [],
+      "exportDocument": "docs/PRD-SDD-v1.0.md",
+      "exportOrder": 509
     }
   ]
 }

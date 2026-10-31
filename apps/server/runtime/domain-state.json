@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 173,
+    "featureCount": 174,
     "readyFeatureCount": 121,
-    "requirementCount": 281,
+    "requirementCount": 282,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.7,
-    "gapCount": 80,
+    "progressPercent": 93.6,
+    "gapCount": 82,
     "gaps": [
       {
         "domain": "agent",
@@ -920,6 +920,17 @@
       },
       {
         "domain": "project-manager",
+        "id": "API-OPENAPI-001",
+        "severity": "high",
+        "check": "httpApi",
+        "summary": "API route is not represented in the machine-readable OpenAPI generator",
+        "evidence": [
+          "/api/businesses/[id]/office-designs",
+          "/api/businesses/[id]/office-designs/assets/[sha256]"
+        ]
+      },
+      {
+        "domain": "project-manager",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -1415,6 +1426,41 @@
           "apps/server/tests/unit/agent-mission-recovery.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-294",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-294 is partial",
+        "evidence": [
+          "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
+          "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
+          "apps/server/src/modules/business/office-design/backup-boundary.js",
+          "apps/server/src/modules/business/office-design/http.js",
+          "apps/server/src/modules/business/office-design/service.js",
+          "apps/server/src/modules/business/office-design/verify.js",
+          "apps/server/src/modules/project-manager/application/backup-service.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/line-stock-policy-backup.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/office-design-next-http.test.js",
+          "apps/server/tests/integration/office-design-registration.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/postgres/office-design-migration.test.js",
+          "apps/server/tests/unit/agent-mission-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/office-design-backup.test.js",
+          "apps/server/tests/unit/office-design-http.test.js",
+          "apps/server/tests/unit/office-design-package.test.js",
+          "apps/server/tests/unit/office-design-provenance.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
       }
@@ -8902,6 +8948,42 @@
             "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "FR-294",
+          "title": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 7,
+          "testCount": 19,
+          "evidence": [
+            "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
+            "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
+            "apps/server/src/modules/business/office-design/backup-boundary.js",
+            "apps/server/src/modules/business/office-design/http.js",
+            "apps/server/src/modules/business/office-design/service.js",
+            "apps/server/src/modules/business/office-design/verify.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/line-stock-policy-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/office-design-next-http.test.js",
+            "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/office-design-migration.test.js",
+            "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/office-design-backup.test.js",
+            "apps/server/tests/unit/office-design-http.test.js",
+            "apps/server/tests/unit/office-design-package.test.js",
+            "apps/server/tests/unit/office-design-provenance.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "checks": {
@@ -8928,17 +9010,27 @@
           }
         },
         "httpApi": {
-          "status": "verified",
+          "status": "partial",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [],
+          "gaps": [
+            {
+              "id": "API-OPENAPI-001",
+              "severity": "high",
+              "summary": "API route is not represented in the machine-readable OpenAPI generator",
+              "evidence": [
+                "/api/businesses/[id]/office-designs",
+                "/api/businesses/[id]/office-designs/assets/[sha256]"
+              ]
+            }
+          ],
           "details": {
-            "routes": 187,
-            "inventoried": 187,
+            "routes": 189,
+            "inventoried": 189,
             "openApiPaths": 359,
-            "missingFromOpenApi": 0
+            "missingFromOpenApi": 2
           }
         },
         "mcp": {
@@ -8980,8 +9072,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 48,
-            "present": 48
+            "models": 53,
+            "present": 53
           }
         },
         "authorization": {
@@ -9002,9 +9094,9 @@
             }
           ],
           "details": {
-            "mutations": 143,
-            "guardedMutations": 142,
-            "reads": 86,
+            "mutations": 144,
+            "guardedMutations": 143,
+            "reads": 88,
             "unguardedReads": 11
           }
         },
@@ -9091,6 +9183,16 @@
           "evidence": [
             "/assets/receiving",
             "/projects/[projectId]/domain-view"
+          ]
+        },
+        {
+          "id": "API-OPENAPI-001",
+          "severity": "high",
+          "check": "httpApi",
+          "summary": "API route is not represented in the machine-readable OpenAPI generator",
+          "evidence": [
+            "/api/businesses/[id]/office-designs",
+            "/api/businesses/[id]/office-designs/assets/[sha256]"
           ]
         },
         {
@@ -9574,13 +9676,47 @@
             "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-294",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-294 is partial",
+          "evidence": [
+            "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
+            "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
+            "apps/server/src/modules/business/office-design/backup-boundary.js",
+            "apps/server/src/modules/business/office-design/http.js",
+            "apps/server/src/modules/business/office-design/service.js",
+            "apps/server/src/modules/business/office-design/verify.js",
+            "apps/server/src/modules/project-manager/application/backup-service.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/line-stock-policy-backup.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/office-design-next-http.test.js",
+            "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/postgres/office-design-migration.test.js",
+            "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/office-design-backup.test.js",
+            "apps/server/tests/unit/office-design-http.test.js",
+            "apps/server/tests/unit/office-design-package.test.js",
+            "apps/server/tests/unit/office-design-provenance.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 235,
-        "apiRoutes": 187,
+        "routes": 237,
+        "apiRoutes": 189,
         "pageRoutes": 48,
-        "ownedModels": 48,
+        "ownedModels": 53,
         "featureNotes": 45
       },
       "featureIds": [
@@ -9638,11 +9774,12 @@
         "FR-284",
         "FR-286",
         "FR-292",
-        "FR-293"
+        "FR-293",
+        "FR-294"
       ],
-      "featureCount": 55,
+      "featureCount": 56,
       "readyFeatureCount": 48,
-      "progressPercent": 97.5
+      "progressPercent": 97.3
     }
   },
   "features": [
@@ -21815,6 +21952,64 @@
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+        "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-294",
+      "title": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph and GLB bytes, and atomically stores immutable design revisions, server-issued identity crosswalks, content-addressed assets, idempotent commit results and scoped audit under expected-version and current ownership fences. Floor, role, agent-design and workflow records remain design data and grant no runtime Agent, approval, domain or permission. Private reads return only committed scoped mappings and bytes.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-294"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "Business owner receives a pinned Office design package, verifies and stores scoped floor, agent-design and asset crosswalks without creating runtime Agents or permissions.",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-294 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-294",
+          "title": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph…",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 7,
+          "testCount": 19
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
+        "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
+        "apps/server/src/modules/business/office-design/backup-boundary.js",
+        "apps/server/src/modules/business/office-design/http.js",
+        "apps/server/src/modules/business/office-design/service.js",
+        "apps/server/src/modules/business/office-design/verify.js",
+        "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/line-non-text-admission.test.js",
+        "apps/server/tests/integration/line-server-backup.test.js",
+        "apps/server/tests/integration/line-stock-policy-backup.test.js",
+        "apps/server/tests/integration/marketing-backup.test.js",
+        "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/office-design-next-http.test.js",
+        "apps/server/tests/integration/office-design-registration.test.js",
+        "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/postgres/office-design-migration.test.js",
+        "apps/server/tests/unit/agent-mission-recovery.test.js",
+        "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/office-design-backup.test.js",
+        "apps/server/tests/unit/office-design-http.test.js",
+        "apps/server/tests/unit/office-design-package.test.js",
+        "apps/server/tests/unit/office-design-provenance.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
     }

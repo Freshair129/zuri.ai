@@ -1,6 +1,6 @@
 ---
 status: approved
-version: "0.1.0"
+version: "0.1.1"
 approval_scope: owner-requested implementation scope only
 ---
 
@@ -23,7 +23,7 @@ Only a persisted-session principal who currently owns the selected active Busine
 
 ## Receiver behavior
 
-`POST /api/businesses/[businessId]/office-designs` accepts ZIP bytes, `workspaceId` query, `If-Match` equal to a quoted integer (0 for a first import), and `Idempotency-Key`. `?dryRun=1` verifies and previews without registration. `GET` on the same route reads committed revision/mappings with `workspaceId` and optional positive `version`; a scoped `/assets/[sha256]` GET returns stored GLB bytes. Responses are private/no-store. Mutations require matching request Origin when supplied; cross-site Fetch Metadata is refused. Body streaming stops at 100 MB, expanded ZIP at 100 MB, each entry at 20 MB; the pinned producer imposes its tighter custom-model bounds. Verification runs in a resource/time-bounded worker.
+`POST /api/businesses/[id]/office-designs` accepts ZIP bytes, `workspaceId` query, `If-Match` equal to a quoted integer (0 for a first import), and `Idempotency-Key`. `?dryRun=1` verifies and previews without registration. `GET` on the same route reads committed revision/mappings with `workspaceId` and optional positive `version`; a scoped `/assets/[sha256]` GET returns stored GLB bytes. Responses are private/no-store. Mutations use Identity's existing live-session-bound `x-csrf-token` and mandatory exact `PUBLIC_BASE_URL` Origin; cross-site Fetch Metadata is refused. Two intake slots are reserved before buffering through commit. Body streaming stops at 100 MB, expanded ZIP at 100 MB, each entry at 20 MB; the pinned producer imposes its tighter custom-model bounds. Verification runs in a resource/time-bounded native worker. Linear preflight bounds the fixed catalog to 15 workflows/63 steps; rigged actor bytes must match the reviewed factory digest. Native worker source and pinned dependencies are explicitly included in standalone tracing.
 
 A scoped source/package crosswalk issues internal UUIDs and stable codes; external UUIDs never become primary keys. Expected-version compare-and-swap, immutable revisions and idempotency receipts commit with all identity/blob rows and a scoped actor-attributed AuditEvent. Identical retries return the original mapping; key reuse with a different command or stale new writes returns 409. Stored design registration is reported only after transaction commit, with `runtimeAgentsCreated: 0` and `permissionsGranted: 0`. No approval row is synthesized.
 
@@ -34,3 +34,9 @@ Test the actual producer ZIP through authenticated HTTP handlers into an isolate
 ## Version diff
 
 0.1.0 adds the owner-requested receiver scope and a new standalone FR; no existing requirement is repurposed. Technical implementation decisions above are the integrator's in-scope choices and remain subject to patch review.
+
+0.1.1 reconciles technical details found during actual Next HTTP and independent
+source review: existing `[id]` route naming, existing Identity CSRF/Origin seam,
+native worker packaging, intake/call-work bounds and pinned actor revision.
+This is an implementation correction, not a new owner approval. The original
+0.1.0 mandate snapshot used by the record migration remains immutable.

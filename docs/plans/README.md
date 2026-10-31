@@ -8,6 +8,10 @@ checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 
 # Plans location and retained sources
 
+- [Office design receiver implementation](OFFICE-DESIGN-RECEIVER-20261031.md)
+  implements the scoped owner request; local validation and deployment remain
+  separate from its implementation mandate.
+
 The 2026-10-23 cleanup removes eleven execution plans, candidate proposals and
 retired DDC plans from this directory. That cleanup created no replacement plan.
 Their original text remains in the

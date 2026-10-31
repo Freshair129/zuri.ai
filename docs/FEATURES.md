@@ -1,8 +1,8 @@
 ---
 id: ZAI:FEATURES
-version: "1.75.0b"
+version: "1.76.0b"
 status: active
-last_update: "2026-10-30,Codex Root"
+last_update: "2026-10-31,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.75.0b to 1.76.0b (2026-10-31): adds standalone FR-294 readiness navigation for Business/Workspace visual design registration. Its requirement remains planned; metadata creates no Agent, permission, approval, live integration or deployment claim.
 
 Version diff 1.74.0b to 1.75.0b (2026-10-30): adds standalone FR-292/FR-293 readiness presentation under Project Manager's existing FileAsset/ProjectFile compatibility boundary. Both remain planned; this metadata adds no FEAT membership, implementation, Files service ownership, runtime qualification or production activation.
 
@@ -1130,6 +1132,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-293",
     "primaryDomain": "project-manager",
     "useCase": "installation operator ส่งออก metadata พร้อม bytes เดิมของ reserved managed-blob refs แล้ว preview/confirm การกู้เข้า Compact target ที่ผ่าน admission โดยใช้ target refs ใหม่และคง version ของข้อมูล"
+  },
+  {
+    "id": "FR-294",
+    "primaryDomain": "project-manager",
+    "useCase": "Business owner receives a pinned Office design package, verifies and stores scoped floor, agent-design and asset crosswalks without creating runtime Agents or permissions."
   }
 ]
 ```

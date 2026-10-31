@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "migrationId": "office-design-receiver-20261031",
+  "base": {
+    "commit": "f3abb4df9894aa065ab6697ad69e9463443f67b9",
+    "indexSha256": "859025a1059423b7b50e39efcb710a02123897ba1acb69161222bfd4a65d6937",
+    "ledgerSha256": "752f9f91831635aae7628c085ccc4983f4d810833743fbcb4bb39e9374d396df"
+  },
+  "approval": {
+    "path": "docs/change-requests/project-manager/office-design-receiver-20261031.md",
+    "revision": "f3abb4df9894aa065ab6697ad69e9463443f67b9",
+    "version": "0.1.0",
+    "sha256": "869270c1d8564eae58417b1fd5d0ddefb0d36b72e0a67c5d52e2e03feb2f11c0"
+  },
+  "records": [
+    {
+      "id": "FR-294",
+      "family": "FR",
+      "statement": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph and GLB bytes, and atomically stores immutable design revisions, server-issued identity crosswalks, content-addressed assets, idempotent commit results and scoped audit under expected-version and current ownership fences. Floor, role, agent-design and workflow records remain design data and grant no runtime Agent, approval, domain or permission. Private reads return only committed scoped mappings and bytes.",
+      "statementSha256": "5522e4ac8adfa33f2db681a4e057149988a8474faf524530e65747a477361629",
+      "subjectAnchor": "visual office design handoff registration accepts the"
+    }
+  ]
+}

@@ -3,6 +3,8 @@ import { isPostgres } from './pipeline-writer'
 import { assertRecoverySnapshotQuiescent, beginRecoverySnapshotRestore, assertRecoveryRestoreClaim, finishRecoverySnapshotRestore } from './managed-blob-recovery-repository'
 import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
+// @req FR-294 — legacy snapshots refuse while Office design custody exists.
+import {assertOfficeDesignBackupSafe} from '@/modules/business/office-design/backup-boundary'
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
 // @spec ADR-098
@@ -499,6 +501,11 @@ export const SNAPSHOT_MODELS = [
  * RCA: .brain/rca/2026-08-18-snapshot-model-list-drifted-from-the-schema.md
  */
 export const SNAPSHOT_EXCLUDED_MODELS = {
+  officeDesignRegistry: 'Legacy JSON export/restore refuses while Office design custody exists; use consistent whole-database custody until a supported design recovery format is qualified.',
+  officeDesignIdentity: 'Retained scoped crosswalk: legacy JSON export/restore refuses rather than omit or delete its stable internal IDs.',
+  officeDesignRevision: 'Immutable design revisions: legacy JSON export/restore refuses rather than lose the original graph or attribution.',
+  officeDesignBlob: 'Exact GLB bytes require complete design recovery; legacy JSON export/restore refuses while registry data exists.',
+  officeDesignImportReceipt: 'Committed mappings/audit linkage are retained custody; legacy JSON export/restore refuses rather than mint replacement identities.',
   // @req FR-292, FR-293 — target-local custody cannot be exported as authority.
   managedBlobRecoveryOperation: 'Private recovery custody/results remain installation-local; active recovery is not enabled before supported transfer qualification.',
   managedBlobRecoveryInstallationFence: 'Installation exclusion/generation and quota accounting are never snapshot-replaced or imported.',
@@ -1969,6 +1976,7 @@ export async function extractSnapshot({
   filesystemPort = createLocalFilesystemPort(),
 } = {}) {
   if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  await assertOfficeDesignBackupSafe(db)
   await assertRecoverySnapshotQuiescent(db, isPostgres(db) || db._activeProvider === 'postgresql')
   await assertMarketingReportBackupSafe(db)
   const visibility = await readPhaseBCounts(db)
@@ -2188,6 +2196,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
   // BACKUP_PREVIEW row here would double-count one act.
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
+  await assertOfficeDesignBackupSafe(db,snapshot)
   assertNoReservedRecoveryRefs(snapshot)
   await assertMarketingReportBackupSafe(db, snapshot)
   const base = previewSnapshot(snapshot, { remounts })
@@ -2331,6 +2340,7 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  * turn into a silent wipe.
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
+  await assertOfficeDesignBackupSafe(tx,snapshot)
   const provisioning = businessProvisioningRecovery(snapshot)
   if (provisioning.errors.length) {
     throw new BackupRestoreSafetyError('BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID', provisioning.errors.join('; '))

@@ -1,5 +1,39 @@
 # Appendix A — API Specification
 
+Version diff 1.117.0b to 1.118.0b (2026-10-31): adds the FR-294 scoped visual-design receiver and GLB readback. Inventory: 360 route handlers. Registration stores design identities only; no Agent, approval, permission or deployment is created.
+
+## Office design registration
+
+The [FR-294](../requirements/FR-294.md) receiver is owned by Project Manager's
+Business module. It pins the Visual Office producer/verifier at
+`b4e2d8edec9d8dbad32573d860cff3a6a27efbbd`; supplied schema/code never becomes
+executable authority. Asset Management's physical-asset register is separate.
+
+| Method | Path | Contract |
+|---|---|---|
+| POST | `/api/businesses/[id]/office-designs` | `workspaceId` query selects an existing active BUSINESS Workspace in this active Business/Tenant. Persisted session plus current per-Business OWNER; exact `PUBLIC_BASE_URL` Origin and live-session-bound `x-csrf-token` from `/api/auth/csrf` are mandatory. ZIP body, `If-Match: "0"` for first registration or the committed integer version, and `Idempotency-Key` (1–128 safe characters). `dryRun=1` verifies and previews without registration. `201` means committed; identical retry returns the original `200` receipt; `409` means stale version/key conflict. UUID mappings identify visual designs, never runtime Agents. |
+| GET | `/api/businesses/[id]/office-designs` | Same current OWNER and Workspace fence. Optional positive `version`; returns immutable manifest and committed external-to-internal mapping with revision ETag. Unknown/unauthorized targets share `404`. |
+| GET | `/api/businesses/[id]/office-designs/assets/[sha256]` | Same session/OWNER/Workspace fence. Returns exact hash-checked `model/gltf-binary` bytes as attachment; corruption returns `503`. |
+
+Responses are private/no-store. Mutations reject missing sessions (`401`), invalid
+CSRF (`403`), missing expected version (`428`), invalid packages (`422`), byte
+limits (`413`), verifier saturation (`503`) and validation timeout (`408`). Two
+intake slots per server process are reserved before buffering and retained through commit;
+input/expanded ZIP limits are 100 MB, entry limit 20 MB, worker deadline 30 s,
+V8 old/young heaps 384/64 MB. These heap limits are not an RSS guarantee. The
+fixed catalog has at most 15 workflows and 63 steps; a linear preflight checks
+that before producer traversal. Actor rig bytes are pinned to the reviewed
+factory digest; custom static GLBs are remeasured and cannot fetch resources.
+
+All identity, revision, blob, receipt and scoped actor audit writes are atomic.
+Changed content needs the current expected version; identical delivery retries
+return existing IDs. Blob bytes are stored once per registry/content hash in the
+DB-backed design store. Generic JSON backup/export/restore refuses with
+`OFFICE_DESIGN_RECOVERY_UNAVAILABLE` while this custody exists; consistent
+whole-database backup is required until portable recovery is qualified. The
+separately hosted Office UI does not yet post here; no CORS/client enrollment,
+live business import, migration application or production rollout is claimed.
+
 Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration or deployment is claimed.
 
 Version diff 1.115.0b to 1.116.0b (2026-10-24): FR-173/FR-071 add the session OWNER-only exact-source Knowledge replay command. Inventory: 356 route handlers. Retry queues a new full-run child, not a publication or disclosure grant.
@@ -173,7 +207,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=358 -->
+<!-- api-spec-counts: route_handlers=360 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
