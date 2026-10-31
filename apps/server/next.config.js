@@ -15,7 +15,7 @@ const nextConfig = {
         // tracing rooted here so local workspace lockfiles cannot relocate server.js.
         outputFileTracingRoot: __dirname,
         outputFileTracingIncludes: {
-          '/**': ['./node_modules/.prisma/client/**', './node_modules/@zuri/prisma-postgres/**'],
+          '/**': ['./node_modules/.prisma/client/**', './node_modules/@zuri/prisma-postgres/**', './vendor/office-design/**', './src/modules/business/office-design/*.mjs'],
         },
       }
     : {}),

@@ -12,6 +12,11 @@ owns_code:
   - src/config/scope-views.js
   - src/config/domains.js
 owns_models:
+  - OfficeDesignRegistry
+  - OfficeDesignIdentity
+  - OfficeDesignRevision
+  - OfficeDesignBlob
+  - OfficeDesignImportReceipt
   - Portfolio
   - Tenant
   - LegalEntity
@@ -87,6 +92,13 @@ for the [linked domain SRS](SRS.md). It does not introduce a `DOM-*` or `TD-*`
 identity, rename a domain, or change any model, route or write boundary.
 
 ## Boundaries
+
+- [FR-294](../../requirements/FR-294.md) stores optional Business/Workspace
+  visual design configuration through `business/office-design`. Its external
+  floor, role, agent-design, workflow and GLB identities remain design data.
+  Registration issues scoped internal crosswalks and immutable revisions; it
+  creates no Agent runtime, physical Asset, authorization grant or approval.
+  See the [receiver contract](../../change-requests/project-manager/office-design-receiver-20261031.md).
 
 - [FR-286](../../requirements/FR-286.md) owns the standard Business bootstrap:
   a version-pinned catalog snapshot and one default Business Space (schema

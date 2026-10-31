@@ -12,6 +12,14 @@ indexes do not index themselves.
 
 ## Rebuild blueprint
 
+The [Office design receiver contract](appendices/A-api-spec.md#office-design-registration)
+and [FR-294](requirements/FR-294.md) describe scoped design registration;
+runtime Agents, permissions and separately hosted Office-client connectivity
+remain distinct. [Implementation scope](change-requests/project-manager/office-design-receiver-20261031.md)
+records the actual owner mandate without production acceptance.
+The [local receiver verification](../reports/office-design-receiver-20261031.md)
+separates DB/HTTP evidence from live import and deployment.
+
 Use the [reconciled rebuild blueprint](architecture/blueprint/README.md) for the
 minimum source profile, six specification chapters, exact contracts and source
 precedence. Its operative projection rules preserve canonical IDs and separate

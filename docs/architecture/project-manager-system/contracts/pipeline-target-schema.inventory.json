@@ -1,5 +1,5 @@
 {
-  "schemaSha256": "b12a377d5df29d33af80f618815cfd4c9e1857383f25e03aceef8edd72aa1ca1",
+  "schemaSha256": "d31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4",
   "applicationTables": [
     {
       "modelName": "AccessInvite",
@@ -702,6 +702,31 @@
       "tableName": "NotionWebhookVerificationToken"
     },
     {
+      "modelName": "OfficeDesignBlob",
+      "schemaName": "public",
+      "tableName": "OfficeDesignBlob"
+    },
+    {
+      "modelName": "OfficeDesignIdentity",
+      "schemaName": "public",
+      "tableName": "OfficeDesignIdentity"
+    },
+    {
+      "modelName": "OfficeDesignImportReceipt",
+      "schemaName": "public",
+      "tableName": "OfficeDesignImportReceipt"
+    },
+    {
+      "modelName": "OfficeDesignRegistry",
+      "schemaName": "public",
+      "tableName": "OfficeDesignRegistry"
+    },
+    {
+      "modelName": "OfficeDesignRevision",
+      "schemaName": "public",
+      "tableName": "OfficeDesignRevision"
+    },
+    {
       "modelName": "PasskeyCredential",
       "schemaName": "public",
       "tableName": "PasskeyCredential"
@@ -1072,5 +1097,5 @@
       "tableName": "Workstream"
     }
   ],
-  "targetSchemaSha256": "9d14f1abbc8817020e0c51ceae8c2a34ad13ef6ae13fdec0f0caba31703b64f3"
+  "targetSchemaSha256": "d8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2"
 }

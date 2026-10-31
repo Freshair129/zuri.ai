@@ -37,6 +37,7 @@ model Portfolio {
 }
 
 model Tenant {
+  officeDesignRegistries OfficeDesignRegistry[]
   // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
   marketingReportPolicies MarketingReportPolicy[]
   marketingReportBindings MarketingReportBinding[]
@@ -226,6 +227,7 @@ model TaxRegistrationBranch {
 }
 
 model Business {
+  officeDesignRegistries OfficeDesignRegistry[]
   // @req FR-281, FR-282, FR-283 — external reported evidence retains native scope.
   marketingReportPolicy MarketingReportPolicy?
   marketingExternalReports MarketingExternalReport[]
@@ -1035,6 +1037,7 @@ model RoleBinding {
 }
 
 model Workspace {
+  officeDesignRegistries OfficeDesignRegistry[]
   id          String   @id @default(uuid())
   code        String   @unique
   name        String
@@ -1062,6 +1065,87 @@ model Workspace {
   @@index([tenantId])
   @@index([businessId])
   @@unique([businessId, provisioningKey])
+}
+
+// @req FR-294 — design custody only; no Agent runtime or permission relation.
+model OfficeDesignRegistry {
+  id          String @id @default(uuid())
+  code        String @unique
+  tenantId    String
+  businessId  String
+  workspaceId String
+  source      String
+  packageId   String
+  version     Int @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  tenant      Tenant @relation(fields: [tenantId], references: [id], onDelete: Restrict)
+  business    Business @relation(fields: [businessId], references: [id], onDelete: Restrict)
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Restrict)
+  identities  OfficeDesignIdentity[]
+  revisions   OfficeDesignRevision[]
+  blobs       OfficeDesignBlob[]
+  receipts    OfficeDesignImportReceipt[]
+  @@unique([workspaceId, source, packageId])
+  @@index([tenantId, businessId])
+}
+
+// @req FR-294 — immutable semantic crosswalk, server UUIDs distinct from UUIDv5 inputs.
+model OfficeDesignIdentity {
+  id          String @id @default(uuid())
+  code        String @unique
+  registryId  String
+  externalId  String
+  kind        String
+  semanticKey String
+  version     Int @default(1)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  registry    OfficeDesignRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
+  @@unique([registryId, externalId])
+  @@unique([registryId, kind, semanticKey])
+}
+
+// @req FR-294 — original manifest and immutable source/version evidence.
+model OfficeDesignRevision {
+  id             String @id @default(uuid())
+  registryId     String
+  version        Int
+  contentHash    String
+  archiveSha256  String
+  manifestJson   String
+  producerRevision String
+  createdByPersonId String
+  createdAt      DateTime @default(now())
+  registry       OfficeDesignRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
+  @@unique([registryId, version])
+}
+
+// @req FR-294 — scope-local immutable content-addressed GLB byte store.
+model OfficeDesignBlob {
+  id         String @id @default(uuid())
+  registryId String
+  sha256     String
+  mediaType  String @default("model/gltf-binary")
+  byteLength Int
+  bytes      Bytes
+  version    Int @default(1)
+  createdAt  DateTime @default(now())
+  registry   OfficeDesignRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
+  @@unique([registryId, sha256])
+}
+
+// @req FR-294 — replay returns the actual committed mapping, never a reconstructed approval.
+model OfficeDesignImportReceipt {
+  id          String @id @default(uuid())
+  registryId  String
+  requestKey  String
+  commandHash String
+  resultJson  String
+  version     Int
+  createdAt   DateTime @default(now())
+  registry    OfficeDesignRegistry @relation(fields: [registryId], references: [id], onDelete: Restrict)
+  @@unique([registryId, requestKey])
 }
 
 // @req FR-043 - direct Business owner plus Development Space context.

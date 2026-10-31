@@ -806,7 +806,18 @@ The three prior bindings above remain historical and must be refused at loader,
 adapter, export and restore boundaries. The current inventory does not authorize
 a live migration or recovery run; existing recovery and erasure gates still apply.
 
-## Current OR2 installation-local custody binding (2026-10-30)
+## Office design census candidate (2026-11-01)
+
+The Office handoff candidate adds five OfficeDesign tables to the complete
+census, for 219 tables, and retains the previous 214 mappings. The schema hash
+is `d31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4`
+and the inventory hash is `d8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2`.
+Protected JSON export refuses if any of these tables contains custody; clean
+target restore refuses incoming Office tables and checks all 219 target tables.
+This candidate does not establish Office backup or recovery support, authorize
+a live migration or claim recovery acceptance.
+
+## OR2 installation-local custody binding (2026-10-30)
 
 The separately selected OR2 implementation under ZAI:FR-292/FR-293 adds
 `ManagedBlobRecoveryInstallationFence` and `ManagedBlobRecoveryOperation` to the

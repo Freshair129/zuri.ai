@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "migrationId": "office-design-receiver-20261031",
+  "status": "APPLIED",
+  "manifestSha256": "264305249f748ce0eebd1217308696f6100190b45713587cdd88a00159f6d438",
+  "base": {
+    "commit": "f3abb4df9894aa065ab6697ad69e9463443f67b9",
+    "indexSha256": "859025a1059423b7b50e39efcb710a02123897ba1acb69161222bfd4a65d6937",
+    "ledgerSha256": "752f9f91831635aae7628c085ccc4983f4d810833743fbcb4bb39e9374d396df"
+  },
+  "ids": [
+    "FR-294"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/office-design-receiver-20261031.approval.md": null,
+    "docs/requirements/FR-294.md": null,
+    "registry/document-registry/index.json": "859025a1059423b7b50e39efcb710a02123897ba1acb69161222bfd4a65d6937",
+    "docs/PRD-SDD-v1.0.md": "02ce8fdaadd4c39036257fe83f1d0ddc7270ddb406aa93883eaec24f50494305",
+    "docs/FEATURES.md": "89a2bdd72babbd02dd2453b904d529f75f475fe222a3aa30923c9524462f58ad",
+    "docs/.id-ledger.json": "752f9f91831635aae7628c085ccc4983f4d810833743fbcb4bb39e9374d396df"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/office-design-receiver-20261031.approval.md": "869270c1d8564eae58417b1fd5d0ddefb0d36b72e0a67c5d52e2e03feb2f11c0",
+    "docs/requirements/FR-294.md": "4d5cbd21ec8304e80e4abce6fcf847a47a2fb2d74298f7bacbf086676af29261",
+    "registry/document-registry/index.json": "c6d5d900a6443b77e2061b1c2be85c8f0509ebb16de81d0d1be855025e39c316",
+    "docs/PRD-SDD-v1.0.md": "efe98d26d99fda50fdba70e28d113760373a471669509066890cfb4ab78301b8",
+    "docs/FEATURES.md": "89a2bdd72babbd02dd2453b904d529f75f475fe222a3aa30923c9524462f58ad",
+    "docs/.id-ledger.json": "41e829574670bfb2f0ed70993544b0d24b86b338f53b8880297ab6f171c10f1c"
+  }
+}
