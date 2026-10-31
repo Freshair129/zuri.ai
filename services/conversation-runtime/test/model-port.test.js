@@ -28,7 +28,7 @@ const productionProviders = [
 for (const providerCase of productionProviders) {
   test(`model port request and response contract: ${providerCase.provider}`, async () => {
     let request
-    const model = createModelPort({ fetchFn: async (url, options) => {
+    const model = createModelPort({ privateRuntimeBaseUrl: providerCase.baseUrl, fetchFn: async (url, options) => {
       request = { url: String(url), options }
       return new Response(JSON.stringify(providerCase.reply), { status: 200 })
     } })
@@ -70,6 +70,85 @@ test('model port invokes a fixed approved endpoint and returns bounded provider 
     ].join('\n'),
     max_output_tokens: 500,
   })
+})
+
+const prpInput = (baseUrl = 'https://prp.example') => ({ question: 'q', evidence: { records: [] },
+  credential: { provider: 'prp', model: 'local-alias', apiKey: 'synthetic-business-key', baseUrl },
+  deadlineAt: new Date(Date.now() + 5000).toISOString() })
+
+for (const baseUrl of ['http://litellm:4000', 'https://169.254.169.254', 'https://[::ffff:169.254.169.254]',
+  'https://metadata.google.internal', 'https://prp.example?x=1']) {
+  test(`Runtime refuses unsafe PRP origin before sending a key: ${baseUrl}`, async () => {
+    let called = false
+    const model = createModelPort({ privateRuntimeBaseUrl: baseUrl, fetchFn: async () => { called = true } })
+    await assert.rejects(model.generate(prpInput(baseUrl)), /MODEL_BASE_URL_INVALID/)
+    assert.equal(called, false)
+  })
+}
+
+test('Runtime pins PRP to its own operator origin instead of trusting a different Core URL', async () => {
+  const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () => { throw new Error('must not dispatch') } })
+  await assert.rejects(model.generate(prpInput('https://other.example')), /MODEL_BASE_URL_NOT_ALLOWED/)
+  await assert.rejects(createModelPort({ privateRuntimeBaseUrl: '', fetchFn: async () => {} }).generate(prpInput()), /MODEL_PRIVATE_RUNTIME_NOT_CONFIGURED/)
+})
+
+test('Runtime does not dispatch an already-aborted request', async () => {
+  const controller = new AbortController()
+  controller.abort(new Error('PRIVATE_ABORT_REASON'))
+  let calls = 0
+  const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () => {
+    calls++
+    return Response.json({ choices: [{ message: { content: 'must not return' } }] })
+  } })
+  await assert.rejects(model.generate({ ...prpInput(), signal: controller.signal }), /MODEL_PROVIDER_TIMEOUT/)
+  assert.equal(calls, 0)
+})
+
+for (const status of [400, 401, 403, 404, 429, 503]) {
+  test(`PRP HTTP ${status} fails once without fallback or provider body exposure`, async () => {
+    let calls = 0
+    const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () => {
+      calls++
+      return new Response('PRIVATE_BODY_synthetic-business-key', { status })
+    } })
+    await assert.rejects(model.generate(prpInput()), error => error.code === `MODEL_PROVIDER_HTTP_${status}`
+      && !/PRIVATE_BODY|synthetic-business-key/.test(error.message))
+    assert.equal(calls, 1)
+  })
+}
+
+for (const content of ['', '<think>secret</think>', '<think>unfinished', 'secret</think>']) {
+  test(`PRP rejects empty/reasoning-only customer text: ${JSON.stringify(content)}`, async () => {
+    const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () =>
+      Response.json({ choices: [{ message: { content, reasoning_content: 'never a customer answer' } }] }) })
+    await assert.rejects(model.generate(prpInput()), /MODEL_PROVIDER_EMPTY_RESPONSE/)
+  })
+}
+
+test('PRP strips reasoning before returning customer text', async () => {
+  const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () =>
+    Response.json({ choices: [{ message: { content: '<think>private</think>answer', reasoning_content: 'private' } }] }) })
+  assert.equal(await model.generate(prpInput()), 'answer')
+})
+
+test('PRP rejects a malformed response and oversized body', async () => {
+  for (const [response, code] of [[new Response('not-json'), 'MODEL_PROVIDER_INVALID_JSON'],
+    [Response.json({ choices: [] }), 'MODEL_PROVIDER_EMPTY_RESPONSE'],
+    [Response.json({ choices: [{ message: { content: 'x'.repeat(1024 * 1024) } }] }), 'MODEL_PROVIDER_RESPONSE_TOO_LARGE']]) {
+    const model = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () => response })
+    await assert.rejects(model.generate(prpInput()), error => error.code === code)
+  }
+})
+
+test('PRP body reading obeys the deadline and cancellation after headers', async () => {
+  for (const cancel of [false, true]) {
+    const controller = new AbortController()
+    const model = createModelPort({ timeoutMs: 100, privateRuntimeBaseUrl: 'https://prp.example', fetchFn: async () => {
+      if (cancel) setTimeout(() => controller.abort(new Error('PRIVATE_REASON')), 10)
+      return new Response(new ReadableStream({ start() {} }))
+    } })
+    await assert.rejects(model.generate({ ...prpInput(), signal: controller.signal }), /MODEL_PROVIDER_TIMEOUT/)
+  }
 })
 
 test('model prompt keeps source text but omits Core-only source segment metadata', async () => {

@@ -52,6 +52,41 @@ describe('private runtime model port (FR-267)', () => {
     const fetchFn = reply('<think>ลูกค้าถามราคา ต้องดูหลักฐานก่อน แล้วก็')
     await expect(ask(prpPort(fetchFn))).rejects.toThrow(/MODEL_PROVIDER_EMPTY_RESPONSE/)
   })
+
+  it.each(['http://litellm:4000', 'https://169.254.169.254', 'https://u:p@gpu.example.test',
+    'https://gpu.example.test?key=secret'])('refuses an unsafe direct PRP config: %s', baseUrl => {
+    expect(() => prpPort(vi.fn(), { baseUrl })).toThrow(/baseUrl/)
+  })
+
+  it('does not dispatch an already-cancelled request', async () => {
+    const controller = new AbortController()
+    controller.abort(new Error('PRIVATE_CANCEL_REASON'))
+    const fetchFn = reply('ok')
+    await expect(prpPort(fetchFn).generate({ question: 'q', evidence: { records: [] }, signal: controller.signal }))
+      .rejects.toThrow('MODEL_PROVIDER_TIMEOUT')
+    expect(fetchFn).not.toHaveBeenCalled()
+  })
+
+  it.each([400, 401, 403, 404, 429, 503])('fails HTTP %s without public fallback or secret-bearing errors', async status => {
+    const fetchFn = vi.fn(async () => new Response('sk-prp-client-key-PRIVATE_ERROR', { status }))
+    await expect(ask(prpPort(fetchFn))).rejects.toThrow(`MODEL_PROVIDER_HTTP_${status}`)
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses the caller deadline while waiting for headers or a body', async () => {
+    for (const fetchFn of [vi.fn(() => new Promise(() => {})), vi.fn(async () => new Response(new ReadableStream({ start() {} })))]) {
+      await expect(prpPort(fetchFn).generate({ question: 'q', evidence: { records: [] }, deadlineAt: new Date(Date.now() + 20).toISOString() }))
+        .rejects.toThrow('MODEL_PROVIDER_TIMEOUT')
+    }
+  })
+
+  it('bounds the body by the caller deadline and aborts in-flight requests without fallback', async () => {
+    const controller = new AbortController()
+    const fetchFn = vi.fn(async () => { controller.abort(); return new Response(JSON.stringify({ choices: [{ message: { content: 'late' } }] })) })
+    await expect(prpPort(fetchFn).generate({ question: 'q', evidence: { records: [] }, signal: controller.signal }))
+      .rejects.toThrow('MODEL_PROVIDER_TIMEOUT')
+    expect(fetchFn).toHaveBeenCalledTimes(1)
+  })
 })
 
 describe('stripReasoning', () => {

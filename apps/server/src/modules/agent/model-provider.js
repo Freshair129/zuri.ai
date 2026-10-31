@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
 import { MAIN_DEV_LOCAL_OLLAMA_ORIGIN, MAIN_DEV_LOCAL_OLLAMA_SOURCE } from './main-dev-local-ollama'
+import { readPrivateRuntimeBaseUrl } from '@/platform/integrations/providers/model/private-runtime-config'
 
 export { LOCAL_EVAL_PROVIDERS, PRIVATE_RUNTIME_PROVIDERS, PUBLIC_LINE_PROVIDERS } from './model-provider-catalog'
 
@@ -446,12 +447,20 @@ export function createModelProviderPort(inputConfig) {
       throw new Error(`MODEL_PROVIDER_NOT_ALLOWED_FOR_PUBLIC_LINE: ${error.issues?.[0]?.path?.join('.') || 'provider'}`)
     }
   }
+  if (PRIVATE_RUNTIME_PROVIDERS.includes(config.provider)) {
+    const baseUrl = readPrivateRuntimeBaseUrl({ ZURI_PRIVATE_RUNTIME_BASE_URL: config.baseUrl })
+    if (!baseUrl) throw new Error('MODEL_PROVIDER_NOT_ALLOWED_FOR_PUBLIC_LINE: baseUrl')
+    config = { ...config, baseUrl, responseMaxBytes: 1024 * 1024 }
+  }
   const fetchFn = inputConfig.fetchFn ?? fetch
 
   return {
     provider: config.provider,
     model: config.model,
     async generate(input) {
+      if (input.signal?.aborted) throw new Error('MODEL_PROVIDER_TIMEOUT')
+      const remainingMs = input.deadlineAt == null ? config.timeoutMs : Date.parse(input.deadlineAt) - Date.now()
+      if (!Number.isFinite(remainingMs) || remainingMs <= 0) throw new Error('MODEL_PROVIDER_TIMEOUT')
       const selecting = input?.factSelection === true
       if (selecting && !config.mainDevLocalOllama) throw new Error('MODEL_FACT_SELECTION_SOURCE_DENIED')
       const facts = input?.evidence?.facts
@@ -495,12 +504,16 @@ export function createModelProviderPort(inputConfig) {
       let timeout
       let timedOut = false
       const timeoutError = Object.assign(new Error('MODEL_PROVIDER_TIMEOUT'), { code: 'MODEL_PROVIDER_TIMEOUT' })
+      let rejectCancelled
+      const cancelled = new Promise((_, reject) => { rejectCancelled = reject })
+      const abort = () => { controller.abort(); rejectCancelled(timeoutError) }
+      input.signal?.addEventListener('abort', abort, { once: true })
       const timeoutPromise = new Promise((_, reject) => {
         timeout = setTimeout(() => {
           timedOut = true
           controller.abort()
           reject(timeoutError)
-        }, config.timeoutMs)
+        }, Math.max(1, Math.min(config.timeoutMs, input.deadlineAt == null ? remainingMs : Date.parse(input.deadlineAt) - Date.now())))
       })
       let response
       let json
@@ -511,7 +524,12 @@ export function createModelProviderPort(inputConfig) {
       let providerRequestId = null
       let errorCode = null
       try {
+        if (input.signal?.aborted || (input.deadlineAt != null && Date.parse(input.deadlineAt) <= Date.now())) {
+          errorCode = 'MODEL_PROVIDER_TIMEOUT'
+          controller.abort()
+        }
         try {
+          if (errorCode) throw timeoutError
           response = await Promise.race([
             fetchFn(request.url, {
               method: 'POST',
@@ -521,6 +539,7 @@ export function createModelProviderPort(inputConfig) {
               redirect: 'error',
             }),
             timeoutPromise,
+            cancelled,
           ])
         } catch (error) {
           if (timedOut || error?.name === 'AbortError' || error?.code === 'MODEL_PROVIDER_TIMEOUT') {
@@ -535,7 +554,7 @@ export function createModelProviderPort(inputConfig) {
             const readJson = config.responseMaxBytes
               ? boundedModelProviderJson(response, config.responseMaxBytes)
               : response.json()
-            json = await Promise.race([readJson, timeoutPromise])
+            json = await Promise.race([readJson, timeoutPromise, cancelled])
           } catch (error) {
             if (timedOut || error?.name === 'AbortError' || error?.code === 'MODEL_PROVIDER_TIMEOUT') {
               errorCode = 'MODEL_PROVIDER_TIMEOUT'
@@ -569,6 +588,7 @@ export function createModelProviderPort(inputConfig) {
         }
       } finally {
         clearTimeout(timeout)
+        input.signal?.removeEventListener('abort', abort)
       }
 
       const finishedAt = wallTimestamp()

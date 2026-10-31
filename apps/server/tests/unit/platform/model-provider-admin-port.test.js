@@ -138,6 +138,37 @@ describe('model provider admin port', () => {
     })
     const prp = (model = 'typhoon2.5-qwen3-4b', baseUrl = BASE) => ({ provider: 'prp', apiKey: KEY, model, baseUrl })
 
+    it('keeps the deadline active while reading a model list after headers', async () => {
+      const subject = createModelProviderAdminPort({ timeoutMs: 20, fetchFn: async () => ({
+        ok: true, status: 200, text: () => new Promise(resolve => setTimeout(() => resolve(JSON.stringify({ data: [{ id: 'm' }] })), 100)),
+      }) })
+      await expect(subject.validateKey(prp('m'))).rejects.toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE' })
+    })
+
+    it('rejects a streamed oversized model list before draining it', async () => {
+      let cancelled = false
+      let chunks = 0
+      const subject = createModelProviderAdminPort({ fetchFn: async () => new Response(new ReadableStream({
+        pull(controller) { if (chunks++ < 2) controller.enqueue(new Uint8Array(300 * 1024)); else controller.close() },
+        cancel() { cancelled = true },
+      })) })
+      await expect(subject.validateKey(prp())).rejects.toMatchObject({ code: 'MODEL_PROVIDER_UNAVAILABLE' })
+      expect(cancelled).toBe(true)
+    })
+
+    it('rejects untrusted direct HTTP configuration before a key can leave', async () => {
+      const { port: subject, fetchFn } = port(listing(['m']))
+      await expect(subject.validateKey(prp('m', 'http://litellm:4000'))).rejects.toMatchObject({ code: 'PRIVATE_RUNTIME_NOT_CONFIGURED' })
+      expect(fetchFn).not.toHaveBeenCalled()
+    })
+
+    it.each([401, 403, 429, 503])('cancels an error body on HTTP %s without reading provider secrets', async status => {
+      const cancel = vi.fn(async () => {})
+      const subject = createModelProviderAdminPort({ fetchFn: async () => ({ status, ok: false, body: { cancel } }) })
+      await expect(subject.validateKey(prp())).rejects.toMatchObject({ code: status < 429 ? 'MODEL_KEY_REJECTED' : 'MODEL_PROVIDER_UNAVAILABLE' })
+      expect(cancel).toHaveBeenCalledTimes(1)
+    })
+
     it('checks the key against PRP’s granted-model list at the configured address, refusing redirects', async () => {
       const { port: subject, calls } = port(listing(['typhoon2.5-qwen3-4b']))
       await expect(subject.validateKey(prp())).resolves.toEqual({ provider: 'prp', validationCode: 'MODEL_KEY_VALIDATED:PRP' })

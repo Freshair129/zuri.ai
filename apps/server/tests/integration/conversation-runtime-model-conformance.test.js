@@ -45,7 +45,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
     const baseUrl = provider === 'prp' ? 'https://prp.example' : undefined
     const legacy = createModelProviderPort({ provider, model: 'test-model', credential: credentialValue,
       baseUrl, timeoutMs: 1000, fetchFn: captureFetch(providerReplies[provider], oldCalls) })
-    const runtime = createModelPort({ timeoutMs: 1000, fetchFn: captureFetch(providerReplies[provider], newCalls) })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: captureFetch(providerReplies[provider], newCalls) })
     const legacyResult = await legacy.generate({ question, evidence, contextPacket: null })
     const runtimeResult = await runtime.generate({ question, evidence, contextPacket: null,
       credential: { provider, model: 'test-model', apiKey: credentialValue, ...(baseUrl ? { baseUrl } : {}) },
@@ -65,7 +65,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
     const baseUrl = provider === 'prp' ? 'https://prp.example' : undefined
     const legacy = createModelProviderPort({ provider, model: 'test-model', credential: credentialValue, baseUrl,
       timeoutMs: 1000, fetchFn: response })
-    const runtime = createModelPort({ timeoutMs: 1000, fetchFn: response })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: response })
     const input = { question, evidence, contextPacket: null }
     const runtimeInput = { ...input, credential: { provider, model: 'test-model', apiKey: credentialValue,
       ...(baseUrl ? { baseUrl } : {}) }, deadlineAt: new Date(Date.now() + 5000).toISOString() }
@@ -79,7 +79,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
       timeoutMs: 100, fetchFn: abortAwareFetch })
     // The Runtime's local safety timeout is longer; the caller's operation deadline
     // is the bound that must stop the provider request.
-    const runtime = createModelPort({ timeoutMs: 5000, fetchFn: abortAwareFetch })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 5000, fetchFn: abortAwareFetch })
     const deadlineAt = new Date(Date.now() + 100).toISOString()
     const input = { question, evidence, contextPacket: null }
     const [legacyResult, runtimeResult] = await Promise.allSettled([
@@ -99,7 +99,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
     const body = { choices: [{ message: { content } }] }
     const legacy = createModelProviderPort({ provider: 'prp', model: 'test-model', credential: credentialValue,
       baseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
-    const runtime = createModelPort({ timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
     const input = { question, evidence, contextPacket: null }
     const legacyResult = await legacy.generate(input)
     const runtimeResult = await runtime.generate({ ...input,
@@ -113,7 +113,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
     const body = { choices: [{ message: { content: '<think>private reasoning</think>' } }] }
     const legacy = createModelProviderPort({ provider: 'prp', model: 'test-model', credential: credentialValue,
       baseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
-    const runtime = createModelPort({ timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: async () => new Response(JSON.stringify(body)) })
     await expect(legacy.generate({ question, evidence })).rejects.toMatchObject({ message: 'MODEL_PROVIDER_EMPTY_RESPONSE' })
     await expect(runtime.generate({ question, evidence,
       credential: { provider: 'prp', model: 'test-model', apiKey: credentialValue, baseUrl: 'https://prp.example' },
@@ -128,7 +128,7 @@ describe('Conversation Runtime provider consumer conformance', () => {
     await legacy.generate({ question, evidence })
     expect(calls[0].url).toBe(override)
 
-    const runtime = createModelPort({ timeoutMs: 1000, fetchFn: captureFetch(providerReplies[provider], []) })
+    const runtime = createModelPort({ privateRuntimeBaseUrl: 'https://prp.example', timeoutMs: 1000, fetchFn: captureFetch(providerReplies[provider], []) })
     await expect(runtime.generate({ question, evidence,
       credential: { provider, model: 'test-model', apiKey: credentialValue, baseUrl: override },
       deadlineAt: new Date(Date.now() + 5000).toISOString() })).rejects.toMatchObject({ message: 'MODEL_BASE_URL_NOT_ALLOWED' })

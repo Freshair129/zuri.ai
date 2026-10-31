@@ -4246,7 +4246,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 6
+          "testCount": 9
         },
         {
           "id": "FR-273",
@@ -5814,7 +5814,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 6
+          "testCount": 9
         },
         {
           "id": "FR-277",
@@ -15135,8 +15135,8 @@
           "title": "A Business owner may choose the operator's Private Runtime Platform (PRP) as the model provider for its LINE answers, so a customer's…",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 6
+          "codeCount": 6,
+          "testCount": 9
         }
       ],
       "evidence": [
@@ -15194,11 +15194,15 @@
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/platform/model-provider-admin-port.test.js",
         "apps/server/tests/unit/platform/private-runtime-config.test.js",
+        "apps/server/tests/unit/private-runtime-deployment.test.js",
         "apps/server/tests/unit/private-runtime-model-port.test.js",
+        "apps/server/tests/unit/private-runtime-network.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-line-worker-routes.test.js",
         "services/conversation-runtime/src/model-port.js",
-        "services/conversation-runtime/test/model-port.test.js"
+        "services/conversation-runtime/src/private-runtime-config.js",
+        "services/conversation-runtime/test/model-port.test.js",
+        "services/conversation-runtime/test/private-runtime-network.test.js"
       ]
     },
     {

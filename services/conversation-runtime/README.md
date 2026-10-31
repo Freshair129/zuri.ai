@@ -35,3 +35,11 @@ receipts instead of repeating them.
 The model credential comes from a claim-bound core operation and stays in memory
 only. Do not add provider keys or channel credentials to this service's environment,
 logs, image or trace. Production cutover remains a separately gated operation.
+
+For `prp`, also configure `ZURI_PRIVATE_RUNTIME_BASE_URL` on this process to the
+same operator-owned HTTPS (or loopback HTTP) base URL Core supplies. A missing or
+different origin fails before sending a key. Load a dedicated private CA at Node
+startup through `NODE_EXTRA_CA_CERTS` when needed. The
+[Private Runtime guide](../../docs/deployment/private-runtime.md) covers the opt-in
+fixed-IP HTTPS Docker overlay and GPU-free fixture; no public-provider fallback is
+enabled by selecting PRP.

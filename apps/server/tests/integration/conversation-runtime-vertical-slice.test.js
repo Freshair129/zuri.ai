@@ -43,10 +43,11 @@ const freePort = async () => {
   await close(server)
   return port
 }
-function launchRuntime(corePort, runtimePort) {
+function launchRuntime(corePort, runtimePort, modelPort) {
   const child = spawn(process.execPath, ['src/main.js'], { cwd: runtimeDirectory, stdio: ['ignore', 'pipe', 'pipe'],
     env: { PATH: process.env.PATH, SYSTEMROOT: process.env.SYSTEMROOT, TEMP: process.env.TEMP, TMP: process.env.TMP,
       CONVERSATION_RUNTIME_CORE_URL: `http://127.0.0.1:${corePort}`, CONVERSATION_RUNTIME_TOKEN: serviceToken,
+      ...(modelPort ? { ZURI_PRIVATE_RUNTIME_BASE_URL: `http://127.0.0.1:${modelPort}` } : {}),
       CONVERSATION_RUNTIME_PORT: String(runtimePort), NODE_ENV: 'test' } })
   let output = ''
   child.stdout.on('data', chunk => { output += chunk.toString() })
@@ -309,6 +310,7 @@ describe('Conversation Runtime durable vertical slice', () => {
     runtimeChild = spawn(process.execPath, ['src/main.js'], { cwd: runtimeDirectory, stdio: ['ignore', 'pipe', 'pipe'],
       env: { PATH: process.env.PATH, SYSTEMROOT: process.env.SYSTEMROOT, TEMP: process.env.TEMP, TMP: process.env.TMP,
         CONVERSATION_RUNTIME_CORE_URL: `http://127.0.0.1:${corePort}`,
+        ZURI_PRIVATE_RUNTIME_BASE_URL: `http://127.0.0.1:${modelPort}`,
         CONVERSATION_RUNTIME_TOKEN: serviceToken, CONVERSATION_RUNTIME_PORT: String(runtimePort), NODE_ENV: 'test' } })
     let childOutput = ''
     runtimeChild.stdout.on('data', chunk => { childOutput += chunk.toString() })
@@ -566,7 +568,7 @@ describe('Conversation Runtime durable vertical slice', () => {
     const corePort = await listen(coreServer)
     try {
       let runtimePort = await freePort()
-      let launched = launchRuntime(corePort, runtimePort)
+      let launched = launchRuntime(corePort, runtimePort, modelPort)
       runtimeChild = launched.child
       expect(await runtimeReady(runtimePort, runtimeChild), launched.output).toBe(200)
       const entered = await Promise.race([prepareEntered.then(() => true), new Promise(resolve => setTimeout(() => resolve(false), 15_000))])
@@ -586,7 +588,7 @@ describe('Conversation Runtime durable vertical slice', () => {
       await prisma.lineConversationJob.update({ where: { id: jobId }, data: { leaseExpiresAt: new Date(Date.now() - 1) } })
 
       runtimePort = await freePort()
-      launched = launchRuntime(corePort, runtimePort)
+      launched = launchRuntime(corePort, runtimePort, modelPort)
       runtimeChild = launched.child
       expect(await runtimeReady(runtimePort, runtimeChild), launched.output).toBe(200)
       const deadline = Date.now() + 15_000

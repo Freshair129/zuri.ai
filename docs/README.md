@@ -38,6 +38,8 @@ plans and historical test receipts are separate from the build specification.
 - [Engineering assessments](../reports/README.md), including the
   [2026-10-23 code/requirements gap assessment](../reports/gap-analysis-2026-10-23/README.md),
   record dated findings and verification limits without creating requirements or plans.
+  The [Private Runtime integration record](../reports/private-runtime-integration-20261031.md)
+  separates local HTTPS/Docker proof from the unverified external PRP/vLLM path.
 - [Knowledge lifecycle and serving assessment](../reports/knowledge-readiness-2026-10-26/README.md)
   records the bounded storage/access review, executed checks and remaining
   main-dev qualification separately from whole-system completion.

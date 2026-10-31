@@ -33,6 +33,14 @@ const runtimeWith = (query, model = createDeterministicBusinessModel()) =>
   vi.fn().mockResolvedValue({ businessKnowledge: { query }, resolveModel: vi.fn().mockResolvedValue(model) })
 
 describe('server LINE answers from admitted CRM jobs', () => {
+  it('forwards the claimed job expiry and caller cancellation to the selected model', async () => {
+    const generate = vi.fn().mockResolvedValue({ text: 'AB-1 ราคา 50 บาท' })
+    const signal = new AbortController().signal
+    const expiresAt = new Date(Date.now() + 10_000)
+    const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(async () => evidence(), { provider: 'prp', generate }) })
+    await answer({ ...job(), expiresAt }, { signal })
+    expect(generate.mock.calls[0][0]).toMatchObject({ signal, deadlineAt: expiresAt.toISOString() })
+  })
   it('records one content-free receipt for non-memory evidence actually sent to the model', async () => {
     const generate = vi.fn().mockResolvedValue({ text: 'AB-1 ราคา 50 บาท' })
     const trace = { recordEvidence: vi.fn(), recordContextReceipt: vi.fn(), assertHealthy: vi.fn() }

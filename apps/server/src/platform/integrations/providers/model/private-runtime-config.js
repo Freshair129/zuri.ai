@@ -39,6 +39,13 @@ export function readPrivateRuntimeBaseUrl(env = process.env) {
   const loopbackHttp = url.protocol === 'http:' && LOOPBACK_HOSTS.has(url.hostname)
   if (!secure && !loopbackHttp) return null
   if (url.username || url.password || url.search || url.hash) return null
+  // Operator ownership is not permission to target metadata or a non-destination.
+  // URL canonicalizes alternative IPv4 spellings before these checks. Mapped IPv6
+  // is refused to avoid a second spelling of a blocked IPv4 address.
+  const host = url.hostname.toLowerCase().replace(/\.$/, '')
+  if (host === 'metadata.google.internal' || host === 'metadata' || host === 'instance-data'
+    || host === '100.100.100.200' || /^(?:0|169\.254|22[4-9]|23\d|24\d|25[0-5])\./.test(host)
+    || /^\[(?:::|::ffff:.*|fe[89ab][0-9a-f]:.*|ff[0-9a-f:]+|fd00:ec2::254)\]$/.test(host)) return null
   return `${url.origin}${url.pathname}`.replace(/\/+$/, '')
 }
 

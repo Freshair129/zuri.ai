@@ -47,7 +47,7 @@ export function createDeterministicBusinessModel() {
   })
 }
 
-export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model, trace, contextPacket = null, contextReceipt = null }) {
+export async function answerBusinessQuestion({ tenantId, businessId, question }, { knowledge, model, trace, contextPacket = null, contextReceipt = null, signal, deadlineAt }) {
   if (!businessId) throw new Error('BUSINESS_ID_REQUIRED')
   if (!question?.trim()) throw new Error('QUESTION_REQUIRED')
   const selected = selectRegisteredQuery(question)
@@ -65,7 +65,8 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
 
   try {
     const generated = await model.generate({ question, evidence, contextPacket,
-      ...(contextReceipt ? { contextReceipt } : {}), ...(trace ? { trace } : {}) })
+      ...(contextReceipt ? { contextReceipt } : {}), ...(trace ? { trace } : {}),
+      ...(signal ? { signal } : {}), ...(deadlineAt ? { deadlineAt } : {}) })
     const checked = checkModelAnswer(question, evidence, generated.text)
     if (checked.status === 'ok') {
       return { text: generated.text, grounded: true, evidence, provider: generated, verification: checked.verification }
@@ -79,6 +80,10 @@ export async function answerBusinessQuestion({ tenantId, businessId, question },
     }
   } catch (error) {
     if (error?.code === 'MSP_INJECTION_RECEIPT_UNKNOWN') throw error
+    if (signal?.aborted || ((error?.code ?? error?.message) === 'MODEL_PROVIDER_TIMEOUT'
+      && deadlineAt != null && Date.parse(deadlineAt) <= Date.now())) {
+      throw Object.assign(new Error('MODEL_PROVIDER_TIMEOUT'), { code: 'MODEL_PROVIDER_TIMEOUT' })
+    }
     // @req FR-079 — local Ollama is an explicit evaluation provider; an unavailable
     // server/model must fail closed and never turn into an implicit provider fallback.
     if (model.provider === 'ollama') throw new Error('OLLAMA_PROVIDER_NOT_READY')

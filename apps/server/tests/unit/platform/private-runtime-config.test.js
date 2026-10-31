@@ -51,4 +51,15 @@ describe('private runtime configuration', () => {
     expect(readPrivateRuntimeSuggestedModel({})).toBeNull()
     expect(readPrivateRuntimeSuggestedModel({ [PRIVATE_RUNTIME_MODEL_ENV]: ' typhoon2.5-qwen3-4b ' })).toBe('typhoon2.5-qwen3-4b')
   })
+
+  it('admits a certificate-verified fixed Docker IP without permitting service-name HTTP', () => {
+    expect(read('https://172.30.99.10:4443')).toBe('https://172.30.99.10:4443')
+    expect(read('http://litellm:4000')).toBeNull()
+  })
+
+  it.each(['https://169.254.169.254', 'https://100.100.100.200', 'https://0.0.0.0',
+    'https://[::]', 'https://[fe80::1]', 'https://[fd00:ec2::254]',
+    'https://[::ffff:169.254.169.254]', 'https://metadata.google.internal'])('refuses metadata or non-destination origins: %s', value => {
+    expect(read(value)).toBeNull()
+  })
 })
