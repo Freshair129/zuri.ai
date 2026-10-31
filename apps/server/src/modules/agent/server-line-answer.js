@@ -549,7 +549,8 @@ export function createServerLineAnswer({
   projectionReceiptWriter = null,
   ...runtimeDependencies
 } = {}) {
-  return async function answer(job, { trace, memoryStateReader } = {}) {
+  return async function answer(job, { trace, memoryStateReader, signal,
+    deadlineAt = job?.expiresAt?.toISOString?.() ?? job?.expiresAt } = {}) {
     const tenantId = job?.tenantId
     const businessId = job?.businessId
     const question = job?.inbound?.body
@@ -743,7 +744,7 @@ export function createServerLineAnswer({
       }
       if (memoryOptIn) await assertMemoryJobLive(job, memoryStateReader, env)
       const result = await answerBusinessQuestion({ tenantId, businessId, question }, {
-        knowledge: boundedKnowledge, model: invocationModel, trace, contextReceipt,
+        knowledge: boundedKnowledge, model: invocationModel, trace, contextReceipt, signal, deadlineAt,
         contextPacket: memoryOptIn || episodicAuthorized ? injectedPacket : null,
       })
       // Grounding may choose a deterministic fallback after a provider failure;

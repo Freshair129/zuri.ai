@@ -1,0 +1,38 @@
+# Only the PRP client contract crosses this boundary. No access logs: neither
+# credentials, queries nor customer prompts belong in proxy diagnostics.
+server {
+    listen 4443 ssl;
+    server_name _;
+    ssl_certificate /run/secrets/prp_tls_cert;
+    ssl_certificate_key /run/secrets/prp_tls_key;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    access_log off;
+    error_log /dev/stderr crit;
+    client_max_body_size 1m;
+    client_body_timeout 10s;
+    if ($args != "") { return 400; }
+
+    proxy_ssl_verify on;
+    proxy_ssl_verify_depth 3;
+    proxy_ssl_trusted_certificate /run/secrets/prp_upstream_ca;
+    proxy_ssl_server_name on;
+    proxy_ssl_name ${PRP_UPSTREAM_TLS_NAME};
+    proxy_connect_timeout 3s;
+    proxy_send_timeout 25s;
+    proxy_read_timeout 25s;
+    proxy_redirect off;
+    proxy_buffering off;
+    proxy_set_header Authorization $http_authorization;
+    proxy_set_header Host ${PRP_UPSTREAM_TLS_NAME};
+
+    location = /healthz { return 200 'TLS_PROXY_UP'; }
+    location = /v1/models {
+        if ($request_method != GET) { return 405; }
+        proxy_pass https://${PRP_UPSTREAM_ADDRESS};
+    }
+    location = /v1/chat/completions {
+        if ($request_method != POST) { return 405; }
+        proxy_pass https://${PRP_UPSTREAM_ADDRESS};
+    }
+    location / { return 404; }
+}

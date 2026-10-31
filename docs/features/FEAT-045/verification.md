@@ -109,6 +109,7 @@ status: generated
 - [apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js](../../../apps/server/src/platform/integrations/providers/model/model-provider-admin-port.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/providers/model/private-runtime-config.js](../../../apps/server/src/platform/integrations/providers/model/private-runtime-config.js) — `implements` (`annotation`)
 - [services/conversation-runtime/src/model-port.js](../../../services/conversation-runtime/src/model-port.js) — `implements` (`annotation`)
+- [services/conversation-runtime/src/private-runtime-config.js](../../../services/conversation-runtime/src/private-runtime-config.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
@@ -116,8 +117,11 @@ status: generated
 - [apps/server/tests/unit/line-oa-model-key-card-render.test.js](../../../apps/server/tests/unit/line-oa-model-key-card-render.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/platform/model-provider-admin-port.test.js](../../../apps/server/tests/unit/platform/model-provider-admin-port.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/platform/private-runtime-config.test.js](../../../apps/server/tests/unit/platform/private-runtime-config.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/private-runtime-deployment.test.js](../../../apps/server/tests/unit/private-runtime-deployment.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/private-runtime-model-port.test.js](../../../apps/server/tests/unit/private-runtime-model-port.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/private-runtime-network.test.js](../../../apps/server/tests/unit/private-runtime-network.test.js) — `verifies` (`test-reference`)
 - [services/conversation-runtime/test/model-port.test.js](../../../services/conversation-runtime/test/model-port.test.js) — `verifies` (`transitive`)
+- [services/conversation-runtime/test/private-runtime-network.test.js](../../../services/conversation-runtime/test/private-runtime-network.test.js) — `verifies` (`test-reference`)
 
 ## Limits
 

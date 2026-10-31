@@ -140,7 +140,7 @@ async function runtimeTurns(jobId, { contendOnce = false, coreOverrides = {}, tu
   const deliveryStatusReads = []
   const core = createConversationRuntimeCore({ db: prisma, env: { CONVERSATION_RUNTIME_TOKEN: serviceToken, ZURI_LINE_REPLY_SEAL_KEY: sealKey },
     credentialResolver: async () => ({ provider: 'prp', model: 'synthetic-parity-model', apiKey: 'synthetic-provider-key',
-      baseUrl: 'http://synthetic-model.test' }),
+      baseUrl: 'https://synthetic-model.test' }),
     linePorts: linePorts({ deliveries, contendOnce }), ...coreOverrides })
   const handlers = createConversationRuntimeRouteHandlers(core)
   const client = createCoreClient({ baseUrl: 'http://synthetic-core.test', token: serviceToken,
@@ -156,7 +156,7 @@ async function runtimeTurns(jobId, { contendOnce = false, coreOverrides = {}, tu
       if (response.status >= 400) coreErrors.push(`${operation} ${response.status} ${body.error?.code}`)
       return response
     } })
-  const model = createModelPort({ fetchFn: async (url, init) => {
+  const model = createModelPort({ privateRuntimeBaseUrl: 'https://synthetic-model.test', fetchFn: async (url, init) => {
     modelPrompts.push(JSON.parse(init.body).messages[0].content)
     return new Response(JSON.stringify({ choices: [{ message: { content: answerText } }] }),
       { status: 200, headers: { 'content-type': 'application/json' } })
