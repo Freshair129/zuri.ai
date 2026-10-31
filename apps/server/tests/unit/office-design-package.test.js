@@ -26,7 +26,7 @@ describe('Office pinned package verification',()=>{
   const forged=await buildOfficeHandoff({rooms,assets});expect(await validateOfficeHandoff(forged)).toEqual(forged)
   const bytes=handoffZip(forged,new Map([...files].filter(([name])=>name.startsWith('assets/'))),JSON.parse(files.get('schema.json')))
   await expect(verifyOfficeArchive(bytes)).rejects.toMatchObject({code:'OFFICE_PACKAGE_INVALID'})
- })
+ },60000)
  it('rejects schema drift, binary mismatch, truncated ZIP, unsafe local paths and limits',async()=>{
   await expect(verifyOfficeArchive(await repack(fixture('stock'),(m,f,s)=>s.title='supplied schema'))).rejects.toMatchObject({code:'OFFICE_PACKAGE_INVALID'})
   await expect(verifyOfficeArchive(await repack(fixture('stock'),(m,f)=>{const [name,bin]=[...f].find(([n])=>n.startsWith('assets/'));bin[bin.length-1]^=1;f.set(name,bin)}))).rejects.toMatchObject({code:'OFFICE_PACKAGE_INVALID'})

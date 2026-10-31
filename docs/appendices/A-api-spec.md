@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.118.0b to 1.119.0b (2026-10-31): adds FR-295 session-scoped Office handoff destination discovery and a same-origin Zuri transfer page. Inventory: 361 route handlers. Deployment and real Business import are separate from local qualification.
+
 Version diff 1.117.0b to 1.118.0b (2026-10-31): adds the FR-294 scoped visual-design receiver and GLB readback. Inventory: 360 route handlers. Registration stores design identities only; no Agent, approval, permission or deployment is created.
 
 ## Office design registration
@@ -11,6 +13,7 @@ executable authority. Asset Management's physical-asset register is separate.
 
 | Method | Path | Contract |
 |---|---|---|
+| GET | `/api/office-design-targets` | A persisted session receives only active BUSINESS Workspaces in currently owned active Businesses and Tenants, with scoped Business/Workspace IDs, labels and current design version. No session returns `401`; a principal without eligible destinations receives an empty list. Private/no-store. |
 | POST | `/api/businesses/[id]/office-designs` | `workspaceId` query selects an existing active BUSINESS Workspace in this active Business/Tenant. Persisted session plus current per-Business OWNER; exact `PUBLIC_BASE_URL` Origin and live-session-bound `x-csrf-token` from `/api/auth/csrf` are mandatory. ZIP body, `If-Match: "0"` for first registration or the committed integer version, and `Idempotency-Key` (1–128 safe characters). `dryRun=1` verifies and previews without registration. `201` means committed; identical retry returns the original `200` receipt; `409` means stale version/key conflict. UUID mappings identify visual designs, never runtime Agents. |
 | GET | `/api/businesses/[id]/office-designs` | Same current OWNER and Workspace fence. Optional positive `version`; returns immutable manifest and committed external-to-internal mapping with revision ETag. Unknown/unauthorized targets share `404`. |
 | GET | `/api/businesses/[id]/office-designs/assets/[sha256]` | Same session/OWNER/Workspace fence. Returns exact hash-checked `model/gltf-binary` bytes as attachment; corruption returns `503`. |
@@ -31,8 +34,19 @@ return existing IDs. Blob bytes are stored once per registry/content hash in the
 DB-backed design store. Generic JSON backup/export/restore refuses with
 `OFFICE_DESIGN_RECOVERY_UNAVAILABLE` while this custody exists; consistent
 whole-database backup is required until portable recovery is qualified. The
-separately hosted Office UI does not yet post here; no CORS/client enrollment,
-live business import, migration application or production rollout is claimed.
+Office UI can open `/office-handoff` on Zuri and transfer a ZIP by a
+source-window, origin and nonce-checked message. Office selects from its configured
+trusted Zuri origins; Zuri permits only Office origins in
+`OFFICE_HANDOFF_ALLOWED_ORIGINS` (comma-separated exact origins). Both lists
+default to empty. Zuri's popup uses the existing same-origin session and CSRF
+checks, lets the owner select an eligible Workspace and explicitly submit, then
+reads back the specific committed revision. No CORS or credential delegation is
+introduced. The Zuri browser retains a bounded retry key and original version
+per session principal, Workspace and exact ZIP hash; the same browser profile
+can retry after a popup closes. Web Locks serialize those commands; unavailable
+locking or storage refuses submission. A different principal, changed ZIP or
+cleared browser data cannot recover the old command. Local
+testing does not establish live Business import, migration application or rollout.
 
 Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration or deployment is claimed.
 
@@ -207,7 +221,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=360 -->
+<!-- api-spec-counts: route_handlers=361 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM

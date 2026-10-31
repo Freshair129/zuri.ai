@@ -1,6 +1,6 @@
 ---
 id: ZAI:FEATURES
-version: "1.76.0b"
+version: "1.77.0b"
 status: active
 last_update: "2026-10-31,Codex Root"
 relations:
@@ -17,6 +17,8 @@ relations:
 ---
 
 # Features (FEAT registry)
+
+Version diff 1.76.0b to 1.77.0b (2026-10-31): adds FR-295 handoff-client readiness navigation. The requirement remains planned; no deployment, Business import or permission is implied.
 
 Version diff 1.75.0b to 1.76.0b (2026-10-31): adds standalone FR-294 readiness navigation for Business/Workspace visual design registration. Its requirement remains planned; metadata creates no Agent, permission, approval, live integration or deployment claim.
 
@@ -1137,6 +1139,11 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-294",
     "primaryDomain": "project-manager",
     "useCase": "Business owner receives a pinned Office design package, verifies and stores scoped floor, agent-design and asset crosswalks without creating runtime Agents or permissions."
+  },
+  {
+    "id": "FR-295",
+    "primaryDomain": "project-manager",
+    "useCase": "A Business owner selects an eligible Workspace and sends an Office design handoff for scoped registration and ID readback."
   }
 ]
 ```

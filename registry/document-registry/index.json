@@ -8771,6 +8771,31 @@
       "requirementCells": [],
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 509
+    },
+    {
+      "id": "FR-295",
+      "namespace": "ZAI",
+      "family": "FR",
+      "recordVersion": 2,
+      "status": "active",
+      "path": "docs/requirements/FR-295.md",
+      "provenance": "authored",
+      "authoredBaseRevision": "0faa4551f94a2579734008d6cf5110db321422b1",
+      "approvalRevision": "0faa4551f94a2579734008d6cf5110db321422b1",
+      "approvalPath": "docs/change-requests/project-manager/office-handoff-client-20261031.md",
+      "approvalVersion": "0.1.0",
+      "approvalSha256": "29f0f8991a222e5ffbc396b8b842cb0c32f262b559c26c5d2c21e0068c8b65d5",
+      "migrationId": "office-handoff-client-20261031",
+      "manifestPath": "docs/migrations/document-reintegration/record-migrations/office-handoff-client-20261031.manifest.json",
+      "manifestSha256": "ec6323513c14d662961e954cc8b91e6aab670c20f77641caaa6dcfa6bc29aba1",
+      "rowSha256": "8e40a49b6c377083f3e55df6dcf6c2043948f4a5a75357114a88bb65f4a22c34",
+      "statementSha256": "2ebce834c60b23383a5612cc1768caa3edf0b20faed9a68f0c3239a8a6e4af3f",
+      "subjectAnchor": "visual office handoff client transfers the design package",
+      "recordSha256": "c5bd489c730114c2f909bc02b4d994c933cdd864673f35b9b13352a6c199e895",
+      "statementCell": 2,
+      "requirementCells": [],
+      "exportDocument": "docs/PRD-SDD-v1.0.md",
+      "exportOrder": 510
     }
   ]
 }

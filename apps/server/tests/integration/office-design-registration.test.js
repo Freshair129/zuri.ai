@@ -7,6 +7,7 @@ import prisma from '@/lib/db'
 import {POST,GET} from '@/app/api/businesses/[id]/office-designs/route'
 import {GET as getAsset} from '@/app/api/businesses/[id]/office-designs/assets/[sha256]/route'
 import {GET as getCsrf} from '@/app/api/auth/csrf/route'
+import {GET as getTargets} from '@/app/api/office-design-targets/route'
 import {generateSessionToken,hashSessionToken} from '@/modules/identity/auth-service'
 import {createPortfolio,createTenant,createBusiness,createWorkspace} from '../factories/scope'
 import {persistImportViewer} from '../helpers/persist-import-viewer'
@@ -24,6 +25,13 @@ const context=s=>({params:Promise.resolve({id:s.business.id})})
 const request=(s,{method='POST',bytes=stock,token=cookie,version=0,key='first',headers={},suffix=''}={})=>new Request(url(s)+suffix,{method,headers:{cookie:token,'content-type':'application/zip','if-match':`"${version}"`,'idempotency-key':key,origin:'http://localhost','x-csrf-token':csrf,...headers},...(method==='POST'?{body:bytes}:{})})
 describe.sequential('Office design HTTP database lifecycle',()=>{
  beforeAll(async()=>{process.env.PUBLIC_BASE_URL='http://localhost';process.env.ZURI_SESSION_SECRET='office-test-only-isolated-session-secret-123456';a=await scope();b=await scope();owner=await persistImportViewer(makeViewer({visibleBusinessIds:[a.business.id,b.business.id],ownedBusinessIds:[a.business.id,b.business.id]}));member=await persistImportViewer(makeViewer({visibleBusinessIds:[a.business.id],ownedBusinessIds:[]}));const s=await session(owner);cookie=s.cookie;sessionId=s.id;memberCookie=(await session(member)).cookie;csrf=(await(await getCsrf(new Request('http://localhost/api/auth/csrf',{headers:{cookie,origin:'http://localhost'}}))).json()).token;expect(csrf).toBeTypeOf('string');initialAgents=await prisma.businessAgentConfig.count();initialApprovals=await prisma.agentApprovalRequest.count()})
+ it('lists only active Business Workspaces owned by the live session',async()=>{
+  const get=token=>getTargets(new Request('http://localhost/api/office-design-targets',{headers:{cookie:token}}))
+  expect((await get('')).status).toBe(401)
+  const memberResponse=await get(memberCookie);expect(memberResponse.status).toBe(200);expect(await memberResponse.json()).toEqual({targets:[]})
+  const expected=await prisma.workspace.findMany({where:{scopeType:'BUSINESS',status:'ACTIVE',businessId:{in:[a.business.id,b.business.id]}},select:{id:true}})
+  const response=await get(cookie),body=await response.json();expect(response.status).toBe(200);expect(body.targets.map(x=>x.workspaceId).sort()).toEqual(expected.map(x=>x.id).sort());expect(response.headers.get('cache-control')).toContain('no-store')
+ })
  it('authenticates before reading input and makes absent/unauthorized targets indistinguishable',async()=>{
   expect((await POST(request(a,{token:''}),context(a))).status).toBe(401)
   const denied=await POST(request(a,{token:memberCookie}),context(a)),missing=await POST(request({...a,workspace:{id:randomUUID()}},{token:memberCookie}),context(a))
@@ -97,9 +105,11 @@ describe.sequential('Office design HTTP database lifecycle',()=>{
  },120000)
  it('checks persisted membership again and revoked sessions deny both read and retry',async()=>{
   await prisma.membership.updateMany({where:{personId:owner.principal.id,businessId:a.business.id},data:{status:'REVOKED'}})
+  const targets=await getTargets(new Request('http://localhost/api/office-design-targets',{headers:{cookie}}));expect((await targets.json()).targets.every(t=>t.businessId!==a.business.id)).toBe(true)
   expect((await GET(request(a,{method:'GET'}),context(a))).status).toBe(404)
   expect((await POST(request(a),context(a))).status).toBe(404)
   await prisma.session.update({where:{id:sessionId},data:{status:'REVOKED'}})
+  expect((await getTargets(new Request('http://localhost/api/office-design-targets',{headers:{cookie}}))).status).toBe(401)
   expect((await GET(request(b,{method:'GET'}),context(b))).status).toBe(401)
  })
 })

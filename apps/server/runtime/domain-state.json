@@ -37,9 +37,9 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 174,
+    "featureCount": 175,
     "readyFeatureCount": 121,
-    "requirementCount": 282,
+    "requirementCount": 283,
     "verifiedRequirementCount": 247,
     "progressPercent": 93.6,
     "gapCount": 82,
@@ -920,17 +920,6 @@
       },
       {
         "domain": "project-manager",
-        "id": "API-OPENAPI-001",
-        "severity": "high",
-        "check": "httpApi",
-        "summary": "API route is not represented in the machine-readable OpenAPI generator",
-        "evidence": [
-          "/api/businesses/[id]/office-designs",
-          "/api/businesses/[id]/office-designs/assets/[sha256]"
-        ]
-      },
-      {
-        "domain": "project-manager",
         "id": "CONTRACT-001",
         "severity": "medium",
         "check": "runtimeContract",
@@ -1442,6 +1431,7 @@
           "apps/server/src/modules/business/office-design/http.js",
           "apps/server/src/modules/business/office-design/service.js",
           "apps/server/src/modules/business/office-design/verify.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/tests/integration/backup.test.js",
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -1453,6 +1443,8 @@
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/office-design-next-http.test.js",
           "apps/server/tests/integration/office-design-registration.test.js",
+          "apps/server/tests/integration/office-ui-transfer.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/postgres/office-design-migration.test.js",
           "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -1462,6 +1454,24 @@
           "apps/server/tests/unit/office-design-package.test.js",
           "apps/server/tests/unit/office-design-provenance.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "project-manager",
+        "id": "REQ-FR-295",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-295 is partial",
+        "evidence": [
+          "apps/server/src/app/api/office-design-targets/route.js",
+          "apps/server/src/modules/business/office-design/client-origins.js",
+          "apps/server/src/modules/business/office-design/client-retry.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
+          "apps/server/tests/integration/office-design-registration.test.js",
+          "apps/server/tests/integration/office-ui-transfer.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/unit/office-client-origin.test.js",
+          "apps/server/tests/unit/office-handoff-retry.test.js"
         ]
       }
     ]
@@ -1904,7 +1914,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -2599,7 +2609,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -3690,7 +3700,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 1
           }
         },
@@ -4278,7 +4288,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -4742,7 +4752,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -5882,7 +5892,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -6122,7 +6132,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -6374,7 +6384,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -6762,7 +6772,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -6987,7 +6997,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 359,
+            "openApiPaths": 362,
             "missingFromOpenApi": 0
           }
         },
@@ -8954,8 +8964,8 @@
           "title": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph…",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 7,
-          "testCount": 19,
+          "codeCount": 8,
+          "testCount": 21,
           "evidence": [
             "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
             "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
@@ -8963,6 +8973,7 @@
             "apps/server/src/modules/business/office-design/http.js",
             "apps/server/src/modules/business/office-design/service.js",
             "apps/server/src/modules/business/office-design/verify.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -8974,6 +8985,8 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/office-design-next-http.test.js",
             "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/office-ui-transfer.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/office-design-migration.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -8983,6 +8996,25 @@
             "apps/server/tests/unit/office-design-package.test.js",
             "apps/server/tests/unit/office-design-provenance.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "FR-295",
+          "title": "Visual Office handoff client transfers the design package to Zuri, lets a signed-in principal select an active Business Workspace under…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 5,
+          "evidence": [
+            "apps/server/src/app/api/office-design-targets/route.js",
+            "apps/server/src/modules/business/office-design/client-origins.js",
+            "apps/server/src/modules/business/office-design/client-retry.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/office-ui-transfer.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/office-client-origin.test.js",
+            "apps/server/tests/unit/office-handoff-retry.test.js"
           ]
         }
       ],
@@ -9010,27 +9042,17 @@
           }
         },
         "httpApi": {
-          "status": "partial",
+          "status": "verified",
           "evidence": [
             "docs/appendices/A-api-spec.md",
             "src/modules/project-manager/api-docs/openapi.js"
           ],
-          "gaps": [
-            {
-              "id": "API-OPENAPI-001",
-              "severity": "high",
-              "summary": "API route is not represented in the machine-readable OpenAPI generator",
-              "evidence": [
-                "/api/businesses/[id]/office-designs",
-                "/api/businesses/[id]/office-designs/assets/[sha256]"
-              ]
-            }
-          ],
+          "gaps": [],
           "details": {
-            "routes": 189,
-            "inventoried": 189,
-            "openApiPaths": 359,
-            "missingFromOpenApi": 2
+            "routes": 190,
+            "inventoried": 190,
+            "openApiPaths": 362,
+            "missingFromOpenApi": 0
           }
         },
         "mcp": {
@@ -9096,7 +9118,7 @@
           "details": {
             "mutations": 144,
             "guardedMutations": 143,
-            "reads": 88,
+            "reads": 89,
             "unguardedReads": 11
           }
         },
@@ -9183,16 +9205,6 @@
           "evidence": [
             "/assets/receiving",
             "/projects/[projectId]/domain-view"
-          ]
-        },
-        {
-          "id": "API-OPENAPI-001",
-          "severity": "high",
-          "check": "httpApi",
-          "summary": "API route is not represented in the machine-readable OpenAPI generator",
-          "evidence": [
-            "/api/businesses/[id]/office-designs",
-            "/api/businesses/[id]/office-designs/assets/[sha256]"
           ]
         },
         {
@@ -9689,6 +9701,7 @@
             "apps/server/src/modules/business/office-design/http.js",
             "apps/server/src/modules/business/office-design/service.js",
             "apps/server/src/modules/business/office-design/verify.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -9700,6 +9713,8 @@
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/office-design-next-http.test.js",
             "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/office-ui-transfer.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/office-design-migration.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -9710,11 +9725,28 @@
             "apps/server/tests/unit/office-design-provenance.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-295",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-295 is partial",
+          "evidence": [
+            "apps/server/src/app/api/office-design-targets/route.js",
+            "apps/server/src/modules/business/office-design/client-origins.js",
+            "apps/server/src/modules/business/office-design/client-retry.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
+            "apps/server/tests/integration/office-design-registration.test.js",
+            "apps/server/tests/integration/office-ui-transfer.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/office-client-origin.test.js",
+            "apps/server/tests/unit/office-handoff-retry.test.js"
+          ]
         }
       ],
       "details": {
-        "routes": 237,
-        "apiRoutes": 189,
+        "routes": 238,
+        "apiRoutes": 190,
         "pageRoutes": 48,
         "ownedModels": 53,
         "featureNotes": 45
@@ -9775,11 +9807,12 @@
         "FR-286",
         "FR-292",
         "FR-293",
-        "FR-294"
+        "FR-294",
+        "FR-295"
       ],
-      "featureCount": 56,
+      "featureCount": 57,
       "readyFeatureCount": 48,
-      "progressPercent": 97.3
+      "progressPercent": 97.1
     }
   },
   "features": [
@@ -21980,8 +22013,8 @@
           "title": "Visual Office design handoff registration accepts the pinned bounded v1 package for an authorized Business Workspace, validates its graph…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 7,
-          "testCount": 19
+          "codeCount": 8,
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -21991,6 +22024,7 @@
         "apps/server/src/modules/business/office-design/http.js",
         "apps/server/src/modules/business/office-design/service.js",
         "apps/server/src/modules/business/office-design/verify.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -22002,6 +22036,8 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/office-design-next-http.test.js",
         "apps/server/tests/integration/office-design-registration.test.js",
+        "apps/server/tests/integration/office-ui-transfer.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/postgres/office-design-migration.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -22011,6 +22047,48 @@
         "apps/server/tests/unit/office-design-package.test.js",
         "apps/server/tests/unit/office-design-provenance.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
+      ]
+    },
+    {
+      "id": "FR-295",
+      "title": "Visual Office handoff client transfers the design package to Zuri, lets a signed-in principal select an active Business Workspace under current OWNER authority for its active Business and Tenant, and reports registration only after reading the committed revision and its design ID mappings back from the scoped receiver.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-295"
+      ],
+      "primaryDomain": "project-manager",
+      "contributorDomains": [
+        "project-manager"
+      ],
+      "useCase": "A Business owner selects an eligible Workspace and sends an Office design handoff for scoped registration and ID readback.",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-295 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-295",
+          "title": "Visual Office handoff client transfers the design package to Zuri, lets a signed-in principal select an active Business Workspace under…",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 5,
+          "testCount": 5
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/office-design-targets/route.js",
+        "apps/server/src/app/office-handoff/page.jsx",
+        "apps/server/src/modules/business/office-design/client-origins.js",
+        "apps/server/src/modules/business/office-design/client-retry.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
+        "apps/server/tests/integration/office-design-registration.test.js",
+        "apps/server/tests/integration/office-ui-transfer.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/unit/office-client-origin.test.js",
+        "apps/server/tests/unit/office-handoff-retry.test.js"
       ]
     }
   ],

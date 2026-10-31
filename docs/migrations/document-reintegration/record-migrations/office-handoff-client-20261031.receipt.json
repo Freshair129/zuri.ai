@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "migrationId": "office-handoff-client-20261031",
+  "status": "APPLIED",
+  "manifestSha256": "ec6323513c14d662961e954cc8b91e6aab670c20f77641caaa6dcfa6bc29aba1",
+  "base": {
+    "commit": "0faa4551f94a2579734008d6cf5110db321422b1",
+    "indexSha256": "c6d5d900a6443b77e2061b1c2be85c8f0509ebb16de81d0d1be855025e39c316",
+    "ledgerSha256": "41e829574670bfb2f0ed70993544b0d24b86b338f53b8880297ab6f171c10f1c"
+  },
+  "ids": [
+    "FR-295"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/office-handoff-client-20261031.approval.md": null,
+    "docs/requirements/FR-295.md": null,
+    "registry/document-registry/index.json": "c6d5d900a6443b77e2061b1c2be85c8f0509ebb16de81d0d1be855025e39c316",
+    "docs/PRD-SDD-v1.0.md": "efe98d26d99fda50fdba70e28d113760373a471669509066890cfb4ab78301b8",
+    "docs/FEATURES.md": "51523fffc2cf399574838547ed717c6b56f5d82b9945aeafdf1a25ba05833637",
+    "docs/.id-ledger.json": "41e829574670bfb2f0ed70993544b0d24b86b338f53b8880297ab6f171c10f1c"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/office-handoff-client-20261031.approval.md": "29f0f8991a222e5ffbc396b8b842cb0c32f262b559c26c5d2c21e0068c8b65d5",
+    "docs/requirements/FR-295.md": "c5bd489c730114c2f909bc02b4d994c933cdd864673f35b9b13352a6c199e895",
+    "registry/document-registry/index.json": "a8af65899c51466020ab6aac65912758612681ea0c58c8039931bb72fa394057",
+    "docs/PRD-SDD-v1.0.md": "3999f7d0c47920ae970b395f329203b496b694c0105537a284feb0440a8ea106",
+    "docs/FEATURES.md": "51523fffc2cf399574838547ed717c6b56f5d82b9945aeafdf1a25ba05833637",
+    "docs/.id-ledger.json": "a2311be4e3f4ea2f46dc25f83e6aa96d0be71283c4fbcf3d50dd7cc8c966885d"
+  }
+}

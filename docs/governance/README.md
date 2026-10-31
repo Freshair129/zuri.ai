@@ -69,6 +69,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Compact OR0 recovery and backup transfer canonical adoption](../change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
 - [Compact managed-blob recovery OR0 contract proposal](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
 - [Visual Office design handoff receiver](../change-requests/project-manager/office-design-receiver-20261031.md)
+- [Visual Office handoff client](../change-requests/project-manager/office-handoff-client-20261031.md)
 - [Portable managed file content](../change-requests/project-manager/portable-managed-files-20261014.md)
 - [`docs/change-requests/` — intake, not governance](../change-requests/README.md)
 - [Approved contract — Commerce Billing, PromptPay and POS](../change-requests/ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910.md)
