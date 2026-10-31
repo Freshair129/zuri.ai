@@ -938,12 +938,14 @@ jobs:
         env:
           E2E_PORT: '3100'
           E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_SERVER_DIAGNOSTICS: '1'
           ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
           ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
         run: |
           $ErrorActionPreference = 'Stop'
           $port = [int]$env:E2E_PORT
           $env:NODE_ENV = 'test'
+          $env:E2E_SERVER_MODE = 'production'
           $env:DATABASE_URL = "file:./e2e-$port.db"
           $env:PUBLIC_BASE_URL = "http://localhost:$port"
           $env:ZURI_SESSION_SECRET = $env:ZURI_E2E_SESSION_SECRET
@@ -953,9 +955,10 @@ jobs:
           $env:ZURI_PLUGIN_REDIRECT_URIS = "http://localhost:$port/plugin/e2e-callback"
           $logDir = Join-Path (Get-Location).Path 'node_modules/.cache/zuri-test-proof/e2e-server'
           New-Item -ItemType Directory -Force -Path $logDir | Out-Null
-          # This preload belongs only to the isolated Next server, never the
-          # application deployment or the test runner. Preserve existing flags.
-          $env:NODE_OPTIONS = (@($env:NODE_OPTIONS, '--require ./tests/e2e/server-timings.cjs') | Where-Object { $_ }) -join ' '
+          # This preload belongs only to the isolated Next server. The shared
+          # helper preserves runner flags and is also used by Playwright's fallback.
+          $env:NODE_OPTIONS = node ./tests/e2e/prepare-server-timings-options.cjs
+          if ($LASTEXITCODE -ne 0) { throw 'Could not prepare E2E server diagnostics.' }
           $server = Start-Process -FilePath 'node' -ArgumentList @('node_modules/next/dist/bin/next', 'start', '-p', "$port") -WorkingDirectory (Get-Location).Path -WindowStyle Hidden -PassThru -RedirectStandardOutput (Join-Path $logDir 'stdout.log') -RedirectStandardError (Join-Path $logDir 'stderr.log')
           "E2E_SERVER_PID=$($server.Id)" | Out-File -FilePath $env:GITHUB_ENV -Append -Encoding utf8
           $deadline = (Get-Date).AddSeconds(120)
@@ -991,6 +994,7 @@ jobs:
           E2E_SERVER_MODE: production
           E2E_PORT: '3100'
           E2E_EXTERNAL_SERVER: 'true'
+          ZURI_E2E_SERVER_DIAGNOSTICS: '1'
           ZURI_E2E_AUTH_PASSWORD: e2e-ci-owner-password
           ZURI_E2E_SESSION_SECRET: e2e-ci-session-secret-0123456789abcdef
           NODE_ENV: test
@@ -1008,10 +1012,16 @@ jobs:
         shell: pwsh
         run: |
           if ($env:E2E_SERVER_PID) {
-            $server = Get-Process -Id ([int]$env:E2E_SERVER_PID) -ErrorAction SilentlyContinue
+            $serverPid = [int]$env:E2E_SERVER_PID
+            $server = Get-Process -Id $serverPid -ErrorAction SilentlyContinue
+            $outcome = 'already-exited'
             if ($server) {
               taskkill /PID $server.Id /T /F
+              $outcome = if ($LASTEXITCODE -eq 0) { 'terminated' } else { 'kill-failed' }
             }
+            $cleanup = node ./tests/e2e/server-cleanup-record.cjs $serverPid $outcome
+            if ($LASTEXITCODE -ne 0) { throw 'Could not write E2E server cleanup diagnostics.' }
+            Add-Content -Path 'node_modules/.cache/zuri-test-proof/e2e-server/stderr.log' -Value $cleanup -Encoding utf8
           }
 
       - name: e2e skipped (no impacted UI/domain targets)

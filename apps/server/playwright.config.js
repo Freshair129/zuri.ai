@@ -1,6 +1,7 @@
 const { chromium, defineConfig } = require('@playwright/test')
 const fs = require('fs')
 const path = require('path')
+const { appendServerTimingsPreload } = require('./tests/e2e/server-timings.cjs')
 // @req FR-046 — the port and the isolated database are one decision made in one
 // place, so the web server and the seeder cannot disagree, and a second worktree
 // does not collide with the first. The primary checkout still runs on :3100.
@@ -181,6 +182,9 @@ module.exports = defineConfig({
       // explicit test mode rather than weakening the production Postgres
       // fail-closed guard.
       ...(useProductionServer ? { NODE_ENV: 'test' } : {}),
+      ...(useProductionServer && process.env.ZURI_E2E_SERVER_DIAGNOSTICS === '1'
+        ? { NODE_OPTIONS: appendServerTimingsPreload(process.env.NODE_OPTIONS) }
+        : {}),
       // Same `target` object global setup reads, so the server and the seeded
       // database are the same database by construction rather than by two
       // literals that happen to match.
