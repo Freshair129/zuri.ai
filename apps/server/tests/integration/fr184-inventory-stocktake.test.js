@@ -171,4 +171,64 @@ describe('FR-184 Inventory physical stocktake', () => {
     const movementCount = await prisma.stockMovement.count({ where: { businessId: business.id, reference: { in: requests.map((request) => `STOCKTAKE:${request.previewId}`) } } })
     expect(movementCount).toBe(1)
   })
+
+  it('rolls back every stocktake write when a later append fails', async () => {
+    const suffix = Date.now().toString(36)
+    const firstProduct = await createProduct({
+      businessId: business.id, code: `ST-ROLLBACK-A-${suffix}`, productMasterId: master.id,
+      name: 'Stocktake rollback first item', trackingMode: 'NONE',
+    }, { viewer: owner })
+    const secondProduct = await createProduct({
+      businessId: business.id, code: `ST-ROLLBACK-B-${suffix}`, productMasterId: master.id,
+      name: 'Stocktake rollback second item', trackingMode: 'NONE',
+    }, { viewer: owner })
+    const preview = await previewStocktake({
+      businessId: business.id,
+      lines: [line(firstProduct.id, locationA.id, 1), line(secondProduct.id, locationA.id, 1)],
+    }, { viewer: owner })
+    expect(preview.complete).toBe(true)
+
+    const request = {
+      businessId: business.id,
+      previewId: preview.previewId,
+      snapshotToken: preview.snapshotToken,
+      idempotencyKey: 'st-atomic-rollback',
+      lines: preview.lines.map(({ productId, locationId, lotId, countedQuantity }) => ({ productId, locationId, lotId, countedQuantity })),
+    }
+    const beforeRow = await prisma.inventoryStocktake.findUnique({ where: { id: preview.previewId } })
+    const beforeFence = await prisma.inventoryLedgerFence.findUnique({ where: { tenantId_businessId: { tenantId: tenant.id, businessId: business.id } } })
+    const beforeMovementCount = await prisma.stockMovement.count({ where: { businessId: business.id } })
+    const beforeAuditCount = await prisma.auditEvent.count()
+
+    let movementCreates = 0
+    const faultedDb = {
+      $transaction: (work, options) => prisma.$transaction((tx) => {
+        const faultedTx = new Proxy(tx, {
+          get(target, property, receiver) {
+            if (property !== 'stockMovement') return Reflect.get(target, property, receiver)
+            const delegate = Reflect.get(target, property, receiver)
+            return new Proxy(delegate, {
+              get(delegateTarget, method, delegateReceiver) {
+                if (method !== 'create') return Reflect.get(delegateTarget, method, delegateReceiver)
+                return async (...args) => {
+                  movementCreates += 1
+                  if (movementCreates === 2) throw new Error('FR184 injected append failure')
+                  return delegateTarget.create(...args)
+                }
+              },
+            })
+          },
+        })
+        return work(faultedTx)
+      }, options),
+    }
+    await expect(commitStocktake(request, { viewer: owner, db: faultedDb })).rejects.toThrow('FR184 injected append failure')
+    expect(movementCreates).toBe(2)
+
+    expect(await prisma.stockMovement.count({ where: { businessId: business.id } })).toBe(beforeMovementCount)
+    expect(await prisma.stockMovement.count({ where: { businessId: business.id, reference: `STOCKTAKE:${preview.previewId}` } })).toBe(0)
+    expect(await prisma.auditEvent.count()).toBe(beforeAuditCount)
+    expect(await prisma.inventoryStocktake.findUnique({ where: { id: preview.previewId } })).toEqual(beforeRow)
+    expect(await prisma.inventoryLedgerFence.findUnique({ where: { tenantId_businessId: { tenantId: tenant.id, businessId: business.id } } })).toMatchObject({ mutationRevision: beforeFence.mutationRevision })
+  })
 })
