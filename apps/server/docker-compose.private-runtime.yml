@@ -1,0 +1,89 @@
+# Opt-in integration only. PRP, LiteLLM, vLLM and GenesisBlock remain externally owned.
+# Merge AFTER docker-compose.yml and docker-compose.conversation-runtime.yml.
+services:
+  web:
+    mem_limit: ${ZURI_PRP_WEB_MEMORY:-2g}
+    cpus: ${ZURI_PRP_WEB_CPUS:-2.0}
+    environment:
+      ZURI_PRIVATE_RUNTIME_BASE_URL: https://${ZURI_PRP_TLS_IP:-10.246.99.10}:4443
+      NODE_EXTRA_CA_CERTS: /run/secrets/prp_client_ca
+    secrets:
+      - prp_client_ca
+    networks:
+      - prp-client
+    depends_on:
+      prp-tls:
+        condition: service_healthy
+
+  conversation-runtime:
+    environment:
+      ZURI_PRIVATE_RUNTIME_BASE_URL: https://${ZURI_PRP_TLS_IP:-10.246.99.10}:4443
+      NODE_EXTRA_CA_CERTS: /run/secrets/prp_client_ca
+    secrets:
+      - prp_client_ca
+    networks:
+      - prp-client
+    mem_limit: 512m
+    cpus: 1.0
+    depends_on:
+      prp-tls:
+        condition: service_healthy
+
+  prp-tls:
+    profiles: [conversation-runtime]
+    image: ${ZURI_PRP_TLS_IMAGE:?Set an approved nginx image@sha256 digest}
+    restart: unless-stopped
+    read_only: true
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 100
+    security_opt: [no-new-privileges:true]
+    environment:
+      NGINX_ENVSUBST_FILTER: ^PRP_
+      PRP_UPSTREAM_ADDRESS: ${ZURI_PRP_UPSTREAM_ADDRESS:?Set a fixed PRP IP and TLS port}
+      PRP_UPSTREAM_TLS_NAME: ${ZURI_PRP_UPSTREAM_TLS_NAME:?Set the upstream certificate identity}
+      PRP_TLS_IP: ${ZURI_PRP_TLS_IP:-10.246.99.10}
+    secrets:
+      - prp_tls_cert
+      - prp_tls_key
+      - prp_client_ca
+      - prp_upstream_ca
+    volumes:
+      - ./deploy/private-runtime/prp.conf.template:/etc/nginx/templates/default.conf.template:ro
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /etc/nginx/conf.d
+    networks:
+      prp-client:
+        ipv4_address: ${ZURI_PRP_TLS_IP:-10.246.99.10}
+      prp-upstream: {}
+    healthcheck:
+      test: [CMD-SHELL, 'curl --fail --silent --cacert /run/secrets/prp_client_ca https://$${PRP_TLS_IP}:4443/healthz >/dev/null']
+      interval: 10s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options: {max-size: 5m, max-file: "3"}
+
+networks:
+  prp-client:
+    internal: true
+    ipam:
+      config:
+        - subnet: ${ZURI_PRP_CLIENT_SUBNET:-10.246.99.0/24}
+  prp-upstream:
+    external: true
+    name: ${ZURI_PRP_NETWORK:?Set the existing isolated PRP Docker network}
+
+secrets:
+  prp_client_ca:
+    file: ${ZURI_PRP_CLIENT_CA_FILE:?Set the trusted client CA PEM file}
+  prp_tls_cert:
+    file: ${ZURI_PRP_TLS_CERT_FILE:?Set a certificate with the proxy IP SAN}
+  prp_tls_key:
+    file: ${ZURI_PRP_TLS_KEY_FILE:?Set the protected proxy private key file}
+  prp_upstream_ca:
+    file: ${ZURI_PRP_UPSTREAM_CA_FILE:?Set the trusted upstream CA PEM file}

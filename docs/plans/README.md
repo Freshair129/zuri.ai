@@ -22,6 +22,8 @@ rewrite those pinned rows or move their consumed paths.
 
 ## Current implementation plans
 
+- [Private Runtime integration](PRIVATE-RUNTIME-INTEGRATION-20261031.md): owner-requested FR-267 transport hardening and opt-in Docker connectivity; real PRP/GPU qualification remains separate.
+
 ### Approved Compact self-host plan — Task5 continuation
 
 The owner approved ADR-115 and the following plan at `e5fcfd4b` on 2026-10-27,

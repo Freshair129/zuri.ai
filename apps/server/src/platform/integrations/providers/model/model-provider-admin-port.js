@@ -1,4 +1,5 @@
 import { MODEL_PROVIDER_CODES, MODEL_ID_PATTERN, PRIVATE_RUNTIME_PROVIDER } from '@/lib/validation/enums'
+import { readPrivateRuntimeBaseUrl } from './private-runtime-config'
 
 // @req FR-266 — the Integration lane's model-provider admin port: prove an API key
 //   *and the model id it will be used with* against the provider before anything is
@@ -85,11 +86,28 @@ const PRP_MODEL_LIST_MAX_BYTES = 256 * 1024
 async function grantedModelIds(response) {
   let text
   try {
-    text = await response.text()
+    if (response.body?.getReader) {
+      const reader = response.body.getReader()
+      const chunks = []
+      let size = 0
+      try {
+        while (true) {
+          const { done, value } = await reader.read()
+          if (done) break
+          size += value.byteLength
+          if (size > PRP_MODEL_LIST_MAX_BYTES) {
+            void reader.cancel().catch(() => {})
+            return null
+          }
+          chunks.push(Buffer.from(value))
+        }
+        text = new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks))
+      } finally { reader.releaseLock() }
+    } else text = await response.text()
   } catch {
     return null
   }
-  if (typeof text !== 'string' || text.length > PRP_MODEL_LIST_MAX_BYTES) return null
+  if (typeof text !== 'string' || Buffer.byteLength(text, 'utf8') > PRP_MODEL_LIST_MAX_BYTES) return null
   let json
   try {
     json = JSON.parse(text)
@@ -168,29 +186,34 @@ export function createModelProviderAdminPort({ fetchFn = globalThis.fetch, timeo
    */
   async function validatePrivateRuntime({ apiKey, model, baseUrl }) {
     // No configured runtime is a refusal, never a guess at an address.
-    if (typeof baseUrl !== 'string' || !baseUrl) throw modelProviderFailure('PRIVATE_RUNTIME_NOT_CONFIGURED', 503)
+    const base = readPrivateRuntimeBaseUrl({ ZURI_PRIVATE_RUNTIME_BASE_URL: baseUrl })
+    if (!base) throw modelProviderFailure('PRIVATE_RUNTIME_NOT_CONFIGURED', 503)
 
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), timeoutMs)
-    let response
+    let timer
+    const unavailable = () => modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
+    const deadline = new Promise((_, reject) => {
+      timer = setTimeout(() => { controller.abort(); reject(unavailable()) }, timeoutMs)
+    })
     try {
-      response = await fetchFn(`${baseUrl}/v1/models`, {
+      const response = await Promise.race([fetchFn(`${base}/v1/models`, {
         method: 'GET', headers: authHeaders(PRIVATE_RUNTIME_PROVIDER, apiKey), signal: controller.signal, redirect: 'error',
-      })
-    } catch {
-      throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
+      }), deadline])
+      if (!response.ok) {
+        try { void response.body?.cancel?.().catch(() => {}) } catch {}
+      }
+      if (response.status === 401 || response.status === 403) throw modelProviderFailure('MODEL_KEY_REJECTED', 422)
+      if (!response.ok) throw unavailable()
+      const granted = await Promise.race([grantedModelIds(response), deadline])
+      if (!granted) throw unavailable()
+      if (!granted.has(model)) throw modelProviderFailure('MODEL_NOT_FOUND', 422)
+      return { provider: PRIVATE_RUNTIME_PROVIDER, validationCode: 'MODEL_KEY_VALIDATED:PRP' }
+    } catch (error) {
+      if (['MODEL_KEY_REJECTED', 'MODEL_NOT_FOUND'].includes(error?.code)) throw error
+      throw unavailable()
     } finally {
       clearTimeout(timer)
     }
-
-    if (response.status === 401 || response.status === 403) throw modelProviderFailure('MODEL_KEY_REJECTED', 422)
-    // PRP answers 503 NO_ELIGIBLE_NODE when no GPU can serve; that is unavailability
-    // and says nothing about the key, so nothing is stored and the owner may retry.
-    if (!response.ok) throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
-    const granted = await grantedModelIds(response)
-    if (!granted) throw modelProviderFailure('MODEL_PROVIDER_UNAVAILABLE', 503)
-    if (!granted.has(model)) throw modelProviderFailure('MODEL_NOT_FOUND', 422)
-    return { provider: PRIVATE_RUNTIME_PROVIDER, validationCode: `MODEL_KEY_VALIDATED:${PRIVATE_RUNTIME_PROVIDER.toUpperCase()}` }
   }
 
   return { validateKey }

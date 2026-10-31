@@ -1,4 +1,6 @@
 import { createServer } from 'node:http'
+import { createServer as createTlsServer } from 'node:https'
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -6,7 +8,8 @@ import { fileURLToPath } from 'node:url'
 // contract selected by the Runtime while keeping the legacy v1 endpoint usable.
 // @tested services/conversation-runtime/test/smoke-core.test.js
 // Disposable Core/provider stub used only by the CI image drain smoke.
-export function createSmokeCoreServer({ token = process.env.CONVERSATION_RUNTIME_TOKEN } = {}) {
+export function createSmokeCoreServer({ token = process.env.CONVERSATION_RUNTIME_TOKEN,
+  providerBaseUrl = process.env.SMOKE_PROVIDER_BASE_URL ?? 'http://127.0.0.1:4010' } = {}) {
   if (typeof token !== 'string' || token.length < 32) throw new Error('SMOKE_CORE_TOKEN_REQUIRED')
 
   const jobId = '2e41e30e-6a42-4da0-845e-90d6cdfa5ab7'
@@ -85,7 +88,7 @@ export function createSmokeCoreServer({ token = process.env.CONVERSATION_RUNTIME
           authorized: true, audienceKind: 'DIRECT', threadId: null, maxBudgetChars: 1024, workCommand: null }
         break
       case 'credential':
-        data = { provider: 'prp', model: 'smoke-model', apiKey: 'synthetic-runtime-provider-key', baseUrl: 'http://smoke-core:4010' }
+        data = { provider: 'prp', model: 'smoke-model', apiKey: 'synthetic-runtime-provider-key', baseUrl: providerBaseUrl }
         break
       case 'trace':
         state.traceKinds.push(payload.kind)
@@ -115,4 +118,10 @@ export function createSmokeCoreServer({ token = process.env.CONVERSATION_RUNTIME
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const { server } = createSmokeCoreServer()
   server.listen(4010, '0.0.0.0')
+  // The disposable provider uses real TLS so the image smoke exercises the same
+  // URL policy as production; the private Core fixture retains its HTTP port.
+  if (process.env.SMOKE_PROVIDER_TLS_CERT && process.env.SMOKE_PROVIDER_TLS_KEY) {
+    createTlsServer({ cert: readFileSync(process.env.SMOKE_PROVIDER_TLS_CERT), key: readFileSync(process.env.SMOKE_PROVIDER_TLS_KEY) },
+      (req, res) => server.emit('request', req, res)).listen(4011, '0.0.0.0')
+  }
 }

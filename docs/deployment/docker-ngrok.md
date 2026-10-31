@@ -12,6 +12,9 @@ attributes:
 
 # Deploying zuri-ai with Docker Compose and optional ngrok
 
+For the opt-in private inference connection, see [Private Runtime integration](private-runtime.md).
+It adds verified internal HTTPS and preserves this deployment's database and job owners.
+
 **Version:** 1.3.5b · **Status:** current · Decision: [ADR-058](../decisions/ADR-058-DOCKER-COMPOSE-AND-NGROK-REPLACE-VERCEL.md) · Requirements: FR-142, [FR-289](../requirements/FR-289.md)
 
 For the owner-requested Windows reinstall and existing-database move, start with

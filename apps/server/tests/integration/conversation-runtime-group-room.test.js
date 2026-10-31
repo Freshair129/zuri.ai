@@ -283,9 +283,11 @@ describe('Conversation Runtime group and room audiences', () => {
     expect(legacyReads).toHaveLength(2)
     expect(legacyReads[0]).toEqual(legacyReads[1])
     const legacyAsks = modelCalls.filter(call => call.label === 'legacy').map(call => withoutTrace(call.input))
-    const comparableAsk = ({ contextReceipt, ...ask }) => ({ ...ask,
+    const comparableAsk = ({ contextReceipt, deadlineAt, ...ask }) => ({ ...ask,
       contextReceipt: contextReceipt ? { ...contextReceipt, receiptId: '<per-turn>' } : null })
     expect(comparableAsk(legacyAsks[0])).toEqual(comparableAsk(legacyAsks[1]))
+    expect(legacyAsks[0].deadlineAt).toBe(serverGroup.expiresAt.toISOString())
+    expect(legacyAsks[1].deadlineAt).toBe(serverDirect.expiresAt.toISOString())
     expect(legacyAsks[0]).toMatchObject({ question: text, evidence, contextPacket: null,
       contextReceipt: { receiptId: expect.stringMatching(/^ctxrcpt_[0-9a-f-]{36}$/),
         refs: { msp: [], citations: ['knowledge:0'], records: [] }, budget: { max: 4000, trimmed: 0 }, dropped: [] } })
