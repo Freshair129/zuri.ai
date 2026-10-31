@@ -10,7 +10,7 @@ import { handle, httpError, queryParams } from '../_helpers'
 import prisma from '@/lib/db'
 import { listWorkstreams, createWorkstream } from '@/modules/project-manager/application/project-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
-import { isInstallationOperator } from '@/modules/identity/viewer-authority'
+import { isInstallationOperator, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertProjectReadable } from '@/modules/project-manager/application/project-inventory-read-model'
 
 export const dynamic = 'force-dynamic'
@@ -30,13 +30,22 @@ async function assertProjectVisible(projectId, viewer) {
     throw httpError(404, 'Project not found')
   }
   await assertProjectReadable(viewer, project, { db: prisma })
+  return project
 }
 
 export async function GET(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const q = queryParams(request)
-    if (q.projectId) await assertProjectVisible(q.projectId, viewer)
+    const project = q.projectId ? await assertProjectVisible(q.projectId, viewer) : null
+    if (q.businessId) {
+      if (!isInstallationOperator(viewer) && !seesBusiness(viewer, q.businessId)) {
+        throw httpError(404, 'Business not found')
+      }
+      if (project && project.businessId !== q.businessId) {
+        throw httpError(404, 'Project not found')
+      }
+    }
     const allowedBusinessIds = isInstallationOperator(viewer)
       ? undefined
       : (viewer.visibleBusinessIds?.length ? viewer.visibleBusinessIds : undefined)
@@ -46,7 +55,9 @@ export async function GET(request) {
     return listWorkstreams({
       projectId: q.projectId || undefined,
       executionMode: q.executionMode || undefined,
-      businessIds: allowedBusinessIds,
+      // A requested Business narrows even installation-operator reads. This
+      // also prevents a Project selector from silently widening the list.
+      businessIds: q.businessId ? [q.businessId] : allowedBusinessIds,
     })
   })
 }

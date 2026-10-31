@@ -19,6 +19,7 @@ import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/componen
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import ProgressExplain from '../../components/ProgressExplain'
+import OperationsBusinessView from './OperationsBusinessView'
 import { MODE_BODIES } from './mode-bodies'
 
 const MODE_VOCAB = {
@@ -54,7 +55,7 @@ function WorkstreamPanel({ workstream, reload }) {
   }
 
   return (
-    <Card className="mb-4">
+    <Card id={`workstream-${ws.id}`} className="mb-4 scroll-mt-24">
       <div className="mb-3 flex items-start justify-between gap-3 max-md:flex-col">
         <div>
           <p className="text-[9px] text-muted">
@@ -131,12 +132,17 @@ function ProjectBackPath({ projectId, project, modeLabel }) {
 }
 
 export default function ExecutionModeView({ mode, projectId }) {
-  const query = projectId ? `/api/workstreams?executionMode=${mode}&projectId=${projectId}` : `/api/workstreams?executionMode=${mode}`
+  const businessOperations = !projectId && mode === 'OPERATIONS'
+  const query = businessOperations
+    ? null
+    : projectId ? `/api/workstreams?executionMode=${mode}&projectId=${projectId}` : `/api/workstreams?executionMode=${mode}`
   const { data, loading, error, reload } = useFetch(query)
   // Read purely so the back-path can name its destination. The ternary is
   // load-bearing: `useFetch(null)` is a no-op, and an unguarded template would
   // have the global view asking the API for `/api/projects/undefined`.
   const project = useFetch(projectId ? `/api/projects/${projectId}` : null)
+
+  if (businessOperations) return <OperationsBusinessView />
 
   return (
     <div>

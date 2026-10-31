@@ -1548,7 +1548,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 78
+          "testCount": 79
         },
         {
           "id": "FR-079",
@@ -3213,7 +3213,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 86
+          "testCount": 88
         },
         {
           "id": "FR-059",
@@ -6541,7 +6541,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 86
+          "testCount": 88
         },
         {
           "id": "FR-075",
@@ -7055,7 +7055,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-005",
@@ -7095,7 +7095,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-010",
@@ -7327,7 +7327,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 86
+          "testCount": 88
         },
         {
           "id": "FR-056",
@@ -7455,7 +7455,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 78
+          "testCount": 79
         },
         {
           "id": "FR-073",
@@ -15259,7 +15259,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 9
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -15268,6 +15268,7 @@
         "apps/server/src/modules/project-manager/application/project-service.js",
         "apps/server/tests/e2e/compact-core.spec.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/operations-business-read-view.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
         "apps/server/tests/integration/project-business-binding.test.js",
@@ -15505,7 +15506,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -15517,6 +15518,7 @@
         "apps/server/src/modules/project-manager/views/execution/ExecutionModeView.jsx",
         "apps/server/src/modules/project-manager/views/execution/mode-bodies.jsx",
         "apps/server/tests/e2e/compact-core.spec.js",
+        "apps/server/tests/e2e/operations-business-read-view.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/integration/plan-mode-modal-intake.test.js",
         "apps/server/tests/unit/card-calculator-agreement.test.js",
@@ -17137,7 +17139,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 86
+          "testCount": 88
         }
       ],
       "evidence": [
@@ -17235,6 +17237,7 @@
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/e2e/fr104-password-reset-redemption.spec.js",
         "apps/server/tests/e2e/fr124-product-readiness.spec.js",
+        "apps/server/tests/e2e/operations-business-read-view.spec.js",
         "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
@@ -17316,7 +17319,8 @@
         "apps/server/tests/unit/viewer-failure.test.js",
         "apps/server/tests/unit/work-list-business-scope.test.js",
         "apps/server/tests/unit/workspace-collaboration-view.test.js",
-        "apps/server/tests/unit/workspace-onboarding-routes.test.js"
+        "apps/server/tests/unit/workspace-onboarding-routes.test.js",
+        "apps/server/tests/unit/workstreams-business-scope.test.js"
       ]
     },
     {
@@ -18324,7 +18328,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 78
+          "testCount": 79
         }
       ],
       "evidence": [
@@ -18437,7 +18441,8 @@
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/warehouse-location.test.js",
-        "apps/server/tests/unit/work-list-business-scope.test.js"
+        "apps/server/tests/unit/work-list-business-scope.test.js",
+        "apps/server/tests/unit/workstreams-business-scope.test.js"
       ]
     },
     {
