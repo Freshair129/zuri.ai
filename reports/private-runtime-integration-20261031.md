@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-verification-record
 status: partial-external-acceptance-blocked
-version: "0.1.2"
+version: "0.1.3"
 source_revision: "5f73c1d88db7c338ae41f7d94776acfe015e0e4d"
 validated_candidate_revision: "f781fb051907ac1d04dc416697870402e88a2869"
 pull_request: "https://github.com/Freshair129/zuri.ai/pull/776"
@@ -13,7 +13,9 @@ The Zuri-owned client hardening and opt-in Docker TLS integration are committed
 on `codex/prp-integration-20261101` in PR #776, based on the refreshed `main`
 revision above. The local implementation checks and code review below ran
 against candidate `f781fb051907ac1d04dc416697870402e88a2869`; this report-only
-provenance correction is a later PR commit.
+provenance correction was reviewed at PR head
+`9a139fe48157af6d8940ed8c437318d2579fc68e`. This version clarifies the two
+review stages and the provenance finding.
 **The overall task is not accepted as complete:** no actual PRP → LiteLLM → vLLM
 request path has been verified. This report issues no requirements, deployment
 authority, canonical lifecycle changes or product-completion claim.
@@ -93,7 +95,7 @@ signal and deadline boundaries. This patch adds no new job-cancellation API.
 | Standalone Runtime image build/readiness/drain | PASS | Node 22 image, actual `src/main.js`, synthetic Core/provider; health 200, ready 200, draining 503, exactly one model/completion/send, MODEL_STARTED/MODEL_COMPLETED, exit 0 |
 | `npm run govern` | PASS, 0 critical / 0 warning | Final frozen code/doc sources; registry, inventory, identity, graph, generated views and strict preflight |
 | `npm run docs:llms` / `docs:llms:check` | PASS | Regenerated ignored corpus and freshness check after entrypoint updates |
-| Independent review | No blocking code finding at `f781fb051907ac1d04dc416697870402e88a2869`; report provenance finding corrected in this version | GPT-6 Luna Max, read-only; transport/config/proxy findings and residual durable-worker cancellation scope are documented |
+| Independent review | Code review at `f781fb051907ac1d04dc416697870402e88a2869`: no blocking code finding; report-provenance P2 resolved in `9a139fe48157af6d8940ed8c437318d2579fc68e` | Original read-only GPT-6 Luna Max review identified the provenance issue. Follow-up confirmed the base/candidate/PR binding and did not re-review implementation. |
 | Actual PRP/LiteLLM/vLLM, GPU, live Business/LINE, production | NOT_VERIFIED / NOT_RUN | No qualified external endpoint, key/model/node receipt or production authority |
 | Genesis persistence/Supabase runtime regression | NOT_RUN | Their schema, source, credential configuration and volumes are unchanged; no live-data or fresh storage acceptance claim |
 | Hosted CI / release | Not in this local evidence snapshot | The current reviewed head, hosted checks and merge status are tracked on the PR; no release is claimed. |
