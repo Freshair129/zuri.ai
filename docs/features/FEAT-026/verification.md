@@ -39,6 +39,7 @@ status: generated
 - [apps/server/tests/integration/genesisrag17-tier1.test.js](../../../apps/server/tests/integration/genesisrag17-tier1.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-admission.integration.test.js](../../../apps/server/tests/integration/knowledge-admission.integration.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-replay.integration.test.js](../../../apps/server/tests/integration/knowledge-replay.integration.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/genesisrag17-parser-2.test.js](../../../apps/server/tests/unit/genesisrag17-parser-2.test.js) — `verifies` (`transitive`)

@@ -16,6 +16,7 @@ import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { normalizeMountRoot, resolveLexicalContainedPath } from '../local-files/path-security'
 import { createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { parseBusinessObjectRef } from '@/platform/storage/private-business-object-storage'
 import { assertBusinessWritable, assertFileAssetWritable, assertInstallationOperatorWritable } from './project-authorization'
 import {
   buildBusinessFileManagerReadModel,
@@ -225,6 +226,12 @@ export async function resolveFileAssetContent(fileId, {
   if (asset.status !== 'ACTIVE') throw new Error(`File asset is ${asset.status}`)
   if (asset.storageKind === 'MANAGED_BLOB') {
     if (!asset.blobRef) throw new Error('Managed blob reference is missing')
+    // @req FR-292 — a recovered ref never permits witness-free consumption.
+    // @tested tests/integration/managed-blob-recovery-consumers.test.js
+    if (asset.blobRef.startsWith('s3-business:') && parseBusinessObjectRef(asset.blobRef).key.split('/')[3] === 'recovery') {
+      if (typeof asset.sha256 !== 'string' || !/^[a-f0-9]{64}$/.test(asset.sha256)
+        || !Number.isSafeInteger(asset.size) || asset.size < 0) throw new Error('Recovered managed blob content evidence is invalid')
+    }
     const port = objectStoragePort || createConfiguredManagedBlobObjectStoragePort()
     // @spec ADR-115 — the private business bridge verifies persisted integrity
     // before extraction/admission. Existing ports may ignore these optional fields.

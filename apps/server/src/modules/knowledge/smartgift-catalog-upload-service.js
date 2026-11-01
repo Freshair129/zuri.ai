@@ -11,7 +11,9 @@
 // the upload path for catalog JSON, and it writes to the private MinIO store,
 // never a hosted bucket.
 //
-// Key layout: the application credential on that store may write only under
+// With the Compact catalog selector, use the private business catalog port and
+// business-catalog/<tenant>/<business>/<sha256>/<uuid>.json namespace. Otherwise
+// keep the original Knowledge-store layout: its credential may write only under
 // `knowledge/raw/<tenant>/<business>/` (the Stage 1 raw-artifact prefix), so a
 // catalog upload, which is raw source material, lives at
 // `knowledge/raw/<tenant>/<business>/catalog-files/<sha256>/<uuid>.json`. Raw
@@ -21,6 +23,8 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { createManagedBlobFileAsset, resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { createConfiguredKnowledgeManagedBlobPort } from '@/platform/storage/s3-object-storage'
+import { createConfiguredKnowledgeCatalogObjectStoragePort } from '@/platform/storage/supabase-object-storage'
+import { businessStorageProvider } from '@/platform/storage/private-business-object-storage'
 import { assertKnowledgeBusinessWritable } from './knowledge-authorization'
 import { admitKnowledge } from './knowledge-admission-service'
 import {
@@ -74,7 +78,13 @@ export async function uploadSmartGiftCatalogFile(input, {
   const records = parseSmartGiftCatalogFile(content.toString('utf8'))
   const sha256 = createHash('sha256').update(content).digest('hex')
 
-  const storage = objectStoragePort || createConfiguredKnowledgeManagedBlobPort(env)
+  // @spec ADR-115 — selected private business catalog storage uses its own
+  // namespace/bucket; the existing Knowledge-store default remains separate.
+  // @tested tests/integration/managed-blob-recovery-consumers.test.js
+  const compactCatalog = businessStorageProvider('catalog', env) === 's3'
+  const storage = objectStoragePort || (compactCatalog
+    ? createConfiguredKnowledgeCatalogObjectStoragePort(env)
+    : createConfiguredKnowledgeManagedBlobPort(env))
   if (!storage) throw failure(503, 'KNOWLEDGE_STORAGE_UNAVAILABLE', 'Private knowledge storage is not enabled')
 
   // Identical bytes already held for this Business are reused, whichever store
@@ -88,7 +98,9 @@ export async function uploadSmartGiftCatalogFile(input, {
     const business = await db.business.findUnique({ where: { id: value.businessId }, select: { tenantId: true } })
     if (!business?.tenantId) throw failure(404, 'KNOWLEDGE_BUSINESS_NOT_FOUND', 'Business not found')
     const stored = await storage.put({
-      key: catalogObjectKey({ tenantId: business.tenantId, businessId: value.businessId, sha256 }),
+      key: compactCatalog
+        ? `business-catalog/${business.tenantId}/${value.businessId}/${sha256}/${randomUUID()}.json`
+        : catalogObjectKey({ tenantId: business.tenantId, businessId: value.businessId, sha256 }),
       content,
       mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
     })
