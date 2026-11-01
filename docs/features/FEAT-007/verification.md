@@ -94,6 +94,7 @@ status: generated
 - [apps/server/tests/integration/fr072-file-asset-authorization.test.js](../../../apps/server/tests/integration/fr072-file-asset-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr072-files-migrate-authorization.test.js](../../../apps/server/tests/integration/fr072-files-migrate-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr072-project-file-authorization.test.js](../../../apps/server/tests/integration/fr072-project-file-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/pipeline-bundle-handoff.test.js](../../../apps/server/tests/integration/pipeline-bundle-handoff.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-contract-regressions.test.js](../../../apps/server/tests/integration/pipeline-contract-regressions.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`test-reference`)

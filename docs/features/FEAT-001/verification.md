@@ -84,6 +84,7 @@ status: generated
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-stock-policy-backup.test.js](../../../apps/server/tests/integration/line-stock-policy-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)

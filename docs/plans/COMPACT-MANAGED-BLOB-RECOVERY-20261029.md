@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.8.0"
+version: "0.9.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -470,18 +470,54 @@ the existing transfer, Windows ACL, erasure, provider and release gates remain.
 
 ### OR4 — Asset/catalog consumer and secret/erasure regressions
 
+**Owner-selected OR4 development (2026-11-01):** the direct task selects this
+slice on a new branch in the existing separate clone, based on `c9010ea8`.
+The plan remains candidate with whole-plan `implementation_authorized: false`.
+AI/operatorRecovery remain NOT_QUALIFIED and the two original flake causes OPEN.
+This selection does not activate the ordinary recovery composition or authorize
+Knowledge checkout, production or worktree changes.
+
 **Files:** tests at Asset evidence storage/extraction seams, SmartGift catalog
 upload/reader and Commerce pricing-catalog lineage seams; changes to consumers
 only when needed to preserve their approved contracts.
 
-- [ ] Verify ID/link/hash/size/MIME and evidence-review lineage preservation after
+- [x] Verify ID/link/hash/size/MIME and evidence-review lineage preservation after
   rebind and current authorized exact-byte reads. Refuse foreign/revoked reads.
-- [ ] Verify catalog/pricing lineage and current authorization without invoking
+- [x] Verify catalog/pricing lineage and current authorization without invoking
   models, native Knowledge admission or publication. Do not manufacture new
   READY/verified facts from the recovery result.
-- [ ] Verify deleted/quarantined/missing-hash and protected/unknown input families
+- [x] Verify deleted/quarantined/missing-hash and protected/unknown input families
   refuse; no credential/envelope/KEK or historical grants are imported. Preserve
   existing FR-223 re-entry and legacy snapshot protected-family refusals.
+
+The new `tests/integration/managed-blob-recovery-consumers.test.js` exercises
+actual Asset upload/extraction with a controlled extractor, human review and
+intake links; SmartGift upload; and approved ledger-backed pricing projection.
+Their existing admission calls create durable queued lineage only. No native
+worker, model, publication or new admission is invoked by recovery. Before/after
+comparisons retain complete review, source/ingestion and calculation rows, while
+the FileAsset changes only its ref, version and update time. Current authorized
+reads verify original bytes; fresh revocation and foreign visibility refuse
+before provider IO, and corrupt post-commit bytes fail closed. Deleted,
+quarantined, missing-hash, invalid-size and unknown-purpose inputs refuse; strict
+requests cannot import credential/envelope/KEK/grant or unknown-family fields.
+Existing FR-223 re-entry and protected-backup regressions remain separate checks.
+
+Two consumer gaps were reproduced: SmartGift used the Knowledge raw key against
+the selected Compact business-catalog port, and recovered-ref reads could omit
+the persisted hash witness. The selected catalog path now uses its configured
+business-catalog namespace while retaining the unselected Knowledge-store path.
+Recovered-ref reads require valid hash/size witnesses before provider access; ordinary
+legacy optional-witness reads retain their existing contract. These are bounded
+consumer corrections, not new restore authority or a change to canonical FRs.
+
+Tests use isolated SQLite and disposable embedded PostgreSQL with an explicitly
+composed recovery service, TEST installation-fence admission and controlled
+versioned provider responses. These are domain regression proofs only. They do
+not supply a real-provider, supported backup transfer round trip, restored
+installation, native Knowledge, installed OR3/operator or OR5 qualification.
+Ordinary recovery stays uncomposed/503; candidate, AI/operator NOT_QUALIFIED and
+the two original flake causes remain unchanged.
 
 ### OR5 — Exact-artifact operator qualification and gate decision
 
