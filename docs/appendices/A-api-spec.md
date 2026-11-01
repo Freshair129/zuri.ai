@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.117.0b to 1.118.0b (2026-11-01): inventory the three OR3 recovery route handlers (361 total). FR-292 transport/UI exists behind an uncomposed service boundary; ordinary requests return NOT_QUALIFIED and FR-293 backup transfer activation remains gated. No operator, provider, installation, AI or production qualification is conferred.
+
 Version diff 1.116.0b to 1.117.0b (2026-10-29): add the read-only CRM Inbox analysis detail and authenticated PM Agent Mission submission endpoints. Inventory: 358 route handlers. Mission submission creates one human-accountable PLANNED WorkItem and binds verified Agent draft evidence in the same transaction; it grants no execution or release authority. No live LINE activation, production migration or deployment is claimed.
 
 Version diff 1.115.0b to 1.116.0b (2026-10-24): FR-173/FR-071 add the session OWNER-only exact-source Knowledge replay command. Inventory: 356 route handlers. Retry queues a new full-run child, not a publication or disclosure grant.
@@ -173,7 +175,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=358 -->
+<!-- api-spec-counts: route_handlers=361 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1134,6 +1136,31 @@ these compatibility reads are not second stable list DTOs and are not used by
 Storage-kind requests are Zod-validated and scope is resolved server-side. No
 content endpoint accepts an absolute client-supplied path. The existing Project
 Files endpoints remain available through the compatibility boundary.
+
+## Managed-original recovery (FR-292/FR-293 — activation held)
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/files/[id]/recovery-operations` | Strict JSON `{expectedVersion}` preparation. Ordinary composition remains unavailable. |
+| GET | `/api/files/[id]/recovery-operations/[operationId]` | Current actor/owner-authorized status; no provider IO or confirmation token. |
+| POST | `/api/files/[id]/recovery-operations/[operationId]/[action]` | Only `preview`, `stage`, `confirm`, `inspect`, `abandon`; no create/status aliases. |
+
+The adopted [OR0 transport contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#proposed-transport-v1)
+and [OR3 operator sequence](../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md#or3--supported-operator-application-workflow)
+define the strict fields and safe custody outcomes. All POSTs use the persisted
+cookie Session, configured same Origin and `X-Zuri-API-Write-CSRF` issued by
+`GET /api/auth/csrf`, before body parsing. Preview streams descriptor then content
+only after the exact spool reservation; JSON/multipart extras, uploaded refs,
+compression, changed bytes and stale authority are refused. Confirm is separate
+from preview/staging. Inspect reconciles an existing write and never retries PUT.
+Responses use no-store; errors are `{code,message,requestId,retryable}` with no
+provider diagnostics. UNKNOWN/STAGING is 202, never a retry instruction.
+
+**Unavailable by design:** default routes have no recovery service composition;
+after authentication/CSRF they return `503 MANAGED_BLOB_RECOVERY_NOT_QUALIFIED`.
+No environment or caller flag enables them. Controlled browser/HTTP fixtures are
+transport evidence only. The supported reserved-ref backup round trip, normal
+operator/installed acceptance, provider and other release gates remain OPEN.
 
 ## Intake surfaces (FR-017..FR-020 — shipped)
 

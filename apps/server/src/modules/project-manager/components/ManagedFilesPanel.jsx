@@ -1,5 +1,8 @@
 'use client'
 
+// @req FR-292 — managed originals use the recovery workflow, never local relink.
+import { ManagedBlobRecovery } from './ManagedBlobRecovery'
+
 // @req FR-254 — Files links to knowledge history and reports admission read failures.
 // @tested tests/e2e/fr254-knowledge-console.spec.js
 
@@ -350,6 +353,7 @@ function ManagedFilesPanelBody({ businessId, projectId = null, businessTools = f
         <div className="mt-3 flex flex-wrap gap-2">
           {asset.externalUrl && <a className="btn text-[11px]" href={asset.externalUrl} target="_blank" rel="noreferrer"><ExternalLink size={13} /> Open</a>}
           {asset.storageKind === 'LOCAL_FILE' && asset.state === 'ACTIVE' && <a className="btn text-[11px]" href={`/api/files/${asset.id}/content`} target="_blank"><FileText size={13} /> View</a>}
+          {asset.storageKind === 'MANAGED_BLOB' && asset.state === 'ACTIVE' && <ManagedBlobRecovery key={asset.id} file={asset} onChanged={files.reload} />}
           {asset.storageKind === 'LOCAL_FILE' && asset.localCapability?.available && <button className="btn text-[11px]" type="button" onClick={async () => { try { await api(`/api/files/${asset.id}/reveal`, { method: 'POST', headers: { 'x-zuri-local-intent': 'reveal' } }); setMessage('Opened in File Explorer') } catch (error) { setMessage(error.message) } }}><FolderOpen size={13} /> Reveal</button>}
           {asset.storageKind === 'LOCAL_FILE' && <button className="btn text-[11px]" type="button" onClick={async () => { const relativePath = window.prompt('Relative path inside the active mount', asset.relativePath || ''); if (!relativePath || !activeMounts[0]) return; try { await api(`/api/files/${asset.id}/relink`, { method: 'POST', body: { mountId: activeMounts[0].id, relativePath } }); files.reload() } catch (error) { setMessage(error.message) } }}>Relink</button>}
           {knowledgeAsset(asset) && <button className="btn text-[11px]" data-testid={`knowledge-admit-file-${asset.id}`} type="button" onClick={() => admitAsset(asset)} disabled={['QUEUED', 'RUNNING'].includes(knowledgeByAssetId.get(asset.id)?.status)}><UploadCloud size={13} /> {knowledgeByAssetId.get(asset.id) ? 'Re-admit version' : 'Admit knowledge'}</button>}

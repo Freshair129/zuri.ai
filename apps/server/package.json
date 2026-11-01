@@ -15,6 +15,7 @@
     "test:compact:provider": "node scripts/assert-tests-ran.mjs vitest run --config vitest.compact-provider.config.js",
     "test:compact:profiles": "node scripts/assert-tests-ran.mjs vitest run --config vitest.compact-profiles.config.js",
     "test:compact:recovery": "node scripts/assert-tests-ran.mjs vitest run --config vitest.compact-recovery.config.js",
+    "test:compact:operator-browser": "node scripts/assert-tests-ran.mjs vitest run --config vitest.or3-browser.config.js",
     "compact:test": "node --test tests/node/compact-prepare-input.test.mjs tests/node/compact-manifest.test.mjs tests/node/compact-package.test.mjs tests/node/compact-oci-reference.test.mjs tests/node/compact-workflow.test.mjs tests/node/compact-target.test.mjs tests/node/compact-baseline.test.mjs tests/node/compact-executor.test.mjs tests/node/compact-bootstrap.test.mjs tests/node/compact-profile.test.mjs tests/node/compact-qualification.test.mjs",
     "lint": "next lint",
     "db:push": "prisma db push",

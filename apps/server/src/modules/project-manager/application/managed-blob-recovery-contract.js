@@ -110,5 +110,5 @@ export async function verifyRecoveryContent(descriptor, chunks, expected) {
     const digest = hash.digest('hex')
     if (byteLength !== tuple.byteLength || digest !== tuple.sha256) throw recoveryError()
     return Object.freeze({ sha256: digest, byteLength })
-  } catch (error) { throw recoveryError([409, 413].includes(error?.status) ? error.status : 400) }
+  } catch (error) { throw recoveryError([409, 410, 413].includes(error?.status) ? error.status : 400) }
 }

@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.7.0"
+version: "0.8.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -390,16 +390,83 @@ restore, before inserting any FileAsset/ProjectFile/audit row.
 
 ### OR3 — Supported operator application workflow
 
+**Owner-selected OR3 development (2026-11-01):** the direct task selects this
+slice in a new branch of the existing separate clone. The plan stays candidate
+and `implementation_authorized: false` for the whole plan. FR-292/FR-293 retain
+their canonical delivery state; AI and aggregate operatorRecovery remain
+NOT_QUALIFIED, and the two pre-existing flake causes remain OPEN. This selection
+does not authorize production, Knowledge checkout changes or a new worktree.
+
 **Files:** File Manager UI and thin server request handlers selected/frozen by
 OR0; existing `components/ManagedFilesPanel.jsx` and File API are integration
 seams, not permission to extend legacy relink to arbitrary managed refs.
 
-- [ ] RED: non-owner preview/confirm, missing trusted viewer/CSRF, stale preview,
+- [x] RED: non-owner preview/confirm, missing trusted viewer/CSRF, stale preview,
   replay and body-supplied destination ref; assert no provider IO on denial.
-- [ ] Implement approved request resolution and private input/staging, bounded
+- [x] Implement approved request resolution and private input/staging, bounded
   preview, explicit confirmation, inspect/retry and truthful partial-failure UX.
 - [ ] Run real browser/API tests through the same operator surface that the
   runbook instructs; do not inject a Viewer, ref setter or direct DB writer.
+
+#### Request/UI implementation and retained acceptance boundary
+
+The File Manager's **Recover original** component uses the adopted recovery
+collection, operation GET and five action paths. POSTs obtain Identity's live
+API-write CSRF token and send `X-Zuri-API-Write-CSRF`. The handler authenticates
+the persisted session and checks origin/CSRF before body consumption. A separate
+denial-only native authority check precedes parsing; the OR2 action still
+reauthorizes under its fence. Upload consumption starts only after the durable
+spool reservation. Multipart v1 sends one `descriptor` field followed by one
+`content` file, refusing extra fields, compression and malformed boundaries.
+The request reader uses the existing 30-second preview-lease bound, aborts
+stalled uploads and yields to the deadline for endless empty chunks. The OR2
+lease can expire earlier; the request deadline never extends it.
+
+Ordinary route composition deliberately has **no recovery service** and returns
+`503 MANAGED_BLOB_RECOVERY_NOT_QUALIFIED` after identity/CSRF checking. No body,
+environment TEST flag or installation READY row opens this gate. The supported
+FR-293 transfer workflow and proven reserved-ref backup round trip are still
+prerequisites; no operator should try these actions on a live installation.
+
+The component's intended sequence after a separately reviewed future activation
+is: select an active managed original in Files, choose **Recover original** and
+**Prepare recovery**, retain the displayed operation ID, supply the exact
+original, then **Preview original**, **Stage verified original**, and separately
+**Confirm recovery of this file**. Check file version, byte length, digest and
+purpose in preview. No destination ref, provider, endpoint or path is entered.
+Current local-file relink remains a different LOCAL_FILE-only action.
+
+After a lost response, use **Check operation status** or enter the retained ID
+in **Earlier operation ID**. UNKNOWN/STAGING directs inspection of the existing
+intent, never another upload/PUT. An authorized identical confirm retry retains
+the original token/expiry and cannot create another metadata commit. A page
+without the token can inspect or abandon; status cannot recreate the binding.
+If this page still holds the prepared descriptor and exact original, a
+PREVIEWED operation can **Recover preview binding** by re-verifying those bytes.
+Rotation is fenced against staging/revocation, preserves the original expiry
+and existing spool, and invalidates the prior token atomically. It cannot
+rotate after a provider attempt. Expired PREPARED records with no bytes, worker
+or attempt are closed under the native installation fence during maintenance
+or the next authorized preparation, retaining audit/history; live or unknown
+custody is never freed this way. A lost preparation response disables blind
+repeat preparation in the page. A definitive refusal is not labelled as loss.
+Abandonment is not provider deletion or proof that unresolved custody was freed.
+COMMITTED history with `targetCurrent:false` is not current recovery success;
+GET availability is NOT_CHECKED, and a post-commit byte failure is explicitly
+recovery-required. Operation IDs, descriptors, tokens and original bytes are
+private data; do not paste them into public evidence.
+
+Transport regressions use real persistence, signed persisted sessions, owner
+membership, filesystem spool, CAS and audit, with a controlled provider boundary.
+The explicit non-skipping browser command is
+`npm run test:compact:operator-browser`
+from `apps/server`; it owns a fresh embedded PostgreSQL target and loopback HTTP
+server and drives the actual component/handler. Ordinary Server tests do not
+require Chromium. Its fixture-only provisioning and explicit service composition
+are **not** supported product ingestion/provisioning, real provider, backup
+round-trip, installed/operator or whole-installation qualification. Therefore the
+final OR3 browser/operator acceptance checkbox above remains open. OR4/OR5 and
+the existing transfer, Windows ACL, erasure, provider and release gates remain.
 
 ### OR4 — Asset/catalog consumer and secret/erasure regressions
 
@@ -713,3 +780,9 @@ canonical delivery and NOT_QUALIFIED gates remain unchanged.
 custody/snapshot exclusion behavior. AI profiles and aggregate operatorRecovery
 remain NOT_QUALIFIED; the two pre-existing E2E flake causes remain OPEN. No
 runtime, provider, operator or release qualification is conferred.
+
+0.7.0 -> 0.8.0: record owner-selected OR3 transport/UI development, default
+activation refusal, private streaming bounds and the intended operator sequence.
+Controlled browser/request evidence remains distinct from the still-open normal
+operator/provisioning/backup round trip. No canonical statement, whole-plan
+authority, qualification or flake status changes.
