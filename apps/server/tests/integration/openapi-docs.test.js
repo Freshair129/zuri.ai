@@ -23,7 +23,14 @@ it('inventories recovery paths with an explicit held activation boundary', () =>
   ]) {
     expect(doc.paths[route]?.[method]?.['x-zuri-activation']).toBe('NOT_QUALIFIED')
     expect(doc.paths[route]?.[method]?.description).toContain('FR-293')
+    if (method === 'post') expect(doc.paths[route][method].parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ in: 'header', name: 'X-Zuri-API-Write-CSRF', required: true }),
+    ]))
   }
+  const action = doc.paths['/api/files/{id}/recovery-operations/{operationId}/{action}'].post
+  expect(Object.keys(action.requestBody.content).sort()).toEqual(['application/json', 'multipart/form-data'])
+  expect(action.requestBody.content['multipart/form-data'].schema.required).toEqual(['descriptor', 'content'])
+  expect(action.requestBody.description).toContain('descriptor before content')
 })
 
 const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])

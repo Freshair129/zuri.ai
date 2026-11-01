@@ -452,6 +452,19 @@ function pathParameters(path) {
 }
 
 function genericRequest(path, method) {
+  if (path === '/api/files/{id}/recovery-operations/{operationId}/{action}' && method === 'post') {
+    return { body: {
+      required: true,
+      description: 'Action-specific transport: preview requires descriptor before content in strict multipart, with no extra parts; stage, confirm, inspect and abandon require their strict JSON DTO from Appendix A. Media types are not interchangeable between actions.',
+      content: {
+        'application/json': { schema: zRouteInventoryRequest },
+        'multipart/form-data': { schema: z.object({
+          descriptor: z.string().openapi({ description: 'Strict recovery descriptor JSON; first part, without filename or Content-Type.' }),
+          content: z.string().openapi({ format: 'binary', description: 'Original bytes; second and final part.' }),
+        }).strict() },
+      },
+    } }
+  }
   if (path === '/api/knowledge/ingestions/{runId}/replay' && method === 'post') {
     return { body: { required: true, content: { 'application/json': { schema: knowledgeReplayInput } } } }
   }
@@ -706,6 +719,11 @@ function registerInventoryOperations(registry) {
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
             ...pathParameters(path),
+            ...(path.includes('/recovery-operations') && methodName === 'post' ? [{
+              name: 'X-Zuri-API-Write-CSRF', in: 'header', required: true,
+              schema: { type: 'string', minLength: 1 },
+              description: 'Live-session-bound API-write token issued by GET /api/auth/csrf.',
+            }] : []),
             ...(conversationAnalysis ? [{ name: 'businessId', in: 'query', required: true, schema: { type: 'string', minLength: 1 } }] : []),
             ...((approvalDecision || approvalNotificationRead || missionSubmission) ? [{
               name: 'X-CSRF-Token',
