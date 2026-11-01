@@ -3,7 +3,7 @@ id: ZAI:COMPACT-MANAGED-BLOB-RECOVERY-PLAN-20261029
 title: Compact managed-blob operator restore and rebind plan
 doc_type: implementation-plan
 status: candidate
-version: "0.9.0"
+version: "0.10.0"
 source_revision: "5b5131a0f5bf8706baf52b9dd0ec8b786df00972"
 planning_scope_selected_on: "2026-10-29"
 implementation_authorized: false
@@ -521,6 +521,18 @@ the two original flake causes remain unchanged.
 
 ### OR5 — Exact-artifact operator qualification and gate decision
 
+**Owner-selected OR5 assessment (2026-11-01):** the direct task selects OR5
+on a new branch in the existing separate clone, based on `59145776`.
+The [source-bound prerequisite assessment](../../reports/compact-selfhost-2026-10-27/or5-prerequisite-assessment-20261101.md)
+records that the supported FR-293 transfer workflow/round trip is still missing
+and the ordinary recovery entrypoint intentionally remains uncomposed/503.
+OR5 qualification is **BLOCKED**, not complete. Do not substitute explicit TEST
+service composition, the synthetic recovery lane or a codec round trip for the
+supported operator workflow. No OR5 checkbox below is closed by this assessment.
+The plan remains candidate with whole-plan `implementation_authorized: false`;
+AI/operatorRecovery remain NOT_QUALIFIED. Both OR4 test-hygiene minors remain
+DEFERRED/OPEN and the two original flake causes remain OPEN/NOT_PROVEN.
+
 **Files:** a new owned operator-recovery test lane under Server and a sanitized
 evidence report; amend the Compact runbook after the supported interface exists.
 The existing synthetic recovery test stays distinct and retains its historical
@@ -822,3 +834,8 @@ activation refusal, private streaming bounds and the intended operator sequence.
 Controlled browser/request evidence remains distinct from the still-open normal
 operator/provisioning/backup round trip. No canonical statement, whole-plan
 authority, qualification or flake status changes.
+
+0.9.0 -> 0.10.0: record the owner's OR5 selection and source-bound activation
+blocker. The FR-293 codec is not its supported export/preview/confirm service;
+ordinary recovery stays unavailable. Qualification work remains open, with both
+OR4 minors deferred and all existing candidate/AI/operator/flake gates retained.

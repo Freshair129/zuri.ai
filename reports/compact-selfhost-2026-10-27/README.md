@@ -1,12 +1,16 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.9"
+version: "0.1.10"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
 
 # Compact self-host source reconciliation
+
+The [2026-11-01 OR5 prerequisite assessment](or5-prerequisite-assessment-20261101.md)
+is bound to `59145776`: supported transfer and ordinary recovery activation
+remain blocking dependencies. It does not qualify operator recovery or AI.
 
 This is a bounded packaging and capability assessment at the revision above.
 Follow-up on 2026-10-27: the owner approved the ADR and plan at `e5fcfd4b` and

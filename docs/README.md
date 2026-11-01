@@ -1,5 +1,5 @@
 ---
-version: "0.7.16"
+version: "0.7.17"
 status: active
 superseded_by: null
 ---
@@ -66,6 +66,9 @@ plans and historical test receipts are separate from the build specification.
   is bound by the sanctioned migration issuing [ZAI:FR-292 recovery](requirements/FR-292.md)
   and [ZAI:FR-293 backup transfer](requirements/FR-293.md), both delivery planned.
   The implementation plan remains candidate and no runtime qualification is granted.
+  The [2026-11-01 OR5 prerequisite assessment](../reports/compact-selfhost-2026-10-27/or5-prerequisite-assessment-20261101.md)
+  records the still-blocking supported transfer/activation dependency at `59145776`;
+  OR5 is not complete and the existing deferred minors and qualification gates remain open.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
