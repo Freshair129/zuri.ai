@@ -98,9 +98,11 @@ describe('OR2 durable recovery', () => {
     await db.managedBlobRecoveryInstallationFence.create({ data: { id: 'installation' } })
     await expect(prepare()).rejects.toMatchObject({ status: 503 })
   })
-  it('reserves capacity before consuming any bytes and counts expired unresolved work', async () => {
+  it('reserves capacity before consuming any bytes and counts expired UNKNOWN work', async () => {
     const one = await prepare(); await prepare()
-    await db.managedBlobRecoveryOperation.update({ where: { id: one.operationId }, data: { expiresAt: new Date(0) } })
+    // Expired unused preparations now close safely. An attempted/unknown
+    // external write remains unresolved regardless of expiry or absent spool.
+    await db.managedBlobRecoveryOperation.update({ where: { id: one.operationId }, data: { expiresAt: new Date(0), state: 'UNKNOWN', attempts: 1 } })
     await expect(prepare()).rejects.toMatchObject({ status: 429 })
     expect(await db.managedBlobRecoveryOperation.count()).toBe(2)
   })

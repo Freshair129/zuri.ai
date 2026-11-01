@@ -14,6 +14,25 @@ import { EXECUTION_MODES } from '@/lib/validation/enums'
 
 const doc = buildOpenApiDocument({ serverUrl: 'http://localhost:3100' })
 
+// @req FR-292, FR-293 — discovery must not present gated recovery as activated.
+it('inventories recovery paths with an explicit held activation boundary', () => {
+  for (const [route, method] of [
+    ['/api/files/{id}/recovery-operations', 'post'],
+    ['/api/files/{id}/recovery-operations/{operationId}', 'get'],
+    ['/api/files/{id}/recovery-operations/{operationId}/{action}', 'post'],
+  ]) {
+    expect(doc.paths[route]?.[method]?.['x-zuri-activation']).toBe('NOT_QUALIFIED')
+    expect(doc.paths[route]?.[method]?.description).toContain('FR-293')
+    if (method === 'post') expect(doc.paths[route][method].parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ in: 'header', name: 'X-Zuri-API-Write-CSRF', required: true }),
+    ]))
+  }
+  const action = doc.paths['/api/files/{id}/recovery-operations/{operationId}/{action}'].post
+  expect(Object.keys(action.requestBody.content).sort()).toEqual(['application/json', 'multipart/form-data'])
+  expect(action.requestBody.content['multipart/form-data'].schema.required).toEqual(['descriptor', 'content'])
+  expect(action.requestBody.description).toContain('descriptor before content')
+})
+
 const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
 
 function listFiles(directory) {
@@ -379,9 +398,10 @@ describe('OpenAPI document', () => {
 // FR-230 retention and FR-235 product disclosure compose with prior inventory.
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
       // FR-235 adds owner-only product disclosure GET/POST on one path.
-      pathCount: 362,
+      // OR3 adds three gated paths/operations to the current Office inventory.
+      pathCount: 365,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
-      operationCount: 477,
+      operationCount: 480,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

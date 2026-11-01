@@ -1362,13 +1362,22 @@
         "check": "requirements",
         "summary": "FR-292 is partial",
         "evidence": [
+          "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+          "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/route.js",
+          "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-spool.js",
+          "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+          "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
+          "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+          "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
           "apps/server/tests/integration/backup.test.js",
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -1376,14 +1385,18 @@
           "apps/server/tests/integration/line-server-backup.test.js",
           "apps/server/tests/integration/line-stock-policy-backup.test.js",
           "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+          "apps/server/tests/integration/managed-blob-recovery-http.test.js",
           "apps/server/tests/integration/managed-blob-recovery.test.js",
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
           "apps/server/tests/storage/compact-business-objects.test.js",
           "apps/server/tests/unit/agent-mission-recovery.test.js",
+          "apps/server/tests/unit/fr045-api-ui-contract.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
           "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
           "apps/server/tests/unit/private-business-object-storage.test.js"
@@ -1396,11 +1409,17 @@
         "check": "requirements",
         "summary": "FR-293 is partial",
         "evidence": [
+          "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+          "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+          "apps/server/src/modules/project-manager/api-docs/openapi.js",
           "apps/server/src/modules/project-manager/application/backup-service.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
           "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+          "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+          "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
           "apps/server/tests/integration/backup.test.js",
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -1408,8 +1427,10 @@
           "apps/server/tests/integration/line-server-backup.test.js",
           "apps/server/tests/integration/line-stock-policy-backup.test.js",
           "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+          "apps/server/tests/integration/managed-blob-recovery-http.test.js",
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
           "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
           "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -1914,7 +1935,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -2609,7 +2630,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -3700,7 +3721,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 1
           }
         },
@@ -4288,7 +4309,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -4752,7 +4773,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -5892,7 +5913,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -6132,7 +6153,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -6384,7 +6405,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -6772,7 +6793,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -6997,7 +7018,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 362,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -8899,16 +8920,25 @@
           "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and…",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 7,
-          "testCount": 18,
+          "codeCount": 14,
+          "testCount": 24,
           "evidence": [
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-spool.js",
+            "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+            "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8916,14 +8946,18 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
             "apps/server/tests/integration/managed-blob-recovery.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
             "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/private-business-object-storage.test.js"
@@ -8934,14 +8968,20 @@
           "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 5,
-          "testCount": 15,
+          "codeCount": 10,
+          "testCount": 18,
           "evidence": [
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
             "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -8949,8 +8989,10 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -9049,9 +9091,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 190,
-            "inventoried": 190,
-            "openApiPaths": 362,
+            "routes": 193,
+            "inventoried": 193,
+            "openApiPaths": 365,
             "missingFromOpenApi": 0
           }
         },
@@ -9116,9 +9158,9 @@
             }
           ],
           "details": {
-            "mutations": 144,
-            "guardedMutations": 143,
-            "reads": 89,
+            "mutations": 146,
+            "guardedMutations": 145,
+            "reads": 90,
             "unguardedReads": 11
           }
         },
@@ -9634,13 +9676,22 @@
           "check": "requirements",
           "summary": "FR-292 is partial",
           "evidence": [
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-spool.js",
+            "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+            "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -9648,14 +9699,18 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
             "apps/server/tests/integration/managed-blob-recovery.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-api-ui-contract.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
             "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
             "apps/server/tests/unit/private-business-object-storage.test.js"
@@ -9667,11 +9722,17 @@
           "check": "requirements",
           "summary": "FR-293 is partial",
           "evidence": [
+            "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+            "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+            "apps/server/src/modules/project-manager/api-docs/openapi.js",
             "apps/server/src/modules/project-manager/application/backup-service.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
             "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
             "apps/server/tests/integration/backup.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -9679,8 +9740,10 @@
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -9745,8 +9808,8 @@
         }
       ],
       "details": {
-        "routes": 238,
-        "apiRoutes": 190,
+        "routes": 241,
+        "apiRoutes": 193,
         "pageRoutes": 48,
         "ownedModels": 53,
         "featureNotes": 45
@@ -21907,19 +21970,28 @@
           "title": "Managed-blob operator recovery on a Compact PostgreSQL target lets a currently authorized Business owner prepare, preview, stage and…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 8,
-          "testCount": 18
+          "codeCount": 15,
+          "testCount": 24
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+        "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/route.js",
+        "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-contract.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-service.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-spool.js",
+        "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+        "apps/server/src/modules/project-manager/components/ManagedFilesPanel.jsx",
         "apps/server/src/platform/storage/private-business-object-storage.js",
+        "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+        "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -21927,14 +21999,18 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+        "apps/server/tests/integration/managed-blob-recovery-http.test.js",
         "apps/server/tests/integration/managed-blob-recovery.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
         "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
+        "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr058-file-manager-views-ui.test.js",
         "apps/server/tests/unit/managed-blob-recovery-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/private-business-object-storage.test.js"
@@ -21965,16 +22041,22 @@
           "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 5,
-          "testCount": 15
+          "codeCount": 10,
+          "testCount": 18
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
+        "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
         "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+        "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+        "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -21982,8 +22064,10 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+        "apps/server/tests/integration/managed-blob-recovery-http.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",

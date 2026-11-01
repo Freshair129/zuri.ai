@@ -310,6 +310,10 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/internal/market-intelligence/v1/{operation}', ['GET', 'POST']],
   ['/api/dependencies', ['GET', 'POST']], ['/api/dependencies/{id}', ['DELETE']], ['/api/docs', ['GET']], ['/api/entry', ['GET']], ['/api/files', ['GET', 'POST']], ['/api/files/{id}', ['DELETE']],
   ['/api/files/{id}/content', ['GET']], ['/api/files/{id}/relink', ['POST']], ['/api/files/{id}/reveal', ['POST']], ['/api/files/cache/rebuild', ['POST']], ['/api/files/migrate', ['POST']], ['/api/files/mounts', ['GET', 'POST']], ['/api/files/reconcile', ['POST']],
+  // @req FR-292, FR-293 — inventory is discovery, never recovery activation.
+  ['/api/files/{id}/recovery-operations', ['POST']],
+  ['/api/files/{id}/recovery-operations/{operationId}', ['GET']],
+  ['/api/files/{id}/recovery-operations/{operationId}/{action}', ['POST']],
   ['/api/gates', ['POST']], ['/api/gates/{id}', ['PATCH']], ['/api/health', ['GET']], ['/api/import/bundle/commit', ['POST']], ['/api/import/bundle/dry-run', ['POST']], ['/api/import/commit', ['POST']], ['/api/import/dry-run', ['POST']], ['/api/import/template', ['GET']], ['/api/import/xlsx', ['POST']], ['/api/ingest/documents', ['GET', 'POST']], ['/api/mcp', ['POST']],
   // @req FR-110, FR-109 — the knowledge ingestion reporter surface (ADR-067):
   // the run read a reporter needs before it can name a step, the Stage 9–16
@@ -448,6 +452,19 @@ function pathParameters(path) {
 }
 
 function genericRequest(path, method) {
+  if (path === '/api/files/{id}/recovery-operations/{operationId}/{action}' && method === 'post') {
+    return { body: {
+      required: true,
+      description: 'Action-specific transport: preview requires descriptor before content in strict multipart, with no extra parts; stage, confirm, inspect and abandon require their strict JSON DTO from Appendix A. Media types are not interchangeable between actions.',
+      content: {
+        'application/json': { schema: zRouteInventoryRequest },
+        'multipart/form-data': { schema: z.object({
+          descriptor: z.string().openapi({ description: 'Strict recovery descriptor JSON; first part, without filename or Content-Type.' }),
+          content: z.string().openapi({ format: 'binary', description: 'Original bytes; second and final part.' }),
+        }).strict() },
+      },
+    } }
+  }
   if (path === '/api/knowledge/ingestions/{runId}/replay' && method === 'post') {
     return { body: { required: true, content: { 'application/json': { schema: knowledgeReplayInput } } } }
   }
@@ -489,6 +506,13 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path.includes('/recovery-operations')) return {
+    200: json(zRouteInventoryResponse, 'Controlled transport result only; ordinary recovery remains uncomposed.'),
+    202: json(zRouteInventoryResponse, 'STAGING/UNKNOWN outcome; no blind retry PUT.'),
+    ...Object.fromEntries([400, 401, 403, 404, 409, 410, 413, 429, 503].map(status => [status,
+      json(zApiWriteCsrfError, status === 503 ? 'Recovery NOT_QUALIFIED or unavailable; no activation flag exists.' : 'Typed redacted recovery refusal.'),
+    ])),
+  }
   if (path === '/api/knowledge/ingestions/{runId}/replay' && method === 'post') return {
     200: json(zRouteInventoryResponse, 'Current admission and attached full-run child identity; repeated keys return the same child. No raw source content or publication success is implied.'),
     400: json(zError, 'Strict idempotencyKey request is invalid.'),
@@ -695,6 +719,11 @@ function registerInventoryOperations(registry) {
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
             ...pathParameters(path),
+            ...(path.includes('/recovery-operations') && methodName === 'post' ? [{
+              name: 'X-Zuri-API-Write-CSRF', in: 'header', required: true,
+              schema: { type: 'string', minLength: 1 },
+              description: 'Live-session-bound API-write token issued by GET /api/auth/csrf.',
+            }] : []),
             ...(conversationAnalysis ? [{ name: 'businessId', in: 'query', required: true, schema: { type: 'string', minLength: 1 } }] : []),
             ...((approvalDecision || approvalNotificationRead || missionSubmission) ? [{
               name: 'X-CSRF-Token',
@@ -747,6 +776,10 @@ function registerInventoryOperations(registry) {
             : path.startsWith('/api/agent/approval-requests') || path.startsWith('/api/agent/approval-notifications')
               ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-approval.v1' }
             : { 'x-zuri-contract': 'route-inventory' }),
+        ...(path.includes('/recovery-operations') ? {
+          security: [{ SessionAuth: [] }], 'x-zuri-activation': 'NOT_QUALIFIED',
+          description: 'FR-292 recovery transport is gated pending the supported FR-293 backup transfer round trip. Ordinary routes have no service composition and return a typed 503 after live session/CSRF checks. POST uses X-Zuri-API-Write-CSRF from /api/auth/csrf. The action is preview (strict descriptor-then-content multipart), stage, confirm, inspect or abandon; prepare and status cannot be action-path aliases. Request/DTO details remain in Appendix A and the adopted recovery contract; route-inventory schemas do not claim generalized input semantics or qualification.',
+        } : {}),
       })
     }
   }

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.119.0b to 1.120.0b (2026-11-01): inventory the three OR3 recovery route handlers (364 total). FR-292 transport/UI exists behind an uncomposed service boundary; ordinary requests return NOT_QUALIFIED and FR-293 backup transfer activation remains gated. No operator, provider, installation, AI or production qualification is conferred.
+
 Version diff 1.118.0b to 1.119.0b (2026-10-31): adds FR-295 session-scoped Office handoff destination discovery and a same-origin Zuri transfer page. Inventory: 361 route handlers. Deployment and real Business import are separate from local qualification.
 
 Version diff 1.117.0b to 1.118.0b (2026-10-31): adds the FR-294 scoped visual-design receiver and GLB readback. Inventory: 360 route handlers. Registration stores design identities only; no Agent, approval, permission or deployment is created.
@@ -221,7 +223,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=361 -->
+<!-- api-spec-counts: route_handlers=364 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1182,6 +1184,31 @@ these compatibility reads are not second stable list DTOs and are not used by
 Storage-kind requests are Zod-validated and scope is resolved server-side. No
 content endpoint accepts an absolute client-supplied path. The existing Project
 Files endpoints remain available through the compatibility boundary.
+
+## Managed-original recovery (FR-292/FR-293 — activation held)
+
+| Method | Path | Purpose |
+|---|---|---|
+| POST | `/api/files/[id]/recovery-operations` | Strict JSON `{expectedVersion}` preparation. Ordinary composition remains unavailable. |
+| GET | `/api/files/[id]/recovery-operations/[operationId]` | Current actor/owner-authorized status; no provider IO or confirmation token. |
+| POST | `/api/files/[id]/recovery-operations/[operationId]/[action]` | Only `preview`, `stage`, `confirm`, `inspect`, `abandon`; no create/status aliases. |
+
+The adopted [OR0 transport contract](../change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md#proposed-transport-v1)
+and [OR3 operator sequence](../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md#or3--supported-operator-application-workflow)
+define the strict fields and safe custody outcomes. All POSTs use the persisted
+cookie Session, configured same Origin and `X-Zuri-API-Write-CSRF` issued by
+`GET /api/auth/csrf`, before body parsing. Preview streams descriptor then content
+only after the exact spool reservation; JSON/multipart extras, uploaded refs,
+compression, changed bytes and stale authority are refused. Confirm is separate
+from preview/staging. Inspect reconciles an existing write and never retries PUT.
+Responses use no-store; errors are `{code,message,requestId,retryable}` with no
+provider diagnostics. UNKNOWN/STAGING is 202, never a retry instruction.
+
+**Unavailable by design:** default routes have no recovery service composition;
+after authentication/CSRF they return `503 MANAGED_BLOB_RECOVERY_NOT_QUALIFIED`.
+No environment or caller flag enables them. Controlled browser/HTTP fixtures are
+transport evidence only. The supported reserved-ref backup round trip, normal
+operator/installed acceptance, provider and other release gates remain OPEN.
 
 ## Intake surfaces (FR-017..FR-020 — shipped)
 

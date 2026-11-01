@@ -8,7 +8,7 @@ import prisma from '@/lib/db'
 import { AUTH_SESSION_COOKIE, hashSessionToken, requireSessionSecret, verifySessionToken } from '@/modules/identity/auth-service'
 import { readRequestCookie } from '@/modules/identity/session-port'
 import { createPrivateBusinessObjectStoragePort } from '@/platform/storage/private-business-object-storage'
-import { parseRecoveryDescriptor, parseRecoveryRequest, recoveryDescriptorForFile, recoveryError, recoverySha256 } from './managed-blob-recovery-contract'
+import { parseRecoveryDescriptor, parseRecoveryRequest, recoveryDescriptorForFile, recoveryError, recoverySha256, verifyRecoveryContent } from './managed-blob-recovery-contract'
 import { withRecoveryTransaction, lockRecoveryRow, recoveryNow, commitRecoveryFileCAS, RECOVERY_FENCE_ID } from './managed-blob-recovery-repository'
 import { createRecoverySpool } from './managed-blob-recovery-spool'
 import { recordAudit } from './audit'
@@ -134,11 +134,38 @@ export function createManagedBlobRecoveryService({ db = prisma, env = process.en
     if (key !== op.destinationKey) throw conflict()
     return JSON.stringify(value)
   }
+  async function closeExpiredPreparations(tx, ctx, now) {
+    // Lost prepare responses hold no worker or bytes. Under the same native
+    // installation fence, close only expired unattempted/no-spool records;
+    // unknown provider intents and live preparations never release capacity.
+    const rows = await tx.managedBlobRecoveryOperation.findMany({ where: {
+      generation: ctx.fence.generation, spoolRootHash, state: 'PREPARED',
+      unresolved: true, attempts: 0, workerId: null, spoolId: null, spoolBytes: 0,
+      expiresAt: { lte: now },
+    }, take: 64, orderBy: { id: 'asc' } })
+    for (let op of rows) {
+      await audit(tx, op, 'CLOSED')
+      op = await tx.managedBlobRecoveryOperation.findUnique({ where: { id: op.id } })
+      const retainedBytes = 16384 + op.auditCount * 2048
+      await save(tx, op, { state: 'ABANDONED', unresolved: false, closedAt: now, reservedBytes: retainedBytes })
+      const release = op.reservedBytes - retainedBytes
+      if (release > 0) {
+        await tx.managedBlobRecoveryInstallationFence.update({ where: { id: RECOVERY_FENCE_ID }, data: { retainedBytes: { decrement: release } } })
+        ctx.fence.retainedBytes -= release
+      }
+    }
+  }
   const api = {
+    // Request-layer denial-only check before consuming any body. The action
+    // transaction still reauthorizes; this value grants no future permission.
+    authorize: safe(args => transaction(args, async (tx, ctx, { file, op }) => ({
+      descriptor: op ? descriptorOf(op) : recoveryDescriptorForFile(file),
+    }))),
     prepare: safe(async args => {
       const input = parseRecoveryRequest('prepare', args.input)
       return transaction(args, async (tx, ctx, { file, now }, identity) => {
         if (file.version !== input.expectedVersion) throw conflict()
+        await closeExpiredPreparations(tx, ctx, now)
         const descriptor = recoveryDescriptorForFile(file)
         port(descriptor.purpose).validateRef({ ref: file.blobRef, tenantId: file.tenantId, businessId: file.businessId })
         const unresolved = await tx.managedBlobRecoveryOperation.findMany({ where: { unresolved: true }, select: { actorId: true, businessId: true } })
@@ -164,14 +191,29 @@ export function createManagedBlobRecoveryService({ db = prisma, env = process.en
         live(op, ctx, now); sameFile(op, file)
         if (!['PREPARED', 'PREVIEWED'].includes(op.state)) throw conflict()
         if (Object.keys(supplied).some(key => supplied[key] !== descriptorOf(op)[key])) throw conflict()
-        // Re-preview is permitted only after exact spool release, never by
-        // replacing an existing private file under an earlier binding.
+        // A lost response can reverify the same original and rotate its token
+        // before staging. Existing custody stays immutable and charged. The
+        // final transaction fences concurrent staging/abandonment/revocation.
+        if (op.state === 'PREVIEWED' && op.spoolId && op.spoolBytes === supplied.byteLength && op.attempts === 0) return { refresh: op }
         if (op.spoolId || op.spoolBytes) throw conflict()
         const total = await tx.managedBlobRecoveryOperation.aggregate({ _sum: { spoolBytes: true } })
         if ((total._sum.spoolBytes || 0) + supplied.byteLength > 256 * 1024 * 1024) throw capacity()
         return save(tx, op, { state: 'PREVIEWING', spoolId: randomUUID(), spoolBytes: supplied.byteLength,
           workerId: randomUUID(), epoch: op.epoch + 1, leaseExpiresAt: new Date(Math.min(now.getTime() + 30000, op.expiresAt.getTime())) })
       })
+      if (claim.refresh) {
+        await spool.read(claim.refresh.spoolId, supplied)
+        // This path writes no bytes/intent. Its request layer owns iterator
+        // cancellation/deadline, exactly as for the OR1 pure verifier.
+        await verifyRecoveryContent(supplied, args.chunks, descriptorOf(claim.refresh))
+        return transaction(args, async (tx, ctx, { file, op, now }) => {
+          live(op, ctx, now); sameFile(op, file)
+          if (op.state !== 'PREVIEWED' || op.version !== claim.refresh.version || op.attempts !== 0 || op.spoolId !== claim.refresh.spoolId) throw conflict()
+          const confirmationBinding = randomBytes(32).toString('base64url')
+          const saved = await save(tx, op, { confirmationDigest: recoverySha256(confirmationBinding) })
+          return { operationId: op.id, state: saved.state, version: saved.version, confirmationBinding }
+        })
+      }
       try {
         return await spool.write(claim.spoolId, supplied, args.chunks, { signal: args.signal, deadline: claim.leaseExpiresAt.getTime(), commit: promote => transaction(args, async (tx, ctx, { op, now }) => {
           live(op, ctx, now)
@@ -333,6 +375,7 @@ export function createManagedBlobRecoveryService({ db = prisma, env = process.en
     maintain: safe(async () => {
       const claims = await withRecoveryTransaction(db, async (tx, ctx) => {
         const now = await recoveryNow(tx, ctx.postgres)
+        await closeExpiredPreparations(tx, ctx, now)
         const rows = await tx.managedBlobRecoveryOperation.findMany({ where: { generation: ctx.fence.generation,
           spoolRootHash,
           spoolId: { not: null }, byteDeadline: { lte: now } }, take: 64, orderBy: { id: 'asc' } })
