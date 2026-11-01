@@ -1,5 +1,23 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.74.0b to 1.75.0b (2026-10-31): FR-294 adds five PM/Business-owned
+Office design tables, for 219 models. The additive PostgreSQL migration is source
+only until applied through the target's release gates; local disposable-engine
+qualification is separate from deployment.
+
+| Model | Stored contract | Boundary |
+|---|---|---|
+| OfficeDesignRegistry | internal UUID/code, Tenant/Business/Workspace FKs, source/packageId, CAS version and timestamps | Unique Workspace/source/package; current active scope and persisted OWNER checked before every read/write and inside commit. |
+| OfficeDesignIdentity | internal UUID/code, registry FK, external UUID, kind, semantic key | Unique scoped external ID and kind/key; stable across revisions; external IDs are never primary keys. |
+| OfficeDesignRevision | registry/version, original manifest JSON, content/archive hashes, producer revision, actor/time | Immutable scene/entity graph, preserving floor, agent-design, asset and workflow attributes. |
+| OfficeDesignBlob | registry/hash, exact bytes, byte length/media type, version/time | Immutable content-addressed GLB store, scoped to the registry. |
+| OfficeDesignImportReceipt | registry/request key, command hash, result JSON, committed version/time | Atomic authoritative ID mapping and audit link; retry returns the original receipt. |
+
+No new table references Agent runtime, authorization or approval models. All
+foreign-key deletions restrict loss of custody. Legacy JSON snapshot operations
+refuse when Office registry rows exist or an incoming snapshot names Office
+tables, including alternate case; no portable registry restore is claimed.
+
 Version diff 1.73.0b to 1.74.0b (2026-10-30): FR-292/FR-293 add PM-owned
 `ManagedBlobRecoveryOperation` and `ManagedBlobRecoveryInstallationFence`, for
 214 models. These installation-local journal/generation/quota records have scalar

@@ -7,6 +7,9 @@ services:
     restart: "no"
     environment:
       CONVERSATION_RUNTIME_TOKEN: ${CR_SMOKE_TOKEN:-ci-only-conversation-runtime-token-not-a-secret-000000}
+      SMOKE_PROVIDER_BASE_URL: https://smoke-core:4011
+      SMOKE_PROVIDER_TLS_CERT: /opt/conversation-runtime-smoke-core/test-tls/TEST-ONLY-cert.pem
+      SMOKE_PROVIDER_TLS_KEY: /opt/conversation-runtime-smoke-core/test-tls/TEST-ONLY-key.pem
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:4010/test/health').then(r=>process.exit(r.status===200?0:1)).catch(()=>process.exit(1))"]
       interval: 2s
@@ -27,6 +30,10 @@ services:
     environment:
       CONVERSATION_RUNTIME_CORE_URL: http://smoke-core:4010
       CONVERSATION_RUNTIME_TOKEN: ${CR_SMOKE_TOKEN:-ci-only-conversation-runtime-token-not-a-secret-000000}
+      ZURI_PRIVATE_RUNTIME_BASE_URL: https://smoke-core:4011
+      NODE_EXTRA_CA_CERTS: /run/test-tls/TEST-ONLY-cert.pem
+    volumes:
+      - ./test/fixtures/prp-tls/TEST-ONLY-cert.pem:/run/test-tls/TEST-ONLY-cert.pem:ro
     ports:
       - "${CR_SMOKE_BIND:-127.0.0.1}:${CR_SMOKE_PORT:-0}:3081"
     healthcheck:

@@ -391,10 +391,10 @@ describe('OpenAPI document', () => {
 // FR-230 retention and FR-235 product disclosure compose with prior inventory.
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
       // FR-235 adds owner-only product disclosure GET/POST on one path.
-      // OR3 adds three gated paths/operations, not activation or five aliases.
-      pathCount: 362,
+      // OR3 adds three gated paths/operations to the current Office inventory.
+      pathCount: 365,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
-      operationCount: 476,
+      operationCount: 480,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

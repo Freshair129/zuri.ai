@@ -12,6 +12,14 @@ indexes do not index themselves.
 
 ## Rebuild blueprint
 
+The [Office design receiver contract](appendices/A-api-spec.md#office-design-registration)
+and [FR-294](requirements/FR-294.md) describe scoped design registration;
+runtime Agents, permissions and separately hosted Office-client connectivity
+remain distinct. [Implementation scope](change-requests/project-manager/office-design-receiver-20261031.md)
+records the actual owner mandate without production acceptance.
+The [local receiver verification](../reports/office-design-receiver-20261031.md)
+separates DB/HTTP evidence from live import and deployment.
+
 Use the [reconciled rebuild blueprint](architecture/blueprint/README.md) for the
 minimum source profile, six specification chapters, exact contracts and source
 precedence. Its operative projection rules preserve canonical IDs and separate
@@ -30,6 +38,8 @@ plans and historical test receipts are separate from the build specification.
 - [Engineering assessments](../reports/README.md), including the
   [2026-10-23 code/requirements gap assessment](../reports/gap-analysis-2026-10-23/README.md),
   record dated findings and verification limits without creating requirements or plans.
+  The [Private Runtime integration record](../reports/private-runtime-integration-20261031.md)
+  separates local HTTPS/Docker proof from the unverified external PRP/vLLM path.
 - [Knowledge lifecycle and serving assessment](../reports/knowledge-readiness-2026-10-26/README.md)
   records the bounded storage/access review, executed checks and remaining
   main-dev qualification separately from whole-system completion.

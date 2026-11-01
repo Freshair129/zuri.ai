@@ -8,6 +8,10 @@ checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 
 # Plans location and retained sources
 
+- [Office design receiver implementation](OFFICE-DESIGN-RECEIVER-20261031.md)
+  implements the scoped owner request; local validation and deployment remain
+  separate from its implementation mandate.
+
 The 2026-10-23 cleanup removes eleven execution plans, candidate proposals and
 retired DDC plans from this directory. That cleanup created no replacement plan.
 Their original text remains in the
@@ -21,6 +25,8 @@ the GenesisRAG17 and Knowledge Console specifications. This cleanup does not
 rewrite those pinned rows or move their consumed paths.
 
 ## Current implementation plans
+
+- [Private Runtime integration](PRIVATE-RUNTIME-INTEGRATION-20261031.md): owner-requested FR-267 transport hardening and opt-in Docker connectivity; real PRP/GPU qualification remains separate.
 
 ### Approved Compact self-host plan — Task5 continuation
 

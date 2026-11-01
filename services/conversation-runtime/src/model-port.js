@@ -2,6 +2,7 @@
 // @spec ADR-100 D5/D7, ADR-106 D2, SDD-110 — provider URL is fixed/server-provided; key stays in memory.
 // @tested services/conversation-runtime/test/model-port.test.js
 import { MAX_TURN_QUESTION_CHARS } from './contracts.js'
+import { normalizePrivateRuntimeBaseUrl } from './private-runtime-config.js'
 const OPENAI_COMPATIBLE = Object.freeze({
   openrouter: 'https://openrouter.ai/api/v1/chat/completions',
   openai: 'https://api.openai.com/v1/chat/completions',
@@ -22,7 +23,7 @@ const RECORD_FACTS_INSTRUCTIONS = [
 
 const fail = code => Object.assign(new Error(code), { code })
 
-function modelConfig(value) {
+function modelConfig(value, privateRuntimeBaseUrl) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).some(key => !['provider', 'model', 'apiKey', 'baseUrl'].includes(key))) throw fail('MODEL_CONFIG_INVALID')
   if (!PROVIDERS.has(value.provider) || typeof value.model !== 'string' || !value.model.trim() || value.model.length > 200
@@ -33,6 +34,14 @@ function modelConfig(value) {
     try { url = new URL(value.baseUrl) } catch { throw fail('MODEL_BASE_URL_INVALID') }
     if (!['https:', 'http:'].includes(url.protocol) || url.username || url.password || url.search || url.hash) throw fail('MODEL_BASE_URL_INVALID')
     if (value.provider !== 'prp') throw fail('MODEL_BASE_URL_NOT_ALLOWED')
+  }
+  if (value.provider === 'prp') {
+    const baseUrl = normalizePrivateRuntimeBaseUrl(value.baseUrl)
+    if (!baseUrl) throw fail('MODEL_BASE_URL_INVALID')
+    const configured = normalizePrivateRuntimeBaseUrl(privateRuntimeBaseUrl)
+    if (!configured) throw fail('MODEL_PRIVATE_RUNTIME_NOT_CONFIGURED')
+    if (baseUrl !== configured) throw fail('MODEL_BASE_URL_NOT_ALLOWED')
+    return { ...value, baseUrl }
   }
   return value
 }
@@ -117,11 +126,39 @@ function stripReasoning(value) {
   return text.trim()
 }
 
-export function createModelPort({ fetchFn = fetch, timeoutMs = 10_000 } = {}) {
+async function boundedJson(response, signal) {
+  const reader = response.body?.getReader()
+  if (!reader) throw fail('MODEL_PROVIDER_INVALID_JSON')
+  const abort = () => { void reader.cancel().catch(() => {}) }
+  signal.addEventListener('abort', abort, { once: true })
+  const chunks = []
+  let size = 0
+  try {
+    if (signal.aborted) throw fail('MODEL_PROVIDER_TIMEOUT')
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      size += value.byteLength
+      if (size > 1024 * 1024) {
+        abort()
+        throw fail('MODEL_PROVIDER_RESPONSE_TOO_LARGE')
+      }
+      chunks.push(Buffer.from(value))
+    }
+    return JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(Buffer.concat(chunks)))
+  } finally {
+    signal.removeEventListener('abort', abort)
+    reader.releaseLock()
+  }
+}
+
+export function createModelPort({ fetchFn = fetch, timeoutMs = 10_000,
+  privateRuntimeBaseUrl = process.env.ZURI_PRIVATE_RUNTIME_BASE_URL } = {}) {
   if (!Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 25_000) throw fail('MODEL_TIMEOUT_INVALID')
   return Object.freeze({
     async generate(input) {
-      const config = modelConfig(input.credential)
+      const config = modelConfig(input.credential, privateRuntimeBaseUrl)
+      if (input.signal?.aborted) throw fail('MODEL_PROVIDER_TIMEOUT')
       const request = requestFor(config, promptInput(input))
       const controller = new AbortController()
       const remainingMs = Date.parse(input.deadlineAt) - Date.now()
@@ -133,24 +170,30 @@ export function createModelPort({ fetchFn = fetch, timeoutMs = 10_000 } = {}) {
       const timeoutPromise = new Promise((_, reject) => {
         timeout = setTimeout(() => { timedOut = true; controller.abort(); reject(timeoutError) }, boundedTimeoutMs)
       })
-      const abort = () => controller.abort(input.signal?.reason)
+      let rejectCancelled
+      const cancelled = new Promise((_, reject) => { rejectCancelled = reject })
+      const abort = () => { controller.abort(); rejectCancelled(timeoutError) }
       input.signal?.addEventListener('abort', abort, { once: true })
       try {
         let response
         try {
           response = await Promise.race([fetchFn(request.url, { method: 'POST', redirect: 'error', signal: controller.signal,
-            headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...request.headers }, body: JSON.stringify(request.body) }), timeoutPromise])
+            headers: { Accept: 'application/json', 'Content-Type': 'application/json', ...request.headers }, body: JSON.stringify(request.body) }), timeoutPromise, cancelled])
         } catch (error) {
           if (timedOut || error?.name === 'AbortError' || input.signal?.aborted) throw timeoutError
           throw fail('MODEL_PROVIDER_NETWORK_ERROR')
         }
+        if (!response.ok) {
+          void response.body?.cancel().catch(() => {})
+          throw fail(`MODEL_PROVIDER_HTTP_${response.status}`)
+        }
         let body
-        try { body = await Promise.race([response.json(), timeoutPromise]) }
+        try { body = await Promise.race([boundedJson(response, controller.signal), timeoutPromise, cancelled]) }
         catch (error) {
           if (timedOut || error?.name === 'AbortError' || input.signal?.aborted) throw timeoutError
+          if (error?.code === 'MODEL_PROVIDER_RESPONSE_TOO_LARGE') throw error
           throw fail(response.ok ? 'MODEL_PROVIDER_INVALID_JSON' : `MODEL_PROVIDER_HTTP_${response.status}`)
         }
-        if (!response.ok) throw fail(`MODEL_PROVIDER_HTTP_${response.status}`)
         let text = responseText(config.provider, body)
         if (typeof text !== 'string' || !text.trim()) throw fail('MODEL_PROVIDER_EMPTY_RESPONSE')
         return text.trim().slice(0, 5000)

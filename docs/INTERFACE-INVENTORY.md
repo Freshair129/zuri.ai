@@ -1,5 +1,5 @@
 ---
-version: "1.43.1b"
+version: "1.44.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
 last_update: "2026-10-30T00:00:00+07:00,Codex"
 status: "candidate"
@@ -11,6 +11,8 @@ attributes:
 ---
 
 # Zuri V2 — Interface Inventory
+
+Version diff 1.43.1b to 1.44.0b (2026-10-31): add the FR-295 Office handoff page; 118 page routes. Local implementation and deployment remain separate.
 
 Version diff 1.43.0b → 1.43.1b (2026-10-30): link the 117-page UI dimensional
 atlas as a dated schematic companion; route and geometry authority remain unchanged.
@@ -29,14 +31,14 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.43.1b |
+| **Version** | 1.44.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
 | **Last Updated** | 2026-10-30 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=117; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=118; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -92,6 +94,7 @@ mean production identity, external providers or cutover gates are complete.
 
 | Route | Interface | Shell/context | Primary content and actions | Required states/access | Status and evidence |
 |---|---|---|---|---|---|
+| `/office-handoff` | Office design handoff | Zuri-origin popup | receive a trusted Office package, select a currently owned Business Workspace, submit and read committed design IDs | origin denied, session required, empty scope, loading, conflict, error, committed readback | local implementation; `src/app/office-handoff/page.jsx`, FR-295; deployment pending |
 | 1.17.0b | 2026-09-11 | candidate | Reconcile SCM, Goods Receipts, Billing/POS and the canonical LINE OA navigation; 95 pages and 50 operational entries | working-tree | RWANG |
 | `/` | Landing | EntryShell | product entry, continue to login/demo boundary | initial, loading, local/offline-safe | implemented; `src/app/(entry)/page.jsx` |
 | `/login` | Credential Login | EntryShell | email/account-code and password authentication with password reveal and an opt-in persistent session, then Business Routing; two links out — reset, and self-serve signup (FR-120) | ready, invalid credentials, unavailable session, error | implemented beta; `src/app/login/page.jsx`, `/api/auth/login`, FR-046 |

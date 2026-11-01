@@ -49,6 +49,10 @@ const FEATURE_MUTATIONS = [
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
 export const CURRENT_API_ROUTE_INVENTORY = [
+  // @req FR-294, FR-295 — scoped Visual Office design registration and selection.
+  ['/api/office-design-targets', ['GET']],
+  ['/api/businesses/{id}/office-designs', ['GET', 'POST']],
+  ['/api/businesses/{id}/office-designs/assets/{sha256}', ['GET']],
   // @req FR-252 — Identity-owned session-bound API-write CSRF issuance.
   ['/api/auth/csrf', ['GET']],
   // @req FR-026 — authenticated human OWNER queue and decision routes for Agent writes.

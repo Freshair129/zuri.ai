@@ -1,0 +1,4252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:zuri-office:design-handoff:v1",
+  "title": "Visual Office design registration proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "namespace",
+    "packageId",
+    "purpose",
+    "bindingContext",
+    "entities",
+    "contentHash"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "zuri-office-design-handoff/v1"
+    },
+    "namespace": {
+      "const": "a5008f6e-4554-49c4-b2bc-7f8084857493"
+    },
+    "packageId": {
+      "const": "e0850743-9ce9-5857-b993-0143dca37bbf"
+    },
+    "purpose": {
+      "const": "design-registration-proposal"
+    },
+    "bindingContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "tenantId",
+        "businessId",
+        "workspaceId"
+      ],
+      "properties": {
+        "tenantId": {
+          "type": "null"
+        },
+        "businessId": {
+          "type": "null"
+        },
+        "workspaceId": {
+          "type": "null"
+        }
+      }
+    },
+    "contentHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "entities": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20000,
+      "items": {
+        "$ref": "#/$defs/entity"
+      }
+    }
+  },
+  "$defs": {
+    "entity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "type",
+        "key",
+        "label",
+        "data",
+        "refs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+        },
+        "type": {
+          "enum": [
+            "building",
+            "floor",
+            "scene",
+            "room",
+            "partition",
+            "opening",
+            "asset",
+            "assetRevision",
+            "placement",
+            "station",
+            "navigationRoute",
+            "exclusionZone",
+            "department",
+            "team",
+            "role",
+            "agentDesign",
+            "workflow",
+            "workflowStep",
+            "workflowHandoff"
+          ]
+        },
+        "key": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9/_:-]*$"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "\\S"
+        },
+        "data": {
+          "type": "object"
+        },
+        "refs": {
+          "type": "array",
+          "maxItems": 256,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "relation",
+              "targetId"
+            ],
+            "properties": {
+              "relation": {
+                "enum": [
+                  "building",
+                  "floor",
+                  "scene",
+                  "department",
+                  "team",
+                  "role",
+                  "asset",
+                  "revision",
+                  "placement",
+                  "seat",
+                  "station",
+                  "workflow",
+                  "next",
+                  "entry",
+                  "targetDepartment",
+                  "avatar"
+                ]
+              },
+              "targetId": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$"
+              }
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "building"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "units"
+                ],
+                "properties": {
+                  "units": {
+                    "const": "metres"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "floor"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "level",
+                  "domainKey"
+                ],
+                "properties": {
+                  "level": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 14
+                  },
+                  "domainKey": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      null,
+                      "projects",
+                      "customer",
+                      "market",
+                      "growth",
+                      "line-oa",
+                      "commerce",
+                      "inventory",
+                      "warehouse",
+                      "procurement",
+                      "assets",
+                      "people",
+                      "operations",
+                      "knowledge",
+                      "platform"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "scene"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "snapshot",
+                  "snapshotHash"
+                ],
+                "properties": {
+                  "snapshot": {
+                    "$ref": "#/$defs/tycoonRoom"
+                  },
+                  "snapshotHash": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "room"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "area"
+                ],
+                "properties": {
+                  "area": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "type",
+                      "name",
+                      "x",
+                      "z",
+                      "width",
+                      "depth"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "type": {
+                        "enum": [
+                          "meeting",
+                          "work",
+                          "rest"
+                        ]
+                      },
+                      "name": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60,
+                        "pattern": "\\S"
+                      },
+                      "x": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 24
+                      },
+                      "z": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 16
+                      },
+                      "width": {
+                        "type": "number",
+                        "minimum": 0.5,
+                        "maximum": 24
+                      },
+                      "depth": {
+                        "type": "number",
+                        "minimum": 0.5,
+                        "maximum": 16
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "partition"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "geometry"
+                ],
+                "properties": {
+                  "geometry": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "axis",
+                      "at",
+                      "start",
+                      "end"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 40,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "axis": {
+                        "enum": [
+                          "x",
+                          "z"
+                        ]
+                      },
+                      "at": {
+                        "type": "number",
+                        "minimum": 0.3,
+                        "maximum": 24
+                      },
+                      "start": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 24
+                      },
+                      "end": {
+                        "type": "number",
+                        "minimum": 1,
+                        "maximum": 24
+                      },
+                      "door": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "offset",
+                          "width"
+                        ],
+                        "properties": {
+                          "offset": {
+                            "type": "number",
+                            "minimum": 0.2,
+                            "maximum": 24
+                          },
+                          "width": {
+                            "type": "number",
+                            "minimum": 1.2,
+                            "maximum": 3
+                          },
+                          "open": {
+                            "type": "boolean"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "opening"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "geometry"
+                ],
+                "properties": {
+                  "geometry": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "label",
+                          "open",
+                          "start",
+                          "end",
+                          "height",
+                          "widthMeters"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64,
+                            "pattern": "^[a-zA-Z0-9:_-]+$"
+                          },
+                          "label": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 80,
+                            "pattern": "\\S"
+                          },
+                          "open": {
+                            "type": "boolean"
+                          },
+                          "start": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "minimum": -64,
+                              "maximum": 164
+                            }
+                          },
+                          "end": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "minimum": -64,
+                              "maximum": 164
+                            }
+                          },
+                          "height": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 5
+                          },
+                          "widthMeters": {
+                            "type": "number",
+                            "minimum": 1.2,
+                            "maximum": 3
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "id",
+                          "wall",
+                          "offset",
+                          "width",
+                          "sill",
+                          "top"
+                        ],
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 40,
+                            "pattern": "^[a-zA-Z0-9_-]+$"
+                          },
+                          "wall": {
+                            "enum": [
+                              "rear",
+                              "front",
+                              "left",
+                              "right"
+                            ]
+                          },
+                          "offset": {
+                            "type": "number",
+                            "minimum": 0.2,
+                            "maximum": 24
+                          },
+                          "width": {
+                            "type": "number",
+                            "minimum": 0.6,
+                            "maximum": 3
+                          },
+                          "sill": {
+                            "type": "number",
+                            "minimum": 0.3,
+                            "maximum": 1.8
+                          },
+                          "top": {
+                            "type": "number",
+                            "minimum": 0.7,
+                            "maximum": 2.5
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "asset"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "kind"
+                ],
+                "properties": {
+                  "kind": {
+                    "enum": [
+                      "plaza",
+                      "facade",
+                      "roof",
+                      "floor",
+                      "wall",
+                      "window",
+                      "door-frame",
+                      "door",
+                      "glass",
+                      "column",
+                      "skirting",
+                      "reception",
+                      "lift",
+                      "kiosk",
+                      "board",
+                      "desk",
+                      "chair",
+                      "meeting",
+                      "sofa",
+                      "coffee-table",
+                      "coffee",
+                      "cabinet",
+                      "plant",
+                      "actor",
+                      "custom"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "assetRevision"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "sha256",
+                  "bytes",
+                  "uri",
+                  "format"
+                ],
+                "properties": {
+                  "sha256": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "bytes": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 20000000
+                  },
+                  "uri": {
+                    "type": "string",
+                    "pattern": "^assets/[a-f0-9]{64}\\.glb$"
+                  },
+                  "format": {
+                    "const": "glb"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "placement"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "localId",
+                  "object",
+                  "structural"
+                ],
+                "properties": {
+                  "localId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 160,
+                    "pattern": "^[a-zA-Z][a-zA-Z0-9:_-]*$"
+                  },
+                  "object": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/$defs/structuralObject"
+                      },
+                      {
+                        "$ref": "#/$defs/roomObject"
+                      }
+                    ]
+                  },
+                  "structural": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "station"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "localId",
+                  "interaction",
+                  "world"
+                ],
+                "properties": {
+                  "localId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 80,
+                    "pattern": "^[a-z][a-z0-9:-]*$"
+                  },
+                  "interaction": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "objectId",
+                      "type",
+                      "position",
+                      "heading"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80,
+                        "pattern": "^station:[a-z][a-z0-9-]*$"
+                      },
+                      "objectId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^[a-z][a-z0-9-]*$"
+                      },
+                      "type": {
+                        "enum": [
+                          "desk",
+                          "sofa",
+                          "water"
+                        ]
+                      },
+                      "position": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 164
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 144
+                          }
+                        }
+                      },
+                      "seat": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 164
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 144
+                          }
+                        }
+                      },
+                      "seatRoot": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 164
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 144
+                          }
+                        }
+                      },
+                      "seatObjectId": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 64,
+                        "pattern": "^[a-z][a-z0-9-]*$"
+                      },
+                      "seatHeight": {
+                        "type": "number",
+                        "minimum": 0,
+                        "maximum": 4
+                      },
+                      "footAnchor": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": -64,
+                            "maximum": 164
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -32,
+                            "maximum": 144
+                          }
+                        }
+                      },
+                      "heading": {
+                        "type": "number",
+                        "minimum": -12.566370614359172,
+                        "maximum": 12.566370614359172
+                      }
+                    }
+                  },
+                  "world": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "position",
+                      "seat",
+                      "seatRoot",
+                      "footAnchor",
+                      "headingRad",
+                      "seatHeightM"
+                    ],
+                    "properties": {
+                      "position": {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "x",
+                          "y",
+                          "z"
+                        ],
+                        "properties": {
+                          "x": {
+                            "type": "number",
+                            "minimum": -100,
+                            "maximum": 100
+                          },
+                          "y": {
+                            "type": "number",
+                            "minimum": -10,
+                            "maximum": 10
+                          },
+                          "z": {
+                            "type": "number",
+                            "minimum": -100,
+                            "maximum": 100
+                          }
+                        }
+                      },
+                      "seat": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": -10,
+                                "maximum": 10
+                              },
+                              "z": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              }
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "seatRoot": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": -10,
+                                "maximum": 10
+                              },
+                              "z": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              }
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "footAnchor": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "additionalProperties": false,
+                            "required": [
+                              "x",
+                              "y",
+                              "z"
+                            ],
+                            "properties": {
+                              "x": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              },
+                              "y": {
+                                "type": "number",
+                                "minimum": -10,
+                                "maximum": 10
+                              },
+                              "z": {
+                                "type": "number",
+                                "minimum": -100,
+                                "maximum": 100
+                              }
+                            }
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "headingRad": {
+                        "type": "number",
+                        "minimum": -12.566370614359172,
+                        "maximum": 12.566370614359172
+                      },
+                      "seatHeightM": {
+                        "oneOf": [
+                          {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 4
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "navigationRoute"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "geometry",
+                  "worldPoints"
+                ],
+                "properties": {
+                  "geometry": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "points"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "points": {
+                        "type": "array",
+                        "minItems": 2,
+                        "maxItems": 32,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "properties": {
+                            "x": {
+                              "type": "number",
+                              "minimum": -64,
+                              "maximum": 164
+                            },
+                            "y": {
+                              "type": "number",
+                              "minimum": -32,
+                              "maximum": 144
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "worldPoints": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "x",
+                        "y",
+                        "z"
+                      ],
+                      "properties": {
+                        "x": {
+                          "type": "number",
+                          "minimum": -100,
+                          "maximum": 100
+                        },
+                        "y": {
+                          "type": "number",
+                          "minimum": -10,
+                          "maximum": 10
+                        },
+                        "z": {
+                          "type": "number",
+                          "minimum": -100,
+                          "maximum": 100
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "exclusionZone"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "geometry",
+                  "worldPoints"
+                ],
+                "properties": {
+                  "geometry": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "id",
+                      "points"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 60,
+                        "pattern": "^[a-zA-Z0-9_-]+$"
+                      },
+                      "points": {
+                        "type": "array",
+                        "minItems": 3,
+                        "maxItems": 24,
+                        "items": {
+                          "type": "object",
+                          "additionalProperties": false,
+                          "required": [
+                            "x",
+                            "y"
+                          ],
+                          "properties": {
+                            "x": {
+                              "type": "number",
+                              "minimum": -64,
+                              "maximum": 164
+                            },
+                            "y": {
+                              "type": "number",
+                              "minimum": -32,
+                              "maximum": 144
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "worldPoints": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "x",
+                        "y",
+                        "z"
+                      ],
+                      "properties": {
+                        "x": {
+                          "type": "number",
+                          "minimum": -100,
+                          "maximum": 100
+                        },
+                        "y": {
+                          "type": "number",
+                          "minimum": -10,
+                          "maximum": 10
+                        },
+                        "z": {
+                          "type": "number",
+                          "minimum": -100,
+                          "maximum": 100
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "department"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "domainKey",
+                  "purpose",
+                  "sourceRefs"
+                ],
+                "properties": {
+                  "domainKey": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "enum": [
+                      null,
+                      "projects",
+                      "customer",
+                      "market",
+                      "growth",
+                      "line-oa",
+                      "commerce",
+                      "inventory",
+                      "warehouse",
+                      "procurement",
+                      "assets",
+                      "people",
+                      "operations",
+                      "knowledge",
+                      "platform"
+                    ]
+                  },
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "sourceRefs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 40,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "pattern": "\\S"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "team"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "purpose"
+                ],
+                "properties": {
+                  "purpose": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "role"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "responsibilities",
+                  "inputs",
+                  "outputs",
+                  "proposedCapabilities",
+                  "requiresHumanReview",
+                  "sourceCatalogCode"
+                ],
+                "properties": {
+                  "responsibilities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "inputs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "outputs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "proposedCapabilities": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "requiresHumanReview": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "sourceCatalogCode": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "maxLength": 64,
+                    "pattern": "^[a-z0-9][a-z0-9-]{0,63}$"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "agentDesign"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "identityKind",
+                  "agentInstanceId",
+                  "agentVersionId"
+                ],
+                "properties": {
+                  "identityKind": {
+                    "const": "agent-design-slot"
+                  },
+                  "agentInstanceId": {
+                    "type": "null"
+                  },
+                  "agentVersionId": {
+                    "type": "null"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "workflow"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "trigger",
+                  "inputs",
+                  "outputs"
+                ],
+                "properties": {
+                  "trigger": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "inputs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  },
+                  "outputs": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 500,
+                      "pattern": "\\S"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "workflowStep"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "action",
+                  "output",
+                  "reviewPolicy",
+                  "onFailure"
+                ],
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "\\S"
+                  },
+                  "output": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "reviewPolicy": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "\\S"
+                  },
+                  "onFailure": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "type"
+            ],
+            "properties": {
+              "type": {
+                "const": "workflowHandoff"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "data": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "artifact",
+                  "condition"
+                ],
+                "properties": {
+                  "artifact": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 1000,
+                    "pattern": "\\S"
+                  },
+                  "condition": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 2000,
+                    "pattern": "\\S"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "tycoonRoom": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "width",
+        "depth",
+        "objects"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "office-tycoon/v1"
+        },
+        "width": {
+          "type": "number",
+          "minimum": 6,
+          "maximum": 24
+        },
+        "depth": {
+          "type": "number",
+          "minimum": 6,
+          "maximum": 20
+        },
+        "objects": {
+          "type": "array",
+          "maxItems": 80,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "kind",
+              "x",
+              "y",
+              "z",
+              "rotation",
+              "scale",
+              "intent"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64,
+                "pattern": "^[a-z][a-z0-9-]*$"
+              },
+              "kind": {
+                "enum": [
+                  "plaza",
+                  "facade",
+                  "roof",
+                  "floor",
+                  "wall",
+                  "window",
+                  "door-frame",
+                  "door",
+                  "glass",
+                  "column",
+                  "skirting",
+                  "reception",
+                  "lift",
+                  "kiosk",
+                  "board",
+                  "desk",
+                  "chair",
+                  "meeting",
+                  "sofa",
+                  "coffee-table",
+                  "coffee",
+                  "cabinet",
+                  "plant",
+                  "custom"
+                ]
+              },
+              "x": {
+                "type": "number",
+                "minimum": -24,
+                "maximum": 24
+              },
+              "y": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 4
+              },
+              "z": {
+                "type": "number",
+                "minimum": -24,
+                "maximum": 24
+              },
+              "rotation": {
+                "type": "number",
+                "minimum": -6.283185307179586,
+                "maximum": 6.283185307179586
+              },
+              "scale": {
+                "type": "number",
+                "minimum": 0.25,
+                "maximum": 3
+              },
+              "intent": {
+                "enum": [
+                  "none",
+                  "enter",
+                  "projects",
+                  "floors",
+                  "connect",
+                  "work",
+                  "marketing-ask",
+                  "meeting",
+                  "artifacts",
+                  "decor"
+                ]
+              },
+              "color": {
+                "type": "string",
+                "pattern": "^#[0-9a-fA-F]{6}$"
+              },
+              "groupId": {
+                "type": "string",
+                "pattern": "^group-[a-z0-9-]{1,48}$"
+              },
+              "finish": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {
+                  "color": {
+                    "type": "string",
+                    "pattern": "^#[0-9a-fA-F]{6}$"
+                  },
+                  "material": {
+                    "enum": [
+                      "original",
+                      "matte",
+                      "wood",
+                      "stone",
+                      "fabric",
+                      "metal",
+                      "glass"
+                    ]
+                  },
+                  "texture": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "data",
+                          "repeatX",
+                          "repeatY",
+                          "offsetX",
+                          "offsetY",
+                          "rotation",
+                          "opacity"
+                        ],
+                        "properties": {
+                          "data": {
+                            "type": "string",
+                            "minLength": 30,
+                            "maxLength": 180000,
+                            "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                          },
+                          "repeatX": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 20
+                          },
+                          "repeatY": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 20
+                          },
+                          "offsetX": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "offsetY": {
+                            "type": "number",
+                            "minimum": -1,
+                            "maximum": 1
+                          },
+                          "rotation": {
+                            "type": "number",
+                            "minimum": -180,
+                            "maximum": 180
+                          },
+                          "opacity": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 1
+                          }
+                        }
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              "asset": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "name",
+                  "category",
+                  "size",
+                  "sourceSize",
+                  "origin",
+                  "interaction"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-f0-9]{64}$"
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "pattern": "\\S"
+                  },
+                  "category": {
+                    "enum": [
+                      "desk",
+                      "chair",
+                      "sofa",
+                      "equipment",
+                      "decoration"
+                    ]
+                  },
+                  "size": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0.01,
+                      "maximum": 12
+                    }
+                  },
+                  "sourceSize": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "minimum": 0.000001,
+                      "maximum": 1000000
+                    }
+                  },
+                  "origin": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 3,
+                    "items": {
+                      "type": "number",
+                      "minimum": -1000000,
+                      "maximum": 1000000
+                    }
+                  },
+                  "interaction": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "mode"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "const": "none"
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "mode",
+                          "approach"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "const": "stand"
+                          },
+                          "approach": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "minimum": -12,
+                              "maximum": 12
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "type": "object",
+                        "additionalProperties": false,
+                        "required": [
+                          "mode",
+                          "approach",
+                          "seat",
+                          "height",
+                          "heading"
+                        ],
+                        "properties": {
+                          "mode": {
+                            "const": "seat"
+                          },
+                          "approach": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "minimum": -12,
+                              "maximum": 12
+                            }
+                          },
+                          "seat": {
+                            "type": "array",
+                            "minItems": 2,
+                            "maxItems": 2,
+                            "items": {
+                              "type": "number",
+                              "minimum": -12,
+                              "maximum": 12
+                            }
+                          },
+                          "height": {
+                            "type": "number",
+                            "minimum": 0.1,
+                            "maximum": 2
+                          },
+                          "heading": {
+                            "type": "number",
+                            "minimum": -6.283185307179586,
+                            "maximum": 6.283185307179586
+                          }
+                        }
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "const": "custom"
+                    }
+                  }
+                },
+                "then": {
+                  "required": [
+                    "asset"
+                  ]
+                }
+              },
+              {
+                "if": {
+                  "required": [
+                    "kind"
+                  ],
+                  "properties": {
+                    "kind": {
+                      "enum": [
+                        "plaza",
+                        "facade",
+                        "roof",
+                        "floor",
+                        "wall",
+                        "window",
+                        "door-frame",
+                        "door",
+                        "glass",
+                        "column",
+                        "skirting",
+                        "reception",
+                        "lift",
+                        "kiosk",
+                        "board",
+                        "desk",
+                        "chair",
+                        "meeting",
+                        "sofa",
+                        "coffee-table",
+                        "coffee",
+                        "cabinet",
+                        "plant"
+                      ]
+                    }
+                  }
+                },
+                "then": {
+                  "not": {
+                    "required": [
+                      "asset"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "blueprintPlan": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "base",
+            "width",
+            "depth",
+            "originX",
+            "originZ",
+            "door",
+            "windows"
+          ],
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "base": {
+              "enum": [
+                "small",
+                "medium",
+                "large"
+              ]
+            },
+            "width": {
+              "type": "number",
+              "minimum": 8,
+              "maximum": 24
+            },
+            "depth": {
+              "type": "number",
+              "minimum": 6,
+              "maximum": 16
+            },
+            "originX": {
+              "type": "number",
+              "minimum": -20,
+              "maximum": 10
+            },
+            "originZ": {
+              "type": "number",
+              "minimum": -20,
+              "maximum": 10
+            },
+            "door": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "wall",
+                "offset",
+                "width"
+              ],
+              "properties": {
+                "wall": {
+                  "enum": [
+                    "rear",
+                    "front",
+                    "left",
+                    "right"
+                  ]
+                },
+                "offset": {
+                  "type": "number",
+                  "minimum": 0.2,
+                  "maximum": 24
+                },
+                "width": {
+                  "type": "number",
+                  "minimum": 1.2,
+                  "maximum": 3
+                },
+                "open": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "windows": {
+              "type": "array",
+              "maxItems": 8,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "wall",
+                  "offset",
+                  "width",
+                  "sill",
+                  "top"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "wall": {
+                    "enum": [
+                      "rear",
+                      "front",
+                      "left",
+                      "right"
+                    ]
+                  },
+                  "offset": {
+                    "type": "number",
+                    "minimum": 0.2,
+                    "maximum": 24
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0.6,
+                    "maximum": 3
+                  },
+                  "sill": {
+                    "type": "number",
+                    "minimum": 0.3,
+                    "maximum": 1.8
+                  },
+                  "top": {
+                    "type": "number",
+                    "minimum": 0.7,
+                    "maximum": 2.5
+                  }
+                }
+              }
+            },
+            "partitions": {
+              "type": "array",
+              "maxItems": 40,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "axis",
+                  "at",
+                  "start",
+                  "end"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "axis": {
+                    "enum": [
+                      "x",
+                      "z"
+                    ]
+                  },
+                  "at": {
+                    "type": "number",
+                    "minimum": 0.3,
+                    "maximum": 24
+                  },
+                  "start": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  },
+                  "end": {
+                    "type": "number",
+                    "minimum": 1,
+                    "maximum": 24
+                  },
+                  "door": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "offset",
+                      "width"
+                    ],
+                    "properties": {
+                      "offset": {
+                        "type": "number",
+                        "minimum": 0.2,
+                        "maximum": 24
+                      },
+                      "width": {
+                        "type": "number",
+                        "minimum": 1.2,
+                        "maximum": 3
+                      },
+                      "open": {
+                        "type": "boolean"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "areas": {
+              "type": "array",
+              "maxItems": 20,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "type",
+                  "name",
+                  "x",
+                  "z",
+                  "width",
+                  "depth"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 40,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "type": {
+                    "enum": [
+                      "meeting",
+                      "work",
+                      "rest"
+                    ]
+                  },
+                  "name": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "pattern": "\\S"
+                  },
+                  "x": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 24
+                  },
+                  "z": {
+                    "type": "number",
+                    "minimum": 0,
+                    "maximum": 16
+                  },
+                  "width": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 24
+                  },
+                  "depth": {
+                    "type": "number",
+                    "minimum": 0.5,
+                    "maximum": 16
+                  }
+                }
+              }
+            }
+          }
+        },
+        "navigation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "version",
+            "routes",
+            "forbidden",
+            "stations"
+          ],
+          "properties": {
+            "version": {
+              "const": 1
+            },
+            "routes": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "points"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "points": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 32,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "x",
+                        "y"
+                      ],
+                      "properties": {
+                        "x": {
+                          "type": "number",
+                          "minimum": -64,
+                          "maximum": 164
+                        },
+                        "y": {
+                          "type": "number",
+                          "minimum": -32,
+                          "maximum": 144
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "forbidden": {
+              "type": "array",
+              "maxItems": 16,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id",
+                  "points"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 60,
+                    "pattern": "^[a-zA-Z0-9_-]+$"
+                  },
+                  "points": {
+                    "type": "array",
+                    "minItems": 3,
+                    "maxItems": 24,
+                    "items": {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "x",
+                        "y"
+                      ],
+                      "properties": {
+                        "x": {
+                          "type": "number",
+                          "minimum": -64,
+                          "maximum": 164
+                        },
+                        "y": {
+                          "type": "number",
+                          "minimum": -32,
+                          "maximum": 144
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "stations": {
+              "type": "array",
+              "maxItems": 40,
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "objectId",
+                  "approach"
+                ],
+                "properties": {
+                  "objectId": {
+                    "type": "string",
+                    "minLength": 1,
+                    "maxLength": 64,
+                    "pattern": "^[a-z][a-z0-9-]*$"
+                  },
+                  "approach": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "x",
+                      "y"
+                    ],
+                    "properties": {
+                      "x": {
+                        "type": "number",
+                        "minimum": -64,
+                        "maximum": 164
+                      },
+                      "y": {
+                        "type": "number",
+                        "minimum": -32,
+                        "maximum": 144
+                      }
+                    }
+                  },
+                  "seat": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                      "x",
+                      "y"
+                    ],
+                    "properties": {
+                      "x": {
+                        "type": "number",
+                        "minimum": -64,
+                        "maximum": 164
+                      },
+                      "y": {
+                        "type": "number",
+                        "minimum": -32,
+                        "maximum": 144
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "layers": {
+          "type": "array",
+          "maxItems": 80,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          }
+        },
+        "finishes": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "wall-left": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "wall-back": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "floor": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-1-frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-1-glass": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-2-frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-2-glass": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-3-frame": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "window-3-glass": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "lounge-sofa": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "lounge-table": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "storage": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "coffee-kit": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "pinboard": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "room-plant-1": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "room-plant-2": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            },
+            "room-plant-3": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "color": {
+                  "type": "string",
+                  "pattern": "^#[0-9a-fA-F]{6}$"
+                },
+                "material": {
+                  "enum": [
+                    "original",
+                    "matte",
+                    "wood",
+                    "stone",
+                    "fabric",
+                    "metal",
+                    "glass"
+                  ]
+                },
+                "texture": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "additionalProperties": false,
+                      "required": [
+                        "data",
+                        "repeatX",
+                        "repeatY",
+                        "offsetX",
+                        "offsetY",
+                        "rotation",
+                        "opacity"
+                      ],
+                      "properties": {
+                        "data": {
+                          "type": "string",
+                          "minLength": 30,
+                          "maxLength": 180000,
+                          "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                        },
+                        "repeatX": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "repeatY": {
+                          "type": "number",
+                          "minimum": 0.1,
+                          "maximum": 20
+                        },
+                        "offsetX": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "offsetY": {
+                          "type": "number",
+                          "minimum": -1,
+                          "maximum": 1
+                        },
+                        "rotation": {
+                          "type": "number",
+                          "minimum": -180,
+                          "maximum": 180
+                        },
+                        "opacity": {
+                          "type": "number",
+                          "minimum": 0,
+                          "maximum": 1
+                        }
+                      }
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "roomObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "x",
+        "y",
+        "z",
+        "rotation",
+        "scale",
+        "intent"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 64,
+          "pattern": "^[a-z][a-z0-9-]*$"
+        },
+        "kind": {
+          "enum": [
+            "plaza",
+            "facade",
+            "roof",
+            "floor",
+            "wall",
+            "window",
+            "door-frame",
+            "door",
+            "glass",
+            "column",
+            "skirting",
+            "reception",
+            "lift",
+            "kiosk",
+            "board",
+            "desk",
+            "chair",
+            "meeting",
+            "sofa",
+            "coffee-table",
+            "coffee",
+            "cabinet",
+            "plant",
+            "custom"
+          ]
+        },
+        "x": {
+          "type": "number",
+          "minimum": -24,
+          "maximum": 24
+        },
+        "y": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 4
+        },
+        "z": {
+          "type": "number",
+          "minimum": -24,
+          "maximum": 24
+        },
+        "rotation": {
+          "type": "number",
+          "minimum": -6.283185307179586,
+          "maximum": 6.283185307179586
+        },
+        "scale": {
+          "type": "number",
+          "minimum": 0.25,
+          "maximum": 3
+        },
+        "intent": {
+          "enum": [
+            "none",
+            "enter",
+            "projects",
+            "floors",
+            "connect",
+            "work",
+            "marketing-ask",
+            "meeting",
+            "artifacts",
+            "decor"
+          ]
+        },
+        "color": {
+          "type": "string",
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        },
+        "groupId": {
+          "type": "string",
+          "pattern": "^group-[a-z0-9-]{1,48}$"
+        },
+        "finish": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "color": {
+              "type": "string",
+              "pattern": "^#[0-9a-fA-F]{6}$"
+            },
+            "material": {
+              "enum": [
+                "original",
+                "matte",
+                "wood",
+                "stone",
+                "fabric",
+                "metal",
+                "glass"
+              ]
+            },
+            "texture": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "data",
+                    "repeatX",
+                    "repeatY",
+                    "offsetX",
+                    "offsetY",
+                    "rotation",
+                    "opacity"
+                  ],
+                  "properties": {
+                    "data": {
+                      "type": "string",
+                      "minLength": 30,
+                      "maxLength": 180000,
+                      "pattern": "^data:image/png;base64,[A-Za-z0-9+/]+={0,2}$"
+                    },
+                    "repeatX": {
+                      "type": "number",
+                      "minimum": 0.1,
+                      "maximum": 20
+                    },
+                    "repeatY": {
+                      "type": "number",
+                      "minimum": 0.1,
+                      "maximum": 20
+                    },
+                    "offsetX": {
+                      "type": "number",
+                      "minimum": -1,
+                      "maximum": 1
+                    },
+                    "offsetY": {
+                      "type": "number",
+                      "minimum": -1,
+                      "maximum": 1
+                    },
+                    "rotation": {
+                      "type": "number",
+                      "minimum": -180,
+                      "maximum": 180
+                    },
+                    "opacity": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 1
+                    }
+                  }
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          }
+        },
+        "asset": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "id",
+            "name",
+            "category",
+            "size",
+            "sourceSize",
+            "origin",
+            "interaction"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 60,
+              "pattern": "\\S"
+            },
+            "category": {
+              "enum": [
+                "desk",
+                "chair",
+                "sofa",
+                "equipment",
+                "decoration"
+              ]
+            },
+            "size": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number",
+                "minimum": 0.01,
+                "maximum": 12
+              }
+            },
+            "sourceSize": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number",
+                "minimum": 0.000001,
+                "maximum": 1000000
+              }
+            },
+            "origin": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "items": {
+                "type": "number",
+                "minimum": -1000000,
+                "maximum": 1000000
+              }
+            },
+            "interaction": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mode"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "const": "none"
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mode",
+                    "approach"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "const": "stand"
+                    },
+                    "approach": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": -12,
+                        "maximum": 12
+                      }
+                    }
+                  }
+                },
+                {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "mode",
+                    "approach",
+                    "seat",
+                    "height",
+                    "heading"
+                  ],
+                  "properties": {
+                    "mode": {
+                      "const": "seat"
+                    },
+                    "approach": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": -12,
+                        "maximum": 12
+                      }
+                    },
+                    "seat": {
+                      "type": "array",
+                      "minItems": 2,
+                      "maxItems": 2,
+                      "items": {
+                        "type": "number",
+                        "minimum": -12,
+                        "maximum": 12
+                      }
+                    },
+                    "height": {
+                      "type": "number",
+                      "minimum": 0.1,
+                      "maximum": 2
+                    },
+                    "heading": {
+                      "type": "number",
+                      "minimum": -6.283185307179586,
+                      "maximum": 6.283185307179586
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "const": "custom"
+              }
+            }
+          },
+          "then": {
+            "required": [
+              "asset"
+            ]
+          }
+        },
+        {
+          "if": {
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "plaza",
+                  "facade",
+                  "roof",
+                  "floor",
+                  "wall",
+                  "window",
+                  "door-frame",
+                  "door",
+                  "glass",
+                  "column",
+                  "skirting",
+                  "reception",
+                  "lift",
+                  "kiosk",
+                  "board",
+                  "desk",
+                  "chair",
+                  "meeting",
+                  "sofa",
+                  "coffee-table",
+                  "coffee",
+                  "cabinet",
+                  "plant"
+                ]
+              }
+            }
+          },
+          "then": {
+            "not": {
+              "required": [
+                "asset"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "structuralObject": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "kind",
+        "y",
+        "size"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 160,
+          "pattern": "^[a-zA-Z0-9:_-]+$"
+        },
+        "kind": {
+          "enum": [
+            "floor",
+            "wall",
+            "window",
+            "door-frame",
+            "door"
+          ]
+        },
+        "x": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "y": {
+          "type": "number",
+          "minimum": -10,
+          "maximum": 20
+        },
+        "z": {
+          "type": "number",
+          "minimum": -100,
+          "maximum": 100
+        },
+        "size": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": {
+            "type": "number",
+            "minimum": 0.001,
+            "maximum": 100
+          }
+        },
+        "rotation": {
+          "type": "number",
+          "minimum": -6.283185307179586,
+          "maximum": 6.283185307179586
+        },
+        "intent": {
+          "type": "string",
+          "maxLength": 80
+        }
+      }
+    }
+  },
+  "$comment": "JSON Schema checks bounded field shapes and types. validateOfficeHandoff additionally checks derived UUIDs, source-catalog completeness, ownership, scene-derived graph equality, workflow reachability, snapshot hashes, and asset revision identity; verify bundled GLB bytes separately."
+}

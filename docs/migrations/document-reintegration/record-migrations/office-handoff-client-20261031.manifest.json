@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "migrationId": "office-handoff-client-20261031",
+  "base": {
+    "commit": "0faa4551f94a2579734008d6cf5110db321422b1",
+    "indexSha256": "c6d5d900a6443b77e2061b1c2be85c8f0509ebb16de81d0d1be855025e39c316",
+    "ledgerSha256": "41e829574670bfb2f0ed70993544b0d24b86b338f53b8880297ab6f171c10f1c"
+  },
+  "approval": {
+    "path": "docs/change-requests/project-manager/office-handoff-client-20261031.md",
+    "revision": "0faa4551f94a2579734008d6cf5110db321422b1",
+    "version": "0.1.0",
+    "sha256": "29f0f8991a222e5ffbc396b8b842cb0c32f262b559c26c5d2c21e0068c8b65d5"
+  },
+  "records": [
+    {
+      "id": "FR-295",
+      "family": "FR",
+      "statement": "Visual Office handoff client transfers the design package to Zuri, lets a signed-in principal select an active Business Workspace under current OWNER authority for its active Business and Tenant, and reports registration only after reading the committed revision and its design ID mappings back from the scoped receiver.",
+      "statementSha256": "2ebce834c60b23383a5612cc1768caa3edf0b20faed9a68f0c3239a8a6e4af3f",
+      "subjectAnchor": "visual office handoff client transfers the design package"
+    }
+  ]
+}

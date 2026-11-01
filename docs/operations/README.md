@@ -15,6 +15,7 @@ status: generated
 Generated navigation for current source documents in the operations grouping. A path's presence here does not declare ownership or approval.
 
 - [Deploying zuri-ai with Docker Compose and optional ngrok](../deployment/docker-ngrok.md)
+- [Private Runtime integration operations](../deployment/private-runtime.md)
 - [Windows ใหม่ → กู้ฐาน Zuri-AI เดิม → deploy Docker](../deployment/windows-recovery-and-docker-handoff.md)
 - [Canonical document record format](../migrations/document-reintegration/CANONICAL-FORMAT.md)
 - [Identity compatibility contract](../migrations/document-reintegration/COMPATIBILITY.md)
@@ -56,10 +57,12 @@ Generated navigation for current source documents in the operations grouping. A 
 - [P5 local console durability evidence](../plans/LINE-OA-P5-DURABLE-CONSOLE-EVIDENCE.md)
 - [LINE OA flow → GKS: pipeline analysis and integration design](../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md)
 - [MSP retention scheduler implementation plan](../plans/MSP-RETENTION-SCHEDULER-20261024.md)
+- [Office design receiver implementation plan](../plans/OFFICE-DESIGN-RECEIVER-20261031.md)
 - [PM Approval Gateway Verification Implementation Plan](../plans/PM-APPROVAL-VERIFICATION-20261023.md)
 - [Existing PM Delivery Qualification Implementation Plan](../plans/PM-EXISTING-DELIVERY-QUALIFICATION-20261023.md)
 - [Project Manager Pipeline Builder Implementation Plan](../plans/PM-PIPELINE-BUILDER-20261023.md)
 - [Project Manager Pipeline Builder production migration plan](../plans/PM-PIPELINE-PRODUCTION-MIGRATION-20261025.md)
+- [Private Runtime integration implementation plan](../plans/PRIVATE-RUNTIME-INTEGRATION-20261031.md)
 - [Project Manager Remaining Implementation Plan](../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
 - [Plans location and retained sources](../plans/README.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)

@@ -1,0 +1,92 @@
+# DISPOSABLE synthetic HTTPS fixtures. No Zuri database, LINE, LiteLLM or GPU.
+name: zuri-prp-dev
+services:
+  mock-prp:
+    image: node:22-alpine
+    restart: unless-stopped
+    read_only: true
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 64
+    user: node
+    command: [node, /fixture/mock-private-runtime.mjs]
+    volumes:
+      - ../../../../services/conversation-runtime/scripts/mock-private-runtime.mjs:/fixture/mock-private-runtime.mjs:ro
+      - ../../../../services/conversation-runtime/test/fixtures/prp-tls:/tls:ro
+    networks:
+      upstream: {ipv4_address: 10.246.100.11}
+    healthcheck:
+      test: [CMD, node, -e, "fetch('https://10.246.100.11:4443/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    environment:
+      MOCK_PRP_CERT_FILE: /tls/TEST-ONLY-cert.pem
+      MOCK_PRP_KEY_FILE: /tls/TEST-ONLY-key.pem
+      NODE_EXTRA_CA_CERTS: /tls/TEST-ONLY-cert.pem
+      MOCK_PRP_EXPECT_HOST: localhost
+    logging: &logs
+      driver: json-file
+      options: {max-size: 5m, max-file: "2"}
+
+  prp-tls:
+    image: nginx:1.28-alpine
+    restart: unless-stopped
+    read_only: true
+    mem_limit: 128m
+    cpus: 0.5
+    pids_limit: 100
+    environment:
+      NGINX_ENVSUBST_FILTER: ^PRP_
+      PRP_UPSTREAM_ADDRESS: 10.246.100.11:4443
+      PRP_UPSTREAM_TLS_NAME: localhost
+    volumes:
+      - ./prp.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - ../../../../services/conversation-runtime/test/fixtures/prp-tls/TEST-ONLY-cert.pem:/run/secrets/prp_tls_cert:ro
+      - ../../../../services/conversation-runtime/test/fixtures/prp-tls/TEST-ONLY-key.pem:/run/secrets/prp_tls_key:ro
+      - ../../../../services/conversation-runtime/test/fixtures/prp-tls/TEST-ONLY-cert.pem:/run/secrets/prp_upstream_ca:ro
+    tmpfs: [/var/cache/nginx, /var/run, /etc/nginx/conf.d]
+    depends_on:
+      mock-prp: {condition: service_healthy}
+    networks:
+      client: {ipv4_address: 10.246.99.10}
+      upstream: {}
+    healthcheck:
+      test: [CMD-SHELL, 'curl --fail --silent --cacert /run/secrets/prp_tls_cert https://10.246.99.10:4443/healthz >/dev/null']
+      interval: 2s
+      timeout: 2s
+      retries: 10
+    logging: *logs
+
+  probe:
+    profiles: [probe]
+    image: node:22-alpine
+    restart: "no"
+    read_only: true
+    mem_limit: 128m
+    cpus: 0.5
+    user: node
+    working_dir: /runtime
+    command: [node, test/fixtures/prp-tls/probe-proxy.mjs]
+    environment:
+      ZURI_PRIVATE_RUNTIME_BASE_URL: https://10.246.99.10:4443
+      ZURI_PRIVATE_RUNTIME_PROBE_MODEL: local-alias
+      ZURI_PRIVATE_RUNTIME_PROBE_DENIED_MODEL: business-b-alias
+      ZURI_PRIVATE_RUNTIME_PROBE_KEY_FILE: /run/test-key
+      NODE_EXTRA_CA_CERTS: /tls/TEST-ONLY-cert.pem
+    volumes:
+      - ../../../../services/conversation-runtime:/runtime:ro
+      - ./synthetic-key.txt:/run/test-key:ro
+      - ../../../../services/conversation-runtime/test/fixtures/prp-tls:/tls:ro
+    depends_on:
+      prp-tls: {condition: service_healthy}
+    networks: [client]
+    logging: *logs
+
+networks:
+  client:
+    internal: true
+    ipam: {config: [{subnet: 10.246.99.0/24}]}
+  upstream:
+    internal: true
+    ipam: {config: [{subnet: 10.246.100.0/24}]}

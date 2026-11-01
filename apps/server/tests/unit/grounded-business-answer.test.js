@@ -36,6 +36,13 @@ const evidence = {
 }
 
 describe('answerBusinessQuestion (FR-049)', () => {
+  it('does not turn an explicitly cancelled model attempt into a customer fallback reply', async () => {
+    const controller = new AbortController()
+    const model = { provider: 'prp', generate: async () => { controller.abort(); throw new Error('MODEL_PROVIDER_TIMEOUT') } }
+    await expect(answerBusinessQuestion({ businessId: 'smartgift', question: 'USB-001 ราคาเท่าไร' }, {
+      knowledge: { query: async () => evidence }, model, signal: controller.signal,
+    })).rejects.toMatchObject({ code: 'MODEL_PROVIDER_TIMEOUT' })
+  })
   it('returns a supported Thai answer with evidence metadata', async () => {
     const knowledge = { query: vi.fn(async () => evidence) }
     const model = { provider: 'openai', model: 'test', generate: vi.fn(async () => ({ text: 'แฟลชไดรฟ์ไม้ ราคา 120 บาท ขั้นต่ำ 100 ชิ้น ความจุ 32GB' })) }

@@ -38,6 +38,24 @@ verification selection, and standard repository CI remain separate systems.
 
 # AGENTS.md — zuri-ai
 
+## Visual Office design receiver (31 October 2026)
+
+For Office handoff registration, start with [FR-294](docs/requirements/FR-294.md),
+the [scoped owner request](docs/change-requests/project-manager/office-design-receiver-20261031.md)
+and [API contract](docs/appendices/A-api-spec.md#office-design-registration).
+`apps/server/src/modules/business/office-design/` owns the receiver under the
+existing Business/Project Manager lane. Floor/agent-design/asset UUID mappings
+are visual design custody, never Agent runtime, physical Asset registration,
+Membership grants or approval. Preserve the pinned offline verifier, actor
+digest, custom-GLB measurement, per-process intake/worker bounds, current persisted
+OWNER/Workspace checks, Identity CSRF seam, transactional revision/CAS/replay
+and scoped audit. Native worker/vendor files must ship in standalone tracing.
+Generic JSON backup/restore refuses nonempty Office custody; portable recovery
+and separately hosted Office-client enrollment remain open. Migration source,
+local SQLite/PostgreSQL/Next HTTP evidence and deployment are separate claims.
+Use `vitest.office-design-postgres.config.js` for the isolated PostgreSQL slice;
+it accepts no shared database target.
+
 ## Documentation reintegration branch (2026-09-29)
 
 Read [the approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
