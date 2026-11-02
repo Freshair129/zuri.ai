@@ -299,12 +299,16 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
-  it('includes all 219 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+  it('keeps target-local transfer tables outside the 219-table portable PostgreSQL catalog', async () => {
     const queries = []
+    const targetLocalTables = ['ManagedBlobBackupTransferJob', 'ManagedBlobBackupTransferEntry']
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
       if (sql.includes('information_schema.columns')) return {rows:[{data_type:'text',is_nullable:'YES'}]}
-      if (sql.includes('pg_catalog.pg_class')) return { rows: inventory.applicationTables }
+      if (sql.includes('pg_catalog.pg_class')) return { rows: [
+        ...inventory.applicationTables,
+        ...targetLocalTables.map(tableName => ({ schemaName: 'public', tableName })),
+      ] }
       if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: true, canInsert: true }] }
       if (sql.startsWith('SELECT COUNT')) return { rows: [{ count: '0' }] }
       return { rows: [] }
@@ -323,6 +327,42 @@ describe('Phase B offline recovery runners', () => {
       expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(219)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }
+  })
+
+  it('still rejects an unapproved table beside the target-local transfer tables', async () => {
+    const targetLocalTables = ['ManagedBlobBackupTransferJob', 'ManagedBlobBackupTransferEntry']
+    const client = { release() {}, async query(sql) {
+      if (sql.includes('pg_catalog.pg_class')) return { rows: [
+        ...inventory.applicationTables,
+        ...targetLocalTables.map(tableName => ({ schemaName: 'public', tableName })),
+        { schemaName: 'public', tableName: 'UnapprovedApplicationTable' },
+      ] }
+      return { rows: [] }
+    } }
+    const connect = vi.spyOn(pg.Pool.prototype, 'connect').mockResolvedValue(client)
+    const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
+    try {
+      const tx = await adapter.begin()
+      await expect(tx.reconcileCatalog()).rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+      await tx.rollback()
+    } finally { connect.mockRestore(); await adapter.close() }
+  })
+
+  it('counts unresolved target-local transfer jobs through the protected export facade', async () => {
+    const queries = []
+    const tx = { client: { async query(sql, values) {
+      queries.push({ sql, values })
+      return { rows: [{ count: '2' }] }
+    } } }
+    const facade = createPrismaTransactionFacade(tx, inventory)
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { unresolved: true } })).resolves.toBe(2)
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { unresolved: true, id: { not: 'current-transfer' } } })).resolves.toBe(2)
+    expect(queries).toEqual([
+      { sql: 'SELECT COUNT(*)::text AS "count" FROM "public"."ManagedBlobBackupTransferJob" WHERE "unresolved" = $1', values: [true] },
+      { sql: 'SELECT COUNT(*)::text AS "count" FROM "public"."ManagedBlobBackupTransferJob" WHERE "unresolved" = $1 AND "id" <> $2', values: [true, 'current-transfer'] },
+    ])
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { state: 'PREPARED' } }))
+      .rejects.toMatchObject({ code: 'TARGET_EMPTY_UNVERIFIED' })
   })
 
   for (const model of MARKETING_CUSTODY) {

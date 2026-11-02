@@ -272,6 +272,32 @@ export function createPrismaTransactionFacade(tx, inventory) {
   return registerReadOnlyRecoveryFacade(new Proxy(target, {
     get(object, property, receiver) {
       if (Reflect.has(object, property)) return Reflect.get(object, property, receiver)
+      if (property === 'managedBlobBackupTransferJob') return {
+        async count({ where } = {}) {
+          const allowedKeys = new Set(['unresolved', 'id'])
+          const idFilter = where?.id
+          const validIdFilter = idFilter === undefined || (idFilter && typeof idFilter === 'object'
+            && !Array.isArray(idFilter) && Object.keys(idFilter).length === 1
+            && typeof idFilter.not === 'string' && idFilter.not.length > 0)
+          if (!where || where.unresolved !== true || Object.keys(where).some((key) => !allowedKeys.has(key)) || !validIdFilter) {
+            throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_EMPTY_UNVERIFIED, 'Target-local transfer job census query is unsupported')
+          }
+          const values = [true]
+          let sql = `SELECT COUNT(*)::text AS "count" FROM ${tableName({ schemaName: 'public', tableName: TARGET_LOCAL_SCHEMA_MODELS[0] })} WHERE "unresolved" = $1`
+          if (idFilter) {
+            values.push(idFilter.not)
+            sql += ' AND "id" <> $2'
+          }
+          try {
+            const result = await tx.client.query(sql, values)
+            const count = Number(result.rows?.[0]?.count)
+            if (!Number.isSafeInteger(count) || count < 0) throw new Error('invalid transfer job count')
+            return count
+          } catch {
+            throw new PhaseBRecoveryError(PHASE_B_ERROR_CODES.TARGET_EMPTY_UNVERIFIED, 'Target-local transfer job census could not be established')
+          }
+        },
+      }
       const entry = byDelegate.get(String(property))
       if (!entry) return undefined
       return {
@@ -394,7 +420,11 @@ export function createPostgresRecoveryAdapter({ connectionString, inventory, loc
           // public schema.  Compare schema-qualified keys so an unrelated
           // table with the same name in another schema cannot bypass catalog
           // reconciliation.
-          const allowed = new Set([...MIGRATION_TABLES, ...(normalizedInventory.migrationTables || [])]
+          const allowed = new Set([
+            ...MIGRATION_TABLES,
+            ...(normalizedInventory.migrationTables || []),
+            ...TARGET_LOCAL_SCHEMA_MODELS,
+          ]
             .map((name) => `public\u0000${name}`))
           const missing = [...expected].filter((key) => !actual.has(key))
           const unexpected = [...actual].filter((key) => !expected.has(key) && !allowed.has(key))
