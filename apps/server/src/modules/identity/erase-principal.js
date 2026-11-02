@@ -7,6 +7,7 @@ import { recordErasureBlocked } from '@/modules/crm/chat-evidence-hold-reseal-se
 import { revokeRetentionConsentInTransaction, scrubRetentionConsentAuditText } from '@/modules/crm/customer-retention-consent-service'
 import { applyReviewedProjectFeatureErasure } from '@/modules/project-manager/application/project-feature-erasure'
 import { eraseCustomerMemoryInTransaction } from './customer-memory-erasure'
+import { redactManagedBlobTransferActor, completeManagedBlobTransferErasureCleanup } from '@/modules/project-manager/application/managed-blob-transfer-erasure'
 
 // @req FR-252 — reviewed PM text shares the Identity erasure transaction.
 // @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
@@ -73,6 +74,7 @@ export async function erasePrincipal(input, {
 } = {}) {
   const { tenantId, personId, reason } = zErasePrincipalInput.parse(input)
   const now = new Date()
+  const transferCleanupJobIds = new Set()
   // @req FR-022 — a legal-hold re-seal file this erasure wrote (ADR-093 1.2.0),
   //   removed again if the transaction that names it does not commit.
   let resealFile = null
@@ -102,6 +104,11 @@ export async function erasePrincipal(input, {
       throw error
     }
 
+    // @req FR-293 — serialize transfer payload custody with the installation fence;
+    // ambiguous/provider-writing jobs block erasure until exact custody is resolved.
+    const transferErasure = await redactManagedBlobTransferActor(tx, personId)
+    for (const id of transferErasure.cleanupJobIds) transferCleanupJobIds.add(id)
+
     // Internal server context only; the public erasure request never accepts it.
     // Subject identity comes from this orchestrator, not from the manifest.
     const pmResult = await applyReviewedProjectFeatureErasure(tx, reviewedPmContext?.manifest ?? null, {
@@ -117,6 +124,8 @@ export async function erasePrincipal(input, {
       manifestSha256: pmResult.manifestSha256 ?? null,
       changedRowCount: pmResult.changedRowCount,
       changedFieldCount: pmResult.changedFieldCount,
+      managedBlobTransfer: { redactedJobs: transferErasure.redactedJobs,
+        payloadCleanupPending: transferErasure.cleanupJobIds.length },
     }
 
     const revoked = await tx.externalIdentity.updateMany({
@@ -259,7 +268,7 @@ export async function erasePrincipal(input, {
         retainedForLegalHolds: resealed.holds,
         retentionConsent,
         personRedacted,
-        pmErasure: pmResult.audit ?? pmErasure,
+      pmErasure: { ...(pmResult.audit ?? pmErasure), managedBlobTransfer: pmErasure.managedBlobTransfer },
       },
     })
 
@@ -279,6 +288,8 @@ export async function erasePrincipal(input, {
       withdrawnKnowledgeSources: knowledgeErasure.withdrawnKnowledgeSources,
       personRedacted,
       pmErasure,
+      managedBlobTransferErasure: { redactedJobs: transferErasure.redactedJobs,
+        payloadCleanupPending: transferErasure.cleanupJobIds.length },
       // @req SEC-034 — one entry per Customer this erasure touched (ADR-093
       //   D6): `keyDestroyed: true` when no hold protected them, or
       //   `legalHold` naming the hold that deferred it. Always present as an
@@ -291,9 +302,19 @@ export async function erasePrincipal(input, {
     }
   }
   try {
-    return typeof db.$transaction === 'function'
+    const result = typeof db.$transaction === 'function'
       ? await db.$transaction(execute, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
       : await execute(db)
+    let payloadsCleared = 0
+    for (const jobId of transferCleanupJobIds) {
+      try {
+        if (await completeManagedBlobTransferErasureCleanup(db, { jobId,
+          dataDirectory: env.ZURI_MANAGED_BLOB_TRANSFER_DATA_DIRECTORY })) payloadsCleared++
+      } catch { /* the durable ERASURE_CLEANUP_PENDING row remains unresolved */ }
+    }
+    return { ...result, managedBlobTransferCustodyCleanup: {
+      payloadsCleared, payloadCleanupPending: Math.max(0, transferCleanupJobIds.size - payloadsCleared),
+    } }
   } catch (error) {
     if (!resealFile && error?.archiveFile) resealFile = error.archiveFile
     if (resealFile) {

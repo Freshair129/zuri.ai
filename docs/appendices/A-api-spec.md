@@ -1,6 +1,8 @@
 # Appendix A — API Specification
 
-Version diff 1.119.0b to 1.120.0b (2026-11-01): inventory the three OR3 recovery route handlers (364 total). FR-292 transport/UI exists behind an uncomposed service boundary; ordinary requests return NOT_QUALIFIED and FR-293 backup transfer activation remains gated. No operator, provider, installation, AI or production qualification is conferred.
+Version diff 1.121.0b to 1.122.0b (2026-11-02): inventory eight PM-owned FR-293 managed-blob transfer routes (372 total), including actor-bound job recovery after a lost response. Export and confirm return 202 after durable job/attempt admission; replace-all remains limited to source-bound disposable TEST admission and leaves the generation NEEDS_ADMISSION. Ordinary recovery and installed/operator, provider and production qualification remain open.
+
+Version diff 1.119.0b to 1.120.0b (2026-11-01): inventory the three OR3 recovery route handlers (364 total). FR-292 recovery routes remain uncomposed and return NOT_QUALIFIED; this does not enable ordinary recovery or confer operator, provider, installation, AI or production qualification.
 
 Version diff 1.118.0b to 1.119.0b (2026-10-31): adds FR-295 session-scoped Office handoff destination discovery and a same-origin Zuri transfer page. Inventory: 361 route handlers. Deployment and real Business import are separate from local qualification.
 
@@ -223,7 +225,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=364 -->
+<!-- api-spec-counts: route_handlers=372 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -1209,6 +1211,29 @@ after authentication/CSRF they return `503 MANAGED_BLOB_RECOVERY_NOT_QUALIFIED`.
 No environment or caller flag enables them. Controlled browser/HTTP fixtures are
 transport evidence only. The supported reserved-ref backup round trip, normal
 operator/installed acceptance, provider and other release gates remain OPEN.
+
+## Managed-blob transfer (FR-293 — candidate, TEST admission only)
+
+| Method | Path | Contract |
+|---|---|---|
+| GET | `/api/backup/transfers` | Lists the current operator's recent safe job DTOs so a lost export response can be recovered without exposing confirmation material. |
+| POST | `/api/backup/transfers/export` | PM-owned installation-operator export. Persists the immutable JSON snapshot selection and returns 202 with a job DTO; status is polled and the sealed package is available only after COMPLETE. |
+| POST | `/api/backup/transfers/preview` | Stages a bounded package into target-local private spool and records a persisted preview. Validates codec, snapshot, object hashes, current erasure policy and replace-all impact before any provider write. |
+| GET | `/api/backup/transfers/[jobId]` | Actor-bound, no-store status; never returns confirmation material or provider diagnostics. |
+| GET | `/api/backup/transfers/[jobId]/package` | Downloads the exact sealed package after spool and digest revalidation. |
+| POST | `/api/backup/transfers/[jobId]/confirm` | One-use, expected-version confirmation. Persists the restore attempt and returns 202; duplicate committed requests read durable state and never replay replace-all. Replace-all writes are admitted only by source-bound disposable TEST provenance; every other target is refused. Successful restore leaves the installation generation `NEEDS_ADMISSION`. |
+| POST | `/api/backup/transfers/[jobId]/inspect` | Reconciles an existing attempt and recorded provider receipts; does not retry an uncertain write. |
+| POST | `/api/backup/transfers/[jobId]/abandon` | Closes only an unattempted job; uncertain or provider-writing custody remains retained for reconciliation. |
+
+Every POST requires a persisted installation-operator session, exact configured
+Origin and session-bound CSRF before body parsing. Job, per-object custody and
+spool are installation-local and excluded from the portable JSON snapshot.
+Erasure policy is checked before restore writes. The ordinary backup JSON shape
+and round trip remain unchanged for snapshots without reserved managed-blob
+references; snapshots containing reserved references are refused by the ordinary
+path. Ordinary FR-292 recovery remains unavailable. This is source and disposable
+TEST evidence only: no production/Supabase migration, provider or installed
+acceptance is claimed.
 
 ## Intake surfaces (FR-017..FR-020 — shipped)
 

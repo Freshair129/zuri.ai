@@ -472,6 +472,33 @@ its own installation marker, roles, catalog and physical DB identity. Unknown
 nonempty security families refuse transfer. Protected Marketing report rows stay
 append-only after restoration. This is not the legacy snapshot importer.
 
+The PM Backup page has a separate sealed managed-blob transfer workflow for
+snapshots that contain reserved Asset/catalog refs. Compact mounts the
+project-labeled `managed-transfer` volume at the configured private data path.
+The Node server runs a bounded maintenance pass at startup and every minute. It
+removes only exact job-UUID spool files for expired completed payloads, expired
+previews with no restore attempts or provider intents, and exact post-erasure
+cleanup custody. UNKNOWN, RESTORING, provider-writing, and other unresolved jobs
+remain for reconciliation after their byte deadline. The sweep never deletes a
+provider object or source version.
+
+The normal runtime accepts a new TEST confirmation only when the separately
+controlled qualification harness mounts a short-lived Ed25519-signed admission
+envelope and its public key read-only, using
+`ZURI_MANAGED_BLOB_TRANSFER_TEST_ADMISSION_FILE` and
+`ZURI_MANAGED_BLOB_TRANSFER_TEST_ADMISSION_PUBLIC_KEY_FILE`. The signature binds
+the exact loopback `zuri_server_test` database identity including PostgreSQL
+database OID, one transfer job, generation, private storage profile, source
+revision/evidence, package digest and synthetic data, plus the
+maintenance/quiescence decision. Its durable admission ID can be claimed by one
+job only. Keep the private signing key in the harness; never add it to the app
+environment or release. New confirms refuse before provider I/O if the envelope
+is absent, expired or mismatched. After an atomic restore claim, the app can
+verify the persisted signature and exact target binding to resume that same
+unresolved attempt after its preview or byte deadline; keep the public key
+available until the attempt is reconciled. This admission is specific to
+disposable TEST and does not admit production, release, or ordinary recovery.
+
 SEC-030/FR-223/ADR-089 prohibit exporting envelope ciphertext or the KEK. This
 harness tests missing/wrong KEK refusal only on the source, excludes the envelope
 table from transfer, and invokes credential re-entry on destination metadata.
@@ -480,8 +507,11 @@ be re-entered under the existing authority contract before use.
 
 The object probe demonstrates missing-version refusal, exact recovered bytes,
 current authorization and a clearly TEST-only FileAsset ref remap with preserved
-scope/version/audit. There is no supported managed-blob operator restore/rebind
-operation; operator recovery remains `NOT_QUALIFIED`. Keep the private backup
+scope/version/audit. The transfer round-trip confirm remains limited to
+source-bound disposable TEST admission and leaves the restored generation
+`NEEDS_ADMISSION`. General operator restore/rebind and ordinary recovery remain
+`NOT_QUALIFIED` and fail closed; TEST evidence does not close OR5 or establish
+production or release qualification. Keep the private backup
 files for inspection. Never upload SQL, object backups, keys, env or traces as CI
 evidence. A second volume or private file on this host does not establish an
 off-host backup failure domain. Physical/off-host recovery remains unqualified.

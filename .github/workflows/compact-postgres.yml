@@ -20,6 +20,15 @@ on:
       - apps/server/src/app/api/growth/external-marketing-reports/**
       - apps/server/src/lib/db.js
       - apps/server/tests/helpers/pm-role-target.js
+      - apps/server/scripts/phase-b-recovery.mjs
+      - apps/server/tests/integration/phase-b-recovery.test.js
+      - apps/server/src/modules/project-manager/application/managed-blob-transfer-*.js
+      - apps/server/src/app/api/backup/transfers/**
+      - 'apps/server/src/app/(pm)/backup/**'
+      - apps/server/tests/integration/managed-blob-transfer.test.js
+      - apps/server/tests/unit/managed-blob-transfer*.test.js
+      - apps/server/tests/helpers/managed-blob-transfer-*
+      - apps/server/tests/helpers/compact-business-storage.mjs
       - apps/server/tests/global-setup-postgres.js
       - apps/server/vitest.postgres.config.js
       - apps/server/prisma/**
@@ -46,6 +55,15 @@ on:
       - apps/server/src/app/api/growth/external-marketing-reports/**
       - apps/server/src/lib/db.js
       - apps/server/tests/helpers/pm-role-target.js
+      - apps/server/scripts/phase-b-recovery.mjs
+      - apps/server/tests/integration/phase-b-recovery.test.js
+      - apps/server/src/modules/project-manager/application/managed-blob-transfer-*.js
+      - apps/server/src/app/api/backup/transfers/**
+      - 'apps/server/src/app/(pm)/backup/**'
+      - apps/server/tests/integration/managed-blob-transfer.test.js
+      - apps/server/tests/unit/managed-blob-transfer*.test.js
+      - apps/server/tests/helpers/managed-blob-transfer-*
+      - apps/server/tests/helpers/compact-business-storage.mjs
       - apps/server/tests/global-setup-postgres.js
       - apps/server/vitest.postgres.config.js
       - apps/server/prisma/**
@@ -83,6 +101,10 @@ jobs:
       - run: npm run compact:test
       - name: Fresh-only PostgreSQL acceptance
         run: npm run test:postgres -- tests/postgres/compact-fresh-install.test.js
+      - name: Install Playwright Chromium for transfer UI acceptance
+        run: npx playwright install --with-deps chromium
+      - name: FR-293 TEST-only transfer round trip on disposable PostgreSQL
+        run: npm run test:postgres -- tests/integration/managed-blob-transfer.test.js
       - name: Marketing wire and provider regressions
         run: npm test -- tests/unit/marketing-report-wire.test.js tests/unit/marketing-report-database.test.js tests/unit/marketing-report-lock.test.js
       - name: Fresh Compact Marketing runtime-role acceptance

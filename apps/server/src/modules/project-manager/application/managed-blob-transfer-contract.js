@@ -2,6 +2,7 @@
 // @spec ADR-115
 // @tested tests/unit/managed-blob-transfer-contract.test.js
 import { z } from 'zod'
+import { randomUUID } from 'node:crypto'
 import { canonicalJSON } from './handoff-contract'
 import { readRecoveryJSON, recoverySha256 as sha, recoveryContentLimit } from './managed-blob-recovery-contract'
 import { parseBusinessObjectRef } from '@/platform/storage/private-business-object-storage'
@@ -114,6 +115,60 @@ function reservedInventory(snapshot) {
     record.witness = witness
   }
   return inventory
+}
+
+// Server-internal source selection for the export orchestrator. Callers must
+// keep `ref` inside the PM/provider boundary; it is never a safe DTO field.
+export function listManagedBlobTransferSources(snapshot) {
+  const inventory = reservedInventory(snapshot), grouped = new Map()
+  for (const item of inventory.values()) {
+    let source = grouped.get(item.row.blobRef)
+    if (!source) {
+      source = { ref: item.row.blobRef, tenantId: item.tenantId, businessId: item.businessId,
+        purpose: item.purpose, sha256: item.witness.sha256, byteLength: item.witness.size,
+        bindings: [] }
+      grouped.set(item.row.blobRef, source)
+    }
+    if (source.tenantId !== item.tenantId || source.businessId !== item.businessId
+      || source.purpose !== item.purpose || source.sha256 !== item.witness.sha256
+      || source.byteLength !== item.witness.size) fail()
+    source.bindings.push({ model: item.model, id: item.row.id, tenantId: item.tenantId,
+      businessId: item.businessId, sourceRowSha256: sha(canonicalBytes(item.row)),
+      sourceRefSha256: item.refDigest })
+  }
+  return [...grouped.values()].map(source => ({
+    ...source,
+    bindings: source.bindings.sort((a, b) => `${a.model}:${a.id}`.localeCompare(`${b.model}:${b.id}`)),
+  })).sort((a, b) => a.ref.localeCompare(b.ref))
+}
+
+export function buildManagedBlobTransferPayload({ snapshot, originals, sourceGeneration, sourceConfigSha256,
+  sourceRevision, exportedAt = new Date().toISOString(), createId = randomUUID } = {}, profile) {
+  try {
+    const limits = profileSchema.parse(profile), sources = listManagedBlobTransferSources(snapshot)
+    if (!sources.length || !(originals instanceof Map) || originals.size !== sources.length) fail()
+    const snapshotBytes = canonicalBytes(snapshot), objects = new Map(), entries = []
+    let totalOriginalBytes = 0
+    for (const source of sources) {
+      if (!originals.has(source.ref)) fail()
+      const bytes = Buffer.from(bytesFor(originals.get(source.ref)))
+      if (bytes.length !== source.byteLength || sha(bytes) !== source.sha256) fail()
+      totalOriginalBytes += bytes.length
+      if (!Number.isSafeInteger(totalOriginalBytes) || totalOriginalBytes > limits.maxOriginalBytes) fail()
+      const objectId = createId()
+      if (!uuid.safeParse(objectId).success || objects.has(objectId)) fail()
+      objects.set(objectId, bytes)
+      entries.push({ objectId, sha256: source.sha256, byteLength: source.byteLength,
+        purpose: source.purpose, bindings: source.bindings })
+    }
+    entries.sort((a, b) => a.objectId.localeCompare(b.objectId))
+    const manifest = { schemaVersion: 'compact-managed-blob-backup.v1', sourceRevision,
+      exportedAt, snapshotSha256: sha(snapshotBytes), sourceGeneration, sourceConfigSha256,
+      entryCount: entries.length, totalOriginalBytes, entries }
+    const value = validate({ manifest, snapshotBytes, objects }, profile)
+    return { manifest: value.manifest, snapshot: value.snapshot, snapshotBytes: value.snapshotBytes,
+      objects: value.objects, limits: value.limits }
+  } catch { fail() }
 }
 
 function validate({ manifest, snapshotBytes, objects }, profile) {

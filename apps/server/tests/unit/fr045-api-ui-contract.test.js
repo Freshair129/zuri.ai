@@ -54,12 +54,13 @@ describe('FR-045 API and UI contract', () => {
         vi.fn(async () => ({
           ok: false,
           status: 409,
-          json: async () => ({ error: 'Project is already linked to this Goal' }),
+          json: async () => ({ error: 'Project is already linked to this Goal', code: 'PROJECT_ALREADY_LINKED' }),
         }))
       )
       await expect(api('/api/business/goals/g1/projects', { method: 'POST', body: { projectId: 'p1' } })).rejects.toMatchObject({
         message: 'Project is already linked to this Goal',
         status: 409,
+        code: 'PROJECT_ALREADY_LINKED',
       })
     })
 

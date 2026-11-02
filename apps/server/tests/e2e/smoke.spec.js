@@ -88,7 +88,7 @@ test.describe('universal routes', () => {
   test('backup page has export and import preview', async ({ page }) => {
     await page.goto('/backup')
     await expect(page.getByRole('button', { name: /Download snapshot/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /Preview/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Preview', exact: true })).toBeVisible()
   })
 
   test('command palette opens with Ctrl+K and navigates', async ({ page }) => {

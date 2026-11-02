@@ -1,14 +1,14 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.5"
-checked_at: "2026-10-25"
+version: "0.3.6"
+checked_at: "2026-11-02"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
 
 # Direct directories under `docs/`
 
-This register records all 20 tracked directories directly under `docs/` at the reviewed base. Counts are direct files / immediate child directories. This change adds local indexes for `domains/`, `plans/`, `roadmap/`, `templates/`, and `prompts/`; those files are absent from the base counts. The table names the entrypoint to use today, including generated or registry indexes where another README would duplicate them.
+This register records all 20 tracked directories directly under `docs/` at the reviewed base, plus one directory added on this branch. Counts are direct files / immediate child directories at the reviewed base; `— / —` marks a directory added after that base. This change adds local indexes for `domains/`, `plans/`, `roadmap/`, `templates/`, and `prompts/`; those files are absent from the base counts. The table names the entrypoint to use today, including generated or registry indexes where another README would duplicate them.
 
 | Directory | Files / child dirs at base | Current entrypoint | Placement decision |
 |---|---|---:|---|
@@ -31,6 +31,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 | [`roadmap/`](../roadmap/README.md) | 36 / 2 | `README.md` | Added current-source versus projection and historical-snapshot distinctions. |
 | [`runbooks/`](../runbooks/) | 8 / 0 | [Operations index](../operations/README.md) | Generated operations view lists all eight runbooks. |
 | [`services/`](../services/README.md) | 1 / 4 | `README.md` | Generated service navigation. |
+| [`superpowers/`](../superpowers/specs/2026-11-02-fr293-managed-blob-transfer-runtime-plan.md) | — / — | [FR-293 runtime plan](../superpowers/specs/2026-11-02-fr293-managed-blob-transfer-runtime-plan.md) | Subordinate implementation plan and design only; not a canonical requirement, whole-plan authorization, or qualification record. Added on this branch after the reviewed base. |
 | [`templates/`](../templates/README.md) | 3 / 0 | `README.md` | Added template scope and a linked domain-SRS skeleton. |
 
 ## Findings
@@ -38,6 +39,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 - At the reviewed base, six of the 20 directories had a direct README. This change adds five local indexes; 11 now have a direct README. The remaining nine have a named canonical or generated entrypoint in the table.
 - `features/` and `requirements/` are indexed by the canonical registry. `decisions/`, `changes/`, `migrations/`, `deployment/`, `runbooks/`, and `appendices/` are covered by generated navigation. A duplicate local file list would create another copy to drift.
 - `archive/00-START-HERE.md` is the existing archive entrypoint. `prompts/README.md` is the only new local index needed for its single historical prompt.
+- `superpowers/` is the single post-base addition. Its current subtree contains the task-bounded FR-293 design and implementation plan; neither establishes requirement authority, whole-plan authorization, or qualification.
 - The directory register is not a complete recursive file listing. For any edit or deletion, enumerate the affected subtree, including tracked, untracked, and ignored files, as required by `AGENTS.md`.
 - A tracked-file SHA-256 scan found four byte-identical pairs under `change-requests/` and `migrations/document-reintegration/record-migrations/`. Each pair has an intake path and a named approval snapshot; preserve both as provenance and do not deduplicate by hash alone. The scan found no byte-identical Markdown or Prisma files directly under `docs/`.
 - Do not add directories or files solely to make this inventory symmetrical. A missing local README is acceptable when an exact canonical index already covers the contents.
@@ -67,3 +69,7 @@ qualification plan; the production connection and apply gates remain closed.
 0.3.4 (2026-10-27): index the proposed Compact plan and refresh only its current
 on-disk count after enumeration. Historical base counts and approval states stay
 unchanged.
+
+0.3.5 -> 0.3.6 (2026-11-02): register the new subordinate `superpowers/` design
+directory on the FR-293 runtime branch. The original reviewed-base counts and
+all other directory classifications stay unchanged.

@@ -1,11 +1,13 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { startKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
+import { startManagedBlobTransferMaintenance } from '@/modules/project-manager/application/managed-blob-transfer-maintenance'
 import { register } from '@/instrumentation'
 
 // @req FR-109 — runtime retry diagnostics reach the existing Server operations log.
 // @spec ADR-073
 // @tested tests/unit/knowledge-runtime-instrumentation.test.js
 vi.mock('@/modules/knowledge/knowledge-runtime', () => ({ startKnowledgeAdmissionRuntime: vi.fn() }))
+vi.mock('@/modules/project-manager/application/managed-blob-transfer-maintenance', () => ({ startManagedBlobTransferMaintenance: vi.fn() }))
 afterEach(() => { vi.unstubAllEnvs(); vi.restoreAllMocks(); vi.clearAllMocks() })
 
 describe('Knowledge runtime bootstrap diagnostics', () => {
@@ -32,6 +34,16 @@ describe('Knowledge runtime bootstrap diagnostics', () => {
     vi.stubEnv('NEXT_RUNTIME', 'nodejs')
     vi.stubEnv('ZURI_KNOWLEDGE_ENABLED', '0')
     await register()
+    expect(startKnowledgeAdmissionRuntime).not.toHaveBeenCalled()
+    expect(startManagedBlobTransferMaintenance).not.toHaveBeenCalled()
+  })
+
+  it('starts only the bounded transfer-custody maintenance when its private directory is configured', async () => {
+    vi.stubEnv('NEXT_RUNTIME', 'nodejs')
+    vi.stubEnv('ZURI_KNOWLEDGE_ENABLED', '0')
+    vi.stubEnv('ZURI_MANAGED_BLOB_TRANSFER_DATA_DIRECTORY', '/var/lib/zuri/managed-transfer')
+    await register()
+    expect(startManagedBlobTransferMaintenance).toHaveBeenCalledOnce()
     expect(startKnowledgeAdmissionRuntime).not.toHaveBeenCalled()
   })
 })

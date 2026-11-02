@@ -42,7 +42,7 @@
     "requirementCount": 283,
     "verifiedRequirementCount": 247,
     "progressPercent": 93.6,
-    "gapCount": 82,
+    "gapCount": 83,
     "gaps": [
       {
         "domain": "agent",
@@ -453,6 +453,50 @@
           "apps/server/tests/integration/phase-b-identity-erasure.test.js",
           "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/unit/customer-consent-service.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-293",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-293 is partial",
+        "evidence": [
+          "apps/server/src/modules/identity/erase-principal.js",
+          "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+          "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+          "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+          "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
+          "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
+          "apps/server/tests/integration/line-non-text-admission.test.js",
+          "apps/server/tests/integration/line-server-backup.test.js",
+          "apps/server/tests/integration/line-stock-policy-backup.test.js",
+          "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+          "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+          "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+          "apps/server/tests/integration/managed-blob-transfer.test.js",
+          "apps/server/tests/integration/marketing-backup.test.js",
+          "apps/server/tests/integration/marketing-content-backup.test.js",
+          "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+          "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
+          "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
+          "apps/server/tests/unit/agent-mission-recovery.test.js",
+          "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
+          "apps/server/tests/unit/pricing-backup.test.js"
         ]
       },
       {
@@ -1419,6 +1463,15 @@
         "check": "requirements",
         "summary": "FR-293 is partial",
         "evidence": [
+          "apps/server/src/app/(pm)/backup/page.jsx",
+          "apps/server/src/app/api/backup/transfers/[jobId]/abandon/route.js",
+          "apps/server/src/app/api/backup/transfers/[jobId]/confirm/route.js",
+          "apps/server/src/app/api/backup/transfers/[jobId]/inspect/route.js",
+          "apps/server/src/app/api/backup/transfers/[jobId]/package/route.js",
+          "apps/server/src/app/api/backup/transfers/[jobId]/route.js",
+          "apps/server/src/app/api/backup/transfers/export/route.js",
+          "apps/server/src/app/api/backup/transfers/preview/route.js",
+          "apps/server/src/app/api/backup/transfers/route.js",
           "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
           "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
           "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -1427,26 +1480,51 @@
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
           "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-authority.js",
           "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-erasure.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-http.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-io.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-maintenance.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-profile.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-repository.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-spool.js",
+          "apps/server/src/modules/project-manager/application/managed-blob-transfer-test-admission.js",
           "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+          "apps/server/tests/acceptance/knowledge-admission-native.test.js",
           "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
           "apps/server/tests/integration/backup.test.js",
+          "apps/server/tests/integration/crm-archive-legal-hold.test.js",
           "apps/server/tests/integration/crm-conversation-analysis.test.js",
+          "apps/server/tests/integration/crm-customer-erasure.test.js",
           "apps/server/tests/integration/fr075-restore-authorization.test.js",
+          "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+          "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+          "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+          "apps/server/tests/integration/identity-erase.test.js",
           "apps/server/tests/integration/line-non-text-admission.test.js",
           "apps/server/tests/integration/line-server-backup.test.js",
           "apps/server/tests/integration/line-stock-policy-backup.test.js",
           "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
           "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
           "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+          "apps/server/tests/integration/managed-blob-transfer.test.js",
           "apps/server/tests/integration/marketing-backup.test.js",
           "apps/server/tests/integration/marketing-content-backup.test.js",
           "apps/server/tests/integration/openapi-docs.test.js",
+          "apps/server/tests/integration/phase-b-identity-erasure.test.js",
           "apps/server/tests/integration/phase-b-web-recovery.test.js",
+          "apps/server/tests/integration/server-line-jobs.test.js",
           "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
           "apps/server/tests/unit/agent-mission-recovery.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
+          "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
           "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+          "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
         ]
       },
@@ -1518,7 +1596,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-025",
@@ -1946,7 +2024,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -2643,7 +2721,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -2800,7 +2878,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-023",
@@ -3255,7 +3333,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-026",
@@ -3691,6 +3769,51 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 51
+        },
+        {
+          "id": "FR-293",
+          "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 1,
+          "testCount": 34,
+          "evidence": [
+            "apps/server/src/modules/identity/erase-principal.js",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/line-stock-policy-backup.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+            "apps/server/tests/integration/managed-blob-transfer.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
+            "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "checks": {
@@ -3734,7 +3857,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 1
           }
         },
@@ -3936,6 +4059,49 @@
             "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/unit/customer-consent-service.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-293",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-293 is partial",
+          "evidence": [
+            "apps/server/src/modules/identity/erase-principal.js",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+            "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
+            "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+            "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
+            "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
+            "apps/server/tests/integration/line-non-text-admission.test.js",
+            "apps/server/tests/integration/line-server-backup.test.js",
+            "apps/server/tests/integration/line-stock-policy-backup.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+            "apps/server/tests/integration/managed-blob-transfer.test.js",
+            "apps/server/tests/integration/marketing-backup.test.js",
+            "apps/server/tests/integration/marketing-content-backup.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
+            "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
+            "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
+            "apps/server/tests/unit/agent-mission-recovery.test.js",
+            "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
+            "apps/server/tests/unit/pricing-backup.test.js"
+          ]
         }
       ],
       "details": {
@@ -3984,7 +4150,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-028",
@@ -4088,7 +4254,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 57
+          "testCount": 58
         },
         {
           "id": "FR-110",
@@ -4176,7 +4342,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 66
+          "testCount": 67
         },
         {
           "id": "FR-187",
@@ -4322,7 +4488,7 @@
           "details": {
             "routes": 18,
             "inventoried": 18,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -4786,7 +4952,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -5018,7 +5184,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 57
+          "testCount": 58
         },
         {
           "id": "FR-110",
@@ -5114,7 +5280,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 66
+          "testCount": 67
         },
         {
           "id": "FR-187",
@@ -5582,7 +5748,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-026",
@@ -5926,7 +6092,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -6166,7 +6332,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -6418,7 +6584,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -6806,7 +6972,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -7031,7 +7197,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 365,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -7217,7 +7383,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-014",
@@ -7280,8 +7446,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 50
+          "codeCount": 9,
+          "testCount": 51
         },
         {
           "id": "FR-026",
@@ -7409,7 +7575,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 27,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-046",
@@ -7920,7 +8086,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 57
+          "testCount": 58
         },
         {
           "id": "FR-110",
@@ -8192,7 +8358,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 66
+          "testCount": 67
         },
         {
           "id": "FR-174",
@@ -8990,9 +9156,18 @@
           "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
           "declared": "planned",
           "status": "partial",
-          "codeCount": 10,
-          "testCount": 19,
+          "codeCount": 29,
+          "testCount": 34,
           "evidence": [
+            "apps/server/src/app/(pm)/backup/page.jsx",
+            "apps/server/src/app/api/backup/transfers/[jobId]/abandon/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/confirm/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/inspect/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/package/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/route.js",
+            "apps/server/src/app/api/backup/transfers/export/route.js",
+            "apps/server/src/app/api/backup/transfers/preview/route.js",
+            "apps/server/src/app/api/backup/transfers/route.js",
             "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
             "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -9001,26 +9176,51 @@
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-authority.js",
             "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-erasure.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-http.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-io.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-maintenance.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-profile.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-repository.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-spool.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-test-admission.js",
             "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
             "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
             "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
             "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+            "apps/server/tests/integration/managed-blob-transfer.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
             "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
@@ -9114,9 +9314,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 193,
-            "inventoried": 193,
-            "openApiPaths": 365,
+            "routes": 201,
+            "inventoried": 201,
+            "openApiPaths": 373,
             "missingFromOpenApi": 0
           }
         },
@@ -9181,10 +9381,10 @@
             }
           ],
           "details": {
-            "mutations": 146,
-            "guardedMutations": 145,
-            "reads": 90,
-            "unguardedReads": 11
+            "mutations": 151,
+            "guardedMutations": 150,
+            "reads": 93,
+            "unguardedReads": 13
           }
         },
         "tests": {
@@ -9754,6 +9954,15 @@
           "check": "requirements",
           "summary": "FR-293 is partial",
           "evidence": [
+            "apps/server/src/app/(pm)/backup/page.jsx",
+            "apps/server/src/app/api/backup/transfers/[jobId]/abandon/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/confirm/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/inspect/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/package/route.js",
+            "apps/server/src/app/api/backup/transfers/[jobId]/route.js",
+            "apps/server/src/app/api/backup/transfers/export/route.js",
+            "apps/server/src/app/api/backup/transfers/preview/route.js",
+            "apps/server/src/app/api/backup/transfers/route.js",
             "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
             "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -9762,26 +9971,51 @@
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
             "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-authority.js",
             "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-erasure.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-http.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-io.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-maintenance.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-profile.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-repository.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-spool.js",
+            "apps/server/src/modules/project-manager/application/managed-blob-transfer-test-admission.js",
             "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
             "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
             "apps/server/tests/integration/backup.test.js",
+            "apps/server/tests/integration/crm-archive-legal-hold.test.js",
             "apps/server/tests/integration/crm-conversation-analysis.test.js",
+            "apps/server/tests/integration/crm-customer-erasure.test.js",
             "apps/server/tests/integration/fr075-restore-authorization.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+            "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+            "apps/server/tests/integration/identity-erase.test.js",
             "apps/server/tests/integration/line-non-text-admission.test.js",
             "apps/server/tests/integration/line-server-backup.test.js",
             "apps/server/tests/integration/line-stock-policy-backup.test.js",
             "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
             "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
             "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+            "apps/server/tests/integration/managed-blob-transfer.test.js",
             "apps/server/tests/integration/marketing-backup.test.js",
             "apps/server/tests/integration/marketing-content-backup.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/phase-b-identity-erasure.test.js",
             "apps/server/tests/integration/phase-b-web-recovery.test.js",
+            "apps/server/tests/integration/server-line-jobs.test.js",
             "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
             "apps/server/tests/unit/agent-mission-recovery.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
+            "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
             "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+            "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
         },
@@ -9841,8 +10075,8 @@
         }
       ],
       "details": {
-        "routes": 241,
-        "apiRoutes": 193,
+        "routes": 249,
+        "apiRoutes": 201,
         "pageRoutes": 48,
         "ownedModels": 53,
         "featureNotes": 45
@@ -9946,7 +10180,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-058",
@@ -10007,6 +10241,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+        "apps/server/tests/integration/managed-blob-transfer.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
@@ -11340,7 +11575,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 57
+          "testCount": 58
         },
         {
           "id": "FR-110",
@@ -11364,7 +11599,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 66
+          "testCount": 67
         },
         {
           "id": "FR-254",
@@ -11398,7 +11633,7 @@
         "apps/server/src/app/api/pipelines/knowledge/evidence/pull/route.js",
         "apps/server/src/app/api/pipelines/runs/route.js",
         "apps/server/src/config/domains.js",
-        "apps/server/src/instrumentation.js",
+        "apps/server/src/instrumentation-node.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/knowledge/classification.js",
         "apps/server/src/modules/knowledge/console/KnowledgeConsole.jsx",
@@ -11475,6 +11710,7 @@
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
         "apps/server/tests/integration/managed-blob-recovery.test.js",
+        "apps/server/tests/integration/managed-blob-transfer.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -15961,7 +16197,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 14
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -15975,6 +16211,7 @@
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
+        "apps/server/tests/integration/managed-blob-transfer.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
@@ -16361,8 +16598,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 32,
-          "testCount": 50
+          "codeCount": 33,
+          "testCount": 51
         }
       ],
       "evidence": [
@@ -16397,6 +16634,7 @@
         "apps/server/src/modules/line-oa-studio/application/line-memory-erasure.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-erasure.js",
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
@@ -16429,6 +16667,7 @@
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/line-worker-memory.test.js",
+        "apps/server/tests/integration/managed-blob-transfer.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
@@ -22074,6 +22313,7 @@
       ],
       "primaryDomain": "project-manager",
       "contributorDomains": [
+        "identity",
         "project-manager"
       ],
       "useCase": "installation operator ส่งออก metadata พร้อม bytes เดิมของ reserved managed-blob refs แล้ว preview/confirm การกู้เข้า Compact target ที่ผ่าน admission โดยใช้ target refs ใหม่และคง version ของข้อมูล",
@@ -22089,39 +22329,75 @@
           "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…",
           "status": "partial",
           "progressPercent": 80,
-          "codeCount": 10,
-          "testCount": 19
+          "codeCount": 31,
+          "testCount": 34
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/backup/page.jsx",
+        "apps/server/src/app/api/backup/transfers/[jobId]/abandon/route.js",
+        "apps/server/src/app/api/backup/transfers/[jobId]/confirm/route.js",
+        "apps/server/src/app/api/backup/transfers/[jobId]/inspect/route.js",
+        "apps/server/src/app/api/backup/transfers/[jobId]/package/route.js",
+        "apps/server/src/app/api/backup/transfers/[jobId]/route.js",
+        "apps/server/src/app/api/backup/transfers/export/route.js",
+        "apps/server/src/app/api/backup/transfers/preview/route.js",
+        "apps/server/src/app/api/backup/transfers/route.js",
         "apps/server/src/app/api/files/[id]/recovery-operations/[operationId]/[action]/route.js",
         "apps/server/src/app/api/files/[id]/recovery-operations/route.js",
+        "apps/server/src/instrumentation-node.js",
+        "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-custody.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-http.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-lock.js",
         "apps/server/src/modules/project-manager/application/managed-blob-recovery-repository.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-authority.js",
         "apps/server/src/modules/project-manager/application/managed-blob-transfer-contract.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-erasure.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-http.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-io.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-maintenance.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-profile.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-repository.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-spool.js",
+        "apps/server/src/modules/project-manager/application/managed-blob-transfer-test-admission.js",
         "apps/server/src/modules/project-manager/components/ManagedBlobRecovery.jsx",
+        "apps/server/tests/acceptance/knowledge-admission-native.test.js",
         "apps/server/tests/browser/managed-blob-recovery-browser.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
+        "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+        "apps/server/tests/integration/identity-erase-group-speakers.test.js",
+        "apps/server/tests/integration/identity-erase-speaker-events.test.js",
+        "apps/server/tests/integration/identity-erase.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
         "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
         "apps/server/tests/integration/managed-blob-recovery-http.test.js",
+        "apps/server/tests/integration/managed-blob-transfer.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
+        "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/postgres/managed-blob-recovery-races.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/knowledge-runtime-instrumentation.test.js",
         "apps/server/tests/unit/managed-blob-transfer-contract.test.js",
+        "apps/server/tests/unit/managed-blob-transfer-io.test.js",
+        "apps/server/tests/unit/managed-blob-transfer-schema.test.js",
+        "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
+        "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
     },

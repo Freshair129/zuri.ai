@@ -20,6 +20,20 @@ const nextConfig = {
       }
     : {}),
   serverExternalPackages: ['@zuri/prisma-postgres'],
+  // Next also compiles the instrumentation entry for Edge. Its runtime guard
+  // prevents execution there, but the Edge compiler still traces the dynamic
+  // Node-only bootstrap and rejects Node built-ins from its Knowledge imports.
+  // Keep that module out of the Edge graph; the Node server bundle retains it.
+  // Regression: tests/integration/office-design-next-http.test.js boots Next dev.
+  webpack(config, { isServer, nextRuntime, webpack }) {
+    if (isServer && nextRuntime === 'edge') {
+      config.plugins.push(new webpack.IgnorePlugin({
+        resourceRegExp: /^\.\/instrumentation-node$/,
+        contextRegExp: /[\\/]src$/,
+      }))
+    }
+    return config
+  },
   // @req NFR-008 — `next dev`'s on-demand-entries cache disposes a compiled
   // route after 60s of inactivity (Next's own default: maxInactiveAge, plus a
   // 5-route pagesBufferLength — see node_modules/next/dist/*/server/config-shared.js).

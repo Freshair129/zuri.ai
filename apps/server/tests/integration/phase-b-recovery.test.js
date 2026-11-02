@@ -286,9 +286,11 @@ describe('Phase B offline recovery runners', () => {
     expect(historicalCompleteSnapshot().tables).not.toHaveProperty('agentApprovalDecision')
     expect(historicalCompleteSnapshot().tables).not.toHaveProperty('agentApprovalNotification')
     const bytes = await readFile(new URL('../../prisma/schema.prisma', import.meta.url))
-    expect(createHash('sha256').update(bytes).digest('hex')).toBe(inventory.schemaSha256)
+    const schemaModels = [...bytes.toString().matchAll(/^model\s+(\w+)\s*\{/gm)].map(match => match[1]).sort()
+    const targetLocalModels = ['ManagedBlobBackupTransferJob', 'ManagedBlobBackupTransferEntry']
+    expect(schemaModels).toHaveLength(inventory.applicationTables.length + targetLocalModels.length)
+    expect(schemaModels.filter(model => !targetLocalModels.includes(model))).toEqual(inventory.applicationTables.map(entry => entry.modelName))
     expect(computeTargetSchemaSha256(inventory)).toBe(inventory.targetSchemaSha256)
-    expect([...bytes.toString().matchAll(/^model\s+(\w+)\s*\{/gm)].map(match => match[1]).sort()).toEqual(inventory.applicationTables.map(entry => entry.modelName))
     for (const model of MARKETING_CUSTODY) {
       const delegate = model[0].toLowerCase() + model.slice(1)
       expect(SNAPSHOT_MODELS).not.toContain(delegate)
@@ -297,12 +299,16 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
-  it('includes all 219 tables in the actual PostgreSQL adapter catalog, privileges, locks and census', async () => {
+  it('keeps target-local transfer tables outside the 219-table portable PostgreSQL catalog', async () => {
     const queries = []
+    const targetLocalTables = ['ManagedBlobBackupTransferJob', 'ManagedBlobBackupTransferEntry']
     const client = { release() {}, async query(sql, values) {
       queries.push({ sql, values })
       if (sql.includes('information_schema.columns')) return {rows:[{data_type:'text',is_nullable:'YES'}]}
-      if (sql.includes('pg_catalog.pg_class')) return { rows: inventory.applicationTables }
+      if (sql.includes('pg_catalog.pg_class')) return { rows: [
+        ...inventory.applicationTables,
+        ...targetLocalTables.map(tableName => ({ schemaName: 'public', tableName })),
+      ] }
       if (sql.includes('has_table_privilege')) return { rows: [{ canSelect: true, canInsert: true }] }
       if (sql.startsWith('SELECT COUNT')) return { rows: [{ count: '0' }] }
       return { rows: [] }
@@ -321,6 +327,42 @@ describe('Phase B offline recovery runners', () => {
       expect(queries.filter(query => query.sql.startsWith('SELECT COUNT'))).toHaveLength(219)
       await tx.rollback()
     } finally { connect.mockRestore(); await adapter.close() }
+  })
+
+  it('still rejects an unapproved table beside the target-local transfer tables', async () => {
+    const targetLocalTables = ['ManagedBlobBackupTransferJob', 'ManagedBlobBackupTransferEntry']
+    const client = { release() {}, async query(sql) {
+      if (sql.includes('pg_catalog.pg_class')) return { rows: [
+        ...inventory.applicationTables,
+        ...targetLocalTables.map(tableName => ({ schemaName: 'public', tableName })),
+        { schemaName: 'public', tableName: 'UnapprovedApplicationTable' },
+      ] }
+      return { rows: [] }
+    } }
+    const connect = vi.spyOn(pg.Pool.prototype, 'connect').mockResolvedValue(client)
+    const adapter = createPostgresRecoveryAdapter({ connectionString: 'postgresql://127.0.0.1/unused_phase_b_adapter_qa', inventory })
+    try {
+      const tx = await adapter.begin()
+      await expect(tx.reconcileCatalog()).rejects.toMatchObject({ code: 'TARGET_SCHEMA_UNVERIFIED' })
+      await tx.rollback()
+    } finally { connect.mockRestore(); await adapter.close() }
+  })
+
+  it('counts unresolved target-local transfer jobs through the protected export facade', async () => {
+    const queries = []
+    const tx = { client: { async query(sql, values) {
+      queries.push({ sql, values })
+      return { rows: [{ count: '2' }] }
+    } } }
+    const facade = createPrismaTransactionFacade(tx, inventory)
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { unresolved: true } })).resolves.toBe(2)
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { unresolved: true, id: { not: 'current-transfer' } } })).resolves.toBe(2)
+    expect(queries).toEqual([
+      { sql: 'SELECT COUNT(*)::text AS "count" FROM "public"."ManagedBlobBackupTransferJob" WHERE "unresolved" = $1', values: [true] },
+      { sql: 'SELECT COUNT(*)::text AS "count" FROM "public"."ManagedBlobBackupTransferJob" WHERE "unresolved" = $1 AND "id" <> $2', values: [true, 'current-transfer'] },
+    ])
+    await expect(facade.managedBlobBackupTransferJob.count({ where: { state: 'PREPARED' } }))
+      .rejects.toMatchObject({ code: 'TARGET_EMPTY_UNVERIFIED' })
   })
 
   for (const model of MARKETING_CUSTODY) {
@@ -528,6 +570,26 @@ describe('Phase B offline recovery runners', () => {
     }
   })
 
+  it('keeps transfer-custody models outside the frozen portable inventory', async () => {
+    expect(inventory.applicationTables).toHaveLength(219)
+    const modelNames = inventory.applicationTables.map((entry) => entry.modelName)
+    expect(modelNames).not.toContain('ManagedBlobBackupTransferJob')
+    expect(modelNames).not.toContain('ManagedBlobBackupTransferEntry')
+  })
+
+  it('rejects an unapproved model added beside target-local transfer models', async () => {
+    const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-unapproved-model-'))
+    const tempSchema = path.join(tempDir, 'schema.prisma')
+    try {
+      const schemaPath = new URL('../../prisma/schema.prisma', import.meta.url)
+      const source = await readFile(schemaPath, 'utf8')
+      await writeFile(tempSchema, `${source}\nmodel UnapprovedPortableModel {\n  id String @id\n}\n`)
+      await expect(loadFrozenSchemaInventory({ schemaPath: tempSchema })).resolves.toBeNull()
+    } finally {
+      await rm(tempDir, { recursive: true, force: true })
+    }
+  })
+
   it('rejects a CRLF-mutated schema even with the approved inventory', async () => {
     const tempDir = await mkdtemp(path.join(os.tmpdir(), 'phase-b-schema-'))
     const tempSchema = path.join(tempDir, 'schema.prisma')
@@ -593,6 +655,10 @@ describe('Phase B offline recovery runners', () => {
     const adapter = fakeAdapter()
     const snapshot = completeSnapshot()
     const contract = exportedModelContract()
+    expect(contract.excludedModels).toEqual(expect.arrayContaining([
+      'managedBlobBackupTransferJob',
+      'managedBlobBackupTransferEntry',
+    ]))
     const result = await runProtectedExport({
       inventory,
       adapter,
@@ -605,6 +671,57 @@ describe('Phase B offline recovery runners', () => {
     expect(Object.keys(result.targetCounts)).toHaveLength(inventory.applicationTables.length)
     expect(Object.keys(result.incomingCounts)).toHaveLength(inventory.applicationTables.length)
     expect(adapter.events).toContain('commit')
+  })
+
+  it('requires target-local transfer models to remain explicitly excluded from portable exports', async () => {
+    const adapter = fakeAdapter()
+    const snapshot = completeSnapshot()
+    const contract = exportedModelContract()
+    contract.excludedModels = contract.excludedModels.filter(model => ![
+      'managedBlobBackupTransferJob',
+      'managedBlobBackupTransferEntry',
+    ].includes(model))
+    const result = await runProtectedExport({
+      inventory,
+      adapter,
+      extractSnapshot: async () => ({ snapshot, ...contract }),
+      validateSnapshotRecovery: validRecovery,
+    })
+    expect(result).toMatchObject({ status: 'REFUSED', errorCode: 'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE', snapshot: null })
+    expect(adapter.events).toContain('rollback')
+    expect(adapter.events).not.toContain('commit')
+  })
+
+  it('rejects unapproved models added to the portable export contract', async () => {
+    const adapter = fakeAdapter()
+    const snapshot = completeSnapshot()
+    const contract = exportedModelContract()
+    contract.excludedModels = [...contract.excludedModels, 'unapprovedPortableModel']
+    const result = await runProtectedExport({
+      inventory,
+      adapter,
+      extractSnapshot: async () => ({ snapshot, ...contract }),
+      validateSnapshotRecovery: validRecovery,
+    })
+    expect(result).toMatchObject({ status: 'REFUSED', errorCode: 'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE', snapshot: null })
+    expect(adapter.events).toContain('rollback')
+    expect(adapter.events).not.toContain('commit')
+  })
+
+  it('rejects duplicate exclusions in the portable export contract', async () => {
+    const adapter = fakeAdapter()
+    const snapshot = completeSnapshot()
+    const contract = exportedModelContract()
+    contract.excludedModels = [...contract.excludedModels, 'managedBlobBackupTransferJob']
+    const result = await runProtectedExport({
+      inventory,
+      adapter,
+      extractSnapshot: async () => ({ snapshot, ...contract }),
+      validateSnapshotRecovery: validRecovery,
+    })
+    expect(result).toMatchObject({ status: 'REFUSED', errorCode: 'PHASE_B_EXPORT_COMPLETENESS_UNAVAILABLE', snapshot: null })
+    expect(adapter.events).toContain('rollback')
+    expect(adapter.events).not.toContain('commit')
   })
 
   it('refuses an included-model contract that omits an application table', async () => {

@@ -93,7 +93,7 @@ test('filesystem register parsers enumerate the documented direct root entries',
   const rootFiles = readFileSync(path.join(REPOSITORY_ROOT, 'docs/governance/ROOT-FILE-REGISTER.md'), 'utf8')
   const directories = readFileSync(path.join(REPOSITORY_ROOT, 'docs/governance/DOCS-DIRECTORY-REGISTER.md'), 'utf8')
   assert.equal(api.parseDirectRootFileRegister(rootFiles).length, 43)
-  assert.equal(api.parseDirectDirectoryRegister(directories).length, 20)
+  assert.equal(api.parseDirectDirectoryRegister(directories).length, 21)
 })
 
 test('domain SRS profile accepts exact canonical requirement links and source-backed membership', async () => {

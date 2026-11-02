@@ -57,6 +57,10 @@ async function requestJson(path, { method = 'GET', body, headers } = {}) {
     // silently degrades to a generic red error the moment the server's
     // message wording changes.
     error.status = res.status
+    if (typeof data?.code === 'string') error.code = data.code
+    if (Number.isSafeInteger(data?.expectedGeneration) && data.expectedGeneration > 0) {
+      error.expectedGeneration = data.expectedGeneration
+    }
     throw error
   }
   return data

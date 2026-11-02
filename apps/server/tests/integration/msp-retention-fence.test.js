@@ -129,8 +129,8 @@ describe('MSP real database maintenance fence', () => {
     await recordAudit(prisma, { entityType: 'MSP_RETENTION', entityId: runId, action: 'MSP_RETENTION_STARTED', tenantId: tenant.id,
       payload: { runtimeHost: origin }, actorType: 'SYSTEM' })
     await expect(createMspRetentionGate(prisma)({ tenantId: tenant.id })).rejects.toThrow('MSP_RETENTION_IN_PROGRESS')
-    const signed = stoppedContainerId => { const claims = { runId, stoppedContainerId, currentContainerId: 'b'.repeat(64), project: env.ZURI_MSP_RETENTION_PROJECT,
-      appRevision: env.ZURI_MSP_RETENTION_APP_REVISION, issuedAt: Date.now(), expiresAt: Date.now() + 60000, nonce: randomUUID() }
+    const signed = stoppedContainerId => { const issuedAt = Date.now(); const claims = { runId, stoppedContainerId, currentContainerId: 'b'.repeat(64), project: env.ZURI_MSP_RETENTION_PROJECT,
+      appRevision: env.ZURI_MSP_RETENTION_APP_REVISION, issuedAt, expiresAt: issuedAt + 60000, nonce: randomUUID() }
       return { claims, signature: sign(null, Buffer.from(JSON.stringify(claims)), privateKey).toString('base64url') } }
     const input = { db: runtime, env, runId, stoppedContainerId: 'a'.repeat(64), currentHost: 'b'.repeat(12), proof: signed('a'.repeat(64)) }
     await expect(reconcileMspRetentionRun({ ...input, currentHost: origin })).rejects.toThrow('MSP_RETENTION_RECONCILE_INVALID')
