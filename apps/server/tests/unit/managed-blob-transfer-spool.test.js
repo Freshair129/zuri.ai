@@ -14,6 +14,15 @@ const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 const chunks = bytes => [bytes.subarray(0, 3), bytes.subarray(3)]
 
 describe('FR-293 bounded transfer spool', () => {
+  it('accepts Windows case and namespace aliases for the same private spool root', async () => {
+    root = await mkdtemp(path.join(tmpdir(), 'zuri-transfer-spool-'))
+    const dataDirectory = process.platform === 'win32' ? path.toNamespacedPath(root.toUpperCase()) : root
+    const spool = createManagedBlobTransferSpool(dataDirectory), id = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd'
+    const bytes = Buffer.from('case-insensitive Windows root')
+    await expect(spool.write(id, chunks(bytes), { maxBytes: 1024, deadline: Date.now() + 5000 }))
+      .resolves.toEqual({ byteLength: bytes.length, sha256: digest(bytes) })
+  })
+
   it('stores and reads only an exact byte count and digest under an opaque server id', async () => {
     root = await mkdtemp(path.join(tmpdir(), 'zuri-transfer-spool-'))
     const spool = createManagedBlobTransferSpool(root), id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa'

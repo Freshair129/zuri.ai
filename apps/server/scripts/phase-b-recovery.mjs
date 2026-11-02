@@ -1,7 +1,7 @@
 import { PIPELINE_GRAPH_LOCK } from '../src/modules/project-manager/application/pipeline-lock.js'
 import { acquireReadOnlyRecoveryFence, registerReadOnlyRecoveryFacade } from '../src/modules/project-manager/application/managed-blob-recovery-lock.js'
 import { dependencyHandoffRecoveryErrors } from '../src/modules/project-manager/application/pipeline-handoff-recovery.js'
-// @req FR-252 — process-only protected recovery and complete-family export.
+// @req FR-252, FR-293 — protected recovery/export keeps its frozen portable inventory while transfer custody remains target-local.
 // @spec docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md
 // @tested tests/integration/phase-b-recovery.test.js
 
@@ -27,6 +27,12 @@ const THIS_DIR = path.dirname(fileURLToPath(import.meta.url))
 const DEFAULT_INVENTORY_PATH = path.resolve(THIS_DIR, '../../../docs/architecture/project-manager-system/contracts/pipeline-target-schema.inventory.json')
 const DEFAULT_SCHEMA_PATH = path.resolve(THIS_DIR, '../prisma/schema.prisma')
 const MIGRATION_TABLES = new Set(['_prisma_migrations', 'schema_migrations'])
+// @req FR-293 — these installation-local transfer models are deliberately
+// outside Phase B's frozen portable table inventory.
+const TARGET_LOCAL_SCHEMA_MODELS = Object.freeze([
+  'ManagedBlobBackupTransferJob',
+  'ManagedBlobBackupTransferEntry',
+])
 // @req FR-277 — LineGroundingShadowComparison (ADR-090 Phase 3) added one
 // application model on top of the Message author-channel-identity rebind
 // (main e7afa528), bringing this frozen inventory to 192 tables.
@@ -85,6 +91,25 @@ function tableName(entry) {
 function findInventoryEntry(inventory, model) {
   return inventory.applicationTables.find((entry) => entry.modelName === model
     || entry.modelName[0].toLowerCase() + entry.modelName.slice(1) === model)
+}
+
+function findTargetLocalSchemaModel(model) {
+  return TARGET_LOCAL_SCHEMA_MODELS.find((name) => name === model
+    || name[0].toLowerCase() + name.slice(1) === model) || null
+}
+
+function frozenPortableSchemaBytes(schemaBytes) {
+  let source = schemaBytes.toString('utf8')
+  for (const model of TARGET_LOCAL_SCHEMA_MODELS) {
+    const block = new RegExp(
+      `^// @req FR-293[^\\r\\n]*\\r?\\n// @spec ADR-115\\r?\\n// @tested tests/unit/managed-blob-transfer-schema\\.test\\.js\\r?\\nmodel ${model} \\{\\r?\\n[\\s\\S]*?^\\}\\r?\\n\\r?\\n`,
+      'gm',
+    )
+    const matches = [...source.matchAll(block)]
+    if (matches.length !== 1) return null
+    source = source.replace(block, '')
+  }
+  return Buffer.from(source, 'utf8')
 }
 
 function normalizeInventory(inventory) {
@@ -152,12 +177,14 @@ function normalizeIncludedModels(includedModels, inventory, excludedModels) {
     for (const value of excludedModels) {
       if (typeof value !== 'string') return null
       const entry = findInventoryEntry(inventory, value)
-      if (!entry || seen.has(entry.modelName) || excludedSeen.has(entry.modelName)) return null
-      excludedSeen.add(entry.modelName)
-      excluded.push(entry.modelName)
+      const modelName = entry?.modelName || findTargetLocalSchemaModel(value)
+      if (!modelName || seen.has(modelName) || excludedSeen.has(modelName)) return null
+      excludedSeen.add(modelName)
+      excluded.push(modelName)
     }
     const allNames = [...seen, ...excluded].sort(ordinalCompare)
-    if (JSON.stringify(allNames) !== JSON.stringify(countKeys(inventory))) return null
+    const expectedNames = [...countKeys(inventory), ...TARGET_LOCAL_SCHEMA_MODELS].sort(ordinalCompare)
+    if (JSON.stringify(allNames) !== JSON.stringify(expectedNames)) return null
   } else return null
   return names.sort(ordinalCompare)
 }
@@ -268,7 +295,9 @@ export async function loadFrozenSchemaInventory({ modulePath = DEFAULT_INVENTORY
       inventory = module.PHASE_B_SCHEMA_INVENTORY || module.default || null
     }
     if (!inventory) return null
-    const schemaBytes = await readFile(absolutePath(schemaPath, 'schema path'))
+    const sourceSchemaBytes = await readFile(absolutePath(schemaPath, 'schema path'))
+    const schemaBytes = frozenPortableSchemaBytes(sourceSchemaBytes)
+    if (!schemaBytes) return null
     const schemaSha256 = createHash('sha256').update(schemaBytes).digest('hex')
     const normalized = normalizeInventory(inventory)
     if (schemaSha256 !== FROZEN_SCHEMA_SHA256 || inventory.schemaSha256 !== schemaSha256

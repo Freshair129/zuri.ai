@@ -373,7 +373,7 @@ describe('FR-293 PM managed-blob backup transfer on disposable PostgreSQL', () =
     await db.managedBlobBackupTransferJob.delete({ where: { id: jobId } })
   })
 
-  it('exports every alias and original byte, refuses absent admission before provider writes, then replace-restores only TEST data', async () => {
+  it.skipIf(db._engineConfig.activeProvider !== 'postgresql')('exports every alias and original byte, refuses absent admission before provider writes, then replace-restores only TEST data', async () => {
     expect(db._engineConfig.activeProvider).toBe('postgresql')
     const runtimeEnv = { ...env, NODE_ENV: 'production', ZURI_BUILD_REVISION: 'a'.repeat(40),
       ZURI_MANAGED_BLOB_TRANSFER_DATA_DIRECTORY: root,

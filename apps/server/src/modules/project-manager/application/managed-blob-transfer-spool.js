@@ -9,6 +9,10 @@ import path from 'node:path'
 const ID = /^[a-f0-9]{8}-[a-f0-9]{4}-[1-8][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/
 const SHA = /^[a-f0-9]{64}$/
 const refused = (status = 400) => Object.assign(new Error('Managed blob transfer refused'), { status })
+const resolvedPathIdentity = value => {
+  const resolved = path.resolve(value)
+  return process.platform === 'win32' ? path.toNamespacedPath(resolved).toLowerCase() : resolved
+}
 
 export function createManagedBlobTransferSpool(dataDirectory) {
   async function location(id, artifact = 'package') {
@@ -16,7 +20,7 @@ export function createManagedBlobTransferSpool(dataDirectory) {
     if (!['package', 'snapshot'].includes(artifact)) throw refused(503)
     const root = path.join(dataDirectory, 'managed-blob-transfer-private')
     await mkdir(root, { recursive: true, mode: 0o700 })
-    if ((await lstat(root)).isSymbolicLink() || path.resolve(await realpath(root)) !== path.resolve(root)) throw refused(503)
+    if ((await lstat(root)).isSymbolicLink() || resolvedPathIdentity(await realpath(root)) !== resolvedPathIdentity(root)) throw refused(503)
     if (process.platform !== 'win32' && ((await lstat(root)).mode & 0o077)) throw refused(503)
     return path.join(root, artifact === 'snapshot' ? `${id}.snapshot` : id)
   }
