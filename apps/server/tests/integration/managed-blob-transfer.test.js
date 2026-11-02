@@ -356,21 +356,25 @@ describe('FR-293 PM managed-blob backup transfer on disposable PostgreSQL', () =
   it('reclaims a crashed PREPARED preview after its durable upload lease expires', async () => {
     const jobId = randomUUID(), expired = new Date(Date.now() - 1)
     const uploadPath = path.join(root, 'managed-blob-transfer-private', `${jobId}.upload`)
-    await mkdir(path.dirname(uploadPath), { recursive: true })
-    await writeFile(uploadPath, Buffer.from('partial TAR left by crashed preview'))
-    await db.managedBlobBackupTransferJob.create({ data: { id: jobId, actorId: person.id,
-      kind: 'RESTORE', state: 'PREPARED', generation: 1, targetConfigHash: '9'.repeat(64),
-      spoolId: jobId, spoolReservedBytes: 1024, expiresAt: expired, byteDeadline: expired,
-      workerId: 'interrupted-preview-worker', leaseExpiresAt: expired, unresolved: true } })
+    await mkdir(path.dirname(uploadPath), { recursive: true, mode: 0o700 })
+    await writeFile(uploadPath, Buffer.from('partial TAR left by crashed preview'), { mode: 0o600 })
+    try {
+      await db.managedBlobBackupTransferJob.create({ data: { id: jobId, actorId: person.id,
+        kind: 'RESTORE', state: 'PREPARED', generation: 1, targetConfigHash: '9'.repeat(64),
+        spoolId: jobId, spoolReservedBytes: 1024, expiresAt: expired, byteDeadline: expired,
+        workerId: 'interrupted-preview-worker', leaseExpiresAt: expired, unresolved: true } })
 
-    const result = await maintainManagedBlobTransferCustody({ db, dataDirectory: root })
-    expect(result).toMatchObject({ examined: 1, payloadsRemoved: 1, retainedForReconciliation: 0 })
-    expect(await db.managedBlobBackupTransferJob.findUnique({ where: { id: jobId } }))
-      .toMatchObject({ state: 'ABANDONED', unresolved: false, cleanupState: 'COMPLETE', spoolId: null,
-        spoolReservedBytes: 0 })
-    expect(existsSync(uploadPath)).toBe(false)
-    expect(await db.managedBlobBackupTransferJob.count({ where: { id: jobId, unresolved: true } })).toBe(0)
-    await db.managedBlobBackupTransferJob.delete({ where: { id: jobId } })
+      const result = await maintainManagedBlobTransferCustody({ db, dataDirectory: root })
+      expect(result).toMatchObject({ examined: 1, payloadsRemoved: 1, retainedForReconciliation: 0 })
+      expect(await db.managedBlobBackupTransferJob.findUnique({ where: { id: jobId } }))
+        .toMatchObject({ state: 'ABANDONED', unresolved: false, cleanupState: 'COMPLETE', spoolId: null,
+          spoolReservedBytes: 0 })
+      expect(existsSync(uploadPath)).toBe(false)
+      expect(await db.managedBlobBackupTransferJob.count({ where: { id: jobId, unresolved: true } })).toBe(0)
+    } finally {
+      await db.managedBlobBackupTransferEntry.deleteMany({ where: { jobId } })
+      await db.managedBlobBackupTransferJob.deleteMany({ where: { id: jobId } })
+    }
   })
 
   it.skipIf(db._engineConfig.activeProvider !== 'postgresql')('exports every alias and original byte, refuses absent admission before provider writes, then replace-restores only TEST data', async () => {
