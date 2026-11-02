@@ -21,6 +21,7 @@ services:
       PUBLIC_BASE_URL: ${COMPACT_PUBLIC_BASE_URL:?Set the qualified origin}
       ZURI_SECRET_STORE: envelope
       ZURI_KNOWLEDGE_STUDIO_ROOT: /app/knowledge-studio-data
+      ZURI_MANAGED_BLOB_TRANSFER_DATA_DIRECTORY: /var/lib/zuri/managed-transfer
       ZURI_ASSET_STORAGE_PROVIDER: s3
       ZURI_ASSET_STORAGE_ENDPOINT: http://storage:9000
       ZURI_KNOWLEDGE_CATALOG_STORAGE_PROVIDER: s3
@@ -37,6 +38,7 @@ services:
         target: /app/knowledge-studio-data/registry/document-registry/index.json
         read_only: true
         bind: {create_host_path: false}
+      - managed-transfer:/var/lib/zuri/managed-transfer
     depends_on:
       db: {condition: service_healthy}
     healthcheck:
@@ -135,6 +137,12 @@ networks:
 volumes:
   database: {external: true, name: '${COMPACT_DATABASE_VOLUME:?Set the owned database volume}'}
   objects: {external: true, name: '${COMPACT_OBJECTS_VOLUME:?Set the owned objects volume}'}
+  managed-transfer:
+    name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-managed-transfer'
+    labels:
+      com.zuri-ai.compact.target: ${COMPACT_TARGET_ID:?Set the owned TEST target ID}
+      com.zuri-ai.compact.project: ${COMPACT_PROJECT_NAME:?Set an explicit isolated project}
+      com.zuri-ai.compact.environment: TEST
   genesis:
     name: '${COMPACT_PROJECT_NAME:?Set an explicit isolated project}-genesis'
     labels:

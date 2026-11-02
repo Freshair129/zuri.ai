@@ -5,6 +5,7 @@ import { isPostgres } from './pipeline-writer'
 import { recoveryError } from './managed-blob-recovery-contract'
 import { randomUUID } from 'node:crypto'
 import { RECOVERY_MUTEX, hasReadOnlyRecoveryFence } from './managed-blob-recovery-lock'
+import { recordAudit } from './audit'
 
 export const RECOVERY_FENCE_ID = 'installation'
 const tables = new Set(['Tenant', 'Business', 'Person', 'Membership', 'Session', 'ManagedBlobRecoveryOperation', 'FileAsset'])
@@ -79,7 +80,7 @@ export async function withRecoveryTransaction(db, callback) {
 // Legacy targets with no admitted recovery installation retain prior behavior.
 // Recovery is still inactive: a target with any journal history is refused until
 // FR-293's supported transfer and restored-generation admission are implemented.
-async function snapshotFence(tx, postgres) {
+async function snapshotFence(tx, postgres, { ignoreTransferJobId } = {}) {
   const readOnly = postgres && hasReadOnlyRecoveryFence(tx)
   if (postgres && !readOnly) {
     await tx.$queryRawUnsafe('SELECT pg_advisory_xact_lock($1::int,$2::int)::text AS locked', ...RECOVERY_MUTEX)
@@ -87,12 +88,15 @@ async function snapshotFence(tx, postgres) {
   }
   else if (!postgres) await tx.$executeRawUnsafe('UPDATE "ManagedBlobRecoveryInstallationFence" SET "version"="version" WHERE "id"=?', RECOVERY_FENCE_ID)
   const fences = await tx.$queryRawUnsafe('SELECT "id","mode","generation","restoreAttemptId" FROM "ManagedBlobRecoveryInstallationFence" WHERE "id"=' + (postgres ? '$1' : '?'), RECOVERY_FENCE_ID)
-  const counts = await tx.$queryRawUnsafe('SELECT COUNT(*) AS "count" FROM "ManagedBlobRecoveryOperation"')
-  if (Number(counts[0].count)) throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
+  const recoveryCount = await tx.managedBlobRecoveryOperation.count({ where: { unresolved: true } })
+  const transferCount = await tx.managedBlobBackupTransferJob.count({ where: {
+    unresolved: true, ...(ignoreTransferJobId ? { id: { not: ignoreTransferJobId } } : {}),
+  } })
+  if (recoveryCount || transferCount) throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
   return fences[0] || null
 }
-export async function assertRecoverySnapshotQuiescent(tx, postgres) {
-  const fence = await snapshotFence(tx, postgres)
+export async function assertRecoverySnapshotQuiescent(tx, postgres, { ignoreTransferJobId } = {}) {
+  const fence = await snapshotFence(tx, postgres, { ignoreTransferJobId })
   if (fence && fence.mode !== 'READY') throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
   if (fence && !hasReadOnlyRecoveryFence(tx)) await tx.$executeRawUnsafe('UPDATE "ManagedBlobRecoveryInstallationFence" SET "version"="version"+1 WHERE "id"=' + (postgres ? '$1' : '?'), RECOVERY_FENCE_ID)
 }
@@ -113,14 +117,50 @@ export async function beginRecoverySnapshotRestore(db) {
   }, { isolationLevel: 'Serializable' })
 }
 export async function assertRecoveryRestoreClaim(tx, db, claim) {
-  const fence = await snapshotFence(tx, isPostgres(db))
+  const fence = await snapshotFence(tx, isPostgres(db), { ...(claim?.transferJobId ? { ignoreTransferJobId: claim.transferJobId } : {}) })
   if (!claim ? fence != null : !fence || fence.mode !== 'RESTORING' || fence.generation !== claim.generation || fence.restoreAttemptId !== claim.restoreAttemptId) {
     throw recoveryError(409, 'MANAGED_BLOB_TRANSFER_REQUIRED')
   }
 }
-export async function finishRecoverySnapshotRestore(db, claim) {
+export async function finishRecoverySnapshotRestore(db, claim, { transferJobId, postpass } = {}) {
   if (!claim) return
-  const changed = await db.managedBlobRecoveryInstallationFence.updateMany({ where: { id: RECOVERY_FENCE_ID,
-    mode: 'RESTORING', generation: claim.generation, restoreAttemptId: claim.restoreAttemptId }, data: { mode: 'NEEDS_ADMISSION', version: { increment: 1 } } })
-  if (changed.count !== 1) throw recoveryError(503, 'MANAGED_BLOB_RECOVERY_NOT_ADMITTED')
+  return db.$transaction(async tx => {
+    const fence = await tx.managedBlobRecoveryInstallationFence.findUnique({ where: { id: RECOVERY_FENCE_ID } })
+    if (transferJobId) {
+      const job = await tx.managedBlobBackupTransferJob.findUnique({ where: { id: transferJobId } })
+      if (!job || job.restoreAttemptId !== claim.restoreAttemptId || job.generation !== claim.generation) {
+        throw recoveryError(503, 'MANAGED_BLOB_RECOVERY_NOT_ADMITTED')
+      }
+      if (fence?.mode === 'NEEDS_ADMISSION' && fence.generation === claim.generation
+        && fence.restoreAttemptId === claim.restoreAttemptId && job.state === 'NEEDS_ADMISSION') return job
+      if (fence?.mode !== 'RESTORING' || fence.generation !== claim.generation
+        || fence.restoreAttemptId !== claim.restoreAttemptId || job.state !== 'METADATA_COMMITTED') {
+        throw recoveryError(503, 'MANAGED_BLOB_RECOVERY_NOT_ADMITTED')
+      }
+      const changedFence = await tx.managedBlobRecoveryInstallationFence.updateMany({ where: { id: RECOVERY_FENCE_ID,
+        mode: 'RESTORING', generation: claim.generation, restoreAttemptId: claim.restoreAttemptId },
+      data: { mode: 'NEEDS_ADMISSION', version: { increment: 1 } } })
+      const result = { restored: true, state: 'NEEDS_ADMISSION', generation: claim.generation,
+        postpass: 'COMPLETE', unresolvedLocalFiles: Number.isSafeInteger(postpass?.unresolvedContentFileIds?.length)
+          ? postpass.unresolvedContentFileIds.length : 0 }
+      await recordAudit(tx, { entityType: 'SNAPSHOT', entityId: transferJobId,
+        action: 'TRANSFER_RESTORED_NEEDS_ADMISSION', actorId: job.actorId,
+        payload: { generation: claim.generation, snapshotSha256: job.snapshotSha256,
+          packageSha256: job.packageSha256, postpass: 'COMPLETE',
+          unresolvedLocalFiles: result.unresolvedLocalFiles } })
+      const changedJob = await tx.managedBlobBackupTransferJob.updateMany({ where: { id: transferJobId,
+        state: 'METADATA_COMMITTED', version: job.version, restoreAttemptId: claim.restoreAttemptId },
+      data: { state: 'NEEDS_ADMISSION', unresolved: false, workerId: null, leaseExpiresAt: null,
+        resultJson: JSON.stringify(result), outcomeJson: JSON.stringify({ outcome: 'RESTORED_NEEDS_ADMISSION', postpass: 'COMPLETE' }),
+        closedAt: new Date(), version: { increment: 1 } } })
+      if (changedFence.count !== 1 || changedJob.count !== 1) throw recoveryError(503, 'MANAGED_BLOB_RECOVERY_NOT_ADMITTED')
+      return tx.managedBlobBackupTransferJob.findUnique({ where: { id: transferJobId } })
+    }
+
+    const changed = await tx.managedBlobRecoveryInstallationFence.updateMany({ where: { id: RECOVERY_FENCE_ID,
+      mode: 'RESTORING', generation: claim.generation, restoreAttemptId: claim.restoreAttemptId },
+    data: { mode: 'NEEDS_ADMISSION', version: { increment: 1 } } })
+    if (changed.count !== 1) throw recoveryError(503, 'MANAGED_BLOB_RECOVERY_NOT_ADMITTED')
+    return true
+  }, { isolationLevel: 'Serializable' })
 }

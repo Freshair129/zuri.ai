@@ -8,6 +8,7 @@ import { handle } from '../../_helpers'
 import { exportSnapshot } from '@/modules/project-manager/application/backup-service'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { assertOperatorAndRecordUse } from '@/modules/identity/operator-use'
+import prisma from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
@@ -23,6 +24,15 @@ export async function GET(request) {
       deniedMessage: 'Snapshot export is an installation-wide read and requires operator authority',
       payload: { includeBinaryContent },
     })
-    return exportSnapshot({ includeBinaryContent })
+    try {
+      return await exportSnapshot({ includeBinaryContent })
+    } catch (error) {
+      if (error?.code !== 'MANAGED_BLOB_TRANSFER_REQUIRED') throw error
+      const fence = await prisma.managedBlobRecoveryInstallationFence.findUnique({ where: { id: 'installation' } })
+      return Response.json({ code: 'MANAGED_BLOB_TRANSFER_REQUIRED',
+        message: 'Managed-blob content requires the complete transfer package.',
+        ...(fence?.mode === 'READY' && Number.isSafeInteger(fence.generation) ? { expectedGeneration: fence.generation } : {}),
+        retryable: false }, { status: 409, headers: { 'Cache-Control': 'no-store' } })
+    }
   })
 }

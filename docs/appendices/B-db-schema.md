@@ -1,5 +1,11 @@
 # Appendix B — Database Schema Summary
 
+Version diff 1.75.0b to 1.76.0b (2026-11-02): FR-293 adds two PM-owned,
+installation-local managed-blob transfer custody tables, for 221 models. They
+are excluded from portable snapshots and protected by private runtime RLS grants.
+SQLite/PostgreSQL migration sources are authored locally; no deployed migration
+or transfer qualification is claimed.
+
 Version diff 1.74.0b to 1.75.0b (2026-10-31): FR-294 adds five PM/Business-owned
 Office design tables, for 219 models. The additive PostgreSQL migration is source
 only until applied through the target's release gates; local disposable-engine
@@ -12,6 +18,8 @@ qualification is separate from deployment.
 | OfficeDesignRevision | registry/version, original manifest JSON, content/archive hashes, producer revision, actor/time | Immutable scene/entity graph, preserving floor, agent-design, asset and workflow attributes. |
 | OfficeDesignBlob | registry/hash, exact bytes, byte length/media type, version/time | Immutable content-addressed GLB store, scoped to the registry. |
 | OfficeDesignImportReceipt | registry/request key, command hash, result JSON, committed version/time | Atomic authoritative ID mapping and audit link; retry returns the original receipt. |
+| ManagedBlobBackupTransferJob | actor?, kind/state/version, source/target config hashes, generation, snapshot/package hashes and private selection spool, admission/outcome/result, package spool and quota, expiry/deadline, worker epoch/lease/attempts | FR-293 — installation-local durable transfer provenance and restore fence. Excluded from portable snapshots; actor identity is redacted by erasure. Does not grant operator or provider authority. |
+| ManagedBlobBackupTransferEntry | job/object/purpose, source SHA-256 and byte length, exact row/ref bindings, destination key/ref, state, worker epoch/lease/attempts, receipt/cleanup state | FR-293 — per-object custody and reconciliation. Excluded from snapshots; contains no provider credential or authorization grant. |
 
 No new table references Agent runtime, authorization or approval models. All
 foreign-key deletions restrict loss of custody. Legacy JSON snapshot operations
@@ -112,9 +120,9 @@ Version diff 1.53.0b → 1.54.0b: retain the already-deployed CustomerLegalHold 
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.73.0b |
+| **Version** | 1.76.0b |
 | **Status** | Candidate |
-| **Last Updated** | 2026-10-29 |
+| **Last Updated** | 2026-11-02 |
 
 Source of truth: `apps/server/prisma/schema.prisma` (SQLite; Postgres-ready ตาม DB-MIGRATION-NOTES.md).
 Production ตรงกับ `apps/server/prisma/schema.postgres.prisma` (generated) และเปลี่ยนได้ทาง `apps/server/supabase/migrations/` เท่านั้น — preflight `schema-migration-drift` เทียบสองสิ่งนี้ทุก PR (ดู DB-MIGRATION-NOTES.md §Migration discipline)

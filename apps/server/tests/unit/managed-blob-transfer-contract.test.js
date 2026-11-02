@@ -3,7 +3,12 @@
 import { describe, expect, it } from 'vitest'
 import { canonicalJSON } from '@/modules/project-manager/application/handoff-contract'
 import { recoverySha256 as sha } from '@/modules/project-manager/application/managed-blob-recovery-contract'
-import { encodeManagedBlobTransfer, decodeManagedBlobTransfer } from '@/modules/project-manager/application/managed-blob-transfer-contract'
+import {
+  buildManagedBlobTransferPayload,
+  listManagedBlobTransferSources,
+  encodeManagedBlobTransfer,
+  decodeManagedBlobTransfer,
+} from '@/modules/project-manager/application/managed-blob-transfer-contract'
 
 const id = n => `${String(n).padStart(8, '0')}-1111-4111-8111-111111111111`
 const profile = { maxManifestBytes: 65536, maxSnapshotBytes: 1048576, maxEntries: 16,
@@ -45,6 +50,28 @@ function fixture(count = 1) {
 function encode(value = fixture(), selected = profile) { return encodeManagedBlobTransfer(value, selected) }
 
 describe('OR1 transfer consistency codec (no import, provider or authority effects)', () => {
+  it('builds a complete source inventory and package payload from exact original bytes', () => {
+    const value = fixture(2)
+    const sources = listManagedBlobTransferSources(value.snapshot)
+    expect(sources).toHaveLength(2)
+    expect(sources[0]).toMatchObject({ purpose: 'asset', tenantId: id(2), businessId: id(1), byteLength: value.objects.values().next().value.length })
+    expect(sources[0].bindings).toHaveLength(2)
+    const originals = new Map(sources.map((source, index) => [source.ref, value.objects.get(value.manifest.entries[index].objectId)]))
+    const payload = buildManagedBlobTransferPayload({ snapshot: value.snapshot, originals,
+      sourceGeneration: 7, sourceConfigSha256: 'b'.repeat(64), sourceRevision: 'a'.repeat(40),
+      exportedAt: '2026-10-30T00:00:00.000Z' }, profile)
+    expect(payload.manifest).toMatchObject({ sourceGeneration: 7, sourceConfigSha256: 'b'.repeat(64),
+      snapshotSha256: sha(payload.snapshotBytes), entryCount: 2, totalOriginalBytes: value.manifest.totalOriginalBytes })
+    expect(decodeManagedBlobTransfer(encodeManagedBlobTransfer(payload, profile), profile).snapshot).toEqual(value.snapshot)
+  })
+  it('refuses incomplete source bytes and snapshots without reserved refs', () => {
+    const value = fixture()
+    expect(() => buildManagedBlobTransferPayload({ snapshot: value.snapshot, originals: new Map(),
+      sourceGeneration: 1, sourceConfigSha256: 'b'.repeat(64), sourceRevision: 'a'.repeat(40) }, profile)).toThrow('Managed blob transfer refused')
+    const noRefs = structuredClone(value.snapshot)
+    noRefs.tables.fileAsset = []; noRefs.tables.projectFile = []
+    expect(listManagedBlobTransferSources(noRefs)).toEqual([])
+  })
   it.each([0, 1, 2])('round trips canonical %i-entry bytes including Unicode, dates, null and aliases/tombstones', count => {
     const value = fixture(count), original = structuredClone(value.snapshot)
     const tar = encode(value)

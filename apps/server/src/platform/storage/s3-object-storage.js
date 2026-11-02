@@ -144,7 +144,7 @@ export function createS3ObjectStoragePort({
   const regionName = required(region, 'Object storage region')
   if (typeof fetchFn !== 'function') throw storageError('Object storage fetch function is invalid', 500, 'KNOWLEDGE_STORAGE_CONFIG_INVALID')
 
-  function request(method, key, { body = Buffer.alloc(0), query = [], headers = {}, statuses = [200] } = {}) {
+function request(method, key, { body = Buffer.alloc(0), query = [], headers = {}, statuses = [200], signal } = {}) {
     const url = new URL(root.href)
     url.pathname = `${root.pathname.replace(/\/$/, '')}${objectPath(bucketName, key)}`
     url.search = canonicalQuery(query)
@@ -154,12 +154,13 @@ export function createS3ObjectStoragePort({
     return providerRequest(fetchFn, url.href, {
       method,
       headers: { ...signed, 'content-length': String(payload.length) },
+      ...(signal ? { signal } : {}),
       ...(method === 'GET' || method === 'HEAD' || payload.length === 0 ? {} : { body: payload }),
     }, statuses)
   }
 
   const port = {
-    async putImmutable({ key, content, contentType = 'application/octet-stream', expectedSha256 } = {}) {
+    async putImmutable({ key, content, contentType = 'application/octet-stream', expectedSha256, signal } = {}) {
       const bytes = toBuffer(content)
       const digest = sha256(bytes)
       if (expectedSha256 !== undefined && (!SHA256.test(expectedSha256) || expectedSha256.toLowerCase() !== digest)) {
@@ -168,6 +169,7 @@ export function createS3ObjectStoragePort({
       const response = await request('PUT', key, {
         body: bytes,
         headers: { 'content-type': contentType, 'if-none-match': '*' },
+        signal,
         statuses: [200, 201],
       })
       const versionId = responseVersion(response)
@@ -175,9 +177,9 @@ export function createS3ObjectStoragePort({
       return { key, versionId, sha256: digest, byteLength: bytes.length }
     },
 
-    async readExact({ key, versionId } = {}) {
+    async readExact({ key, versionId, signal } = {}) {
       const version = required(versionId, 'Object storage version')
-      const response = await request('GET', key, { query: [['versionId', version]], statuses: [200] })
+      const response = await request('GET', key, { query: [['versionId', version]], statuses: [200], signal })
       const bytes = Buffer.from(await response.arrayBuffer())
       return { bytes, versionId: exactResponseVersion(response, version), contentType: response.headers.get('content-type') || 'application/octet-stream', sha256: sha256(bytes), byteLength: bytes.length }
     },
@@ -185,18 +187,18 @@ export function createS3ObjectStoragePort({
     // A PENDING intent may have committed its PUT without receiving the reply.
     // HEAD discovers a candidate version only; content is always read by that
     // exact version and verified before the caller may attach it to lineage.
-    async recoverImmutable({ key, expectedSha256, byteLength } = {}) {
+    async recoverImmutable({ key, expectedSha256, byteLength, signal } = {}) {
       if (typeof expectedSha256 !== 'string' || !SHA256.test(expectedSha256) || !Number.isSafeInteger(byteLength) || byteLength < 0) {
         throw storageError('Object recovery identity is invalid', 400, 'KNOWLEDGE_STORAGE_CONTENT_INVALID')
       }
       let response
-      try { response = await request('HEAD', key) } catch (error) {
+      try { response = await request('HEAD', key, { signal }) } catch (error) {
         if (error?.code === 'KNOWLEDGE_STORAGE_OBJECT_NOT_FOUND') return null
         throw error
       }
       const versionId = responseVersion(response)
       if (!versionId) throw storageError('Object storage did not return an immutable version', 503, 'KNOWLEDGE_STORAGE_VERSION_UNAVAILABLE')
-      const recovered = await port.readExact({ key, versionId })
+      const recovered = await port.readExact({ key, versionId, signal })
       if (recovered.sha256 !== expectedSha256.toLowerCase() || recovered.byteLength !== byteLength) {
         throw storageError('Recovered object does not match the immutable intent', 409, 'KNOWLEDGE_STORAGE_READBACK_MISMATCH')
       }

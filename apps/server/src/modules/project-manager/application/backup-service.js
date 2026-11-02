@@ -1,6 +1,7 @@
 import { withPipelineTransaction } from './pipeline-writer'
 import { isPostgres } from './pipeline-writer'
 import { assertRecoverySnapshotQuiescent, beginRecoverySnapshotRestore, assertRecoveryRestoreClaim, finishRecoverySnapshotRestore } from './managed-blob-recovery-repository'
+import { managedBlobTransferSnapshotPermitJob, managedBlobTransferImportState, assertManagedBlobTransferOperator } from './managed-blob-transfer-authority'
 import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-294 — legacy snapshots refuse while Office design custody exists.
@@ -36,6 +37,7 @@ import {assertOfficeDesignBackupSafe} from '@/modules/business/office-design/bac
 // @tested tests/integration/fr075-restore-authorization.test.js
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
+import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 // @req FR-286 — restore validates historical metadata without provisioning it.
@@ -509,6 +511,8 @@ export const SNAPSHOT_EXCLUDED_MODELS = {
   // @req FR-292, FR-293 — target-local custody cannot be exported as authority.
   managedBlobRecoveryOperation: 'Private recovery custody/results remain installation-local; active recovery is not enabled before supported transfer qualification.',
   managedBlobRecoveryInstallationFence: 'Installation exclusion/generation and quota accounting are never snapshot-replaced or imported.',
+  managedBlobBackupTransferJob: 'Transfer actor, job, spool, lease and result custody is installation-local and never imported as authority.',
+  managedBlobBackupTransferEntry: 'Per-object transfer intents and receipts are target-local; snapshot replacement cannot attach provider refs from portable state.',
   // @req FR-235 — owner-approved public product fields are security authority.
   // @tested tests/integration/line-stock-policy-backup.test.js
   lineProductDisclosurePolicy:
@@ -1959,7 +1963,9 @@ function marketingBroadcastRecovery(snapshot) {
 // @req FR-252 — offline protected export shares extraction/redaction without
 // writing an audit or selecting an ambient application database.
 // @tested tests/integration/phase-b-web-recovery.test.js
-function assertNoReservedRecoveryRefs(snapshot) {
+function assertNoReservedRecoveryRefs(snapshot, transferPermit = null) {
+  if (managedBlobTransferSnapshotPermitJob(transferPermit)
+    || managedBlobTransferImportState(snapshot, transferPermit)) return
   for (const model of ['fileAsset', 'projectFile']) for (const row of snapshot?.tables?.[model] || []) {
     if (typeof row.blobRef !== 'string' || !row.blobRef.startsWith('s3-business:')) continue
     let decoded
@@ -1970,14 +1976,62 @@ function assertNoReservedRecoveryRefs(snapshot) {
   }
 }
 
+async function assertTransferRetentionSafeInTransaction(tx, snapshot) {
+  const tables = snapshot?.tables
+  const refusal = () => { throw new BackupRestoreSafetyError('MANAGED_BLOB_TRANSFER_RETENTION_UNPROVEN', 'Managed blob transfer refused') }
+  if (!tables || !Array.isArray(tables.person) || !Array.isArray(tables.customerLegalHold)
+    || !Array.isArray(tables.legalHoldArchiveKey)) refusal()
+
+  // This bounded TEST lane does not merge target tombstones or retained legal
+  // evidence. If either exists on the target or in the source package, there is
+  // no approved disposition contract for replacing it, so stop before writes.
+  const now = new Date()
+  const [erasedTargetCount, activeHoldCount, targetHoldKeyCount] = await Promise.all([
+    tx.person.count({ where: { accessDisabledReason: 'ERASED' } }),
+    tx.customerLegalHold.count({ where: { endDate: { gt: now } } }),
+    tx.legalHoldArchiveKey.count(),
+  ])
+  const sourceHolds = tables.customerLegalHold.some(row => row?.endDate && new Date(row.endDate) > now)
+  const sourceErased = tables.person.filter(row => row?.accessDisabledReason === 'ERASED')
+  if (erasedTargetCount || activeHoldCount || targetHoldKeyCount || sourceHolds || tables.legalHoldArchiveKey.length) refusal()
+
+  const erasedIds = new Set(sourceErased.map(row => row.id))
+  if (sourceErased.some(row => row.displayName !== '[erased]' || row.email != null || row.accessDisabledAt == null)) refusal()
+  for (const model of ['personCredential', 'passwordResetToken']) {
+    if (!Array.isArray(tables[model]) || tables[model].some(row => erasedIds.has(row.personId))) refusal()
+  }
+  for (const model of ['session', 'membership', 'roleBinding']) {
+    if (!Array.isArray(tables[model])) refusal()
+    if (tables[model].some(row => erasedIds.has(row.personId)
+      && (model === 'session' ? row.status === 'ACTIVE' && row.revokedAt == null
+        : LIVE_GRANT_STATUSES.includes(row.status)))) refusal()
+  }
+  for (const model of ['externalIdentity', 'channelIdentity']) {
+    if (!Array.isArray(tables[model])) refusal()
+    if (tables[model].some(row => erasedIds.has(row.personId)
+      && (model === 'externalIdentity' ? row.revokedAt == null : row.status !== 'REVOKED'))) refusal()
+  }
+  return true
+}
+
+export async function assertManagedBlobTransferRetentionSafe(db, snapshot) {
+  const run = tx => assertTransferRetentionSafeInTransaction(tx, snapshot)
+  return typeof db?.$transaction === 'function'
+    ? db.$transaction(run, { isolationLevel: 'Serializable', maxWait: 10_000, timeout: 30_000 })
+    : run(db)
+}
+
 export async function extractSnapshot({
   db,
   includeBinaryContent = false,
   filesystemPort = createLocalFilesystemPort(),
+  transferPermit = null,
 } = {}) {
   if (!db) throw new Error('SNAPSHOT_DATABASE_REQUIRED')
+  const transferJobId = managedBlobTransferSnapshotPermitJob(transferPermit)
   await assertOfficeDesignBackupSafe(db)
-  await assertRecoverySnapshotQuiescent(db, isPostgres(db) || db._activeProvider === 'postgresql')
+  await assertRecoverySnapshotQuiescent(db, isPostgres(db) || db._activeProvider === 'postgresql',
+    transferJobId ? { ignoreTransferJobId: transferJobId } : {})
   await assertMarketingReportBackupSafe(db)
   const visibility = await readPhaseBCounts(db)
   if (visibility.status !== 'FULL') throw new PhaseBRecoveryError(
@@ -2028,7 +2082,7 @@ export async function extractSnapshot({
       ? rows.map(({ sealedReplyToken, ...row }) => row)
       : rows
   }
-  assertNoReservedRecoveryRefs(snapshot)
+  assertNoReservedRecoveryRefs(snapshot, transferPermit)
 
   const mounts = includeBinaryContent
     ? await db.localWorkspaceMount.findMany({ where: { status: 'ACTIVE' }, orderBy: { updatedAt: 'desc' } })
@@ -2190,14 +2244,14 @@ export function validateSnapshotRecovery(snapshot, { remounts = [] } = {}) {
   }
 }
 
-export async function previewImport(snapshot, { remounts = [], db = prisma, viewer, nested = false } = {}) {
+export async function previewImport(snapshot, { remounts = [], db = prisma, viewer, nested = false, transferPermit = null } = {}) {
   // `nested` is importSnapshot's own dry run — the caller already proved
   // authority and will record one BACKUP_RESTORE use, so a second
   // BACKUP_PREVIEW row here would double-count one act.
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
   await assertOfficeDesignBackupSafe(db,snapshot)
-  assertNoReservedRecoveryRefs(snapshot)
+  assertNoReservedRecoveryRefs(snapshot, transferPermit)
   await assertMarketingReportBackupSafe(db, snapshot)
   const base = previewSnapshot(snapshot, { remounts })
   if (!base.valid) {
@@ -2453,12 +2507,79 @@ export function restoredRow(model, row, { lineWorkerMemoryRecovery } = {}) {
   return restored
 }
 
+async function restoreFileAssetPostpass(snapshot, { db, filesystemPort, normalizedRemounts }) {
+  const remountByBusiness = new Map(normalizedRemounts.map(mount => [mount.businessId, mount]))
+  const manifestByFile = new Map(contentManifest(snapshot).map(entry => [entry.fileId, entry]))
+  const unresolvedContentFileIds = []
+  for (const asset of localAssets(snapshot)) {
+    const mount = remountByBusiness.get(asset.businessId)
+    const manifest = manifestByFile.get(asset.id)
+    let active = false
+    if (mount && manifest?.contentIncluded && manifest.contentBase64) {
+      const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath
+      const stagingName = `restore-${randomUUID()}.tmp`
+      try {
+        await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
+        await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
+        active = true
+      } catch {
+        try { await filesystemPort.cleanupStaged({ mountRoot: mount.rootPath, stagingRoot, stagingName }) }
+        catch { /* failed content remains unresolved after the committed metadata restore */ }
+      }
+    } else if (mount) {
+      try { await filesystemPort.stat({ mountRoot: mount.rootPath, relativePath: asset.relativePath }); active = true }
+      catch { /* missing content is reported, not guessed */ }
+    }
+    if (!active) unresolvedContentFileIds.push(asset.id)
+    let restoredStatus = active ? 'ACTIVE' : 'MISSING'
+    if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
+    await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
+  }
+  return { unresolvedContentFileIds }
+}
+
+function normalizedRestoreMounts(remounts) {
+  return remounts.map(mount => {
+    if (!mount.businessId || !mount.deviceKey) throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath')
+    try { return { ...mount, rootPath: normalizeMountRoot(mount.rootPath) }
+    } catch { throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath') }
+  })
+}
+
+export function normalizeManagedBlobTransferRemounts(snapshot, remounts) {
+  if (!Array.isArray(remounts) || remounts.length > 128) throw new Error('Invalid target-local remount plan')
+  const availableBusinessIds = new Set(localAssets(snapshot).map(asset => asset.businessId))
+  const normalized = normalizedRestoreMounts(remounts)
+  const seen = new Set()
+  for (const mount of normalized) {
+    if (!availableBusinessIds.has(mount.businessId) || seen.has(mount.businessId)) {
+      throw new Error('Each target-local remount must name one source business at most once')
+    }
+    seen.add(mount.businessId)
+  }
+  return normalized.map(({ businessId, deviceKey, rootPath }) => ({ businessId, deviceKey, rootPath }))
+}
+
+export async function completeManagedBlobTransferPostpass(snapshot, { db = prisma, restoreClaim,
+  filesystemPort = createLocalFilesystemPort(), remounts = [] } = {}) {
+  if (!restoreClaim?.transferJobId || typeof restoreClaim.restoreAttemptId !== 'string') {
+    throw new BackupRestoreSafetyError('MANAGED_BLOB_TRANSFER_REQUIRED', 'Managed blob transfer refused')
+  }
+  let normalizedRemounts
+  try { normalizedRemounts = normalizeManagedBlobTransferRemounts(snapshot, remounts) }
+  catch { throw new BackupRestoreSafetyError('MANAGED_BLOB_TRANSFER_REQUIRED', 'Managed blob transfer refused') }
+  const postpass = await restoreFileAssetPostpass(snapshot, { db, filesystemPort, normalizedRemounts })
+  await finishRecoverySnapshotRestore(db, restoreClaim, { transferJobId: restoreClaim.transferJobId, postpass })
+  return postpass
+}
+
 export async function importSnapshot(snapshot, {
   confirm = false,
   remounts = [],
   db = prisma,
   viewer,
   filesystemPort = createLocalFilesystemPort(),
+  transferPermit = null,
 } = {}) {
   // @req FR-197 — authority now, the use record later. Recording it here would
   // write an OPERATOR_ACTION row that the transaction below deletes: restore
@@ -2467,22 +2588,19 @@ export async function importSnapshot(snapshot, {
   // product was being erased by that operation (SEC-027).
   requireViewer(viewer, 'backup restore')
   assertOperator(viewer, RESTORE_DENIED)
-  const preview = await previewImport(snapshot, { remounts, db, viewer, nested: true })
+  const transferState = managedBlobTransferImportState(snapshot, transferPermit)
+  if (transferPermit && !transferState) throw new BackupRestoreSafetyError('MANAGED_BLOB_TRANSFER_REQUIRED', 'Managed blob transfer refused')
+  const preview = await previewImport(snapshot, { remounts, db, viewer, nested: true, transferPermit })
   if (!preview.valid) return { restored: false, ...preview }
   if (!confirm) return { restored: false, needsConfirmation: true, ...preview }
-  const normalizedRemounts = remounts.map((mount) => {
-    if (!mount.businessId || !mount.deviceKey) throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath')
-    try {
-      return { ...mount, rootPath: normalizeMountRoot(mount.rootPath) }
-    } catch {
-      throw new Error('Each remount requires businessId, deviceKey and an absolute Windows or POSIX rootPath')
-    }
-  })
+  const normalizedRemounts = normalizedRestoreMounts(remounts)
 
-  const recoveryRestore = await beginRecoverySnapshotRestore(db)
+  const recoveryRestore = transferState?.restoreClaim ?? await beginRecoverySnapshotRestore(db)
   try {
     await withPipelineTransaction(db, async (tx) => {
+      if (transferState) await assertManagedBlobTransferOperator(tx, transferState.operatorProof)
       await assertRecoveryRestoreClaim(tx, db, recoveryRestore)
+      if (transferState) await assertTransferRetentionSafeInTransaction(tx, snapshot)
       // Probe the additive field even on an empty target before any replacement.
       try { await tx.dependency.findFirst({select:{id:true,contractJson:true}}) }
       catch { throw new BackupRestoreSafetyError('DEPENDENCY_HANDOFF_SCHEMA_UNAVAILABLE','Dependency handoff target schema is unavailable') }
@@ -2530,6 +2648,29 @@ export async function importSnapshot(snapshot, {
         actorId: viewer?.principal?.id ?? null,
         payload: { counts: preview.counts, exportedAt: snapshot.exportedAt || null },
       })
+      if (transferState) await recordAudit(tx, { entityType: 'OPERATOR_ACTION', entityId: 'local',
+        action: 'TRANSFER_RESTORE_CONFIRM', actorId: viewer?.principal?.id ?? null,
+        payload: { transferJobId: transferState.jobId, generation: transferState.restoreClaim.generation,
+          sourceGeneration: transferState.restoreClaim.generation - 1 } })
+      if (transferState) await recordAudit(tx, {
+        entityType: 'SNAPSHOT', entityId: transferState.jobId, action: 'TRANSFER_METADATA_COMMITTED',
+        actorId: viewer?.principal?.id ?? null,
+        payload: { snapshotSha256: transferState.snapshotSha256 ?? null,
+          packageSha256: transferState.packageSha256 ?? null,
+          admissionSha256: transferState.admissionSha256 ?? null,
+          generation: transferState.restoreClaim.generation, postpass: 'PENDING' },
+      })
+      if (transferState) {
+        const committed = await tx.managedBlobBackupTransferJob.updateMany({ where: {
+          id: transferState.jobId, state: 'RESTORING', version: transferState.expectedJobVersion,
+          workerId: transferState.workerId, epoch: transferState.workerEpoch,
+          restoreAttemptId: transferState.restoreClaim.restoreAttemptId, generation: transferState.restoreClaim.generation,
+        }, data: { state: 'METADATA_COMMITTED', unresolved: true, workerId: null, leaseExpiresAt: null,
+          resultJson: JSON.stringify({ restored: true, state: 'METADATA_COMMITTED', generation: transferState.restoreClaim.generation,
+            snapshotSha256: transferState.snapshotSha256, packageSha256: transferState.packageSha256 }),
+          outcomeJson: JSON.stringify({ outcome: 'METADATA_COMMITTED', postpass: 'PENDING' }), version: { increment: 1 } } })
+        if (committed.count !== 1) throw new BackupRestoreSafetyError('MANAGED_BLOB_TRANSFER_JOB_CHANGED', 'Managed blob transfer refused')
+      }
     }, {
       isolationLevel: 'Serializable',
       // Prisma's default interactive-transaction budget is 5s, and the loop above
@@ -2571,37 +2712,10 @@ export async function importSnapshot(snapshot, {
     throw error
   }
 
-  const remountByBusiness = new Map(normalizedRemounts.map((mount) => [mount.businessId, mount]))
-  const manifestByFile = new Map(contentManifest(snapshot).map((entry) => [entry.fileId, entry]))
-  const unresolvedContentFileIds = []
-  for (const asset of localAssets(snapshot)) {
-    const mount = remountByBusiness.get(asset.businessId)
-    const manifest = manifestByFile.get(asset.id)
-    let active = false
-    if (mount && manifest?.contentIncluded && manifest.contentBase64) {
-      const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath
-      const stagingName = `restore-${randomUUID()}.tmp`
-      try {
-        await filesystemPort.stageWrite({ mountRoot: mount.rootPath, stagingRoot, stagingName, content: Buffer.from(manifest.contentBase64, 'base64') })
-        await filesystemPort.promote({ mountRoot: mount.rootPath, stagingRoot, stagingName, relativePath: asset.relativePath })
-        active = true
-      } catch {
-        try {
-          await filesystemPort.cleanupStaged({ mountRoot: mount.rootPath, stagingRoot, stagingName })
-        } catch { /* failed content remains unresolved after the committed metadata restore */ }
-      }
-    } else if (mount) {
-      try {
-        await filesystemPort.stat({ mountRoot: mount.rootPath, relativePath: asset.relativePath })
-        active = true
-      } catch { /* missing content is reported, not guessed */ }
-    }
-    if (!active) unresolvedContentFileIds.push(asset.id)
-    let restoredStatus = active ? 'ACTIVE' : 'MISSING'
-    if (asset.status === 'QUARANTINED') restoredStatus = 'QUARANTINED'
-    await db.fileAsset.update({ where: { id: asset.id }, data: { status: restoredStatus } })
-  }
-  await finishRecoverySnapshotRestore(db, recoveryRestore)
+  const postpass = await restoreFileAssetPostpass(snapshot, { db, filesystemPort, normalizedRemounts })
+  if (transferState) {
+    await finishRecoverySnapshotRestore(db, recoveryRestore, { transferJobId: transferState.jobId, postpass })
+  } else await finishRecoverySnapshotRestore(db, recoveryRestore)
   return {
     restored: true,
     counts: preview.counts,
@@ -2614,6 +2728,6 @@ export async function importSnapshot(snapshot, {
     archiveRecovery: preview.archiveRecovery,
     usageEventRollupRecovery: preview.usageEventRollupRecovery,
     pricingRecovery: preview.pricingRecovery,
-    unresolvedContentFileIds,
+    unresolvedContentFileIds: postpass.unresolvedContentFileIds,
   }
 }

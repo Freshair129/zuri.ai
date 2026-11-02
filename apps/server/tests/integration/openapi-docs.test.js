@@ -33,6 +33,35 @@ it('inventories recovery paths with an explicit held activation boundary', () =>
   expect(action.requestBody.description).toContain('descriptor before content')
 })
 
+// @req FR-293 — the PM-owned transfer workflow is explicit and TEST-admission-only.
+it('inventories managed-blob transfer routes with the source-bound TEST gate', () => {
+  for (const [route, method] of [
+    ['/api/backup/transfers', 'get'],
+    ['/api/backup/transfers/export', 'post'],
+    ['/api/backup/transfers/preview', 'post'],
+    ['/api/backup/transfers/{jobId}', 'get'],
+    ['/api/backup/transfers/{jobId}/package', 'get'],
+    ['/api/backup/transfers/{jobId}/confirm', 'post'],
+    ['/api/backup/transfers/{jobId}/inspect', 'post'],
+    ['/api/backup/transfers/{jobId}/abandon', 'post'],
+  ]) {
+    const operation = doc.paths[route]?.[method]
+    expect(operation).toBeTruthy()
+    expect(operation.security).toEqual([{ SessionAuth: [] }])
+    expect(operation['x-zuri-contract']).toBe('compact-managed-blob-backup.v1')
+    expect(operation['x-zuri-activation']).toBe('TEST_ADMISSION_ONLY')
+    expect(operation.description).toContain('source-bound disposable TEST admission')
+    if (method === 'post') expect(operation.parameters).toEqual(expect.arrayContaining([
+      expect.objectContaining({ in: 'header', name: 'X-Zuri-API-Write-CSRF', required: true }),
+    ]))
+  }
+  expect(doc.paths['/api/backup/transfers/{jobId}/confirm'].post.description)
+    .toContain('leaves the generation NEEDS_ADMISSION')
+  expect(doc.paths['/api/backup/transfers/export'].post.responses['202']).toBeTruthy()
+  expect(doc.paths['/api/backup/transfers/{jobId}/confirm'].post.responses['202']).toBeTruthy()
+  expect(doc.paths['/api/backup/transfers/export'].post.description).toContain('after durable job/attempt admission')
+})
+
 const HTTP_METHODS = new Set(['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'])
 
 function listFiles(directory) {
@@ -399,9 +428,10 @@ describe('OpenAPI document', () => {
       // 352 + 2 = 354 paths; 464 + 2 = 466 operations.
       // FR-235 adds owner-only product disclosure GET/POST on one path.
       // OR3 adds three gated paths/operations to the current Office inventory.
-      pathCount: 365,
+      // FR-293 adds seven transfer paths plus the actor-bound job recovery list.
+      pathCount: 373,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
-      operationCount: 480,
+      operationCount: 488,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

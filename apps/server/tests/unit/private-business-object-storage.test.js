@@ -82,6 +82,17 @@ describe('Compact private Asset/catalog storage', () => {
     }
   })
 
+  it('propagates an operation AbortSignal through the private S3 transport', async () => {
+    const fetchFn = vi.fn().mockResolvedValue(response())
+    const port = createConfiguredAssetObjectStoragePort(env, { fetchFn })
+    const stored = await port.put({ key: assetKey, content: Buffer.from('private bytes') })
+    const controller = new AbortController()
+    await port.get({ ref: stored.ref, ...scope, signal: controller.signal })
+    expect(fetchFn.mock.calls.at(-1)[1].signal).toBe(controller.signal)
+    controller.abort()
+    expect(fetchFn.mock.calls.at(-1)[1].signal.aborted).toBe(true)
+  })
+
   it('dispatches only the configured purpose and refuses a foreign Business before bytes', async () => {
     const fetchFn = vi.fn().mockImplementation(() => Promise.resolve(response()))
     const asset = await createConfiguredAssetObjectStoragePort(env, { fetchFn }).put({ key: assetKey, content: Buffer.from('x') })

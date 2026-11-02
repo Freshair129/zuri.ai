@@ -446,6 +446,79 @@ CREATE TABLE "Workspace" (
 );
 
 -- CreateTable
+CREATE TABLE "OfficeDesignRegistry" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "tenantId" TEXT NOT NULL,
+    "businessId" TEXT NOT NULL,
+    "workspaceId" TEXT NOT NULL,
+    "source" TEXT NOT NULL,
+    "packageId" TEXT NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "OfficeDesignRegistry_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "OfficeDesignIdentity" (
+    "id" TEXT NOT NULL,
+    "code" TEXT NOT NULL,
+    "registryId" TEXT NOT NULL,
+    "externalId" TEXT NOT NULL,
+    "kind" TEXT NOT NULL,
+    "semanticKey" TEXT NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "OfficeDesignIdentity_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "OfficeDesignRevision" (
+    "id" TEXT NOT NULL,
+    "registryId" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "contentHash" TEXT NOT NULL,
+    "archiveSha256" TEXT NOT NULL,
+    "manifestJson" TEXT NOT NULL,
+    "producerRevision" TEXT NOT NULL,
+    "createdByPersonId" TEXT NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "OfficeDesignRevision_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "OfficeDesignBlob" (
+    "id" TEXT NOT NULL,
+    "registryId" TEXT NOT NULL,
+    "sha256" TEXT NOT NULL,
+    "mediaType" TEXT NOT NULL DEFAULT 'model/gltf-binary',
+    "byteLength" INTEGER NOT NULL,
+    "bytes" BYTEA NOT NULL,
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "OfficeDesignBlob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "OfficeDesignImportReceipt" (
+    "id" TEXT NOT NULL,
+    "registryId" TEXT NOT NULL,
+    "requestKey" TEXT NOT NULL,
+    "commandHash" TEXT NOT NULL,
+    "resultJson" TEXT NOT NULL,
+    "version" INTEGER NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "OfficeDesignImportReceipt_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Project" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -1088,6 +1161,78 @@ CREATE TABLE "ManagedBlobRecoveryOperation" (
     "closedAt" TIMESTAMP(3),
 
     CONSTRAINT "ManagedBlobRecoveryOperation_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ManagedBlobBackupTransferJob" (
+    "id" TEXT NOT NULL,
+    "actorId" TEXT,
+    "kind" TEXT NOT NULL,
+    "state" TEXT NOT NULL DEFAULT 'PREPARED',
+    "version" INTEGER NOT NULL DEFAULT 1,
+    "generation" INTEGER NOT NULL,
+    "sourceGeneration" INTEGER,
+    "sourceConfigHash" TEXT,
+    "targetConfigHash" TEXT NOT NULL,
+    "snapshotSha256" TEXT,
+    "packageSha256" TEXT,
+    "sourceRevision" TEXT,
+    "countsJson" TEXT,
+    "admissionJson" TEXT,
+    "admissionId" TEXT,
+    "outcomeJson" TEXT,
+    "resultJson" TEXT,
+    "restoreRemountsJson" TEXT,
+    "spoolId" TEXT,
+    "spoolSha256" TEXT,
+    "spoolBytes" INTEGER NOT NULL DEFAULT 0,
+    "snapshotSpoolBytes" INTEGER NOT NULL DEFAULT 0,
+    "spoolReservedBytes" INTEGER NOT NULL DEFAULT 0,
+    "cleanupState" TEXT NOT NULL DEFAULT 'NONE',
+    "confirmationDigest" TEXT,
+    "restoreAttemptId" TEXT,
+    "restoreClaimedAt" TIMESTAMP(3),
+    "expiresAt" TIMESTAMP(3) NOT NULL,
+    "byteDeadline" TIMESTAMP(3) NOT NULL,
+    "workerId" TEXT,
+    "workerStartedAt" TIMESTAMP(3),
+    "epoch" INTEGER NOT NULL DEFAULT 0,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "unresolved" BOOLEAN NOT NULL DEFAULT true,
+    "reservedBytes" INTEGER NOT NULL DEFAULT 49152,
+    "auditCount" INTEGER NOT NULL DEFAULT 0,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "closedAt" TIMESTAMP(3),
+
+    CONSTRAINT "ManagedBlobBackupTransferJob_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "ManagedBlobBackupTransferEntry" (
+    "id" TEXT NOT NULL,
+    "jobId" TEXT NOT NULL,
+    "objectId" TEXT NOT NULL,
+    "purpose" TEXT NOT NULL,
+    "sha256" TEXT NOT NULL,
+    "byteLength" INTEGER NOT NULL,
+    "bindingsJson" TEXT NOT NULL,
+    "targetKey" TEXT,
+    "targetRef" TEXT,
+    "state" TEXT NOT NULL DEFAULT 'PENDING',
+    "attempts" INTEGER NOT NULL DEFAULT 0,
+    "workerId" TEXT,
+    "epoch" INTEGER NOT NULL DEFAULT 0,
+    "leaseExpiresAt" TIMESTAMP(3),
+    "receiptJson" TEXT,
+    "cleanupState" TEXT NOT NULL DEFAULT 'NONE',
+    "unresolved" BOOLEAN NOT NULL DEFAULT true,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    "closedAt" TIMESTAMP(3),
+
+    CONSTRAINT "ManagedBlobBackupTransferEntry_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -4591,6 +4736,33 @@ CREATE INDEX "Workspace_businessId_idx" ON "Workspace"("businessId");
 CREATE UNIQUE INDEX "Workspace_businessId_provisioningKey_key" ON "Workspace"("businessId", "provisioningKey");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignRegistry_code_key" ON "OfficeDesignRegistry"("code");
+
+-- CreateIndex
+CREATE INDEX "OfficeDesignRegistry_tenantId_businessId_idx" ON "OfficeDesignRegistry"("tenantId", "businessId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignRegistry_workspaceId_source_packageId_key" ON "OfficeDesignRegistry"("workspaceId", "source", "packageId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignIdentity_code_key" ON "OfficeDesignIdentity"("code");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignIdentity_registryId_externalId_key" ON "OfficeDesignIdentity"("registryId", "externalId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignIdentity_registryId_kind_semanticKey_key" ON "OfficeDesignIdentity"("registryId", "kind", "semanticKey");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignRevision_registryId_version_key" ON "OfficeDesignRevision"("registryId", "version");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignBlob_registryId_sha256_key" ON "OfficeDesignBlob"("registryId", "sha256");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "OfficeDesignImportReceipt_registryId_requestKey_key" ON "OfficeDesignImportReceipt"("registryId", "requestKey");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "Project_code_key" ON "Project"("code");
 
 -- CreateIndex
@@ -4892,6 +5064,30 @@ CREATE INDEX "ManagedBlobRecoveryOperation_businessId_unresolved_idx" ON "Manage
 
 -- CreateIndex
 CREATE INDEX "ManagedBlobRecoveryOperation_state_leaseExpiresAt_idx" ON "ManagedBlobRecoveryOperation"("state", "leaseExpiresAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ManagedBlobBackupTransferJob_admissionId_key" ON "ManagedBlobBackupTransferJob"("admissionId");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferJob_actorId_state_idx" ON "ManagedBlobBackupTransferJob"("actorId", "state");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferJob_kind_state_idx" ON "ManagedBlobBackupTransferJob"("kind", "state");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferJob_state_leaseExpiresAt_idx" ON "ManagedBlobBackupTransferJob"("state", "leaseExpiresAt");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferJob_unresolved_expiresAt_idx" ON "ManagedBlobBackupTransferJob"("unresolved", "expiresAt");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferEntry_jobId_state_idx" ON "ManagedBlobBackupTransferEntry"("jobId", "state");
+
+-- CreateIndex
+CREATE INDEX "ManagedBlobBackupTransferEntry_state_leaseExpiresAt_idx" ON "ManagedBlobBackupTransferEntry"("state", "leaseExpiresAt");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "ManagedBlobBackupTransferEntry_jobId_objectId_key" ON "ManagedBlobBackupTransferEntry"("jobId", "objectId");
 
 -- CreateIndex
 CREATE INDEX "FileLink_entityType_entityId_idx" ON "FileLink"("entityType", "entityId");
@@ -6395,6 +6591,27 @@ ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_tenantId_fkey" FOREIGN KEY ("t
 
 -- AddForeignKey
 ALTER TABLE "Workspace" ADD CONSTRAINT "Workspace_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignRegistry" ADD CONSTRAINT "OfficeDesignRegistry_tenantId_fkey" FOREIGN KEY ("tenantId") REFERENCES "Tenant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignRegistry" ADD CONSTRAINT "OfficeDesignRegistry_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignRegistry" ADD CONSTRAINT "OfficeDesignRegistry_workspaceId_fkey" FOREIGN KEY ("workspaceId") REFERENCES "Workspace"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignIdentity" ADD CONSTRAINT "OfficeDesignIdentity_registryId_fkey" FOREIGN KEY ("registryId") REFERENCES "OfficeDesignRegistry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignRevision" ADD CONSTRAINT "OfficeDesignRevision_registryId_fkey" FOREIGN KEY ("registryId") REFERENCES "OfficeDesignRegistry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignBlob" ADD CONSTRAINT "OfficeDesignBlob_registryId_fkey" FOREIGN KEY ("registryId") REFERENCES "OfficeDesignRegistry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "OfficeDesignImportReceipt" ADD CONSTRAINT "OfficeDesignImportReceipt_registryId_fkey" FOREIGN KEY ("registryId") REFERENCES "OfficeDesignRegistry"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Project" ADD CONSTRAINT "Project_businessId_fkey" FOREIGN KEY ("businessId") REFERENCES "Business"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

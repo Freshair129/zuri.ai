@@ -111,18 +111,18 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
       owned(ref, { tenantId, businessId })
       return true
     },
-    async put({ key, content, mime = 'application/octet-stream' }) {
+    async put({ key, content, mime = 'application/octet-stream', signal }) {
       scopedKey(key, definition)
-      const stored = await safe(() => transport.putImmutable({ key, content, contentType: mime }))
+      const stored = await safe(() => transport.putImmutable({ key, content, contentType: mime, signal }))
       const ref = `s3-business://${purpose}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}?versionId=${encodeURIComponent(stored.versionId)}`
       return { ref, sha256: stored.sha256, byteLength: stored.byteLength }
     },
-    async get({ ref, tenantId, businessId, expectedSha256, expectedByteLength }) {
+    async get({ ref, tenantId, businessId, expectedSha256, expectedByteLength, signal }) {
       const { key, versionId } = owned(ref, { tenantId, businessId })
       if (expectedSha256 !== undefined && (typeof expectedSha256 !== 'string' || !SHA256.test(expectedSha256))
         || expectedByteLength !== undefined && (!Number.isSafeInteger(expectedByteLength) || expectedByteLength < 0)) throw invalid()
       return safe(async () => {
-        const stored = await transport.readExact({ key, versionId })
+        const stored = await transport.readExact({ key, versionId, signal })
         if (expectedSha256 !== undefined && stored.sha256 !== expectedSha256.toLowerCase()
           || expectedByteLength !== undefined && stored.byteLength !== expectedByteLength) throw invalid(409)
         return stored.bytes
@@ -130,13 +130,13 @@ export function createPrivateBusinessObjectStoragePort(purpose, env = process.en
     },
     // @req FR-292 — inspect only one server-owned recovery intent, never list.
     // @tested tests/integration/managed-blob-recovery-custody.test.js
-    async recover({ key, tenantId, businessId, expectedSha256, expectedByteLength }) {
+    async recover({ key, tenantId, businessId, expectedSha256, expectedByteLength, signal }) {
       scopedKey(key, definition, { tenantId, businessId })
       const parts = key.split('/')
       if (!tenantId || !businessId || parts.length !== 6 || parts[3] !== 'recovery'
         || !/^[a-f0-9-]{36}$/.test(parts[4]) || !/^[a-f0-9]{64}$/.test(parts[5])) throw invalid()
       return safe(async () => {
-        const receipt = await transport.recoverImmutable({ key, expectedSha256, byteLength: expectedByteLength })
+        const receipt = await transport.recoverImmutable({ key, expectedSha256, byteLength: expectedByteLength, signal })
         if (!receipt) return null
         const ref = `s3-business://${purpose}/${bucket}/${key.split('/').map(encodeURIComponent).join('/')}?versionId=${encodeURIComponent(receipt.versionId)}`
         owned(ref, { tenantId, businessId })

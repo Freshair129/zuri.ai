@@ -215,6 +215,12 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/inventory/catalog-intakes/commit', ['POST']], ['/api/inventory/catalog-intakes/{id}', ['GET', 'PATCH']],
   ['/api/inventory/catalog-intakes/template', ['GET']], ['/api/inventory/catalog-intakes/xlsx', ['POST']],
   ['/api/assets/evidence', ['POST']], ['/api/assets/evidence/{id}/extract', ['POST']], ['/api/assets/evidence/{id}/review', ['POST']], ['/api/assets/import/sheets', ['POST']], ['/api/assets/import/template', ['GET']], ['/api/assets/import/xlsx', ['POST']], ['/api/assets/intakes', ['POST']], ['/api/assets/intakes/export', ['GET']], ['/api/assets/intakes/validate', ['POST']], ['/api/assets/lookup', ['GET']], ['/api/assets/register', ['GET', 'POST']], ['/api/assets/register/{id}', ['GET']], ['/api/assets/register/{id}/depreciation', ['GET']], ['/api/assets/register/{id}/dispose', ['GET', 'POST']], ['/api/assets/register/{id}/maintenance', ['GET', 'POST']], ['/api/assets/register/{id}/responsibility', ['POST']], ['/api/assets/register/{id}/relocate', ['POST']], ['/api/assets/register/{id}/allocate', ['POST']], ['/api/assets/register/{id}/return', ['POST']], ['/api/assets/register/{id}/verify', ['POST']], ['/api/audit', ['GET']], ['/api/backup/export', ['GET']], ['/api/backup/import', ['POST']],
+  // @req FR-293 — PM-owned transfer workflow, private package and explicit actions.
+  ['/api/backup/transfers', ['GET']],
+  ['/api/backup/transfers/export', ['POST']], ['/api/backup/transfers/preview', ['POST']],
+  ['/api/backup/transfers/{jobId}', ['GET']], ['/api/backup/transfers/{jobId}/package', ['GET']],
+  ['/api/backup/transfers/{jobId}/confirm', ['POST']], ['/api/backup/transfers/{jobId}/inspect', ['POST']],
+  ['/api/backup/transfers/{jobId}/abandon', ['POST']],
   ['/api/business/files', ['GET']], ['/api/business/goals', ['POST']], ['/api/business/goals/{id}', ['PATCH']], ['/api/business/goals/{id}/projects', ['POST']], ['/api/business/goals/{id}/projects/{projectId}', ['DELETE']],
   // @req FR-268 (ADR-101) — Business Key Results: create under a goal, patch
   // (including archive via status), and the weekly check-in.
@@ -506,6 +512,16 @@ function genericRequest(path, method) {
 }
 
 function genericResponses(path, method) {
+  if (path.startsWith('/api/backup/transfers')) {
+    const accepted = method === 'post' && (path.endsWith('/export') || path.endsWith('/confirm'))
+    return {
+      ...(!accepted ? { 200: json(zRouteInventoryResponse, 'Authorized transfer result or current durable job state.') } : {}),
+      ...(accepted ? { 202: json(zRouteInventoryResponse, 'Durable transfer job/attempt accepted; poll the job status and do not replay provider writes.') } : {}),
+      ...Object.fromEntries([400, 401, 403, 404, 409, 410, 413, 429, 503].map(status => [status,
+        json(zError, status === 503 ? 'Transfer profile, source-bound TEST admission, or local custody is unavailable.' : 'Typed redacted transfer refusal.'),
+      ])),
+    }
+  }
   if (path.includes('/recovery-operations')) return {
     200: json(zRouteInventoryResponse, 'Controlled transport result only; ordinary recovery remains uncomposed.'),
     202: json(zRouteInventoryResponse, 'STAGING/UNKNOWN outcome; no blind retry PUT.'),
@@ -719,7 +735,7 @@ function registerInventoryOperations(registry) {
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
             ...pathParameters(path),
-            ...(path.includes('/recovery-operations') && methodName === 'post' ? [{
+            ...((path.includes('/recovery-operations') || path.startsWith('/api/backup/transfers')) && methodName === 'post' ? [{
               name: 'X-Zuri-API-Write-CSRF', in: 'header', required: true,
               schema: { type: 'string', minLength: 1 },
               description: 'Live-session-bound API-write token issued by GET /api/auth/csrf.',
@@ -767,6 +783,8 @@ function registerInventoryOperations(registry) {
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-mission-intake/v1' }
           : lineStockDisclosure
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
+          : path.startsWith('/api/backup/transfers')
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'compact-managed-blob-backup.v1' }
           : knowledgeReplay
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'knowledge-admission-replay/v1' }
           : knowledgeStudio
@@ -779,6 +797,10 @@ function registerInventoryOperations(registry) {
         ...(path.includes('/recovery-operations') ? {
           security: [{ SessionAuth: [] }], 'x-zuri-activation': 'NOT_QUALIFIED',
           description: 'FR-292 recovery transport is gated pending the supported FR-293 backup transfer round trip. Ordinary routes have no service composition and return a typed 503 after live session/CSRF checks. POST uses X-Zuri-API-Write-CSRF from /api/auth/csrf. The action is preview (strict descriptor-then-content multipart), stage, confirm, inspect or abandon; prepare and status cannot be action-path aliases. Request/DTO details remain in Appendix A and the adopted recovery contract; route-inventory schemas do not claim generalized input semantics or qualification.',
+        } : {}),
+        ...(path.startsWith('/api/backup/transfers') ? {
+          'x-zuri-activation': 'TEST_ADMISSION_ONLY',
+          description: 'FR-293 private, no-store operator workflow. POST uses X-Zuri-API-Write-CSRF from /api/auth/csrf before reading JSON or raw application/x-tar. Export and confirm return 202 after durable job/attempt admission; poll status, and download an export package only after COMPLETE. Preview returns a target-local job and one-use confirmation binding; status and package GET reauthorize the current persisted session. Replace-all confirm requires a source-bound disposable TEST admission and leaves the generation NEEDS_ADMISSION. Every other target is refused before provider writes.',
         } : {}),
       })
     }

@@ -17,9 +17,16 @@ export async function POST(request) {
   return handle(async () => {
     const viewer = await resolveRequestViewer(request)
     const body = await request.json()
-    if (body.confirm === true) {
-      return importSnapshot(body.snapshot, { confirm: true, remounts: body.remounts || [], viewer })
+    try {
+      if (body.confirm === true) {
+        return await importSnapshot(body.snapshot, { confirm: true, remounts: body.remounts || [], viewer })
+      }
+      return await previewImport(body.snapshot, { remounts: body.remounts || [], viewer })
+    } catch (error) {
+      if (error?.code !== 'MANAGED_BLOB_TRANSFER_REQUIRED') throw error
+      return Response.json({ code: 'MANAGED_BLOB_TRANSFER_REQUIRED',
+        message: 'Managed-blob content requires the complete transfer package.', retryable: false },
+      { status: 409, headers: { 'Cache-Control': 'no-store' } })
     }
-    return previewImport(body.snapshot, { remounts: body.remounts || [], viewer })
   })
 }
