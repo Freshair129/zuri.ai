@@ -20,7 +20,11 @@ export function createManagedBlobTransferSpool(dataDirectory) {
     if (!['package', 'snapshot'].includes(artifact)) throw refused(503)
     const root = path.join(dataDirectory, 'managed-blob-transfer-private')
     await mkdir(root, { recursive: true, mode: 0o700 })
-    if ((await lstat(root)).isSymbolicLink() || resolvedPathIdentity(await realpath(root)) !== resolvedPathIdentity(root)) throw refused(503)
+    const [rootStat, actualRoot, actualDataDirectory] = await Promise.all([
+      lstat(root), realpath(root), realpath(dataDirectory),
+    ])
+    const expectedRoot = path.join(actualDataDirectory, 'managed-blob-transfer-private')
+    if (rootStat.isSymbolicLink() || resolvedPathIdentity(actualRoot) !== resolvedPathIdentity(expectedRoot)) throw refused(503)
     if (process.platform !== 'win32' && ((await lstat(root)).mode & 0o077)) throw refused(503)
     return path.join(root, artifact === 'snapshot' ? `${id}.snapshot` : id)
   }
