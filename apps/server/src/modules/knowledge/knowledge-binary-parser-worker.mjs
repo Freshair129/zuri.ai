@@ -28,6 +28,10 @@ function fail(code, status = 422, message = code) {
   throw error
 }
 
+function reportWorkerPhase(phase) {
+  parentPort.postMessage({ type: 'progress', phase })
+}
+
 function normalized(value) {
   return String(value ?? '').replace(/\r\n?/gu, '\n').replace(/^\uFEFF/u, '')
 }
@@ -74,6 +78,7 @@ function finish(state, mediaType, metadata = {}) {
 }
 
 async function parsePdf(bytes) {
+  reportWorkerPhase('pdf-document-loading')
   let loadingTask
   let doc
   try {
@@ -90,6 +95,7 @@ async function parsePdf(bytes) {
       verbosity: 0,
     })
     doc = await loadingTask.promise
+    reportWorkerPhase('pdf-document-loaded')
   } catch (error) {
     await destroyPdfLoadingTask(loadingTask)
     if (error?.name === 'PasswordException') fail('ENCRYPTED_DOCUMENT', 422)
@@ -99,6 +105,7 @@ async function parsePdf(bytes) {
     if (!Number.isSafeInteger(doc.numPages) || doc.numPages < 1) fail('MALFORMED_PDF')
     if (doc.numPages > LIMITS.pdfPages) fail('PDF_PAGE_LIMIT', 413)
     const state = { text: '', structure: [], blocks: [], sourceSpans: [], warnings: [], tables: [] }
+    reportWorkerPhase('pdf-page-projection')
     let visibleTextPages = 0
     for (let pageIndex = 0; pageIndex < doc.numPages; pageIndex += 1) {
       const page = await doc.getPage(pageIndex + 1)
@@ -137,7 +144,9 @@ async function parsePdf(bytes) {
       page.cleanup()
     }
     if (!visibleTextPages && state.warnings.length) fail('IMAGE_ONLY_DOCUMENT')
-    return finish(state, 'application/pdf', { pageCount: doc.numPages })
+    const result = finish(state, 'application/pdf', { pageCount: doc.numPages })
+    reportWorkerPhase('pdf-projection-complete')
+    return result
   } finally {
     await destroyPdfLoadingTask(loadingTask)
   }
@@ -347,9 +356,11 @@ function parseDocxDocument(xml) {
 }
 
 async function parseDocx(bytes) {
+  reportWorkerPhase('docx-archive-indexing')
   let archive
   try { archive = await zipEntries(bytes) } catch (error) { fail(error?.code || 'MALFORMED_DOCX', error?.code === 'ARCHIVE_ENTRY_COUNT_LIMIT' ? 413 : 422, error?.message) }
   const { zip, entries } = archive
+  reportWorkerPhase('docx-archive-indexed')
   const seen = new Set()
   let expanded = 0
   let compressed = 0
@@ -374,6 +385,7 @@ async function parseDocx(bytes) {
   }
   const extracted = new Map()
   let readBytes = 0
+  reportWorkerPhase('docx-parts-reading')
   try {
     for (const entry of targets) {
       const data = await readZipEntry(zip, entry, LIMITS.archiveBytes - readBytes)
@@ -389,11 +401,14 @@ async function parseDocx(bytes) {
   zip.close()
   const contentTypes = decodeDocxXml(extracted.get('[Content_Types].xml'))
   if (!/wordprocessingml\.document\.main\+xml/u.test(contentTypes)) fail('MALFORMED_DOCX')
+  reportWorkerPhase('docx-document-parsing')
   const state = parseDocxDocument(decodeDocxXml(extracted.get('word/document.xml')))
   if (entries.some((entry) => /^word\/media\//u.test(entry.fileName))) state.warnings.push({ code: 'IMAGE_CONTENT_NOT_PROCESSED', locations: [] })
   const unprocessedParts = entries.map((entry) => entry.fileName).filter((name) => /^word\/(?:header\d*|footer\d*|footnotes|endnotes|comments)\.xml$/iu.test(name)).sort()
   if (unprocessedParts.length) state.warnings.push({ code: 'DOCX_AUXILIARY_CONTENT_NOT_PROCESSED', parts: unprocessedParts })
-  return finish(state, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', { archiveEntryCount: entries.length, expandedArchiveBytes: expanded, documentPart: 'word/document.xml', unprocessedParts })
+  const result = finish(state, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', { archiveEntryCount: entries.length, expandedArchiveBytes: expanded, documentPart: 'word/document.xml', unprocessedParts })
+  reportWorkerPhase('docx-projection-complete')
+  return result
 }
 
 function childElements(node) {
@@ -505,10 +520,13 @@ function preflightHtmlElements(html) {
 }
 
 function parseHtml(bytes) {
+  reportWorkerPhase('html-input-preflight')
   let html
   try { html = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) } catch { fail('INVALID_UTF8_HTML') }
   preflightHtmlElements(html)
+  reportWorkerPhase('html-dom-parsing')
   const document = parse5.parse(html, { sourceCodeLocationInfo: true })
+  reportWorkerPhase('html-dom-parsed')
   let elementCount = 0
   let tableCellCount = 0
   let tableGridVisits = 0
@@ -727,10 +745,13 @@ function parseHtml(bytes) {
   }
   traverse(document)
   flushText()
-  return finish(state, 'text/html', { elementCount, profile: 'html-source-dom-v1', cssAndScriptsApplied: false })
+  const result = finish(state, 'text/html', { elementCount, profile: 'html-source-dom-v1', cssAndScriptsApplied: false })
+  reportWorkerPhase('html-projection-complete')
+  return result
 }
 
 async function main() {
+  reportWorkerPhase('worker-ready')
   const bytes = Buffer.from(workerData.bytes)
   if (bytes.length === 0) fail('EMPTY_DOCUMENT', 422)
   if (bytes.length > LIMITS.inputBytes) fail('INPUT_BYTES_LIMIT', 413)
@@ -754,6 +775,7 @@ async function main() {
     return createHash('sha256').update(result.normalizedText, 'utf8').digest('hex')
   })()
   result.metadata.outputByteLength = Buffer.byteLength(result.normalizedText, 'utf8')
+  reportWorkerPhase('result-ready')
   parentPort.postMessage({ ok: true, result })
 }
 

@@ -124,7 +124,7 @@ export function decodeKnowledgeBinary(content, { binaryProfile, binaryEncoding, 
   return bytes
 }
 
-export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceVersion, rawArtifactId, parserVersion = KNOWLEDGE_BINARY_PARSER_VERSION } = {}) {
+export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceVersion, rawArtifactId, parserVersion = KNOWLEDGE_BINARY_PARSER_VERSION, onWorkerPhase } = {}) {
   if (!(Buffer.isBuffer(bytes) || bytes instanceof Uint8Array)) throw binaryError('BINARY_INPUT_INVALID', 400)
   if (bytes.length === 0) throw binaryError('EMPTY_DOCUMENT', 422)
   if (bytes.length > KNOWLEDGE_BINARY_MAX_BYTES) throw binaryError('INPUT_BYTES_LIMIT', 413)
@@ -138,31 +138,57 @@ export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceV
   })
   return new Promise((resolve, reject) => {
     let settled = false
+    let lastWorkerPhase = 'worker-constructed'
+    const workerStartedAt = Date.now()
+    const reportWorkerPhase = (phase) => {
+      lastWorkerPhase = phase
+      try { onWorkerPhase?.(phase) } catch { /* Diagnostic callbacks cannot change parser results. */ }
+    }
+    let handleMessage
     const finish = (callback, value) => {
       if (settled) return
       settled = true
       clearTimeout(timer)
+      if (handleMessage) worker.off('message', handleMessage)
       void worker.terminate()
       callback(value)
     }
-    const timer = setTimeout(() => finish(reject, binaryError('PARSER_TIMEOUT', 408)), KNOWLEDGE_BINARY_TIMEOUT_MS)
+    const timer = setTimeout(() => finish(reject, withParserDiagnostics(
+      binaryError('PARSER_TIMEOUT', 408), lastWorkerPhase, workerStartedAt,
+    )), KNOWLEDGE_BINARY_TIMEOUT_MS)
     timer.unref?.()
-    worker.once('message', (message) => {
+    worker.once('online', () => {
+      if (lastWorkerPhase === 'worker-constructed') reportWorkerPhase('worker-online')
+    })
+    handleMessage = (message) => {
+      if (message?.type === 'progress' && typeof message.phase === 'string') {
+        reportWorkerPhase(message.phase)
+        return
+      }
       if (!message || message.ok !== true || !message.result) {
         const detail = message?.error || {}
         const code = ['INPUT_BYTES_LIMIT', 'PDF_PAGE_LIMIT', 'DOCX_PARAGRAPH_LIMIT', 'TABLE_CELL_LIMIT', 'TABLE_GRID_WORK_LIMIT', 'HTML_ELEMENT_LIMIT', 'ARCHIVE_EXPANSION_LIMIT', 'ARCHIVE_ENTRY_COUNT_LIMIT', 'AMBIGUOUS_TABLE_MAPPING', 'PDF_TABLE_NOT_PROJECTED', 'OUTPUT_BYTES_LIMIT', 'PARSER_TIMEOUT', 'IMAGE_ONLY_DOCUMENT', 'IMAGE_CONTENT_NOT_PROCESSED', 'MALFORMED_PDF', 'MALFORMED_DOCX', 'ENCRYPTED_DOCUMENT', 'EXTERNAL_RELATIONSHIP', 'UNSUPPORTED_DOCX_FEATURE', 'INVALID_UTF8_HTML', 'MEDIA_TYPE_MISMATCH', 'EMPTY_DOCUMENT'].includes(detail.code) ? detail.code : 'PARSER_FAILED'
         const status = ['INPUT_BYTES_LIMIT', 'PDF_PAGE_LIMIT', 'DOCX_PARAGRAPH_LIMIT', 'TABLE_CELL_LIMIT', 'TABLE_GRID_WORK_LIMIT', 'HTML_ELEMENT_LIMIT', 'ARCHIVE_EXPANSION_LIMIT', 'ARCHIVE_ENTRY_COUNT_LIMIT', 'OUTPUT_BYTES_LIMIT'].includes(code)
           ? 413
           : code === 'UNSUPPORTED_MEDIA_TYPE' ? 415 : code === 'PARSER_TIMEOUT' ? 408 : code === 'BINARY_PROFILE_INVALID' ? 400 : 422
-        return finish(reject, binaryError(code, status))
+        return finish(reject, withParserDiagnostics(binaryError(code, status), lastWorkerPhase, workerStartedAt))
       }
       finish(resolve, message.result)
-    })
-    worker.once('error', () => finish(reject, binaryError('PARSER_WORKER_FAILED', 422)))
+    }
+    worker.on('message', handleMessage)
+    worker.once('error', () => finish(reject, withParserDiagnostics(binaryError('PARSER_WORKER_FAILED', 422), lastWorkerPhase, workerStartedAt)))
     worker.once('exit', (code) => {
-      if (!settled) finish(reject, binaryError(code === 0 ? 'PARSER_NO_RESULT' : 'PARSER_WORKER_FAILED', 422))
+      if (!settled) finish(reject, withParserDiagnostics(binaryError(code === 0 ? 'PARSER_NO_RESULT' : 'PARSER_WORKER_FAILED', 422), lastWorkerPhase, workerStartedAt))
     })
   })
+}
+
+function withParserDiagnostics(error, phase, startedAt) {
+  Object.defineProperty(error, 'parserDiagnostics', {
+    value: Object.freeze({ phase, elapsedMs: Date.now() - startedAt }),
+    enumerable: false,
+  })
+  return error
 }
 
 function binaryError(code, status, message = code) {

@@ -54,6 +54,25 @@ describe('bounded binary source profile', () => {
     }
   })
 
+  it('reports parser worker phases to an optional diagnostic callback', async () => {
+    const fixture = fixtures[0]
+    const bytes = readFileSync(new URL(fixture.file, import.meta.url))
+    const phases = []
+    const parsed = await parseKnowledgeBinary({
+      bytes,
+      mediaType: fixture.mediaType,
+      onWorkerPhase: (phase) => phases.push(phase),
+    })
+
+    expect(parsed.normalizedText).toContain(fixture.text)
+    expect(phases).toEqual(expect.arrayContaining([
+      'worker-ready',
+      'pdf-document-loading',
+      'pdf-document-loaded',
+      'pdf-projection-complete',
+    ]))
+  })
+
   it('only decodes the explicitly tagged binary profile and hashes original bytes', () => {
     const bytes = Buffer.from('<!doctype html><p>data:</p>', 'utf8')
     const content = encodeKnowledgeBinary(bytes, 'text/html')
@@ -149,7 +168,9 @@ describe('bounded binary source profile', () => {
   })
 
   it('normalizes malformed parser errors without exposing library input text', async () => {
-    await expect(parseKnowledgeBinary({ bytes: Buffer.from('%PDF-not-a-real-file'), mediaType: 'application/pdf' }))
-      .rejects.toMatchObject({ code: 'MALFORMED_PDF', message: 'MALFORMED_PDF' })
+    const error = await parseKnowledgeBinary({ bytes: Buffer.from('%PDF-not-a-real-file'), mediaType: 'application/pdf' })
+      .then(() => null, (cause) => cause)
+    expect(error).toMatchObject({ code: 'MALFORMED_PDF', message: 'MALFORMED_PDF' })
+    expect(error.parserDiagnostics).toMatchObject({ phase: 'pdf-document-loading', elapsedMs: expect.any(Number) })
   })
 })
