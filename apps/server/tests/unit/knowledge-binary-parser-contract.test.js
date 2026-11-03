@@ -171,6 +171,25 @@ describe('bounded binary source profile', () => {
     const error = await parseKnowledgeBinary({ bytes: Buffer.from('%PDF-not-a-real-file'), mediaType: 'application/pdf' })
       .then(() => null, (cause) => cause)
     expect(error).toMatchObject({ code: 'MALFORMED_PDF', message: 'MALFORMED_PDF' })
-    expect(error.parserDiagnostics).toMatchObject({ phase: 'pdf-document-loading', elapsedMs: expect.any(Number) })
+    expect(error.parserDiagnostics.workerLifecycle.whenTerminationSettled).toEqual(expect.any(Function))
+    expect(error.parserDiagnostics).toMatchObject({
+      phase: 'pdf-document-loading',
+      elapsedMs: expect.any(Number),
+      phaseElapsedMs: expect.any(Number),
+      timeoutOvershootMs: null,
+      phaseHistory: expect.arrayContaining([
+        expect.objectContaining({ phase: 'worker-ready', startedAfterMs: expect.any(Number), durationMs: expect.any(Number) }),
+        expect.objectContaining({ phase: 'pdf-document-loading', startedAfterMs: expect.any(Number), durationMs: expect.any(Number) }),
+      ]),
+      workerLifecycle: expect.objectContaining({
+        terminationRequestedElapsedMs: expect.any(Number),
+        terminationStatus: expect.stringMatching(/^(pending|completed)$/u),
+      }),
+    })
+    const lifecycle = error.parserDiagnostics.workerLifecycle
+    if (lifecycle.terminationStatus === 'completed') {
+      expect(lifecycle.terminationCompletedElapsedMs).toBeGreaterThanOrEqual(lifecycle.terminationRequestedElapsedMs)
+    }
+    expect(error.message).not.toContain('%PDF-not-a-real-file')
   })
 })

@@ -671,7 +671,8 @@
         "evidence": [
           "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
           "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
-          "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+          "apps/server/tests/unit/knowledge-binary-parser-contract.test.js",
+          "apps/server/tests/unit/knowledge-binary-parser-timeout-diagnostics.test.js"
         ]
       },
       {
@@ -5420,11 +5421,12 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 2,
+          "testCount": 3,
           "evidence": [
             "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
             "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
-            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js",
+            "apps/server/tests/unit/knowledge-binary-parser-timeout-diagnostics.test.js"
           ]
         },
         {
@@ -5657,7 +5659,8 @@
           "evidence": [
             "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
             "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
-            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+            "apps/server/tests/unit/knowledge-binary-parser-contract.test.js",
+            "apps/server/tests/unit/knowledge-binary-parser-timeout-diagnostics.test.js"
           ]
         },
         {
@@ -22056,13 +22059,14 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
         "apps/server/src/modules/knowledge/knowledge-binary-parser.js",
         "apps/server/tests/integration/knowledge-binary-parser-lineage.test.js",
-        "apps/server/tests/unit/knowledge-binary-parser-contract.test.js"
+        "apps/server/tests/unit/knowledge-binary-parser-contract.test.js",
+        "apps/server/tests/unit/knowledge-binary-parser-timeout-diagnostics.test.js"
       ]
     },
     {
