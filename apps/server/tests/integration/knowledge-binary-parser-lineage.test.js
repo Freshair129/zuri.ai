@@ -45,8 +45,9 @@ describe('binary knowledge parser lineage', () => {
     const startedAt = Date.now()
     let phase = 'reading fixture and preparing first ingestion'
     let invocation = 'first ingestion'
+    let parserWorkerPhase = 'no worker phase reported'
     onTestFailed(() => {
-      process.stderr.write(`[binary parser lineage] ${file} failed after ${Date.now() - startedAt}ms; latest phase: ${phase}\n`)
+      process.stderr.write(`[binary parser lineage] ${file} failed after ${Date.now() - startedAt}ms; latest phase: ${phase}; parser worker: ${parserWorkerPhase}\n`)
     })
     const bytes = readFileSync(new URL(`../fixtures/knowledge-binary/${file}`, import.meta.url))
     const contentHash = hashKnowledgeBinaryBytes(bytes)
@@ -80,8 +81,18 @@ describe('binary knowledge parser lineage', () => {
           : `${invocation}: completed local stage ${stageNumber}; next local stage ${stageNumber + 1} is pending`
       },
     }
+    const ingestWithParserDiagnostics = async () => {
+      try {
+        return await ingestGenesisRag17Raw(input, options)
+      } catch (error) {
+        if (error?.code === 'PARSER_TIMEOUT' && error.parserDiagnostics) {
+          parserWorkerPhase = `${error.parserDiagnostics.phase} after ${error.parserDiagnostics.elapsedMs}ms`
+        }
+        throw error
+      }
+    }
     phase = 'first ingestion: awaiting local stage 1 completion'
-    const first = await ingestGenesisRag17Raw(input, options)
+    const first = await ingestWithParserDiagnostics()
     phase = 'validating first-ingestion result and persisted raw/canonical/parsed lineage'
     expect(first.source.rawContentHash).toBe(contentHash)
     expect(first.source.contentHash).toBe(hashGenesisRag17Text(first.source.content))
@@ -115,7 +126,7 @@ describe('binary knowledge parser lineage', () => {
 
     invocation = 'replay ingestion'
     phase = 'replaying ingestion and checking stable artifact identities'
-    const replay = await ingestGenesisRag17Raw(input, options)
+    const replay = await ingestWithParserDiagnostics()
     expect(replay.source.rawArtifactId).toBe(raw.id)
     expect(replay.source.parsedArtifactId).toBe(parsed.id)
     phase = 'resolving replay citation and checking stable source locators'
