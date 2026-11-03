@@ -125,6 +125,7 @@ export function relatedShardCount(count) {
 }
 
 export const POSTGRES_TEST = 'tests/integration/conversation-runtime-work-tool-port.test.js'
+const DEDICATED_BINARY_PARSER_TEST = 'tests/integration/knowledge-binary-parser-lineage.test.js'
 
 /**
  * Paths whose change forces the full suite even inside an otherwise related
@@ -309,11 +310,13 @@ export function relatedOutputs(text, repoRoot, { graphRunner = vitestRelated } =
   for (const file of changed) if (exists(file) && statSync(path.join(repoRoot, file)).isFile()) sourceTexts[file] = readFileSync(path.join(repoRoot, file), 'utf8')
   const selection = selectRelated({ changed, graph: graph.related, all: graph.all, testSources, sourceTexts, always: graph.always ?? [] })
   if (selection.mode !== 'related') return full(selection.reason)
-  const shards = relatedShardCount(selection.related.length)
+  const related = selection.related.filter((file) => file !== DEDICATED_BINARY_PARSER_TEST)
+  if (related.length === 0) return full('only selected related test is assigned to the dedicated binary parser lane')
+  const shards = relatedShardCount(related.length)
   return {
     test_mode: 'related',
-    test_reason: selection.reason,
-    related: selection.related.join(' '),
+    test_reason: `${related.length} related tests after dedicated binary parser isolation (${selection.reason})`,
+    related: related.join(' '),
     postgres: String(selection.postgres),
     test_shards: JSON.stringify(Array.from({ length: shards }, (_, i) => i + 1)),
     test_shard_total: String(shards),

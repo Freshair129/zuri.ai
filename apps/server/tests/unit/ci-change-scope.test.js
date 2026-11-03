@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { spawnSync } from 'node:child_process'
-import { readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import {
   FAN_OUT_LIMIT, FULL_SUITE_TRIGGERS, ISOLATED_SERVICES, POSTGRES_TEST, contractTestsFor, isolatedServices,
@@ -67,10 +68,21 @@ describe('CI service scope classification', () => {
   })
 
   it('never lets verify pass a skipped suite unless changes classified the pull request as service-scoped', () => {
-    expect(workflow).toMatch(/needs: \[changes, govern, tests, build,/)
+    expect(workflow).toMatch(/needs: \[changes, govern, tests, binary-parser, build,/)
     expect(workflow).toContain('[ "$r" = "skipped" ] && [ "$SERVER" = "false" ]')
     expect(workflow).toContain('[ "$CHANGES" = "success" ] || fail')
     expect(workflow).toContain('npm test -- --shard=${{ matrix.shard }}/4')
+  })
+
+  it('binaryParserCiIsolation keeps lineage in a dedicated required lane without dropping full-suite coverage', () => {
+    expect(workflow).toContain('run: npm test -- --shard=${{ matrix.shard }}/4 --exclude tests/integration/knowledge-binary-parser-lineage.test.js')
+    expect(workflow).toContain('name: Knowledge binary parser lineage')
+    expect(workflow).toContain('run: npm test -- tests/integration/knowledge-binary-parser-lineage.test.js')
+    expect(workflow).toMatch(/binary-parser:\r?\n    needs: changes\r?\n    if: github\.event_name != 'schedule' && needs\.changes\.outputs\.server != 'false'/)
+    expect(workflow).toMatch(/needs: \[changes, govern, tests, binary-parser, build,/)
+    expect(workflow).toContain('BINARY_PARSER: ${{ needs.binary-parser.result }}')
+    expect(workflow).toContain('if [ "$BINARY_PARSER" != "success" ]; then')
+    expect(workflow).toContain('[ "$BINARY_PARSER" != "skipped" ] || [ "$SERVER" != "false" ]')
   })
 
   it('reports the scope through the real CLI', () => {
@@ -167,6 +179,40 @@ describe('CI related-test mode (pull requests, "narrow, per FR")', () => {
     expect(relatedShardCount(45)).toBe(1)
     expect(relatedShardCount(46)).toBe(2)
     expect(relatedShardCount(1000)).toBe(4)
+  })
+
+  it('binaryParserRelatedSelectionIsIsolated from related shards before shard sizing', () => {
+    const tempRoot = mkdtempSync(path.join(tmpdir(), 'ci-parser-related-'))
+    const parserTest = 'tests/integration/knowledge-binary-parser-lineage.test.js'
+    const changedSource = 'apps/server/src/modules/knowledge/knowledge-binary-parser.js'
+    const otherTests = Array.from({ length: 119 }, (_, index) => `tests/unit/related-${String(index).padStart(3, '0')}.test.js`)
+    const serverRoot = path.join(tempRoot, 'apps', 'server')
+    mkdirSync(path.join(serverRoot, 'src', 'modules', 'knowledge'), { recursive: true })
+    mkdirSync(path.join(serverRoot, 'tests', 'integration'), { recursive: true })
+    mkdirSync(path.join(serverRoot, 'tests', 'unit'), { recursive: true })
+    writeFileSync(path.join(tempRoot, changedSource), '')
+    writeFileSync(path.join(serverRoot, parserTest), '')
+    for (const file of otherTests) writeFileSync(path.join(serverRoot, file), '')
+
+    try {
+      const selected = relatedOutputs(changedSource, tempRoot, {
+        graphRunner: () => ({ all: [parserTest, ...otherTests], related: [parserTest, ...otherTests.slice(0, 45)], always: [] }),
+      })
+      expect(selected.test_mode).toBe('related')
+      expect(selected.related.split(' ')).toHaveLength(45)
+      expect(selected.related).not.toContain(parserTest)
+      expect(selected.test_shards).toBe('[1]')
+      expect(selected.test_shard_total).toBe('1')
+
+      const parserOnly = relatedOutputs(changedSource, tempRoot, {
+        graphRunner: () => ({ all: [parserTest, ...otherTests], related: [parserTest], always: [] }),
+      })
+      expect(parserOnly.test_mode).toBe('full')
+      expect(parserOnly.test_shards).toBe('[1,2,3,4]')
+      expect(parserOnly.test_reason).toMatch(/dedicated binary parser lane/)
+    } finally {
+      rmSync(tempRoot, { recursive: true, force: true })
+    }
   })
 
   it('is eligible only for apps/server source and test changes (plus docs)', () => {

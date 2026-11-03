@@ -538,7 +538,7 @@ jobs:
 
       - name: Unit and integration tests
         if: needs.changes.outputs.test_mode != 'related'
-        run: npm test -- --shard=${{ matrix.shard }}/4
+        run: npm test -- --shard=${{ matrix.shard }}/4 --exclude tests/integration/knowledge-binary-parser-lineage.test.js
 
       - name: Related unit and integration tests (pull request)
         if: needs.changes.outputs.test_mode == 'related'
@@ -567,6 +567,51 @@ jobs:
       - name: WorkToolPort on PostgreSQL
         if: matrix.shard == 1 && (needs.changes.outputs.test_mode != 'related' || needs.changes.outputs.postgres == 'true')
         run: npm run test:postgres
+
+  # Keep the bounded binary parser fixture on a fresh runner. It still runs on
+  # every Server verification, while unrelated shard work cannot delay its
+  # worker-thread startup or consume the parser's existing 60-second budget.
+  binary-parser:
+    needs: changes
+    if: github.event_name != 'schedule' && needs.changes.outputs.server != 'false'
+    name: Knowledge binary parser lineage
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: apps/server
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Restore apps/server node_modules
+        id: server-deps
+        uses: actions/cache/restore@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ runner.os }}-server-nm-node22-${{ hashFiles('apps/server/package-lock.json', 'apps/server/prisma/schema.prisma', 'apps/server/scripts/generate-prisma-clients.mjs', 'apps/server/scripts/gen-postgres-schema.mjs') }}
+
+      - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit == 'true'
+        with:
+          node-version: '22'
+      - uses: actions/setup-node@v4
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/server/package-lock.json
+
+      - name: Install Server dependencies
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        run: npm ci --no-audit --no-fund
+      - name: Save Server dependencies
+        if: steps.server-deps.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: apps/server/node_modules
+          key: ${{ steps.server-deps.outputs.cache-primary-key }}
+
+      - name: Knowledge binary parser lineage
+        run: npm test -- tests/integration/knowledge-binary-parser-lineage.test.js
 
   build:
     needs: changes
@@ -762,10 +807,10 @@ jobs:
   # visible in one explicit result instead of leaving the aggregate ambiguous.
   verify:
     if: always() && github.event_name != 'schedule'
-    needs: [changes, govern, tests, build, conversation-runtime, market-intelligence, scm]
+    needs: [changes, govern, tests, binary-parser, build, conversation-runtime, market-intelligence, scm]
     runs-on: ubuntu-latest
     steps:
-      # `tests` and `build` may be skipped ONLY when `changes` succeeded and
+      # `tests`, `binary-parser` and `build` may be skipped ONLY when `changes` succeeded and
       # classified the pull request as service-scoped (server=false). Any other
       # skip — a failed or cancelled `changes`, a missing output — fails here.
       - name: All verification jobs passed
@@ -780,6 +825,7 @@ jobs:
           RELATED: ${{ needs.changes.outputs.related }}
           GOVERN: ${{ needs.govern.result }}
           TESTS: ${{ needs.tests.result }}
+          BINARY_PARSER: ${{ needs.binary-parser.result }}
           BUILD: ${{ needs.build.result }}
           CONVERSATION_RUNTIME: ${{ needs.conversation-runtime.result }}
           MARKET_INTELLIGENCE: ${{ needs.market-intelligence.result }}
@@ -789,6 +835,7 @@ jobs:
           echo "test mode: ${TEST_MODE:-full} $TEST_REASON"
           echo "govern: $GOVERN"
           echo "tests:  $TESTS"
+          echo "binary parser: $BINARY_PARSER"
           echo "build:  $BUILD"
           echo "conversation-runtime: $CONVERSATION_RUNTIME"
           echo "market-intelligence: $MARKET_INTELLIGENCE"
@@ -812,6 +859,11 @@ jobs:
             if [ "$r" = "skipped" ] && [ "$SERVER" = "false" ]; then continue; fi
             fail "tests/build did not succeed and the change was not service-scoped"
           done
+          if [ "$BINARY_PARSER" != "success" ]; then
+            if [ "$BINARY_PARSER" != "skipped" ] || [ "$SERVER" != "false" ]; then
+              fail "binary parser lineage did not succeed and the change was not service-scoped"
+            fi
+          fi
 
   e2e:
     # Eligible only on the nightly schedule or an explicit workflow_dispatch;
