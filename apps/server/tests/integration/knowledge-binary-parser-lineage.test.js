@@ -45,9 +45,16 @@ describe('binary knowledge parser lineage', () => {
     const startedAt = Date.now()
     let phase = 'reading fixture and preparing first ingestion'
     let invocation = 'first ingestion'
-    let parserWorkerPhase = 'no worker phase reported'
+    let parserWorkerDiagnostics = null
     onTestFailed(() => {
-      process.stderr.write(`[binary parser lineage] ${file} failed after ${Date.now() - startedAt}ms; latest phase: ${phase}; parser worker: ${parserWorkerPhase}\n`)
+      const parser = parserWorkerDiagnostics ? JSON.stringify(parserWorkerDiagnostics) : 'no parser error diagnostics'
+      process.stderr.write(`[binary parser lineage] ${file} failed after ${Date.now() - startedAt}ms; pipeline phase: ${phase}; parser worker diagnostics: ${parser}\n`)
+      const lifecycle = parserWorkerDiagnostics?.workerLifecycle
+      if (lifecycle?.terminationStatus === 'pending') {
+        void lifecycle.whenTerminationSettled().then(() => {
+          process.stderr.write(`[binary parser termination] ${file}; ${JSON.stringify(lifecycle)}\n`)
+        })
+      }
     })
     const bytes = readFileSync(new URL(`../fixtures/knowledge-binary/${file}`, import.meta.url))
     const contentHash = hashKnowledgeBinaryBytes(bytes)
@@ -85,9 +92,7 @@ describe('binary knowledge parser lineage', () => {
       try {
         return await ingestGenesisRag17Raw(input, options)
       } catch (error) {
-        if (error?.code === 'PARSER_TIMEOUT' && error.parserDiagnostics) {
-          parserWorkerPhase = `${error.parserDiagnostics.phase} after ${error.parserDiagnostics.elapsedMs}ms`
-        }
+        if (error?.parserDiagnostics) parserWorkerDiagnostics = error.parserDiagnostics
         throw error
       }
     }

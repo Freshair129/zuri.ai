@@ -1,6 +1,7 @@
 // @req FR-288 — managed binary projection and immutable source locations.
 // @spec SDD-114 — versioned binary source projection and bounded parsing.
 import { createHash } from 'node:crypto'
+import { performance } from 'node:perf_hooks'
 import { Worker } from 'node:worker_threads'
 import yauzl from 'yauzl'
 
@@ -139,9 +140,52 @@ export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceV
   return new Promise((resolve, reject) => {
     let settled = false
     let lastWorkerPhase = 'worker-constructed'
-    const workerStartedAt = Date.now()
+    const workerStartedAt = performance.now()
+    const workerLifecycle = {
+      onlineElapsedMs: null,
+      exitElapsedMs: null,
+      exitCode: null,
+      terminationRequestedElapsedMs: null,
+      terminationCompletedElapsedMs: null,
+      terminationExitCode: null,
+      terminationFailedElapsedMs: null,
+      terminationStatus: 'not-requested',
+    }
+    let resolveTerminationSettled
+    const terminationSettled = new Promise((resolve) => { resolveTerminationSettled = resolve })
+    // Test diagnostics can observe completion without delaying parser settlement or test failure.
+    Object.defineProperty(workerLifecycle, 'whenTerminationSettled', {
+      value: () => terminationSettled,
+      enumerable: false,
+    })
+    const phaseHistory = [{ phase: lastWorkerPhase, startedAfterMs: 0, durationMs: null }]
+    let lastWorkerPhaseStartedAt = workerStartedAt
+    const elapsedMsAt = (at) => Math.max(0, Math.round(at - workerStartedAt))
+    const parserDiagnosticsAt = (at, timedOut = false) => {
+      const phaseElapsedMs = Math.max(0, Math.round(at - lastWorkerPhaseStartedAt))
+      const lastHistoryEntry = phaseHistory.length - 1
+      return {
+        phase: lastWorkerPhase,
+        elapsedMs: elapsedMsAt(at),
+        phaseElapsedMs,
+        timeoutOvershootMs: timedOut ? Math.max(0, Math.round(at - timeoutDeadlineAt)) : null,
+        phaseHistory: phaseHistory.map((entry, index) => ({
+          ...entry,
+          durationMs: index === lastHistoryEntry ? phaseElapsedMs : entry.durationMs,
+        })),
+        workerLifecycle,
+      }
+    }
     const reportWorkerPhase = (phase) => {
-      lastWorkerPhase = phase
+      if (phase !== lastWorkerPhase) {
+        const now = performance.now()
+        const nextStartedAfterMs = elapsedMsAt(now)
+        const previous = phaseHistory.at(-1)
+        if (previous) previous.durationMs = Math.max(0, nextStartedAfterMs - previous.startedAfterMs)
+        if (phaseHistory.length < 64) phaseHistory.push({ phase, startedAfterMs: nextStartedAfterMs, durationMs: null })
+        lastWorkerPhase = phase
+        lastWorkerPhaseStartedAt = now
+      }
       try { onWorkerPhase?.(phase) } catch { /* Diagnostic callbacks cannot change parser results. */ }
     }
     let handleMessage
@@ -150,14 +194,36 @@ export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceV
       settled = true
       clearTimeout(timer)
       if (handleMessage) worker.off('message', handleMessage)
-      void worker.terminate()
+      try {
+        workerLifecycle.terminationRequestedElapsedMs = elapsedMsAt(performance.now())
+        workerLifecycle.terminationStatus = 'pending'
+        void worker.terminate().then((exitCode) => {
+          workerLifecycle.terminationCompletedElapsedMs = elapsedMsAt(performance.now())
+          workerLifecycle.terminationExitCode = exitCode
+          workerLifecycle.terminationStatus = 'completed'
+          resolveTerminationSettled()
+        }, () => {
+          workerLifecycle.terminationFailedElapsedMs = elapsedMsAt(performance.now())
+          workerLifecycle.terminationStatus = 'failed'
+          resolveTerminationSettled()
+        })
+      } catch {
+        workerLifecycle.terminationFailedElapsedMs = elapsedMsAt(performance.now())
+        workerLifecycle.terminationStatus = 'failed'
+        resolveTerminationSettled()
+      }
       callback(value)
     }
-    const timer = setTimeout(() => finish(reject, withParserDiagnostics(
-      binaryError('PARSER_TIMEOUT', 408), lastWorkerPhase, workerStartedAt,
-    )), KNOWLEDGE_BINARY_TIMEOUT_MS)
+    const timeoutDeadlineAt = performance.now() + KNOWLEDGE_BINARY_TIMEOUT_MS
+    const timer = setTimeout(() => {
+      const now = performance.now()
+      finish(reject, withParserDiagnostics(
+        binaryError('PARSER_TIMEOUT', 408), parserDiagnosticsAt(now, true),
+      ))
+    }, KNOWLEDGE_BINARY_TIMEOUT_MS)
     timer.unref?.()
     worker.once('online', () => {
+      workerLifecycle.onlineElapsedMs = elapsedMsAt(performance.now())
       if (lastWorkerPhase === 'worker-constructed') reportWorkerPhase('worker-online')
     })
     handleMessage = (message) => {
@@ -171,21 +237,26 @@ export async function parseKnowledgeBinary({ bytes, mediaType, sourceId, sourceV
         const status = ['INPUT_BYTES_LIMIT', 'PDF_PAGE_LIMIT', 'DOCX_PARAGRAPH_LIMIT', 'TABLE_CELL_LIMIT', 'TABLE_GRID_WORK_LIMIT', 'HTML_ELEMENT_LIMIT', 'ARCHIVE_EXPANSION_LIMIT', 'ARCHIVE_ENTRY_COUNT_LIMIT', 'OUTPUT_BYTES_LIMIT'].includes(code)
           ? 413
           : code === 'UNSUPPORTED_MEDIA_TYPE' ? 415 : code === 'PARSER_TIMEOUT' ? 408 : code === 'BINARY_PROFILE_INVALID' ? 400 : 422
-        return finish(reject, withParserDiagnostics(binaryError(code, status), lastWorkerPhase, workerStartedAt))
+        return finish(reject, withParserDiagnostics(binaryError(code, status), parserDiagnosticsAt(performance.now())))
       }
       finish(resolve, message.result)
     }
     worker.on('message', handleMessage)
-    worker.once('error', () => finish(reject, withParserDiagnostics(binaryError('PARSER_WORKER_FAILED', 422), lastWorkerPhase, workerStartedAt)))
+    worker.once('error', () => finish(reject, withParserDiagnostics(binaryError('PARSER_WORKER_FAILED', 422), parserDiagnosticsAt(performance.now()))))
     worker.once('exit', (code) => {
-      if (!settled) finish(reject, withParserDiagnostics(binaryError(code === 0 ? 'PARSER_NO_RESULT' : 'PARSER_WORKER_FAILED', 422), lastWorkerPhase, workerStartedAt))
+      workerLifecycle.exitElapsedMs = elapsedMsAt(performance.now())
+      workerLifecycle.exitCode = code
+      if (!settled) finish(reject, withParserDiagnostics(binaryError(code === 0 ? 'PARSER_NO_RESULT' : 'PARSER_WORKER_FAILED', 422), parserDiagnosticsAt(performance.now())))
     })
   })
 }
 
-function withParserDiagnostics(error, phase, startedAt) {
+function withParserDiagnostics(error, diagnostics) {
   Object.defineProperty(error, 'parserDiagnostics', {
-    value: Object.freeze({ phase, elapsedMs: Date.now() - startedAt }),
+    value: Object.freeze({
+      ...diagnostics,
+      phaseHistory: Object.freeze(diagnostics.phaseHistory.map((entry) => Object.freeze(entry))),
+    }),
     enumerable: false,
   })
   return error
