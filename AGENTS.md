@@ -36,6 +36,15 @@ There is no replacement task ledger or local admission controller. Business
 Project Manager workflows, product approval and admission, document governance,
 verification selection, and standard repository CI remain separate systems.
 
+## Git, Worktree & Multi-Agent Lifecycle
+
+- For Git/worktree operations read the relevant sections of [the local lifecycle policy](docs/governance/GIT-WORKTREE-POLICY.md), under the current ADR-113 Git review/CI procedure. No DDC or replacement controller/ledger is introduced.
+- Reuse an appropriate owned checkout/branch first. One active writer per mutable worktree; serialize generators and writer handoffs. Read-only subagents may share it. Preserve existing delegated-role and independent-review requirements.
+- Verify current owner/session and runtime users before writes. Unknown ownership stays protected; prepare a patch/handoff instead of taking over or switching branches. Idle/archived chats and merged PRs do not prove release.
+- Preserve exact-head review/CI, scoped verification, canonical documentation and local-only session-memory conventions. Do not hand-edit generated exports or write into another owner's primary checkout.
+- Record dependency/UAT/decision blockers and final disposition in existing records. Integrate prerequisites before independently merging dependent PRs; retain their evidence and runtime needs.
+- Cleanup is separate and requires current owner release and verified recovery evidence. MERGED never implies VERIFIED_SAFE. Protect shared databases, Docker volumes/data disks, caches, runtime resources and active worktrees under the existing environment boundaries.
+
 # AGENTS.md — zuri-ai
 
 ## Visual Office design receiver (31 October 2026)
@@ -862,3 +871,5 @@ location, and makes no cross-target data synchronization assumption under ADR-11
 Version diff (2026-10-30): points UI work to the 117-route dimensional drawing
 atlas and identifies its schematic limits and source authority; no UI behavior
 or design-system rule changes.
+
+Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.

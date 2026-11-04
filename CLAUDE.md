@@ -5,6 +5,10 @@ superseded_by: null
 
 # CLAUDE.md — working guide for this repository
 
+## Git, Worktree & Multi-Agent Lifecycle
+
+For Git/worktree operations read the relevant sections of [the local lifecycle policy](docs/governance/GIT-WORKTREE-POLICY.md). It extends the current ADR-113 Git review/CI procedure, preserves session-memory/document governance and protects active or unknown-owned runtime/worktree resources without a controller or replacement ledger.
+
 ## Documentation reintegration branch
 
 The [approved migration profile](docs/migrations/document-reintegration/GOVERNANCE-PROFILE.md)
@@ -534,3 +538,5 @@ preflight CRITICAL.
 A change is not done until: tests pass, `npm run build` is clean, `docs:graph` and
 `docs:preflight` are green, and — for anything visible in the browser — it has been
 opened and checked, not assumed.
+
+Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.
