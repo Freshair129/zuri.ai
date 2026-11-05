@@ -104,5 +104,6 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Document link metadata](../GOVERNANCE-LINK-METADATA.md)
 - [Direct directories under `docs/`](DOCS-DIRECTORY-REGISTER.md)
 - [Zuri documentation requirements specification](DOCUMENTATION-REQUIREMENTS-SPEC.md)
+- [Git and worktree lifecycle policy](GIT-WORKTREE-POLICY.md)
 - [Direct files under `docs/`](ROOT-FILE-REGISTER.md)
 - [Documentation templates](../templates/README.md)
