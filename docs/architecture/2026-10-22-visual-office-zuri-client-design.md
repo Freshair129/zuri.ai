@@ -5,6 +5,7 @@ version: "0.3.0"
 status: candidate
 created_at: "2026-10-22"
 last_update: "2026-11-06"
+author: Freshair129 (2026-10-22 draft); Claude Opus 5.5 (2026-11-06 reconciliation)
 superseded_by: null
 source_of_truth: false
 attributes:
@@ -200,6 +201,8 @@ This design was first recorded on an unmerged checkpoint branch (`f4aec274`) and
 - [ZAI:FR-294](../requirements/FR-294.md) — the Office design receiver: Business-scoped design and asset custody under `/api/businesses/[id]/office-designs` for a session that holds current Business ownership, with cross-site refusal, CSRF, `If-Match` and `Idempotency-Key` checks. It creates no runtime agents, approvals or roster; Office-client enrollment, CORS and client credentials remain out of scope.
 - [ZAI:FR-295](../requirements/FR-295.md) — the Office handoff client: a Zuri-origin `/office-handoff` popup receives an Office design package by `postMessage` from an allow-listed origin and submits it same-origin with the user's session. This avoids cross-origin API access rather than providing a registered-client contract.
 
-No snapshot/domain registry, roster, command, event or scene-save contract from §8 exists yet. Zuri has no CORS configuration and its session cookie is `SameSite=Lax`. [ADR-116](../decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md) proposes how the first platform-backed slice should be placed and served.
+No snapshot/domain registry, roster, command, event or scene-save contract from §8 exists yet. Zuri has no CORS configuration and its session cookie is `SameSite=Lax`. [ADR-116](../decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md) proposes how the first platform-backed slice should be placed and served. Its decision 4 would amend §8 gate 1 for that slice only, if the owner accepts it.
+
+The 2026-10-23 owner approval stated in the status line is recorded in this design itself (checkpoint `f4aec274`, committed from the owner's account). No separate approval artifact exists, and that checkpoint noted that governance and semantic re-review were still pending. The frontmatter therefore stays `candidate`. The approval covers the client placement and floor projection only.
 
 **Version diff 0.2.0 → 0.3.0 (2026-11-06):** Lands the checkpoint on current `main`; adopts current metadata; replaces links to the removed plan with a commit-pinned historical link; adds §11 reconciliation with FR-294/FR-295 and the ADR-116 proposal. The 2026-10-23 owner approval of the client placement is unchanged; no contract, route or implementation claim is added.

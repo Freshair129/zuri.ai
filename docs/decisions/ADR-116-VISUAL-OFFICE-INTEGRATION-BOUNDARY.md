@@ -33,11 +33,16 @@ relations:
 # ADR-116 — Visual Office repository, data-access and serving boundary
 
 **Status:** Candidate. Proposed on 2026-11-06 at the owner's request for a
-recommendation; it takes effect only when the owner accepts it. It refines, and
-does not replace, the owner-approved (2026-10-23) placement in the
-[Visual Office client design](../architecture/2026-10-22-visual-office-zuri-client-design.md):
-Visual Office is an optional, separately deployed client, and Zuri remains the
-authority for identity, Business scope and business data.
+recommendation. It takes effect only when the owner accepts it.
+
+It builds on the [Visual Office client design](../architecture/2026-10-22-visual-office-zuri-client-design.md).
+That design records an owner approval on 2026-10-23 of Visual Office as an
+optional, separately deployed client registered with Zuri, with Zuri remaining
+the authority for identity, Business scope and business data. Decisions 1–3, 5
+and 6 refine that design. **Decision 4 amends it**: for the first slice only, it
+replaces the registered-client prerequisite (design §8 gate 1) with same-origin
+serving under explicit conditions. Accepting this ADR therefore also accepts that
+amendment.
 
 ## Context
 
@@ -48,35 +53,48 @@ console; or should it read the database directly?
 
 Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
 
-- **The web console never reads the database directly.** Its pages call Server
-  route handlers. The handlers resolve the session viewer, authorize
-  Tenant/Business scope and call domain services.
+- **Browser code never reaches Zuri's database.** Console pages either call Server
+  route handlers or are server components that read through Server modules (for
+  example `(control)/control/usage/page.jsx`). Authorization of Tenant/Business
+  scope happens on the Server in both cases.
 - **Other Zuri processes do not read Server tables.**
   - The Conversation Runtime has no Prisma client or table access and reaches
     Core over HTTP ([ADR-106](ADR-106-CONVERSATION-RUNTIME-SERVICE-EXTRACTION.md) D1).
   - Edge consumes wire contracts and does not import Server source or access
     Server tables ([ADR-062](ADR-062-ZURI-SERVER-EDGE-MONOREPO-BOUNDARY.md)
     decision 5).
-  - The [target architecture](../ARCHITECTURE-TARGET-MODULAR-MONOLITH.md)
-    (§26 invariants 2, 3, 8 and 12): only the owning domain writes a table;
-    cross-domain writes go through module contracts; reporting reads stay
-    non-owning; and agent runtimes do not bypass domain authority.
+  - [ADR-025](ADR-025-DOMAIN-DRIVEN-DOCS-ARCHITECTURE.md) adopted only the
+    ownership principle of the draft
+    [target architecture](../ARCHITECTURE-TARGET-MODULAR-MONOLITH.md): each table
+    has one owning domain, and only that owner writes it. That draft's module
+    contracts and runtime/database decisions are not accepted.
 - **Visual Office is a separate repository.**
-  - Stack: plain ES-module JavaScript with Three.js, pnpm, its own CI and a large
-    binary asset pipeline (GLB models, Blender sources).
+  - Stack: plain ES-module JavaScript with Three.js, its own CI (npm; both npm and
+    pnpm lockfiles are committed) and a large binary asset pipeline (GLB models,
+    Blender sources).
   - It depends on no zuri.ai package.
-  - Its own SRS (VO-FR-009) and integration-boundary documents already require
+  - Its SRS (VO-FR-009) and integration-boundary documents already require
     authenticated, allow-listed Zuri endpoints and forbid direct database or
     broker access.
+  - It already proposes its own execution contract
+    (`contracts/zuri-office-execution-v1.schema.json`, "proposed … not an existing
+    Zuri API"). Zuri has not adopted it.
 - **Its current Zuri connector is a loopback-only development proxy.** It forwards
   the `zuri_session` cookie to more than ten page-shaped web-console endpoints
   (`/api/projects`, `/api/crm/conversations`, `/api/inventory/products` and others).
-- **There is no cross-origin path into Zuri today.** Zuri has no CORS
-  configuration, its session cookie is `SameSite=Lax`, and no registered-client or
-  Office enrollment contract exists. The only live Office integrations are
-  [FR-294](../requirements/FR-294.md) design custody and the
-  [FR-295](../requirements/FR-295.md) handoff popup, and both run same-origin with
-  the Zuri session.
+- **There is no cross-origin path into Zuri today.**
+  - Zuri has no CORS configuration, its session cookie is `httpOnly` and
+    `SameSite=Lax`, and no registered-client or Office enrollment contract exists.
+  - The Office integrations implemented on `main` are [FR-294](../requirements/FR-294.md)
+    design custody and the [FR-295](../requirements/FR-295.md) handoff popup. Both
+    are local implementations whose release and deployment are tracked separately
+    in the roadmap, and both run same-origin with the Zuri session.
+  - In FR-294 the producer owns the contract: Visual Office authors the
+    design-package schema and verifier, and Zuri vendors them pinned to
+    `zuri-visual-office@b4e2d8ed` (`apps/server/vendor/office-design/provenance.json`).
+- **The key Office write is not idempotent or revision-checked today.** The
+  approval decision route (`api/agent/approval-requests/[id]/decision`) accepts
+  only `{decision}`, with no idempotency key or expected revision.
 - **ADR-062 allows independently built applications under `apps/`.** Each needs
   its own lockfile, CI job and service documentation, and absorbing a repository
   requires preserved history and provenance.
@@ -86,47 +104,68 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
 1. **No direct database or broker access.** Visual Office never connects to Zuri's
    database, the MSP store or any broker, and holds no database credential. All
    Business data reaches it through Zuri HTTP contracts that resolve the viewer
-   from the session and authorize Business scope on the server.
+   from the session and authorize Business scope on the Server.
 
 2. **A dedicated Office read projection on the same Server, not a second data
    path.**
    - Zuri publishes one versioned, Business-scoped snapshot contract for Office.
-     Working name: `GET /api/businesses/{businessId}/office/snapshot`, envelope
-     `office.snapshot.v1`.
-   - Content: visible leaf domains (floors), agent roster and status, pending
-     work and approval counts, per-object source and freshness, and a revision.
+     Illustrative name only: `GET /api/businesses/{businessId}/office/snapshot`
+     with envelope `office.snapshot.v1`. The real route and schema need their own
+     FR and contract.
+   - Content: visible leaf domains (floors), agent roster and status, pending work
+     and approval counts, per-object source and freshness, and a revision.
    - The Server builds it from the owning domains' existing read models and
      services. It adds no new table owner and no reporting copy.
-   - Updates: the first slice polls with the revision (`If-None-Match`
-     semantics). A later, separately contracted Server-Sent Events stream may
-     replace polling.
+   - The revision is a composite over the viewer's authorized view.
+   - The first slice polls with that revision (`If-None-Match`). Authorization
+     runs before any `304`. Responses are `Cache-Control: private, no-store`
+     with `Vary: Cookie`. A `304` saves bandwidth, not the cost of building the
+     snapshot.
+   - A later, separately contracted Server-Sent Events stream may replace polling.
    - Visual Office does not assemble its view from web-console page endpoints.
      Their shapes follow pages and change when pages change.
 
-3. **Writes reuse the owning domain services.** Approvals, commands and CRUD
-   started from Visual Office call the same domain write contracts as the web
-   console. They carry idempotency keys and expected revisions and record the
-   same audit events. A scene action never has a write path of its own.
+3. **Writes go through the owning domain's contract, with the same guarantees for
+   every client.**
+   - Approvals, commands and CRUD started from Visual Office call the same domain
+     write contracts as the web console and record the same audit events.
+   - Where Office needs idempotency or an expected revision that a contract lacks
+     (the approval decision route today), the owning domain adds it to that one
+     contract for all clients. That change is a prerequisite for TASK-ZAI-023.
+     No Office-only write path is created.
 
-4. **Same-origin serving for the first platform-backed slice.**
-   - Zuri serves the built Visual Office client under its own origin, for
-     example at `/office/` behind the deployment's reverse proxy or as static
-     assets.
-   - The existing session cookie, CSRF protection and cross-site refusal then
-     apply unchanged. No CORS and no new client credential are needed.
-   - Serving from a separate origin remains possible later, but only after the
-     identity owner publishes the registered-client contract that the client
-     design requires (§3 and §8 gate 1).
+4. **Same-origin serving for the first platform-backed slice (amends design §8
+   gate 1).**
+   - Zuri serves the built Visual Office client under its own origin, for example
+     at `/office/`. The existing session cookie, CSRF protection and cross-site
+     refusal then apply unchanged, with no CORS and no client credential.
+   - The cost: code under `/office/` runs with the user's full Zuri session. A
+     path prefix does not isolate it, and any XSS in the Office bundle (Three.js,
+     markdown/mermaid rendering, scene JSON import, GLB parsing) could call any
+     Zuri write API.
+   - Same-origin serving is therefore allowed only when all of these hold:
+     - a strict Content-Security-Policy on `/office/`: no inline or remote
+       script, and `connect-src` limited to the Zuri origin;
+     - Zuri deploys only a hash-pinned Visual Office release artifact, recorded
+       like `provenance.json`;
+     - only curated, manifest-listed assets load; no user-supplied remote URLs;
+     - Office releases go through Zuri's review and CI as trusted code.
+   - If these conditions cannot be met, Visual Office uses a separate origin after
+     the identity owner publishes the registered-client contract (design §3 and
+     §8 gate 1).
+   - The FR-295 popup handoff is unchanged by this decision. Any same-origin
+     replacement for it needs its own contract.
 
-5. **Separate repository; Zuri owns the contract.**
+5. **Separate repository; the producer owns each contract.**
    - Visual Office stays in `Freshair129/zuri-visual-office` with its own build,
      CI and asset pipeline.
-   - The `office.snapshot.v1` JSON Schema and its fixtures live in zuri.ai
-     `contracts/`.
-   - Visual Office pins a contract version and tests against those fixtures.
-     Zuri contract tests prove the Server response.
-   - This mirrors the existing FR-294 pattern of a vendored verifier pinned to
-     an exact Office revision.
+   - Zuri produces the snapshot, so its JSON Schema and fixtures live in zuri.ai
+     `apps/server/contracts/`. Visual Office pins a contract version and tests
+     against those fixtures. Zuri contract tests prove the Server response.
+   - Contracts that Office produces, such as the FR-294 design package, stay in
+     Visual Office and are vendored by Zuri.
+   - Office's proposed `zuri.office-execution.v1` is not adopted by this ADR. It
+     must be reconciled with the owning domain's command contract before use.
 
 6. **Revisit the monorepo only on evidence.** Move Visual Office into `apps/`,
    under ADR-062's preservation rules, only if one of these becomes true:
@@ -134,21 +173,25 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
    - the client starts sharing UI or domain code with the Server;
    - separate release coordination causes defects.
 
-   Binary assets would first need Git LFS or external storage.
+   Same-origin serving under decision 4 already makes Office part of Zuri's
+   trusted release. If that coordination becomes the main cost, it is a reason to
+   move. Binary assets would first need Git LFS or external storage.
 
 ## Alternatives and consequences
 
 - **Read the database directly.** Rejected. It would duplicate Tenant/Business
   authorization outside the owning domain, couple the client to the physical
   schema, and put credentials in or near a browser application. It also
-  contradicts ADR-106, ADR-062, the target invariants and VO-FR-009.
+  contradicts ADR-106, ADR-062 and VO-FR-009.
 - **Reuse the web-console endpoints as they are.** Rejected as the target. It needs
   many calls per view and a cookie-forwarding proxy, and any refactor of a web page
   breaks Office. It may stay as a local development aid until the snapshot exists,
   but it is not an integration contract.
 - **Separate Office backend or database.** Rejected for the first slice. It would
-  create a second business-data authority, which the approved client design
-  excludes.
+  create a second business-data authority, which the client design excludes.
+- **Separate origin first.** Preferable for isolation, but it needs the
+  registered-client contract, CORS and token handling first. Decision 4 keeps it
+  as the fallback.
 - **Monorepo now.** Deferred. Today the shared surface is one small contract. The
   cost would be a third independent dependency tree and CI lane, plus a large
   binary asset history.
@@ -156,30 +199,33 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
 Consequences:
 
 - Zuri gains one read contract and its tests.
-- Visual Office retires its cookie proxy for Business data once that contract
+- The approval decision contract gains idempotency and revision checks for all
+  clients.
+- Visual Office retires its cookie proxy for Business data once the snapshot
   exists.
-- Deployment gains an `/office/` path on the Zuri origin.
-- TASK-ZAI-019..023 can be planned against a named contract instead of page
+- Deployment gains an `/office/` path with its own CSP and pinned artifact.
+- TASK-ZAI-019..023 can be planned against named contracts instead of page
   endpoints.
 
 ## Verification
 
 When this is implemented, add:
 
-- contract tests for `office.snapshot.v1` against shared fixtures in both
-  repositories;
-- authorization tests for cross-Tenant/Business denial and inaccessible domains;
+- contract tests for the snapshot against shared fixtures in both repositories;
+- authorization tests for cross-Tenant/Business denial and inaccessible domains,
+  including an unauthorized request carrying a matching revision;
 - floor-projection tests: one lobby plus one floor per visible leaf domain,
   including a domain with no agents;
-- revision and freshness tests for polling;
+- caching-header and revision tests;
+- a CSP and artifact-hash check for `/office/`;
 - an end-to-end check that an approval made from Office writes the same audit row
   as one made from the web console (TASK-ZAI-023).
 
-This ADR issues no requirement ID, route, permission or migration. The snapshot
-contract still needs its own FR and contract under the normal doc-first process.
+This ADR issues no requirement ID, route, permission or migration. Each contract
+named here still needs its own FR and contract under the normal doc-first process.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0b | 2026-11-06 | candidate | Initial proposal: no direct DB, dedicated snapshot projection, shared write services, same-origin first slice, separate repository with Zuri-owned contract | uncommitted | Claude Opus 5.5 |
+| 0.1.0b | 2026-11-06 | candidate | Initial proposal: no direct DB, dedicated snapshot projection, shared write contracts, conditional same-origin first slice (amends design gate 1), separate repository with producer-owned contracts | uncommitted | Claude Opus 5.5 |
