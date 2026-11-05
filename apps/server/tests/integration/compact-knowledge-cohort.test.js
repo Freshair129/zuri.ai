@@ -27,6 +27,9 @@ const harnessRevision = git(['rev-parse', 'HEAD'])
 const completed = new Set(), expected = ['package', 'baseline', 'startup', 'missing-token', 'idle-stop', 'stale-namespace', 'rebind', 'retained-state', 'no-application-authority']
 const snapshots = {}, intended = new Set(), uncertainRoles = new Set(), probes = new Set(), uncertainProbes = new Set(), marker = `COMPACT_IDLE_TEST_${randomUUID()}`
 let f, config, retainedRoot, composeArgs, webPort, evidenceValidated = false, nativeVolumeIntent = false, admissionObserved = false
+// Every named project volume in the packaged compose file. A package built before
+// managed-blob transfer has no managed-transfer volume; absent names are skipped.
+const PROJECT_VOLUMES = ['managed-transfer', 'genesis', 'knowledge-state']
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const name = role => `${f.target.project}-${role}-1`
 const resource = (kind, id) => inspectCompactFixtureResource(f.target.dockerContext, kind, id)
@@ -75,7 +78,7 @@ async function up(role, recreate = false) {
     if (await resource('container', name(role))) throw new Error('COMPACT_COHORT_EXISTING_CONTAINER_REFUSED')
     intended.add(role)
   } else await owned(role)
-  for (const volumeRole of ['genesis', 'knowledge-state']) {
+  for (const volumeRole of PROJECT_VOLUMES) {
     const volume = await resource('volume', `${f.target.project}-${volumeRole}`)
     if (volume) {
       if (!nativeVolumeIntent) throw new Error('COMPACT_COHORT_EXISTING_VOLUME_REFUSED')
@@ -118,7 +121,7 @@ beforeAll(async () => {
   composeArgs = ['compose', '--project-name', f.target.project, '--env-file', selectors, '--file', path.join(retainedRoot, 'compose.yml')]
   const projectIds = (await docker(['container', 'ls', '--all', '--quiet', '--no-trunc', '--filter', `label=com.docker.compose.project=${f.target.project}`])).split(/\r?\n/).filter(Boolean)
   assertCompactKnowledgeProjectInventory({ ids: projectIds, database: await resource('container', f.target.database.container), target: f.target, manifest: f.manifest })
-  for (const role of ['genesis', 'knowledge-state']) if (await resource('volume', `${f.target.project}-${role}`)) throw new Error('COMPACT_COHORT_EXISTING_VOLUME_REFUSED')
+  for (const role of PROJECT_VOLUMES) if (await resource('volume', `${f.target.project}-${role}`)) throw new Error('COMPACT_COHORT_EXISTING_VOLUME_REFUSED')
   await docker([...composeArgs, '--profile', 'knowledge', 'config', '--quiet'])
 })
 
@@ -127,7 +130,7 @@ afterAll(async () => {
   const cleanup = f ? [
     ...[...probes].map(id => () => removeProbe(id)),
     ...[...intended].reverse().map(role => () => removeRole(role)),
-    ...(nativeVolumeIntent ? ['genesis', 'knowledge-state'].map(role => async () => { const volume = await resource('volume', `${f.target.project}-${role}`); if (volume) { assertCompactFixtureOwnership('volume', volume, f.target); await docker(['volume', 'rm', volume.Name]) } }) : []),
+    ...(nativeVolumeIntent ? PROJECT_VOLUMES.map(role => async () => { const volume = await resource('volume', `${f.target.project}-${role}`); if (volume) { assertCompactFixtureOwnership('volume', volume, f.target); await docker(['volume', 'rm', volume.Name]) } }) : []),
     () => f.close(),
   ] : []
   const result = await observeAndCleanCompactFixture({ observe: async () => {

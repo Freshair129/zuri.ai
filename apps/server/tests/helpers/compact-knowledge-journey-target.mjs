@@ -19,6 +19,9 @@ import { compactKnowledgeCohortConfiguration, assertCompactKnowledgeCohortContai
 import { bindCompactKnowledgeBusiness, readCompactJourneyCorpus } from './compact-knowledge-journey.mjs'
 import { compactJourneyHttpsClient } from './compact-journey-https.mjs'
 
+// Every named project volume in the packaged compose file. A package built before
+// managed-blob transfer has no managed-transfer volume; absent names are skipped.
+const PROJECT_VOLUMES = ['managed-transfer', 'genesis', 'knowledge-state']
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const port = () => new Promise((resolve, reject) => { const s = tcpServer(); s.once('error', reject); s.listen(0, '127.0.0.1', () => { const p = s.address().port; s.close(() => resolve(p)) }) })
 export function checkedJourneyResponse(result) {
@@ -51,7 +54,7 @@ export async function createCompactKnowledgeJourney({ packageDirectory, retained
   }
   async function up(role, recreate = false) {
     if (!roles.has(role)) { if (await resource('container', name(role))) throw new Error('COMPACT_JOURNEY_EXISTING_ROLE'); roles.add(role) } else await owned(role)
-    for (const suffix of ['genesis', 'knowledge-state']) {
+    for (const suffix of PROJECT_VOLUMES) {
       const v = await resource('volume', `${f.target.project}-${suffix}`)
       if (v) { if (!volumeIntent) throw new Error('COMPACT_JOURNEY_EXISTING_VOLUME'); assertCompactFixtureOwnership('volume', v, f.target) }
     }
@@ -120,7 +123,7 @@ export async function createCompactKnowledgeJourney({ packageDirectory, retained
       compose = ['compose', '--project-name', f.target.project, '--env-file', selectors, '--file', path.join(retainedRoot, 'compose.yml')]
       const ids = (await docker(['container', 'ls', '--all', '--quiet', '--no-trunc', '--filter', `label=com.docker.compose.project=${f.target.project}`])).split(/\r?\n/).filter(Boolean)
       assertCompactKnowledgeProjectInventory({ ids, database: await resource('container', f.target.database.container), target: f.target, manifest: f.manifest })
-      for (const suffix of ['genesis', 'knowledge-state']) if (await resource('volume', `${f.target.project}-${suffix}`)) throw new Error('COMPACT_JOURNEY_EXISTING_VOLUME')
+      for (const suffix of PROJECT_VOLUMES) if (await resource('volume', `${f.target.project}-${suffix}`)) throw new Error('COMPACT_JOURNEY_EXISTING_VOLUME')
       await docker([...compose, '--profile', 'knowledge', 'config', '--quiet']); await up('web'); await webReady()
       const web = await owned('web'); assert(web.Config.Env.includes('ZURI_KNOWLEDGE_ENABLED=0')); checks.startup = true
     },
@@ -180,7 +183,7 @@ export async function createCompactKnowledgeJourney({ packageDirectory, retained
       const cleanup = [
         async () => { if (proxy) { proxy.closeAllConnections(); await new Promise(resolve => proxy.close(resolve)) } },
         ...[...roles].reverse().map(role => async () => { const c = await resource('container', name(role)); if (c) { assertCompactKnowledgeCohortContainer({ container: c, role, target: f.target, manifest: f.manifest, expectedImageId: artifact.images[imageKey(role)].id }); await docker(['container', 'rm', '--force', c.Id]) } if (uncertain.has(role)) throw new Error('COMPACT_JOURNEY_CREATE_UNVERIFIED') }),
-        ...(volumeIntent ? ['genesis', 'knowledge-state'].map(suffix => async () => { const v = await resource('volume', `${f.target.project}-${suffix}`); if (v) { assertCompactFixtureOwnership('volume', v, f.target); await docker(['volume', 'rm', v.Name]) } }) : []),
+        ...(volumeIntent ? PROJECT_VOLUMES.map(suffix => async () => { const v = await resource('volume', `${f.target.project}-${suffix}`); if (v) { assertCompactFixtureOwnership('volume', v, f.target); await docker(['volume', 'rm', v.Name]) } }) : []),
         () => f.close(),
       ]
       const result = await observeAndCleanCompactFixture({ observe: async () => {
