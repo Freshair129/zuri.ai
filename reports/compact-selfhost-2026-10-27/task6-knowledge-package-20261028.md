@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-28"
 selection_base: "f63378bee8b059b898960f287bfd3b8d0a9fdcb6"
 package_source: "bafe11aac924150ff442078dd92292c00101f10f"
@@ -16,6 +16,19 @@ Task6 remains open. This supplements the earlier [Task6 verification](task6-requ
 under [ADR-115](../../docs/decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md) and the
 [approved plan continuation](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md#task6-continuation-selected-knowledge-artifact-boundary).
 It issues no requirement, Business grant, release or production authority.
+
+## Source lineage after rebase
+
+The SHAs in this report identify the source that was actually packaged and
+tested. They belong to the pre-rebase lineage `f63378be..848e422e`, retained at
+tag `evidence/compact-task6-20261028`. On 2026-11-06 that lineage was rebased
+onto main `46787958`. The rebased commits contain main's later changes, are not
+tree-identical to the tested source and were not re-run:
+`bafe11aa`→`ec6eae90`, `3b58fcc9`→`3726f5a9`, `aa4f8c50`→`b4f3f5e4`,
+`ec809e2b`→`cc47d997`, `1dd72707`→`4c42f817`, `478a857f`→`ad59b5b8`,
+`6aca5b08`→`3475fbff`, `848e422e`→`2b8b2d41`. Main's later schema contracts
+change the baseline digest, so the rebased harness refuses `bafe11aa` packages;
+any rerun needs a new package built from the rebased source.
 
 ## Exact artifact and source boundaries
 
@@ -128,3 +141,8 @@ No worktree, production/main-dev/UAT operation or live provider request occurred
 
 Version 0.1.0 records this bounded continuation; earlier snapshots and all
 canonical statements, memberships, lifecycles and Task6 acceptance groups remain unchanged.
+
+## Version diff
+
+0.1.0 → 0.1.1 (2026-11-06): records the pre-rebase source lineage and the
+rebased commit mapping; observed results and remaining gates are unchanged.

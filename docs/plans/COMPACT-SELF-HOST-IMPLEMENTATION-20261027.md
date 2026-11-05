@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.18"
+version: "0.1.19"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -373,8 +373,8 @@ records, profile lifecycle and the acceptance groups below are unchanged.
 
 ### Task6 continuation: actual idle Knowledge cohort
 
-The next owner-selected continuation starts at `aa4f8c50` on the same primary
-checkout branch. The [selected package evidence](../../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
+This owner-selected continuation started at `aa4f8c50` on the pre-rebase
+branch lineage (rebased as `b4f3f5e4`). The [selected package evidence](../../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
 proves transport, baseline and offline contents only. Extend its TEST evidence
 without changing product worker ownership, credentials or shutdown semantics:
 
@@ -423,8 +423,15 @@ The [2026-10-29 TEXT journey evidence](../../reports/compact-selfhost-2026-10-27
 records this bounded milestone separately from complete Task6 qualification.
 Version 0.1.17 → 0.1.18 links that evidence; no acceptance group is closed.
 
-The next owner-selected continuation starts at `1dd72707` on the same primary
-branch. Reuse the immutable `bafe11aa` package with a separately committed clean
+All three Task6 continuations in this section were executed on the pre-rebase lineage
+`f63378be..848e422e`, retained at tag `evidence/compact-task6-20261028`. After the
+2026-11-06 rebase onto main `46787958`, main's newer schema contracts change the
+baseline digest, so the rebased harness refuses the `bafe11aa` package; a rerun
+needs a new package built from the rebased source. Version 0.1.18 → 0.1.19
+records this lineage; no acceptance group changes.
+
+This owner-selected continuation started at `1dd72707` on the pre-rebase
+branch lineage (rebased as `4c42f817`). Reuse the immutable `bafe11aa` package with a separately committed clean
 harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
 does not establish application authority or pending-work recovery.
 

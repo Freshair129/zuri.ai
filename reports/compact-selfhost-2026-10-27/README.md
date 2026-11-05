@@ -149,14 +149,17 @@ future test in the plan is never counted among the146 executed reader tests.
 
 ## Version diff
 
-0.1.11 → 0.1.12: links the bounded scoped TEXT HTTP journey; does not close
+0.1.12 → 0.1.13: links the bounded scoped TEXT HTTP journey; does not close
 selected AI profiles, native-store recovery, LINE or release gates.
 
-0.1.10 → 0.1.11: links the actual idle web/native cohort TEST; does not close
+0.1.11 → 0.1.12: links the actual idle web/native cohort TEST; does not close
 active-work, Business/serving or native recovery qualification.
 
-0.1.9 → 0.1.10: links selected Knowledge artifact TEST evidence, retaining
+0.1.10 → 0.1.11: links selected Knowledge artifact TEST evidence, retaining
 NOT_QUALIFIED and separate application/cohort/recovery gates.
+
+0.1.9 → 0.1.10: links the OR5 prerequisite assessment bound to `59145776`;
+supported transfer and recovery activation remain blocking dependencies.
 
 0.1.8 → 0.1.9: links bounded Task6 verification; preserves the original
 preparation evidence and does not close selected-profile qualification.

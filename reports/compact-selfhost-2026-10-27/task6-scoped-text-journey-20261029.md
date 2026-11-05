@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-29"
 selection_base: "1dd72707d2d5bf3139c87a858d5d844fd70ecda0"
 package_source: "bafe11aac924150ff442078dd92292c00101f10f"
@@ -20,6 +20,19 @@ The corrected actual run passed 4/4 in 199.18 seconds with cleanup PASS.
 Knowledge remains `NOT_QUALIFIED`; Task6 remains open. The
 [safe observation](task6-scoped-text-observation-20261029.json) retains the
 selected results and package/harness identities.
+
+## Source lineage after rebase
+
+The SHAs in this report identify the source that was actually packaged and
+tested. They belong to the pre-rebase lineage `f63378be..848e422e`, retained at
+tag `evidence/compact-task6-20261028`. On 2026-11-06 that lineage was rebased
+onto main `46787958`. The rebased commits contain main's later changes, are not
+tree-identical to the tested source and were not re-run:
+`bafe11aa`→`ec6eae90`, `3b58fcc9`→`3726f5a9`, `aa4f8c50`→`b4f3f5e4`,
+`ec809e2b`→`cc47d997`, `1dd72707`→`4c42f817`, `478a857f`→`ad59b5b8`,
+`6aca5b08`→`3475fbff`, `848e422e`→`2b8b2d41`. Main's later schema contracts
+change the baseline digest, so the rebased harness refuses `bafe11aa` packages;
+any rerun needs a new package built from the rebased source.
 
 ## Artifact and authority boundary
 
@@ -153,3 +166,8 @@ independent-review patch hashes are kept outside Git under the local checkpoint'
 `compact-task6-business-journey-1dd72707` directory. Fixture-private configuration,
 cookies and keys are not report inputs. Existing checkpoints, bundles, source
 repositories, images and packages remain intact.
+
+## Version diff
+
+0.1.0 → 0.1.1 (2026-11-06): records the pre-rebase source lineage and the
+rebased commit mapping; observed results and remaining gates are unchanged.

@@ -1,7 +1,7 @@
 ---
 doc_type: implementation-evidence
 status: reviewed
-version: "0.1.0"
+version: "0.1.1"
 recorded_at: "2026-10-28"
 selection_base: "aa4f8c50aa4e9d2e28ea0db6bb66248087b3d305"
 package_source: "bafe11aac924150ff442078dd92292c00101f10f"
@@ -17,6 +17,19 @@ Knowledge remains `NOT_QUALIFIED`; Task6 remains open. This follows
 [approved continuation](../../docs/plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md#task6-continuation-actual-idle-knowledge-cohort),
 and the earlier [package/offline evidence](task6-knowledge-package-20261028.md).
 It establishes no application Business authority or active-work recovery claim.
+
+## Source lineage after rebase
+
+The SHAs in this report identify the source that was actually packaged and
+tested. They belong to the pre-rebase lineage `f63378be..848e422e`, retained at
+tag `evidence/compact-task6-20261028`. On 2026-11-06 that lineage was rebased
+onto main `46787958`. The rebased commits contain main's later changes, are not
+tree-identical to the tested source and were not re-run:
+`bafe11aa`→`ec6eae90`, `3b58fcc9`→`3726f5a9`, `aa4f8c50`→`b4f3f5e4`,
+`ec809e2b`→`cc47d997`, `1dd72707`→`4c42f817`, `478a857f`→`ad59b5b8`,
+`6aca5b08`→`3475fbff`, `848e422e`→`2b8b2d41`. Main's later schema contracts
+change the baseline digest, so the rebased harness refuses `bafe11aa` packages;
+any rerun needs a new package built from the rebased source.
 
 ## Artifact, environment and authority
 
@@ -122,3 +135,8 @@ main-dev/UAT, live provider, separate Visual Office or worktree operation occurr
 
 Version 0.1.0 records this continuation without changing canonical requirements,
 their lifecycle, previous evidence snapshots or release authority.
+
+## Version diff
+
+0.1.0 → 0.1.1 (2026-11-06): records the pre-rebase source lineage and the
+rebased commit mapping; observed results and remaining gates are unchanged.
