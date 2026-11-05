@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.10.3"
+version: "0.10.5"
 ---
 
 # Engineering assessments

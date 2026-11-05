@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.14"
+version: "0.1.18"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -368,7 +368,7 @@ owner after PR757; baseline `f63378bee8b059b898960f287bfd3b8d0a9fdcb6`:
    Regenerate governance serially and record actual revisions, hashes, commands,
    failures and remaining gates. No publication/production activation follows.
 
-Version 0.1.10 → 0.1.11 adds this bounded execution detail; ADR-115, canonical
+Version 0.1.14 → 0.1.15 adds this bounded execution detail; ADR-115, canonical
 records, profile lifecycle and the acceptance groups below are unchanged.
 
 ### Task6 continuation: actual idle Knowledge cohort
@@ -413,7 +413,7 @@ without changing product worker ownership, credentials or shutdown semantics:
    retain package/model/evidence, and compare existing runtime inventories.
    Complete independent review and serial documentation governance.
 
-Version 0.1.11 → 0.1.12 adds this bounded TEST execution detail. AI remains
+Version 0.1.15 → 0.1.16 adds this bounded TEST execution detail. AI remains
 `NOT_QUALIFIED`; Task6 acceptance groups, native Stage9+, live LINE and release
 gates remain unchanged. No publication or production activation follows.
 
@@ -421,7 +421,7 @@ gates remain unchanged. No publication or production activation follows.
 
 The [2026-10-29 TEXT journey evidence](../../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
 records this bounded milestone separately from complete Task6 qualification.
-Version 0.1.13 → 0.1.14 links that evidence; no acceptance group is closed.
+Version 0.1.17 → 0.1.18 links that evidence; no acceptance group is closed.
 
 The next owner-selected continuation starts at `1dd72707` on the same primary
 branch. Reuse the immutable `bafe11aa` package with a separately committed clean
@@ -471,7 +471,7 @@ does not establish application authority or pending-work recovery.
    Complete failing-first tests, real journey acceptance, independent review,
    serial governance and owned cleanup; retain package/model/evidence.
 
-Version 0.1.12 → 0.1.13 adds this bounded TEST execution detail without changing
+Version 0.1.16 → 0.1.17 adds this bounded TEST execution detail without changing
 canonical behavior, profile lifecycle or the unchecked Task6 groups. Knowledge
 and LINE remain `NOT_QUALIFIED`; no live LINE, production, worktree or publication
 operation follows from this continuation.

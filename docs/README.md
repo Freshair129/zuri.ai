@@ -1,5 +1,5 @@
 ---
-version: "0.7.17"
+version: "0.7.20"
 status: active
 superseded_by: null
 ---
@@ -194,11 +194,12 @@ its remaining selected-profile gates; no AI qualification or production authorit
 Version diff 0.7.15 → 0.7.16 (2026-10-30): links the 117-page UI dimensional
 drawing atlas as a schematic visual companion; the interface inventory and
 application source remain authoritative, and unspecified measurements stay `[TBD]`.
-Version diff 0.7.10 → 0.7.11 (2026-10-28): links the selected Knowledge package
+
+Version diff 0.7.17 → 0.7.18 (2026-11-06): links the selected Knowledge package
 TEST snapshot and preserves the remaining application/cohort/recovery gates.
 
-Version diff 0.7.11 → 0.7.12 (2026-10-28): links the actual idle-cohort TEST
+Version diff 0.7.18 → 0.7.19 (2026-11-06): links the actual idle-cohort TEST
 snapshot without promoting Business authority, active-work or recovery claims.
 
-Version diff 0.7.12 → 0.7.13 (2026-10-29): links the bounded scoped TEXT HTTP
+Version diff 0.7.19 → 0.7.20 (2026-11-06): links the bounded scoped TEXT HTTP
 journey and preserves the first-run timestamp caveat and remaining AI gates.

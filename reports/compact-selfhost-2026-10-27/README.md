@@ -1,7 +1,7 @@
 ---
 doc_type: code-requirements-assessment
 status: reviewed
-version: "0.1.12"
+version: "0.1.13"
 assessed_at: "2026-10-27"
 code_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 ---
