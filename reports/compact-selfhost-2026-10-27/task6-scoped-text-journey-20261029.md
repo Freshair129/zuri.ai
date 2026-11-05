@@ -31,7 +31,7 @@ tree-identical to the tested source and were not re-run:
 `bafe11aa`→`ec6eae90`, `3b58fcc9`→`3726f5a9`, `aa4f8c50`→`b4f3f5e4`,
 `ec809e2b`→`cc47d997`, `1dd72707`→`4c42f817`, `478a857f`→`ad59b5b8`,
 `6aca5b08`→`3475fbff`, `848e422e`→`2b8b2d41`. Main's later schema contracts
-change the baseline digest, so the rebased harness refuses `bafe11aa` packages;
+change the baseline source-contract digest (`sourceContractsSha256`), so the rebased harness refuses `bafe11aa` packages;
 any rerun needs a new package built from the rebased source.
 
 ## Artifact and authority boundary

@@ -379,8 +379,8 @@ proves transport, baseline and offline contents only. Extend its TEST evidence
 without changing product worker ownership, credentials or shutdown semantics:
 
 1. Require an explicit verified `core + knowledge` OCI package, exact package
-   revision/image map and fresh retained/output destinations. Reuse the immutable
-   `bafe11aa` candidate while recording the new test harness revision separately;
+   revision/image map and fresh retained/output destinations. Reused the immutable
+   `bafe11aa` candidate (pre-rebase) while recording the new test harness revision separately;
    do not relabel its bytes. Refuse foreign resources before Compose mutations.
 2. Add an explicit heavyweight cohort test lane, excluded from ordinary Server
    tests. Use a new owned disposable PostgreSQL target and the packaged Compose
@@ -426,13 +426,13 @@ Version 0.1.17 → 0.1.18 links that evidence; no acceptance group is closed.
 All three Task6 continuations in this section were executed on the pre-rebase lineage
 `f63378be..848e422e`, retained at tag `evidence/compact-task6-20261028`. After the
 2026-11-06 rebase onto main `46787958`, main's newer schema contracts change the
-baseline digest, so the rebased harness refuses the `bafe11aa` package; a rerun
+baseline source-contract digest (`sourceContractsSha256`), so the rebased harness refuses the `bafe11aa` package; a rerun
 needs a new package built from the rebased source. Version 0.1.18 → 0.1.19
 records this lineage; no acceptance group changes.
 
 This owner-selected continuation started at `1dd72707` on the pre-rebase
-branch lineage (rebased as `4c42f817`). Reuse the immutable `bafe11aa` package with a separately committed clean
-harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
+branch lineage (rebased as `4c42f817`). Reused the immutable `bafe11aa` package
+with a separately committed clean harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
 does not establish application authority or pending-work recovery.
 
 1. Add a separate explicit TEST journey lane; retain both existing core-only and
