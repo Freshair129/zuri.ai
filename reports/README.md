@@ -1,7 +1,7 @@
 ---
 doc_type: assessment-index
 status: active
-version: "0.10.2"
+version: "0.10.5"
 ---
 
 # Engineering assessments
@@ -15,6 +15,9 @@ ROADMAP delivery state.
 | [2026-10-31 Office design receiver](office-design-receiver-20261031.md) | Scoped floor/agent-design/asset UUID registration on real isolated SQLite/PostgreSQL and built Next HTTP; no runtime Agent/approval creation, live Business import, client enrollment or deployment. |
 | [2026-10-31 Private Runtime integration](private-runtime-integration-20261031.md) | Zuri transport hardening, synthetic HTTPS/Docker/Runtime proof and separate external PRP/GPU/production acceptance blockers. |
 | [2026-10-29 Compact operator restore/rebind assessment](compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md) | Source-bound managed-blob recovery gaps at 5b5131a0 and candidate-plan inputs; no supported operator, PostgreSQL installation restore, off-host or AI qualification. |
+| [2026-10-29 Compact scoped TEXT HTTP journey](compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md) | Real HTTPS self-provisioned Business authority, same-run TEXT publication across web replacement, query/citation/withdrawal on an owned TEST stack; storage/native recovery/LINE/full AI qualification remain open. |
+| [2026-10-28 Compact actual idle Knowledge cohort TEST](compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md) | Packaged web/native startup, idle stop, manual namespace rebind and retained-store markers passed 3/3 at harness `ec809e2b`; Business/serving authority, active-work/recovery and AI qualification remain open. |
+| [2026-10-28 Compact selected Knowledge package TEST](compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md) | Relocated OCI package `bafe11aa`, fresh PostgreSQL baseline and offline native/model probes passed 4/4 with harness `3b58fcc9`; full application/cohort/recovery and release gates remain open, AI NOT_QUALIFIED. |
 | [2026-10-27 Portfolio invite HTTP TEST](domain-followup-2026-10-27/portfolio-invite-http-existing-contract.md) | One real-session HTTP scenario passed at source764b480d using only fresh synthetic Portfolio data; initial report-format parser failure retained/reconciled, no Tenant/Business grants, native PostgreSQL or live delivery acceptance. |
 | [2026-10-27 CRM L2 consent-boundary TEST](domain-followup-2026-10-27/crm-consent-l2-existing-contract.md) | One existing L2 passed at source7c628d14 on a fresh private SQLite fixture; 23 other cases unselected, deterministic ordering only, no native PostgreSQL race/scheduler/production acceptance. |
 | [2026-10-27 CRM M4 broken-chain TEST](domain-followup-2026-10-27/crm-archive-m4-existing-contract.md) | One existing M4 passed at source62728e73 on a private SQLite/archive fixture; 23 other cases unselected, no scheduler/native PostgreSQL/production or full FR-245 adoption. |

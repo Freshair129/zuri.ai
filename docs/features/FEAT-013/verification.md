@@ -225,6 +225,7 @@ status: generated
 - [apps/server/tests/acceptance/knowledge-admission-native.test.js](../../../apps/server/tests/acceptance/knowledge-admission-native.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/compact-knowledge-journey.test.js](../../../apps/server/tests/integration/compact-knowledge-journey.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js](../../../apps/server/tests/integration/fr109-knowledge-ingestion-executor.test.js) — `verifies` (`transitive`)

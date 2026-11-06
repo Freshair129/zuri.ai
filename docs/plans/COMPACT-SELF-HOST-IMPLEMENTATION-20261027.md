@@ -6,7 +6,7 @@ status: approved
 approved_at: "2026-10-27"
 approved_plan_commit: "e5fcfd4b599d328c1b1210b310746e6a573f2c25"
 selected_task: 6
-version: "0.1.14"
+version: "0.1.19"
 source_revision: "2b424364c709f5c5522bd29c3713becc2eab5854"
 relations:
   - type: references
@@ -331,6 +331,157 @@ artifacts and Server worker scripts without changing MSP/GKS ownership.
 **Consumes:** Core package and existing accepted LINE/Knowledge contracts/pins.
 **Produces:** Profile-specific qualification reports bound to image/model/config
 hashes; no domain lifecycle adoption or inference-pool implementation.
+
+### Task6 continuation: selected Knowledge artifact boundary
+
+Implementation detail under the approved Task6 scope, selected again by the
+owner after PR757; baseline `f63378bee8b059b898960f287bfd3b8d0a9fdcb6`:
+
+1. Add a separate read-only `knowledge-inspect` command/API for the exact profile
+   set `core + knowledge`, with an explicit expected source revision. Preserve
+   both existing core-only qualification guards. LINE/public selections are
+   outside this first selected-artifact inspection lane.
+2. Load and verify the entire package inventory, baseline and five pinned model
+   files before Docker inspection. Bind all five image references, observed IDs
+   and platforms; additionally require the web/tools/Genesis assembly source
+   labels to match the manifest revision. Source labels identify the declared
+   assembly, not a signed build attestation or proof of runtime contents. Return
+   `ARTIFACT_INSPECTED_NOT_QUALIFIED`, never readiness or serving authority.
+3. Build a clean-source TEST candidate using the accepted runtime tuple, actual
+   model bytes, canonical documentation/registry/graph and fresh baseline. Carry
+   pinned runtime layers only with their resolved pin receipt and explicit build
+   provenance. Export the selected immutable OCI graph and retain the complete
+   package; do not substitute the earlier acceptance images for shipped roles.
+4. Verify a relocated package through its bundled CLI, then install its exact
+   baseline only on a newly owned disposable TEST target. Probe packaged-image
+   runtime contents/model mounts offline, separately from source-label checks.
+   Existing TEST-only storage/license evidence is not production/legal approval.
+5. Exercise selected TEST Compose startup and explicit web/Genesis recreation
+   when the existing contracts make that operation safe. Preserve native/shared
+   volumes and the readonly model mount. Existing durable lease/replay rules own
+   work recovery; neither topology inspection nor manual recreation proves a
+   global drain or recall of in-flight external sends. Do not invent a coordinator
+   protocol or physical native-store restoration. Keep those acceptance gates
+   open unless separately demonstrated, and do not select live LINE.
+6. Run failing-first image/profile/source/corruption controls, the unchanged core
+   regressions, actual selected-package TEST acceptance and independent review.
+   Regenerate governance serially and record actual revisions, hashes, commands,
+   failures and remaining gates. No publication/production activation follows.
+
+Version 0.1.14 → 0.1.15 adds this bounded execution detail; ADR-115, canonical
+records, profile lifecycle and the acceptance groups below are unchanged.
+
+### Task6 continuation: actual idle Knowledge cohort
+
+This owner-selected continuation started at `aa4f8c50` on the pre-rebase
+branch lineage (rebased as `b4f3f5e4`). The [selected package evidence](../../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
+proves transport, baseline and offline contents only. Extend its TEST evidence
+without changing product worker ownership, credentials or shutdown semantics:
+
+1. Require an explicit verified `core + knowledge` OCI package, exact package
+   revision/image map and fresh retained/output destinations. Reused the immutable
+   `bafe11aa` candidate (pre-rebase) while recording the new test harness revision separately;
+   do not relabel its bytes. Refuse foreign resources before Compose mutations.
+2. Add an explicit heavyweight cohort test lane, excluded from ordinary Server
+   tests. Use a new owned disposable PostgreSQL target and the packaged Compose
+   file for the actual web/native images. Use private run-generated TEST session,
+   envelope and MSP/native credentials with a synthetic six-field scope. This
+   scope has no application Tenant/Business/membership; it is not a serving grant.
+   Keep web Knowledge admission disabled and LINE/thread-memory credentials unset.
+   Do not start LINE/public ingress or point at existing runtime/store paths.
+   Generate app/session/envelope, database bootstrap/runtime, storage-admin and
+   Knowledge/MSP/native private files inside the new fixture root only; never
+   reuse checkout `.env`/`.env.knowledge`. This lane refuses a package requiring
+   an external storage license rather than importing a persistent license. Never
+   log secret values/hashes, and remove only these fixture-created credential
+   files through the existing verified temporary-root cleanup.
+3. Start web/native only, using the fixture-owned database/network and labelled
+   native/shared volumes. Observe actual web health, loopback native bearer
+   refusal, ownership/images/current namespace and readonly packaged model mount.
+   Verify missing native query-token configuration fails on a separate owned,
+   network-disabled container before opening any shared native store.
+4. Stop the idle native worker through its existing SIGTERM/close path and check
+   its exit. Recreate web explicitly, detect the stopped worker's stale namespace,
+   then force-recreate native against the current web. Recheck health, refusal,
+   pinned image bindings, the new native-to-current-web namespace, readonly
+   model and retained native/shared state. This proves manual idle
+   recreation only: no active job, queue drain/replay, send deduplication, current
+   Business authority, full KI17 journey or physical native-store recovery claim.
+5. Run failing-first guard/fixture tests and actual cohort acceptance; preserve
+   first failures and record only safe IDs/hashes/status. Cleanup only run-created
+   resources after ownership checks, independently attempt later cleanup actions,
+   retain package/model/evidence, and compare existing runtime inventories.
+   Complete independent review and serial documentation governance.
+
+Version 0.1.15 → 0.1.16 adds this bounded TEST execution detail. AI remains
+`NOT_QUALIFIED`; Task6 acceptance groups, native Stage9+, live LINE and release
+gates remain unchanged. No publication or production activation follows.
+
+### Task6 continuation: scoped HTTP admission and pending-work resume
+
+The [2026-10-29 TEXT journey evidence](../../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
+records this bounded milestone separately from complete Task6 qualification.
+Version 0.1.17 → 0.1.18 links that evidence; no acceptance group is closed.
+
+All three Task6 continuations in this section were executed on the pre-rebase lineage
+`f63378be..848e422e`, retained at tag `evidence/compact-task6-20261028`. After the
+2026-11-06 rebase onto main `46787958`, main's newer schema contracts change the
+baseline source-contract digest (`sourceContractsSha256`), so the rebased harness refuses the `bafe11aa` package; a rerun
+needs a new package built from the rebased source. Version 0.1.18 → 0.1.19
+records this lineage; no acceptance group changes.
+
+This owner-selected continuation started at `1dd72707` on the pre-rebase
+branch lineage (rebased as `4c42f817`). Reused the immutable `bafe11aa` package
+with a separately committed clean harness. The [idle-cohort evidence](../../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
+does not establish application authority or pending-work recovery.
+
+1. Add a separate explicit TEST journey lane; retain both existing core-only and
+   idle-cohort guards. Use a fresh disposable PostgreSQL target, private files,
+   labelled volumes/network and the actual packaged web/native images. Reuse
+   the existing bundled operator bootstrap and generated-key HTTPS fixture
+   pattern. Trust only that fixture certificate; do not disable TLS validation.
+2. Exercise actual signup/onboarding/Business self-provisioning through HTTPS
+   sessions. Observe no Business/operator grant at signup, then the product's
+   normal ownership membership after self-provisioning. Read the real resulting
+   Tenant/Portfolio/Business IDs to configure the existing single Knowledge
+   binding; never seed a hand-built viewer, membership or universal admin.
+   Use a second ordinary signup/session and separately self-provisioned Business
+   for actual cross-Business denial; nonexistent IDs are not that proof.
+3. Configure the private MSP/native scope from that real Business, preserving
+   the existing credentials, session/envelope keys and current scope/policy
+   checks. Initially withhold the native process. Admit one immutable TEXT source
+   through the existing HTTP service, assert a same-request retry returns the
+   same admission, and capture actual non-published status, attempts, claim state,
+   lease timestamp and admission/PipelineRun identity at replacement. The web
+   poller may already have claimed work while native is absent; do not label this
+   queue-only or lease recovery without observed expiry/reclaim evidence.
+4. Replace web explicitly while native is absent, then start native in the new
+   web namespace with the same labelled stores and readonly packaged model.
+   Observe recovery of the same immutable job/run under existing leases, retry
+   and ownership rules. Do not backdate leases, clear claim fields, lower
+   backoff, fabricate receipts or add a coordinator/drain protocol.
+5. Use the existing generic synthetic benchmark already baked into the native
+   image. Require actual successful 17-stage evidence, receipt/publication and
+   source lineage before calling the job published. Check scoped HTTP query and
+   citation, foreign denial, then source withdrawal excluding current serving
+   and citation access. This is one TEXT/session journey, not browser/MCP,
+   managed-FILE, arbitrary crash-phase, LINE delivery or native-store DR proof.
+6. Keep optional object storage disabled for this existing inline-TEXT lineage
+   path, explicitly record that missing profile prerequisite, and do not qualify
+   the full Knowledge profile. Object-backed FILE, object/DB remap, native
+   Stage9+ loss recovery, off-host and release acceptance remain separate.
+   No hosted fallback or external provider call is selected.
+7. Use the existing native acceptance operation class (15-minute test,
+   five-minute hook, 12-minute publication wait). Existing runtime/native stop,
+   transport, lease and backoff defaults remain unchanged. Fail on terminal
+   failure immediately; retain failures rather than extending deadlines.
+   Complete failing-first tests, real journey acceptance, independent review,
+   serial governance and owned cleanup; retain package/model/evidence.
+
+Version 0.1.16 → 0.1.17 adds this bounded TEST execution detail without changing
+canonical behavior, profile lifecycle or the unchecked Task6 groups. Knowledge
+and LINE remain `NOT_QUALIFIED`; no live LINE, production, worktree or publication
+operation follows from this continuation.
 
 - [ ] Write failures for absent/unpinned model, partial bootstrap, stale worker
   namespace, missing secret, disabled profile and storage/native-state loss.

@@ -7,6 +7,7 @@ import { validateCompactTarget, assertCompactResources, compactOwnerLabels, plan
 import { digest, stableJson } from './files.mjs'
 import { COMPACT_DATABASE_INSPECTION, compactInitializationSql } from './database.mjs'
 import { COMPACT_BOOTSTRAP_COMMAND } from './bootstrap-command.mjs'
+import { assertCompactKnowledgeProfile } from './profiles.mjs'
 const fail = code => { throw new CompactError(code) }
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 export function compactProcessEnvironment(extra = {}) {
@@ -67,6 +68,19 @@ export function createCompactDockerDriver({ run = runCompactDocker } = {}) {
         const image = await read(daemon.endpoint, 'image', m.images[key])
         if (!image?.RepoDigests?.includes(m.images[key])) fail('COMPACT_IMAGE_SOURCE_MISMATCH')
         result[key] = { reference: m.images[key], id: image.Id, platform: `${image.Os}/${image.Architecture}`, sourceRevision: image.Config?.Labels?.['org.opencontainers.image.revision'] ?? null }
+      }
+      return result
+    },
+    async inspectKnowledgeCandidateImages({ manifest, target }) {
+      const m = validateCompactManifest(manifest), t = validateCompactTarget(target)
+      if (m.profiles.length !== 2 || !m.profiles.includes('core') || !m.profiles.includes('knowledge')) fail('COMPACT_KNOWLEDGE_SELECTION_REQUIRED')
+      assertCompactKnowledgeProfile(m)
+      const daemon = await local(t), result = {}, assembly = new Set(['web', 'tools', 'genesisWorker'])
+      for (const [key, reference] of Object.entries(m.images)) {
+        const image = await read(daemon.endpoint, 'image', reference)
+        if (!image?.RepoDigests?.includes(reference)) fail('COMPACT_IMAGE_SOURCE_MISMATCH')
+        result[key] = { reference, id: image.Id, platform: `${image.Os}/${image.Architecture}`,
+          sourceRevision: assembly.has(key) ? image.Config?.Labels?.['org.opencontainers.image.revision'] ?? null : null }
       }
       return result
     },
