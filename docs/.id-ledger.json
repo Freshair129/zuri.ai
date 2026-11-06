@@ -846,6 +846,7 @@
     "ADR-113",
     "ADR-114",
     "ADR-115",
+    "ADR-116",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11072,6 +11073,19 @@
         {
           "anchor": "compact single host deployment profile and qualification",
           "since": "2026-10-26",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-116": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md",
+      "status": "current",
+      "statement_digest": "09bcd0dea07da7f695fc79f76bebe7fde8077ce592575b08ed2cdac86f66fd42",
+      "history": [
+        {
+          "anchor": "visual office repository data access and serving boundary",
+          "since": "2026-11-05",
           "reason": "declared"
         }
       ]

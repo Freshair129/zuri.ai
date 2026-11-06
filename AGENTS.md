@@ -751,6 +751,16 @@ grouping two domains versus leaving them standalone, and the governance
 sequence specific to this task shape, none of which belongs in `docs/` for
 the same reason the group itself does not.
 
+**Visual Office / Zuri platform integration:** when changing Visual Office's
+place in Zuri's domain, client, authentication, API, or persistence boundaries,
+read the [client architecture design](docs/architecture/2026-10-22-visual-office-zuri-client-design.md)
+(candidate; it records the owner's 2026-10-23 approval of an optional, separately
+deployed client) and the candidate [ADR-116](docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md),
+which would amend the client-registration prerequisite for a same-origin first
+slice. Zuri owns identity, Business scope, business data and the contracts it
+produces. Neither document establishes a route, schema, permission or service
+owner.
+
 ### 20. The legacy project's documentation (retired)
 
 Retired by [ADR-024](docs/decisions/ADR-024-ZURI-AI-IS-A-STANDALONE-PRODUCT.md). The mirror
