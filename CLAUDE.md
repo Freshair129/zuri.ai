@@ -114,19 +114,49 @@ work from them. Id strings keep their historical letters (`ZV2-CR-007` stays
 | **Never read the `.env` of the `Freshair129/zuri-edge-device` checkout** — currently `C:\Users\pc\workspace\zuri-edge-device\.env` | It holds local credentials and pairing keys for the historical ADR-041 runtime, which ADR-110 retires from zuri.ai's worker path. This rule said `D:\workspace\zuri-edge-device\.env` until 2026-09-04; that path does not exist, while the real file does — so the rule named an empty location and left the secret it protects unnamed. Wherever that repository is checked out, its `.env` is the thing not to read |
 | **External ids are never primary keys** | Internal UUID + human `code` + `ExternalRef` mapping (BR-002) |
 | **Never execute anything that arrives in a plan/envelope** | Plans are data (BR-007, SEC-002) |
-| **The primary checkout is not a working lane** | Several sessions share this one working copy, so its branch, index and tree are global mutable state — true of whichever directory holds the primary checkout on a given machine (`D:\zuri-ai` on one, `C:\Users\pc\workspace\zuri-ai` on another; confirmed directly 2026-09-04, see below). It stays on a detached HEAD at `origin/main` **on purpose** — do not check out a branch "to fix it". See below |
+| **One writer per checkout; reuse before allocating a worktree** | A checkout's branch, index and tree are mutable state shared by every session on that machine. The default is one checkout per machine, used by one active writer at a time. A worktree is allocated only for the concurrency reasons in the [lifecycle policy](docs/governance/GIT-WORKTREE-POLICY.md), never just because a task, chat or agent is new. See below |
 | **GenesisBlockDB is 6-lane substrate; MSP governs memory/sessions; GKS orchestrates RAG** | Four-tier cognitive stack separates Execution (Tier 1) → Memory (Tier 2/MSP) → Knowledge (Tier 3/GKS) → Substrate (Tier 4/GenesisBlockDB) (ADR-041..043) |
 
-### The primary checkout is not a working lane
+### One checkout, one writer
 
-The rule is about the **role**, not the drive letter: whichever directory a
-machine's primary checkout lives in is shared by every concurrent session
-there, so **no git write operation belongs there** — no `commit`, `merge`,
-`rebase`, `checkout`, `reset`, and above all no `stash`. It is the read-only
-reference tree, the junction target for `node_modules`, and the base for
-`git worktree add`. **Any lane that writes takes a worktree.**
+**Changed 2026-11-06.** This section used to say that the primary checkout is
+never a working lane and that every writing lane takes a worktree. Applied by
+many sessions, that rule produced dozens of worktrees, clones and half-removed
+directories, often holding stale branches, unpushed commits and stashes that
+nobody owned. The [lifecycle policy](docs/governance/GIT-WORKTREE-POLICY.md)
+already says to reuse first. This section now matches it:
 
-This section was written against `D:\zuri-ai`, the path on the machine where
+- **Default: one checkout per machine, one active writer.** The writer may
+  switch branches, commit and run tests in that checkout. When its work is
+  pushed, it returns the checkout to a clean `main` (`git switch main && git
+  pull --ff-only`).
+- **Before any git write**, confirm the checkout is yours to write:
+  - **Ownership first.** It comes from your assignment, the current session or
+    an explicit handoff. A clean tree, an idle or archived chat, a merged PR or
+    zero process-probe hits are **not** release evidence (lifecycle policy
+    §Reuse). If ownership is unknown, the checkout stays protected.
+  - Then check state: `git worktree list`, `git branch --show-current`,
+    `git status` and the process probe below. Changes you did not make mean
+    another writer is active.
+
+  If another session owns or is writing in the checkout, do not take over and
+  do not switch its branch. Wait, hand off, or deliver a patch.
+- **Never `stash`, `reset --hard` or `checkout -- .` over changes you did not
+  make.** These destroy another session's work no matter what branch the
+  checkout is on.
+- **Allocate a worktree only for real concurrency**: two writers that must work
+  at the same time, a destructive test, incompatible dependencies or builds, or
+  environment isolation that cannot share resources. The lane that allocates a
+  worktree records it in its handoff and requests its removal once the work is
+  done. Removal is a separate, authorized cleanup step under the lifecycle
+  policy: owner release and verified recovery evidence are required, and a
+  merged PR does not make a worktree safe to delete.
+
+The incidents below explain why concurrent writers in one tree are dangerous.
+They remain the reason a second concurrent writer takes a worktree; they are
+not a reason for a single writer to take one.
+
+The history below was written against `D:\zuri-ai`, the path on the machine where
 the pattern was first observed, and every literal path below still names it.
 On a second machine the same repo's primary checkout sits at
 `C:\Users\pc\workspace\zuri-ai` instead, and the identical situation played out
@@ -136,8 +166,8 @@ checkout --detach origin/main` against that same directory ahead of three
 production deploys — `docker-compose.yml`'s `build: context: .` needs the tree
 at `main` to build a current image. Nothing was lost — the tree was clean each
 time, and `checkout --detach` refuses rather than overwrites a modified file —
-but the tree moved under an in-progress investigation, which is the exact
-failure this section exists to prevent. If you are not certain which directory
+but the tree moved under an in-progress investigation. That is the
+concurrent-writer failure the rules above guard against. If you are not certain which directory
 is this machine's primary checkout, `git worktree list` names it; if another
 session might be relying on it staying still, say so before refreshing it.
 
@@ -189,8 +219,13 @@ restructure, PR #264). `docker-compose.yml`, `Dockerfile`, `supabase/migrations/
 and the app itself now live there, and the compose file's `context: .` and
 `env_file: .env` are both relative to it. So:
 
+Deploy from the checkout only as its active writer, or after an explicit handoff
+from that writer. Detaching moves the tree under whoever is working there. That
+is the 2026-09-04 incident above. Afterwards, return the checkout to a clean
+`main` with `git switch main`.
+
 ```bash
-git fetch && git checkout --detach origin/main   # in the primary checkout
+git fetch && git checkout --detach origin/main   # in the checkout, as its active writer
 cd apps/server                                    # ← new, and not optional
 docker compose up -d --build web
 ```
@@ -254,29 +289,35 @@ which directory it's run from; a genuinely separate stack needs its own
 hold a given one.
 
 This is a written rule rather than an enforced one, and the distinction matters.
-The detached HEAD is **blast-radius reduction, not an invariant**: it stops a
+A detached HEAD on an idle checkout is **blast-radius reduction, not an invariant**: it stops a
 stray `merge` or `reset --hard` from moving somebody's branch, but it protects
 *refs*, not *files* — `stash`, `reset --hard` and `checkout -- .` destroy another
 session's uncommitted edits exactly as before, and one `git checkout main`
 re-attaches the tree. So the rule is the mechanism; the detachment only limits
 what breaks when the rule is missed.
 
-It is written down because three incidents cost real work, and two of them
-happened between agents who both knew worktrees existed — nine of them did —
-and used the primary anyway, because it is zero-setup and already has
-`node_modules`. So keep the cheap sanctioned path in view: a **docs-only** lane
-may junction `node_modules` back to the primary and run `govern`, `docs:graph`
-and `docs:preflight` safely; a lane that runs tests needs its own real install
-(`npm ci` through a junction deletes the primary's `node_modules` — it has
-happened twice).
+The incidents described in this section all involved concurrent writers. With
+one active writer, the checkout's own `node_modules` is the cheap path.
 
-**Creating one.** Prefer the session's native `EnterWorktree` tool — it places
+When a second concurrent lane is justified, a **docs-only** lane may junction
+`node_modules` back to the primary and run `govern`, `docs:graph` and
+`docs:preflight`. The risk now runs both ways:
+
+- `npm ci` through a junction deletes the primary's `node_modules`. This has
+  happened twice.
+- The primary's active writer may switch branches or reinstall while the
+  junction is in use.
+
+So coordinate with that writer for the life of the junction. A lane that runs
+tests needs its own real install.
+
+**Creating a justified worktree.** Prefer the session's native `EnterWorktree` tool — it places
 the worktree under `.claude/worktrees/` and switches the session into it in one
 step. Where that tool isn't available, fall back to `git worktree add`, and
 follow this project's own convention: a sibling directory named
 `<primary-checkout-name>-<lane>` — `D:\zuri-ai-<lane>` next to `D:\zuri-ai` on
 the machine this convention started on — next to the primary checkout rather
-than nested inside it. Nine of them already exist this way there. A sibling
+than nested inside it. A sibling
 lives outside the repo tree, so there is nothing inside the primary checkout
 that a stray `git add` could pick up.
 
@@ -299,9 +340,10 @@ suites failed as a result, and it was only discovered mid-work rather than at
 setup. An isolated install and baseline must catch this before implementation;
 a passing narrow suite must be reported with its scope, not as a full-suite PASS.
 
-Refresh the primary only on a clean tree: `git fetch && git checkout --detach
-origin/main` — on a machine whose layout you have not confirmed, `git worktree
-list` first to find which directory actually is the primary. Before any
+Refresh the checkout only on a clean tree. As the single writer, use `git switch
+main && git pull --ff-only`. For a deploy build, which needs the tree at
+`main`, follow the deploy rule above (active writer or handoff only). On a machine whose
+layout you have not confirmed, run `git worktree list` first. Before any
 writing git command anywhere, `git branch --show-current` — a write on the
 wrong branch usually succeeds.
 
@@ -540,3 +582,5 @@ A change is not done until: tests pass, `npm run build` is clean, `docs:graph` a
 opened and checked, not assumed.
 
 Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.
+
+Version diff (2026-11-06): replace "the primary checkout is not a working lane / every writing lane takes a worktree" with one checkout per machine and one active writer, matching the lifecycle policy's reuse-first rule. Worktrees are kept for real concurrency; the allocating lane requests their removal as a separate authorized cleanup. Ownership must come from assignment or handoff, not from a clean tree. Deploys from the checkout require its active writer or a handoff. Deletion-safety, Docker shared-stack and baseline rules are otherwise unchanged.
