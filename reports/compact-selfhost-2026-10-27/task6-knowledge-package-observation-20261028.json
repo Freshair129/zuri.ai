@@ -1,0 +1,201 @@
+{
+  "schemaVersion": "compact-knowledge-artifact-observation.v1",
+  "selectionBase": "f63378bee8b059b898960f287bfd3b8d0a9fdcb6",
+  "packageSource": "bafe11aac924150ff442078dd92292c00101f10f",
+  "harnessRevision": "3b58fcc9c0d5d3dc541857070b482f9400b8b15b",
+  "host": "Windows Docker Desktop linux/amd64",
+  "status": "BOUNDED_TEST_PASS_NOT_QUALIFIED",
+  "payloadFiles": 1608,
+  "ociArchive": {
+    "bytes": 1261082624,
+    "sha256": "bc21bebb3927a75e632ce5d5887a806622dfcef98c12d5329b862c2819ad4cc7"
+  },
+  "transportExportShape": {
+    "entries": 103,
+    "indexPresent": true,
+    "ociLayoutPresent": true,
+    "blobEntries": 98,
+    "legacyLayerEntries": 0
+  },
+  "componentPins": {
+    "genesisblock": "5156f412da73905a23d74775a82cc14d1f6d04d0",
+    "gks": "ecf1e4de269e949406a6a5f791f9ff8fe30c9578",
+    "msp": "d0d48c1a8e833478525d9a6ce5ee16af2c85444d"
+  },
+  "modelArtifacts": [
+    {
+      "files": {
+        "models/e5-small/config.json": "69137736cab8b8903a07fe8afaafdda25aac55415a12a55d1bffa9f581abf959",
+        "models/e5-small/onnx/model.onnx": "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665",
+        "models/e5-small/special_tokens_map.json": "d05497f1da52c5e09554c0cd874037a083e1dc1b9cfd48034d1c717f1afc07a7",
+        "models/e5-small/tokenizer.json": "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39",
+        "models/e5-small/tokenizer_config.json": "a1d6bc8734a6f635dc158508bef000f8e2e5a759c7d92f984b2c86e5ff53425b"
+      },
+      "id": "e5-small",
+      "repository": "intfloat/multilingual-e5-small",
+      "revision": "614241f622f53c4eeff9890bdc4f31cfecc418b3"
+    }
+  ],
+  "providerEvidence": "REUSED_EXACT_VENDOR_TEST_EVIDENCE_NOT_PRODUCTION_OR_LEGAL_APPROVAL",
+  "checks": {
+    "compactNode": {
+      "passed": 239,
+      "failed": 0,
+      "skipped": 0
+    },
+    "knowledgeArtifact": {
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0
+    },
+    "existingRuntimeInventoryUnchanged": true
+  },
+  "firstAttempt": {
+    "harnessRevision": "bafe11aac924150ff442078dd92292c00101f10f",
+    "status": "FAIL",
+    "passed": 3,
+    "failed": 1,
+    "reason": "Original wrapped error COMPACT_FIXTURE_DOCKER_FAILED; follow-up owned diagnostic reproduced SyntaxError from malformed newline escape in generated test-only probe JavaScript; no runtime qualification from that attempt",
+    "cleanup": "PASS"
+  },
+  "actual": {
+    "environment": "TEST",
+    "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f",
+    "status": "PASS",
+    "observation": "PASS",
+    "cleanup": "PASS",
+    "cleanupChecks": [
+      "PASS"
+    ],
+    "identity": {
+      "targetId": "58446689-3a59-4163-ae7e-30a8e89d7f21",
+      "project": "zuri-compact-58446689-3a59",
+      "final": "INSTALLED",
+      "packageInventorySha256": "81325ccb5502cce3806ed0465252edb29aeac03b10a5184972f171cf3b5d9150",
+      "images": {
+        "genesisWorker": {
+          "reference": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+          "id": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        },
+        "postgres": {
+          "reference": "zuri-compact.local/fixtures/postgres-1a66d744c1b4@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+          "id": "sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+          "platform": "linux/amd64",
+          "sourceRevision": null
+        },
+        "storage": {
+          "reference": "zuri-compact.local/fixtures/storage-c256d3e46c78@sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+          "id": "sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+          "platform": "linux/amd64",
+          "sourceRevision": null
+        },
+        "tools": {
+          "reference": "zuri-compact.local/fixtures/tools-e55dac88fbf2@sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+          "id": "sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        },
+        "web": {
+          "reference": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "id": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "platform": "linux/amd64",
+          "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+        }
+      }
+    },
+    "profiles": {
+      "line": "NOT_SELECTED",
+      "knowledge": "NOT_QUALIFIED"
+    },
+    "databaseBaselineOnly": true,
+    "runtime": {
+      "web": {
+        "role": "web",
+        "runner": "v22.23.4",
+        "ki17": "v24.18.0",
+        "pinsMatch": true,
+        "imageId": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+        "imageReference": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47"
+      },
+      "tools": {
+        "role": "tools",
+        "runner": "v22.23.4",
+        "imageId": "sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+        "imageReference": "zuri-compact.local/fixtures/tools-e55dac88fbf2@sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98"
+      },
+      "genesisWorker": {
+        "role": "genesisWorker",
+        "runner": "v24.18.0",
+        "ki17": "v24.18.0",
+        "pinsMatch": true,
+        "modelFiles": 5,
+        "embeddingDimensions": 384,
+        "nativeAddonLoaded": true,
+        "imageId": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+        "imageReference": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+      }
+    },
+    "checks": {
+      "relocated": true,
+      "inspected": true,
+      "core-refused": true,
+      "bundled-inspect": true,
+      "installed": true,
+      "idempotent": true,
+      "no-grant": true,
+      "runtime-files": true,
+      "real-embedding": true,
+      "corrupt-refused": true
+    },
+    "manifestSha256": "0c56d22e2bd2108aae006cacfa863cda8aaf62aced34c6440fff19baf94e7ccb",
+    "packageInventorySha256": "81325ccb5502cce3806ed0465252edb29aeac03b10a5184972f171cf3b5d9150",
+    "images": {
+      "genesisWorker": {
+        "reference": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+        "id": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+        "platform": "linux/amd64",
+        "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+      },
+      "postgres": {
+        "reference": "zuri-compact.local/fixtures/postgres-1a66d744c1b4@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+        "id": "sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+        "platform": "linux/amd64",
+        "sourceRevision": null
+      },
+      "storage": {
+        "reference": "zuri-compact.local/fixtures/storage-c256d3e46c78@sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+        "id": "sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+        "platform": "linux/amd64",
+        "sourceRevision": null
+      },
+      "tools": {
+        "reference": "zuri-compact.local/fixtures/tools-e55dac88fbf2@sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+        "id": "sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+        "platform": "linux/amd64",
+        "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+      },
+      "web": {
+        "reference": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+        "id": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+        "platform": "linux/amd64",
+        "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+      }
+    },
+    "task6Closed": false,
+    "nativeStage9Restore": "NOT_PROVEN",
+    "liveLineUat": "NOT_RUN"
+  },
+  "task6Closed": false,
+  "lineProfile": "NOT_QUALIFIED_OVERALL_NOT_SELECTED_IN_THIS_PACKAGE",
+  "remainingGates": [
+    "SELECTED_APPLICATION_BOOTSTRAP_AND_CURRENT_AUTHORITY",
+    "SELECTED_COHORT_RECREATE_DRAIN_REPLAY_AND_NO_DUPLICATE_SEND",
+    "EXACT_SHIPPED_IMAGE_FULL_KI17_AND_SERVING_AUTHORIZATION",
+    "OBJECT_DATABASE_AND_NATIVE_STAGE9_RECOVERY",
+    "SUPPORTED_LINUX_HOST_OFF_HOST_DR_AND_RELEASE",
+    "LIVE_LINE_UAT_NOT_RUN"
+  ],
+  "rawEvidenceDirectory": "zuri-checkpoint-20261028/compact-task6-selected-package-f63378be"
+}

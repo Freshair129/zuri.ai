@@ -2,7 +2,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import path from 'node:path'
-import { writeFile, lstat } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
+import { writeFile, lstat, mkdir } from 'node:fs/promises'
 import { implementation, ociLayout, refreshEvidence, hash } from './compact-fixtures.mjs'
 import { executorFixture, emptyObservation, ownedObservation } from './compact-task2-fixtures.mjs'
 
@@ -16,6 +17,81 @@ async function fixture() {
   return { ...f, observed, imageMetadata, driver, mutations: () => mutations }
 }
 const api = () => implementation('../../scripts/lib/compact/qualify.mjs')
+
+test('offline runtime probe renders valid executable JavaScript for every assembly role', async () => {
+  const { renderCompactKnowledgeProbeProgram } = await import('../helpers/compact-knowledge-probe.mjs')
+  for (const role of ['web', 'tools', 'genesisWorker']) {
+    const program = renderCompactKnowledgeProbeProgram({ role, expectedPins: { msp: 'a'.repeat(40), gks: 'b'.repeat(40), genesisblock: 'c'.repeat(40) } })
+    assert.doesNotThrow(() => execFileSync(process.execPath, ['--input-type=module', '--check'], { input: program, encoding: 'utf8', windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }))
+  }
+})
+
+test('Knowledge evidence refuses package overlap and existing output before creating a retained copy', async () => {
+  const f = await fixture(), { assertCompactKnowledgeEvidencePath } = await import('../helpers/compact-postgres-target.mjs')
+  const retainedDirectory = path.join(f.root, 'new retained'), evidenceFile = path.join(f.root, 'observation.json')
+  await assert.doesNotReject(assertCompactKnowledgeEvidencePath({ packageDirectory: f.packageDirectory, retainedDirectory, evidenceFile }))
+  for (const file of [path.join(f.packageDirectory, 'observation.json'), path.join(retainedDirectory, 'observation.json')]) {
+    await assert.rejects(assertCompactKnowledgeEvidencePath({ packageDirectory: f.packageDirectory, retainedDirectory, evidenceFile: file }), { code: 'COMPACT_KNOWLEDGE_EVIDENCE_PATH_INVALID' })
+  }
+  await writeFile(evidenceFile, 'EXISTING')
+  await assert.rejects(assertCompactKnowledgeEvidencePath({ packageDirectory: f.packageDirectory, retainedDirectory, evidenceFile }), { code: 'COMPACT_KNOWLEDGE_EVIDENCE_PATH_INVALID' })
+  await assert.rejects(lstat(retainedDirectory), { code: 'ENOENT' })
+  await mkdir(retainedDirectory)
+  await assert.rejects(assertCompactKnowledgeEvidencePath({ packageDirectory: f.packageDirectory, retainedDirectory, evidenceFile: path.join(retainedDirectory, 'new.json') }), { code: 'COMPACT_KNOWLEDGE_EVIDENCE_PATH_INVALID' })
+})
+
+test('Knowledge candidate inspection refuses a core package before any Docker observation', async () => {
+  const a = await api(), f = await fixture(); let reads = 0
+  assert.equal(typeof a.inspectCompactKnowledgeCandidate, 'function')
+  f.driver.inspect = async () => { reads++; throw new Error('MUST_NOT_READ_DOCKER') }
+  await assert.rejects(a.inspectCompactKnowledgeCandidate({ packageDirectory: f.packageDirectory, expectedRevision: f.m.sourceRevision, target: f.t, driver: f.driver }), { code: 'COMPACT_KNOWLEDGE_SELECTION_REQUIRED' })
+  assert.equal(reads, 0); assert.equal(f.mutations(), 0)
+})
+
+test('Knowledge candidate requires an explicit matching source revision before any Docker observation', async () => {
+  const a = await api(), f = await fixture(); let reads = 0
+  assert.equal(typeof a.inspectCompactKnowledgeCandidate, 'function')
+  f.driver.inspect = async () => { reads++; throw new Error('MUST_NOT_READ_DOCKER') }
+  for (const expectedRevision of [undefined, 'main', 'f'.repeat(40)]) {
+    await assert.rejects(a.inspectCompactKnowledgeCandidate({ packageDirectory: f.packageDirectory, expectedRevision, target: f.t, driver: f.driver }), { code: 'COMPACT_SOURCE_REVISION_MISMATCH' })
+  }
+  assert.equal(reads, 0)
+})
+
+test('Knowledge candidate verifies corrupt package bytes before any Docker observation', async () => {
+  const a = await api(), f = await fixture(); let reads = 0
+  assert.equal(typeof a.inspectCompactKnowledgeCandidate, 'function')
+  f.driver.inspect = async () => { reads++; throw new Error('MUST_NOT_READ_DOCKER') }
+  await writeFile(path.join(f.packageDirectory, 'docs/PRODUCT.md'), 'corrupted candidate')
+  await assert.rejects(a.inspectCompactKnowledgeCandidate({ packageDirectory: f.packageDirectory, expectedRevision: f.m.sourceRevision, target: f.t, driver: f.driver }), { code: 'COMPACT_PAYLOAD_HASH_MISMATCH' })
+  assert.equal(reads, 0)
+})
+
+test('bundled Knowledge command requires expected revision and preserves the core-only guard', async () => {
+  const { runCompactSelfHost } = await implementation('../../scripts/compact-self-host.mjs'), f = await fixture(), targetFile = path.join(f.root, 'target.json')
+  await writeFile(targetFile, JSON.stringify(f.t))
+  let reads = 0
+  const driver = { inspect: async () => { reads++; throw new Error('MUST_NOT_READ_DOCKER') } }
+  const args = ['knowledge-inspect', '--package', f.packageDirectory, '--target', targetFile]
+  await assert.rejects(runCompactSelfHost(args, { driver }), { code: 'COMPACT_ARGUMENTS_INVALID' })
+  await assert.rejects(runCompactSelfHost([...args, '--expected-revision', f.m.sourceRevision], { driver }), { code: 'COMPACT_KNOWLEDGE_SELECTION_REQUIRED' })
+  assert.equal(reads, 0)
+})
+
+test('selected fixture inputs never relax the existing core-only package guard', async () => {
+  const f = await fixture(), helper = await implementation('../helpers/compact-postgres-target.mjs')
+  assert.equal(typeof helper.readCompactKnowledgeFixturePackage, 'function')
+  const args = { packageDirectory: f.packageDirectory, sourceRevision: f.m.sourceRevision, componentImages: f.m.images }
+  await assert.rejects(helper.readCompactKnowledgeFixturePackage(args), { code: 'COMPACT_FIXTURE_PACKAGE_MISMATCH' })
+  assert.deepEqual((await helper.readCompactFixturePackage(args)).manifest, f.m)
+  await assert.rejects(helper.readCompactKnowledgeFixturePackage({ ...args, sourceRevision: undefined }), { code: 'COMPACT_FIXTURE_PACKAGE_MISMATCH' })
+  await assert.rejects(helper.readCompactKnowledgeFixturePackage({ ...args, componentImages: {} }), { code: 'COMPACT_FIXTURE_PACKAGE_MISMATCH' })
+})
+
+test('a fixture cannot select both core and Knowledge artifact inputs', async () => {
+  const helper = await implementation('../helpers/compact-postgres-target.mjs')
+  await assert.rejects(helper.compactFixture({ packageDirectory: '/core', knowledgePackageDirectory: '/knowledge' }), { code: 'COMPACT_FIXTURE_PACKAGE_MISMATCH' })
+})
 test('artifact inspection binds the hashed candidate to actual web/tools source labels without qualifying it', async () => {
   const a = await api(), f = await fixture(), result = await a.inspectCompactQualificationCandidate({ packageDirectory: f.packageDirectory, target: f.t, driver: f.driver })
   assert.equal(result.status, 'ARTIFACT_INSPECTED_NOT_QUALIFIED')

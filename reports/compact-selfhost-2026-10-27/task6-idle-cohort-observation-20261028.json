@@ -1,0 +1,231 @@
+{
+  "schemaVersion": "compact-idle-cohort-observation.v1",
+  "selectionBase": "aa4f8c50aa4e9d2e28ea0db6bb66248087b3d305",
+  "host": "Windows Docker Desktop linux/amd64",
+  "status": "BOUNDED_IDLE_COHORT_TEST_PASS_NOT_QUALIFIED",
+  "packageSource": "bafe11aac924150ff442078dd92292c00101f10f",
+  "harnessRevision": "ec809e2bb6070ac3dbb33f99bae7dbc19d8d9e90",
+  "nativeProbeSemantics": {
+    "request": "POST /query with a deliberately wrong bearer value",
+    "rawSnapshotField": "unauthenticatedNativeStatus",
+    "proves": "WRONG_BEARER_REFUSAL_ONLY",
+    "missingAuthorizationHeaderCase": "NOT_RUN"
+  },
+  "verification": {
+    "compactNode": {
+      "passed": 244,
+      "failed": 0,
+      "skipped": 0
+    },
+    "actualCohort": {
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0
+    },
+    "sourceGovernance": {
+      "status": "PASS",
+      "critical": 0,
+      "warning": 0,
+      "information": 43
+    },
+    "independentSourceReview": "NO_REMAINING_BLOCKER",
+    "beforeAfterRuntime": {
+      "existingIdNameStateUnchanged": true,
+      "remainingTestResources": {
+        "container": "ABSENT",
+        "volume": "ABSENT",
+        "network": "ABSENT"
+      }
+    }
+  },
+  "negativeControls": {
+    "missingInputs": "REFUSED",
+    "dirtyHarness": "REFUSED_BEFORE_RETENTION_AND_DOCKER",
+    "ownerImageNetworkSharedMounts": "RED_THEN_GREEN",
+    "initialGovernance": "STALE_AFTER_REVIEW_SOURCE_EDITS_EXIT1_NOT_PASS"
+  },
+  "actual": {
+    "environment": "TEST",
+    "packageSource": "bafe11aac924150ff442078dd92292c00101f10f",
+    "harnessRevision": "ec809e2bb6070ac3dbb33f99bae7dbc19d8d9e90",
+    "status": "PASS",
+    "observation": "PASS",
+    "cleanup": "PASS",
+    "cleanupChecks": [
+      "PASS",
+      "PASS",
+      "PASS",
+      "PASS",
+      "PASS"
+    ],
+    "identity": {
+      "targetId": "f8150ac9-3619-410f-b2c0-3fd6e30ecdee",
+      "project": "zuri-compact-f8150ac9-3619",
+      "manifestSha256": "0c56d22e2bd2108aae006cacfa863cda8aaf62aced34c6440fff19baf94e7ccb",
+      "packageInventorySha256": "81325ccb5502cce3806ed0465252edb29aeac03b10a5184972f171cf3b5d9150"
+    },
+    "snapshots": {
+      "artifact": {
+        "manifestSha256": "0c56d22e2bd2108aae006cacfa863cda8aaf62aced34c6440fff19baf94e7ccb",
+        "packageInventorySha256": "81325ccb5502cce3806ed0465252edb29aeac03b10a5184972f171cf3b5d9150",
+        "images": {
+          "genesisWorker": {
+            "reference": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+            "id": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4",
+            "platform": "linux/amd64",
+            "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+          },
+          "postgres": {
+            "reference": "zuri-compact.local/fixtures/postgres-1a66d744c1b4@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+            "id": "sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551",
+            "platform": "linux/amd64",
+            "sourceRevision": null
+          },
+          "storage": {
+            "reference": "zuri-compact.local/fixtures/storage-c256d3e46c78@sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+            "id": "sha256:c256d3e46c78fd863813d43b4540e8a50a4dc515466ea7d0db8ceac02eef2f11",
+            "platform": "linux/amd64",
+            "sourceRevision": null
+          },
+          "tools": {
+            "reference": "zuri-compact.local/fixtures/tools-e55dac88fbf2@sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+            "id": "sha256:e55dac88fbf2189086959fcee9494880c414962d648e1379b15ac2d48da21a98",
+            "platform": "linux/amd64",
+            "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+          },
+          "web": {
+            "reference": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+            "id": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+            "platform": "linux/amd64",
+            "sourceRevision": "bafe11aac924150ff442078dd92292c00101f10f"
+          }
+        }
+      },
+      "initialReadiness": {
+        "webHealthStatus": 200,
+        "unauthenticatedNativeStatus": 401
+      },
+      "initial": {
+        "status": "COHORT_PRESENT_NOT_QUALIFIED",
+        "missing": [],
+        "webId": "6fd17e50a051900d5d6041adb4bf59df7e8cb2cdd72926160276e6ef05f8054a",
+        "nativeId": "5176b465c613b0feceede7c96b841f80785801391d7f9f018233179eddda0581",
+        "nativeNetworkMode": "container:6fd17e50a051900d5d6041adb4bf59df7e8cb2cdd72926160276e6ef05f8054a",
+        "images": {
+          "web": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "imageIds": {
+          "web": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "volumes": [
+          {
+            "name": "zuri-compact-f8150ac9-3619-genesis",
+            "driver": "local"
+          },
+          {
+            "name": "zuri-compact-f8150ac9-3619-knowledge-state",
+            "driver": "local"
+          }
+        ],
+        "readonlyModelMatchesPackage": true
+      },
+      "idleStop": {
+        "nativeId": "5176b465c613b0feceede7c96b841f80785801391d7f9f018233179eddda0581",
+        "exitCode": 0,
+        "oomKilled": false
+      },
+      "stale": {
+        "status": "UNAVAILABLE",
+        "missing": [
+          "STALE_WORKER_NAMESPACE",
+          "WORKER_COHORT_UNAVAILABLE"
+        ],
+        "webId": "0fe8157e6f6b25b56046b6302b333f44ff5234d41139e8d263f5a49ada97ef93",
+        "nativeId": "5176b465c613b0feceede7c96b841f80785801391d7f9f018233179eddda0581",
+        "nativeNetworkMode": "container:6fd17e50a051900d5d6041adb4bf59df7e8cb2cdd72926160276e6ef05f8054a",
+        "images": {
+          "web": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "imageIds": {
+          "web": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "volumes": [
+          {
+            "name": "zuri-compact-f8150ac9-3619-genesis",
+            "driver": "local"
+          },
+          {
+            "name": "zuri-compact-f8150ac9-3619-knowledge-state",
+            "driver": "local"
+          }
+        ],
+        "readonlyModelMatchesPackage": true
+      },
+      "reboundReadiness": {
+        "webHealthStatus": 200,
+        "unauthenticatedNativeStatus": 401
+      },
+      "rebound": {
+        "status": "COHORT_PRESENT_NOT_QUALIFIED",
+        "missing": [],
+        "webId": "0fe8157e6f6b25b56046b6302b333f44ff5234d41139e8d263f5a49ada97ef93",
+        "nativeId": "993feaa17b32211a7af261134a2f298f618fa4b0138b00f51a36e99b12a20c79",
+        "nativeNetworkMode": "container:0fe8157e6f6b25b56046b6302b333f44ff5234d41139e8d263f5a49ada97ef93",
+        "images": {
+          "web": "zuri-compact.local/fixtures/web-c3d7aebf36c2@sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "zuri-compact.local/fixtures/genesisworker-e6a0ded0fbb8@sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "imageIds": {
+          "web": "sha256:c3d7aebf36c2b783b7c34d97adced8a19c2e8d6a49301792e7f8c84a79aaaa47",
+          "genesisWorker": "sha256:e6a0ded0fbb8c30e808a8ffd08a78fca89d896c14dc7b8c48edecd11d5ef4fc4"
+        },
+        "volumes": [
+          {
+            "name": "zuri-compact-f8150ac9-3619-genesis",
+            "driver": "local"
+          },
+          {
+            "name": "zuri-compact-f8150ac9-3619-knowledge-state",
+            "driver": "local"
+          }
+        ],
+        "readonlyModelMatchesPackage": true
+      }
+    },
+    "checks": {
+      "package": true,
+      "baseline": true,
+      "startup": true,
+      "missing-token": true,
+      "idle-stop": true,
+      "stale-namespace": true,
+      "rebind": true,
+      "retained-state": true,
+      "no-application-authority": true
+    },
+    "applicationAdmission": "DISABLED",
+    "applicationAuthority": "NOT_QUALIFIED",
+    "unresolvedProbeIntents": [],
+    "unresolvedComposeIntents": [],
+    "knowledge": "NOT_QUALIFIED",
+    "line": "NOT_SELECTED",
+    "activeWorkDrainReplayDedup": "NOT_PROVEN",
+    "nativeStage9": "NOT_PROVEN",
+    "liveLineUat": "NOT_RUN",
+    "task6Closed": false
+  },
+  "rawEvidenceDirectory": "zuri-checkpoint-20261028/compact-task6-idle-cohort-aa4f8c50",
+  "remainingGates": [
+    "APPLICATION_BOOTSTRAP_CURRENT_BUSINESS_AUTHORITY",
+    "ACTIVE_WORK_DRAIN_REPLAY_NO_DUPLICATE_SEND",
+    "FULL_SHIPPED_IMAGE_KI17_AND_SERVING",
+    "OBJECT_DATABASE_AND_NATIVE_STAGE9_RECOVERY",
+    "LIVE_LINE_NOT_RUN",
+    "SUPPORTED_LINUX_HOST_OFF_HOST_DR_HOSTED_CI_PUBLICATION_RELEASE"
+  ],
+  "task6Closed": false
+}
