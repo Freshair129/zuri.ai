@@ -4,21 +4,22 @@ Operator notes for ADR-075 Phase 3 prerequisites P-3 to P-6. The design is
 [`docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md);
 where this file and that one disagree, the design wins.
 
-> **Release candidate (2026-10-24):** `pins.json` now selects MSP
+> **Candidate pin note (2026-10-24):** `pins.json` selects MSP
 > `d0d48c1a8e833478525d9a6ce5ee16af2c85444d` for signed API-010 legacy grants.
-> GKS `ecf1e4de` and GenesisBlock `5156f412` are unchanged. This selection is
-> not a production activation record. The inspected production image still
-> embeds MSP `68e6169d`; historical acceptance below qualifies that older
-> tuple only. Rebuild the runtime and pass exact-image acceptance before
-> promotion. An overlay carrying the old tree must fail the tuple check.
+> GKS `ecf1e4de` and GenesisBlock `5156f412` are unchanged. This manifest
+> selection is a build pin; it is not by itself a production deployment or
+> acceptance record.
 
-> **Status (2026-09-28): the overlay is deployed on the production host.** The
-> ki17 web image and the `genesis-worker` sidecar have run there since 2026-09-21.
-> Production now runs `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main
-> `05f3567d`, deployed 2026-09-28; web healthy and `ki17-smoke` PASS on both hops;
-> rollback target `release-fad8ec62-ki17-overlay`), with the `genesis-worker`
-> container healthy. Web releases are cut with the procedure in
-> [Cutting a release with the overlay](#cutting-a-release-with-the-overlay), which
+> **Production MSP evidence (source: MSP `docs/IMPLEMENTATION-PLAN-MSP-GENESISRAG17-ALIGNMENT.md` §6, `origin/main` at `520ac71`):** the MSP plan records that production was upgraded on 2026-10-24 to embed MSP `d0d48c1` through zuri PR #733 (merge `7d6a80e0`). It reports web image digest `sha256:325eea24…3c0`, worker image digest `sha256:9bee2c31…7e3`, and production run `4a69d6bf-423e-4a04-8e78-d6b7346f756d` with 17/17 stages, one publication receipt, both relay hops, query/citation checks and denial checks passed. The task lead did not inspect production directly; production is not on host `freshair`. This statement cites the MSP record, not a fresh host observation.
+
+> **Production overlay record (2026-09-28; historical snapshot):** the record
+> states that the ki17 web image and `genesis-worker` sidecar had run since
+> 2026-09-21. It names `zuri-ai-web-ki17:release-05f3567d-ki17-overlay` (main
+> `05f3567d`; web healthy and `ki17-smoke` PASS on both hops; rollback target
+> `release-fad8ec62-ki17-overlay`) and reports a healthy `genesis-worker`.
+> MSP §6 above later records the 2026-10-24 production MSP upgrade. This checkout
+> did not inspect production directly. Web releases are cut with the procedure in
+> [Cutting a release with the overlay](#cutting-a-web-release-with-unchanged-runtime-pins), which
 > carries the running `/opt/ki17` forward instead of rebuilding it. The enabling variables —
 > `ZURI_KNOWLEDGE_ENABLED`, `ZURI_KNOWLEDGE_STORAGE_ENABLED`, `ZURI_KNOWLEDGE_BINDINGS`
 > and `MSP_PIPELINE_PRINCIPALS` — live in `apps/server/.env.knowledge`, not in
@@ -27,18 +28,20 @@ where this file and that one disagree, the design wins.
 > "Verifying the relay after a deploy" below) is the post-deploy check — run it after
 > every web recreate, since recreating web without also recreating `genesis-worker`
 > can leave the worker listening in a dead namespace
-> (`.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md`). This status note
-> records that the overlay is running; it does not itself claim that knowledge
-> migrations are recorded or that a documented operator activation record exists —
-> those remain open under TASK-ZAI-050 (`docs/roadmap/ROADMAP.md`).
+> (`.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md`). The 2026-09-28
+> deployment record did not itself confirm recorded knowledge migrations or a
+> documented operator activation record; it listed those as open under TASK-ZAI-050
+> (`docs/roadmap/ROADMAP.md`) at that time. Their current state is not established
+> by this historical snapshot.
 >
-> **The private MSP-to-GKS HTTP overlay (`docker-compose.ki17-gks-http.yml`) is NOT_RUN.**
-> A render-only `docker compose config --quiet` check was run on 2026-09-23 with example
-> env and secret-file paths; it did not build or start services and did not validate
-> real credentials. No canary credential has been generated. The deployed overlay above
-> uses the stdio transport; the HTTP overlay is opt-in and is not part of it. The
-> historical G-3 acceptance below proves the older recorded image tuple only; it is not
-> evidence for this new HTTP image, secret wiring or private-network route.
+> **Private MSP-to-GKS HTTP overlay record (2026-09-23; historical snapshot):** a
+> render-only `docker compose config --quiet` check ran with example env and
+> secret-file paths; it did not build or start services or validate real credentials.
+> That record states that no canary credential had been generated and identifies
+> the deployed overlay as stdio, with HTTP opt-in and outside that deployment. It
+> does not establish whether the HTTP canary has run since then. The historical G-3
+> acceptance below proves only its older recorded image tuple, not a later HTTP
+> image, secret wiring or private-network route.
 >
 > **Historical G-3 record** (2026-09-16): the Phase 2 acceptance passed 35/35 inside a
 > throwaway `ki17-acceptance` image built from the pinned commits — Linux, MSP/GKS/
@@ -226,9 +229,11 @@ That file is prerequisite **P-2**. It landed as GenesisBlock PR #177. Both
 manifests pin `genesisblock` to `5156f412da73905a23d74775a82cc14d1f6d04d0`. The
 default `pins.json` selects the signed-grant stdio candidate, MSP
 `d0d48c1a8e833478525d9a6ce5ee16af2c85444d` / GKS
-`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`. Historical G-3 and the inspected
-running images used MSP `68e6169d`; that evidence does not qualify this new
-candidate. The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`) lives
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`. The historical G-3 image tuple used
+MSP `68e6169d`; it does not qualify the d0 candidate. MSP §6 records a later
+production upgrade to d0, but neither that record nor the historical G-3 run
+substitutes for exact-image acceptance before a future production promotion.
+The HTTP canary candidate (MSP `a65914de`, GKS `1ebcff09`) lives
 only in `pins.gks-http.json`; historical G-3 does not qualify it either.
 `5e75c4a8` and `7c9261c4` remain historical references only.
 `--target runner-ki17` and `--target ki17` do not use its files, but the
@@ -384,8 +389,10 @@ helper above builds current source and is not the procedure for this case.
 
    Repeat with the matching frozen worker base. Build a disposable acceptance
    image from its matching frozen acceptance base with `--build-arg FINAL_USER=root`.
-   `PREVIOUS_MSP_COMMIT` defaults to the inspected old `68e6169d` pin; a different
-   approved baseline requires its explicit full SHA. The recipe validates all
+   `PREVIOUS_MSP_COMMIT` defaults to the historical pre-upgrade `68e6169d` pin
+   used by the recorded d0 upgrade; MSP §6 records production advanced to d0 on
+   2026-10-24. For a later upgrade, set the actual prior runtime's full SHA. The
+   recipe validates all
    original pins using that previous MSP value before replacing anything, then
    validates the selected tuple after copying only MSP and pin metadata.
    Image/source identity is operator-attested at G-4, not established by the
@@ -435,6 +442,81 @@ runtime the deployment does not ship.
 Never `docker compose` for this: the Compose project name is pinned to `zuri-ai`
 and would target the live stack. `docker run` with a throwaway tag is the whole
 interface.
+
+### Native acceptance on Windows (developer check)
+
+This is the recorded native developer run on host `freshair`, Windows, Node
+`v24.20.0`, with zuri.ai at `58991a10` (PR #791; fix head `a7485c3e`), MSP at
+`d0d48c1a8e833478525d9a6ce5ee16af2c85444d`, GKS at
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`, and GenesisBlock at
+`5156f412da73905a23d74775a82cc14d1f6d04d0`.
+
+Prepare isolated, detached MSP, GKS and GenesisBlock checkouts at those exact
+commits. On Windows, install MSP and GKS dependencies with
+`npm ci --ignore-scripts`: plain `npm ci` tries to compile `better-sqlite3` 13.0.3 and
+fails without a working MSVC/Windows SDK, while the package supplies a prebuilt
+`win32-x64` binary. GenesisBlock's pin ships only the Linux addon, so build its
+Windows addon in the detached GenesisBlock checkout:
+
+~~~powershell
+npm ci --ignore-scripts
+# Run from a Visual Studio 2022 x64 developer environment with vcvars64.bat active.
+npm run build:debug
+git checkout -- index.js index.d.ts
+~~~
+
+The build produces `index.win32-x64-msvc.node` and rewrites tracked `index.js`
+and `index.d.ts`; restore those two generated files so the detached checkout
+remains at its pin. Use this restore only in the dedicated detached checkout
+after the build has rewritten those generated files. Before the Python setup
+below, set `KI17_GENESIS_ROOT` to the detached GenesisBlock checkout. Create the Python 3.12 venv at
+`<GenesisBlock checkout>/genesisrag17-worker/.venv` and install that worker's
+`requirements.txt` pins:
+
+~~~powershell
+$workerRoot = Join-Path $env:KI17_GENESIS_ROOT 'genesisrag17-worker'
+Push-Location $workerRoot
+py -3.12 -m venv .venv
+& .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+Pop-Location
+~~~
+
+`KI17_MODEL_DIR` must name the directory containing
+`intfloat/multilingual-e5-small` at revision
+`614241f622f53c4eeff9890bdc4f31cfecc418b3`; the worker verifies five files by
+SHA-256. A local Ollama at `127.0.0.1:11434` serving `qwen2.5:0.5b` is also
+required for the TASK-ZAI-094 LINE grounding cases.
+
+Set these environment variables to absolute local paths before running:
+
+| Variable | Value |
+|---|---|
+| `KI17_MSP_ROOT` | The detached MSP checkout at `d0d48c1a8e833478525d9a6ce5ee16af2c85444d` |
+| `KI17_GKS_ROOT` | The detached GKS checkout at `ecf1e4de269e949406a6a5f791f9ff8fe30c9578` |
+| `KI17_GENESIS_ROOT` | The detached GenesisBlock checkout at `5156f412da73905a23d74775a82cc14d1f6d04d0` |
+| `KI17_MODEL_DIR` | The model directory at the revision and five worker-verified hashes above |
+| `GENESISRAG17_PYTHON` | `<GenesisBlock checkout>/genesisrag17-worker/.venv/Scripts/python.exe` |
+| `KI17_NODE` | Optional; leave unset to use `process.execPath` |
+
+From the zuri.ai checkout root, run:
+
+~~~powershell
+Push-Location apps/server
+npm run test:genesisrag17
+npm run test:genesisrag17 -- -t "TASK-ZAI-094" # focused LINE grounding cases
+Pop-Location
+~~~
+
+Expected full result: **3 files, 42 passed, 0 failed, 0 skipped, about 610 s**.
+`genesisrag17-e2e` passes 29/29 (including TASK-ZAI-094 at 4/4),
+`genesisrag17-smartgift` passes 11/11, and
+`genesisrag17-smartgift-merged-fixture` passes 2/2. The focused
+`-t "TASK-ZAI-094"` run passes 4/4.
+
+Each run rewrites tracked evidence under `.brain/reports`: `genesisrag17-*.json`,
+`fr252-computed-catalog-native.json`, and `task-zai-094-line-grounding.json`.
+This Windows run is a developer check; it does not replace the G-3 Linux image
+gate or exact-image acceptance before a production promotion.
 
 ### Which commit is this image?
 
