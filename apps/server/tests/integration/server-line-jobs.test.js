@@ -19,6 +19,7 @@ vi.mock('@/modules/knowledge/knowledge-corpus-service', async (importOriginal) =
 })
 
 // @req FR-149, FR-150 — real durable admission and fenced delivery recovery.
+// @req FR-235 — GKS citations remain current across delayed LINE delivery.
 // @req FR-265 — the device compute lease this file also covered is withdrawn
 //   (ADR-100 D2); what survives is the server worker's own claim and send path.
 // @spec ADR-061, ADR-100 D2, FR-148, SEC-001
@@ -68,7 +69,7 @@ function currentGksCitation(citationId, over = {}) {
     sourceVersion: 'v1',
     ingestionId: 'ingestion-1',
     snapshotId: 'snapshot-1',
-    generation: 2,
+    generation: 'g17-6ac35d02bb97900d',
     rawArtifactId: 'raw-1',
     parsedArtifactId: 'parsed-1',
     chunkId: 'chunk-1',
@@ -88,7 +89,7 @@ function answerWithGksTrace(citationId, { includeContextReceipt = true, sourceId
       records: [{ kind: 'CORPUS_CHUNK', citationId, text: 'published evidence' }],
     }, {
       mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: null,
-      retrievalRefs: [{ citationId, sourceId, snapshotId: 'snapshot-1', generation: 2,
+      retrievalRefs: [{ citationId, sourceId, snapshotId: 'snapshot-1', generation: 'g17-6ac35d02bb97900d',
         corpusGeneration: 4, manifestHash: 'b'.repeat(64) }], budgetMs: 1,
     })
     if (includeContextReceipt) {

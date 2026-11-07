@@ -208,7 +208,7 @@ async function fixture(label) {
     sourceVersion: 'v1',
     ingestionId: `ingestion-${suffix}`,
     snapshotId: `snapshot-${suffix}`,
-    generation: 2,
+    generation: 'g17-6ac35d02bb97900d',
     rawArtifactId: `raw-${suffix}`,
     parsedArtifactId: `parsed-${suffix}`,
     chunkId: `chunk-${suffix}`,

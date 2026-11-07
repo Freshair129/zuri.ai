@@ -42,7 +42,7 @@ const corpusMock = vi.hoisted(() => ({ fn: null, calls: [], timeline: [] }))
 const citationDeliveryMocks = vi.hoisted(() => ({
   resolve: vi.fn(async citationId => {
     const suffix = typeof citationId === 'string' && citationId.startsWith('cit-') ? citationId.slice(4) : ''
-    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 1, corpusGeneration: 4 }
+    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 4 }
   }),
   lock: vi.fn(async () => {}),
 }))
@@ -506,12 +506,13 @@ describe('W12 — GROUP and ROOM memory-sync turns', () => {
 })
 
 describe('W12 — memory-sync turns under a corpus grounding mode', () => {
-  const hit = (id, text) => ({ id, text, score: 0.9, citationId: `cit-${id}`, sourceId: `src-${id}`, snapshotId: 'snap-1', generation: 1 })
-  // Four ~1,100-character hits plus the thread history exceed the composer's 4,000
-  // character budget: knowledge outranks memory, so the last hit and the older
-  // thread turns are dropped. Both paths must drop the same ones.
+  const hit = (id, text) => ({ id, text, score: 0.9, citationId: `cit-${id}`, sourceId: `src-${id}`, snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d' })
+  // Calibrate against the serialized corpus record, including ref metadata:
+  // three 1,080-character hits with string worker generations use 3,942 of
+  // the composer's 4,000 characters; the fourth hit and older thread turns drop.
+  // Both paths must keep the same citations after generation fields are typed correctly.
   const pressure = () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
-    results: ['a', 'b', 'c', 'd'].map(id => hit(id, `AB-1 ${id} `.padEnd(1100, id))) })
+    results: ['a', 'b', 'c', 'd'].map(id => hit(id, `AB-1 ${id} `.padEnd(1080, id))) })
 
   for (const mode of ['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']) {
     it(`${mode}: GKS evidence and the thread compose under one budget exactly as the legacy tick composes them`, async () => {
@@ -596,7 +597,7 @@ describe('W12 — memory-sync turns under a corpus grounding mode', () => {
           executionId: 'b2aaff78-1f9d-4b4e-84f8-c98e5c72d341',
           idempotencyKey: `conflicting-gks-retry:${jobs[0].id}`, kind: 'EVIDENCE_SELECTED',
           payload: { source: 'GKS_CORPUS', mode: 'GKS_THEN_BUSINESS_KNOWLEDGE', retrievalRefs: [{
-            citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1,
+            citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d',
             corpusGeneration: 4, manifestHash: 'b'.repeat(64),
           }] },
         })
@@ -719,7 +720,7 @@ describe('W11 x W12 — unverified speakers\' memory turns in shared audiences a
     it(`DIRECT under ${mode}: an unlinked and a PENDING speaker get the composed evidence, no recall, PENDING appends`, async () => {
       await setGrounding(mode)
       corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
-        results: [{ id: 'a', text: 'AB-1 a', score: 0.9, citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 1 }] })
+        results: [{ id: 'a', text: 'AB-1 a', score: 0.9, citationId: 'cit-a', sourceId: 'src-a', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d' }] })
       const side = await playBoth([{ audience: 'DIRECT', speaker: 'U' }, { audience: 'DIRECT', speaker: 'P' }])
       expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
       expect(mspNames(side.runtimeMsp)).not.toContain('context')
@@ -744,7 +745,7 @@ describe('W11 x W12 — unverified speakers\' memory turns in shared audiences a
   it('GROUP under GKS_CORPUS: a verified and an unlinked speaker match the legacy tick', async () => {
     await setGrounding('GKS_CORPUS')
     corpusMock.fn = async () => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
-      results: [{ id: 'g', text: 'AB-1 g', score: 0.9, citationId: 'cit-g', sourceId: 'src-g', snapshotId: 'snap-1', generation: 1 }] })
+      results: [{ id: 'g', text: 'AB-1 g', score: 0.9, citationId: 'cit-g', sourceId: 'src-g', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d' }] })
     const side = await playBoth([{ speaker: 'A' }, { speaker: 'U' }])
     expect(side.outcomes.map(outcome => outcome.status)).toEqual(['RECORDED', 'RECORDED'])
     expectSameMsp(side)

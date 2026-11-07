@@ -3,6 +3,7 @@ import { createLineExecutionTrace } from '@/modules/agent/line-execution-trace'
 
 // @req FR-171, FR-235 — recordEvidence's per-hop meta (source, reason,
 // retrievalRefs, budgetMs), backward compatible with the pre-FR-235 shape.
+// @spec ADR-090 D1-D5, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/line-execution-trace.test.js
 
 const appendTraceEvent = vi.hoisted(() => vi.fn(async (_db, event) => event))
@@ -44,7 +45,7 @@ describe('createLineExecutionTrace().recordEvidence (FR-235)', () => {
   it('carries the caller-supplied source, reason, retrievalRefs and budgetMs', async () => {
     appendTraceEvent.mockClear()
     const trace = createLineExecutionTrace({ db: {}, job })
-    const refs = [{ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 2, manifestHash: 'h'.repeat(64) }]
+    const refs = [{ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 2, manifestHash: 'a'.repeat(64) }]
     await trace.recordEvidence({ queryId: 'product_detail' }, { records: [] }, { source: 'GKS_CORPUS', reason: 'NO_EVIDENCE', retrievalRefs: refs, budgetMs: 42 })
     const [, event] = appendTraceEvent.mock.calls[0]
     expect(event.payload).toMatchObject({ source: 'GKS_CORPUS', reason: 'NO_EVIDENCE', retrievalRefs: refs, budgetMs: 42 })

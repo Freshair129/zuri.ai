@@ -26,7 +26,7 @@ const queryKnowledgeCorpusMock = vi.hoisted(() => vi.fn())
 const citationDeliveryMocks = vi.hoisted(() => ({
   resolve: vi.fn(async citationId => {
     const suffix = typeof citationId === 'string' && citationId.startsWith('cit-') ? citationId.slice(4) : ''
-    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 1, corpusGeneration: 4 }
+    return { citationId, sourceId: `src-${suffix}`, snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 4 }
   }),
   lock: vi.fn(async () => {}),
 }))
@@ -45,7 +45,7 @@ const sealKey = '6d'.repeat(32)
 const lineUser = 'synthetic-grounding-line-user'
 const MODES = ['BUSINESS_KNOWLEDGE', 'GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE']
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
-const corpusHit = { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1 }
+const corpusHit = { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d' }
 
 let tenant, business, provider, actor, ownerViewer
 let openJobs = []
@@ -177,7 +177,7 @@ describe('Core prepare serves every grounding mode through the real Core route',
     { mode: 'BUSINESS_KNOWLEDGE', corpus: [corpusHit], expected: [productRecord], corpusCalls: 0,
       hops: [{ source: 'BUSINESS_QUERY', mode: undefined, reason: undefined, records: 1 }] },
     { mode: 'GKS_CORPUS', corpus: [corpusHit], corpusCalls: 1,
-      expected: [{ kind: 'CORPUS_CHUNK', text: corpusHit.text, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 4, manifestHash: 'a'.repeat(64) }],
+      expected: [{ kind: 'CORPUS_CHUNK', text: corpusHit.text, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 4, manifestHash: 'a'.repeat(64) }],
       hops: [{ source: 'GKS_CORPUS', mode: 'GKS_CORPUS', reason: null, records: 1 }] },
     { mode: 'GKS_CORPUS', corpus: [], expected: [], corpusCalls: 1,
       hops: [{ source: 'GKS_CORPUS', mode: 'GKS_CORPUS', reason: 'NO_EVIDENCE', records: 0 },

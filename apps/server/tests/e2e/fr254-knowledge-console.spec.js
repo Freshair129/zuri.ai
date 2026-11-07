@@ -152,7 +152,7 @@ test.describe('FR-254 fixture-backed knowledge console', () => {
         await json(route, pageData([{ id: 'c1', businessId: business.id, projectId: null, generation: 3, status: 'ACTIVE' }]))
       } else if (url.pathname === '/api/knowledge/queries') {
         queryBody = route.request().postDataJSON()
-        await json(route, { corpusId: 'c1', corpusGeneration: 3, results: [{ citationId: 'citation-one', snapshotId: 'snapshot-v1', generation: 1, text: 'Frozen knowledge fixture' }] })
+        await json(route, { corpusId: 'c1', corpusGeneration: 3, results: [{ citationId: 'citation-one', snapshotId: 'snapshot-v1', generation: 'g17-fr254-fixture', text: 'Frozen knowledge fixture' }] })
       } else if (url.pathname === '/api/knowledge/citations/citation-one/artifact') {
         const kind = url.searchParams.get('kind')
         const content = `${kind} version 1 <script>window.fixtureExecuted = true</script>`

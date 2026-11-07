@@ -38,6 +38,7 @@ status: generated
 - [apps/server/tests/integration/server-line-webhook.test.js](../../../apps/server/tests/integration/server-line-webhook.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/conversation-channel-account-migration.test.js](../../../apps/server/tests/unit/conversation-channel-account-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/conversation-read-model.test.js](../../../apps/server/tests/unit/conversation-read-model.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-gks-citation-fence.test.js](../../../apps/server/tests/unit/line-gks-citation-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/reply-record-service.test.js](../../../apps/server/tests/unit/reply-record-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/scope-external-ids-migration.test.js](../../../apps/server/tests/unit/scope-external-ids-migration.test.js) — `verifies` (`test-reference`)
 
@@ -152,6 +153,7 @@ status: generated
 - [apps/server/tests/unit/grounded-business-answer.test.js](../../../apps/server/tests/unit/grounded-business-answer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-admission-after-ack.test.js](../../../apps/server/tests/unit/line-admission-after-ack.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-binding-status.test.js](../../../apps/server/tests/unit/line-binding-status.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-gks-citation-fence.test.js](../../../apps/server/tests/unit/line-gks-citation-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-job-failures-route.test.js](../../../apps/server/tests/unit/line-job-failures-route.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-job-failures.test.js](../../../apps/server/tests/unit/line-job-failures.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-knowledge-grounding.test.js](../../../apps/server/tests/unit/line-knowledge-grounding.test.js) — `verifies` (`transitive`)
@@ -213,6 +215,7 @@ status: generated
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/embedded-postgres-cleanup.test.js](../../../apps/server/tests/unit/embedded-postgres-cleanup.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/line-gks-citation-fence.test.js](../../../apps/server/tests/unit/line-gks-citation-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-oa-readiness-journey.test.js](../../../apps/server/tests/unit/line-oa-readiness-journey.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-trace-summary.test.js](../../../apps/server/tests/unit/line-trace-summary.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/server-line-answer.test.js](../../../apps/server/tests/unit/server-line-answer.test.js) — `verifies` (`test-reference`)

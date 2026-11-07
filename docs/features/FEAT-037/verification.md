@@ -46,6 +46,7 @@ status: generated
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/crm-message-attachments-events-migration.test.js](../../../apps/server/tests/unit/crm-message-attachments-events-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-gks-citation-fence.test.js](../../../apps/server/tests/unit/line-gks-citation-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-230](requirements/FR-230.md)

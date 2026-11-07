@@ -11,7 +11,7 @@ const BUSINESS_ID = 'business-a'
 function hit(overrides = {}) {
   return {
     id: 'hit-1', text: 'สินค้า USB-001 ราคา 120 บาท', score: 0.9,
-    citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1,
+    citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d',
     ...overrides,
   }
 }
@@ -23,7 +23,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
   })
 
   it('derives a free-text query from the registered query and reads only its own Business', async () => {
-    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 3, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [hit()] }))
+    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 3, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [hit()] }))
     const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus })
     await reader.query({ queryId: 'product_detail', params: { productCode: 'USB-001' }, limit: 1 })
 
@@ -36,7 +36,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
   })
 
   it('builds product_compare and product_search free-text queries the same way selectRegisteredQuery derives them', async () => {
-    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] }))
+    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] }))
     const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus })
     await reader.query({ queryId: 'product_compare', params: { productCodes: ['A-1', 'B-2'] }, limit: 3 })
     expect(queryKnowledgeCorpus.mock.calls[0][0].query).toBe('A-1 B-2')
@@ -54,7 +54,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
 
   it('maps corpus hits into CORPUS_CHUNK records carrying retrieval references, and never composes or records anything itself', async () => {
     const queryKnowledgeCorpus = vi.fn(async () => ({
-      corpusGeneration: 7, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      corpusGeneration: 7, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
       results: [hit({ id: 'a' }), hit({ id: 'b', citationId: 'cit-2', text: 'ข้อมูลอีกชิ้น' })],
     }))
     const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus })
@@ -65,10 +65,10 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
       expect(record.kind).toBe('CORPUS_CHUNK')
       expect(typeof record.text).toBe('string')
       expect(record.corpusGeneration).toBe(7)
-      expect(record.manifestHash).toBe('h'.repeat(64))
+      expect(record.manifestHash).toBe('a'.repeat(64))
     }
     expect(result.retrievalRefs).toHaveLength(2)
-    expect(result.retrievalRefs[0]).toMatchObject({ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 7 })
+    expect(result.retrievalRefs[0]).toMatchObject({ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 7 })
     // @req FR-234/SDD-100 — this reader returns evidence only. Composition
     // and its ContextReceipt are owned entirely by server-line-answer.js, so
     // one model invocation can never get two receipts for one turn.
@@ -78,7 +78,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
   it('enforces the byte budget: an over-budget hit is dropped, an earlier smaller hit is kept', async () => {
     const bigText = 'ก'.repeat(3000) // multi-byte UTF-8, several bytes per char
     const queryKnowledgeCorpus = vi.fn(async () => ({
-      corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
       results: [hit({ id: 'small', citationId: 'cit-small', text: 'short' }), hit({ id: 'big', citationId: 'cit-big', text: bigText })],
     }))
     const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus, maxPacketBytes: 100 })
@@ -88,7 +88,7 @@ describe('createCorpusKnowledgeReader (FR-235)', () => {
   })
 
   it('reports an empty result when the corpus returns no hits', async () => {
-    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] }))
+    const queryKnowledgeCorpus = vi.fn(async () => ({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] }))
     const reader = createCorpusKnowledgeReader({ tenantId: TENANT_ID, businessId: BUSINESS_ID, queryKnowledgeCorpus })
     const result = await reader.query({ queryId: 'product_detail', params: { productCode: 'X' }, limit: 1 })
     expect(result.records).toEqual([])

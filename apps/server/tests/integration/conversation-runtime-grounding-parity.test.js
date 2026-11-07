@@ -40,8 +40,8 @@ const env = { ZURI_LINE_KNOWLEDGE_BUDGET_MS: '40' }
 
 const productRecord = { name: 'แก้ว', product_code: 'AB-1', sell_price: 50, currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }
 const corpusHit = (overrides = {}) => ({ id: 'hit-1', text: 'AB-1 คือแก้วน้ำ ราคา 50 บาท', score: 0.9,
-  citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, ...overrides })
-const corpusResult = (results) => ({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results })
+  citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', ...overrides })
+const corpusResult = (results) => ({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results })
 
 // Each scenario is one state of the two sources both paths read.
 const SCENARIOS = {
