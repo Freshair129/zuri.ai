@@ -48,6 +48,7 @@ describe.skipIf(!mspRoot || !gksRoot)('FR-110 — evidence pull, live across zur
         OLLAMA_BASE_URL: 'http://127.0.0.1:1',
       },
       timeoutMs: 30_000,
+      awaitChildExit: true,
     })
     const portfolio = await createPortfolio({ name: 'KI Chain Group', code: 'PF-KICHAIN' })
     const tenant = await createTenant({ portfolioId: portfolio.id, name: 'KI Chain Tenant', code: 'TNT-KICHAIN' })
@@ -74,18 +75,28 @@ describe.skipIf(!mspRoot || !gksRoot)('FR-110 — evidence pull, live across zur
       },
       policy: { sensitivity: 'INTERNAL', retention_policy: 'RETAIN_7Y', export_policy: 'NO_EXPORT', cloud_processing_allowed: true, embedding_allowed: true },
     }, { viewer: operator })
-    const scope = { portfolioId: 'portfolio-zuri', tenantId, businessId, workspaceId: '', projectId: '', sharing: 'private' }
+    const scope = { portfolioId: 'portfolio-zuri', tenantId, businessId, workspaceId: 'workspace-ki-chain', projectId: '', sharing: 'private' }
 
     // Tier 3 executes Stage 9, reached the only lawful way and told which run
     // it is executing for. (What sends Stage 8's candidates here in production
     // is the forward handoff; this test plays that caller.)
+    const proof = await transport('msp_evidence_record', {
+      schema_version: 'govibe-proof-batch/v1',
+      idempotency_key: `ki-chain-proof-${run.executionRunId}`,
+      run_id: run.executionRunId,
+      workspace_id: scope.workspaceId,
+      stage: 1,
+      source_snapshot_hash: 'd'.repeat(64),
+      verification: { verdict: 'passed' },
+    })
     const promoted = await transport('msp_knowledge_promote', {
       schema_version: 'govibe-knowledge-candidate/v1',
       idempotency_key: `ki-chain-${run.executionRunId}`,
       run_id: run.executionRunId,
+      workspace_id: scope.workspaceId,
       stage: 1,
       source_snapshot_hash: 'd'.repeat(64),
-      provenance_ref: `msp:proof/ki-chain-${run.executionRunId}`,
+      provenance_ref: proof.proof_ref,
       pipeline_stage_id: 'DPS-KI-ENTITY-RESOLVE',
       scope,
       candidate: { entities: [{ candidateRef: 'บริษัท เอบีซี จำกัด', type: 'ENTITY', title: 'บริษัท เอบีซี จำกัด', summary: 'from Stage 8' }] },

@@ -24,6 +24,10 @@ import {
   withdrawLineProductDisclosure,
 } from '@/modules/knowledge/line-product-disclosure-service'
 
+// @req FR-235 — the approved LINE product disclosure source is pinned to a published GKS snapshot.
+// @spec ADR-072 D10, ADR-090 D1-D5, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/integration/line-product-disclosure-policy.test.js
+
 const sourceMock = vi.hoisted(() => ({ resolve: vi.fn(), readManifest: vi.fn() }))
 vi.mock('@/modules/knowledge/line-product-disclosure-source', async (importOriginal) => ({
   ...(await importOriginal()),
@@ -517,13 +521,13 @@ describe('LINE customer product disclosure policy', () => {
       const contentHash = sha256(`content:${suffix}`)
       const entry = {
         sourceId, ingestionId, revision: 1, fileAssetId: assetId, sourceVersion: sha, contentHash,
-        executionRunId: `run-${suffix}`, snapshotId: `snapshot-${suffix}`, generation: 1,
+        executionRunId: `run-${suffix}`, snapshotId: `snapshot-${suffix}`, generation: `g17-${suffix}`,
         receiptHash: sha256(`receipt:${suffix}`), rawArtifactId: `raw-${suffix}`, parsedArtifactId: `parsed-${suffix}`,
         title, scope: { tenantId: tenant.id, businessId: business.id },
       }
       const ingestion = {
         id: ingestionId, corpusId, sourceId, revision: 1, sourceVersion: sha, contentHash, status: 'PUBLISHED',
-        executionRunId: entry.executionRunId, snapshotId: entry.snapshotId, snapshotGeneration: 1,
+        executionRunId: entry.executionRunId, snapshotId: entry.snapshotId, snapshotGeneration: entry.generation,
         receiptHash: entry.receiptHash, rawArtifactId: entry.rawArtifactId, parsedArtifactId: entry.parsedArtifactId,
         sourceMetaJson: JSON.stringify({
           kind: 'FILE', title, sourceKey: source.sourceKey, fileAssetId: assetId, fileAssetVersion: 1,

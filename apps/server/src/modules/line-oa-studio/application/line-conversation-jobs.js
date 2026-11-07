@@ -1080,6 +1080,16 @@ function validateCustomerProductOptions(options) {
 }
 
 const LINE_GKS_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
+// GenesisRAG17's generation is a worker snapshot id; corpusGeneration is Zuri's
+// positive-integer manifest revision. Keep these distinct at the trace boundary.
+const LINE_GKS_RETRIEVAL_REF_SCHEMA = z.object({
+  citationId: z.string().min(1),
+  sourceId: z.string().min(1),
+  snapshotId: z.string().min(1),
+  generation: z.string().min(1),
+  corpusGeneration: z.number().int().min(1).refine(Number.isSafeInteger),
+  manifestHash: z.string().regex(/^[a-f0-9]{64}$/i),
+}).passthrough()
 
 // @req FR-235 — before a delayed LINE send, re-resolve only citations that the
 // current execution's ContextReceipt says reached the model. Core may resume
@@ -1088,7 +1098,9 @@ const LINE_GKS_MODES = new Set(['GKS_CORPUS', 'GKS_THEN_BUSINESS_KNOWLEDGE'])
 // execution-scoped. No client proof or new authority is accepted here;
 // `resolveKnowledgeCitation` checks the exact immutable generation plus current
 // source and Business access (ADR-072 D10).
-async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthorized = false) {
+// @spec ADR-072 D10, docs/plans/GENESISRAG17-CONTRACT.md
+// @tested tests/unit/line-gks-citation-fence.test.js
+export async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthorized = false) {
   // These bounded paths have their own current-proof fence and are not the
   // generic corpus reader described by FR-235.
   // An environment selector is not proof for this job. Only a successful,
@@ -1113,12 +1125,7 @@ async function lineGksCitationsStillCurrent(db, job, env, boundedKnowledgeAuthor
   for (const event of gksEvents) {
     if (!LINE_GKS_MODES.has(event.payload?.mode) || !Array.isArray(event.payload?.retrievalRefs)) return false
     for (const ref of event.payload.retrievalRefs) {
-      if (!ref || typeof ref.citationId !== 'string' || !ref.citationId
-        || typeof ref.sourceId !== 'string' || !ref.sourceId
-        || typeof ref.snapshotId !== 'string' || !ref.snapshotId
-        || !Number.isSafeInteger(ref.generation) || ref.generation < 1
-        || !Number.isSafeInteger(ref.corpusGeneration) || ref.corpusGeneration < 1
-        || typeof ref.manifestHash !== 'string' || !/^[a-f0-9]{64}$/i.test(ref.manifestHash)) return false
+      if (!LINE_GKS_RETRIEVAL_REF_SCHEMA.safeParse(ref).success) return false
       const previous = refsByCitation.get(ref.citationId)
       if (previous && (previous.sourceId !== ref.sourceId || previous.snapshotId !== ref.snapshotId
         || previous.generation !== ref.generation || previous.corpusGeneration !== ref.corpusGeneration

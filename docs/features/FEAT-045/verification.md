@@ -49,6 +49,7 @@ status: generated
 - [apps/server/tests/unit/business-model-credential-resolution.test.js](../../../apps/server/tests/unit/business-model-credential-resolution.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-gks-citation-fence.test.js](../../../apps/server/tests/unit/line-gks-citation-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-oa-account-domain.test.js](../../../apps/server/tests/unit/line-oa-account-domain.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-account-schema-contract.test.js](../../../apps/server/tests/unit/line-oa-account-schema-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-model-key-card-render.test.js](../../../apps/server/tests/unit/line-oa-model-key-card-render.test.js) — `verifies` (`test-reference`)

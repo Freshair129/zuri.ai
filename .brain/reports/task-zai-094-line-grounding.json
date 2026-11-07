@@ -1,12 +1,12 @@
 {
   "task": "TASK-ZAI-094",
   "executionConcurrency": 4,
-  "tickElapsedMs": 642,
+  "tickElapsedMs": 1171,
   "groundingHopElapsedMs": [
-    298,
-    408,
-    363,
-    245
+    687,
+    581,
+    712,
+    520
   ],
   "configuredBudgetMs": 2500,
   "budgetHolds": true,
