@@ -1,8 +1,8 @@
 ---
 id: ZAI:ADR-116
 title: Visual Office repository, data-access and serving boundary
-version: "0.2.0b"
-status: candidate
+version: "1.0.0"
+status: accepted
 created_at: "2026-11-06"
 last_update: "2026-11-07"
 author: Claude Opus 5.5
@@ -32,8 +32,10 @@ relations:
 
 # ADR-116 — Visual Office repository, data-access and serving boundary
 
-**Status:** Candidate. Proposed on 2026-11-06 at the owner's request for a
-recommendation. It takes effect only when the owner accepts it.
+**Status:** Accepted by the owner on 2026-11-07. Proposed on 2026-11-06 at the
+owner's request for a recommendation. Acceptance issues no route, schema,
+permission or implementation; each contract named here still follows the normal
+doc-first process.
 
 It builds on the [Visual Office client design](../architecture/2026-10-22-visual-office-zuri-client-design.md).
 That design records an owner approval on 2026-10-23 of Visual Office as an
@@ -279,3 +281,4 @@ named here still needs its own FR and contract under the normal doc-first proces
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-11-06 | candidate | Initial proposal: no direct DB, dedicated snapshot projection, shared write contracts, conditional same-origin first slice (amends design gate 1), separate repository with producer-owned contracts | uncommitted | Claude Opus 5.5 |
 | 0.2.0b | 2026-11-07 | candidate | Refresh facts: public `Freshair129/visual-office` (old repo archived, FR-294 pin still valid), binaries outside Git, Worker R2 holds T3 data only. Add decision 7 (client, not an MSP/GKS-style service) and the matching rejected alternative; mark the decision 6 binary precondition met | uncommitted | Claude Opus 5.5 |
+| 1.0.0 | 2026-11-07 | accepted | Owner accepted decisions 1–7, including the decision 4 amendment of client-design §8 gate 1 for the first slice | uncommitted | Claude Opus 5.5 |
