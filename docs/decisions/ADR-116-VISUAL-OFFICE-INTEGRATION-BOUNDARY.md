@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-116
 title: Visual Office repository, data-access and serving boundary
-version: "0.1.0b"
+version: "0.2.0b"
 status: candidate
 created_at: "2026-11-06"
-last_update: "2026-11-06"
+last_update: "2026-11-07"
 author: Claude Opus 5.5
 superseded_by: null
 attributes:
@@ -39,7 +39,7 @@ It builds on the [Visual Office client design](../architecture/2026-10-22-visual
 That design records an owner approval on 2026-10-23 of Visual Office as an
 optional, separately deployed client registered with Zuri, with Zuri remaining
 the authority for identity, Business scope and business data. Decisions 1–3, 5
-and 6 refine that design. **Decision 4 amends it**: for the first slice only, it
+and 6–7 refine that design. **Decision 4 amends it**: for the first slice only, it
 replaces the registered-client prerequisite (design §8 gate 1) with same-origin
 serving under explicit conditions. Accepting this ADR therefore also accepts that
 amendment.
@@ -99,6 +99,36 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
   its own lockfile, CI job and service documentation, and absorbing a repository
   requires preserved history and provenance.
 
+### Facts changed on 2026-11-07
+
+On 2026-11-07 the owner asked again whether Visual Office should join the
+monorepo or become a separate service like MSP and GKS. Facts at zuri.ai `main`
+`2bf5a5fc` and Visual Office `main` `78182b5d`:
+
+- **New repository.** Visual Office now lives in the public repository
+  `Freshair129/visual-office`, created as a single-commit snapshot. The former
+  private repository `Freshair129/zuri-visual-office` is archived (read-only) and
+  keeps the full history.
+- **The FR-294 pin is still valid.** Commit `b4e2d8ed` remains readable in the
+  archived repository. The design-package schema in the public repository is
+  byte-identical to the vendored copy (SHA-256 `80efbb49…`, matching
+  `provenance.json` `schemaSha256`).
+- **Brand and generated binaries are no longer in Git.** 88 files (brand
+  characters, ImageGen art, brand marks, third-party candidates) are listed with
+  hashes in `asset-store/manifest.json`. They are kept as local files, with a
+  dedicated object store used only for developer handoff. A fresh clone builds and
+  passes CI with procedural fallbacks.
+- **Visual Office has a Worker with its own object storage.** Its R2 bucket holds
+  T3 job material: chat threads and file metadata, knowledge files, result files
+  and work-review records. These are T3 runner data, not Zuri Business records,
+  and no Zuri Business data is stored there.
+- **MSP and GKS are a different kind of system.** They are backend services with
+  their own runtimes and stores, they serve several products, and zuri-ai holds
+  only ports and contracts for them
+  ([ADR-063](ADR-063-RETIRE-TIER1-GENESISBLOCKDB-DIRECT-CLIENTS.md) D3–D4).
+  Visual Office is a user-facing client of Zuri Business data and owns no
+  business data.
+
 ## Decision
 
 1. **No direct database or broker access.** Visual Office never connects to Zuri's
@@ -157,8 +187,10 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
      replacement for it needs its own contract.
 
 5. **Separate repository; the producer owns each contract.**
-   - Visual Office stays in `Freshair129/zuri-visual-office` with its own build,
-     CI and asset pipeline.
+   - Visual Office stays in its own repository, now `Freshair129/visual-office`,
+     with its own build, CI and asset pipeline. Existing pins to the archived
+     `Freshair129/zuri-visual-office` stay valid; new pins name the public
+     repository and its commit.
    - Zuri produces the snapshot, so its JSON Schema and fixtures live in zuri.ai
      `apps/server/contracts/`. Visual Office pins a contract version and tests
      against those fixtures. Zuri contract tests prove the Server response.
@@ -175,7 +207,18 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
 
    Same-origin serving under decision 4 already makes Office part of Zuri's
    trusted release. If that coordination becomes the main cost, it is a reason to
-   move. Binary assets would first need Git LFS or external storage.
+   move. The binary-asset precondition is met: brand and generated binaries
+   already live outside Git (see Facts changed on 2026-11-07).
+
+7. **Visual Office is a client application, not a platform service.**
+   - It is not modelled on MSP or GKS. It gets no service lane, no business-data
+     store and no runtime that other products call. Zuri reaches it only as a
+     served client (decision 4) or a registered client.
+   - Its Worker and R2 bucket may hold T3 runner material only (job chat, files,
+     results and work review). They must not hold Zuri Business data or become a
+     second write path into Zuri.
+   - If Office later needs server-side Business behaviour, that behaviour belongs
+     in the owning Zuri domain, exposed through contracts like decisions 2–3.
 
 ## Alternatives and consequences
 
@@ -193,8 +236,14 @@ Facts at zuri.ai `main` `46787958` and Visual Office `origin/main` `25cfa8f3`:
   registered-client contract, CORS and token handling first. Decision 4 keeps it
   as the fallback.
 - **Monorepo now.** Deferred. Today the shared surface is one small contract. The
-  cost would be a third independent dependency tree and CI lane, plus a large
-  binary asset history.
+  cost would be a third independent dependency tree and CI lane in zuri.ai. Since
+  2026-11-07 binary history is no longer a cost, because the public repository
+  has no brand binaries. Both repositories are public, so CI billing does not
+  decide this either way.
+- **Separate service like MSP or GKS.** Rejected. Those are shared backend
+  systems with their own runtimes and stores. Visual Office is a client: giving
+  it a service lane would create a second place where Business behaviour and data
+  could live, which decision 1 and the client design exclude.
 
 Consequences:
 
@@ -229,3 +278,4 @@ named here still needs its own FR and contract under the normal doc-first proces
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
 | 0.1.0b | 2026-11-06 | candidate | Initial proposal: no direct DB, dedicated snapshot projection, shared write contracts, conditional same-origin first slice (amends design gate 1), separate repository with producer-owned contracts | uncommitted | Claude Opus 5.5 |
+| 0.2.0b | 2026-11-07 | candidate | Refresh facts: public `Freshair129/visual-office` (old repo archived, FR-294 pin still valid), binaries outside Git, Worker R2 holds T3 data only. Add decision 7 (client, not an MSP/GKS-style service) and the matching rejected alternative; mark the decision 6 binary precondition met | uncommitted | Claude Opus 5.5 |
