@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.4"
+version: "0.7.5"
 status: beta
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-09-28T04:00:00+07:00,MC0 (Claude Opus 5.5)"
+last_update: "2026-11-08T04:03:25+07:00,Codex"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -392,6 +392,25 @@ default `pins.json` is the stdio production tuple again and the HTTP tuple lives
 `pins.gks-http.json` (P-3 row). Procedure and rollback:
 `apps/server/deploy/ki17/README.md`, "Cutting a release with the overlay".
 
+### 9.3 Native Windows developer acceptance — 2026-11-08
+
+On host `freshair` with Node `v24.20.0`, zuri.ai `58991a10` (PR #791; fix head
+`a7485c3e`), MSP `d0d48c1a8e833478525d9a6ce5ee16af2c85444d`, GKS
+`ecf1e4de269e949406a6a5f791f9ff8fe30c9578`, and GenesisBlock
+`5156f412da73905a23d74775a82cc14d1f6d04d0`,
+`npm run test:genesisrag17` passed **42/42** with no failures or skips across
+three files in about 610 s (e2e 29/29, including TASK-ZAI-094 4/4; SmartGift
+11/11; merged fixture 2/2). Windows prerequisites, exact commands and evidence
+side effects are in the [native developer-check recipe](../../apps/server/deploy/ki17/README.md#native-acceptance-on-windows-developer-check);
+the fact list and source provenance are in
+[the 2026-11-08 receipt summary](../../.brain/reports/2026-11-08-ki17-native-acceptance.md).
+This native run does not replace the G-3 Linux image gate or exact-image
+acceptance before a production promotion.
+
+**Open question for the owner (FR-189):** does FR-189 remain applicable after
+ADR-110 retired the edge-device worker connection? No FR-189 status or
+supersession change is made here.
+
 ## 10. Start order (operator procedure, not executed)
 
 Rollout is accept-before-produce (ADR-075 D6, revision 2): the worker accepts
@@ -595,6 +614,7 @@ cutover.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.5 | 2026-11-08 | beta | Adds the native Windows developer-check recipe and §9.3 result, records production MSP evidence from MSP §6 with its source caveat, and preserves FR-189 for owner decision; FR-187/188 source-row status migration remains gated by an approved migration document | working-tree | Codex |
 | 0.7.0 | 2026-09-23 | beta | Corrects the HTTP pipeline credential boundary and adds the same child-environment filter to GenesisBlock's inherited worker spawn | working-tree | RWANG |
 | 0.6.0 | 2026-09-23 | beta | Adds isolated local-canary runtime env selectors and a canary-only ngrok suppression overlay; normal defaults unchanged | working-tree | RWANG |
 | 0.5.0 | 2026-09-23 | beta | Adds the owner-approved isolated MSP-to-GKS HTTP canary topology, private network/secret boundaries, mode-specific environment contract, canary gate and stdio rollback; no canary or production deployment run | working-tree | RWANG |
