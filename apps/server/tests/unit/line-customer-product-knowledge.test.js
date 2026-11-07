@@ -4,6 +4,7 @@ import { disclosureLookupHash } from '@/modules/knowledge/line-product-disclosur
 import { createLineCustomerProductReader, selectCustomerProductReply } from '@/modules/agent/line-customer-product-knowledge'
 import { NO_EVIDENCE_REPLY } from '@/modules/agent/line-answer-policy'
 // @req FR-235, FR-049, FR-079 — source-constrained public facts and strict IDs, never model-invented prose.
+// @spec ADR-090 D1-D5, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/line-customer-product-knowledge.test.js
 const id=n=>`00000000-0000-4000-8000-${String(n).padStart(12,'0')}`
 function fixture() {
@@ -16,7 +17,7 @@ function fixture() {
   const job={id:id(7),executionId:id(8),tenantId:id(1),businessId:id(2),accountId:id(3),executionMode:'SERVER',runtimeOwner:'SERVER',account,
     inbound:{body:'ขอชื่อสินค้า CUP-A'}}
   const source={values:[{field:'sku',value:'CUP-A'},{field:'nameTh',value:'แก้วจริง'}],binding:{sourceSha256:'a'.repeat(64)},
-    projectionSha256:'b'.repeat(64),retrievalRef:{sourceId:id(5),ingestionId:id(6),snapshotId:id(9),generation:1,manifestHash:'c'.repeat(64),corpusGeneration:2}}
+    projectionSha256:'b'.repeat(64),retrievalRef:{sourceId:id(5),ingestionId:id(6),snapshotId:id(9),generation:'g17-6ac35d02bb97900d',manifestHash:'c'.repeat(64),corpusGeneration:2}}
   const policy={id:id(10),tenantId:id(1),businessId:id(2),lineOaAccountId:id(3),productId:id(4),sourceId:id(5),enabled:true,version:1,
     fieldsJson:JSON.stringify(['sku','nameTh']),sourceBindingJson:JSON.stringify(source.binding),projectionSha256:source.projectionSha256,
     approvedByPersonId:id(11),skuLookupSha256:disclosureLookupHash('CUP-A'),nameThLookupSha256:disclosureLookupHash('แก้วจริง')}

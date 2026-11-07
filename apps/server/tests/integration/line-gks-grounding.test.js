@@ -45,7 +45,7 @@ function businessKnowledgeEvidence() {
 }
 
 function corpusHit(overrides = {}) {
-  return { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ ราคา 50 บาท', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, ...overrides }
+  return { id: 'hit-1', text: 'AB-1 คือแก้วน้ำ ราคา 50 บาท', score: 0.9, citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', ...overrides }
 }
 
 function fakeTrace() {
@@ -95,7 +95,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
 
   it('GKS_CORPUS (not memory-opt-in): reads the published corpus, traces one GKS_CORPUS hop tagged with the mode, answers from the chunk, and records one ContextReceipt', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const knowledge = { query: vi.fn() } // must never be read in GKS_CORPUS mode
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge) })
@@ -110,7 +110,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
     const [, evidence, meta] = trace.recordEvidence.mock.calls[0]
     expect(evidence.records).toHaveLength(1)
     expect(meta).toMatchObject({ mode: 'GKS_CORPUS', source: 'GKS_CORPUS', reason: null })
-    expect(meta.retrievalRefs).toEqual([{ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 1, corpusGeneration: 4, manifestHash: 'h'.repeat(64) }])
+    expect(meta.retrievalRefs).toEqual([{ citationId: 'cit-1', sourceId: 'src-1', snapshotId: 'snap-1', generation: 'g17-6ac35d02bb97900d', corpusGeneration: 4, manifestHash: 'a'.repeat(64) }])
     expect(typeof meta.budgetMs).toBe('number')
 
     // FR-234 applies to public evidence even when private memory is not enabled.
@@ -120,7 +120,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
 
   it('GKS_CORPUS: no evidence yields the deterministic reply and zero model calls, with no fallback reader touched', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] })
     const generate = vi.fn()
     const resolveModel = vi.fn().mockResolvedValue({ provider: 'openai', model: 'fixture', generate })
     const runtimeFactory = vi.fn().mockResolvedValue({ businessKnowledge: { query: vi.fn() }, resolveModel })
@@ -138,7 +138,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
 
   it('GKS_THEN_BUSINESS_KNOWLEDGE: a timed-out corpus hop is GKS_UNAVAILABLE, traced, and falls back to business knowledge', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] }), 100)))
+    queryKnowledgeCorpusMock.mockImplementation(() => new Promise((resolve) => setTimeout(() => resolve({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] }), 100)))
     const knowledge = { query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ runtimeFactory: runtimeWith(knowledge), env: { ZURI_LINE_KNOWLEDGE_BUDGET_MS: '5' } })
@@ -153,7 +153,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
 
   it('GKS_THEN_BUSINESS_KNOWLEDGE: no evidence anywhere yields the deterministic reply and zero model calls', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] })
     const generate = vi.fn()
     const resolveModel = vi.fn().mockResolvedValue({ provider: 'openai', model: 'fixture', generate })
     const runtimeFactory = vi.fn().mockResolvedValue({ businessKnowledge: { query: async () => ({ records: [] }) }, resolveModel })
@@ -170,7 +170,7 @@ describe('FR-235 — LINE knowledge grounding modes', () => {
   it('never reads another Business\'s corpus: two jobs for different Businesses each query only their own scope', async () => {
     queryKnowledgeCorpusMock.mockClear()
     queryKnowledgeCorpusMock.mockImplementation(async ({ businessId: requested }) => ({
-      corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60',
+      corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60',
       results: [corpusHit({ text: `evidence for ${requested}` })],
     }))
     const answer = createServerLineAnswer({ runtimeFactory: runtimeWith({ query: vi.fn() }) })
@@ -244,7 +244,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
 
   it('memory-opt-in + GKS_CORPUS with evidence: exactly one ContextReceipt listing both the MSP participant and the citation', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn() }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS' }), { trace })
@@ -260,7 +260,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
 
   it('memory-opt-in + GKS_CORPUS with no evidence: zero ContextReceipts and zero model calls', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] })
     const generate = vi.fn()
     const answer = createServerLineAnswer({ ...memoryPorts(),
       runtimeFactory: vi.fn().mockResolvedValue({ businessKnowledge: { query: vi.fn() }, resolveModel: vi.fn().mockResolvedValue({ provider: 'openai', model: 'fixture', generate }) }) })
@@ -274,7 +274,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
 
   it('memory-opt-in + GKS_THEN_BUSINESS_KNOWLEDGE falling back: one ContextReceipt over the fallback evidence, not the empty corpus hop', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 1, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [] })
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ ...memoryPorts(), runtimeFactory: runtimeWith({ query: vi.fn().mockResolvedValue(businessKnowledgeEvidence()) }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE' }), { trace })
@@ -290,7 +290,7 @@ describe('FR-235 + FR-234 — memory-opt-in turns compose knowledge evidence wit
 
   it('a GROUP audience denied private memory still gets a correct, receipted product answer from the corpus', async () => {
     queryKnowledgeCorpusMock.mockClear()
-    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'h'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
+    queryKnowledgeCorpusMock.mockResolvedValue({ corpusGeneration: 4, manifestHash: 'a'.repeat(64), ranking: 'rrf-k60', results: [corpusHit()] })
     const trace = fakeTrace()
     const answer = createServerLineAnswer({ ...memoryPorts({ audienceKind: 'GROUP' }), runtimeFactory: runtimeWith({ query: vi.fn() }) })
     const text = await answer(memoryJob({ knowledgeGrounding: 'GKS_CORPUS', audienceKind: 'GROUP' }), { trace })

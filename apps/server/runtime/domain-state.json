@@ -182,6 +182,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -311,6 +312,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -586,6 +588,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -706,6 +709,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -795,6 +799,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -1394,6 +1399,7 @@
           "apps/server/tests/unit/corpus-knowledge-reader.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+          "apps/server/tests/unit/line-gks-citation-fence.test.js",
           "apps/server/tests/unit/line-product-facts-profile.test.js",
           "apps/server/tests/unit/line-product-facts.test.js",
           "apps/server/tests/unit/pricing-backup.test.js",
@@ -1597,7 +1603,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-025",
@@ -1818,7 +1824,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-149",
@@ -1826,7 +1832,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-150",
@@ -1834,7 +1840,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-171",
@@ -1842,7 +1848,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-181",
@@ -1906,7 +1912,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-253",
@@ -1938,7 +1944,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-266",
@@ -1970,7 +1976,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/modules/agent/line-product-facts-command.js",
             "apps/server/src/modules/agent/line-product-facts-language.js",
@@ -1999,6 +2005,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -2250,6 +2257,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -2663,7 +2671,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/modules/commerce/application/line-published-price-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -2689,6 +2697,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -2843,6 +2852,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -2879,7 +2889,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-023",
@@ -2967,7 +2977,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-151",
@@ -3015,7 +3025,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-230",
@@ -3071,7 +3081,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-245",
@@ -3095,7 +3105,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-278",
@@ -3334,7 +3344,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-026",
@@ -3616,7 +3626,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-154",
@@ -4151,7 +4161,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-028",
@@ -4327,7 +4337,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-152",
@@ -4883,7 +4893,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/app/api/inventory/line-stock-disclosure/route.js",
             "apps/server/src/modules/inventory/application/line-stock-disclosure-policy-service.js",
@@ -4911,6 +4921,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -5090,6 +5101,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -5373,7 +5385,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-236",
@@ -5435,7 +5447,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/modules/knowledge/corpus-knowledge-reader.js",
             "apps/server/tests/integration/backup.test.js",
@@ -5461,6 +5473,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -5693,6 +5706,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -5751,7 +5765,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-026",
@@ -5823,7 +5837,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-150",
@@ -5831,7 +5845,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-151",
@@ -5863,7 +5877,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-190",
@@ -5935,7 +5949,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-231",
@@ -5961,7 +5975,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-238",
@@ -5977,7 +5991,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-244",
@@ -5985,7 +5999,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 16
+          "testCount": 17
         },
         {
           "id": "FR-259",
@@ -6001,7 +6015,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-266",
@@ -6033,7 +6047,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/app/api/line-oa/worker/route.js",
             "apps/server/src/modules/line-oa-studio/application/conversation-runtime-core.js",
@@ -6062,6 +6076,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -6265,6 +6280,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -7450,7 +7466,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-026",
@@ -8201,7 +8217,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-150",
@@ -8209,7 +8225,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-151",
@@ -8609,7 +8625,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-230",
@@ -8633,7 +8649,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-236",
@@ -8665,7 +8681,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-245",
@@ -9062,7 +9078,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 3,
-          "testCount": 30,
+          "testCount": 31,
           "evidence": [
             "apps/server/src/app/api/internal/conversation-runtime/v2/[operation]/route.js",
             "apps/server/src/modules/project-manager/api-docs/openapi.js",
@@ -9090,6 +9106,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -9889,6 +9906,7 @@
             "apps/server/tests/unit/corpus-knowledge-reader.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+            "apps/server/tests/unit/line-gks-citation-fence.test.js",
             "apps/server/tests/unit/line-product-facts-profile.test.js",
             "apps/server/tests/unit/line-product-facts.test.js",
             "apps/server/tests/unit/pricing-backup.test.js",
@@ -12407,7 +12425,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 13
+          "testCount": 14
         },
         {
           "id": "FR-149",
@@ -12415,7 +12433,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 49,
-          "testCount": 79
+          "testCount": 80
         },
         {
           "id": "FR-150",
@@ -12423,7 +12441,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 19
+          "testCount": 20
         }
       ],
       "evidence": [
@@ -12543,6 +12561,7 @@
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-admission-after-ack.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-job-failures-route.test.js",
         "apps/server/tests/unit/line-job-failures.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
@@ -14655,7 +14674,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-230",
@@ -14789,6 +14808,7 @@
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/msp-retention-route-worker.test.js",
         "apps/server/tests/unit/msp-retention-scheduler.test.js",
@@ -14838,7 +14858,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 72
+          "testCount": 73
         },
         {
           "id": "FR-236",
@@ -15001,6 +15021,7 @@
         "apps/server/tests/unit/line-customer-product-knowledge.test.js",
         "apps/server/tests/unit/line-customer-product-query.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-knowledge-grounding.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-knowledge-grounding-migration.test.js",
@@ -15109,7 +15130,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 33
+          "testCount": 34
         },
         {
           "id": "FR-244",
@@ -15117,7 +15138,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 17
         }
       ],
       "evidence": [
@@ -15171,6 +15192,7 @@
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-job-answer-text-marker.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
@@ -15460,7 +15482,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 8,
-          "testCount": 28
+          "testCount": 29
         },
         {
           "id": "FR-266",
@@ -15523,6 +15545,7 @@
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
         "apps/server/tests/unit/line-oa-credential-input-props.test.js",
@@ -16603,7 +16626,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 33,
-          "testCount": 51
+          "testCount": 52
         }
       ],
       "evidence": [
@@ -16690,6 +16713,7 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
     },
@@ -20776,7 +20800,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 37
+          "testCount": 38
         }
       ],
       "evidence": [
@@ -20825,6 +20849,7 @@
         "apps/server/tests/unit/agent-runtime-lineage.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-trace-route.test.js",
         "apps/server/tests/unit/line-trace-summary.test.js",
         "apps/server/tests/unit/model-provider-port.test.js",
@@ -22177,7 +22202,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 17,
-          "testCount": 30
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -22220,6 +22245,7 @@
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
+        "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-product-facts-profile.test.js",
         "apps/server/tests/unit/line-product-facts.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
