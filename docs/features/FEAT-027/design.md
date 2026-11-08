@@ -29,6 +29,7 @@ Feature record: [ZAI:FEAT-027 canonical record](feature.md).
 > ✅ implemented 2026-09-12 — ADR-077 D1/D2/D8; closes the defect class in `.brain/rca/2026-09-12-a-grant-that-cannot-be-withdrawn.md`. Migration `20260912120000_access_grant_lifecycle.sql` APPLIED on production 2026-09-12; its `domainKeysJson` repair reported one real row carrying a group key
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Standard Business Template v1](../../change-requests/business-provisioning/STANDARD-BUSINESS-TEMPLATE-V1.md) — `references` · `metadata` · `current`
+- [Password login and TOTP rate limits](../../change-requests/identity/authentication-rate-limits-20261108.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-192 canonical record](requirements/FR-192.md)

@@ -37,6 +37,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr193-access-members.spec.js](../../../apps/server/tests/e2e/fr193-access-members.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/business-provisioning-template.test.js](../../../apps/server/tests/integration/business-provisioning-template.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-archive-legal-hold.test.js](../../../apps/server/tests/integration/crm-archive-legal-hold.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)

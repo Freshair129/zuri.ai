@@ -89,6 +89,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/dependency-handoff.spec.js](../../../apps/server/tests/e2e/dependency-handoff.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/dependency-handoff.test.js](../../../apps/server/tests/integration/dependency-handoff.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr045-managed-files.test.js](../../../apps/server/tests/integration/fr045-managed-files.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr072-file-asset-authorization.test.js](../../../apps/server/tests/integration/fr072-file-asset-authorization.test.js) — `verifies` (`transitive`)
@@ -116,6 +117,7 @@ status: generated
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/dependency-handoff-form.test.js](../../../apps/server/tests/unit/dependency-handoff-form.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-file-asset-service.test.js](../../../apps/server/tests/unit/fr045-file-asset-service.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/handoff-contract.test.js](../../../apps/server/tests/unit/handoff-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/handoff-migration.test.js](../../../apps/server/tests/unit/handoff-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-edge-interactions.test.js](../../../apps/server/tests/unit/pipeline-edge-interactions.test.js) — `verifies` (`transitive`)

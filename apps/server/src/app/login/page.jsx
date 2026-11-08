@@ -8,8 +8,8 @@ import { useRouter } from 'next/navigation'
 // @spec ADR-015, SDD-022 — EntryShell owns only the minimal pre-routing surfaces.
 // @tested tests/unit/entry-surfaces.test.js
 import EntryShell from '@/components/layouts/EntryShell'
-// @req FR-046 — owner entry creates an explicit server-owned session cookie.
-// @spec ADR-017, SDD-024, SEC-008
+// @req FR-046, FR-296 — owner entry creates a server-owned session and explains login limits.
+// @spec ADR-017, SDD-024, SEC-008, SEC-026
 // @tested tests/unit/fr046-api-ui-contract.test.js, tests/unit/fr046-auth-route.test.js, tests/e2e/fr046-entry-contract.spec.js
 import { LOGIN_ERROR_NETWORK, loginErrorMessage } from '@/modules/identity/login-error-copy'
 import PasswordField from '@/components/forms/PasswordField'

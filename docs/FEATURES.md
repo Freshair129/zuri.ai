@@ -1144,6 +1144,16 @@ also rejects retired classification terminology in live authoritative documents.
     "id": "FR-295",
     "primaryDomain": "project-manager",
     "useCase": "A Business owner selects an eligible Workspace and sends an Office design handoff for scoped registration and ID readback."
+  },
+  {
+    "id": "FR-296",
+    "primaryDomain": "identity",
+    "useCase": "ผู้ใช้ที่ login ผิดซ้ำหลายครั้งถูกพักชั่วคราวพร้อมบอกเวลารอเป็นนาที ทำให้เดารหัสผ่านต่อเนื่องไม่ได้"
+  },
+  {
+    "id": "FR-297",
+    "primaryDomain": "identity",
+    "useCase": "การกรอกรหัส TOTP ผิดซ้ำถูกจำกัดต่อคน ทำให้เดารหัส 6 หลักเพื่อยกระดับ session ไม่ได้"
   }
 ]
 ```

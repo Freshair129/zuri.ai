@@ -1,10 +1,11 @@
-// @req FR-094, FR-095 — TOTP MFA factor verification and activation
+// @req FR-094, FR-095, FR-297 — TOTP MFA factor verification and activation
 // @spec ADR-045 D2, D5, SDD-052, SEC-018
-// @tested tests/integration/mfa-totp-lifecycle.test.js
+// @tested tests/integration/mfa-totp-lifecycle.test.js, tests/integration/auth-rate-limit.test.js
 
-import { handle, httpError } from '../../../../_helpers'
+import { authUnavailableResponse, handle, httpError, rateLimitResponse } from '../../../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { confirmTotpEnrollment } from '@/modules/identity/mfa-service'
+import { consumeTotpVerificationRateLimit, isRateLimitError } from '@/modules/identity/rate-limit'
 import { elevateSession } from '@/modules/identity/session-assurance'
 import { readRequestCookie } from '@/modules/identity/session-port'
 import { AUTH_SESSION_COOKIE, hashSessionToken } from '@/modules/identity/auth-service'
@@ -21,6 +22,13 @@ export async function POST(request, options = {}) {
     const { factorId, code } = body
     if (!factorId || !code) {
       throw httpError(400, 'factorId and code are required')
+    }
+
+    try {
+      await consumeTotpVerificationRateLimit({ personId })
+    } catch (error) {
+      if (isRateLimitError(error)) return rateLimitResponse('MFA_RATE_LIMITED', error.retryAfterSeconds)
+      return authUnavailableResponse()
     }
 
     const result = await confirmTotpEnrollment({ personId, factorId, code })

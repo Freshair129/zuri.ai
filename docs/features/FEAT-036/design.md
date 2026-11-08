@@ -38,6 +38,7 @@ Feature record: [ZAI:FEAT-036 canonical record](feature.md).
 
 > 🚧 merged #398 2026-09-14 (main 2aef8caa; not deployed; migrations applied on production 2026-09-14; TASK-ZAI-080, ADR-089 D4, FEAT-036) — `credential-write-gate.js` (factor, then the live step-up window) and `rate-limit.js` over `RateLimitBucket` on `POST /api/line-oa/connections` (secret body) and `/api/line-oa/connections/[id]/credential{,/revoke,/validate}`; migration 20260914140400 applied on production 2026-09-14; sealing the TOTP secret at rest is a separate lane
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Password login and TOTP rate limits](../../change-requests/identity/authentication-rate-limits-20261108.md) — `references` · `metadata` · `current`
 - [ADR-093 — Swept chat content moves to an encrypted local cold archive kept as dispute evidence](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md) — `relates` · `control-block` · `current`
 - [ADR-100 — LINE OA runs server-executed, on browser-provisioned API keys](../../decisions/ADR-100-LINE-OA-RUNS-SERVER-EXECUTED-ON-BROWSER-PROVISIONED-API-KEYS.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`

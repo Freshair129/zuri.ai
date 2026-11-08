@@ -4,10 +4,12 @@ import {
   authenticateUser,
   SESSION_MAX_AGE_SECONDS,
 } from '@/modules/identity/auth-service'
+import { consumeLoginRateLimits, isRateLimitError } from '@/modules/identity/rate-limit'
+import { authUnavailableResponse, rateLimitResponse } from '@/app/api/_helpers'
 
-// @req FR-046 — login accepts credentials and sets a signed, HttpOnly session.
-// @spec ADR-017, SDD-024, SEC-008
-// @tested tests/unit/fr046-auth-route.test.js, tests/e2e/fr046-entry-contract.spec.js
+// @req FR-046, FR-296 — login accepts credentials, limits attempts, and sets a signed, HttpOnly session.
+// @spec ADR-017, SDD-024, SEC-008, SEC-026
+// @tested tests/unit/fr046-auth-route.test.js, tests/integration/auth-rate-limit.test.js, tests/e2e/fr046-entry-contract.spec.js
 
 async function readCredentials(request) {
   const contentType = request.headers.get('content-type') || ''
@@ -37,6 +39,14 @@ function wantsPersistentSession(value) {
 
 export async function POST(request) {
   const credentials = await readCredentials(request)
+
+  try {
+    await consumeLoginRateLimits({ username: credentials?.username, headers: request.headers })
+  } catch (error) {
+    if (isRateLimitError(error)) return rateLimitResponse('LOGIN_RATE_LIMITED', error.retryAfterSeconds)
+    return authUnavailableResponse()
+  }
+
   try {
     const result = await authenticateUser({
       username: credentials?.username,
@@ -72,6 +82,6 @@ export async function POST(request) {
     })
     return response
   } catch {
-    return NextResponse.json({ success: false, error: 'AUTH_UNAVAILABLE' }, { status: 503 })
+    return authUnavailableResponse()
   }
 }

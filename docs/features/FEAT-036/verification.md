@@ -107,6 +107,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js](../../../apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/credential-rate-limit.test.js](../../../apps/server/tests/integration/credential-rate-limit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/credential-step-up-switch.test.js](../../../apps/server/tests/integration/credential-step-up-switch.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/credential-vault.postgres.test.js](../../../apps/server/tests/integration/credential-vault.postgres.test.js) — `verifies` (`test-reference`)
@@ -117,6 +118,7 @@ status: generated
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js](../../../apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-connect-wizard-render.test.js](../../../apps/server/tests/unit/line-oa-connect-wizard-render.test.js) — `verifies` (`transitive`)
 

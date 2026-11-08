@@ -37,12 +37,12 @@
   "overall": {
     "status": "partial",
     "domainCount": 15,
-    "featureCount": 175,
+    "featureCount": 177,
     "readyFeatureCount": 121,
-    "requirementCount": 281,
+    "requirementCount": 283,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.7,
-    "gapCount": 81,
+    "progressPercent": 93.6,
+    "gapCount": 83,
     "gaps": [
       {
         "domain": "agent",
@@ -226,6 +226,7 @@
         "evidence": [
           "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
           "apps/server/tests/e2e/dependency-handoff.spec.js",
+          "apps/server/tests/integration/auth-rate-limit.test.js",
           "apps/server/tests/integration/dependency-handoff.test.js",
           "apps/server/tests/integration/fr045-managed-files.test.js",
           "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -253,6 +254,7 @@
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
           "apps/server/tests/unit/dependency-handoff-form.test.js",
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
+          "apps/server/tests/unit/fr046-auth-route.test.js",
           "apps/server/tests/unit/handoff-contract.test.js",
           "apps/server/tests/unit/handoff-migration.test.js",
           "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -482,6 +484,45 @@
           "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
           "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
           "apps/server/tests/unit/pricing-backup.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-296",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-296 is partial",
+        "evidence": [
+          "apps/server/src/app/api/auth/login/route.js",
+          "apps/server/src/app/login/page.jsx",
+          "apps/server/src/modules/identity/login-error-copy.js",
+          "apps/server/src/modules/identity/rate-limit.js",
+          "apps/server/tests/e2e/fr046-entry-contract.spec.js",
+          "apps/server/tests/integration/auth-rate-limit.test.js",
+          "apps/server/tests/integration/credential-rate-limit.test.js",
+          "apps/server/tests/integration/pipeline-request-bounds.test.js",
+          "apps/server/tests/unit/api-error-mapping.test.js",
+          "apps/server/tests/unit/entry-surfaces.test.js",
+          "apps/server/tests/unit/fr046-api-ui-contract.test.js",
+          "apps/server/tests/unit/fr046-auth-route.test.js"
+        ]
+      },
+      {
+        "domain": "identity",
+        "id": "REQ-FR-297",
+        "severity": "medium",
+        "check": "requirements",
+        "summary": "FR-297 is partial",
+        "evidence": [
+          "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+          "apps/server/src/app/api/auth/step-up/route.js",
+          "apps/server/src/modules/identity/rate-limit.js",
+          "apps/server/tests/integration/auth-rate-limit.test.js",
+          "apps/server/tests/integration/credential-rate-limit.test.js",
+          "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
+          "apps/server/tests/integration/pipeline-request-bounds.test.js",
+          "apps/server/tests/unit/api-error-mapping.test.js",
+          "apps/server/tests/unit/fr046-auth-route.test.js"
         ]
       },
       {
@@ -1043,6 +1084,7 @@
           "apps/server/src/modules/project-manager/import/plan-delta-service.js",
           "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
           "apps/server/tests/e2e/dependency-handoff.spec.js",
+          "apps/server/tests/integration/auth-rate-limit.test.js",
           "apps/server/tests/integration/dependency-handoff.test.js",
           "apps/server/tests/integration/fr045-managed-files.test.js",
           "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -1070,6 +1112,7 @@
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
           "apps/server/tests/unit/dependency-handoff-form.test.js",
           "apps/server/tests/unit/fr045-file-asset-service.test.js",
+          "apps/server/tests/unit/fr046-auth-route.test.js",
           "apps/server/tests/unit/handoff-contract.test.js",
           "apps/server/tests/unit/handoff-migration.test.js",
           "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -1756,7 +1799,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-097",
@@ -1817,7 +1860,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 80
+          "testCount": 82
         },
         {
           "id": "FR-150",
@@ -2294,10 +2337,11 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 40,
+          "testCount": 42,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/dependency-handoff.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -2325,6 +2369,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/dependency-handoff-form.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
             "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -2525,6 +2570,7 @@
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/dependency-handoff.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -2552,6 +2598,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/dependency-handoff-form.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
             "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -2970,7 +3017,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-152",
@@ -3377,7 +3424,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 88
+          "testCount": 89
         },
         {
           "id": "FR-059",
@@ -3457,7 +3504,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 22,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-095",
@@ -3465,7 +3512,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-096",
@@ -3473,7 +3520,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-097",
@@ -3660,7 +3707,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-192",
@@ -3732,7 +3779,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-232",
@@ -3810,6 +3857,47 @@
             "apps/server/tests/unit/managed-blob-transfer-spool.test.js",
             "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
+          ]
+        },
+        {
+          "id": "FR-296",
+          "title": "Password login is rate-limited",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 4,
+          "testCount": 8,
+          "evidence": [
+            "apps/server/src/app/api/auth/login/route.js",
+            "apps/server/src/app/login/page.jsx",
+            "apps/server/src/modules/identity/login-error-copy.js",
+            "apps/server/src/modules/identity/rate-limit.js",
+            "apps/server/tests/e2e/fr046-entry-contract.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
+            "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/entry-surfaces.test.js",
+            "apps/server/tests/unit/fr046-api-ui-contract.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js"
+          ]
+        },
+        {
+          "id": "FR-297",
+          "title": "TOTP code verification is rate-limited per Person",
+          "declared": "planned",
+          "status": "partial",
+          "codeCount": 3,
+          "testCount": 6,
+          "evidence": [
+            "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+            "apps/server/src/app/api/auth/step-up/route.js",
+            "apps/server/src/modules/identity/rate-limit.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
+            "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js"
           ]
         }
       ],
@@ -4083,6 +4171,43 @@
             "apps/server/tests/unit/managed-blob-transfer-test-admission.test.js",
             "apps/server/tests/unit/pricing-backup.test.js"
           ]
+        },
+        {
+          "id": "REQ-FR-296",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-296 is partial",
+          "evidence": [
+            "apps/server/src/app/api/auth/login/route.js",
+            "apps/server/src/app/login/page.jsx",
+            "apps/server/src/modules/identity/login-error-copy.js",
+            "apps/server/src/modules/identity/rate-limit.js",
+            "apps/server/tests/e2e/fr046-entry-contract.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
+            "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/entry-surfaces.test.js",
+            "apps/server/tests/unit/fr046-api-ui-contract.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js"
+          ]
+        },
+        {
+          "id": "REQ-FR-297",
+          "severity": "medium",
+          "check": "requirements",
+          "summary": "FR-297 is partial",
+          "evidence": [
+            "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+            "apps/server/src/app/api/auth/step-up/route.js",
+            "apps/server/src/modules/identity/rate-limit.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
+            "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
+            "apps/server/tests/integration/pipeline-request-bounds.test.js",
+            "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js"
+          ]
         }
       ],
       "details": {
@@ -4116,11 +4241,13 @@
         "FR-121",
         "FR-122",
         "FR-123",
-        "FR-281"
+        "FR-281",
+        "FR-296",
+        "FR-297"
       ],
-      "featureCount": 24,
+      "featureCount": 26,
       "readyFeatureCount": 18,
-      "progressPercent": 96.4
+      "progressPercent": 95.4
     },
     "integration": {
       "status": "partial",
@@ -4307,7 +4434,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 80
+          "testCount": 82
         },
         {
           "id": "FR-152",
@@ -4355,7 +4482,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-225",
@@ -5798,7 +5925,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 80
+          "testCount": 82
         },
         {
           "id": "FR-150",
@@ -5814,7 +5941,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-152",
@@ -5870,7 +5997,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-225",
@@ -6777,7 +6904,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 88
+          "testCount": 89
         },
         {
           "id": "FR-075",
@@ -6793,7 +6920,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-105",
@@ -7583,7 +7710,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 88
+          "testCount": 89
         },
         {
           "id": "FR-056",
@@ -7743,7 +7870,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-078",
@@ -7831,7 +7958,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 20,
-          "testCount": 40,
+          "testCount": 42,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -7854,6 +7981,7 @@
             "apps/server/src/modules/project-manager/import/plan-delta-service.js",
             "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/dependency-handoff.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -7881,6 +8009,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/dependency-handoff-form.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
             "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -7998,7 +8127,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-095",
@@ -8006,7 +8135,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-097",
@@ -8198,7 +8327,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 80
+          "testCount": 82
         },
         {
           "id": "FR-150",
@@ -8214,7 +8343,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-152",
@@ -8446,7 +8575,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-193",
@@ -8590,7 +8719,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-226",
@@ -9568,6 +9697,7 @@
             "apps/server/src/modules/project-manager/import/plan-delta-service.js",
             "apps/server/src/modules/project-manager/views/universal/DependenciesView.jsx",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
+            "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/dependency-handoff.test.js",
             "apps/server/tests/integration/fr045-managed-files.test.js",
             "apps/server/tests/integration/fr072-file-asset-authorization.test.js",
@@ -9595,6 +9725,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/dependency-handoff-form.test.js",
             "apps/server/tests/unit/fr045-file-asset-service.test.js",
+            "apps/server/tests/unit/fr046-auth-route.test.js",
             "apps/server/tests/unit/handoff-contract.test.js",
             "apps/server/tests/unit/handoff-migration.test.js",
             "apps/server/tests/unit/pipeline-edge-interactions.test.js",
@@ -10739,7 +10870,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 13
+          "testCount": 15
         }
       ],
       "evidence": [
@@ -10750,6 +10881,7 @@
         "apps/server/src/modules/project-manager/components/ProjectTabs.jsx",
         "apps/server/tests/e2e/fr077-project-inventory.spec.js",
         "apps/server/tests/e2e/project-domain-view.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/integration/project-inventory-stall.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
@@ -10757,6 +10889,7 @@
         "apps/server/tests/integration/projects-dashboard-stall.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
         "apps/server/tests/unit/e2e-reconnecting-request.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/project-inventory-read-model.test.js",
         "apps/server/tests/unit/project-inventory-ui.test.js",
@@ -10888,7 +11021,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 23,
-          "testCount": 40
+          "testCount": 42
         },
         {
           "id": "FR-085",
@@ -10947,6 +11080,7 @@
         "apps/server/tests/e2e/pipeline-edge-editing.spec.js",
         "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/pipeline-structure-editing.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/dependency-handoff.test.js",
         "apps/server/tests/integration/fr045-managed-files.test.js",
@@ -10988,6 +11122,7 @@
         "apps/server/tests/unit/dependency-handoff-form.test.js",
         "apps/server/tests/unit/dependency-map-view.test.js",
         "apps/server/tests/unit/fr045-file-asset-service.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
         "apps/server/tests/unit/handoff-contract.test.js",
         "apps/server/tests/unit/handoff-migration.test.js",
@@ -11255,7 +11390,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 24,
-          "testCount": 29
+          "testCount": 30
         },
         {
           "id": "FR-095",
@@ -11263,7 +11398,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 30,
-          "testCount": 50
+          "testCount": 51
         },
         {
           "id": "FR-096",
@@ -11271,7 +11406,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 19
+          "testCount": 20
         },
         {
           "id": "FR-097",
@@ -11346,6 +11481,7 @@
         "apps/server/tests/integration/agent-request-envelope.test.js",
         "apps/server/tests/integration/agent-tools.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
@@ -12223,7 +12359,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-152",
@@ -12302,6 +12438,7 @@
         "apps/server/src/platform/integrations/providers/line/server-line-rich-menu-transport.js",
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -12331,6 +12468,7 @@
         "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
@@ -12397,7 +12535,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 49,
-          "testCount": 80
+          "testCount": 82
         },
         {
           "id": "FR-150",
@@ -12469,6 +12607,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
         "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
@@ -12522,6 +12661,7 @@
         "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/embedded-postgres-cleanup.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/line-admission-after-ack.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
@@ -13563,7 +13703,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 43
+          "testCount": 44
         },
         {
           "id": "FR-192",
@@ -13595,6 +13735,7 @@
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/tests/e2e/fr193-access-members.spec.js",
         "apps/server/tests/integration/agent-business-factory.test.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/business-provisioning-template.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -14442,7 +14583,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 13
+          "testCount": 15
         },
         {
           "id": "FR-225",
@@ -14519,6 +14660,7 @@
         "apps/server/tests/e2e/fr149-line-server-console.spec.js",
         "apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js",
         "apps/server/tests/e2e/fr225-line-oa-self-serve-wizard.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-account-claim.test.js",
         "apps/server/tests/integration/credential-rate-limit.test.js",
@@ -14555,6 +14697,7 @@
         "apps/server/tests/unit/conversation-session-ui.test.js",
         "apps/server/tests/unit/credential-vault-postgres-target.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",
         "apps/server/tests/unit/integration/channel-account-claim-migration.test.js",
@@ -17626,7 +17769,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 88
+          "testCount": 89
         }
       ],
       "evidence": [
@@ -17728,6 +17871,7 @@
         "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
         "apps/server/tests/e2e/task14-business-two-isolation.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
         "apps/server/tests/integration/fr001-scope-crud.test.js",
@@ -22479,6 +22623,93 @@
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/office-client-origin.test.js",
         "apps/server/tests/unit/office-handoff-retry.test.js"
+      ]
+    },
+    {
+      "id": "FR-296",
+      "title": "Password login is rate-limited: before credential verification, attempts consume durable atomic 15-minute fixed-window limits of 10 per normalized identifier and client address, 50 per normalized identifier, and 200 per client address. A limited request returns the same generic 429 response for a known, disabled, or unknown identifier; other limiter failures fail closed with AUTH_UNAVAILABLE.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-296"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "ผู้ใช้ที่ login ผิดซ้ำหลายครั้งถูกพักชั่วคราวพร้อมบอกเวลารอเป็นนาที ทำให้เดารหัสผ่านต่อเนื่องไม่ได้",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-296 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-296",
+          "title": "Password login is rate-limited",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 5,
+          "testCount": 8
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/_helpers.js",
+        "apps/server/src/app/api/auth/login/route.js",
+        "apps/server/src/app/login/page.jsx",
+        "apps/server/src/modules/identity/login-error-copy.js",
+        "apps/server/src/modules/identity/rate-limit.js",
+        "apps/server/tests/e2e/fr046-entry-contract.spec.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
+        "apps/server/tests/integration/credential-rate-limit.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
+        "apps/server/tests/unit/api-error-mapping.test.js",
+        "apps/server/tests/unit/entry-surfaces.test.js",
+        "apps/server/tests/unit/fr046-api-ui-contract.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js"
+      ]
+    },
+    {
+      "id": "FR-297",
+      "title": "TOTP code verification is rate-limited per Person: before code verification, enrollment-confirmation and TOTP step-up attempts share a durable atomic limit of five attempts per 15 minutes. A limited request returns MFA_RATE_LIMITED with a retry delay; WebAuthn step-up remains a separate verification path.",
+      "kind": "requirement",
+      "registryStatus": "planned",
+      "requirementIds": [
+        "FR-297"
+      ],
+      "primaryDomain": "identity",
+      "contributorDomains": [
+        "identity"
+      ],
+      "useCase": "การกรอกรหัส TOTP ผิดซ้ำถูกจำกัดต่อคน ทำให้เดารหัส 6 หลักเพื่อยกระดับ session ไม่ได้",
+      "progressPercent": 80,
+      "ready": false,
+      "readiness": "not_ready",
+      "blockers": [
+        "FR-297 is partial"
+      ],
+      "requirements": [
+        {
+          "id": "FR-297",
+          "title": "TOTP code verification is rate-limited per Person",
+          "status": "partial",
+          "progressPercent": 80,
+          "codeCount": 4,
+          "testCount": 6
+        }
+      ],
+      "evidence": [
+        "apps/server/src/app/api/_helpers.js",
+        "apps/server/src/app/api/auth/mfa/totp/verify/route.js",
+        "apps/server/src/app/api/auth/step-up/route.js",
+        "apps/server/src/modules/identity/rate-limit.js",
+        "apps/server/tests/integration/auth-rate-limit.test.js",
+        "apps/server/tests/integration/credential-rate-limit.test.js",
+        "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
+        "apps/server/tests/integration/pipeline-request-bounds.test.js",
+        "apps/server/tests/unit/api-error-mapping.test.js",
+        "apps/server/tests/unit/fr046-auth-route.test.js"
       ]
     }
   ],
