@@ -5,9 +5,9 @@ import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-id
 import { resolveLineIdentity, revokeLineIdentity } from '@/modules/identity/resolve-line-identity'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 
-// @req FR-097 — a trusted channel subject has an explicit pending/active/revoked
+// @req FR-022, FR-097 — a trusted channel subject has an explicit pending/active/revoked
 // lifecycle and never gains private authority from transport identity alone.
-// @spec ADR-044 D1-D2, ADR-045 D1/D5-D6, BR-020, SEC-018
+// @spec SEC-018, ADR-045 D1/D5, ADR-044 D1-D2, BR-020
 // @tested tests/integration/channel-identity.test.js
 
 let tenant

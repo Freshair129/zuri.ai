@@ -1,21 +1,21 @@
-import { randomBytes } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zIssueLinkTokenInput, zRedeemLinkTokenInput } from '@/lib/validation/entities'
 import { activateChannelIdentity } from './channel-identity'
 
-// @req FR-022 — account linking: bind a LINE subject to an EXISTING Person instead
+// @req FR-022, FR-097 — account linking: bind a LINE subject to an EXISTING Person instead
 //   of minting a fresh one (the resolveLineIdentity first-contact default).
-// @spec ADR-007 §P3, docs/replacement/IMPACT-SCAN-IDENTITY.md §3 — one shared
+// @spec SEC-018, ADR-045 D1/D5, ADR-007 §P3, docs/replacement/IMPACT-SCAN-IDENTITY.md §3 — one shared
 //   resolution point; linking must not fork the principal. A subject already
 //   auto-minted to a throwaway Person is re-pointed to the canonical one (a merge),
 //   never left as a second principal for the same human.
 // @spec BR-002 — providerSubject is an attribute, never a PK; the binding lives on
 //   ExternalIdentity keyed by (tenantId, provider, providerSubject).
-// @req FR-097 — the existing server-owned link-token proof is the only transition
-//   from a discovered channel subject to an ACTIVE ChannelIdentity.
-// @spec ADR-044, ADR-045 D1/D5-D6, BR-020, SEC-018
-// @tested tests/integration/identity-link.test.js
+//   The existing server-owned link-token proof is the only transition from a
+//   discovered channel subject to an ACTIVE ChannelIdentity.
+// @spec SEC-018, ADR-045 D1/D5, ADR-044, BR-020
+// @tested tests/integration/identity-link.test.js, tests/integration/fr097-line-channel-onboarding.test.js
 
 const PROVIDER = 'LINE'
 // @req FR-026 — a step-up re-authentication proof is a distinct token
@@ -34,9 +34,9 @@ const whereKey = (tenantId, lineUserId) => ({
  * no Prisma models by design (docs/domains/agent/CHARTER.md) — this is the
  * one declared identity entry point the agent module calls instead of
  * writing the table itself (D2-domain-identity-02). Storage and audit shape
- * are carried over unchanged from the code this replaces: an opaque token in
- * the clear (matching `issueLinkToken` above — this table has never stored a
- * hash) plus one `STEP_UP`/`ISSUED` audit event.
+ * are carried over unchanged from the code this replaces: an opaque STEPUP token
+ * in the clear plus one `STEP_UP`/`ISSUED` audit event. LINE link tokens now
+ * store only their SHA-256 digest; STEPUP storage remains unchanged.
  * @spec ADR-007 §P7 / Gate E→F, D2-domain-identity-02
  * @tested tests/integration/agent-action-gate.test.js, tests/integration/agent-turn.test.js
  * @returns {{ token: string, expiresAt: Date }}
@@ -61,7 +61,8 @@ export async function mintStepUpLinkToken({ tenantId, personId, ttlSeconds, db =
 
 /**
  * Issue a single-use, expiring token for an existing Person, to be presented by a
- * LINE user (via deep link / LIFF) to prove they are that principal.
+ * LINE user (via deep link / LIFF) to prove they are that principal. The raw
+ * token is returned once; only its SHA-256 digest is stored.
  * @returns {{ token: string, tokenId: string, expiresAt: Date }}
  */
 export async function issueLinkToken(input) {
@@ -75,9 +76,10 @@ export async function issueLinkToken(input) {
   if (!person) throw new Error('issueLinkToken requires an existing person to link to')
 
   const token = randomBytes(24).toString('base64url')
+  const tokenHash = createHash('sha256').update(token).digest('hex')
   const expiresAt = new Date(Date.now() + ttlSeconds * 1000)
   const row = await prisma.identityLinkToken.create({
-    data: { tenantId, personId, provider: PROVIDER, token, expiresAt },
+    data: { tenantId, personId, provider: PROVIDER, token: tokenHash, expiresAt },
   })
   await recordAudit(prisma, {
     entityType: 'IDENTITY_LINK_TOKEN',
@@ -94,19 +96,23 @@ export async function issueLinkToken(input) {
  * binding; and — only with { merge: true } — re-points a binding that currently
  * resolves to a different (e.g. auto-minted) principal, carrying its Customer along
  * so conversation history follows the canonical person and never forks.
+ * Callers must pass a lineUserId taken from a verified LINE source, never from a client body.
  *
  * @returns {{ personId, externalIdentityId, linked, reactivated, merged, fromPersonId }}
+ * @param {object} [options]
+ * @param {object} [options.db=prisma] Prisma-compatible persistence seam.
  */
-export async function redeemLinkToken(input) {
+export async function redeemLinkToken(input, { db = prisma } = {}) {
   const { tenantId, token, channelAccountId, lineUserId, displayName, merge } = zRedeemLinkTokenInput.parse(input)
 
-  const tok = await prisma.identityLinkToken.findUnique({ where: { token } })
-  if (!tok || tok.tenantId !== tenantId) throw new Error('Invalid link token')
+  const tokenHash = createHash('sha256').update(token).digest('hex')
+  const tok = await db.identityLinkToken.findUnique({ where: { token: tokenHash } })
+  if (!tok || tok.tenantId !== tenantId || tok.provider !== PROVIDER) throw new Error('Invalid link token')
   if (tok.consumedAt) throw new Error('This link token has already been used')
   if (tok.expiresAt.getTime() <= Date.now()) throw new Error('This link token has expired')
 
   const targetPersonId = tok.personId
-  const existing = await prisma.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
+  const existing = await db.externalIdentity.findUnique({ where: whereKey(tenantId, lineUserId) })
 
   // Reject a genuine merge unless the caller opted in — silently re-homing a
   // subject that already resolves to another principal is exactly the fork the
@@ -116,7 +122,21 @@ export async function redeemLinkToken(input) {
   }
 
   const now = new Date()
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await db.$transaction(async (tx) => {
+    const consumed = await tx.identityLinkToken.updateMany({
+      where: { id: tok.id, consumedAt: null, expiresAt: { gt: now } },
+      data: { consumedAt: now },
+    })
+    if (consumed.count !== 1) {
+      const current = await tx.identityLinkToken.findUnique({
+        where: { id: tok.id },
+        select: { consumedAt: true, expiresAt: true },
+      })
+      if (current?.consumedAt) throw new Error('This link token has already been used')
+      if (!current || current.expiresAt.getTime() <= now.getTime()) throw new Error('This link token has expired')
+      throw new Error('This link token has already been used or expired')
+    }
+
     let identity
     let linked = false
     let reactivated = false
@@ -191,13 +211,18 @@ export async function redeemLinkToken(input) {
       allowReassign: merge,
     })
 
-    await tx.identityLinkToken.update({ where: { id: tok.id }, data: { consumedAt: now } })
     await recordAudit(tx, {
       entityType: 'EXTERNAL_IDENTITY',
       entityId: identity.id,
       action: merged ? 'MERGED' : reactivated ? 'RELINKED' : linked ? 'LINKED' : 'LINK_CONFIRMED',
       actorType: 'LINE',
-      payload: { tenantId, provider: PROVIDER, personId: targetPersonId, tokenId: tok.id, ...(fromPersonId ? { fromPersonId } : {}) },
+      payload: {
+        tenantId,
+        provider: PROVIDER,
+        personId: targetPersonId,
+        tokenId: tok.id, // Row id only; never the raw bearer secret.
+        ...(fromPersonId ? { fromPersonId } : {}),
+      },
     })
 
     return { identityId: identity.id, linked, reactivated, merged, fromPersonId, channelIdentity }

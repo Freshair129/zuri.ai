@@ -1618,7 +1618,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-025",
@@ -1634,7 +1634,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-027",
@@ -1807,7 +1807,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -2679,7 +2679,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 29
+          "testCount": 31
         },
         {
           "id": "FR-196",
@@ -2921,7 +2921,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-023",
@@ -2969,7 +2969,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-103",
@@ -3113,7 +3113,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-245",
@@ -3375,8 +3375,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 52
+          "codeCount": 8,
+          "testCount": 53
         },
         {
           "id": "FR-026",
@@ -3384,7 +3384,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-031",
@@ -3527,8 +3527,8 @@
           "title": "Verified channel onboarding",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 21
+          "codeCount": 5,
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -3723,7 +3723,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-195",
@@ -4258,7 +4258,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-028",
@@ -5853,7 +5853,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 52
+          "testCount": 53
         },
         {
           "id": "FR-026",
@@ -5861,7 +5861,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-057",
@@ -6079,7 +6079,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-244",
@@ -7573,8 +7573,8 @@
           "title": "LINE as an identity provider end-to-end",
           "declared": "done",
           "status": "verified",
-          "codeCount": 9,
-          "testCount": 52
+          "codeCount": 10,
+          "testCount": 53
         },
         {
           "id": "FR-026",
@@ -7582,7 +7582,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-031",
@@ -7846,7 +7846,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 14
         },
         {
           "id": "FR-074",
@@ -8079,7 +8079,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-088",
@@ -8087,7 +8087,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-089",
@@ -8143,7 +8143,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-100",
@@ -8583,7 +8583,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-194",
@@ -8591,7 +8591,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 29
+          "testCount": 31
         },
         {
           "id": "FR-195",
@@ -8791,7 +8791,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-245",
@@ -9514,7 +9514,7 @@
             "mutations": 151,
             "guardedMutations": 150,
             "reads": 93,
-            "unguardedReads": 13
+            "unguardedReads": 12
           }
         },
         "tests": {
@@ -11179,7 +11179,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 16
+          "testCount": 18
         },
         {
           "id": "FR-088",
@@ -11187,7 +11187,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 12
         },
         {
           "id": "FR-089",
@@ -11225,6 +11225,8 @@
         "apps/server/tests/integration/fr072-project-service-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr089-team-scope.test.js",
+        "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
+        "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
@@ -11413,8 +11415,8 @@
           "title": "Verified channel onboarding",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 21
+          "codeCount": 16,
+          "testCount": 22
         },
         {
           "id": "FR-098",
@@ -11443,6 +11445,7 @@
         "apps/server/src/components/layouts/BusinessRoutingShell.jsx",
         "apps/server/src/components/layouts/PlatformControlShell.jsx",
         "apps/server/src/components/layouts/Topbar.jsx",
+        "apps/server/src/lib/validation/entities.js",
         "apps/server/src/modules/agent/action-gate.js",
         "apps/server/src/modules/agent/auth-context.js",
         "apps/server/src/modules/agent/context.js",
@@ -11458,6 +11461,7 @@
         "apps/server/src/modules/identity/channel-identity.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/identity/link-token-authority.js",
         "apps/server/src/modules/identity/mfa-secret-reseal.js",
         "apps/server/src/modules/identity/mfa-secret-seal.js",
         "apps/server/src/modules/identity/mfa-service.js",
@@ -13817,7 +13821,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 28
+          "testCount": 30
         },
         {
           "id": "FR-194",
@@ -13825,7 +13829,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 29
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -13856,6 +13860,7 @@
         "apps/server/tests/integration/fr072-workspace-mutation-authorization.test.js",
         "apps/server/tests/integration/fr074-scope-creation-authorization.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/fr183-pos.test.js",
         "apps/server/tests/integration/fr186-billing.test.js",
         "apps/server/tests/integration/fr193-access-members.test.js",
@@ -13863,6 +13868,7 @@
         "apps/server/tests/integration/fr193-employment-write-path.test.js",
         "apps/server/tests/integration/fr193-remove-controls.test.js",
         "apps/server/tests/integration/fr194-legal-entity-tax-branch.test.js",
+        "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-server-backup.test.js",
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
@@ -15218,7 +15224,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 13,
-          "testCount": 34
+          "testCount": 36
         },
         {
           "id": "FR-244",
@@ -15258,11 +15264,13 @@
         "apps/server/tests/integration/crm-conversation-sessions.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/fr146-line-oa-account.test.js",
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/fr244-line-oa-business-hours.test.js",
+        "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
@@ -16713,8 +16721,8 @@
           "title": "LINE as an identity provider end-to-end",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 33,
-          "testCount": 52
+          "codeCount": 36,
+          "testCount": 53
         }
       ],
       "evidence": [
@@ -16722,8 +16730,10 @@
         "apps/server/src/app/api/crm/customers/[customerId]/erasure/route.js",
         "apps/server/src/app/api/crm/customers/[customerId]/retention-consent/revoke/route.js",
         "apps/server/src/app/api/crm/customers/[customerId]/retention-consent/route.js",
+        "apps/server/src/app/api/identity/channel-identities/route.js",
         "apps/server/src/app/api/identity/link-tokens/redeem/route.js",
         "apps/server/src/app/api/identity/link-tokens/route.js",
+        "apps/server/src/lib/validation/entities.js",
         "apps/server/src/modules/agent/execution-trace.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
@@ -16742,6 +16752,7 @@
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/gate.js",
         "apps/server/src/modules/identity/link-line-identity.js",
+        "apps/server/src/modules/identity/link-token-authority.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
@@ -16755,6 +16766,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/channel-identity.test.js",
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
@@ -16960,7 +16972,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 14,
-          "testCount": 25
+          "testCount": 26
         }
       ],
       "evidence": [
@@ -16988,6 +17000,7 @@
         "apps/server/tests/integration/conversation-runtime-work-tool-port.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
+        "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-project-work-tools.test.js",
@@ -19100,7 +19113,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 7,
-          "testCount": 12
+          "testCount": 14
         }
       ],
       "evidence": [
@@ -19119,6 +19132,8 @@
         "apps/server/tests/integration/fr072-refusal-disclosure.test.js",
         "apps/server/tests/integration/fr072-repository-link-authorization.test.js",
         "apps/server/tests/integration/fr073-repository-scope.test.js",
+        "apps/server/tests/integration/fr097-line-channel-onboarding.test.js",
+        "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/project-authorization.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/project-inventory.test.js",
