@@ -1,5 +1,7 @@
 ---
+id: ZAI:AUTHENTICATION-RATE-LIMITS-20261108
 doc_type: change-request
+title: Password login and TOTP rate limits
 status: approved
 version: "0.1.0"
 approved_on: "2026-11-08"
