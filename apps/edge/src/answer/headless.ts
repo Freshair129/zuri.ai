@@ -412,8 +412,14 @@ export function allowedTools(options: HeadlessOptions): string[] {
   return allowed;
 }
 
+export function buildPromptInput(prompt: string, systemPrompt: string, options: HeadlessOptions): string {
+  return isCodexBin(options.bin)
+    ? `${systemPrompt}\n\nคำสั่ง/คำถามจากลูกค้า: ${prompt}`
+    : prompt;
+}
+
 export function buildArgs(
-  prompt: string,
+  _prompt: string,
   systemPrompt: string,
   role: Role,
   resumeSessionId: string | null,
@@ -422,7 +428,6 @@ export function buildArgs(
   const isCodex = isCodexBin(options.bin);
 
   if (isCodex) {
-    const fullInstruction = `${systemPrompt}\n\nคำสั่ง/คำถามจากลูกค้า: ${prompt}`;
     return [
       'exec',
       '--skip-git-repo-check',
@@ -449,7 +454,7 @@ export function buildArgs(
       // nothing. Codex takes MCP servers as `-c` overrides rather than a JSON config file, so the
       // one door to company data is opened the same way, with the caller's role already fixed.
       ...codexMcpArgs(options, role),
-      fullInstruction,
+      '-',
     ];
   }
 
@@ -481,7 +486,6 @@ export function buildArgs(
     args.push('--session-id', crypto.randomUUID());
   }
 
-  args.push(prompt);
   return args;
 }
 
@@ -553,12 +557,14 @@ export async function runHeadless(
   systemPrompt: string,
   role: Role,
   conversationKey: string,
-  options: HeadlessOptions
+  options: HeadlessOptions,
+  spawnChild: typeof spawn = spawn
 ): Promise<HeadlessResult> {
   requireHeadlessPolicy(options.bin, Boolean(options.stateless), options.codexHome);
   const resume = loadSessionId(conversationKey, options);
   const cwd = sandboxFor(conversationKey, options);
   const args = buildArgs(prompt, systemPrompt, role, resume, options);
+  const promptInput = buildPromptInput(prompt, systemPrompt, options);
 
   return new Promise<HeadlessResult>((resolve) => {
     let stdout = '';
@@ -566,7 +572,7 @@ export async function runHeadless(
     let settled = false;
 
     const binPath = resolveBin(options.bin);
-    const child = spawn(binPath, args, {
+    const child = spawnChild(binPath, args, {
       cwd,
       env: {
         ...childEnv(
@@ -578,7 +584,7 @@ export async function runHeadless(
       },
       windowsHide: true,
       shell: false,
-      stdio: ['ignore', 'pipe', 'pipe'],
+      stdio: ['pipe', 'pipe', 'pipe'],
     });
 
     const finish = (result: HeadlessResult) => {
@@ -607,9 +613,17 @@ export async function runHeadless(
       stderr += chunk.toString('utf8');
     });
 
+    child.stdin?.on('error', (error) => {
+      if (settled) return;
+      child.kill('SIGKILL');
+      finish({ ok: false, text: '', evidence: '', rememberedNumbers: [], toolCalls: [], error: error.message });
+    });
+
     child.on('error', (error) =>
       finish({ ok: false, text: '', evidence: '', rememberedNumbers: [], toolCalls: [], error: error.message })
     );
+
+    child.stdin?.end(promptInput, 'utf8');
 
     child.on('close', (code) => {
       if (process.env.ZURI_HEADLESS_DEBUG) {

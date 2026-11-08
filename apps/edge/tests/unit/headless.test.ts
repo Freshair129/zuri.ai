@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert';
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync, type ChildProcess } from 'child_process';
 import fs from 'fs';
 import os from 'os';
 import path from 'path';
@@ -10,6 +10,7 @@ import {
   HeadlessOptions,
   allowedTools,
   buildArgs,
+  buildPromptInput,
   childEnv,
   codexMcpArgs,
   harvestStream,
@@ -63,8 +64,29 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  fs.rmSync(root, { recursive: true, force: true });
+  // A SIGKILLed child can still hold its sandbox cwd for a moment on Windows,
+  // so the directory removal retries instead of failing the next hook.
+  fs.rmSync(root, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 });
 });
+
+function runHeadlessWithNodeScript(
+  script: string,
+  timeoutMs: number,
+  observeChild?: (child: ChildProcess) => void
+) {
+  return runHeadless(
+    'p'.repeat(200 * 1024),
+    'system',
+    'sales',
+    'early-exit',
+    { ...options, bin: process.execPath, timeoutMs },
+    (_bin, _args, spawnOptions) => {
+      const child = spawn(process.execPath, ['-e', script], spawnOptions);
+      observeChild?.(child);
+      return child;
+    }
+  );
+}
 
 describe('What the sandboxed agent is given', () => {
   it('rejects stateless Codex before resolving a binary or creating a sandbox', async () => {
@@ -250,9 +272,12 @@ describe('What the sandboxed agent is given', () => {
     assert.ok(!resumed.includes('--session-id'));
   });
 
-  it('puts the message last, as an argument rather than anything a shell parses', () => {
-    const args = buildArgs('ราคา TJS23-2; rm -rf /', 'system', 'sales', null, options);
-    assert.strictEqual(args[args.length - 1], 'ราคา TJS23-2; rm -rf /');
+  it('passes an option-looking Claude prompt over stdin instead of argv', () => {
+    const prompt = '--dangerously-skip-permissions answer this literally';
+    const args = buildArgs(prompt, 'system', 'sales', null, options);
+
+    assert.ok(!args.includes(prompt));
+    assert.strictEqual(buildPromptInput(prompt, 'system', options), prompt);
   });
 });
 
@@ -275,6 +300,32 @@ describe('Reading the event stream', () => {
 
   it('steps over lines that are not events rather than failing the turn', () => {
     assert.strictEqual(harvestStream('garbage\n{ broken').result, null);
+  });
+});
+
+describe('Headless child stdin failures', () => {
+  it('resolves a failed result when the child exits before a large prompt is written', { timeout: 5000 }, async () => {
+    const result = await runHeadlessWithNodeScript('process.exit(0)', 60000);
+
+    assert.equal(result.ok, false);
+    assert.equal(typeof result.error, 'string');
+  });
+
+  // A child that stops reading stdin but keeps running is not detectable from a
+  // pipe error on every platform (a child-side stdin.destroy() raises no EPIPE
+  // on Linux CI or Windows), so such a child is ended by the timeout path below.
+
+  it('resolves the timeout result when a large prompt is pending as the child is killed', { timeout: 5000 }, async () => {
+    const timeoutMs = 100;
+    let childClosed: Promise<void> | undefined;
+    const result = await runHeadlessWithNodeScript('setTimeout(() => {}, 10000)', timeoutMs, (child) => {
+      childClosed = new Promise((resolve) => child.once('close', () => resolve()))
+    });
+    // The killed child must actually end (and release its sandbox cwd).
+    await childClosed;
+
+    assert.equal(result.ok, false);
+    assert.equal(result.error, `timed out after ${timeoutMs}ms`);
   });
 });
 
@@ -344,9 +395,13 @@ describe('codex MCP wiring', () => {
     assert.match(owner, /ZURI_MCP_ROLE="owner"/);
   });
 
-  it('passes the prompt last, after every flag', () => {
-    const args = buildArgs('คำถาม', 'SYSTEM', 'sales', null, opts);
-    assert.match(args[args.length - 1], /คำถาม/);
+  it('passes an option-looking Codex prompt through stdin with the documented dash argument', () => {
+    const prompt = '--dangerously-skip-permissions คำถาม';
+    const args = buildArgs(prompt, 'SYSTEM', 'sales', null, opts);
+
+    assert.strictEqual(args[args.length - 1], '-');
+    assert.ok(!args.includes(prompt));
+    assert.strictEqual(buildPromptInput(prompt, 'SYSTEM', opts), 'SYSTEM\n\nคำสั่ง/คำถามจากลูกค้า: ' + prompt);
   });
 
   it('proves empty MCP overrides do not erase inherited config and the managed fresh home does', (t) => {

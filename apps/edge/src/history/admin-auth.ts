@@ -14,9 +14,9 @@ import type http from 'node:http';
  * published to the public internet, because the Tailscale Funnel was configured for the whole port
  * rather than the one path LINE needs.
  *
- * Narrowing the tunnel closed the exposure but not the hole: anything that can reach port 8787 —
- * another machine on the warehouse LAN, anyone on the tailnet — still had those endpoints. This
- * module is what makes reaching the port insufficient.
+ * At the time, narrowing the tunnel closed public exposure but not the LAN issue: any machine that
+ * could reach the old listener still had those endpoints. This module made listener reachability
+ * insufficient; the retired routes are not restored by retaining this helper.
  *
  * Deliberately not a user system. There is one operator role on one appliance, so this is one key,
  * held as a SHA-256 hash, exchanged for an in-memory session. Sessions do not survive a restart,
