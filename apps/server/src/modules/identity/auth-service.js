@@ -1,6 +1,7 @@
 import { createHash, createHmac, randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'node:crypto'
 import prisma from '@/lib/db'
 import { isInstallationOperator } from './viewer-authority'
+import { STEP_UP_WINDOW_SECONDS } from './session-assurance'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // @req FR-046, FR-095 — credential login verifies PersonCredential and issues a signed,
@@ -13,7 +14,8 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // storage is hash-bound, and consumption revokes every active session.
 // @spec ADR-017, ADR-045 D2, SDD-024, SDD-052, SEC-008, SEC-018
 // @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js
-// @tested tests/unit/password-reset-service.test.js, tests/integration/password-reset-flow.test.js
+// @tested tests/unit/password-reset-service.test.js, tests/integration/password-reset-flow.test.js,
+//   tests/integration/passkey-lifecycle.test.js
 
 export const AUTH_SESSION_COOKIE = 'zuri_session'
 export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
@@ -138,6 +140,9 @@ export async function persistSession({ token, sessionId, personId, db = prisma, 
       status: 'ACTIVE',
       assurance,
       assuranceLevel: computedAssuranceLevel,
+      ...(assurance === 'WEBAUTHN'
+        ? { elevatedUntil: new Date(new Date(now).getTime() + STEP_UP_WINDOW_SECONDS * 1000) }
+        : {}),
       createdAt: new Date(now),
       lastSeenAt: new Date(now),
       expiresAt: new Date(verified.expiresAt * 1000),
