@@ -103,6 +103,7 @@ status: generated
 
 - [apps/edge/tests/unit/genesisrag17-edge.test.ts](../../../apps/edge/tests/unit/genesisrag17-edge.test.ts) — `verifies` (`test-reference`)
 - [apps/edge/tests/unit/genesisrag17-products.test.ts](../../../apps/edge/tests/unit/genesisrag17-products.test.ts) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/domain-state.test.js](../../../apps/server/tests/unit/domain-state.test.js) — `verifies` (`test-reference`)
 
 ## Limits
 

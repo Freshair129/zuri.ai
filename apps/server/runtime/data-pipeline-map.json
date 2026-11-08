@@ -367,17 +367,16 @@
       "requirements": [
         {
           "id": "FR-141",
-          "status": "not_implemented",
-          "title": "Edge Device heartbeat registry"
+          "status": "not_applicable",
+          "title": "[historical] Edge Device heartbeat registry"
         },
         {
           "id": "FR-144",
-          "status": "not_implemented",
-          "title": "Edge device credential"
+          "status": "not_applicable",
+          "title": "[historical] Edge device credential"
         }
       ],
       "features": [
-        "FEAT-017",
         "FR-141"
       ],
       "decisions": [

@@ -22,7 +22,7 @@ This is a **new product decision**, not a claim that ADR-110 already explicitly 
 
 The inventory’s “spec-only/no code” classification is incorrect. Implementation exists in `apps/edge/src/rag/genesisrag17/published-rag.ts:89`, with configuration in `settings.ts:15` and tests in `apps/edge/tests/unit/genesisrag17-edge.test.ts`. Commit `1167d8d2` also changed this reader after Edge retirement.
 
-Nevertheless, the pending product obligation is an Edge answer-path shadow/cutover with a v4 fallback window. The supported LINE executor is now server-owned. ADR-110 D4 removes device execution for LINE, while expressly preserving Knowledge/RAG and excluding deletion of the entire Edge tree. See [ADR-110:82](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md:82), and its lines 121–149.
+Nevertheless, the pending product obligation is an Edge answer-path shadow/cutover with a v4 fallback window. The supported LINE executor is now server-owned. ADR-110 D4 removes device execution for LINE, while expressly preserving Knowledge/RAG and excluding deletion of the entire Edge tree. See [ADR-110:82](../../docs/decisions/ADR-110-RETIRE-EDGE-DEVICE-AND-HARNESS-SURFACES.md:82), and its lines 121–149.
 
 **Conditions:**
 
@@ -66,7 +66,7 @@ This does not mean every Knowledge profile is accepted, the current production h
 | MSP plan §6, 2026-10-24 | Recorded d0 MSP image qualification, restored canary, production publication/query/denial and persistence evidence | Operator-attested record; underlying private artifacts were not inspected here |
 | Native acceptance, 2026-11-08, 42/42 | Current pinned runtime tuple with zuri `58991a10`, including SmartGift and LINE cases | Windows developer acceptance; not Linux image or live LINE production acceptance |
 
-Sources: [deployment plan §9](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md:293), [production probe:64](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/.brain/reports/2026-09-24-genesisrag17-production-probe.md:64), and [native report:10](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/.brain/reports/2026-11-08-ki17-native-acceptance.md:10). MSP evidence is `docs/IMPLEMENTATION-PLAN-MSP-GENESISRAG17-ALIGNMENT.md:137–145` at `520ac710`.
+Sources: [deployment plan §9](../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md:293), [production probe:64](../../.brain/reports/2026-09-24-genesisrag17-production-probe.md:64), and [native report:10](../../.brain/reports/2026-11-08-ki17-native-acceptance.md:10). MSP evidence is `docs/IMPLEMENTATION-PLAN-MSP-GENESISRAG17-ALIGNMENT.md:137–145` at `520ac710`.
 
 A useful additional finding: MSP §6 line 141 records **42/42 in its composed acceptance image** on 2026-10-24. Preserve that exact image/app provenance; do not relabel it as acceptance of today’s Zuri source.
 
@@ -106,7 +106,7 @@ Include `## Approval`, this delegation’s provenance, exact before/after rows, 
 
 > “The migration document must have `status: approved` in frontmatter and an explicit approval section.”
 
-It does not prescribe a named human approver. [CANONICAL-FORMAT:100](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/docs/migrations/document-reintegration/CANONICAL-FORMAT.md:100). The governance profile separately requires approval, delivery and deployment evidence to remain distinct at lines 54–66. The parser enforces the approved frontmatter and Approval heading in `tools/document-registry.mjs:23–33`.
+It does not prescribe a named human approver. [CANONICAL-FORMAT:100](../../docs/migrations/document-reintegration/CANONICAL-FORMAT.md:100). The governance profile separately requires approval, delivery and deployment evidence to remain distinct at lines 54–66. The parser enforces the approved frontmatter and Approval heading in `tools/document-registry.mjs:23–33`.
 
 This delegated approval does **not** satisfy independently named task or operational approvals.
 
@@ -169,8 +169,8 @@ The existing switch action already exists at `line-oa-account-service.js:621`; a
 
 **Named approval cannot be impersonated.** Both task containers specify `approver: "Owen"`:
 
-- [TASK-ZAI-050:2331](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/apps/server/src/modules/platform-control/program-roadmap-containers.js:2331)
-- [TASK-ZAI-095:4677](/C:/Users/suanr/workspace/zuri.ai/.claude/worktrees/rag17-lead-84baac/apps/server/src/modules/platform-control/program-roadmap-containers.js:4677)
+- [TASK-ZAI-050:2331](../../apps/server/src/modules/platform-control/program-roadmap-containers.js:2331)
+- [TASK-ZAI-095:4677](../../apps/server/src/modules/platform-control/program-roadmap-containers.js:4677)
 
 Astra’s delegation does not fill those named approvals. The compliant route is to prepare the complete evidence and leave the named approval for Owen; do not replace his name to bypass the gate.
 

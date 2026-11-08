@@ -134,7 +134,7 @@ function check(status = 'unknown', evidence = [], gaps = [], details = undefined
  * renders plain text. The full statement stays in the PRD, which is the source.
  */
 export function shortRequirementTitle(label = '') {
-  const plain = String(label).replace(/\*\*|`/g, '').replace(/\s+/g, ' ').trim()
+  const plain = String(label).replace(/\*\*|~~|`/g, '').replace(/\s+/g, ' ').trim()
   const stops = [': ', ' — ', '. ']
     .map((stop) => plain.indexOf(stop))
     // A stop before character 12 is a label, not a subject ("Keyboard: palette…").
@@ -216,7 +216,7 @@ function requirementEvidence(domain, nodes, edges, featureRequirements, excluded
   }
 
   return [...reqIds]
-    .filter((id) => reqById.has(id) && !excludedRequirementIds.has(id))
+    .filter((id) => reqById.has(id))
     .sort()
     .map((id) => {
       const requirement = reqById.get(id)
@@ -232,9 +232,13 @@ function requirementEvidence(domain, nodes, edges, featureRequirements, excluded
       )
       return {
         id,
-        title: shortRequirementTitle(requirement.label),
+        title: excludedRequirementIds.has(id)
+          ? `[historical] ${shortRequirementTitle(requirement.label)}`
+          : shortRequirementTitle(requirement.label),
         declared: requirement.declared,
-        status: requirementStatus(requirement, code, tests),
+        status: excludedRequirementIds.has(id)
+          ? 'not_applicable'
+          : requirementStatus(requirement, code, tests),
         code,
         tests,
       }
@@ -264,9 +268,11 @@ function supersededRequirementIds(nodes, edges) {
       .map((requirement) => requirement.id.slice(4)),
   )
   const excluded = new Set([...supersededMembers, ...individuallySuperseded])
-  // A current Feature bundle remains the active owner for its FR. This matters
-  // when a historical requirement annotation lags a still-current bundle row.
-  for (const id of activeMembers) excluded.delete(id)
+  // A current Feature bundle remains the active owner for an FR whose own row
+  // has not been superseded. Its current membership cannot revive a retired FR.
+  for (const id of activeMembers) {
+    if (!individuallySuperseded.has(id)) excluded.delete(id)
+  }
   return excluded
 }
 
@@ -278,10 +284,10 @@ function supersededRequirementIds(nodes, edges) {
  * product statement, so its progress must count every file that implements it,
  * including files in another domain's lane. The two numbers can therefore differ
  * for the same FR — the global one is never smaller — and that is the intent, not
- * drift. `requirementEvidence` is untouched, so the per-domain checks this file
- * already published keep reporting exactly what they always did.
+ * drift. Superseded FRs can remain visible as historical entries, but are marked
+ * not applicable and excluded from the per-domain findings and roll-ups.
  */
-function globalRequirementEvidence(nodes, edges) {
+function globalRequirementEvidence(nodes, edges, excludedRequirementIds = new Set()) {
   const nodeById = new Map(nodes.map((node) => [node.id, node]))
   return nodes
     .filter((node) => node.type === 'requirement' && node.family === 'FR')
@@ -306,8 +312,14 @@ function globalRequirementEvidence(nodes, edges) {
       }
       return {
         ...observation,
-        status: requirementStatus(requirement, code, tests),
-        progressPercent: requirementProgress(observation),
+        // Retired requirements may remain in a historical Feature's evidence,
+        // but their old implementation state is not active readiness.
+        status: excludedRequirementIds.has(observation.id)
+          ? 'not_applicable'
+          : requirementStatus(requirement, code, tests),
+        progressPercent: excludedRequirementIds.has(observation.id)
+          ? 0
+          : requirementProgress(observation),
       }
     })
 }
@@ -404,12 +416,23 @@ function buildFeatureProjection({ nodes, edges, domains, presentation, requireme
   const bundleNodes = nodes.filter((node) => node.type === 'feature').sort((a, b) => a.id.localeCompare(b.id))
   const bundledRequirementIds = new Set()
   const candidates = bundleNodes.map((feature) => {
-    const requirementIds = unique(
+    const allRequirementIds = unique(
       edges
         .filter((edge) => edge.from === feature.id && edge.type === 'bundles')
         .map((edge) => edge.to.replace(/^req:/, '')),
     )
-    for (const id of requirementIds) bundledRequirementIds.add(id)
+    for (const id of allRequirementIds) bundledRequirementIds.add(id)
+    const activeRequirementIds = allRequirementIds.filter((id) => !excludedRequirementIds.has(id))
+    // Keep mixed bundles' active projection limited to active IDs because
+    // readiness consumers use requirementIds as their roll-up membership.
+    // Retired members remain visible in domain requirement evidence as
+    // historical/not_applicable rows for consumers that need provenance.
+    // A current Feature with no active members belongs in historicalFeatures too;
+    // keep its original IDs there so the schema and history view remain useful.
+    const retiredFeature = isSuperseded(feature)
+    const requirementIds = retiredFeature || activeRequirementIds.length === 0
+      ? allRequirementIds
+      : activeRequirementIds
     return {
       id: feature.id.replace(/^feat:/, ''),
       title: feature.label,
@@ -423,7 +446,9 @@ function buildFeatureProjection({ nodes, edges, domains, presentation, requireme
     if (bundledRequirementIds.has(requirement.id)) continue
     candidates.push({
       id: requirement.id,
-      title: requirement.title,
+      title: excludedRequirementIds.has(requirement.id)
+        ? `[historical] ${shortRequirementTitle(requirement.title)}`
+        : requirement.title,
       kind: 'requirement',
       registryStatus: excludedRequirementIds.has(requirement.id)
         ? (/^superseded\b/i.test(requirement.declared || '') ? requirement.declared : 'superseded')
@@ -466,15 +491,22 @@ function buildFeatureProjection({ nodes, edges, domains, presentation, requireme
       const unknown = candidate.requirementIds.filter((id) => !requirementById.has(id))
       throw new Error(`${candidate.id} bundles unknown requirements: ${unknown.join(', ')}`)
     }
-    const progressPercent = roundPercent(
-      featureRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0) / featureRequirements.length,
+    const activeFeatureRequirements = featureRequirements.filter(
+      (requirement) => !excludedRequirementIds.has(requirement.id),
     )
-    const blockers = featureRequirements
+    const progressPercent = activeFeatureRequirements.length
+      ? roundPercent(
+        activeFeatureRequirements.reduce((sum, requirement) => sum + requirement.progressPercent, 0)
+          / activeFeatureRequirements.length,
+      )
+      : 0
+    const blockers = activeFeatureRequirements
       .filter((requirement) => requirement.status !== 'verified')
       .map((requirement) => `${requirement.id} is ${requirement.status}`)
     if (candidate.kind === 'bundle' && candidate.registryStatus !== 'live') {
       blockers.unshift(`${candidate.id} registry status is ${candidate.registryStatus}`)
     }
+    if (!activeFeatureRequirements.length) blockers.unshift(`${candidate.id} has no active requirements`)
     const ready = blockers.length === 0
     const contributorDomains = Object.entries(domains)
       .filter(([, domain]) => domain.requirements.some((requirement) => candidate.requirementIds.includes(requirement.id)))
@@ -491,7 +523,9 @@ function buildFeatureProjection({ nodes, edges, domains, presentation, requireme
       blockers,
       requirements: featureRequirements.map((requirement) => ({
         id: requirement.id,
-        title: shortRequirementTitle(requirement.title),
+        title: excludedRequirementIds.has(requirement.id)
+          ? `[historical] ${shortRequirementTitle(requirement.title)}`
+          : shortRequirementTitle(requirement.title),
         status: requirement.status,
         progressPercent: requirement.progressPercent,
         codeCount: requirement.code.length,
@@ -765,16 +799,17 @@ export function collectDomainObservations({ root, nodes, edges, featureRequireme
     const routes = routeNodesForDomain(domain, nodes, edges)
     const featureDocs = featureDocsForDomain(root, domainName)
     const requirements = requirementEvidence(domain, nodes, edges, featureRequirements, excludedRequirementIds)
+    const activeRequirements = requirements.filter((requirement) => !excludedRequirementIds.has(requirement.id))
     observations[domainName] = {
       checks: {
         ui: interfaceCheck(root, routes),
         httpApi: apiCheck(root, routes),
-        mcp: mcpCheck(root, domain, featureDocs, requirements, nodes, edges),
-        runtimeContract: runtimeContractCheck(root, requirements),
+        mcp: mcpCheck(root, domain, featureDocs, activeRequirements, nodes, edges),
+        runtimeContract: runtimeContractCheck(root, activeRequirements),
         jsonSchema: jsonSchemaCheck(root, featureDocs),
         database: databaseCheck(root, domain),
         authorization: authorizationCheck(root, routes),
-        tests: testsCheck(requirements),
+        tests: testsCheck(activeRequirements),
       },
       evidence: unique([
         `docs/domains/${domainName}/CHARTER.md`,
@@ -852,7 +887,7 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
 
   // @req FR-124 — computed once and shared by the feature projection, the domain
   // roll-up and the overall block, so the three can never disagree about an FR.
-  const globalRequirements = globalRequirementEvidence(nodes, edges)
+  const globalRequirements = globalRequirementEvidence(nodes, edges, excludedRequirementIds)
   const activeRequirements = globalRequirements.filter((requirement) => !excludedRequirementIds.has(requirement.id))
   const projectedFeatures = buildFeatureProjection({
     nodes,
@@ -862,8 +897,10 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
     requirements: globalRequirements,
     excludedRequirementIds,
   })
-  const features = projectedFeatures.filter((feature) => !isSuperseded({ declared: feature.registryStatus }))
-  const historicalFeatures = projectedFeatures.filter((feature) => isSuperseded({ declared: feature.registryStatus }))
+  const isHistoricalProjection = (feature) => isSuperseded({ declared: feature.registryStatus })
+    || (feature.requirementIds.length > 0 && feature.requirementIds.every((id) => excludedRequirementIds.has(id)))
+  const features = projectedFeatures.filter((feature) => !isHistoricalProjection(feature))
+  const historicalFeatures = projectedFeatures.filter(isHistoricalProjection)
 
   for (const [name, domain] of Object.entries(domains)) {
     const domainFeatures = features.filter((feature) => feature.primaryDomain === name)
@@ -871,6 +908,7 @@ export function buildDomainState({ nodes, edges, featureRequirements = new Map()
       domainFeatures.flatMap((feature) => feature.requirements).map((requirement) => [requirement.id, requirement]),
     )
     const domainRequirements = [...requirementsById.values()]
+      .filter((requirement) => !excludedRequirementIds.has(requirement.id))
     domain.featureIds = domainFeatures.map((feature) => feature.id)
     domain.featureCount = domainFeatures.length
     domain.readyFeatureCount = domainFeatures.filter((feature) => feature.ready).length
