@@ -19,6 +19,9 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.174.0b (2026-11-08): adds the owner-approved FR-296/FR-297 login and TOTP rate-limit traces.
+> Local tests and governance are distinct from review, merge and deployment; both requirements remain planned.
+
 > Revision 2.173.0b (2026-10-31): adds the owner-requested FR-295 client trace.
 > Local browser and database tests are distinct from deployment and a real Business import.
 > The canonical requirement remains planned; phase acceptance and rollups are unchanged.
@@ -690,6 +693,8 @@ live document ที่ GoVibe Mission Control อ่านตรง (roadmap pa
 | TASK-FR-293 | PHASE-V2-REPLACE | task | FR-293 Compact backup transfer: OR1 bounded canonical TAR/manifest and complete row/byte witness codec only; live export/preview/confirm, target mapping, admission and supported backup round trip remain open | P1 | Codex | in-progress (OR1 pure protocol; canonical delivery planned; transfer inactive) | FR-293; FR-292; ADR-115 | ../requirements/FR-293.md; ../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md |
 | TASK-FR-294 | PHASE-V2-REPLACE | task | FR-294 scoped Office floor, agent-design and asset registration; immutable revisions, internal identity mapping, DB byte custody and HTTP readback | P1 | Codex | in-progress (local implementation; composed qualification and release remain separate) | FR-294; SEC-001; SEC-008 | ../requirements/FR-294.md; ../change-requests/project-manager/office-design-receiver-20261031.md |
 | TASK-FR-295 | PHASE-V2-REPLACE | task | Office handoff client, authorized destination selection and committed design ID readback | P1 | Codex | in-progress (local implementation; hosted integration and release remain separate) | FR-295; FR-294 | ../requirements/FR-295.md; ../change-requests/project-manager/office-handoff-client-20261031.md |
+| TASK-FR-296 | PHASE-V2-REPLACE | task | Durable password-login rate limits before credential verification, identical 429 for known/unknown identifiers, Thai wait copy | P0 | Codex | in-progress (local implementation; review, merge and deployment remain separate) | FR-296; FR-046 | ../requirements/FR-296.md; ../change-requests/identity/authentication-rate-limits-20261108.md |
+| TASK-FR-297 | PHASE-V2-REPLACE | task | Per-Person TOTP verification rate limit shared by enrollment confirmation and TOTP step-up | P0 | Codex | in-progress (local implementation; review, merge and deployment remain separate) | FR-297; FR-224 | ../requirements/FR-297.md; ../change-requests/identity/authentication-rate-limits-20261108.md |
 | TASK-FR-284 | PHASE-V2-REPLACE | task | Portable Windows/POSIX managed FileAsset content, contained staging and promotion, case-aware reconciliation, and honest partial snapshot restore | P1 | Codex / Luna | done (PR #657 merged; local implementation and gates verified; production NOT_RUN) | FR-284; SDD-113; FR-045; SEC-007; ADR-016 | ../requirements/FR-284.md; ../requirements/SDD-113.md; ../change-requests/project-manager/portable-managed-files-20261014.md |
 | TASK-FR-046 | PHASE-V2-REPLACE | task | Trusted request viewer and atomic viewer-scoped `/api/entry` for production-safe Business Routing | P0 | Codex | done | FR-031; FR-044 | ADR-017; ../domains/identity/features/FR-046-production-viewer-entry-contract.md |
 | TASK-FR-053-054 | PHASE-V2-REPLACE | task | Phase 1 activation readiness: deterministic golden evaluation, live-role isolation probe and dry-run controlled canary plan | P0 | Codex | done (beta; external activation pending) | FR-047..052; ADR-018 | ADR-019; changes/ZV2-CR-005-PHASE1-ACTIVATION-READINESS.md |

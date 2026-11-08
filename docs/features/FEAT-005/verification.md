@@ -28,6 +28,7 @@ status: generated
 
 - [apps/server/tests/e2e/fr077-project-inventory.spec.js](../../../apps/server/tests/e2e/fr077-project-inventory.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/project-domain-view.spec.js](../../../apps/server/tests/e2e/project-domain-view.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/pipeline-request-bounds.test.js](../../../apps/server/tests/integration/pipeline-request-bounds.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-inventory-stall.test.js](../../../apps/server/tests/integration/project-inventory-stall.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/project-inventory.test.js](../../../apps/server/tests/integration/project-inventory.test.js) — `verifies` (`test-reference`)
@@ -35,6 +36,7 @@ status: generated
 - [apps/server/tests/integration/projects-dashboard-stall.test.js](../../../apps/server/tests/integration/projects-dashboard-stall.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/e2e-reconnecting-request.test.js](../../../apps/server/tests/unit/e2e-reconnecting-request.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/project-inventory-read-model.test.js](../../../apps/server/tests/unit/project-inventory-read-model.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/project-inventory-ui.test.js](../../../apps/server/tests/unit/project-inventory-ui.test.js) — `verifies` (`test-reference`)

@@ -1,7 +1,7 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.14.0"
+version: "1.15.0"
 updated_at: "2026-11-08"
 ---
 
@@ -92,6 +92,13 @@ migration; delivery and deployment evidence remain separate.
   active Edge LINE shadow/cutover obligation. It preserves the existing IDs,
   FEAT-026 membership and Knowledge/RAG implementation; it does not certify
   current production state or close TASK-ZAI-050/095.
+
+## Approved canonical record additions
+
+- [Password login and TOTP rate limits (FR-296/FR-297)](identity/authentication-rate-limits-20261108.md)
+  (0.1.0, approved standalone FR issuance): records the task-authorized login
+  and TOTP limits, with delivery status planned and no production or schema
+  change.
 
 ## `CR-` is not `FR-`, and it is not `ZV2-CR-`
 

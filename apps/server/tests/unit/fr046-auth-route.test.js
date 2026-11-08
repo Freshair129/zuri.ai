@@ -4,10 +4,20 @@ const auth = vi.hoisted(() => ({
   authenticateUser: vi.fn(),
 }))
 
+const rateLimit = vi.hoisted(() => ({
+  consumeLoginRateLimits: vi.fn(),
+  isRateLimitError: error => error?.status === 429 && error?.code === 'CREDENTIAL_RATE_LIMITED',
+}))
+
 vi.mock('@/modules/identity/auth-service', () => ({
   AUTH_SESSION_COOKIE: 'zuri_session',
   SESSION_MAX_AGE_SECONDS: 60 * 60 * 24 * 7,
   authenticateUser: auth.authenticateUser,
+}))
+
+vi.mock('@/modules/identity/rate-limit', () => ({
+  consumeLoginRateLimits: rateLimit.consumeLoginRateLimits,
+  isRateLimitError: rateLimit.isRateLimitError,
 }))
 
 import { POST as login } from '@/app/api/auth/login/route'
@@ -18,8 +28,8 @@ import {
   loginErrorMessage,
 } from '@/modules/identity/login-error-copy'
 
-// @req FR-046 — credential login creates a signed, server-owned session cookie.
-// @spec ADR-017, SDD-024, SEC-008
+// @req FR-046, FR-296 — credential login creates a session and consumes its rate limits first.
+// @spec ADR-017, SDD-024, SEC-008, SEC-026
 // @tested tests/unit/fr046-auth-route.test.js
 
 const request = (body = {}) => new Request('http://localhost/api/auth/login', {
@@ -31,14 +41,20 @@ const request = (body = {}) => new Request('http://localhost/api/auth/login', {
 describe('FR-046 credential auth routes', () => {
   afterEach(() => {
     auth.authenticateUser.mockReset()
+    rateLimit.consumeLoginRateLimits.mockReset()
     vi.unstubAllEnvs()
   })
 
   it('returns the authenticated account and sets an HttpOnly session cookie', async () => {
-    auth.authenticateUser.mockResolvedValue({
-      success: true,
-      token: 'zuri_sess.signed-token',
-      user: { id: 'person-1', code: 'PER-001', displayName: 'Owner' },
+    const order = []
+    rateLimit.consumeLoginRateLimits.mockImplementation(async () => { order.push('limit') })
+    auth.authenticateUser.mockImplementation(async () => {
+      order.push('auth')
+      return {
+        success: true,
+        token: 'zuri_sess.signed-token',
+        user: { id: 'person-1', code: 'PER-001', displayName: 'Owner' },
+      }
     })
 
     const response = await login(request({ username: 'owner@example.com', password: 'correct horse battery staple' }))
@@ -54,6 +70,8 @@ describe('FR-046 credential auth routes', () => {
       username: 'owner@example.com',
       password: 'correct horse battery staple',
     })
+    expect(rateLimit.consumeLoginRateLimits).toHaveBeenCalledWith(expect.objectContaining({ username: 'owner@example.com' }))
+    expect(order).toEqual(['limit', 'auth'])
     expect(response.headers.get('set-cookie')).toContain('zuri_session=zuri_sess.signed-token')
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
     expect(response.headers.get('set-cookie')).toMatch(/SameSite=lax/i)
@@ -130,6 +148,35 @@ describe('FR-046 credential auth routes', () => {
     expect(response.headers.get('set-cookie')).toBeNull()
   })
 
+  it('returns a generic 429 with the FR-224 retry body before checking the password', async () => {
+    rateLimit.consumeLoginRateLimits.mockRejectedValue(Object.assign(new Error('CREDENTIAL_RATE_LIMITED'), {
+      status: 429,
+      code: 'CREDENTIAL_RATE_LIMITED',
+      retryAfterSeconds: 275,
+    }))
+
+    const response = await login(request({ username: 'owner@example.com', password: 'wrong' }))
+
+    expect(response.status).toBe(429)
+    expect(await response.json()).toEqual({
+      success: false,
+      error: 'LOGIN_RATE_LIMITED',
+      retryAfterSeconds: 275,
+    })
+    expect(response.headers.get('retry-after')).toBe('275')
+    expect(auth.authenticateUser).not.toHaveBeenCalled()
+  })
+
+  it('returns 503 AUTH_UNAVAILABLE when the limiter fails for another reason', async () => {
+    rateLimit.consumeLoginRateLimits.mockRejectedValue(new Error('database unavailable'))
+
+    const response = await login(request({ username: 'owner@example.com', password: 'wrong' }))
+
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({ success: false, error: 'AUTH_UNAVAILABLE' })
+    expect(auth.authenticateUser).not.toHaveBeenCalled()
+  })
+
   it('returns 503 AUTH_UNAVAILABLE when a session cannot be minted at all', async () => {
     auth.authenticateUser.mockRejectedValue(new Error('SESSION_SECRET_REQUIRED'))
 
@@ -163,6 +210,7 @@ describe('FR-046 credential auth routes', () => {
 describe('FR-046 login failure copy', () => {
   afterEach(() => {
     auth.authenticateUser.mockReset()
+    rateLimit.consumeLoginRateLimits.mockReset()
   })
 
   it('blames the credentials only for the 401 the route returns for bad credentials', async () => {
@@ -181,6 +229,17 @@ describe('FR-046 login failure copy', () => {
     expect(message).toContain(LOGIN_ERROR_UNAVAILABLE)
     expect(message).toContain('AUTH_UNAVAILABLE')
     expect(message).not.toBe(LOGIN_ERROR_CREDENTIALS)
+  })
+
+  it('shows the Thai wait time in minutes for LOGIN_RATE_LIMITED', () => {
+    const message = loginErrorMessage(429, { error: 'LOGIN_RATE_LIMITED', retryAfterSeconds: 181 })
+
+    expect(message).toContain('รอ')
+    expect(message).toContain('4 นาที')
+    expect(loginErrorMessage(429, { error: 'LOGIN_RATE_LIMITED', retryAfterSeconds: 180 })).toContain('3 นาที')
+    expect(loginErrorMessage(429, { error: 'LOGIN_RATE_LIMITED', retryAfterSeconds: 1 })).toContain('1 นาที')
+    expect(message).not.toBe(LOGIN_ERROR_CREDENTIALS)
+    expect(message).not.toContain(LOGIN_ERROR_UNAVAILABLE)
   })
 
   it('falls back to the status code for any other non-OK response', () => {

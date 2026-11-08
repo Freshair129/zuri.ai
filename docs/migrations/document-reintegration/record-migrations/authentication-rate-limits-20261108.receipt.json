@@ -1,0 +1,33 @@
+{
+  "version": 1,
+  "migrationId": "authentication-rate-limits-20261108",
+  "status": "APPLIED",
+  "manifestSha256": "6254245b1d50058e4a62ff611b02a530684042125a88dfb841b3981ba695e5b5",
+  "base": {
+    "commit": "2350f964b60f7c38b69bc3969ca7e5fd76671368",
+    "indexSha256": "d2181bfc1aa63e73547287f3df977fbd21a9fe8b452d0df6a0fc5b640362b1c4",
+    "ledgerSha256": "a8cb96ff5e63096e0399fd9e11b97aac9158418ac4fe7a6203476853a861d784"
+  },
+  "ids": [
+    "FR-296",
+    "FR-297"
+  ],
+  "before": {
+    "docs/migrations/document-reintegration/record-migrations/authentication-rate-limits-20261108.approval.md": null,
+    "docs/requirements/FR-296.md": null,
+    "docs/requirements/FR-297.md": null,
+    "registry/document-registry/index.json": "d2181bfc1aa63e73547287f3df977fbd21a9fe8b452d0df6a0fc5b640362b1c4",
+    "docs/PRD-SDD-v1.0.md": "2fb6dac95e61a4cee0124a599f6e138e79f5604afab31af235f7e64ad26e96fe",
+    "docs/FEATURES.md": "cd92153cd95bbd30a21591d6bc213c2264e8c08d37065746753a1377db0ad150",
+    "docs/.id-ledger.json": "a8cb96ff5e63096e0399fd9e11b97aac9158418ac4fe7a6203476853a861d784"
+  },
+  "outputs": {
+    "docs/migrations/document-reintegration/record-migrations/authentication-rate-limits-20261108.approval.md": "001026ea6be622bca958ac08b2dbed70943ded2aaa3275c4e701d2d449f8b312",
+    "docs/requirements/FR-296.md": "148aa4b711f8eb1c321ddff50a2d0c0e2f04e83490403960c4b0a214b0292f4b",
+    "docs/requirements/FR-297.md": "edb60d66c8609f239079bb7d98ba2abfa39eb331f3cfa4ddad0bd278a885bb2d",
+    "registry/document-registry/index.json": "fe2a1a5faf0218ac8734886769e20f8326ebcac79158df7c9573af3e02dd0535",
+    "docs/PRD-SDD-v1.0.md": "071c2078d3749fb238354e42a3822dac9250e6c7b34a32a135e496c4871f623d",
+    "docs/FEATURES.md": "cd92153cd95bbd30a21591d6bc213c2264e8c08d37065746753a1377db0ad150",
+    "docs/.id-ledger.json": "8a120d26d15b8034c87565e916195a82f7a348be7855a36863658305ca6b68b9"
+  }
+}

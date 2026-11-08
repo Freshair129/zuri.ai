@@ -1,7 +1,6 @@
-// @req FR-046 — the login surface says why sign-in failed; only a 401 is allowed
-// to blame the credentials. A 503 AUTH_UNAVAILABLE (missing ZURI_SESSION_SECRET,
-// or session persistence down) is a server-state failure and must read as one.
-// @spec ADR-017, SDD-024, SEC-008
+// @req FR-046, FR-296 — login copy distinguishes bad credentials, rate limits,
+//   and unavailable authentication state.
+// @spec ADR-017, SDD-024, SEC-008, SEC-026
 // @tested tests/unit/fr046-auth-route.test.js
 
 export const LOGIN_ERROR_CREDENTIALS = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง'
@@ -19,5 +18,12 @@ export function loginFailureCode(status, result) {
 
 export function loginErrorMessage(status, result) {
   if (status === 401) return LOGIN_ERROR_CREDENTIALS
+  if (status === 429 && result?.error === 'LOGIN_RATE_LIMITED') {
+    const retryAfterSeconds = Number.isInteger(result.retryAfterSeconds) && result.retryAfterSeconds > 0
+      ? result.retryAfterSeconds
+      : 60
+    const minutes = Math.max(1, Math.ceil(retryAfterSeconds / 60))
+    return `เข้าสู่ระบบบ่อยเกินไป กรุณารอ ${minutes} นาทีแล้วลองอีกครั้ง`
+  }
   return `${LOGIN_ERROR_UNAVAILABLE} (รหัส: ${loginFailureCode(status, result)})`
 }

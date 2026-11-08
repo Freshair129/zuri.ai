@@ -145,6 +145,7 @@ status: generated
 
 - [apps/server/tests/e2e/fr149-line-server-console.spec.js](../../../apps/server/tests/e2e/fr149-line-server-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js](../../../apps/server/tests/e2e/fr151-line-oa-rich-menu-console.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -163,6 +164,7 @@ status: generated
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/conversation-session-ui.test.js](../../../apps/server/tests/unit/conversation-session-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-oa-account-domain.test.js](../../../apps/server/tests/unit/line-oa-account-domain.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-oa-rich-menu-console.test.js](../../../apps/server/tests/unit/line-oa-rich-menu-console.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-rich-menu-domain.test.js](../../../apps/server/tests/unit/line-oa-rich-menu-domain.test.js) — `verifies` (`test-reference`)

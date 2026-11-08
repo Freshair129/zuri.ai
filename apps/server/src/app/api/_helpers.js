@@ -12,6 +12,26 @@ export function ok(data, init) {
   return NextResponse.json(data, init)
 }
 
+// @req FR-224, FR-296, FR-297 — authentication rate refusals share the retry body/header contract.
+// @spec SEC-026
+// @tested tests/integration/auth-rate-limit.test.js
+export function rateLimitResponse(error, retryAfterSeconds) {
+  const retry = Number.isInteger(retryAfterSeconds) && retryAfterSeconds > 0
+    ? retryAfterSeconds
+    : 1
+  return NextResponse.json(
+    { success: false, error, retryAfterSeconds: retry },
+    { status: 429, headers: { 'Retry-After': String(retry) } },
+  )
+}
+
+// @req FR-296, FR-297 — limiter persistence failures fail closed without revealing account state.
+// @spec SEC-026
+// @tested tests/unit/fr046-auth-route.test.js, tests/integration/auth-rate-limit.test.js
+export function authUnavailableResponse() {
+  return NextResponse.json({ success: false, error: 'AUTH_UNAVAILABLE' }, { status: 503 })
+}
+
 /**
  * Throw from a route handler to choose the status explicitly instead of
  * relying on message sniffing (used by the enterprise API, where integrators

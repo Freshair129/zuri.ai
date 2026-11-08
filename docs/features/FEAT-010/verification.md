@@ -45,6 +45,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -113,6 +114,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr044-entry-routing.spec.js](../../../apps/server/tests/e2e/fr044-entry-routing.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-archive-legal-hold.test.js](../../../apps/server/tests/integration/crm-archive-legal-hold.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
@@ -185,6 +187,7 @@ status: generated
 - [apps/server/tests/integration/agent-multi-principal.test.js](../../../apps/server/tests/integration/agent-multi-principal.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/agent-request-envelope.test.js](../../../apps/server/tests/integration/agent-request-envelope.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/agent-tools.test.js](../../../apps/server/tests/integration/agent-tools.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/iam-authorization.test.js](../../../apps/server/tests/integration/iam-authorization.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/mfa-totp-lifecycle.test.js](../../../apps/server/tests/integration/mfa-totp-lifecycle.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
