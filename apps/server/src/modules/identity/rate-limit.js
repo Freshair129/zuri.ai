@@ -7,8 +7,8 @@
 // @tested tests/integration/credential-rate-limit.test.js, tests/integration/auth-rate-limit.test.js
 
 import { createHash } from 'node:crypto'
+import { isIP } from 'node:net'
 import prisma from '@/lib/db'
-import { signupSourceKey } from './signup-rate-limit'
 
 /** The limits ADR-089 D4 / design §4.6 set. Weights: a rejected LINE validation counts twice. */
 export const CREDENTIAL_RATE_LIMITS = Object.freeze({
@@ -30,14 +30,48 @@ export const AUTHENTICATION_RATE_LIMITS = Object.freeze({
 const hashRateLimitKeyPart = value => createHash('sha256').update(value, 'utf8').digest('hex')
 
 /**
- * Stable, PII-minimized buckets. The address comes from the same forwarded-header
- * derivation as signupSourceKey: it is trustworthy only when the deployment proxy
- * overwrites x-forwarded-for, and falls back to one shared `unknown` address.
+ * Derive the login client address from the proxy-appended x-forwarded-for chain.
+ * ZURI_TRUSTED_PROXY_HOPS selects the entry N positions from the right (default
+ * 1; production's ngrok proxy appends the client address). Missing or short
+ * chains, and entries that are not IPs, return null so login uses only the
+ * identifier bucket. Unlike signupSourceKey, this never trusts the leftmost
+ * caller-supplied hop or creates a shared `unknown` address bucket.
  */
-export function passwordLoginRateLimitKeys(username, headers) {
+export function passwordLoginClientAddress(headers, env = process.env) {
+  const rawHops = env?.ZURI_TRUSTED_PROXY_HOPS
+  const configuredHops = rawHops === undefined || rawHops === null ? '' : String(rawHops).trim()
+  const hops = configuredHops === '' ? 1 : Number(configuredHops)
+  if (!Number.isSafeInteger(hops) || hops < 1 || (configuredHops !== '' && !/^\d+$/.test(configuredHops))) {
+    throw new Error('RATE_LIMIT_CONFIGURATION_INVALID')
+  }
+
+  const forwarded = headers?.get?.('x-forwarded-for')
+  if (typeof forwarded !== 'string' || !forwarded.trim()) return null
+
+  const chain = forwarded.split(',').map(entry => entry.trim())
+  if (chain.length < hops) return null
+
+  const address = chain[chain.length - hops]
+  return isIP(address) ? address : null
+}
+
+/**
+ * Stable, PII-minimized buckets. Email and code are separate normalized
+ * identifiers, so without a pre-lookup one account can get a separate 50-attempt
+ * identifier budget for each.
+ */
+export function passwordLoginRateLimitKeys(username, headers, env = process.env) {
   const identifier = typeof username === 'string' ? username.trim().toLowerCase() : ''
-  const address = signupSourceKey(headers)
+  const address = passwordLoginClientAddress(headers, env)
   const identifierHash = hashRateLimitKeyPart(identifier)
+  if (!address) {
+    return {
+      identifierAddress: null,
+      identifier: `AUTH_RATE_LIMIT:LOGIN:IDENTIFIER:${identifierHash}`,
+      address: null,
+    }
+  }
+
   const addressHash = hashRateLimitKeyPart(address)
   return {
     identifierAddress: `AUTH_RATE_LIMIT:LOGIN:IDENTIFIER_ADDRESS:${identifierHash}:${addressHash}`,
@@ -122,12 +156,15 @@ export async function consumeRateLimit({ key, limit, windowSeconds, weight = 1, 
   throw limited(1)
 }
 
-/** Consume all three password-login windows before checking the password. */
+/** Consume login windows in identifier+address, identifier, then address order. */
 export async function consumeLoginRateLimits({ username, headers, db = prisma, now = () => new Date() } = {}) {
   const keys = passwordLoginRateLimitKeys(username, headers)
-  let retryAfterSeconds = 0
+  const buckets = keys.identifierAddress
+    ? ['identifierAddress', 'identifier', 'address']
+    : ['identifier']
 
-  for (const [bucket, limits] of Object.entries(AUTHENTICATION_RATE_LIMITS.passwordLogin)) {
+  for (const bucket of buckets) {
+    const limits = AUTHENTICATION_RATE_LIMITS.passwordLogin[bucket]
     try {
       await consumeRateLimit({ key: keys[bucket], ...limits, db, now })
     } catch (error) {
@@ -135,11 +172,9 @@ export async function consumeLoginRateLimits({ username, headers, db = prisma, n
       const retry = Number.isInteger(error.retryAfterSeconds) && error.retryAfterSeconds > 0
         ? error.retryAfterSeconds
         : 1
-      retryAfterSeconds = Math.max(retryAfterSeconds, retry)
+      throw limited(retry)
     }
   }
-
-  if (retryAfterSeconds > 0) throw limited(retryAfterSeconds)
 }
 
 /** One shared TOTP budget per Person across enrollment and step-up verification. */
