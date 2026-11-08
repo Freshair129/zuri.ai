@@ -1,7 +1,7 @@
 ---
-version: "0.2.0"
+version: "0.2.1"
 created_at: "2026-09-27T00:00:00+07:00,Claude Sonnet 5"
-last_update: "2026-11-08T00:00:00+07:00,Codex"
+last_update: "2026-11-08T14:39:37+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -130,7 +130,7 @@ Re-run the inspection and verify `knowledgeGrounding: BUSINESS_KNOWLEDGE`, `know
 
 ## Step 5 — Record real production work only after it occurs
 
-After an authorized production operation, record the switch, its 14-day evidence and any rollback in the existing migration notes and TASK-ZAI-095 container changelog. Keep the named approval and DoD flags unchanged unless the corresponding production evidence actually satisfies them. An uneventful window does not satisfy a rollback-on-regression exit criterion whose precondition never occurred.
+The exit criterion is satisfied by the end-of-pilot restore or an earlier rollback only when an authorized operator actually performs both changes in production through the existing audited actions — restore `BUSINESS_KNOWLEDGE` and disable shadow — verifies that later primary traces return to Business Knowledge, and records both changes in `AuditEvent`, the existing migration notes and the TASK-ZAI-095 container changelog. Record the switch and its 14-day evidence there as well. An uneventful window without the production restore or rollback, the later-trace check and those records does not satisfy the criterion. Keep the named approval and DoD flags unchanged unless the corresponding production evidence actually satisfies them.
 
 The separate TASK-ZAI-050 activation record must be completed by the production-host operator. Its prepared skeleton is `.brain/reports/2026-11-08-task-zai-050-activation-record.md`; all current host fields remain `NOT_VERIFIED`.
 
@@ -147,5 +147,6 @@ node scripts/ki17-smoke.mjs
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.2.1 | 2026-11-08 | beta | Clarifies that the end-of-pilot restore or a rollback satisfies the exit criterion only when both grounding-mode restoration and shadow disablement are performed in production through audited actions, later primary traces return to Business Knowledge, and both changes are recorded in AuditEvent, migration notes and the container changelog. | working-tree | Codex |
 | 0.2.0 | 2026-11-08 | beta | Applies ASTRA-D1 D4: selects GKS_THEN_BUSINESS_KNOWLEDGE for a 14-consecutive-day pilot; documents explicit Business/account/runtime selection, direct-source complete preflight, existing switch and shadow actions, the built shadow harness, and rollback that restores BUSINESS_KNOWLEDGE and disables shadow. Records production-host blockers without claiming activation. | working-tree | Codex |
 | 0.1.0 | 2026-09-27 | beta | Initial runbook: preflight, the audited switch and rollback, shadow evidence and migration-note recording. It did not resolve TASK-ZAI-042/TASK-ZAI-050 or specify a campaign-window duration. | working-tree | Claude Sonnet 5 |

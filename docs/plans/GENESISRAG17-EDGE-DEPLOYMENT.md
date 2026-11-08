@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.7"
+version: "0.7.8"
 status: beta
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-11-08T04:03:25+07:00,Codex"
+last_update: "2026-11-08T14:35:41+07:00,Codex"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -435,12 +435,14 @@ timestamps. P1's switch/shadow/rollback rehearsal is isolated test evidence only
 production switch, named approval or live LINE delivery occurred in this packet. See
 the [TASK-ZAI-095 runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md).
 
-**Open question for the owner (FR-189):** does FR-189 remain applicable after
-ADR-110 retired the edge-device worker connection? No FR-189 status or
-supersession change is made here.
+**Historical (pre-ASTRA-D1 D1) open question (FR-189):** did FR-189 remain
+applicable after ADR-110 retired the edge-device worker connection? The question
+and its statement that no status change was made describe the pre-migration state
+and are no longer current.
 
-**Disposition pointer (2026-11-08):** ASTRA-D1 D1 supersedes FR-189 as an active
-Edge LINE shadow/cutover obligation; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
+**Current disposition (2026-11-08):** FR-189 is superseded as an active Edge LINE
+shadow/cutover obligation by ASTRA-D1 D1 through the canonical source-row migration
+merged in PR #793; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
 No cutover, sunset or deletion is asserted.
 
 ## 10. Start order (operator procedure, not executed)
@@ -646,6 +648,7 @@ cutover.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.8 | 2026-11-08 | beta | Marks the former FR-189 owner question as historical and records its supersession by ASTRA-D1 D1 through the canonical source-row migration merged in PR #793; preserves the no-cutover/no-deletion boundary. | working-tree | Codex |
 | 0.7.7 | 2026-11-08 | beta | Adds §9.4 to attribute MSP §6 as historical evidence with its private-artifact limitation, reconcile TASK-ZAI-050 without checking any DoD items, and point to the NOT_VERIFIED activation skeleton and isolated TASK-ZAI-095 pilot plan. No production action is claimed. | working-tree | Codex |
 | 0.7.6 | 2026-11-08 | beta | Adds a dated pointer to ASTRA-D1 D1's reviewed FR-189 disposition; preserves runtime and production evidence boundaries | working-tree | Codex |
 | 0.7.5 | 2026-11-08 | beta | Adds the native Windows developer-check recipe and §9.3 result, records production MSP evidence from MSP §6 with its source caveat, and preserves FR-189 for owner decision; FR-187/188 source-row status migration remains gated by an approved migration document | working-tree | Codex |
