@@ -1799,7 +1799,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 20
+          "testCount": 22
         },
         {
           "id": "FR-097",
@@ -3503,24 +3503,24 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 22,
-          "testCount": 30
+          "codeCount": 23,
+          "testCount": 31
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 25,
-          "testCount": 51
+          "codeCount": 26,
+          "testCount": 52
         },
         {
           "id": "FR-096",
           "title": "Shared policy enforcement",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 20
+          "codeCount": 13,
+          "testCount": 22
         },
         {
           "id": "FR-097",
@@ -6920,7 +6920,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-105",
@@ -8127,7 +8127,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-095",
@@ -8135,7 +8135,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 51
+          "testCount": 52
         },
         {
           "id": "FR-097",
@@ -11391,24 +11391,24 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 30
+          "codeCount": 25,
+          "testCount": 31
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
-          "testCount": 51
+          "codeCount": 31,
+          "testCount": 52
         },
         {
           "id": "FR-096",
           "title": "Shared policy enforcement",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 20
+          "codeCount": 17,
+          "testCount": 22
         },
         {
           "id": "FR-097",
@@ -11459,6 +11459,7 @@
         "apps/server/src/modules/identity/auth-service.js",
         "apps/server/src/modules/identity/authorization-context.js",
         "apps/server/src/modules/identity/channel-identity.js",
+        "apps/server/src/modules/identity/credential-write-gate.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/identity/link-line-identity.js",
         "apps/server/src/modules/identity/link-token-authority.js",
@@ -11503,6 +11504,7 @@
         "apps/server/tests/integration/identity-link.test.js",
         "apps/server/tests/integration/identity-resolve.test.js",
         "apps/server/tests/integration/line-account-isolation.test.js",
+        "apps/server/tests/integration/line-channel-credential-routes.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
         "apps/server/tests/integration/line-non-text-admission.test.js",
         "apps/server/tests/integration/line-product-facts.test.js",

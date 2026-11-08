@@ -217,16 +217,26 @@ for device labels and person names; it returns no key material.
   `credential-write-gate.js` is the gate other lanes call before a credential write,
   rotation, revocation or live validation: `assertCredentialWriteAssurance` refuses a
   Person with no ACTIVE TOTP factor `MFA_FACTOR_REQUIRED` (with the enrolment path),
-  then calls `assertSessionAssurance` with the Session's live step-up window only and
-  refuses `ASSURANCE_LEVEL_INSUFFICIENT`. It reads `elevatedUntil`, not the stored
-  `assuranceLevel`, because `elevateSession` leaves that column at AAL2 after the
-  900-second window ends. `createCredentialWriteGuard` composes the gate with the
+  then requires a live `elevatedUntil` on the persisted Session. A WebAuthn login
+  stamps the same 900-second window and remains AAL2 for general assurance, but
+  never substitutes for this recent step-up; stored `assuranceLevel` is descriptive
+  only, including old AAL2 values left by previous releases. The exact server-only
+  ADR-100 setting `ZURI_CREDENTIAL_STEP_UP=off` remains an explicit exception for
+  credential writes.
+  `createCredentialWriteGuard` composes the gate with the
   product's first rate limit (`rate-limit.js`, model `RateLimitBucket`, migration
   `20260914140400_rate_limit_bucket.sql`, applied on production 2026-09-14): five writes or validations in
   fifteen minutes per Person and Business, a rejected LINE validation counting twice,
   and sixty LINE validation calls a minute per installation, answering 429
-  `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. This does not change MFA
-  enrolment or verification, and sealing the TOTP secret at rest is a separate lane.
+  `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. Factor enrollment follows
+  current factor state at both initiation and confirmation: the first active factor
+  may be established at AAL1, while adding another ACTIVE TOTP factor or registered
+  passkey requires a live `elevatedUntil` (FR-094..096, SEC-018, ADR-045 D2/D4).
+  Revoking an MFA factor or passkey also requires a live `elevatedUntil`. The factor
+  enrollment check is not atomic with its write; that millisecond race is accepted.
+  A Person whose only ACTIVE TOTP secret is unreadable (`MFA_SECRET_UNAVAILABLE`)
+  and who has no passkey needs operator recovery because step-up is unreachable.
+  Sealing the TOTP secret at rest remains a separate lane.
 - **Erasure fan-out (FR-232, [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md) D6).**
   `erasePrincipal` stays the one erasure transaction. It will additionally compose
   the knowledge lane's candidate tombstone writer and leave durable work items for

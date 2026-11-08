@@ -1,10 +1,11 @@
-// @req FR-094, FR-095 — WebAuthn Passkey credential management endpoint
-// @spec ADR-045 D2, D5, SDD-052, SEC-018
+// @req FR-094, FR-095, FR-096 — WebAuthn Passkey credential management endpoint
+// @spec ADR-045 D2, D4, D5, SDD-052, SEC-018
 // @tested tests/integration/passkey-lifecycle.test.js
 
 import { handle, httpError } from '@/app/api/_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { listPasskeys, revokePasskey } from '@/modules/identity/passkey-service'
+import { assertRecentStepUp, resolveSessionTokenHash } from '@/modules/identity/credential-write-gate'
 
 export const dynamic = 'force-dynamic'
 
@@ -36,6 +37,12 @@ export async function DELETE(request, options = {}) {
     if (!passkeyId) {
       throw httpError(400, 'passkeyId is required')
     }
+
+    await assertRecentStepUp({
+      personId,
+      request,
+      tokenHash: resolveSessionTokenHash({ request, tokenHash: options.tokenHash, viewer }),
+    })
 
     const result = await revokePasskey({ personId, passkeyId })
     return { success: true, ...result }
