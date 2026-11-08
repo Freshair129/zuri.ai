@@ -40,7 +40,7 @@
     "featureCount": 175,
     "readyFeatureCount": 121,
     "requirementCount": 283,
-    "verifiedRequirementCount": 247,
+    "verifiedRequirementCount": 248,
     "progressPercent": 93.6,
     "gapCount": 83,
     "gaps": [
@@ -634,9 +634,9 @@
       {
         "domain": "knowledge",
         "id": "REQ-FR-189",
-        "severity": "medium",
+        "severity": "high",
         "check": "requirements",
-        "summary": "FR-189 is planned",
+        "summary": "FR-189 is not_implemented",
         "evidence": [
           "apps/edge/tests/unit/genesisrag17-edge.test.ts",
           "apps/edge/tests/unit/genesisrag17-products.test.ts"
@@ -5313,9 +5313,9 @@
         },
         {
           "id": "FR-189",
-          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
-          "declared": "planned",
-          "status": "planned",
+          "title": "~~Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
+          "declared": "n/a",
+          "status": "not_implemented",
           "codeCount": 0,
           "testCount": 2,
           "evidence": [
@@ -5634,9 +5634,9 @@
         },
         {
           "id": "REQ-FR-189",
-          "severity": "medium",
+          "severity": "high",
           "check": "requirements",
-          "summary": "FR-189 is planned",
+          "summary": "FR-189 is not_implemented",
           "evidence": [
             "apps/edge/tests/unit/genesisrag17-edge.test.ts",
             "apps/edge/tests/unit/genesisrag17-products.test.ts"
@@ -5746,7 +5746,7 @@
       ],
       "featureCount": 18,
       "readyFeatureCount": 11,
-      "progressPercent": 94.7
+      "progressPercent": 95.3
     },
     "line-oa-studio": {
       "status": "partial",
@@ -13497,12 +13497,11 @@
         "project-manager"
       ],
       "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 93.3,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-026 registry status is approved",
-        "FR-189 is partial"
+        "FEAT-026 registry status is approved"
       ],
       "requirements": [
         {
@@ -13523,9 +13522,9 @@
         },
         {
           "id": "FR-189",
-          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
-          "status": "partial",
-          "progressPercent": 80,
+          "title": "~~Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
+          "status": "verified",
+          "progressPercent": 100,
           "codeCount": 8,
           "testCount": 2
         }

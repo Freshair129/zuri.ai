@@ -411,6 +411,10 @@ acceptance before a production promotion.
 ADR-110 retired the edge-device worker connection? No FR-189 status or
 supersession change is made here.
 
+**Disposition pointer (2026-11-08):** ASTRA-D1 D1 supersedes FR-189 as an active
+Edge LINE shadow/cutover obligation; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
+No cutover, sunset or deletion is asserted.
+
 ## 10. Start order (operator procedure, not executed)
 
 Rollout is accept-before-produce (ADR-075 D6, revision 2): the worker accepts
@@ -614,6 +618,7 @@ cutover.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.6 | 2026-11-08 | beta | Adds a dated pointer to ASTRA-D1 D1's reviewed FR-189 disposition; preserves runtime and production evidence boundaries | working-tree | Codex |
 | 0.7.5 | 2026-11-08 | beta | Adds the native Windows developer-check recipe and §9.3 result, records production MSP evidence from MSP §6 with its source caveat, and preserves FR-189 for owner decision; FR-187/188 source-row status migration remains gated by an approved migration document | working-tree | Codex |
 | 0.7.0 | 2026-09-23 | beta | Corrects the HTTP pipeline credential boundary and adds the same child-environment filter to GenesisBlock's inherited worker spawn | working-tree | RWANG |
 | 0.6.0 | 2026-09-23 | beta | Adds isolated local-canary runtime env selectors and a canary-only ngrok suppression overlay; normal defaults unchanged | working-tree | RWANG |

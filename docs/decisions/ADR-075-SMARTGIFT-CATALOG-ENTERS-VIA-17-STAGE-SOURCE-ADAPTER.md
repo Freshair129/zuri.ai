@@ -1,7 +1,7 @@
 ---
-version: "1.4.3"
+version: "1.4.4"
 created_at: "2026-09-11T04:40:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-28T04:00:00+07:00,MC0 (Claude Opus 5.5)"
+last_update: "2026-11-08T00:00:00+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
@@ -37,6 +37,12 @@ convergence of the three independent SmartGift catalog writers found during the
 `docs/change-requests/CR-003-ACCEPTED-SHAPE.md` (the shape a proposal is actually accepted in),
 `docs/roadmap/PLAN-PENDING-KNOWLEDGE-20260831.md` D7 (CR-002 ruled noncanonical),
 FR-174…FR-181, BR-002, SEC-021.
+
+**Dated disposition pointer (2026-11-08):** ASTRA-D1 D1 supersedes FR-189 as an
+active Edge LINE shadow/cutover delivery obligation; see [the reviewed migration
+record](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
+The original D7/D8 decision text below is preserved; this pointer does not claim
+that cutover, sunset or deletion occurred.
 
 **Originating material (prior art, not a lift):** SmartGift (`TN001B01`, Business 01) —
 `business-01-smart-gift/pipeline/master_orchestrator.py` (the 5-stage ETL),
@@ -395,6 +401,7 @@ citable published generation once Phase 4 lands.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.4.4 | 2026-11-08 | beta | Adds a dated pointer to ASTRA-D1 D1's reviewed FR-189 retirement; preserves original D7/D8 decisions and makes no cutover or sunset claim | working-tree | Codex |
 | 1.4.3 | 2026-09-28 | beta | D10: the HTTP canary builds from the separate `pins.gks-http.json` manifest; the default `pins.json` is the stdio production tuple | working-tree | MC0 (Claude Opus 5.5) |
 | 1.4.2 | 2026-09-23 | beta | Extends D10 credential handling to the inherited worker spawn and required MSP pipeline caller secret | working-tree | RWANG |
 | 1.4.1 | 2026-09-23 | beta | Requires file-backed bearer propagation to trusted parents and isolated canary env files with ngrok disabled | working-tree | RWANG |

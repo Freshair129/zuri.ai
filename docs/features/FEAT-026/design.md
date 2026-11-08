@@ -26,7 +26,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🟢 implemented locally (tests), not deployed — ADR-075 Phase 1 only (adapter, admission fan-out, Stage 5 Zero-PII gate); no model, no column, no migration; parser profile/`ontology_v2` remain FR-188
+> deployed and accepted for the SmartGift structured-record profile — historical Linux acceptance 2026-09-16, production publication evidence 2026-09-24/28, MSP alignment evidence 2026-10-24, and native Windows acceptance 42/42 on 2026-11-08. Current production state and TASK-ZAI-050 activation closure are not verified by this migration.
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)](../../domains/knowledge/features/FR-188-genesisrag17-parser-2.md) — `relates` · `metadata` · `current`
@@ -39,7 +39,7 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🟡 implemented locally (PR #327, tests) — rollout step 3, merges after GenesisBlock#174 and Genesis-Knowledge-System#7; not deployed; four-process acceptance run pending
+> deployed and accepted for the SmartGift parser-2 / ontology_v2 profile — historical Linux SmartGift acceptance and production parser-2 / ontology_v2 evidence, supplemented by MSP alignment evidence 2026-10-24 and native Windows acceptance 42/42 on 2026-11-08. Future tuple changes still require exact-image G-3 qualification; this is not product-wide acceptance.
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [LINE metadata-only ProductMaster disclosure from managed uploads](../../change-requests/integration/line-customer-product-metadata-disclosure-20261024.md) — `relates` · `metadata` · `current`
 - [FR-189 — edge reads the published GenesisRAG17 generation (Phase 4, default off)](../../domains/knowledge/features/FR-189-edge-published-generation.md) — `relates` · `metadata` · `current`
@@ -47,12 +47,14 @@ Feature record: [ZAI:FEAT-026 canonical record](feature.md).
 
 ### [ZAI:FR-189 canonical record](requirements/FR-189.md)
 
-> Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB.
+> ~~Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional fallback (ADR-075 D7, proposed) — the edge query path becomes source caller → MSP credential/scope check → worker loopback query → one published generation → citation (the existing post-Stage-17 query flow), instead of `apps/edge`'s v4 pipeline re-deriving and serving its own store directly from a sibling checkout's file (`apps/edge/src/rag/v4/paths.ts` `defaultUpstream`) with no MSP/GKS mediation. v4 remains available only as an explicit, time-boxed fallback during the Phase 4 shadow-then-cutover and is sunset on an owner-set date; it is never a second production write path into GenesisBlockDB.~~
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🔜 approved 2026-09-11 (ADR-075 approved); fallback window set 2026-09-11 (120 days after cutover or end of the New Year 2027 season, whichever is later) — Phase 4 needs its own gate; no code, no cutover
+> superseded — ASTRA-D1 D1, 2026-11-08: retire the Edge LINE shadow/cutover obligation; retain existing Knowledge/RAG implementation, tests and historical evidence. Server LINE grounding remains FR-235/ADR-090. No cutover, sunset or deletion is asserted.
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter](../../decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md) — `supersedes` · `canonical-registry` · `current`
+- [ADR-090 — LINE answers are grounded by the published GKS corpus; LINE-derived knowledge enters only as reviewed candidates](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md) — `supersedes` · `canonical-registry` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ## Limits

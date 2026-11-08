@@ -4005,15 +4005,23 @@
     "FR-189": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "faf3ea6afd93c01081b5dd0acd9f9de9f251f6c5dbc90e1bb208fb0f406aa3d0",
       "history": [
         {
           "anchor": "edge answers smartgift catalog queries from the published",
           "since": "2026-09-10",
           "reason": "declared"
+        },
+        {
+          "anchor": "edge answers smartgift catalog queries from the published",
+          "since": "2026-11-08",
+          "reason": "Retire the Edge LINE shadow/cutover obligation under ASTRA-D1 D1 while preserving existing Knowledge/RAG readers, tests and historical identity.",
+          "declared_in": "docs/PRD-SDD-v1.0.md#1.264.0b"
         }
-      ]
+      ],
+      "retired_at": "2026-11-08",
+      "declared_in": "docs/PRD-SDD-v1.0.md#1.264.0b"
     },
     "FR-190": {
       "family": "FR",
