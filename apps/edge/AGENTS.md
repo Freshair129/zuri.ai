@@ -33,7 +33,7 @@ Migration first preserves current behavior while moving source; transport cutove
 ## Architecture & Taxonomy (ADR-041)
 
 1. **Zuri Edge Device (The Physical Host / Node Entity):** The on-premise hardware machine (e.g. `DEV-SMARTGIFT-PRIMARY`) paired with Zuri Cloud via Zero-Trust tokens and active heartbeat telemetry.
-2. **Zuri Edge Runtime (The Execution Daemon / Engine):** The background process executing GenesisBlock Graph DB, Local Codex/LLM execution, Webhook Inbound Gateway (`:8787`), Web Config GUI (`:8787/gui`), and Live Graph Viewer (`:8787/graph`) - both behind the operator key (BR-009).
+2. **Zuri Edge Runtime:** The retained local GenesisBlock and Knowledge/RAG components. Edge-device pairing, the device executor for LINE OA, the Edge LINE webhook adapters, and the former configuration UI are retired by ADR-110.
 3. **Zuri Edge Command (The Operator / CLI & MCP Interface):** The command-line interface (`zuri-agent`, `zuri-cli`) and MCP tools for executing governed action envelopes.
 
 ## Identity
