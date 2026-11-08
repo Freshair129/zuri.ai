@@ -72,9 +72,9 @@ A useful additional finding: MSP §6 line 141 records **42/42 in its composed ac
 
 **Approved replacement status cells:**
 
-- **FR-187:**  
+- **FR-187:**
   `deployed and accepted for the SmartGift structured-record profile — historical Linux acceptance 2026-09-16, production publication evidence 2026-09-24/28, MSP alignment evidence 2026-10-24, and native Windows acceptance 42/42 on 2026-11-08. Current production state and TASK-ZAI-050 activation closure are not verified by this migration.`
-- **FR-188:**  
+- **FR-188:**
   `deployed and accepted for the SmartGift parser-2 / ontology_v2 profile — historical Linux SmartGift acceptance and production parser-2 / ontology_v2 evidence, supplemented by MSP alignment evidence 2026-10-24 and native Windows acceptance 42/42 on 2026-11-08. Future tuple changes still require exact-image G-3 qualification; this is not product-wide acceptance.`
 
 Preserve both statement cells exactly, including their historical wording.
@@ -418,4 +418,3 @@ node tests/acceptance/msp-retention-real-process.mjs
 **Acceptance:** scope/replay/erasure boundaries hold; scheduler evidence names the actual artifact and execution environment; no claim that summary-worker hosting or broader Memory OS activation is complete.
 
 **Final disposition:** Decision work complete; implementation handed to Luna and integration to Claude. Current production state, raw private operator artifacts, new exact-image acceptance, future PR checks and named Owen approvals remain unverified or pending. No on-disk result file or session note was created.
-
