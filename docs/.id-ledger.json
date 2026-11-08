@@ -422,6 +422,8 @@
     "FR-293",
     "FR-294",
     "FR-295",
+    "FR-296",
+    "FR-297",
     "NFR-001",
     "NFR-002",
     "NFR-003",
@@ -5446,6 +5448,32 @@
         {
           "anchor": "visual office handoff client transfers the design package",
           "since": "2026-10-31",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-296": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "45db4705976913b3959e15df79bc466455393e0c6fdcb35f609bf4c14c4e9cae",
+      "history": [
+        {
+          "anchor": "password login is rate limited",
+          "since": "2026-11-08",
+          "reason": "declared"
+        }
+      ]
+    },
+    "FR-297": {
+      "family": "FR",
+      "source": "docs/PRD-SDD-v1.0.md",
+      "status": "current",
+      "statement_digest": "741eee3a85cbd3dc836b5c5d1dca534b318bb3edc23f05acb6fed185e7edc052",
+      "history": [
+        {
+          "anchor": "totp code verification is rate limited per person",
+          "since": "2026-11-08",
           "reason": "declared"
         }
       ]

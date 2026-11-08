@@ -1,0 +1,31 @@
+{
+  "version": 1,
+  "migrationId": "authentication-rate-limits-20261108",
+  "base": {
+    "commit": "2350f964b60f7c38b69bc3969ca7e5fd76671368",
+    "indexSha256": "d2181bfc1aa63e73547287f3df977fbd21a9fe8b452d0df6a0fc5b640362b1c4",
+    "ledgerSha256": "a8cb96ff5e63096e0399fd9e11b97aac9158418ac4fe7a6203476853a861d784"
+  },
+  "approval": {
+    "path": "docs/change-requests/identity/authentication-rate-limits-20261108.md",
+    "revision": "2350f964b60f7c38b69bc3969ca7e5fd76671368",
+    "version": "0.1.0",
+    "sha256": "001026ea6be622bca958ac08b2dbed70943ded2aaa3275c4e701d2d449f8b312"
+  },
+  "records": [
+    {
+      "id": "FR-296",
+      "family": "FR",
+      "statement": "Password login is rate-limited: before credential verification, attempts consume durable atomic 15-minute fixed-window limits of 10 per normalized identifier and client address, 50 per normalized identifier, and 200 per client address. A limited request returns the same generic 429 response for a known, disabled, or unknown identifier; other limiter failures fail closed with AUTH_UNAVAILABLE.",
+      "statementSha256": "45db4705976913b3959e15df79bc466455393e0c6fdcb35f609bf4c14c4e9cae",
+      "subjectAnchor": "password login is rate limited"
+    },
+    {
+      "id": "FR-297",
+      "family": "FR",
+      "statement": "TOTP code verification is rate-limited per Person: before code verification, enrollment-confirmation and TOTP step-up attempts share a durable atomic limit of five attempts per 15 minutes. A limited request returns MFA_RATE_LIMITED with a retry delay; WebAuthn step-up remains a separate verification path.",
+      "statementSha256": "741eee3a85cbd3dc836b5c5d1dca534b318bb3edc23f05acb6fed185e7edc052",
+      "subjectAnchor": "totp code verification is rate limited per person"
+    }
+  ]
+}
