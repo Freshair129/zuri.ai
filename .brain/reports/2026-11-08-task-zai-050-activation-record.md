@@ -44,8 +44,7 @@ production-host proof and not TASK-ZAI-050 DoD completion.
 - Success criterion: **unchecked**; activation, publication receipt and cited query are not verified.
 - Exit criterion: **unchecked**; it requires one real Business document admitted,
   published, queried and cited on production. The fixed/synthetic corpus is not a substitute.
-- Named approver remains `Owen`. Owen-named approval delegated to Astra (owner
-  instruction 2026-11-08); pending production-host evidence.
+- Named approver remains `Owen`. Owen-named approval: pending — not exercised in P1; requires production-host evidence.
 
 No field in this skeleton records a completed activation. Attach exact production
 receipts and operator evidence before changing task criteria or status.

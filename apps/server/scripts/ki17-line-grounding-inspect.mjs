@@ -4,7 +4,9 @@
 //   shadow state, Business, a descriptive SmartGift classification, a best-effort
 //   DIRECT-traffic signal, and latest mode/shadow audit events per account.
 //   Requires the approved direct `DIRECT_URL`; incomplete required queries are
-//   reported and return a failing exit code. Performs no write of any kind.
+//   reported and return a failing exit code. Executes SELECT-only database
+//   queries; it writes a local JSON report file only when an output path is
+//   supplied (creating the parent directory if needed).
 // @spec ADR-090 D5 — SmartGift goes first, after ADR-075 Phase 3; ADR-057 —
 //   production inspection uses DIRECT_URL only, never the pooler role, which
 //   this repo's migration notes record as missing some grants.
