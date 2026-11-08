@@ -8,7 +8,7 @@ updated_at: "2026-11-08"
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.13.0
+**Version:** 1.14.0
 
 This directory primarily holds **proposals**. A proposal grants no standing
 beyond being readable and version-controlled. An approved source-row migration
