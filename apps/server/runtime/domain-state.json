@@ -1897,7 +1897,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 73
+          "testCount": 74
         },
         {
           "id": "FR-253",
@@ -5356,7 +5356,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 73
+          "testCount": 74
         },
         {
           "id": "FR-236",
@@ -5936,7 +5936,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 73
+          "testCount": 74
         },
         {
           "id": "FR-238",
@@ -8630,7 +8630,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 73
+          "testCount": 74
         },
         {
           "id": "FR-236",
@@ -14803,7 +14803,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 73
+          "testCount": 74
         },
         {
           "id": "FR-236",
@@ -14907,6 +14907,7 @@
         "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
         "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+        "apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-admission.integration.test.js",

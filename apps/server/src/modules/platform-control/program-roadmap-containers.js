@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.42, 2026-10-22) so the board can open a task the way the html board
+// (v0.4.43, 2026-11-08) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1940,7 +1940,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-042",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -1969,22 +1969,22 @@ export const PROGRAMME_CONTAINERS = {
         "checked": true
       },
       "success": {
-        "text": "Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback",
+        "text": "[SUPERSEDED — ASTRA-D1 D1, 2026-11-08; not executed] Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback",
         "checked": false
       },
       "exit": {
-        "text": "Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains",
+        "text": "[SUPERSEDED — ASTRA-D1 D1, 2026-11-08; not executed] Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own.",
+    "changelog": "Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own. 2026-11-08 (ASTRA-D1 D1): the Edge LINE answer-path and 120-day fallback-window criteria above are superseded, not executed. Retain the catalog-convergence acceptance and remaining delivery/recovery obligations; no Edge reader, tests or v4 implementation are deleted.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-025"
     ],
-    "evidence": "Section 3.1 row 4; ADR-075"
+    "evidence": "Edge LINE/fallback-window success and exit criteria superseded by ASTRA-D1 D1 (2026-11-08), not executed; catalog and remaining obligations stay visible; Section 3.1 row 4; ADR-075"
   },
   "TASK-ZAI-043": {
     "container": "TC-TASK-ZAI-043",
@@ -2324,7 +2324,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-050",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -2356,7 +2356,7 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): the acceptance criterion's four named migrations are checked true, traced by exclusion from ADR-104's 2026-09-23 full-tree migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of these four) and its post-apply 107-row ledger; this session had no live production DB access to confirm directly. success_criteria and exit_criteria are untouched — MSP/GKS reachability shows partial evidence (2026-09-24 probe: 22/38 Stage 17 PASS, one stuck PipelineRun) and the real-document run/receipt/citation record is separate from this review's two-item scope, so neither is claimed done here.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): historical review prose inferred the four named migrations from ADR-104's missing-version summary; the current criterion remained unchecked pending a row-level ledger check. ASTRA-D1 D4 (2026-11-08) reconciles all three DoD booleans as false. MSP §6 at 520ac7109b032d11a6b15b87720b58380173ba7f is attributed operator-attested historical evidence: d0 image qualification, restored canary, production publication/query/denial/persistence, and 42/42 in its composed image on 2026-10-24. Underlying private artifacts were not inspected; this does not establish current Zuri source, current production state or this task's DoD. Activation-record skeleton: .brain/reports/2026-11-08-task-zai-050-activation-record.md; current fields NOT_VERIFIED; the exit criterion still requires a real Business document with production publication, query and citation. Owen-named approval delegated to Astra (owner instruction 2026-11-08); pending production-host evidence.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -2364,7 +2364,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-045",
       "TASK-ZAI-049"
     ],
-    "evidence": "ADR-073 amendment; ADR-075 Phase 2 gate"
+    "evidence": "Three DoD items remain unchecked; MSP §6 is historical attributed evidence only; current production host and activation remain NOT_VERIFIED; ADR-073 amendment; ADR-075 Phase 2 gate"
   },
   "TASK-ZAI-051": {
     "container": "TC-TASK-ZAI-051",
@@ -4670,7 +4670,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-095",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-06",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "priority": "P0",
     "pic": "Owen",
     "executor": "ATHER",
@@ -4690,28 +4690,27 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given ADR-075 Phase 3 deployed (MSP, GKS and the GenesisBlock worker beside the web container) and the owner's instruction, when the operator applies the knowledgeGrounding migration and switches one SmartGift DIRECT account, then that account's jobs read the published corpus first and fall back to business knowledge with a traced reason",
+        "text": "Given qualified Phase-3 catalog publication, an explicitly selected account and Business with verified action authority, and the owner's production instruction, when the authorized operator configures GKS_THEN_BUSINESS_KNOWLEDGE through the existing action, then the account reads the published corpus first and preserves the traced Business-knowledge fallback",
         "checked": false
       },
       "success": {
-        "text": "Given one campaign window, when answers are shadow-compared against business knowledge, then the comparison is recorded and names which accounts ran SERVER execution, because customers on the edge path (CH-01) are not affected",
+        "text": "Given a 14-consecutive-day pilot with planned exact Bangkok start and end timestamps recorded before the switch, when shadow comparisons are collected, then the record includes actual Bangkok timestamps at both boundaries, evidence covering the full window, and the selected account's actual runtime owner",
         "checked": false
       },
       "exit": {
-        "text": "Given a regression, when the rollback runs, then flipping the account back to BUSINESS_KNOWLEDGE restores today's traces, and the switch and any rollback are recorded in the migration notes and this container's changelog",
+        "text": "Given a rollback or the end of the pilot, when the authorized operator restores BUSINESS_KNOWLEDGE and disables shadow through the existing audited actions, then later primary traces return to Business Knowledge and both mode/shadow changes are recorded in AuditEvent, migration notes and this container's changelog",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Production dependency: ADR-075 Phase 3, carried in this programme by TASK-ZAI-042 (catalog convergence) and TASK-ZAI-050 (seventeen-stage runtime on production). The switch is owner-triggered and operator-executed.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. 2026-11-08 (ASTRA-D1 D4): qualify the actual Phase-3 catalog publication directly; TASK-ZAI-042's retired Edge LINE/fallback criteria are not this task's acceptance gate. Use the existing CONFIGURE_KNOWLEDGE_GROUNDING and CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW actions. The first pilot is GKS_THEN_BUSINESS_KNOWLEDGE for 14 consecutive days, with exact Bangkok start/end timestamps; TASK-ZAI-050's three DoD booleans stay false. Rehearsal is isolated only. Owen-named approval delegated to Astra (owner instruction 2026-11-08); pending production-host evidence.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 16000,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-094",
-      "TASK-ZAI-042",
       "TASK-ZAI-050"
     ],
-    "evidence": "ADR-090 D5; ADR-075 Phase 3; ADR-057"
+    "evidence": "Qualify publication evidence directly; TASK-ZAI-042's retired Edge LINE criteria are not the acceptance gate; ADR-090 D5; ADR-075 Phase 3; ADR-057"
   },
   "TASK-ZAI-096": {
     "container": "TC-TASK-ZAI-096",
