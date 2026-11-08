@@ -39,10 +39,10 @@
     "domainCount": 15,
     "featureCount": 175,
     "readyFeatureCount": 121,
-    "requirementCount": 283,
+    "requirementCount": 281,
     "verifiedRequirementCount": 247,
-    "progressPercent": 93.6,
-    "gapCount": 83,
+    "progressPercent": 93.7,
+    "gapCount": 81,
     "gaps": [
       {
         "domain": "agent",
@@ -418,23 +418,6 @@
       },
       {
         "domain": "identity",
-        "id": "REQ-FR-144",
-        "severity": "high",
-        "check": "requirements",
-        "summary": "FR-144 is not_implemented",
-        "evidence": [
-          "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-          "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-          "apps/server/tests/integration/fr146-line-oa-account.test.js",
-          "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-          "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-          "apps/server/tests/integration/openapi-docs.test.js",
-          "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-          "apps/server/tests/unit/integrations-page-claims.test.js"
-        ]
-      },
-      {
-        "domain": "identity",
         "id": "REQ-FR-232",
         "severity": "medium",
         "check": "requirements",
@@ -630,17 +613,6 @@
         "check": "requirements",
         "summary": "FR-131 is planned",
         "evidence": []
-      },
-      {
-        "domain": "knowledge",
-        "id": "REQ-FR-189",
-        "severity": "medium",
-        "check": "requirements",
-        "summary": "FR-189 is planned",
-        "evidence": [
-          "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-          "apps/edge/tests/unit/genesisrag17-products.test.ts"
-        ]
       },
       {
         "domain": "knowledge",
@@ -1811,6 +1783,19 @@
           "testCount": 0
         },
         {
+          "id": "FR-141",
+          "title": "[historical] Edge Device heartbeat registry",
+          "declared": "n/a",
+          "status": "not_applicable",
+          "codeCount": 0,
+          "testCount": 3,
+          "evidence": [
+            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/integrations-page-claims.test.js"
+          ]
+        },
+        {
           "id": "FR-147",
           "title": "LINE binding status read contract",
           "declared": "n/a",
@@ -2416,7 +2401,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 4
+          "testCount": 5
         }
       ],
       "checks": {
@@ -2596,7 +2581,7 @@
       ],
       "featureCount": 3,
       "readyFeatureCount": 0,
-      "progressPercent": 90
+      "progressPercent": 93.3
     },
     "commerce": {
       "status": "partial",
@@ -3596,11 +3581,11 @@
         },
         {
           "id": "FR-144",
-          "title": "Edge device credential",
+          "title": "[historical] Edge device credential",
           "declared": "done",
-          "status": "not_implemented",
+          "status": "not_applicable",
           "codeCount": 0,
-          "testCount": 8,
+          "testCount": 9,
           "evidence": [
             "apps/server/tests/e2e/edge-desktop-ui.spec.js",
             "apps/server/tests/integration/credential-vault-lifecycle.test.js",
@@ -3608,6 +3593,7 @@
             "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
             "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/data-pipeline-map.test.js",
             "apps/server/tests/unit/doc-graph-retired-rules.test.js",
             "apps/server/tests/unit/integrations-page-claims.test.js"
           ]
@@ -4031,22 +4017,6 @@
           "check": "requirements",
           "summary": "FR-121 is planned",
           "evidence": []
-        },
-        {
-          "id": "REQ-FR-144",
-          "severity": "high",
-          "check": "requirements",
-          "summary": "FR-144 is not_implemented",
-          "evidence": [
-            "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-            "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-            "apps/server/tests/integration/fr146-line-oa-account.test.js",
-            "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
-            "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-            "apps/server/tests/unit/integrations-page-claims.test.js"
-          ]
         },
         {
           "id": "REQ-FR-232",
@@ -5313,14 +5283,15 @@
         },
         {
           "id": "FR-189",
-          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
-          "declared": "planned",
-          "status": "planned",
+          "title": "[historical] Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
+          "declared": "n/a",
+          "status": "not_applicable",
           "codeCount": 0,
-          "testCount": 2,
+          "testCount": 3,
           "evidence": [
             "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-            "apps/edge/tests/unit/genesisrag17-products.test.ts"
+            "apps/edge/tests/unit/genesisrag17-products.test.ts",
+            "apps/server/tests/unit/domain-state.test.js"
           ]
         },
         {
@@ -5633,16 +5604,6 @@
           "evidence": []
         },
         {
-          "id": "REQ-FR-189",
-          "severity": "medium",
-          "check": "requirements",
-          "summary": "FR-189 is planned",
-          "evidence": [
-            "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-            "apps/edge/tests/unit/genesisrag17-products.test.ts"
-          ]
-        },
-        {
           "id": "REQ-FR-232",
           "severity": "medium",
           "check": "requirements",
@@ -5746,7 +5707,7 @@
       ],
       "featureCount": 18,
       "readyFeatureCount": 11,
-      "progressPercent": 94.7
+      "progressPercent": 95.2
     },
     "line-oa-studio": {
       "status": "partial",
@@ -6889,6 +6850,26 @@
           "status": "verified",
           "codeCount": 5,
           "testCount": 8
+        },
+        {
+          "id": "FR-221",
+          "title": "[historical] Usage reports attributed to person, device and lane",
+          "declared": "n/a",
+          "status": "not_applicable",
+          "codeCount": 3,
+          "testCount": 7,
+          "evidence": [
+            "apps/server/src/app/(control)/control/roadmap/page.jsx",
+            "apps/server/src/modules/platform-control/application/programme-usage-reports.js",
+            "apps/server/src/modules/platform-control/application/task-usage-ledger.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/unit/doc-graph-retired-rules.test.js",
+            "apps/server/tests/unit/platform-control-domain-map.test.js",
+            "apps/server/tests/unit/platform-control-route-contract.test.js",
+            "apps/server/tests/unit/program-delivery-metrics.test.js",
+            "apps/server/tests/unit/programme-usage-reports.test.js",
+            "apps/server/tests/unit/task-usage-ledger.test.js"
+          ]
         },
         {
           "id": "FR-239",
@@ -8201,7 +8182,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 4
+          "testCount": 5
         },
         {
           "id": "FR-146",
@@ -12156,22 +12137,19 @@
       "kind": "bundle",
       "registryStatus": "building — retirement deferred by ADR-110 D5 pending removal of the apps/edge extraction client",
       "requirementIds": [
-        "FR-143",
-        "FR-144"
+        "FR-143"
       ],
       "primaryDomain": "asset-management",
       "contributorDomains": [
         "asset-management",
-        "identity",
         "project-manager"
       ],
       "useCase": "เจ้าของธุรกิจออกกุญแจให้ Zuri Edge Device ของตนเองหนึ่งครั้ง แล้วอุปกรณ์ที่หน้างานดึงงานอ่านหลักฐานทรัพย์สินไปประมวลผลด้วยโมเดลในเครื่องตนเอง ส่งผลกลับมาให้คนตรวจในหน้าเดิม โดยคลาวด์ไม่เก็บ API key ของผู้ให้บริการและไม่เก็บความลับของอุปกรณ์",
-      "progressPercent": 80,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-017 registry status is building — retirement deferred by ADR-110 D5 pending removal of the apps/edge extraction client",
-        "FR-144 is not_implemented"
+        "FEAT-017 registry status is building — retirement deferred by ADR-110 D5 pending removal of the apps/edge extraction client"
       ],
       "requirements": [
         {
@@ -12180,31 +12158,17 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 3,
-          "testCount": 4
-        },
-        {
-          "id": "FR-144",
-          "title": "Edge device credential",
-          "status": "not_implemented",
-          "progressPercent": 60,
-          "codeCount": 0,
-          "testCount": 8
+          "testCount": 5
         }
       ],
       "evidence": [
         "apps/server/src/app/api/assets/evidence/[id]/extract/route.js",
         "apps/server/src/modules/asset-management/application/asset-extraction-job-service.js",
         "apps/server/src/modules/asset-management/infrastructure/asset-evidence-candidate-schema.js",
-        "apps/server/tests/e2e/edge-desktop-ui.spec.js",
-        "apps/server/tests/integration/credential-vault-lifecycle.test.js",
-        "apps/server/tests/integration/fr146-line-oa-account.test.js",
-        "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
-        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/unit/asset-evidence-extractor-contract.test.js",
         "apps/server/tests/unit/asset-evidence-route-schema-contract.test.js",
-        "apps/server/tests/unit/doc-graph-retired-rules.test.js",
-        "apps/server/tests/unit/integrations-page-claims.test.js",
+        "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/pipeline-health-service.test.js"
       ]
     },
@@ -13487,8 +13451,7 @@
       "registryStatus": "approved",
       "requirementIds": [
         "FR-187",
-        "FR-188",
-        "FR-189"
+        "FR-188"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
@@ -13497,12 +13460,11 @@
         "project-manager"
       ],
       "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
-      "progressPercent": 93.3,
+      "progressPercent": 100,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-026 registry status is approved",
-        "FR-189 is partial"
+        "FEAT-026 registry status is approved"
       ],
       "requirements": [
         {
@@ -13520,27 +13482,10 @@
           "progressPercent": 100,
           "codeCount": 5,
           "testCount": 12
-        },
-        {
-          "id": "FR-189",
-          "title": "Edge answers SmartGift catalog queries from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as a transitional…",
-          "status": "partial",
-          "progressPercent": 80,
-          "codeCount": 8,
-          "testCount": 2
         }
       ],
       "evidence": [
-        "apps/edge/src/conversation/executor.ts",
-        "apps/edge/src/rag/genesisrag17/corpus-context.ts",
-        "apps/edge/src/rag/genesisrag17/msp-stdio.ts",
-        "apps/edge/src/rag/genesisrag17/product-rag.ts",
-        "apps/edge/src/rag/genesisrag17/published-rag.ts",
-        "apps/edge/src/rag/genesisrag17/record-store.ts",
-        "apps/edge/src/rag/genesisrag17/settings.ts",
-        "apps/edge/src/rag/genesisrag17/types.ts",
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-        "apps/edge/tests/unit/genesisrag17-products.test.ts",
         "apps/server/src/app/api/knowledge/catalog-files/route.js",
         "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
@@ -22548,38 +22493,39 @@
         "FR-222"
       ],
       "primaryDomain": "identity",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "platform-control"
+      ],
       "useCase": "Retired by ADR-110 D5. Historical behavior: a Zuri plugin paired Claude Code or Codex installations through browser approval and attributed session usage to a person, device and lane; existing report rows remain historical.",
-      "progressPercent": 73.3,
+      "progressPercent": 0,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-035 registry status is superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218",
-        "FR-220 is not_implemented",
-        "FR-222 is not_implemented"
+        "FEAT-035 has no active requirements",
+        "FEAT-035 registry status is superseded by ADR-110 D5 — pairing/plugin surfaces are removed; historical usage rows remain and deployment-bearer reports remain under FR-218"
       ],
       "requirements": [
         {
           "id": "FR-220",
-          "title": "~~Harness device pairing and report-only credential",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "title": "[historical] Harness device pairing and report-only credential",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 2
         },
         {
           "id": "FR-221",
-          "title": "~~Usage reports attributed to person, device and lane",
-          "status": "verified",
-          "progressPercent": 100,
+          "title": "[historical] Usage reports attributed to person, device and lane",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 3,
           "testCount": 7
         },
         {
           "id": "FR-222",
-          "title": "~~Zuri harness plugin",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "title": "[historical] Zuri harness plugin",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 1
         }
@@ -22612,55 +22558,51 @@
       "primaryDomain": "platform-control",
       "contributorDomains": [],
       "useCase": "installation operator opens Mission Control and sees the canonical roadmap DAG by wave together with only provenance-bound worker, thread, branch, worktree, commit, check and evidence observations; same-wave work is marked candidate-parallel until merge-safety gates pass, while stale or absent records remain visibly unknown and members never receive operator orchestration detail",
-      "progressPercent": 28,
+      "progressPercent": 0,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FEAT-044 registry status is superseded by ADR-113 — DDC retired and implementation removed",
-        "FR-260 is not_implemented",
-        "FR-261 is not_implemented",
-        "FR-262 is not_implemented",
-        "FR-263 is not_implemented",
-        "FR-264 is not_implemented"
+        "FEAT-044 has no active requirements",
+        "FEAT-044 registry status is superseded by ADR-113 — DDC retired and implementation removed"
       ],
       "requirements": [
         {
           "id": "FR-260",
-          "title": "~~Mission Control operator projection",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "title": "[historical] Mission Control operator projection",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 2
         },
         {
           "id": "FR-261",
-          "title": "~~Programme Orchestration Run Ledger observation contract",
-          "status": "not_implemented",
-          "progressPercent": 20,
+          "title": "[historical] Programme Orchestration Run Ledger observation contract",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 0
         },
         {
           "id": "FR-262",
-          "title": "~~DAG scheduling and merge-safety projection",
-          "status": "not_implemented",
-          "progressPercent": 20,
+          "title": "[historical] DAG scheduling and merge-safety projection",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 0
         },
         {
           "id": "FR-263",
-          "title": "~~Member roadmap redaction",
-          "status": "not_implemented",
-          "progressPercent": 20,
+          "title": "[historical] Member roadmap redaction",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 0
         },
         {
           "id": "FR-264",
-          "title": "~~Responsive Mission Control evidence view",
-          "status": "not_implemented",
-          "progressPercent": 20,
+          "title": "[historical] Responsive Mission Control evidence view",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 0
         }
@@ -22672,27 +22614,29 @@
     },
     {
       "id": "FR-141",
-      "title": "Edge Device heartbeat registry — the cloud-side liveness view ADR-041 D3 promises the console, and nothing more: `GET`, `POST` and `DELETE /api/agent/heartbeat` each resolve one trusted viewer before any work and fail closed (a missing or invalid session is 401, never an anonymous device list). A heartbeat is a validated `{businessId, deviceId, status, contractVersion, registeredQueries, approvedTemplates, engine?, model?}` payload: a failed parse is 400 carrying the issues and registers nothing (there is no default device), and `businessId` must be a Business the viewer **owns** (`ownsBusiness`, 403 otherwise). The registry is keyed by `(businessId, deviceId)`; a viewer lists and removes only devices of Businesses they own, and `DELETE` without `deviceId` clears exactly that owned scope. `deviceToken` is accepted on the wire for compatibility and is never stored, returned or audited (ADR-041 D3: zero edge secrets in the cloud). A device is `online` when its last heartbeat is within 120 s and its status is `healthy`. First registration, every status transition and every removal write an `EDGE_DEVICE` audit event; a tick that changes nothing writes none. Every failure returns its real status code through the shared `handle` helper. Liveness lives in a process-local registry **by decision**: the agent charter owns no Prisma model, a heartbeat is a cache that goes stale in two minutes rather than a record, and the cost is stated rather than hidden — the registry is empty after a cold start and is per-instance on Vercel, so the console reads \"not paired\" until the next tick reaches the instance that serves it. Durable pairing (a device record with a token reference) is a separate declaration this FR does not make.",
+      "title": "[historical] Edge Device heartbeat registry",
       "kind": "requirement",
       "registryStatus": "superseded",
       "requirementIds": [
         "FR-141"
       ],
       "primaryDomain": "agent",
-      "contributorDomains": [],
+      "contributorDomains": [
+        "agent"
+      ],
       "useCase": "เจ้าของธุรกิจเปิดหน้า Platform Integrations แล้วเห็นว่า Edge Device ของธุรกิจตนออนไลน์อยู่หรือไม่จากสัญญาณ heartbeat ล่าสุด และถอดอุปกรณ์ออกได้เฉพาะของธุรกิจที่ตนเป็นเจ้าของ ผู้ที่ไม่มี session ถูกปฏิเสธทุกคำขอ และ token ของอุปกรณ์ไม่ถูกเก็บไว้บนคลาวด์",
-      "progressPercent": 60,
+      "progressPercent": 0,
       "ready": false,
       "readiness": "not_ready",
       "blockers": [
-        "FR-141 is not_implemented"
+        "FR-141 has no active requirements"
       ],
       "requirements": [
         {
           "id": "FR-141",
-          "title": "Edge Device heartbeat registry",
-          "status": "not_implemented",
-          "progressPercent": 60,
+          "title": "[historical] Edge Device heartbeat registry",
+          "status": "not_applicable",
+          "progressPercent": 0,
           "codeCount": 0,
           "testCount": 3
         }

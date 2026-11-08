@@ -1,8 +1,8 @@
 ---
 id: ZAI:PRD-SDD
-version: "1.263.0b"
+version: "1.264.0b"
 status: draft
-last_update: "2026-10-22,Codex Root"
+last_update: "2026-11-08,Codex Root"
 relations:
   - type: relates_to
     target: ZAI:ADR-061
@@ -21,11 +21,11 @@ relations:
 
 | Field | Value |
 |-------|-------|
-| **Version** | 1.263.0b |
+| **Version** | 1.264.0b |
 | **Status** | Draft |
 | **Author** | Owen (etohcolsgroup) + Claude (RWANG doc-architect) |
 | **Created** | 2026-08-11 |
-| **Last Updated** | 2026-10-22 |
+| **Last Updated** | 2026-11-08 |
 | **Approved By** | Boss (documentation gate, 2026-08-17) |
 
 ## Capability classification
@@ -41,6 +41,7 @@ This clarification does not change any requirement statement or ID.
 
 | Version | Date | Author | Changes |
 |---------|------|--------|---------|
+| 1.264.0b | 2026-11-08 | Astra (gpt-6-astra) | ASTRA-D1 reconciles FR-187 and FR-188 as deployed and accepted for the SmartGift structured-record profile on the explicitly cited historical evidence, and supersedes FR-189’s Edge LINE shadow/cutover obligation. Existing IDs, subject anchors, FEAT-026 membership, retained Knowledge/RAG code and historical evidence are preserved. This is a delegated product-owner decision (Astra, gpt-6-astra) under owner instruction 2026-11-08; it does not certify current production state, close TASK-ZAI-050 or TASK-ZAI-095, change runtime pins, or authorize deployment. |
 | 1.263.0b | 2026-10-22 | Codex | ADR-113 retires the developer-only DDC Mission Control and worker-observation requirements FEAT-044, FR-260, FR-261, FR-262, FR-263 and FR-264. Canonical IDs, FEAT membership and subject anchors remain preserved and burned; FR-105/FR-241 roadmap boundaries, product PM approvals, document governance and normal repository CI remain separate and active. No deployment or production action is claimed. |
 | 1.262.0b | 2026-10-15 | Codex Root | Issue standalone reviewed-migration FR-286 for the bounded Standard Business Template v1: pinned catalog definitions without permission grants, immutable provisioning snapshot and one atomic default Business Space. Task13 records isolated SQLite/PostgreSQL acceptance; no production apply or bulk backfill. Existing requirement identities and provenance remain pinned. |
 | 1.261.0b | 2026-10-15 | Codex Root | Issue standalone reviewed-migration FR-285 for the bounded Business Agent Factory v1 contract under delegated root disposition. Adds one requirement; existing canonical rows, IDs, feature memberships and provenance remain unchanged. Config/API and isolated recovery evidence are recorded in Task9; provider/live-agent activation and external migration apply remain NOT_RUN. |

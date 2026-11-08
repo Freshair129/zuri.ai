@@ -70,6 +70,56 @@ describe('FR-212 data pipeline map generator', () => {
     expect(index.get('FR-260')).toEqual({ status: 'not_implemented', title: 'Old operator view', feature: 'FEAT-044' })
   })
 
+  it('resolves a retired FR from domain history and excludes it from pipeline build status', () => {
+    const snapshot = {
+      ...domainState,
+      domains: {
+        ...domainState.domains,
+        'asset-management': {
+          requirements: [
+            { id: 'FR-143', status: 'verified', title: 'Edge evidence extraction' },
+            { id: 'FR-144', status: 'not_applicable', title: '[historical] Edge device credential' },
+          ],
+        },
+      },
+      features: [...domainState.features, {
+        id: 'FEAT-017',
+        requirements: [{ id: 'FR-143', status: 'verified', title: 'Edge evidence extraction' }],
+      }],
+    }
+    const index = requirementIndex(snapshot)
+
+    expect(index.get('FR-143')).toEqual({
+      status: 'verified', title: 'Edge evidence extraction', feature: 'FEAT-017',
+    })
+    expect(index.get('FR-144')).toMatchObject({
+      status: 'not_applicable', title: '[historical] Edge device credential',
+    })
+
+    const reg = registry()
+    const pipelineNode = reg.nodes.find((node) => node.id === 'p.brief')
+    pipelineNode.domain = 'asset-management'
+    pipelineNode.requirements = ['FR-143', 'FR-144']
+    const map = buildDataPipelineMap({ registry: reg, domainState: snapshot, surfaceExists })
+    const projected = map.nodes.find((node) => node.id === 'p.brief')
+    expect(projected).toMatchObject({
+      buildStatus: 'CODE_TESTS',
+      requirements: expect.arrayContaining([
+        { id: 'FR-143', status: 'verified', title: 'Edge evidence extraction' },
+        { id: 'FR-144', status: 'not_applicable', title: '[historical] Edge device credential' },
+      ]),
+      features: ['FEAT-017'],
+    })
+
+    pipelineNode.requirements = ['FR-144']
+    const historicalOnlyMap = buildDataPipelineMap({ registry: reg, domainState: snapshot, surfaceExists })
+    expect(historicalOnlyMap.nodes.find((node) => node.id === 'p.brief')).toMatchObject({
+      buildStatus: 'DECLARED',
+      requirements: [{ id: 'FR-144', status: 'not_applicable', title: '[historical] Edge device credential' }],
+      features: [],
+    })
+  })
+
   it('derives build status, surface level and FEATs, and takes the weakest status for edges and chains', () => {
     const map = build(registry())
     const node = (id) => map.nodes.find((n) => n.id === id)

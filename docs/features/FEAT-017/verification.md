@@ -27,6 +27,7 @@ status: generated
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-extractor-contract.test.js](../../../apps/server/tests/unit/asset-evidence-extractor-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-evidence-route-schema-contract.test.js](../../../apps/server/tests/unit/asset-evidence-route-schema-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-health-service.test.js](../../../apps/server/tests/unit/pipeline-health-service.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-144](requirements/FR-144.md)
@@ -43,6 +44,7 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js](../../../apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr238-line-studio-description-admission.test.js](../../../apps/server/tests/integration/fr238-line-studio-description-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/data-pipeline-map.test.js](../../../apps/server/tests/unit/data-pipeline-map.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/doc-graph-retired-rules.test.js](../../../apps/server/tests/unit/doc-graph-retired-rules.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/integrations-page-claims.test.js](../../../apps/server/tests/unit/integrations-page-claims.test.js) — `verifies` (`test-reference`)
 

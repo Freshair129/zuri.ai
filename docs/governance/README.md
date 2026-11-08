@@ -48,6 +48,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [Managed binary knowledge parsing and immutable source locations](../change-requests/knowledge/binary-document-parsing-20261018.md)
 - [GenesisRAG17 Ownership and Reliability Implementation Plan](../change-requests/knowledge/genesisrag17-implementation-20261023.md)
 - [GenesisRAG17 ownership and reliability design](../change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md)
+- [KI-17 status reconciliation and FR-189 retirement](../change-requests/knowledge/ki17-status-reconciliation-20261108.md)
 - [Local Zuri documentation graph studio](../change-requests/knowledge/knowledge-studio-20261019.md)
 - [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
 - [คู่มือใช้ Flow หน้าเดียว](../change-requests/marketing/line-oa-sales-flow/README-flow.md)

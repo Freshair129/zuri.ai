@@ -250,6 +250,12 @@ describe('domain state projection', () => {
     expect(state.historicalFeatures).toEqual([
       expect.objectContaining({ id: 'FEAT-998', requirementIds: ['FR-069'] }),
     ])
+    expect(state.historicalFeatures[0]).toMatchObject({
+      registryStatus: 'superseded by ADR-113',
+      progressPercent: 0,
+      requirements: [expect.objectContaining({ id: 'FR-069', status: 'not_applicable', progressPercent: 0 })],
+    })
+    expect(state.historicalFeatures[0].requirements[0].title).toMatch(/^\[historical\]/)
     expect(state.overall).toEqual(expect.objectContaining({
       featureCount: 1,
       readyFeatureCount: 1,
@@ -257,12 +263,184 @@ describe('domain state projection', () => {
       verifiedRequirementCount: 1,
       progressPercent: 100,
     }))
+    expect(state.overall.gaps.filter((item) => item.id === 'REQ-FR-069')).toEqual([])
     expect(state.domains['project-manager']).toEqual(expect.objectContaining({
       featureIds: ['FEAT-999'],
       featureCount: 1,
       readyFeatureCount: 1,
       progressPercent: 100,
     }))
+  })
+
+  it('keeps one superseded FEAT member resolvable while readiness uses only its active member', () => {
+    const retiredRequirement = {
+      id: 'req:FR-189',
+      type: 'requirement',
+      family: 'FR',
+      label: '~~Edge answers SmartGift catalog queries~~',
+      declared: 'n/a',
+      status: 'superseded',
+    }
+    const retiredCode = {
+      id: 'code:apps/edge/src/rag/retired-edge.js',
+      type: 'code_file',
+      path: 'apps/edge/src/rag/retired-edge.js',
+    }
+    const retiredTest = {
+      id: 'test:apps/edge/tests/retired-edge.test.js',
+      type: 'test',
+      path: 'apps/edge/tests/retired-edge.test.js',
+    }
+    const state = buildDomainState({
+      nodes: [...featureNodes, retiredRequirement, retiredCode, retiredTest],
+      edges: [
+        ...featureEdges,
+        { from: 'feat:FEAT-999', to: 'req:FR-189', type: 'bundles' },
+        { from: retiredCode.id, to: retiredRequirement.id, type: 'implements' },
+        { from: retiredTest.id, to: retiredRequirement.id, type: 'verifies' },
+      ],
+      featureRequirements: new Map([['project-manager', ['FR-189']]]),
+      featurePresentation: [
+        { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates and reviews a project.' },
+        { id: 'FR-069', primaryDomain: 'project-manager', useCase: 'A Human previews an execution plan.' },
+      ],
+    })
+    const feature = state.features.find((item) => item.id === 'FEAT-999')
+
+    expect(feature.requirementIds).toEqual(['FR-003'])
+    expect(feature.requirements.map((item) => item.id)).toEqual(['FR-003'])
+    expect(feature.requirements.some((item) => item.id === 'FR-189')).toBe(false)
+    expect(feature).toMatchObject({ progressPercent: 100, ready: true, blockers: [] })
+    expect(state.domains['project-manager'].requirements.map((item) => item.id)).toEqual(['FR-003', 'FR-189'])
+    expect(state.domains['project-manager'].requirements.find((item) => item.id === 'FR-189')).toMatchObject({
+      title: '[historical] Edge answers SmartGift catalog queries',
+      status: 'not_applicable',
+    })
+    expect(state.domains['project-manager'].progressPercent).toBe(50)
+    expect(state.overall).toMatchObject({ requirementCount: 2, verifiedRequirementCount: 1, progressPercent: 50 })
+    expect(new Set(state.features.flatMap((item) => item.requirements.map((requirement) => requirement.id))).size)
+      .toBe(state.overall.requirementCount)
+    expect(state.domains['project-manager'].gaps.filter((item) => item.id === 'REQ-FR-189')).toEqual([])
+    expect(state.overall.gaps.filter((item) => item.id === 'REQ-FR-189')).toEqual([])
+  })
+
+  it('does not let historical FR evidence create active tests or runtime-contract findings', () => {
+    const retiredRequirement = {
+      id: 'req:FR-189',
+      type: 'requirement',
+      family: 'FR',
+      label: '~~Edge answers SmartGift catalog queries~~',
+      declared: 'n/a',
+      status: 'superseded',
+    }
+    const retiredTest = {
+      id: 'test:apps/edge/tests/retired-edge.test.js',
+      type: 'test',
+      path: 'apps/edge/tests/retired-edge.test.js',
+    }
+    const retiredNodes = [nodes[0], retiredRequirement, retiredTest]
+    const retiredEdges = [{ from: retiredTest.id, to: retiredRequirement.id, type: 'verifies' }]
+    const featureRequirements = new Map([['project-manager', ['FR-189']]])
+    const excludedRequirementIds = new Set(['FR-189'])
+    const observations = collectDomainObservations({
+      root: process.cwd(),
+      nodes: retiredNodes,
+      edges: retiredEdges,
+      featureRequirements,
+      excludedRequirementIds,
+    })
+    const state = buildDomainState({
+      nodes: retiredNodes,
+      edges: retiredEdges,
+      featureRequirements,
+      observations,
+    })
+
+    expect(observations['project-manager'].checks.tests).toMatchObject({ status: 'not_applicable', gaps: [] })
+    expect(observations['project-manager'].checks.runtimeContract).toMatchObject({ status: 'not_applicable', gaps: [] })
+    expect(state.domains['project-manager'].requirements).toContainEqual(
+      expect.objectContaining({ id: 'FR-189', title: '[historical] Edge answers SmartGift catalog queries', status: 'not_applicable' }),
+    )
+    expect(state.domains['project-manager'].gaps.filter((item) => ['TEST-001', 'CONTRACT-001', 'REQ-FR-189'].includes(item.id))).toEqual([])
+  })
+
+  it('keeps a current FEAT with no active members in history without an empty or ready projection', () => {
+    const retiredRequirement = {
+      id: 'req:FR-189',
+      type: 'requirement',
+      family: 'FR',
+      label: '~~Edge answers SmartGift catalog queries~~',
+      declared: 'n/a',
+      status: 'superseded',
+    }
+    const state = buildDomainState({
+      nodes: [...featureNodes, retiredRequirement],
+      edges: [
+        ...edges,
+        { from: 'feat:FEAT-999', to: 'req:FR-189', type: 'bundles' },
+      ],
+      featureRequirements: new Map([['project-manager', ['FR-189']]]),
+      featurePresentation: [
+        { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates and reviews a project.' },
+        { id: 'FR-003', primaryDomain: 'project-manager', useCase: 'A PM creates a project.' },
+        { id: 'FR-069', primaryDomain: 'project-manager', useCase: 'A Human previews an execution plan.' },
+      ],
+    })
+    const feature = state.historicalFeatures.find((item) => item.id === 'FEAT-999')
+    const validate = new Ajv2020({ strict: true, allErrors: true })
+      .compile(JSON.parse(readFileSync('contracts/domain-state.schema.json', 'utf8')))
+
+    expect(state.features.some((item) => item.id === 'FEAT-999')).toBe(false)
+    expect(feature).toMatchObject({
+      registryStatus: 'live',
+      requirementIds: ['FR-189'],
+      progressPercent: 0,
+      ready: false,
+      blockers: ['FEAT-999 has no active requirements'],
+      requirements: [{
+        id: 'FR-189',
+        title: '[historical] Edge answers SmartGift catalog queries',
+        status: 'not_applicable',
+        progressPercent: 0,
+      }],
+    })
+    expect(state.overall).toMatchObject({ requirementCount: 2, verifiedRequirementCount: 1, progressPercent: 50 })
+    expect(state.domains['project-manager'].progressPercent).toBe(50)
+    expect(state.overall.gaps.filter((item) => item.id === 'REQ-FR-189')).toEqual([])
+    expect(validate(state), JSON.stringify(validate.errors)).toBe(true)
+  })
+
+  it('keeps a current FR active when its declaration annotation lags', () => {
+    const laggingRequirement = {
+      id: 'req:FR-003',
+      type: 'requirement',
+      family: 'FR',
+      label: 'Project CRUD',
+      declared: 'n/a',
+      status: 'current',
+    }
+    const laggingNodes = [
+      ...featureNodes.filter((node) => node.id !== 'req:FR-003'),
+      laggingRequirement,
+    ]
+    const state = buildDomainState({
+      nodes: laggingNodes,
+      edges: featureEdges,
+      featurePresentation: [
+        { id: 'FEAT-999', primaryDomain: 'project-manager', useCase: 'A PM creates and reviews a project.' },
+        { id: 'FR-069', primaryDomain: 'project-manager', useCase: 'A Human previews an execution plan.' },
+      ],
+    })
+
+    expect(state.features.find((item) => item.id === 'FEAT-999')).toMatchObject({
+      requirementIds: ['FR-003'],
+      progressPercent: 100,
+      requirements: [expect.objectContaining({ id: 'FR-003', status: 'verified', progressPercent: 100 })],
+    })
+    expect(state.overall.requirementCount).toBe(2)
+    expect(state.domains['project-manager'].requirements).toContainEqual(
+      expect.objectContaining({ id: 'FR-003', declared: 'n/a', status: 'verified' }),
+    )
   })
 
   it('fails closed when projected feature presentation metadata is incomplete', () => {

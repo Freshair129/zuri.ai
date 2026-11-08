@@ -1,18 +1,19 @@
 ---
 doc_type: intake-note
 status: active
-version: "1.13.0"
-updated_at: "2026-10-30"
+version: "1.14.0"
+updated_at: "2026-11-08"
 ---
 
 # `docs/change-requests/` — intake, not governance
 
 **Status:** Active
-**Version:** 1.13.0
+**Version:** 1.14.0
 
-This directory holds **proposals**. Nothing in it is a requirement of this
-product, and being here grants a document no standing beyond being readable and
-version-controlled.
+This directory primarily holds **proposals**. A proposal grants no standing
+beyond being readable and version-controlled. An approved source-row migration
+is provenance for its stated canonical change; it does not become a product
+requirement.
 
 ## Current contract proposals
 
@@ -79,6 +80,18 @@ Version 1.1.0 adds this navigation entry. The historical intake explanations
 below retain their original context; current canonical editing follows
 [the reintegration contract](../migrations/document-reintegration/CANONICAL-FORMAT.md),
 not direct editing of the generated PRD/FEATURES compatibility exports.
+
+Version 1.14.0 indexes the approved ASTRA-D1 D1/D2 canonical source-row
+migration; delivery and deployment evidence remain separate.
+
+## Reviewed canonical migrations
+
+- [KI-17 status reconciliation and FR-189 retirement (ASTRA-D1 D1/D2)](knowledge/ki17-status-reconciliation-20261108.md)
+  (1.0.0, approved source-row migration): reconciles FR-187/FR-188 delivery
+  status for the SmartGift structured-record profiles and supersedes FR-189's
+  active Edge LINE shadow/cutover obligation. It preserves the existing IDs,
+  FEAT-026 membership and Knowledge/RAG implementation; it does not certify
+  current production state or close TASK-ZAI-050/095.
 
 ## `CR-` is not `FR-`, and it is not `ZV2-CR-`
 

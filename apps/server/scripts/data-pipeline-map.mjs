@@ -61,12 +61,23 @@ export function requirementIndex(domainState) {
       index.set(requirement.id, { status: requirement.status, title: requirement.title, feature: feature.id })
     }
   }
+  // An individually retired FR can still belong to a current FEAT, whose
+  // feature requirements intentionally contain active members only. The
+  // domain projection retains that FR as historical evidence; make it
+  // resolvable here without adding it back to Product Readiness totals.
+  for (const domain of Object.values(domainState?.domains || {})) {
+    for (const requirement of domain.requirements || []) {
+      if (requirement.status !== 'not_applicable' || index.has(requirement.id)) continue
+      index.set(requirement.id, { status: requirement.status, title: requirement.title, feature: null })
+    }
+  }
   return index
 }
 
 function statusFromRequirements(statuses) {
-  if (statuses.length && statuses.every((s) => s === 'verified')) return 'CODE_TESTS'
-  if (statuses.some((s) => s === 'verified' || s === 'partial')) return 'PARTIAL'
+  const activeStatuses = statuses.filter((status) => status !== 'not_applicable')
+  if (activeStatuses.length && activeStatuses.every((status) => status === 'verified')) return 'CODE_TESTS'
+  if (activeStatuses.some((status) => status === 'verified' || status === 'partial')) return 'PARTIAL'
   return 'DECLARED'
 }
 
