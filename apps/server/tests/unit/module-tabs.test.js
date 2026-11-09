@@ -31,8 +31,10 @@ describe("ModuleTabs — the in-canvas view switcher", () => {
     const html = renderToStaticMarkup(createElement(ModuleTabs, { tabs: PROCUREMENT_TABS }))
     expect(html).toContain('href="/procurement"')
     expect(html).toContain('href="/procurement/purchase-orders"')
+    expect(html).toContain('href="/procurement/cost-sheets"')
     expect(html).toContain('Dashboard')
     expect(html).toContain('Purchase Orders')
+    expect(html).toContain('Cost Sheets')
   })
 
   it('marks the tab matching the current path active, via aria-current — not local state', () => {

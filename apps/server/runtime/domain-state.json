@@ -3667,7 +3667,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 40
+          "testCount": 43
         },
         {
           "id": "FR-161",
@@ -3691,7 +3691,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 44
+          "testCount": 47
         },
         {
           "id": "FR-166",
@@ -4766,7 +4766,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 40
+          "testCount": 43
         },
         {
           "id": "FR-155",
@@ -4798,7 +4798,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 44
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -7257,16 +7257,16 @@
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
-          "testCount": 40
+          "codeCount": 10,
+          "testCount": 43
         },
         {
           "id": "FR-164",
           "title": "Suppliers and purchase orders (procurement)",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 18,
-          "testCount": 44
+          "codeCount": 20,
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -7309,8 +7309,8 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 3,
-            "inventoried": 3,
+            "routes": 4,
+            "inventoried": 4,
             "missing": 0
           }
         },
@@ -7391,9 +7391,9 @@
       ],
       "gaps": [],
       "details": {
-        "routes": 16,
+        "routes": 17,
         "apiRoutes": 13,
-        "pageRoutes": 3,
+        "pageRoutes": 4,
         "ownedModels": 7,
         "featureNotes": 2
       },
@@ -8367,7 +8367,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 40
+          "testCount": 43
         },
         {
           "id": "FR-155",
@@ -8439,7 +8439,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 44
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -12751,8 +12751,8 @@
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
-          "testCount": 40
+          "codeCount": 29,
+          "testCount": 43
         },
         {
           "id": "FR-155",
@@ -12773,6 +12773,8 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/app/(pm)/procurement/cost-sheets/page.jsx",
+        "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
         "apps/server/src/app/api/inventory/bundles/route.js",
         "apps/server/src/app/api/inventory/categories/route.js",
@@ -12795,6 +12797,7 @@
         "apps/server/src/app/api/procurement/cost-sheets/template/route.js",
         "apps/server/src/app/api/procurement/cost-sheets/xlsx/route.js",
         "apps/server/src/config/domains.js",
+        "apps/server/src/lib/module-tabs.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/inventory/application/inventory-authority.js",
         "apps/server/src/modules/inventory/application/inventory-catalog-service.js",
@@ -12804,11 +12807,13 @@
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/index.js",
         "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
+        "apps/server/src/modules/procurement/components/cost-sheet-ui.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr164-supplier-cost-sheet-import.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -12845,13 +12850,15 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/module-tabs.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/programme-containers.test.js",
         "apps/server/tests/unit/scm-console-routes.test.js",
         "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
-        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
+        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js",
+        "apps/server/tests/unit/supplier-cost-sheet-ui.test.js"
       ]
     },
     {
@@ -13295,8 +13302,8 @@
           "title": "Suppliers and purchase orders (procurement)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
-          "testCount": 44
+          "codeCount": 28,
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -13308,6 +13315,7 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/procurement/cost-sheets/page.jsx",
         "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
@@ -13326,6 +13334,7 @@
         "apps/server/src/app/api/procurement/suppliers/[id]/route.js",
         "apps/server/src/app/api/procurement/suppliers/route.js",
         "apps/server/src/config/domains.js",
+        "apps/server/src/lib/module-tabs.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/inventory/application/scm-core-facade.js",
@@ -13334,12 +13343,14 @@
         "apps/server/src/modules/procurement/application/purchase-order-service.js",
         "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
         "apps/server/src/modules/procurement/application/supplier-service.js",
+        "apps/server/src/modules/procurement/components/cost-sheet-ui.js",
         "apps/server/src/modules/procurement/domain/procurement.js",
         "apps/server/src/modules/procurement/index.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
+        "apps/server/tests/e2e/fr164-supplier-cost-sheet-import.spec.js",
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -13376,6 +13387,7 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
+        "apps/server/tests/unit/module-tabs.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/procurement-domain.test.js",
@@ -13383,7 +13395,8 @@
         "apps/server/tests/unit/scm-core-facade.test.js",
         "apps/server/tests/unit/scm-cost-sheet-parity.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
-        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js"
+        "apps/server/tests/unit/supplier-cost-sheet-routes.test.js",
+        "apps/server/tests/unit/supplier-cost-sheet-ui.test.js"
       ]
     },
     {
