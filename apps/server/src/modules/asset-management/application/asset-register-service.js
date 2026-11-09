@@ -3,6 +3,7 @@
 // @tested tests/unit/asset-register-service.test.js
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
+import { ASSET_INTAKE_STATUS, ASSET_INTAKE_STATUSES } from '../domain/asset-intake'
 import { assertAssetIntakeWrite } from './asset-authority'
 import { assertCurrentBusinessPerson } from './asset-person-scope'
 
@@ -198,6 +199,86 @@ export async function listRegisteredAssets({
   }
 }
 
+function isRecord(value) {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+}
+
+function parseNormalizedIntakeEnvelope(value) {
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value || '{}') : value
+    return isRecord(parsed) ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+function stringOrNull(value) {
+  return typeof value === 'string' && value.trim() ? value : null
+}
+
+function resolveAssetIntakeFinancial(envelope) {
+  const normalizedEnvelope = isRecord(envelope) ? envelope : {}
+  const depreciation = isRecord(normalizedEnvelope.depreciation) ? normalizedEnvelope.depreciation : {}
+  const legacyFinancial = isRecord(normalizedEnvelope.financial) ? normalizedEnvelope.financial : {}
+
+  return {
+    acquisitionAmount: depreciation.acquisitionAmount ?? legacyFinancial.acquisitionAmount ?? null,
+    currency: depreciation.currency ?? legacyFinancial.currency ?? null,
+    receivedOn: legacyFinancial.receivedOn ?? null,
+  }
+}
+
+/**
+ * List bounded, Business-scoped intake summaries for the Asset Register.
+ */
+export async function listAssetIntakesForRegistration({
+  businessId,
+  status = ASSET_INTAKE_STATUS.READY_FOR_REGISTRATION,
+  limit = 50,
+  db = prisma,
+} = {}) {
+  if (!businessId) throw registerError('Business ID is required', 400)
+  if (!ASSET_INTAKE_STATUSES.includes(status)) throw registerError('Invalid Asset intake status', 400)
+
+  const parsedLimit = Number.parseInt(String(limit ?? ''), 10)
+  const take = Math.min(Math.max(Number.isNaN(parsedLimit) ? 50 : parsedLimit, 1), 100)
+  const intakes = await db.assetIntake.findMany({
+    where: { businessId, status, deletedAt: null },
+    select: {
+      id: true,
+      intakeCode: true,
+      status: true,
+      normalizedEnvelopeJson: true,
+      createdAt: true,
+    },
+    orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+    take,
+  })
+
+  return {
+    items: intakes.map((intake) => {
+      const envelope = parseNormalizedIntakeEnvelope(intake.normalizedEnvelopeJson)
+      const item = isRecord(envelope.item) ? envelope.item : {}
+      const financial = resolveAssetIntakeFinancial(envelope)
+      const costValue = financial.acquisitionAmount
+
+      return {
+        id: intake.id,
+        code: stringOrNull(intake.intakeCode),
+        status: intake.status,
+        name: stringOrNull(item.name),
+        categoryCode: stringOrNull(item.categoryCode),
+        serialNumber: stringOrNull(item.serialNumber),
+        cost: typeof costValue === 'string' || (typeof costValue === 'number' && Number.isFinite(costValue))
+          ? String(costValue)
+          : null,
+        currency: stringOrNull(financial.currency),
+        createdAt: intake.createdAt,
+      }
+    }),
+  }
+}
+
 /**
  * Get full registered asset detail including complete temporal histories.
  */
@@ -284,7 +365,7 @@ export async function registerAssetFromIntake({
   })
 
   if (!intake) throw registerError('Asset intake not found', 404)
-  if (intake.status !== 'READY_FOR_REGISTRATION') {
+  if (intake.status !== ASSET_INTAKE_STATUS.READY_FOR_REGISTRATION) {
     throw registerError(`Asset intake is not ready for registration (current status: ${intake.status})`, 400)
   }
 
@@ -299,7 +380,7 @@ export async function registerAssetFromIntake({
   const item = envelope.item || {}
   const location = envelope.location || null
   const responsibility = envelope.responsibility || null
-  const financial = envelope.financial || null
+  const financial = resolveAssetIntakeFinancial(envelope)
   const now = new Date()
 
   return await db.$transaction(async (tx) => {
@@ -342,9 +423,9 @@ export async function registerAssetFromIntake({
         serialNumber: item.serialNumber || null,
         status: 'ACTIVE',
         condition: item.condition || 'GOOD',
-        acquisitionAmount: financial?.acquisitionAmount || null,
-        currency: financial?.currency || 'THB',
-        receivedOn: financial?.receivedOn ? new Date(financial.receivedOn) : now,
+        acquisitionAmount: financial.acquisitionAmount || null,
+        currency: financial.currency || 'THB',
+        receivedOn: financial.receivedOn ? new Date(financial.receivedOn) : now,
         registeredAt: now,
       },
     })
@@ -412,7 +493,7 @@ export async function registerAssetFromIntake({
     await tx.assetIntake.update({
       where: { id: intake.id },
       data: {
-        status: 'REGISTERED',
+        status: ASSET_INTAKE_STATUS.REGISTERED,
         approvedByPersonId: viewer?.principal?.id || null,
         approvedAt: now,
       },

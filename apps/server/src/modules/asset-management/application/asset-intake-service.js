@@ -3,7 +3,7 @@
 // @tested tests/unit/asset-evidence-intake-service-contract.test.js
 import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
-import { validateAssetIntake } from '../domain/asset-intake'
+import { ASSET_INTAKE_STATUS, validateAssetIntake } from '../domain/asset-intake'
 import { assertAssetIntakeWrite } from './asset-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
@@ -37,9 +37,9 @@ export function decideAssetIntakeReplay(existing, envelope) {
 }
 
 export function deriveAssetIntakeStatus({ validation, evidence = [] }) {
-  if (!validation?.ok) return 'DRAFT'
-  if (evidence.some((item) => item.status !== 'REVIEWED')) return 'NEEDS_REVIEW'
-  return 'READY_FOR_REGISTRATION'
+  if (!validation?.ok) return ASSET_INTAKE_STATUS.DRAFT
+  if (evidence.some((item) => item.status !== 'REVIEWED')) return ASSET_INTAKE_STATUS.NEEDS_REVIEW
+  return ASSET_INTAKE_STATUS.READY_FOR_REGISTRATION
 }
 
 async function assertEvidenceReferences(db, envelope, businessId) {
