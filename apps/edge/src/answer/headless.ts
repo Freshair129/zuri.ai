@@ -309,18 +309,32 @@ export function resolveBin(bin: string): string {
     if (isFile(claudeNative)) return claudeNative;
   }
 
-  // 1. Direct check for native codex.exe binary
-  if (windows && bin.toLowerCase().includes('codex')) {
-    const codexNativePaths = [
-      'C:/Users/freshair/AppData/Local/GoVibeToolchains/node-v24.16.0-win-x64/node_modules/@openai/codex/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe',
-      path.join(process.env.LOCALAPPDATA || '', 'GoVibeToolchains/node-v24.16.0-win-x64/node_modules/@openai/codex/node_modules/@openai/codex-win32-x64/vendor/x86_64-pc-windows-msvc/bin/codex.exe')
-    ];
-    for (const p of codexNativePaths) {
-      if (isFile(p)) return path.resolve(p);
+  const pathDirs = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+
+  // npm puts a Windows codex.cmd shim on PATH and the native executable inside the package.
+  // Search all PATH entries for native binaries first so a shim earlier on PATH cannot win.
+  if (windows && bin.toLowerCase() === 'codex') {
+    for (const dir of pathDirs) {
+      const direct = path.join(dir, `${bin}.exe`);
+      if (isFile(direct)) return direct;
+
+      const packagedLayouts = [
+        path.join(
+          dir, 'node_modules', '@openai', 'codex', 'node_modules', '@openai', 'codex-win32-x64',
+          'vendor', 'x86_64-pc-windows-msvc', 'bin', 'codex.exe'
+        ),
+        path.join(
+          dir, 'node_modules', '@openai', 'codex-win32-x64', 'vendor',
+          'x86_64-pc-windows-msvc', 'bin', 'codex.exe'
+        ),
+      ];
+      for (const packaged of packagedLayouts) {
+        if (isFile(packaged)) return packaged;
+      }
     }
   }
 
-  for (const dir of (process.env.PATH || '').split(path.delimiter).filter(Boolean)) {
+  for (const dir of pathDirs) {
     if (windows) {
       const exe = path.join(dir, `${bin}.exe`);
       if (isFile(exe)) return exe;

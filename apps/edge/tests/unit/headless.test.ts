@@ -369,6 +369,61 @@ describe('resolveBin on Windows', () => {
   it('an explicit path is returned as-is', () => {
     assert.strictEqual(resolveBin('C:/nowhere/claude.exe'), 'C:/nowhere/claude.exe');
   });
+
+  it('prefers the packaged Codex native executable over its PATH shim', (t) => {
+    if (process.platform !== 'win32') return t.skip('windows-only');
+
+    const shimDir = path.join(root, 'codex-shim-bin');
+    const binDir = path.join(root, 'codex-bin');
+    const native = path.join(
+      binDir, 'node_modules', '@openai', 'codex', 'node_modules', '@openai', 'codex-win32-x64',
+      'vendor', 'x86_64-pc-windows-msvc', 'bin', 'codex.exe'
+    );
+    fs.mkdirSync(path.dirname(native), { recursive: true });
+    fs.mkdirSync(shimDir, { recursive: true });
+    fs.writeFileSync(path.join(shimDir, 'codex.cmd'), 'earlier shim');
+    fs.writeFileSync(path.join(binDir, 'codex.cmd'), 'shim');
+    fs.writeFileSync(path.join(binDir, 'my-codex.cmd'), 'other shim');
+    fs.writeFileSync(native, 'native');
+
+    const previousPath = process.env.PATH;
+    process.env.PATH = [shimDir, binDir].join(path.delimiter);
+    try {
+      assert.strictEqual(resolveBin('codex'), native);
+      assert.strictEqual(resolveBin('CODEX'), native);
+      assert.strictEqual(resolveBin('my-codex'), path.join(binDir, 'my-codex.cmd'));
+    } finally {
+      if (previousPath === undefined) delete process.env.PATH;
+      else process.env.PATH = previousPath;
+    }
+  });
+
+  it('finds the hoisted Codex native package layout', (t) => {
+    if (process.platform !== 'win32') return t.skip('windows-only');
+
+    const binDir = path.join(root, 'codex-hoisted-bin');
+    const native = path.join(
+      binDir, 'node_modules', '@openai', 'codex-win32-x64', 'vendor',
+      'x86_64-pc-windows-msvc', 'bin', 'codex.exe'
+    );
+    fs.mkdirSync(path.dirname(native), { recursive: true });
+    fs.writeFileSync(native, 'native');
+
+    const previousPath = process.env.PATH;
+    process.env.PATH = binDir;
+    try {
+      assert.strictEqual(resolveBin('codex'), native);
+    } finally {
+      if (previousPath === undefined) delete process.env.PATH;
+      else process.env.PATH = previousPath;
+    }
+  });
+
+  it('contains no developer-specific Codex install path', () => {
+    const sourcePath = fileURLToPath(new URL('../../src/answer/headless.ts', import.meta.url));
+    const source = fs.readFileSync(sourcePath, 'utf8');
+    assert.doesNotMatch(source, /C:\/Users\/freshair|GoVibeToolchains/);
+  });
 });
 
 describe('codex MCP wiring', () => {
