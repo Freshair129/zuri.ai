@@ -67,4 +67,17 @@ describe('Asset Scanner & Stocktake Workspace Contract (AM-RQ-061, AM-RQ-062)', 
     expect(scannerSource).toContain('observedCondition')
     expect(scannerSource).toContain('relocateIfMismatch')
   })
+
+  it('sends the Business scope in the verify body, which is the only place the route reads it', () => {
+    const routeSource = readFileSync(
+      resolve(process.cwd(), 'src/app/api/assets/register/[id]/verify/route.js'),
+      'utf8'
+    )
+    // The route destructures businessId from the JSON body (not the query string).
+    expect(routeSource).toMatch(/const\s*\{[^}]*\bbusinessId\b[^}]*\}\s*=\s*body/)
+    const start = scannerSource.indexOf('/verify`')
+    expect(start).toBeGreaterThan(-1)
+    const verifyCall = scannerSource.slice(start, scannerSource.indexOf('})', start))
+    expect(verifyCall).toMatch(/businessId:\s*business\.id/)
+  })
 })

@@ -177,6 +177,8 @@ export default function AssetScannerWorkspace() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          // The route resolves the Business scope from the body only.
+          businessId: business.id,
           observedLocationName,
           condition: observedCondition,
           notes: auditNotes,
