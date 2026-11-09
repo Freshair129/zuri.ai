@@ -1791,7 +1791,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-096",
@@ -2952,8 +2952,8 @@
           "title": "CRM Conversation Inbox",
           "declared": "done",
           "status": "verified",
-          "codeCount": 11,
-          "testCount": 24
+          "codeCount": 12,
+          "testCount": 26
         },
         {
           "id": "FR-093",
@@ -2961,7 +2961,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-097",
@@ -2993,7 +2993,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-147",
@@ -3017,7 +3017,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-152",
@@ -3025,7 +3025,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-153",
@@ -3033,7 +3033,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-161",
@@ -3651,7 +3651,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-148",
@@ -4426,7 +4426,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-149",
@@ -4442,7 +4442,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-173",
@@ -5901,7 +5901,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-093",
@@ -5909,7 +5909,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 5
+          "testCount": 7
         },
         {
           "id": "FR-146",
@@ -5917,7 +5917,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-149",
@@ -5941,7 +5941,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 21,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-152",
@@ -5949,7 +5949,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-153",
@@ -5957,7 +5957,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 13,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-171",
@@ -8111,7 +8111,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 24
+          "testCount": 26
         },
         {
           "id": "FR-092",
@@ -8319,7 +8319,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-149",
@@ -8343,7 +8343,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-152",
@@ -8351,7 +8351,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-153",
@@ -8359,7 +8359,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 21
+          "testCount": 22
         },
         {
           "id": "FR-154",
@@ -11294,8 +11294,8 @@
           "title": "CRM Conversation Inbox",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 24
+          "codeCount": 20,
+          "testCount": 26
         },
         {
           "id": "FR-093",
@@ -11303,7 +11303,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 4,
-          "testCount": 5
+          "testCount": 7
         }
       ],
       "evidence": [
@@ -11326,6 +11326,7 @@
         "apps/server/src/modules/line-crm/LineCrmLoyalty.jsx",
         "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/line-crm/LineCrmShell.jsx",
+        "apps/server/src/modules/line-crm/lineCrmModules.js",
         "apps/server/src/modules/line-crm/mockData.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -11352,6 +11353,8 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+        "apps/server/tests/unit/line-crm-module-availability.test.js",
+        "apps/server/tests/unit/line-studio-design-preview-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
@@ -12352,7 +12355,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 35
+          "testCount": 37
         },
         {
           "id": "FR-147",
@@ -12368,7 +12371,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 26,
-          "testCount": 30
+          "testCount": 32
         },
         {
           "id": "FR-152",
@@ -12376,7 +12379,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 25
+          "testCount": 26
         },
         {
           "id": "FR-153",
@@ -12384,7 +12387,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -12481,6 +12484,7 @@
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-crm-module-availability.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
         "apps/server/tests/unit/line-oa-account-routes.test.js",
         "apps/server/tests/unit/line-oa-account-schema-contract.test.js",
@@ -12495,6 +12499,7 @@
         "apps/server/tests/unit/line-oa-settings-consolidation.test.js",
         "apps/server/tests/unit/line-studio-account-console-render.test.js",
         "apps/server/tests/unit/line-studio-dashboard-render.test.js",
+        "apps/server/tests/unit/line-studio-design-preview-render.test.js",
         "apps/server/tests/unit/main-dev-local-ollama-runtime.test.js",
         "apps/server/tests/unit/phase1-business-agent-runtime.test.js",
         "apps/server/tests/unit/plan-schema.test.js",

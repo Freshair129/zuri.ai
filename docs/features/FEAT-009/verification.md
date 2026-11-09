@@ -34,6 +34,7 @@ status: generated
 - [apps/server/src/modules/line-crm/LineCrmLiveChat.jsx](../../../apps/server/src/modules/line-crm/LineCrmLiveChat.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/line-crm/LineCrmLoyalty.jsx](../../../apps/server/src/modules/line-crm/LineCrmLoyalty.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/line-crm/LineCrmMembers.jsx](../../../apps/server/src/modules/line-crm/LineCrmMembers.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/line-crm/lineCrmModules.js](../../../apps/server/src/modules/line-crm/lineCrmModules.js) — `implements` (`annotation`)
 - [apps/server/src/modules/line-crm/LineCrmShell.jsx](../../../apps/server/src/modules/line-crm/LineCrmShell.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/line-crm/mockData.js](../../../apps/server/src/modules/line-crm/mockData.js) — `implements` (`annotation`)
 - [apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx](../../../apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx) — `implements` (`annotation`)
@@ -61,6 +62,8 @@ status: generated
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-crm-live-chat-render.test.js](../../../apps/server/tests/unit/line-crm-live-chat-render.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/line-crm-module-availability.test.js](../../../apps/server/tests/unit/line-crm-module-availability.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/line-studio-design-preview-render.test.js](../../../apps/server/tests/unit/line-studio-design-preview-render.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/scm-group-navigation.test.js](../../../apps/server/tests/unit/scm-group-navigation.test.js) — `verifies` (`transitive`)
@@ -80,6 +83,8 @@ status: generated
 - [apps/server/tests/integration/agent-turn.test.js](../../../apps/server/tests/integration/agent-turn.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-account-isolation.test.js](../../../apps/server/tests/integration/line-account-isolation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/line-crm-live-chat-render.test.js](../../../apps/server/tests/unit/line-crm-live-chat-render.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-module-availability.test.js](../../../apps/server/tests/unit/line-crm-module-availability.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-studio-design-preview-render.test.js](../../../apps/server/tests/unit/line-studio-design-preview-render.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/reply-record-service.test.js](../../../apps/server/tests/unit/reply-record-service.test.js) — `verifies` (`test-reference`)
 
 ## Limits
