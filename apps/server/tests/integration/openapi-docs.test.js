@@ -431,7 +431,9 @@ describe('OpenAPI document', () => {
       // FR-293 adds seven transfer paths plus the actor-bound job recovery list.
       pathCount: 373,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
-      operationCount: 488,
+      // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
+      // Register page's ready-intake list): one operation, no new path.
+      operationCount: 489,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])
