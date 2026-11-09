@@ -144,6 +144,7 @@ status: generated
 - [apps/server/tests/unit/domain-state.test.js](../../../apps/server/tests/unit/domain-state.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/goods-receipts-self-attestation.test.js](../../../apps/server/tests/unit/goods-receipts-self-attestation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
