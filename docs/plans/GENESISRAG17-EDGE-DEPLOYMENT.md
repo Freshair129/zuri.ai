@@ -1,10 +1,10 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.5"
+version: "0.7.8"
 status: beta
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-11-08T04:03:25+07:00,Codex"
+last_update: "2026-11-08T14:35:41+07:00,Codex"
 attributes:
   domain: knowledge
   doc_type: deployment-design
@@ -18,14 +18,17 @@ relations:
 
 # GenesisRAG17 on the edge device: Phase 3 deployment design
 
-> **Status (updated 2026-09-24): superseded by §9.2 — see there for current production
-> state.** This section is left as written through the 2026-09-16 revision (0.2.0) as a
+> **Current disposition (updated 2026-11-08):** §9.2 is a historical 2026-09-24 production
+> observation, and §9.3 is native Windows developer acceptance. Neither proves current
+> production-host state. §9.4 records attributed historical MSP evidence and the current
+> TASK-ZAI-050/095 preparation boundary; no completed activation record or production switch is claimed.
+> The original 2026-09-24 status note below is retained as historical context. This section is left as written through the 2026-09-16 revision (0.2.0) as a
 > historical record of the design-time assumption: "None of it has been deployed," no
 > `docker compose` command run, no credential generated, no migration applied, the one
 > thing executed being gate **G-3** (§9.1) against throwaway test images. That assumption
 > no longer holds — §9.2 records a 2026-09-24 read-only production probe that found the
-> runtime this design describes already running. Do not read this blockquote as the
-> current state; read §9.2.
+> runtime this design describes already running. §9.2 records only that dated
+> observation, not the current host state.
 >
 > **The private MSP-to-GKS HTTP canary (§5.1, ADR-075 D10) is NOT_RUN.** Only a
 > render-only `docker compose config --quiet` check ran, on 2026-09-23, with example env and
@@ -407,12 +410,39 @@ the fact list and source provenance are in
 This native run does not replace the G-3 Linux image gate or exact-image
 acceptance before a production promotion.
 
-**Open question for the owner (FR-189):** does FR-189 remain applicable after
-ADR-110 retired the edge-device worker connection? No FR-189 status or
-supersession change is made here.
+### 9.4 TASK-ZAI-050 evidence reconciliation and TASK-ZAI-095 preparation — 2026-11-08
 
-**Disposition pointer (2026-11-08):** ASTRA-D1 D1 supersedes FR-189 as an active
-Edge LINE shadow/cutover obligation; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
+MSP §6 at revision `520ac7109b032d11a6b15b87720b58380173ba7f` records historical,
+operator-attested evidence dated 2026-10-24: d0 image qualification, restored canary,
+production publication/query/denial/persistence, and 42/42 tests in the composed MSP
+acceptance image. The underlying private artifacts were not inspected in this review.
+Keep that attribution and image/app provenance; it is not acceptance of the current
+Zuri source, not current production-host verification, and does not close TASK-ZAI-050.
+
+The 2026-09-24 production probe remains a dated observation, not proof of current host
+health. The native Windows 42/42 result in §9.3 is developer acceptance of the stated
+tuple, not Linux exact-image qualification or live LINE production acceptance. The three
+TASK-ZAI-050 DoD booleans remain false. Its activation-record skeleton is
+[`2026-11-08-task-zai-050-activation-record.md`](../../.brain/reports/2026-11-08-task-zai-050-activation-record.md);
+current host fields are `NOT_VERIFIED`, and its exit criterion still requires a real
+Business document to be admitted, published, queried and cited on production.
+
+TASK-ZAI-095 depends on direct qualification of the Phase-3 catalog publication. The
+superseded TASK-ZAI-042 Edge LINE/fallback-window criteria are not the switch gate.
+The future pilot uses `GKS_THEN_BUSINESS_KNOWLEDGE`, explicitly selected Business and
+account authority, and a 14-consecutive-day shadow window with exact Bangkok start/end
+timestamps. P1's switch/shadow/rollback rehearsal is isolated test evidence only; no
+production switch, named approval or live LINE delivery occurred in this packet. See
+the [TASK-ZAI-095 runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md).
+
+**Historical (pre-ASTRA-D1 D1) open question (FR-189):** did FR-189 remain
+applicable after ADR-110 retired the edge-device worker connection? The question
+and its statement that no status change was made describe the pre-migration state
+and are no longer current.
+
+**Current disposition (2026-11-08):** FR-189 is superseded as an active Edge LINE
+shadow/cutover obligation by ASTRA-D1 D1 through the canonical source-row migration
+merged in PR #793; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
 No cutover, sunset or deletion is asserted.
 
 ## 10. Start order (operator procedure, not executed)
@@ -618,6 +648,8 @@ cutover.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.7.8 | 2026-11-08 | beta | Marks the former FR-189 owner question as historical and records its supersession by ASTRA-D1 D1 through the canonical source-row migration merged in PR #793; preserves the no-cutover/no-deletion boundary. | working-tree | Codex |
+| 0.7.7 | 2026-11-08 | beta | Adds §9.4 to attribute MSP §6 as historical evidence with its private-artifact limitation, reconcile TASK-ZAI-050 without checking any DoD items, and point to the NOT_VERIFIED activation skeleton and isolated TASK-ZAI-095 pilot plan. No production action is claimed. | working-tree | Codex |
 | 0.7.6 | 2026-11-08 | beta | Adds a dated pointer to ASTRA-D1 D1's reviewed FR-189 disposition; preserves runtime and production evidence boundaries | working-tree | Codex |
 | 0.7.5 | 2026-11-08 | beta | Adds the native Windows developer-check recipe and §9.3 result, records production MSP evidence from MSP §6 with its source caveat, and preserves FR-189 for owner decision; FR-187/188 source-row status migration remains gated by an approved migration document | working-tree | Codex |
 | 0.7.0 | 2026-09-23 | beta | Corrects the HTTP pipeline credential boundary and adds the same child-environment filter to GenesisBlock's inherited worker spawn | working-tree | RWANG |

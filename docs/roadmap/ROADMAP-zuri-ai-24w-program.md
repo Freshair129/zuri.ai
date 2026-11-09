@@ -2,8 +2,8 @@
 title: "ROADMAP: Zuri AI — 24-Week Full System Delivery Program"
 doc_id: "ROADMAP-ZURI-AI-24W-PROGRAM"
 status: "approved"
-version: "0.4.42"
-updated: "2026-10-22"
+version: "0.4.43"
+updated: "2026-11-08"
 repo_created_at: "2026-08-11T16:27:54Z"
 baseline_commit: "2b7ad27d"
 programme_start: "2026-08-24"
@@ -35,6 +35,7 @@ related_docs:
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 
 Archived historical static HTML snapshot (v0.4.9; not the current rendered board): `docs/roadmap/ROADMAP-zuri-ai-24w-program.html`
+Version diff 0.4.42 -> 0.4.43 (2026-11-08): Reconcile TASK-ZAI-042's Edge LINE and 120-day fallback criteria as superseded by ASTRA-D1 D1, not executed, while retaining its catalog and remaining delivery/recovery obligations. Keep TASK-ZAI-050's three DoD items false; attribute MSP §6's 2026-10-24 composed-image acceptance as historical operator-attested evidence with its private-artifact limitation, and add a NOT_VERIFIED activation-record skeleton. Prepare TASK-ZAI-095 for the explicitly selected Business/account, qualified Phase-3 publication evidence, GKS_THEN_BUSINESS_KNOWLEDGE, a 14-consecutive-day Bangkok-timestamped shadow window and audited rollback. Keep approvals and production actions pending; phase and sprint status remain unchanged.
 Version diff 0.4.41 -> 0.4.42 (2026-10-22): Retire the developer DDC under ADR-113, including its controller, dispatch/observation surfaces and Mission Control UI. Mark TASK-ZAI-119 and its unstarted P2 as retired, set implementation state to RETIRED, and point the container at ADR-113; preserve prior evidence as history and keep the exit criterion unchecked. This is closure by owner retirement, not feature acceptance. Keep programme/phase/sprint progress unchanged; current 123-task status counts are 71 done, 15 review, 6 in-progress, 25 planned, 5 blocked and 1 retired. No external PORL, production cleanup or deployment claim.
 Version diff 0.4.40 -> 0.4.41 (2026-10-22): Reconcile PR #705's accepted synthetic Business A/B/A memory/context tests into TASK-ZAI-014 after merge as `b7add99074de4d310e3ee58e9b898cb0f0938e10` from candidate `c15ef9dd1f2246b24f71146a40baeae4785665f3`; candidate and merge share tree `ff8c9b3594db39e9fa3a45109fff78a6f9784c98` and base parent `7a661d95c7db57122a0899652c354831cac559ac`. Exact-head Governance `39054993823` and Edge `39054993820` passed applicable checks; changed isolated suites passed 16/16 and 32/32, while E2E/Desktop were skipped. TASK-ZAI-014 remains in-progress with production `corpusContext`, broader generic-memory/live-agent switching and full Task14 E2E unverified. Record external Visual Office source revision `740eb1f5ef0cc8405af143e4a88f1c752d3e5098` as a standalone Three.js scene/assets with partial reduced-motion and labeled camera controls plus T3 job/session inputs, not a Zuri integration or acceptance. Separate zuri-agent-office PR #1 merged as `c1bff47147f7cde9da9589c50ff99b9d8c292c15`; its offline parity harness is simulation-only and live-provider parity remains NOT_RUN. Zuri.ai PR #704 merged as `297b11d2c7098eee6622030d375ecab03c43f3b1` from final head `8cec8907f2f3e9ebf45ae3e12ea41ce3858cec84`; exact-head Governance `39085718812` and Edge `39085718800` passed applicable jobs, with E2E/Desktop skipped. The merged TASK-ZAI-026 document remains candidate / `source_of_truth: false`, proposes a contract only, and records no implementation or test evidence. Keep TASK-ZAI-019..023 and TASK-ZAI-026 planned with all criteria unchecked; PHASE-ZAI-04 stays 0/5 accepted and 0 progress. No task counts, phase/sprint status, dependency, deployment, production, provider, or UAT claim changes.
 
@@ -553,7 +554,7 @@ locates the week.
 | TASK-ZAI-039 | SPR-ZAI-02 | task | Commerce billing documents, POS checkout and physical stocktake — FR-186, FR-183, FR-184 | P1 | RWANG | review | TASK-ZAI-033; TASK-ZAI-038 | PR #508 head `0d3a3c6b7d726c36fa7c821c0cb7bbb5194dfc06` merged as `259867faf4a3f41e91f3428c2bff3cfdda3d006d`; Prisma E2E harness 21/21, commerce/stocktake unit 8/8, integration 29/29 and focused browser 4/4 passed; hosted Governance/Edge runs `35549785192`/`35549785191` passed with E2E/Desktop skipped; migrations `20260911010000`/`20260911020000`, owner approval and production activation remain NOT_RUN; CR-019 deliverable 11; ZAI-PROPOSAL-COMMERCE-BILLING-POS-20260910 |
 | TASK-ZAI-040 | SPR-ZAI-02 | task | Marketing strategy, campaigns, content, operations and broadcast planning — FEAT-021, FR-157 to FR-160, FR-162, FR-185 | P1 | RWANG | review | - | PR #503 head `0d3d9568b148e2f0910b090fd00572a50cfcbbfb` merged as `5cfb3443625b4e833662945c34742c167a7bf2bd`; six broadcast-planning contract tests and hosted Governance/Edge runs `35548539602`/`35548539585` passed with E2E/Desktop skipped; target import, provider, owner, release and production gates remain open; CR-019 deliverable 11; CR-018 |
 | TASK-ZAI-041 | SPR-ZAI-02 | task | Identity lifecycle: withdrawable grants, Employment and LegalEntity, invites and segregation of duties, audit access evidence — FEAT-027 to FEAT-030, FR-191 to FR-199 | P0 | Claude | review | TASK-ZAI-001 | PR #506 head `5c5f57849cd2fb0fe4fa377f4118883e8d389a85` merged as `5fd32fb78fb04e32d7edc5ed4dd7f888fd258eeb`; bounded tenant-wide-grant roster fix, focused identity evidence 26/26 and full server receipt 777 files / 6,537 tests passed / 32 skipped; hosted Governance/Edge runs `35549400774`/`35549400779` passed with E2E/Desktop skipped; PR #352's historical E2E failure remains separate; migrations, owner approval and production activation remain NOT_RUN; Section 3.1 rows 9 and 10; ADR-077 to ADR-080 |
-| TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Section 3.1 row 4; ADR-075 |
+| TASK-ZAI-042 | SPR-ZAI-02 | task | SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 | P1 | Claude | in-progress | TASK-ZAI-025 | Edge LINE/fallback-window success and exit criteria superseded by ASTRA-D1 D1 (2026-11-08), not executed; catalog and remaining obligations stay visible; Section 3.1 row 4; ADR-075 |
 | TASK-ZAI-043 | SPR-ZAI-03 | task | Apply every pending deliverable-11 migration on production and record it in the migration notes | P0 | ATHER | planned | TASK-ZAI-038; TASK-ZAI-039; TASK-ZAI-040; TASK-ZAI-041 | GATE-ZAI-09; ADR-057 |
 | TASK-ZAI-044 | SPR-ZAI-06 | task | GATE-ZAI-09 evidence run: ERP modules accepted on production for Business one | P0 | Owen | planned | TASK-ZAI-043 | GATE-ZAI-09 |
 | TASK-ZAI-045 | SPR-ZAI-02 | task | Knowledge file intake: Text/Markdown and FileAsset admission into an immutable raw artifact at Stage 1 — FR-173, FR-081, FR-109 | P0 | RWANG | review | TASK-ZAI-005 | Section 3.1 row 4; ADR-072, ADR-073 |
@@ -561,7 +562,7 @@ locates the week.
 | TASK-ZAI-047 | SPR-ZAI-03 | task | Knowledge base console: source library, ingestion run status, corpus and generation registry, cited query | P0 | Codex | review | TASK-ZAI-045 | frozen production-base branch; isolated implementation/native acceptance; runtime activation under TASK-ZAI-050; not deployed; Section 3.1 row 4; FR-254, FR-173, FR-071, FR-110 |
 | TASK-ZAI-048 | SPR-ZAI-03 | task | Binary document parsing at Stage 2 (PDF, DOCX, HTML, tables, OCR) with raw mapping at Stage 3 and offsets at Stage 7 to 9 | P1 | Codex | in-progress | TASK-ZAI-046 | 17-stage flow, "PDF/OCR/HTML/table parser" row; FR-115, FR-138; bounded source PR #709 merged, native/OCR/UAT/provider/production exits open |
 | TASK-ZAI-049 | SPR-ZAI-03 | task | Durable file storage, retention and recoverability for knowledge raw artifacts on production (spec §3.1) | P0 | ATHER | review | TASK-ZAI-045 | Section 3.1 row 4; FR-045, FR-111, FR-137 |
-| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | in-progress | TASK-ZAI-045; TASK-ZAI-049 | ADR-073 amendment; ADR-075 Phase 2 gate |
+| TASK-ZAI-050 | SPR-ZAI-03 | task | Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published | P0 | ATHER | in-progress | TASK-ZAI-045; TASK-ZAI-049 | Three DoD items remain unchecked; MSP §6 is historical attributed evidence only; current production host and activation remain NOT_VERIFIED; ADR-073 amendment; ADR-075 Phase 2 gate |
 | TASK-ZAI-051 | SPR-ZAI-03 | task | Multi-source concurrency, scheduler and replay surface over the FR-081 ingestion boundary | P2 | Claude | planned | TASK-ZAI-050 | 17-stage flow, "connector/แหล่งเอกสาร" row; FR-081 |
 | TASK-ZAI-052 | SPR-ZAI-02 | task | Cost and quote engine decision record — proposal, ADR, FR and FEAT declarations with the owner's nine decisions | P0 | Claude | done | TASK-ZAI-038 | CR-019 deliverable 11; ZAI-PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; SmartGift ADR-009 |
 | TASK-ZAI-053 | SPR-ZAI-02 | task | Supplier cost sheets — factory cost intake with locked FX, confirmed SKU mapping and carton attributes (Procurement, Inventory) | P0 | Claude | done | TASK-ZAI-052; TASK-ZAI-034 | PR #483 merged at `68d27022` after the strict Phase-B inventory fix; hosted checks passed; production migration/activation NOT_RUN |
@@ -606,7 +607,7 @@ locates the week.
 | TASK-ZAI-092 | SPR-ZAI-05 | task | Context Composer — one agent-lane module assembling every LINE model prompt from AuthContext, MSP slices, knowledge evidence and CRM and ERP facts in truth order under one budget, reporting every trim, recording one ContextReceipt per model invocation and calling no model without evidence — FR-234, SDD-100 | P0 | Claude | done | TASK-ZAI-088 | Section 3.1 row 4; ADR-091 D7; FR-171 |
 | TASK-ZAI-093 | SPR-ZAI-05 | task | LINE grounding from the published corpus — an in-process knowledge.query reader over queryKnowledgeCorpus under the runtime knowledge capability, a per-account knowledgeGrounding mode with its migration, a 2 500 ms, top-5, 8 KiB budget, a traced mode-gated fallback and retrievalRefs on EVIDENCE_SELECTED — FR-235, SDD-099 | P0 | Claude | done | TASK-ZAI-092 | Section 3.1 row 4; ADR-090 D1 to D4; SEC-032 |
 | TASK-ZAI-094 | SPR-ZAI-05 | task | Grounding isolated acceptance — a real LINE job answered from a published generation in the four-process harness with citations on the job trace, zero cross-tenant leakage, the deterministic reply with the worker stopped, and MSP spawn cost measured against the budget | P0 | Claude | done | TASK-ZAI-093 | ADR-090 required proof 2, 5, 6; ADR-090 D3 |
-| TASK-ZAI-095 | SPR-ZAI-06 | task | SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback | P0 | Owen | planned | TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050 | ADR-090 D5; ADR-075 Phase 3; ADR-057 |
+| TASK-ZAI-095 | SPR-ZAI-06 | task | SmartGift grounding switch on production — after qualified Phase-3 catalog publication, explicitly authorize/select the Business and account, use GKS_THEN_BUSINESS_KNOWLEDGE for a 14-consecutive-day shadow window with exact Bangkok timestamps, and preserve an audited rollback | P0 | Owen | planned | TASK-ZAI-094; TASK-ZAI-050 | Qualify publication evidence directly; TASK-ZAI-042's retired Edge LINE criteria are not the acceptance gate; ADR-090 D5; ADR-075 Phase 3; ADR-057 |
 | TASK-ZAI-096 | SPR-ZAI-06 | task | LINE FAQ knowledge candidates — locator-only question-and-answer candidates from consent-GRANTED conversations checked by the Zero-PII deny policy, an OWNER or LINE_OA_PUBLISHER review surface with audited decisions, and admission of an approved candidate as a LINE_FAQ_CANDIDATE TEXT source through ADR-072 — FR-236, SEC-032 | P1 | Claude | done | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D6; ADR-072 D1 |
 | TASK-ZAI-097 | SPR-ZAI-06 | task | Knowledge gap report for LINE — NO_EVIDENCE retrievals aggregated per Business in the Knowledge (GKS) slot as counts, product locators and last-seen times, with the question text left in CRM — FR-237 | P2 | Claude | done | TASK-ZAI-093 | Section 3.1 row 4; ADR-090 D7 |
 | TASK-ZAI-098 | SPR-ZAI-06 | task | LINE Studio descriptions as knowledge sources — on a publisher action, published rich menu, LIFF app and bot profile descriptions are admitted as LINE_STUDIO_DESCRIPTION TEXT sources, never the Flex or rich menu JSON, and unpublishing withdraws them — FR-238 | P2 | Claude | done | TASK-ZAI-096 | Section 3.1 row 4; ADR-090 D7 |
@@ -2519,7 +2520,7 @@ requirement_type: FR
 complexity: C-3
 access_scope: H3
 status: in-progress
-version: 0.1.0
+version: 0.1.1
 pic: Claude
 executor: Claude
 approver: Owen
@@ -2533,12 +2534,12 @@ definition_of_done:
     - criterion: Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys, never prose
       checked: true
   success_criteria:
-    - criterion: Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback
+    - criterion: "[SUPERSEDED — ASTRA-D1 D1, 2026-11-08; not executed] Given a catalog query on LINE, when Edge answers, then it answers from the published GenesisRAG17 generation through MSP, with Genesis RAG v4 as the declared transitional fallback"
       checked: false
   exit_criteria:
-    - criterion: Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains
+    - criterion: "[SUPERSEDED — ASTRA-D1 D1, 2026-11-08; not executed] Given the fallback window (120 days after cutover or the end of the New Year 2027 season, whichever is later), when it closes, then the three independent catalog writers are retired and only the seventeen-stage path remains"
       checked: false
-changelog: Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own.
+changelog: Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own. 2026-11-08 (ASTRA-D1 D1): the Edge LINE answer-path and 120-day fallback-window criteria above are superseded, not executed. Retain the catalog-convergence acceptance and remaining delivery/recovery obligations; no Edge reader, tests or v4 implementation are deleted.
 created_at: 2026-09-13T00:00:00Z,Claude,retroactive
 token_telemetry:
   model_name: claude-opus-5
@@ -2879,7 +2880,7 @@ requirement_type: NFR
 complexity: C-3
 access_scope: H4
 status: in-progress
-version: 0.2.0
+version: 0.3.0
 pic: ATHER
 executor: ATHER
 approver: Owen
@@ -2898,7 +2899,7 @@ definition_of_done:
   exit_criteria:
     - criterion: Given one real Business document (not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop "product-wide partial"
       checked: false
-changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): the acceptance criterion's four named migrations are checked true, traced by exclusion from ADR-104's 2026-09-23 full-tree migration-ledger preflight (105 files vs 96 ledger rows, ten named gaps, none of these four) and its post-apply 107-row ledger; this session had no live production DB access to confirm directly. success_criteria and exit_criteria are untouched — MSP/GKS reachability shows partial evidence (2026-09-24 probe: 22/38 Stage 17 PASS, one stuck PipelineRun) and the real-document run/receipt/citation record is separate from this review's two-item scope, so neither is claimed done here.
+changelog: Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts "no production deployment" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): historical review prose inferred the four named migrations from ADR-104's missing-version summary; the current criterion remained unchecked pending a row-level ledger check. ASTRA-D1 D4 (2026-11-08) reconciles all three DoD booleans as false. MSP §6 at 520ac7109b032d11a6b15b87720b58380173ba7f is attributed operator-attested historical evidence: d0 image qualification, restored canary, production publication/query/denial/persistence, and 42/42 in its composed image on 2026-10-24. Underlying private artifacts were not inspected; this does not establish current Zuri source, current production state or this task's DoD. Activation-record skeleton: .brain/reports/2026-11-08-task-zai-050-activation-record.md; current fields NOT_VERIFIED; the exit criterion still requires a real Business document with production publication, query and citation. Owen-named approval: pending — not exercised in P1; requires production-host evidence.
 created_at: 2026-09-13T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -5051,12 +5052,12 @@ task_container_id: TC-TASK-ZAI-095
 task_id: TASK-ZAI-095
 parent_phase_id: PHASE-ZAI-03
 parent_sprint_id: SPR-ZAI-06
-title: SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback
+title: SmartGift grounding switch on production — after qualified Phase-3 catalog publication, explicitly select an authorized Business/account, use GKS_THEN_BUSINESS_KNOWLEDGE for a 14-consecutive-day shadow window with exact Bangkok timestamps, then preserve an audited rollback
 requirement_type: NFR
 complexity: C-2
 access_scope: H4
 status: planned
-version: 0.1.0
+version: 0.2.0
 pic: Owen
 executor: ATHER
 approver: Owen
@@ -5068,15 +5069,15 @@ symbol_links:
 delivers: []
 definition_of_done:
   acceptance_criteria:
-    - criterion: Given ADR-075 Phase 3 deployed (MSP, GKS and the GenesisBlock worker beside the web container) and the owner's instruction, when the operator applies the knowledgeGrounding migration and switches one SmartGift DIRECT account, then that account's jobs read the published corpus first and fall back to business knowledge with a traced reason
+    - criterion: Given qualified Phase-3 catalog publication, an explicitly selected account and Business with verified action authority, and the owner's production instruction, when the authorized operator configures GKS_THEN_BUSINESS_KNOWLEDGE through the existing action, then the account reads the published corpus first and preserves the traced Business-knowledge fallback
       checked: false
   success_criteria:
-    - criterion: Given one campaign window, when answers are shadow-compared against business knowledge, then the comparison is recorded and names which accounts ran SERVER execution, because customers on the edge path (CH-01) are not affected
+    - criterion: Given a 14-consecutive-day pilot with planned exact Bangkok start and end timestamps recorded before the switch, when shadow comparisons are collected, then the record includes actual Bangkok timestamps at both boundaries, evidence covering the full window, and the selected account's actual runtime owner
       checked: false
   exit_criteria:
-    - criterion: Given a regression, when the rollback runs, then flipping the account back to BUSINESS_KNOWLEDGE restores today's traces, and the switch and any rollback are recorded in the migration notes and this container's changelog
+    - criterion: Given a rollback or the end of the pilot, when the authorized operator restores BUSINESS_KNOWLEDGE and disables shadow through the existing audited actions, then later primary traces return to Business Knowledge and both mode/shadow changes are recorded in AuditEvent, migration notes and this container's changelog
       checked: false
-changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. Production dependency: ADR-075 Phase 3, carried in this programme by TASK-ZAI-042 (catalog convergence) and TASK-ZAI-050 (seventeen-stage runtime on production). The switch is owner-triggered and operator-executed.
+changelog: Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. 2026-11-08 (ASTRA-D1 D4): qualify the actual Phase-3 catalog publication directly; TASK-ZAI-042's retired Edge LINE/fallback criteria are not this task's acceptance gate. Use the existing CONFIGURE_KNOWLEDGE_GROUNDING and CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW actions. The first pilot is GKS_THEN_BUSINESS_KNOWLEDGE for 14 consecutive days, with exact Bangkok start/end timestamps; TASK-ZAI-050's three DoD booleans stay false. Rehearsal is isolated only. Owen-named approval: pending — not exercised in P1; requires production-host evidence.
 created_at: 2026-09-14T00:00:00Z,Claude,pending
 token_telemetry:
   model_name: claude-opus-5
@@ -7706,6 +7707,7 @@ second run over the same logs writes the same block.
 
 | Version | Date | Change |
 |---|---|---|
+| 0.4.43 | 2026-11-08 | Reconcile TASK-ZAI-042's Edge criteria as superseded, not executed; attribute MSP §6 as historical evidence while keeping all TASK-ZAI-050 DoD items false; add the activation-record skeleton; and prepare TASK-ZAI-095's qualified-publication gate, 14-day Bangkok window, explicit authority, and audited rollback. No production action or named approval is claimed. |
 | 0.4.32 | 2026-10-16 | Reconcile canonical ROADMAP.md Revisions 2.157.0b and 2.158.0b: record FEAT-043 Gate A as docs-only with implementation not-started and Gates B–G pending; record TASK-ZAI-119 PR #686 merge (2026-10-16) and exact-head Governance/Edge plus manual full E2E evidence. Mark only Task119 P1 done; keep parent review, P2 planned and exit criterion unchecked. External PORL and hosted/production proof remain open; task and dependency counts unchanged. |
 | 0.1.0 | 2026-08-20 | Initial authoring against baseline `6ad6ae9`. Proposal 24-week structure mapped onto the verified build: six phases, twelve sprints, thirty backlog items with complete Task Containers, eight acceptance gates restated from the proposal acceptance criteria. |
 | 0.2.0 | 2026-08-20 | Added section 5, Timeline and Provenance: repository creation date, day-by-day history, counting decisions, the anchored 24-week calendar, and the history-against-plan overlay. Phases and Sprints tables gained a Dates column. |

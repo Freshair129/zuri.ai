@@ -116,7 +116,7 @@ export const ROADMAP_SOT = {
   "dag": {
     "algorithm": "kahn-topological-layers",
     "nodeCount": 123,
-    "edgeCount": 137,
+    "edgeCount": 136,
     "waveCount": 21,
     "missingDependencies": [],
     "cycles": [],
@@ -1105,7 +1105,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-025",
     "authority": "ROADMAP.md",
-    "evidence": "24-week baseline; Section 3.1 row 4; ADR-075"
+    "evidence": "ASTRA-D1 D1 (2026-11-08) supersedes the Edge LINE/fallback-window success and exit criteria; they were not executed. Catalog convergence and the remaining delivery/recovery obligations stay visible; Section 3.1 row 4; ADR-075"
   },
   {
     "id": "TASK-ZAI-043",
@@ -1193,7 +1193,7 @@ export const ROADMAP_TASK_LEDGER = [
     "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-049",
     "authority": "ROADMAP.md",
-    "evidence": "Production observation 2026-09-24: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay` and a healthy `genesis-worker` have run on the production host since 2026-09-21 with `ZURI_KNOWLEDGE_ENABLED=1`, `ZURI_KNOWLEDGE_STORAGE_ENABLED=1`, `ZURI_KNOWLEDGE_BINDINGS` and `MSP_PIPELINE_PRINCIPALS` set in `apps/server/.env.knowledge`; the one SmartGift `KnowledgeCorpus` is at generation 22 with 22 `KnowledgeIngestion` rows PUBLISHED, 22 `GenesisRag17PublicationReceipt` rows dated 2026-09-21, and gate verdicts at `ontology_v2` (38 rows). PR #519 (main `2295dc2b`) fixed the 2026-09-18 Stage 2/Stage 17 failures; PR #521 (main `0e36a993`) pinned the tuple the running images were verified against; `.brain/rca/2026-09-22-ki17-worker-namespace-recreate.md` records the worker-namespace recreate that restored the relay. 2026-09-27 DoD review (`.brain/reports/2026-09-27-task-zai-050-dod-review.md`, Revision 2.137.0b): knowledge migrations recorded is now resolved by tracing ADR-104's 2026-09-23 full-tree migration-ledger preflight, which named exactly ten missing versions and none of the four knowledge migrations this row's acceptance criterion checks; a documented operator activation record is still genuinely open — `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 and `apps/server/deploy/ki17/README.md` both currently state it does not exist, and writing one needs an operator with production/Docker access (image digests, pinned commits, run id, receipt hash), which this read-only review could not manufacture. One `PipelineRun` (`1db6810c-eb86-4e96-9f4c-e9c89c8ba0d3`) is stuck RUNNING since 2026-09-21 06:04. Not `done`: the operator activation record remains the one open DoD item; 24-week baseline; ADR-073 amendment; ADR-075 Phase 2 gate"
+    "evidence": "Production observation 2026-09-24 remains historical: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, healthy `genesis-worker`, SmartGift generation 22, 22 published ingestions/receipts and `ontology_v2` verdicts (38 rows); it is not current host evidence. The 2026-09-27 inference that the four knowledge migrations were recorded by exclusion is not a row-level ledger check and does not satisfy acceptance. MSP §6 at `520ac7109b032d11a6b15b87720b58380173ba7f` records operator-attested d0 image qualification, restored canary, production publication/query/denial/persistence and 42/42 on its composed image on 2026-10-24; underlying private artifacts were not inspected, and this is not today's Zuri source or current production proof. The activation-record skeleton at `.brain/reports/2026-11-08-task-zai-050-activation-record.md` has current fields marked `NOT_VERIFIED`; all three DoD booleans remain false. Exit still requires one real Business document to be admitted, published, queried and cited on production; no fixed-corpus substitute. Owen-named approval: pending — not exercised in P1; requires production-host evidence."
   },
   {
     "id": "TASK-ZAI-051",
@@ -1682,13 +1682,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-095",
     "sprint": "SPR-ZAI-06",
-    "title": "SmartGift grounding switch on production — after ADR-075 Phase 3 is deployed, apply the grounding-mode migration, switch one SmartGift DIRECT account to GKS_THEN_BUSINESS_KNOWLEDGE as an owner-triggered operator step, shadow-compare for one campaign window and keep the rollback",
+    "title": "SmartGift grounding switch on production — after qualified Phase-3 catalog publication, explicitly authorize/select the Business and account, switch to GKS_THEN_BUSINESS_KNOWLEDGE, shadow-compare for 14 consecutive days with exact Bangkok timestamps, then preserve an audited rollback",
     "status": "planned",
     "proofScope": "UNKNOWN",
     "implementationState": "NOT_STARTED",
-    "dependsOn": "TASK-ZAI-094; TASK-ZAI-042; TASK-ZAI-050",
+    "dependsOn": "TASK-ZAI-094; TASK-ZAI-050",
     "authority": "ROADMAP.md",
-    "evidence": "ROADMAP task row; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "Qualify publication evidence directly; TASK-ZAI-042's superseded Edge LINE/fallback-window criteria are not the acceptance gate. Rehearsal uses existing switch and shadow actions on isolated data; production switch/approval remain pending; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
   },
   {
     "id": "TASK-ZAI-096",

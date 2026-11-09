@@ -75,4 +75,4 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Production PostgreSQL migration reconciliation runbook](../runbooks/production-migration-reconciliation.md)
 - [S-01 navigation pointer](../runbooks/S-01.md)
 - [Self-hosted inference pool — qualification, activation and recovery](../runbooks/SELF-HOSTED-INFERENCE-POOL.md)
-- [TASK-ZAI-095 — LINE OA grounding-mode production switch runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md)
+- [TASK-ZAI-095 — LINE OA grounding pilot switch runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md)

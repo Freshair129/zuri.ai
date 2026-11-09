@@ -1,254 +1,152 @@
 ---
-version: "0.1.0"
+version: "0.2.1"
 created_at: "2026-09-27T00:00:00+07:00,Claude Sonnet 5"
-last_update: "2026-09-27T00:00:00+07:00,Claude Sonnet 5"
+last_update: "2026-11-08T14:39:37+07:00,Codex"
 status: "beta"
 superseded_by: null
 attributes:
   domain: "knowledge"
   doc_type: "runbook"
-  scope: "TASK-ZAI-095 — owner-triggered switch of one SmartGift DIRECT LINE OA account from BUSINESS_KNOWLEDGE to GKS_THEN_BUSINESS_KNOWLEDGE, its shadow-compare window, and rollback"
+  scope: "TASK-ZAI-095 — an explicitly selected SmartGift Business/account, the GKS_THEN_BUSINESS_KNOWLEDGE pilot, its 14-day shadow window, and audited rollback"
 ---
 
-# TASK-ZAI-095 — LINE OA grounding-mode production switch runbook
+# TASK-ZAI-095 — LINE OA grounding pilot switch runbook
 
-## What this is, and what it is not
+## Decision and authority boundary
 
-This is the operator runbook for **TASK-ZAI-095** (`docs/roadmap/ROADMAP.md`,
-`docs/roadmap/ROADMAP-zuri-ai-24w-program.md` container `TC-TASK-ZAI-095`): switching one
-SmartGift DIRECT LINE OA account's `knowledgeGrounding` mode from `BUSINESS_KNOWLEDGE` to
-`GKS_THEN_BUSINESS_KNOWLEDGE`, running a shadow-compare window, recording it, and rolling
-back on regression. It implements the procedure ADR-090 D5 and
-[the design doc](../plans/LINE-TO-GKS-GROUNDING-AND-CANDIDATE-PIPELINE-DESIGN.md) §10.1
-Phase 3 describe at a design level and TASK-ZAI-095's own DoD names — it does not add any
-new capability. Every write this runbook performs goes through the existing
-`CONFIGURE_KNOWLEDGE_GROUNDING` service action (`line-oa-account-service.js`), never a raw
-SQL `UPDATE`, so the audit trail (`AuditEvent`, action
-`LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED`) is preserved both for the switch and for
-the rollback.
+The first pilot mode is `GKS_THEN_BUSINESS_KNOWLEDGE`: query the published corpus first and retain the existing traced Business-knowledge fallback. `GKS_CORPUS` is a separate no-fallback mode and is not the pilot mode. The first pilot window is **14 consecutive days**. Before the switch, record the planned Bangkok start and end timestamps; record the actual start and end at their respective boundaries. An empty or incomplete comparison window is not acceptance.
 
-**This runbook does not claim TASK-ZAI-095's blockers are resolved.** TASK-ZAI-095 depends
-on TASK-ZAI-094 (done — isolated acceptance, PR #470/#473), **TASK-ZAI-042** (SmartGift
-catalog convergence through the 17-stage adapter — `docs/roadmap/ROADMAP.md` row: **in
-progress**, not done) and **TASK-ZAI-050** (activate the 17-stage runtime on production
-beyond the isolated profile — `docs/roadmap/ROADMAP.md` row: **planned**, not started as a
-tracked task, though `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9.2 records that the
-runtime it describes is separately observed running in production as of 2026-09-24). Read
-the current status of both rows in `docs/roadmap/ROADMAP.md` yourself before starting
-Preflight below — do not trust this paragraph's snapshot, it will go stale.
+Use the existing `CONFIGURE_KNOWLEDGE_GROUNDING` and `CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW` actions in `line-oa-account-service.js` (the grounding action begins at line 621). Do not add a switch API, update rows with SQL, or infer Business/account authority from a SmartGift name or a DIRECT traffic ratio. The account and Business must be selected explicitly by their persisted IDs and codes, and authority must be verified separately.
+
+This runbook prepares a future production operator step. It does not authorize or claim a production switch, close TASK-ZAI-050 or TASK-ZAI-095, satisfy an approval, or establish current production state. P1's switch rehearsal is exercised on isolated test data only.
+
+## Dependencies and gates
+
+TASK-ZAI-095 requires a **qualified Phase-3 catalog publication** and current production-host evidence. It does not require successful completion of TASK-ZAI-042's retired Edge LINE cutover/fallback criteria. ASTRA-D1 D1 marks those TASK-ZAI-042 criteria superseded, not executed; the task remains visible with its other catalog, delivery and recovery obligations. Its task status is not a substitute for checking the publication evidence itself.
+
+TASK-ZAI-050 remains `in-progress / PRODUCTION / IN_PROGRESS`; its three DoD booleans remain false. The MSP §6 material recorded by ASTRA-D1 is attributed historical evidence, not a current Zuri-source or production-host check. TASK-ZAI-050's exit still requires a real Business document, publication, query and citation record. Do not close it by copying the fixed corpus or synthetic-run evidence.
+
+Before a production operation, an authorized production-host operator must provide current evidence for the exact images and embedded pins, migrations, backup/restore, qualified publication receipt, real Business-document query/citation, account and Business authority, and model/provider readiness. The Owen-named approval remains pending production-host evidence; keep `approver: Owen` and leave unmet DoD items unchecked.
 
 ## Roles
 
-| Role | Does |
+| Role | Responsibility |
 |---|---|
-| **Owner** | Triggers the switch (D-5/ADR-090 D5: "switching is an owner-triggered operator step"). Decides the campaign-window duration (see "The one open decision" below). Approves the rollback if triggered by someone else's finding |
-| **Operator** | Runs the preflight inspection, applies the `CONFIGURE_KNOWLEDGE_GROUNDING` action, collects shadow-compare evidence, records the switch and any rollback in `docs/DB-MIGRATION-NOTES.md` and the `TC-TASK-ZAI-095` changelog |
-| **Business OWNER or `LINE_OA_PUBLISHER`** on the target Business | The authority `applyLineOaAccountAction` requires (`assertMayPublish`) to actually call `CONFIGURE_KNOWLEDGE_GROUNDING` — the Operator must either hold this role or have the owner/publisher perform the PATCH |
+| **Business OWNER or `LINE_OA_PUBLISHER`** on the selected Business | Authorizes and performs the account action through the existing service; the service checks current authority. |
+| **Operator** | Runs the read-only inspection, confirms the exact account/Business and runtime owner, collects shadow evidence, and records any switch or rollback after authorized production work. |
+| **Production-host operator** | Supplies current host, image, migration, publication, backup/restore and real Business-document evidence. This role is not satisfied by this local P1 packet. |
 
-## The one open decision this runbook will not guess
+## Step 0 — Qualify the target from a complete inspection
 
-**How long is "one campaign window"?** Neither the design doc nor ADR-090 gives a number of
-days or a specific SmartGift campaign. `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md`'s own
-CHANGELOG names the same gap for its Phase 5 condition ("both campaign windows' dates must
-be written down, or the Phase 5 condition cannot be evaluated"). **This is an owner
-decision, not an engineering default** — do not pick a duration and proceed as though it
-were specified. Get the owner to name the window (a specific SmartGift campaign's start/end
-dates) before Step 3 below, and write the dates into the shadow-compare evidence record and
-the `TC-TASK-ZAI-095` changelog.
-
-## Step 0 — Read the current blockers yourself
-
-Before anything else:
-
-1. Open `docs/roadmap/ROADMAP.md` and read the current rows for TASK-ZAI-042 and
-   TASK-ZAI-050 (search for `TASK-ZAI-042` and `TASK-ZAI-050`). If either is not `done` /
-   `merged` / equivalent, **stop here** — TASK-ZAI-095's own dependency list names both, and
-   ADR-090 D5 is explicit that SmartGift only goes first "after ADR-075 Phase 3 has deployed
-   MSP, GKS and the GenesisBlock worker beside the web container."
-2. Cross-check against `docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md` §9 (the Phase 3
-   pre-deploy gate, G-1..G-9) and its §9.2 "Current state" note — the deployment design and
-   the roadmap task rows have drifted from each other before (that is exactly why this
-   section exists); read both and do not resolve the discrepancy by assumption. If they
-   disagree, that disagreement is itself a reason to stop and ask the owner, not a reason to
-   pick the more convenient reading.
-3. Confirm with the owner directly that TASK-ZAI-042/TASK-ZAI-050 are considered resolved
-   for the purpose of this switch, even if the roadmap file has not been updated yet. Record
-   that confirmation (who, when) in the changelog entry Step 5 describes.
-
-## Step 1 — Preflight: run the read-only inspection script
+Run the script with the approved direct connection source supplied securely by the authorized operator. `DATABASE_URL` and pooler connections are not accepted by this preflight.
 
 ```bash
 cd apps/server
-DIRECT_URL="<production direct connection string>" \
-  node scripts/ki17-line-grounding-inspect.mjs /tmp/ki17-grounding-inspect-$(date +%Y%m%d).json
+node scripts/ki17-line-grounding-inspect.mjs <protected-output-path>
 ```
 
-Use `DIRECT_URL`, never the pooler `DATABASE_URL` — the pooler role is missing grants this
-repo's migration notes already document, and `readonly-supabase-preflight.mjs` (the pattern
-this script follows) makes the same choice. The script performs no write of any kind; it
-only queries `LineOaAccount`, `LineConversationJob` and `AuditEvent`.
+The script is read-only and queries all `LineOaAccount` rows with their Business, recent job audience counts, and latest mode/shadow audit event per account and action. It reports `runtimeOwner`, `executionMode`, `transportMode`, `status`, `serverEnabled`, `knowledgeGroundingShadow`, current mode and version. It preserves the recent audience counts and DIRECT share as descriptive evidence. `knowledgeGroundingAuditLatestByAction` contains at most one latest event for each of `LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED` and `LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_SHADOW_CONFIGURED`; absent events mean no matching action is on record. A failed required query marks the report `INCOMPLETE` and exits nonzero.
 
-Read the report for:
+Stop on a nonzero exit, `inspectionStatus: INCOMPLETE`, or any `queryFailures`. A complete query set does not by itself mean the target is ready or authorized. Do not use a SmartGift label or DIRECT share to choose an account or grant authority. Record the exact selected Business ID/code and account ID/code, current `runtimeOwner`, `executionMode`, `transportMode`, `status`, `serverEnabled`, `knowledgeGroundingShadow`, `knowledgeGrounding`, `version`, and the report path. Verify the expected Business OWNER or publisher authority from current persisted state; do not infer one owner from the other. For this shadow pilot, require `runtimeOwner: SERVER`, `executionMode: SERVER`, `status: CONNECTED`, `transportMode: CLOUD`, and `serverEnabled: true`. The current Server answer/shadow path requires a connected, cloud-transport, server-enabled account; `CONVERSATION_RUNTIME`-owned accounts and accounts that fail any of those runtime gates are not eligible for this rehearsal.
 
-- **Every `LineOaAccount` row**, its `knowledgeGrounding` value, `businessId`/`businessCode`/
-  `businessName`, and `isSmartGiftBusiness`.
-- **`recentAudienceKindCounts` / `recentDirectJobShare`** — the best-effort signal for which
-  SmartGift account is the "DIRECT" one ADR-090 D5 and the design doc mean. **Read the
-  report's own `notes` field first**: `LineOaAccount` has no stored "DIRECT account" column;
-  `DIRECT` is `LineConversationJob.audienceKind` (a 1:1 chat, as opposed to `GROUP`/`ROOM`),
-  recorded per job, not per account. A `recentDirectJobShare` near 1.0 over a representative
-  window is evidence, not proof; if it is `null` (no recent jobs at all) or ambiguous, ask
-  the owner which account is meant rather than guessing from the number alone.
-- **`knowledgeGroundingAuditHistory`** for the candidate account — this must be empty, or
-  its most recent entry's `to` must already be `BUSINESS_KNOWLEDGE`, before you proceed. A
-  non-empty history with a different current mode means someone already switched this
-  account; do not switch it again without finding out why the roadmap/changelog does not
-  reflect that.
-- **`queryFailures`** (if present) — a named query that failed (e.g. a missing column) means
-  the report is incomplete for that section; do not treat a partial report as a clean one.
+## Step 1 — Isolated switch rehearsal
 
-Record the exact account id, code and Business you intend to switch, and the pre-switch
-report file, before Step 2.
+P1 rehearses the service actions and comparison path against isolated test fixtures, never a production database or LINE account. From `apps/server`, run:
 
-## Step 2 — Enable the corpus-first mode for the chosen account
-
-This is the one production write this runbook performs, and it goes through the existing,
-audited, version-checked (compare-and-swap) service action — never a raw SQL `UPDATE`
-against `LineOaAccount.knowledgeGrounding`.
-
-**Via the API** (what the console UI's grounding control in
-`LineStudioAccountConsole.jsx` calls), as a session with Business OWNER or
-`LINE_OA_PUBLISHER` authority on the target Business:
-
+```bash
+npx vitest run tests/unit/ki17-line-grounding-inspect-lib.test.js tests/unit/ki17-line-grounding-inspect-script.test.js tests/integration/fr235-line-oa-knowledge-grounding-control.test.js tests/integration/fr277-line-grounding-shadow-compare.test.js
 ```
+
+The integration fixtures exercise the authorized versioned switch, audit event, shadow collection, corpus evidence, traced fallback, and rollback to `BUSINESS_KNOWLEDGE` with shadow collection disabled. Test results qualify only the isolated code path; they are not production-host or live LINE evidence.
+
+## Step 2 — Switch the explicitly selected account
+
+Only after the production gates above are met, the owner/publisher applies the existing action with the freshly read account version:
+
+```http
 PATCH /api/line-oa/accounts/{accountId}
 Content-Type: application/json
 
 {
   "action": "CONFIGURE_KNOWLEDGE_GROUNDING",
   "knowledgeGrounding": "GKS_THEN_BUSINESS_KNOWLEDGE",
-  "version": <the account's current "version" from Step 1's report>
+  "version": <current account version>
 }
 ```
 
-**Via the console UI:** LINE OA Studio → the target account → the grounding-mode control
-(`LineStudioAccountConsole.jsx`) → select "GKS_THEN_BUSINESS_KNOWLEDGE" → save. This is the
-same write, through the same route, under the same authority check — prefer it when a human
-is present, since it surfaces the account's live `version` for you instead of requiring you
-to have carried it over from Step 1's report by hand.
+Then enable shadow collection with the version returned by the first action:
 
-Either path is handled by `applyLineOaAccountAction` (`line-oa-account-service.js`):
+```http
+PATCH /api/line-oa/accounts/{accountId}
+Content-Type: application/json
 
-- It fails closed with `409 LINE_OA_ACCOUNT_VERSION_CONFLICT` if `version` is stale — re-read
-  the account and retry with the current version rather than forcing it.
-- It fails closed with `409 LINE_OA_ACCOUNT_ARCHIVED` if the account was archived since
-  Step 1.
-- It fails closed with `409 LINE_OA_KNOWLEDGE_GROUNDING_UNCHANGED` if the account is already
-  in the target mode (this should not happen if Step 1's audit-history check passed).
-- On success it writes the `LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED` `AuditEvent` with
-  `payload.from`/`payload.to` — this is the row Step 1's inspection script will find on a
-  later run, and the row that proves the switch happened, when it happened and under which
-  actor.
-
-**Nothing else changes.** `GKS_THEN_BUSINESS_KNOWLEDGE` tries the published corpus first and
-falls back, per job, to `business_knowledge` on `GKS_UNAVAILABLE` or zero results, recording
-`EVIDENCE_SELECTED{source, reason}` on the job's trace either way — the model is still never
-called without evidence. Customers on the edge execution path (CH-01, `executionMode:
-EDGE`) are unaffected regardless: this switch only changes what a **SERVER**-executed job's
-answer is grounded in. Confirm from Step 1's report (or `GET /api/line-oa/accounts/{id}`)
-that the chosen account actually runs `executionMode: SERVER` — switching a mostly-EDGE
-account's mode would produce shadow-compare evidence with almost no SERVER traffic to
-compare.
-
-## Step 3 — Shadow-compare window
-
-For the duration the owner names (see "The one open decision" above):
-
-1. For each SERVER-executed job answered by the switched account, read its trace
-   (`GET /api/line-oa/jobs/{id}/trace`) for the `EVIDENCE_SELECTED` events. Record, per job:
-   the `source` actually used (`GKS_CORPUS` vs. `BUSINESS_KNOWLEDGE` vs. `NONE`), the
-   `reason` on a fallback, and (per the design doc §5.1) the `retrievalRefs`
-   (`citationId`/`sourceId`/`snapshotId`/`generation`) when the corpus was used.
-2. Compare the corpus-grounded answer against what `business_knowledge` would have answered
-   for the same question. The design doc does not specify an automated side-by-side compare
-   tool as already built — if the sibling shadow-compare harness under
-   `apps/server/src/modules/knowledge/` exists by the time you run this step, use it and
-   record its own report format; if it does not yet exist, do the comparison manually from
-   the trace evidence above and record it the same way.
-3. Keep the evidence: which accounts ran SERVER execution during the window (the DoD's
-   success criterion names this explicitly — "recorded and names which accounts ran SERVER
-   execution, because customers on the edge path (CH-01) are not affected"), the count of
-   `GKS_CORPUS` vs. `BUSINESS_KNOWLEDGE` vs. `NONE` answers, any answer mismatch found, and
-   the campaign window's actual start/end dates. Store this evidence file alongside this
-   runbook's changelog entry (a path under `.brain/reports/` following this repo's existing
-   convention, e.g. `.brain/reports/<date>-task-zai-095-shadow-compare.md`).
-
-## Step 4 — Rollback (on regression, or at the owner's instruction)
-
-Flipping back is the same audited action, in reverse — never a raw SQL `UPDATE`:
-
+{
+  "action": "CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW",
+  "knowledgeGroundingShadow": true,
+  "version": <version returned by the mode switch>
+}
 ```
+
+Both actions are audited and version-checked. A stale version is a conflict: re-read the account and have the authorized operator decide whether to retry. Never force an update. The switch changes grounding mode only; it does not change LINE transport, credentials or execution permission.
+
+## Step 3 — Collect the 14-day shadow comparison
+
+Before the switch, record the planned exact Bangkok start/end timestamps for the 14-day window. At the actual boundaries, record the actual Bangkok start and end timestamps and retain evidence that collection covered 14 consecutive days. Keep the pilot mode at `GKS_THEN_BUSINESS_KNOWLEDGE`. If the required account/runtime evidence or comparison rows are missing for any required portion of the window, mark the window incomplete and do not claim acceptance.
+
+For each eligible server-side job, retain both sources of evidence:
+
+- The customer-facing primary path's `EVIDENCE_SELECTED` trace shows the GKS corpus attempt and, when needed, the `BUSINESS_KNOWLEDGE` fallback with its reason and retrieval references.
+- The existing `runLineGroundingShadowCompare` harness records the paired-mode result in `LineGroundingShadowComparison`. With the pilot mode active, its shadow mode is `BUSINESS_KNOWLEDGE`; the comparison row records the shadow evidence source/reason, divergence and outcome. It does not replace the primary trace.
+
+Record the exact Business/account, observed `runtimeOwner`, server-side job count, selected mode, both trace and comparison evidence, corpus/fallback counts, retrieval references, mismatches, outages, and start/end timestamps. `GKS_CORPUS` has no paired shadow mode and must not be substituted for the pilot.
+
+## Step 4 — Roll back through the same actions
+
+On a regression or the authorized operator's instruction, restore the customer-facing mode first, then disable shadow collection using the new version returned by the first action:
+
+```http
 PATCH /api/line-oa/accounts/{accountId}
 Content-Type: application/json
 
 {
   "action": "CONFIGURE_KNOWLEDGE_GROUNDING",
   "knowledgeGrounding": "BUSINESS_KNOWLEDGE",
-  "version": <the account's current version>
+  "version": <current account version>
 }
 ```
 
-This restores today's behavior and today's traces immediately — the fallback logic already
-means `BUSINESS_KNOWLEDGE` mode never attempts a corpus read, so there is no "draining" step
-and no data to migrate back. The rollback itself produces a second
-`LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED` `AuditEvent` row (`from:
-GKS_THEN_BUSINESS_KNOWLEDGE`, `to: BUSINESS_KNOWLEDGE`) — re-running
-`ki17-line-grounding-inspect.mjs` afterward should show exactly this as the account's most
-recent history entry, which is the read-only proof the rollback took effect.
+```http
+PATCH /api/line-oa/accounts/{accountId}
+Content-Type: application/json
 
-Nothing about the corpus, MSP, GKS or GenesisBlockDB is torn down by this rollback — GKS
-data is never deleted (ADR-072 D5/D11; §3.3 of the design doc), and this switch never wrote
-anything into GKS in the first place (it is read-only against the published corpus). A
-rollback here is purely "stop reading it for this one account."
+{
+  "action": "CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW",
+  "knowledgeGroundingShadow": false,
+  "version": <version returned by the mode rollback>
+}
+```
 
-## Step 5 — Record the switch (and any rollback)
+Re-run the inspection and verify `knowledgeGrounding: BUSINESS_KNOWLEDGE`, `knowledgeGroundingShadow: false`, and the latest entries in `knowledgeGroundingAuditLatestByAction` for both `LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED` (to `BUSINESS_KNOWLEDGE`) and `LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_SHADOW_CONFIGURED` (to `false`). This stops further corpus reads and shadow generations for that account. Do not use raw SQL. If either action conflicts, re-read the account and stop for the authorized operator.
 
-Per the DoD's exit criterion ("the switch and any rollback are recorded in the migration
-notes and this container's changelog"):
+## Step 5 — Record real production work only after it occurs
 
-1. **`docs/DB-MIGRATION-NOTES.md`** — add an entry following the existing "Applied — …"
-   section style (see e.g. "Applied — knowledge candidate Business gate (TASK-ZAI-099,
-   2026-09-15)"): date, account id/code and Business, the pre- and post-switch
-   `knowledgeGrounding` values, who triggered it (owner) and who executed it (operator), and
-   a pointer to the shadow-compare evidence file from Step 3. If a rollback happened, add a
-   second dated entry the same way — do not edit the switch entry in place to hide that a
-   rollback occurred.
-2. **`TC-TASK-ZAI-095`'s changelog** (`apps/server/src/modules/platform-control/program-roadmap-containers.js`,
-   and mirrored in `docs/roadmap/ROADMAP-zuri-ai-24w-program.md`) — append a dated changelog
-   line the same way other task containers in this file do, and update `dod.acceptance` /
-   `dod.success` / `dod.exit` `checked` flags only for the criteria the recorded evidence
-   actually satisfies. Do not mark `exit.checked: true` unless a rollback was actually
-   exercised and verified — the exit criterion is conditioned on "given a regression", so an
-   uneventful switch with no rollback leaves that criterion's precondition untested, not
-   satisfied.
-3. Run `npm run govern` after editing generated-adjacent files (`docs:graph` /
-   `docs:preflight`) so the roadmap views stay consistent.
+The exit criterion is satisfied by the end-of-pilot restore or an earlier rollback only when an authorized operator actually performs both changes in production through the existing audited actions — restore `BUSINESS_KNOWLEDGE` and disable shadow — verifies that later primary traces return to Business Knowledge, and records both changes in `AuditEvent`, the existing migration notes and the TASK-ZAI-095 container changelog. Record the switch and its 14-day evidence there as well. An uneventful window without the production restore or rollback, the later-trace check and those records does not satisfy the criterion. Keep the named approval and DoD flags unchanged unless the corresponding production evidence actually satisfies them.
 
-## What this runbook is not a substitute for
+The separate TASK-ZAI-050 activation record must be completed by the production-host operator. Its prepared skeleton is `.brain/reports/2026-11-08-task-zai-050-activation-record.md`; all current host fields remain `NOT_VERIFIED`.
 
-- It does not decide whether TASK-ZAI-042/TASK-ZAI-050 are done — Step 0 asks you to check,
-  not to assume.
-- It does not pick the campaign-window duration — that is the owner's call.
-- It does not build the shadow-compare harness — that is separate, sibling work (see the
-  design doc §10.1 Phase 3 and any module under `apps/server/src/modules/knowledge/` built
-  for it); this runbook tells you how to fold its output (or, absent it, a manual trace
-  comparison) into the recorded evidence.
-- It does not authorize a second Business. ADR-090 D5: "a second Business waits for the
-  single-binding routing decision" (R-1 in the design doc, `knowledge-runtime.js` accepts
-  exactly one `ZURI_KNOWLEDGE_BINDINGS` entry).
+## Host-only commands for the authorized operator
 
-## CHANGELOG
+These commands are not run by P1. Supply credentials through the approved secure environment; never put connection strings in this document or a tracked file.
+
+```bash
+node scripts/ki17-line-grounding-inspect.mjs <protected-output-path>
+node scripts/ki17-smoke.mjs
+```
+
+## Changelog
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
-| 0.1.0 | 2026-09-27 | beta | Initial runbook: preflight (via `ki17-line-grounding-inspect.mjs`), the audited `CONFIGURE_KNOWLEDGE_GROUNDING` switch and rollback, shadow-compare evidence collection, and the migration-notes/changelog recording step. Does not resolve or claim resolution of TASK-ZAI-042/TASK-ZAI-050; does not pick a campaign-window duration (flagged as an owner decision); does not implement the shadow-compare harness | working-tree | Claude Sonnet 5 |
+| 0.2.1 | 2026-11-08 | beta | Clarifies that the end-of-pilot restore or a rollback satisfies the exit criterion only when both grounding-mode restoration and shadow disablement are performed in production through audited actions, later primary traces return to Business Knowledge, and both changes are recorded in AuditEvent, migration notes and the container changelog. | working-tree | Codex |
+| 0.2.0 | 2026-11-08 | beta | Applies ASTRA-D1 D4: selects GKS_THEN_BUSINESS_KNOWLEDGE for a 14-consecutive-day pilot; documents explicit Business/account/runtime selection, direct-source complete preflight, existing switch and shadow actions, the built shadow harness, and rollback that restores BUSINESS_KNOWLEDGE and disables shadow. Records production-host blockers without claiming activation. | working-tree | Codex |
+| 0.1.0 | 2026-09-27 | beta | Initial runbook: preflight, the audited switch and rollback, shadow evidence and migration-note recording. It did not resolve TASK-ZAI-042/TASK-ZAI-050 or specify a campaign-window duration. | working-tree | Claude Sonnet 5 |
