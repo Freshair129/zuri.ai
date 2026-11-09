@@ -189,14 +189,14 @@ export default function AssetScannerWorkspace() {
       const json = await res.json()
       if (!res.ok) throw new Error(json.error || 'บันทึกการตรวจนับไม่สำเร็จ')
 
+      // Refresh asset details before showing the confirmation, since lookup clears it.
+      await handleLookup(scannedAsset.assetCode)
+
       setAuditSuccess(
         relocateIfMismatch
           ? '✅ ย้ายตำแหน่งและบันทึกการตรวจนับสำเร็จ'
           : '✅ บันทึกการยืนยันตัวตนและการตรวจนับสำเร็จ'
       )
-
-      // Refresh asset details
-      handleLookup(scannedAsset.assetCode)
     } catch (err) {
       alert(`เกิดข้อผิดพลาด: ${err.message}`)
     } finally {

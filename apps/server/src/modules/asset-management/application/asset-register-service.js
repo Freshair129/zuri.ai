@@ -304,9 +304,10 @@ export async function getRegisteredAssetById({ businessId, id, db = prisma } = {
           fileAsset: {
             select: {
               id: true,
-              filename: true,
-              mimeType: true,
-              sizeBytes: true,
+              // FileAsset columns are name / mime / size (prisma/schema.prisma).
+              name: true,
+              mime: true,
+              size: true,
               sha256: true,
             },
           },

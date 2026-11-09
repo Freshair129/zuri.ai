@@ -51,6 +51,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
@@ -182,6 +183,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/asset-disposal-audit.test.js](../../../apps/server/tests/integration/asset-disposal-audit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
