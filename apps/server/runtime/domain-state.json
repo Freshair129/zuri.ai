@@ -1736,7 +1736,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 80
+          "testCount": 81
         },
         {
           "id": "FR-079",
@@ -2687,7 +2687,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-253",
@@ -3739,7 +3739,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-197",
@@ -4806,7 +4806,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-166",
@@ -7274,7 +7274,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-168",
@@ -7297,8 +7297,8 @@
           "title": "Segregation of duties gets a writer, not only a role list",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 14
+          "codeCount": 4,
+          "testCount": 15
         }
       ],
       "checks": {
@@ -7838,7 +7838,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 80
+          "testCount": 81
         },
         {
           "id": "FR-073",
@@ -8447,7 +8447,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 39
+          "testCount": 40
         },
         {
           "id": "FR-166",
@@ -13302,7 +13302,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 39
+          "testCount": 40
         }
       ],
       "evidence": [
@@ -13370,6 +13370,7 @@
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/goods-receipts-self-attestation.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
@@ -13942,8 +13943,8 @@
           "title": "Segregation of duties gets a writer, not only a role list",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 14
+          "codeCount": 9,
+          "testCount": 15
         },
         {
           "id": "FR-197",
@@ -13965,6 +13966,7 @@
       "evidence": [
         "apps/server/src/app/(pm)/commerce/orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
+        "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
         "apps/server/src/app/api/audit/route.js",
         "apps/server/src/app/api/backup/export/route.js",
         "apps/server/src/lib/validation/enums.js",
@@ -14023,6 +14025,7 @@
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/goods-receipts-self-attestation.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/manage-superadmin-cli.test.js",
         "apps/server/tests/unit/onboarding-service.test.js",
@@ -18981,7 +18984,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 80
+          "testCount": 81
         }
       ],
       "evidence": [
@@ -19087,6 +19090,7 @@
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
+        "apps/server/tests/unit/goods-receipts-self-attestation.test.js",
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",
