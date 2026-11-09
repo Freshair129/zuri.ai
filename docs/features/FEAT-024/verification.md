@@ -18,6 +18,7 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/(pm)/procurement/cost-sheets/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/cost-sheets/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/procurement/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/purchase-orders/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/internal/scm/v1/\[operation\]/route.js](../../../apps/server/src/app/api/internal/scm/v1/%5Boperation%5D/route.js) — `implements` (`annotation`)
@@ -32,6 +33,7 @@ status: generated
 - [apps/server/src/app/api/procurement/suppliers/\[id\]/route.js](../../../apps/server/src/app/api/procurement/suppliers/%5Bid%5D/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/procurement/suppliers/route.js](../../../apps/server/src/app/api/procurement/suppliers/route.js) — `implements` (`annotation`)
 - [apps/server/src/config/domains.js](../../../apps/server/src/config/domains.js) — `implements` (`annotation`)
+- [apps/server/src/lib/module-tabs.js](../../../apps/server/src/lib/module-tabs.js) — `implements` (`annotation`)
 - [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/rbac.js](../../../apps/server/src/modules/identity/rbac.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/scm-core-facade.js](../../../apps/server/src/modules/inventory/application/scm-core-facade.js) — `implements` (`annotation`)
@@ -39,6 +41,7 @@ status: generated
 - [apps/server/src/modules/procurement/application/purchase-order-service.js](../../../apps/server/src/modules/procurement/application/purchase-order-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js](../../../apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/procurement/application/supplier-service.js](../../../apps/server/src/modules/procurement/application/supplier-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/procurement/components/cost-sheet-ui.js](../../../apps/server/src/modules/procurement/components/cost-sheet-ui.js) — `implements` (`annotation`)
 - [apps/server/src/modules/procurement/domain/procurement.js](../../../apps/server/src/modules/procurement/domain/procurement.js) — `implements` (`annotation`)
 - [apps/server/src/modules/procurement/index.js](../../../apps/server/src/modules/procurement/index.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
@@ -48,6 +51,7 @@ status: generated
 
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/e2e/fr164-procurement.spec.js](../../../apps/server/tests/e2e/fr164-procurement.spec.js) — `verifies` (`test-reference`)
+- [apps/server/tests/e2e/fr164-supplier-cost-sheet-import.spec.js](../../../apps/server/tests/e2e/fr164-supplier-cost-sheet-import.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
@@ -82,6 +86,7 @@ status: generated
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/module-tabs.test.js](../../../apps/server/tests/unit/module-tabs.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-domain.test.js](../../../apps/server/tests/unit/procurement-domain.test.js) — `verifies` (`test-reference`)
@@ -90,6 +95,7 @@ status: generated
 - [apps/server/tests/unit/scm-cost-sheet-parity.test.js](../../../apps/server/tests/unit/scm-cost-sheet-parity.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/scm-group-navigation.test.js](../../../apps/server/tests/unit/scm-group-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/supplier-cost-sheet-routes.test.js](../../../apps/server/tests/unit/supplier-cost-sheet-routes.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/supplier-cost-sheet-ui.test.js](../../../apps/server/tests/unit/supplier-cost-sheet-ui.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-165](requirements/FR-165.md)
 
