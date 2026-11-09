@@ -20,6 +20,16 @@ const scannerSource = readFileSync(
   'utf8'
 )
 
+const readyIntakesSource = readFileSync(
+  resolve(process.cwd(), 'src/modules/asset-management/components/AssetReadyIntakesSection.jsx'),
+  'utf8'
+)
+
+const receivingWorkspaceSource = readFileSync(
+  resolve(process.cwd(), 'src/modules/asset-management/components/AssetReceivingWorkspace.jsx'),
+  'utf8'
+)
+
 describe('Asset Tag Label & QR Generator Contract (AM-RQ-022, AM-RQ-023)', () => {
   it('implements deterministic SVG QR code generation without external dependencies', () => {
     expect(labelSource).toContain('generateQrMatrix')
@@ -79,5 +89,24 @@ describe('Asset Scanner & Stocktake Workspace Contract (AM-RQ-061, AM-RQ-062)', 
     expect(start).toBeGreaterThan(-1)
     const verifyCall = scannerSource.slice(start, scannerSource.indexOf('})', start))
     expect(verifyCall).toMatch(/businessId:\s*business\.id/)
+  })
+})
+
+describe('Asset Register ready intake contract', () => {
+  it('loads intakes for the currently selected Business', () => {
+    expect(readyIntakesSource).toContain('/api/assets/intakes?')
+    expect(readyIntakesSource).toMatch(/new URLSearchParams\(\{[\s\S]*businessId:\s*business\.id/)
+    expect(readyIntakesSource).toContain("status: 'READY_FOR_REGISTRATION'")
+  })
+
+  it('posts the selected intake and Business to the existing register endpoint', () => {
+    expect(readyIntakesSource).toContain("fetch('/api/assets/register'")
+    expect(readyIntakesSource).toMatch(/businessId:\s*business\.id/)
+    expect(readyIntakesSource).toMatch(/intakeId:\s*intake\.id/)
+  })
+
+  it('directs receiving users to the Register page for Asset ID issuance', () => {
+    expect(receivingWorkspaceSource).toContain('href="/assets/register"')
+    expect(receivingWorkspaceSource).toContain('หน้า Register')
   })
 })

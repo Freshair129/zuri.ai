@@ -2,7 +2,8 @@
 
 // @req FR-133, FR-135 — interactive Asset Register workspace, search, filters, custody transfer, relocation, and project allocation.
 // @spec SDD-078, SDD-080, BR-023, SEC-023, ADR-055
-// @tested tests/unit/asset-register-service.test.js, tests/unit/asset-lifecycle-service.test.js
+// @tested tests/unit/asset-register-service.test.js, tests/unit/asset-lifecycle-service.test.js,
+//   tests/unit/asset-scanner-ui.test.js
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import {
@@ -42,6 +43,7 @@ import { Card, SectionTitle, StatusPill, EmptyState } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import AssetTagModal from './AssetTagModal'
 import { QrCodeSvg } from './AssetTagLabel'
+import AssetReadyIntakesSection from './AssetReadyIntakesSection'
 
 const CATEGORIES = [
   { code: '', label: 'ทุกหมวดหมู่' },
@@ -503,6 +505,8 @@ export default function AssetRegisterWorkspace() {
 
   return (
     <div className="space-y-6">
+      <AssetReadyIntakesSection key={business.id} business={business} onRegistered={fetchAssets} />
+
       {/* 1. Statistics Cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Card>

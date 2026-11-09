@@ -7,9 +7,133 @@ import {
   listRegisteredAssets,
   getRegisteredAssetById,
   registerAssetFromIntake,
+  listAssetIntakesForRegistration,
 } from '@/modules/asset-management/application/asset-register-service'
 
 describe('Asset Register Service', () => {
+  describe('listAssetIntakesForRegistration', () => {
+    it('filters by the requested Business and status, excludes deleted rows, and caps the result', async () => {
+      const createdAt = new Date('2026-11-08T10:00:00.000Z')
+      const intakes = [
+        {
+          id: 'intake-business-1-ready',
+          businessId: 'biz-1',
+          status: 'READY_FOR_REGISTRATION',
+          deletedAt: null,
+          intakeCode: 'INT-001',
+          normalizedEnvelopeJson: JSON.stringify({
+            item: { name: 'Portable Display', categoryCode: 'ELECTRONICS', serialNumber: 'SN-001' },
+            financial: { acquisitionAmount: '23900.00', currency: 'THB' },
+            depreciation: {
+              method: 'STRAIGHT_LINE',
+              acquisitionAmount: '12500.00',
+              residualValue: '0.00',
+              usefulLifeMonths: 36,
+              startDate: '2026-11-01',
+              currency: 'USD',
+            },
+          }),
+          createdAt,
+        },
+        {
+          id: 'intake-business-2-ready',
+          businessId: 'biz-2',
+          status: 'READY_FOR_REGISTRATION',
+          deletedAt: null,
+          intakeCode: 'INT-002',
+          normalizedEnvelopeJson: '{}',
+          createdAt,
+        },
+        {
+          id: 'intake-business-1-review',
+          businessId: 'biz-1',
+          status: 'NEEDS_REVIEW',
+          deletedAt: null,
+          intakeCode: 'INT-003',
+          normalizedEnvelopeJson: '{}',
+          createdAt,
+        },
+        {
+          id: 'intake-business-1-deleted',
+          businessId: 'biz-1',
+          status: 'READY_FOR_REGISTRATION',
+          deletedAt: new Date(),
+          intakeCode: 'INT-004',
+          normalizedEnvelopeJson: '{}',
+          createdAt,
+        },
+      ]
+      const findMany = vi.fn(async ({ where, take }) => intakes
+        .filter((intake) => (
+          intake.businessId === where.businessId
+          && intake.status === where.status
+          && intake.deletedAt === where.deletedAt
+        ))
+        .slice(0, take))
+      const db = { assetIntake: { findMany } }
+
+      const result = await listAssetIntakesForRegistration({
+        businessId: 'biz-1',
+        status: 'READY_FOR_REGISTRATION',
+        limit: 500,
+        db,
+      })
+
+      expect(findMany).toHaveBeenCalledWith({
+        where: { businessId: 'biz-1', status: 'READY_FOR_REGISTRATION', deletedAt: null },
+        select: {
+          id: true,
+          intakeCode: true,
+          status: true,
+          normalizedEnvelopeJson: true,
+          createdAt: true,
+        },
+        orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+        take: 100,
+      })
+      expect(result.items).toEqual([{
+        id: 'intake-business-1-ready',
+        code: 'INT-001',
+        status: 'READY_FOR_REGISTRATION',
+        name: 'Portable Display',
+        categoryCode: 'ELECTRONICS',
+        serialNumber: 'SN-001',
+        cost: '12500.00',
+        currency: 'USD',
+        createdAt,
+      }])
+    })
+
+    it('returns null details for malformed normalized envelope JSON', async () => {
+      const db = {
+        assetIntake: {
+          findMany: vi.fn().mockResolvedValue([{
+            id: 'intake-corrupt',
+            intakeCode: 'INT-005',
+            status: 'READY_FOR_REGISTRATION',
+            normalizedEnvelopeJson: '{invalid',
+            createdAt: new Date('2026-11-08T10:00:00.000Z'),
+          }]),
+        },
+      }
+
+      const result = await listAssetIntakesForRegistration({
+        businessId: 'biz-1',
+        status: 'READY_FOR_REGISTRATION',
+        db,
+      })
+
+      expect(result.items[0]).toMatchObject({
+        id: 'intake-corrupt',
+        name: null,
+        categoryCode: null,
+        serialNumber: null,
+        cost: null,
+        currency: null,
+      })
+    })
+  })
+
   describe('generateNextAssetCode', () => {
     it('generates AST-YYYY-00001 when no assets exist', async () => {
       const mockDb = {
@@ -276,6 +400,8 @@ describe('Asset Register Service', () => {
 
       expect(registered.assetCode).toBe('AST-' + new Date().getFullYear() + '-00001')
       expect(registered.name).toBe('ThinkPad X1')
+      expect(registered.acquisitionAmount).toBe('55000.00')
+      expect(registered.currency).toBe('THB')
       expect(mockTx.registeredAsset.create).toHaveBeenCalled()
       expect(mockTx.assetIntake.update).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -283,6 +409,51 @@ describe('Asset Register Service', () => {
           data: expect.objectContaining({ status: 'REGISTERED' }),
         })
       )
+    })
+
+    it('registers acquisition amount and currency from the intake depreciation fields', async () => {
+      const intake = {
+        id: 'intake-depreciation-1',
+        tenantId: 'tenant-1',
+        businessId: 'biz-1',
+        status: 'READY_FOR_REGISTRATION',
+        normalizedEnvelopeJson: JSON.stringify({
+          item: { name: 'Currency Test Asset', categoryCode: 'IT_EQUIPMENT' },
+          depreciation: {
+            method: 'STRAIGHT_LINE',
+            acquisitionAmount: '12500.00',
+            residualValue: '0.00',
+            usefulLifeMonths: 36,
+            startDate: '2026-11-01',
+            currency: 'USD',
+          },
+        }),
+        evidence: [],
+        procurementRefs: [],
+      }
+      const mockTx = {
+        registeredAsset: {
+          findFirst: vi.fn().mockResolvedValue(null),
+          findUnique: vi.fn().mockResolvedValue(null),
+          create: vi.fn().mockImplementation(({ data }) => ({ id: 'ast-depreciation-1', ...data })),
+        },
+        assetIntake: { update: vi.fn().mockResolvedValue({ id: intake.id, status: 'REGISTERED' }) },
+        auditEvent: { create: vi.fn().mockResolvedValue({ id: 'audit-1' }) },
+      }
+      const db = {
+        assetIntake: { findFirst: vi.fn().mockResolvedValue(intake) },
+        $transaction: vi.fn().mockImplementation((callback) => callback(mockTx)),
+      }
+
+      const registered = await registerAssetFromIntake({
+        businessId: 'biz-1',
+        intakeId: intake.id,
+        viewer: { ownedBusinessIds: ['biz-1'], principal: { id: 'user-admin' } },
+        db,
+      })
+
+      expect(registered.acquisitionAmount).toBe('12500.00')
+      expect(registered.currency).toBe('USD')
     })
 
     it('rejects initial responsibility people without an active direct membership in the intake Business', async () => {

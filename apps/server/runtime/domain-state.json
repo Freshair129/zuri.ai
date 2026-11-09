@@ -2389,7 +2389,7 @@
           "title": "Asset Management domain and physical register foundation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 10,
+          "codeCount": 12,
           "testCount": 49
         },
         {
@@ -2405,7 +2405,7 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 13,
+          "codeCount": 14,
           "testCount": 42
         },
         {
@@ -2422,7 +2422,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-138",
@@ -2430,7 +2430,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-139",
@@ -8254,7 +8254,7 @@
           "title": "Asset Management domain and physical register foundation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 15,
+          "codeCount": 16,
           "testCount": 49
         },
         {
@@ -8270,7 +8270,7 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 16,
+          "codeCount": 17,
           "testCount": 42
         },
         {
@@ -8287,7 +8287,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-138",
@@ -8295,7 +8295,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-139",
@@ -9513,7 +9513,7 @@
           "details": {
             "mutations": 151,
             "guardedMutations": 150,
-            "reads": 93,
+            "reads": 94,
             "unguardedReads": 12
           }
         },
@@ -12048,7 +12048,7 @@
           "title": "Asset Management domain and physical register foundation",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 26,
+          "codeCount": 29,
           "testCount": 49
         },
         {
@@ -12064,7 +12064,7 @@
           "title": "Temporal responsibility, location, lot and Project allocation",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 30,
+          "codeCount": 32,
           "testCount": 42
         },
         {
@@ -12080,6 +12080,7 @@
         "apps/server/src/app/(pm)/assets/page.jsx",
         "apps/server/src/app/(pm)/assets/register/page.jsx",
         "apps/server/src/app/(pm)/assets/scanner/page.jsx",
+        "apps/server/src/app/api/assets/intakes/route.js",
         "apps/server/src/app/api/assets/intakes/validate/route.js",
         "apps/server/src/app/api/assets/lookup/route.js",
         "apps/server/src/app/api/assets/register/[id]/allocate/route.js",
@@ -12102,6 +12103,7 @@
         "apps/server/src/modules/asset-management/application/asset-person-scope.js",
         "apps/server/src/modules/asset-management/application/asset-register-service.js",
         "apps/server/src/modules/asset-management/application/asset-request-scope.js",
+        "apps/server/src/modules/asset-management/components/AssetReadyIntakesSection.jsx",
         "apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx",
         "apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx",
         "apps/server/src/modules/asset-management/components/AssetTagLabel.jsx",
@@ -12204,7 +12206,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-138",
@@ -12212,7 +12214,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 9
+          "testCount": 10
         },
         {
           "id": "FR-139",
@@ -12268,6 +12270,7 @@
         "apps/server/tests/unit/asset-intake-adapters-contract.test.js",
         "apps/server/tests/unit/asset-production-activation-contract.test.js",
         "apps/server/tests/unit/asset-receiving-evidence-ui.test.js",
+        "apps/server/tests/unit/asset-register-routes.test.js",
         "apps/server/tests/unit/asset-request-scope-capability.test.js",
         "apps/server/tests/unit/doc-graph-retired-rules.test.js",
         "apps/server/tests/unit/private-business-object-storage.test.js"
@@ -23092,7 +23095,7 @@
       "title": "Evidence execution is bounded, recoverable and provider-failure safe",
       "status": "verified",
       "codeCount": 15,
-      "testCount": 6,
+      "testCount": 7,
       "domains": [
         "asset-management",
         "project-manager"

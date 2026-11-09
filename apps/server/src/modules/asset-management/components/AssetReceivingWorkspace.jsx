@@ -189,7 +189,7 @@ export default function AssetReceivingWorkspace() {
           </li>
         })}
       </ul> : null}
-      <p className="mt-3 text-[11px] text-muted">ผลสูงสุดของหน้านี้คือ <strong>READY_FOR_REGISTRATION</strong> และยังไม่ออก Asset ID</p>
+      <p className="mt-3 text-[11px] text-muted">หน้านี้เตรียมรายการถึงสถานะ <strong>READY_FOR_REGISTRATION</strong> โดยยังไม่ออก Asset ID — ไปต่อที่ <a href="/assets/register" className="font-semibold text-[var(--action-primary)] underline">หน้า Register</a> เพื่อลงทะเบียนทรัพย์สิน</p>
     </Card>
 
     <Card>
