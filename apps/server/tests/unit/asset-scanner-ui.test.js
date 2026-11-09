@@ -90,6 +90,16 @@ describe('Asset Scanner & Stocktake Workspace Contract (AM-RQ-061, AM-RQ-062)', 
     const verifyCall = scannerSource.slice(start, scannerSource.indexOf('})', start))
     expect(verifyCall).toMatch(/businessId:\s*business\.id/)
   })
+
+  it('shows the verification success message after refreshing the asset', () => {
+    const start = scannerSource.indexOf('const handleVerifyObservation =')
+    expect(start).toBeGreaterThan(-1)
+    const verifyHandler = scannerSource.slice(start, scannerSource.indexOf('\n  return (', start))
+
+    // A lookup clears auditSuccess before it fetches, so the confirmation must
+    // be set only after the refresh has finished.
+    expect(verifyHandler).toMatch(/await handleLookup\(scannedAsset\.assetCode\)[\s\S]*?setAuditSuccess\(\s*relocateIfMismatch/)
+  })
 })
 
 describe('Asset Register ready intake contract', () => {

@@ -317,6 +317,22 @@ describe('Asset Register Service', () => {
       expect(asset.evidence).toHaveLength(1)
     })
 
+    it('selects only evidence file columns that exist on the FileAsset model', async () => {
+      // The mocked db accepts any select, so a misnamed column only fails in Prisma.
+      // filename/mimeType/sizeBytes made every asset detail request fail before.
+      const { Prisma } = await import('@prisma/client')
+      const fileAssetFields = new Set(
+        Prisma.dmmf.datamodel.models.find((model) => model.name === 'FileAsset').fields.map((field) => field.name)
+      )
+      const findFirst = vi.fn().mockResolvedValue({ id: 'ast-1', evidence: [] })
+
+      await getRegisteredAssetById({ businessId: 'biz-1', id: 'ast-1', db: { registeredAsset: { findFirst } } })
+
+      const selected = Object.keys(findFirst.mock.calls[0][0].include.evidence.include.fileAsset.select)
+      expect(selected.length).toBeGreaterThan(0)
+      expect(selected.filter((field) => !fileAssetFields.has(field))).toEqual([])
+    })
+
     it('throws 404 when asset does not exist', async () => {
       const mockDb = {
         registeredAsset: {

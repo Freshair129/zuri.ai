@@ -2390,7 +2390,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 12,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-134",
@@ -2406,7 +2406,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-136",
@@ -2422,7 +2422,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-138",
@@ -2430,7 +2430,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-139",
@@ -8255,7 +8255,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-134",
@@ -8271,7 +8271,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 17,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-136",
@@ -8287,7 +8287,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-138",
@@ -8295,7 +8295,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-139",
@@ -12052,7 +12052,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 29,
-          "testCount": 49
+          "testCount": 50
         },
         {
           "id": "FR-134",
@@ -12068,7 +12068,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-136",
@@ -12118,6 +12118,7 @@
         "apps/server/src/modules/project-manager/application/project-inventory-read-model.js",
         "apps/server/src/platform/integrations/core/pipeline-tracking-contract.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr133-asset-register-scanner.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/asset-disposal-audit.test.js",
         "apps/server/tests/integration/backup.test.js",
@@ -12209,7 +12210,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-138",
@@ -12217,7 +12218,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-139",
@@ -12260,6 +12261,7 @@
         "apps/server/src/modules/asset-management/infrastructure/openai-asset-evidence-extractor.js",
         "apps/server/src/platform/storage/private-business-object-storage.js",
         "apps/server/src/platform/storage/supabase-object-storage.js",
+        "apps/server/tests/e2e/fr133-asset-register-scanner.spec.js",
         "apps/server/tests/integration/asset-evidence-intake-execution.test.js",
         "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
         "apps/server/tests/integration/managed-blob-recovery-custody.test.js",
