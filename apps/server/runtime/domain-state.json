@@ -4790,7 +4790,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 23
+          "testCount": 34
         },
         {
           "id": "FR-163",
@@ -8390,8 +8390,8 @@
           "title": "Inventory recipe / bill of materials at a batch size",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 2,
-          "testCount": 23
+          "codeCount": 3,
+          "testCount": 34
         },
         {
           "id": "FR-157",
@@ -12775,8 +12775,8 @@
           "title": "Inventory recipe / bill of materials at a batch size",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
-          "testCount": 23
+          "codeCount": 12,
+          "testCount": 34
         }
       ],
       "evidence": [

@@ -125,12 +125,13 @@ describe('FR-182 console pages (FR-170)', () => {
     }
   })
 
-  it('the tab list and the sidebar list name the same seven paths, in the same order', () => {
+  it('the tab list and the sidebar list name the same eight paths, in the same order', () => {
     const inventory = DOMAINS.find((d) => d.key === 'inventory')
     expect(inventory.sub.map((s) => s.path)).toEqual(INVENTORY_TABS.map((t) => t.path))
-    // @req FR-206 — the SKU hygiene tab joined the strip with ADR-083; FR-209's Import tab with ADR-084.
+    // @req FR-206 — the SKU hygiene tab joined the strip with ADR-083; FR-209's Import tab with ADR-084;
+    // FR-156's Recipes tab with the recipe management page.
     expect(INVENTORY_TABS.map((t) => t.path)).toEqual([
-      '/inventory', '/inventory/locations', '/inventory/work-orders', '/inventory/reservations',
+      '/inventory', '/inventory/locations', '/inventory/work-orders', '/inventory/recipes', '/inventory/reservations',
       '/inventory/stocktakes', '/inventory/hygiene', '/inventory/catalog-intake',
     ])
   })

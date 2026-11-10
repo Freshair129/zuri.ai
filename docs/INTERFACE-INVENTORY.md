@@ -12,7 +12,7 @@ attributes:
 
 # Zuri V2 — Interface Inventory
 
-Version diff 1.45.0b to 1.46.0b (2026-11-10): add `/inventory/recipes` for FR-156 recipe and BOM management; 120 page routes.
+Version diff 1.45.0b to 1.46.0b (2026-11-10): add `/inventory/recipes` for FR-156 recipe and BOM management, and a Recipes entry in the Inventory sidebar; 120 page routes, 60 operational subdomain entries.
 
 Version diff 1.44.0b to 1.45.0b (2026-11-10): add `/procurement/cost-sheets`, the first UI over the FR-164/FR-154 supplier cost-sheet import (TASK-ZAI-053); 119 page routes.
 
@@ -42,7 +42,7 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=120; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=120; operational_domain_keys=16; operational_subdomain_entries=60; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
