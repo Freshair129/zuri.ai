@@ -1736,7 +1736,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 81
+          "testCount": 83
         },
         {
           "id": "FR-079",
@@ -4761,6 +4761,14 @@
           "testCount": 52
         },
         {
+          "id": "FR-072",
+          "title": "Project-Manager mutation authorization",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 83
+        },
+        {
           "id": "FR-154",
           "title": "Inventory catalogue identity (คลังสินค้า)",
           "declared": "n/a",
@@ -4781,8 +4789,8 @@
           "title": "Inventory recipe / bill of materials at a batch size",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 19
+          "codeCount": 8,
+          "testCount": 23
         },
         {
           "id": "FR-163",
@@ -4846,15 +4854,15 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-177",
           "title": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 8,
-          "testCount": 18
+          "codeCount": 10,
+          "testCount": 20
         },
         {
           "id": "FR-178",
@@ -4886,7 +4894,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-183",
@@ -5046,8 +5054,8 @@
             }
           ],
           "details": {
-            "routes": 8,
-            "inventoried": 8,
+            "routes": 9,
+            "inventoried": 9,
             "missing": 0
           }
         },
@@ -5210,9 +5218,9 @@
         }
       ],
       "details": {
-        "routes": 51,
+        "routes": 52,
         "apiRoutes": 43,
-        "pageRoutes": 8,
+        "pageRoutes": 9,
         "ownedModels": 22,
         "featureNotes": 8
       },
@@ -7838,7 +7846,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 31,
-          "testCount": 81
+          "testCount": 83
         },
         {
           "id": "FR-073",
@@ -8383,7 +8391,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 19
+          "testCount": 23
         },
         {
           "id": "FR-157",
@@ -8503,7 +8511,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-177",
@@ -8511,7 +8519,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 20
         },
         {
           "id": "FR-180",
@@ -8527,7 +8535,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-183",
@@ -12767,12 +12775,14 @@
           "title": "Inventory recipe / bill of materials at a batch size",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 19
+          "codeCount": 11,
+          "testCount": 23
         }
       ],
       "evidence": [
         "apps/server/src/app/(pm)/inventory/page.jsx",
+        "apps/server/src/app/(pm)/inventory/recipes/page.jsx",
+        "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/cost-sheets/page.jsx",
         "apps/server/src/app/(pm)/procurement/page.jsx",
         "apps/server/src/app/api/internal/scm/v1/[operation]/route.js",
@@ -12804,6 +12814,7 @@
         "apps/server/src/modules/inventory/application/inventory-recipe-service.js",
         "apps/server/src/modules/inventory/application/inventory-stock-service.js",
         "apps/server/src/modules/inventory/application/scm-core-facade.js",
+        "apps/server/src/modules/inventory/components/recipe-ui.js",
         "apps/server/src/modules/inventory/domain/inventory.js",
         "apps/server/src/modules/inventory/index.js",
         "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js",
@@ -12812,6 +12823,7 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr154-inventory-dashboard.spec.js",
+        "apps/server/tests/e2e/fr156-inventory-recipes.spec.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
         "apps/server/tests/e2e/fr164-supplier-cost-sheet-import.spec.js",
         "apps/server/tests/e2e/fr211-control-domain-map.spec.js",
@@ -12847,6 +12859,7 @@
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
+        "apps/server/tests/unit/inventory-recipe-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
@@ -13454,15 +13467,15 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 20
+          "testCount": 21
         },
         {
           "id": "FR-177",
           "title": "A kitting work order assembles a finished gift set from a recipe with a declared scrap allowance",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 18
+          "codeCount": 11,
+          "testCount": 20
         },
         {
           "id": "FR-178",
@@ -13502,7 +13515,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 21,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-184",
@@ -13517,6 +13530,7 @@
         "apps/server/src/app/(pm)/inventory/locations/page.jsx",
         "apps/server/src/app/(pm)/inventory/page.jsx",
         "apps/server/src/app/(pm)/inventory/products/[productId]/page.jsx",
+        "apps/server/src/app/(pm)/inventory/recipes/page.jsx",
         "apps/server/src/app/(pm)/inventory/reservations/page.jsx",
         "apps/server/src/app/(pm)/inventory/stocktakes/page.jsx",
         "apps/server/src/app/(pm)/inventory/work-orders/page.jsx",
@@ -13551,6 +13565,7 @@
         "apps/server/src/modules/inventory/application/line-stock-projection.js",
         "apps/server/src/modules/inventory/application/location-transfer-service.js",
         "apps/server/src/modules/inventory/application/warehouse-location-service.js",
+        "apps/server/src/modules/inventory/components/recipe-ui.js",
         "apps/server/src/modules/inventory/domain/inventory-costing.js",
         "apps/server/src/modules/inventory/domain/inventory-stocktake.js",
         "apps/server/src/modules/inventory/domain/inventory-wip.js",
@@ -13562,6 +13577,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr156-inventory-recipes.spec.js",
         "apps/server/tests/e2e/fr184-stocktake.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
         "apps/server/tests/integration/backup.test.js",
@@ -13599,6 +13615,7 @@
         "apps/server/tests/unit/inventory-costing.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-product-page.test.js",
+        "apps/server/tests/unit/inventory-recipe-ui.test.js",
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/inventory-sku-console.test.js",
         "apps/server/tests/unit/inventory-stocktake-domain.test.js",
@@ -18985,6 +19002,7 @@
       "primaryDomain": "project-manager",
       "contributorDomains": [
         "agent",
+        "inventory",
         "project-manager"
       ],
       "useCase": "mutating route ปฏิเสธการแก้ Project หรือ dependency เมื่อ viewer ไม่ได้เป็นเจ้าของ Business ที่เกี่ยวข้อง",
@@ -18998,11 +19016,12 @@
           "title": "Project-Manager mutation authorization",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 32,
-          "testCount": 81
+          "codeCount": 33,
+          "testCount": 83
         }
       ],
       "evidence": [
+        "apps/server/src/app/(pm)/inventory/recipes/page.jsx",
         "apps/server/src/app/api/containers/[id]/route.js",
         "apps/server/src/app/api/containers/route.js",
         "apps/server/src/app/api/dependencies/[id]/route.js",
@@ -19036,6 +19055,7 @@
         "apps/server/src/modules/project-manager/application/scope-service.js",
         "apps/server/src/modules/project-manager/application/work-service.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
+        "apps/server/tests/e2e/fr156-inventory-recipes.spec.js",
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
         "apps/server/tests/e2e/pipeline-release-holds.spec.js",
         "apps/server/tests/e2e/smoke.spec.js",
@@ -19106,6 +19126,7 @@
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
         "apps/server/tests/unit/global-view-drilldown.test.js",
         "apps/server/tests/unit/goods-receipts-self-attestation.test.js",
+        "apps/server/tests/unit/inventory-recipe-ui.test.js",
         "apps/server/tests/unit/people-service.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-dependency-service.test.js",

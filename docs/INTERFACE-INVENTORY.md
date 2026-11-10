@@ -1,7 +1,7 @@
 ---
-version: "1.45.0b"
+version: "1.46.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-11-10T00:00:00+07:00,Claude Opus 5.5"
+last_update: "2026-11-10T08:12:53+07:00,Codex Luna"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -11,6 +11,8 @@ attributes:
 ---
 
 # Zuri V2 — Interface Inventory
+
+Version diff 1.45.0b to 1.46.0b (2026-11-10): add `/inventory/recipes` for FR-156 recipe and BOM management; 120 page routes.
 
 Version diff 1.44.0b to 1.45.0b (2026-11-10): add `/procurement/cost-sheets`, the first UI over the FR-164/FR-154 supplier cost-sheet import (TASK-ZAI-053); 119 page routes.
 
@@ -33,14 +35,14 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.44.0b |
+| **Version** | 1.46.0b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-10-30 |
+| **Last Updated** | 2026-11-10 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=119; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=120; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -229,10 +231,11 @@ uncounted product shows "—", never a zero.
 | `/inventory/stocktakes` | Physical stocktake | BusinessShell → Inventory / Stocktake | Select NONE/LOT products and explicit locations/unlocated buckets, preview completeness, commit atomically, retry the same operation after a lost response and reopen saved per-line balances | Business visibility and Inventory write authority; blank count, incomplete, stale, pending, saved, denied and history/scope reset | implemented locally; `src/app/(pm)/inventory/stocktakes/page.jsx`, FR-184; production migration pending |
 | `/inventory/locations` | Locations & transfers (Inventory tab 2) | BusinessShell → Inventory / Locations | the Business's warehouse locations with type and `isVirtual`; on-hand per location for one SKU reported beside the Business-wide total and its unlocated remainder (BR-026); forms that create a location and move stock between two of them in one atomic pair | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, fewer-than-two-locations | implemented; `src/app/(pm)/inventory/locations/page.jsx`, FR-182, FR-174 / ADR-074 |
 | `/inventory/work-orders` | Work orders (Inventory tab 3) | BusinessShell → Inventory / Work Orders | both work-order lists with planned, gross issue, completed and scrapped quantities and the blended unit cost; open forms for a customization run and a kitting run; RELEASE / COMPLETE / CANCEL per row through one versioned action | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-SKU, no-recipe | implemented; `src/app/(pm)/inventory/work-orders/page.jsx`, FR-182, FR-176, FR-177 / ADR-074 |
-| `/inventory/reservations` | ATP & reservations (Inventory tab 4) | BusinessShell → Inventory / Reservations | on-hand, committed, quote-held and available per SKU side by side, with over-commitment surfaced; the reservation list with a computed `live`; forms to place a quote or order hold and release one | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-counted-SKU | implemented; `src/app/(pm)/inventory/reservations/page.jsx`, FR-182, FR-180 / ADR-074 |
-| `/inventory/hygiene` | SKU Hygiene (Inventory tab 6) | BusinessShell → Inventory / SKU Hygiene | Read the catalogue hygiene report (lookalike SKUs, services filed under goods, masters without variant axes, dormant SKUs, missing identifiers) with its severity and repair suggestion, tune the dormancy window, run a lifecycle action — MERGE a duplicate into its survivor, PHASE_OUT, REACTIVATE, ARCHIVE — with a recorded reason, and read the replenishment suggestion | Business visibility and the `inventory` domain to read; Inventory write authority for an action; no Business selected, clean report, blocked merge (references, stock, reservations), version conflict | implemented locally; `src/app/(pm)/inventory/hygiene/page.jsx`, FR-205, FR-206, FR-207 (ADR-083); production migration pending |
+| `/inventory/recipes` | Recipes / BOM management (Inventory tab 4) | BusinessShell → Inventory / Recipes | List recipes by output Product, batch size, status and component count; create from non-archived Business Products with per-batch component quantities, fixed lines and recipe-level scrap allowance; inspect quantity-specific explosion, stock ledger on-hand, shortages and maximum buildable quantity; UPDATE, ARCHIVE and atomic Build | Business and `inventory` domain visibility to read; writes need Business OWNER or `INVENTORY_MANAGER`; no Business, loading, error, empty, ready, busy, shortage, version conflict, archived | implemented locally; `src/app/(pm)/inventory/recipes/page.jsx`, `src/modules/inventory/application/inventory-recipe-service.js`, FR-156, FR-177 / `docs/domains/inventory/CHARTER.md` |
+| `/inventory/reservations` | ATP & reservations (Inventory tab 5) | BusinessShell → Inventory / Reservations | on-hand, committed, quote-held and available per SKU side by side, with over-commitment surfaced; the reservation list with a computed `live`; forms to place a quote or order hold and release one | Business and `inventory` domain visibility to read; writes need OWNER or `INVENTORY_MANAGER`; no Business, loading, error, ready, busy, no-counted-SKU | implemented; `src/app/(pm)/inventory/reservations/page.jsx`, FR-182, FR-180 / ADR-074 |
+| `/inventory/hygiene` | SKU Hygiene (Inventory tab 7) | BusinessShell → Inventory / SKU Hygiene | Read the catalogue hygiene report (lookalike SKUs, services filed under goods, masters without variant axes, dormant SKUs, missing identifiers) with its severity and repair suggestion, tune the dormancy window, run a lifecycle action — MERGE a duplicate into its survivor, PHASE_OUT, REACTIVATE, ARCHIVE — with a recorded reason, and read the replenishment suggestion | Business visibility and the `inventory` domain to read; Inventory write authority for an action; no Business selected, clean report, blocked merge (references, stock, reservations), version conflict | implemented locally; `src/app/(pm)/inventory/hygiene/page.jsx`, FR-205, FR-206, FR-207 (ADR-083); production migration pending |
 | `/inventory/products/[productId]` | SKU detail — identifiers and unit conversions | BusinessShell → Inventory (from a SKU code on the Dashboard or the Dashboard's code lookup; not a tab) | Read the SKU header (on-hand, tracking, base unit); list, add and two-step retire barcodes / GTIN / supplier / manufacturer / legacy codes with the pack unit each sits on; declare, edit and two-step retire unit conversions ("1 BOX12 = 12 EA") | Business visibility and the `inventory` domain to read; Inventory write authority for a change; loading (desks disabled), SKU from another Business or archived/merged (read-only with the reason), service or serial SKU (no conversion desk, reason shown), bad GTIN check digit (caught before send), identifier held by another SKU (names and links it), version conflict, retired rows on request | implemented; `src/app/(pm)/inventory/products/[productId]/page.jsx`, FR-203, FR-204 (ADR-083) |
-| `/inventory/catalog-intake` | Import — catalogue intake (Inventory tab 7) | BusinessShell → Inventory / Import | Download this Business's workbook template; upload a filled `.xlsx` or paste JSON items and read the preview — each row's decision (create, match with additions, unchanged, conflict, invalid), the SKU it matched and by what, the issues and warnings; confirm the whole batch or cancel; reopen a recent intake from any channel, LINE included | Business visibility and the `inventory` domain to read; Inventory write authority to preview, confirm or cancel; no Business selected, workbook not the template (header, sheet, size, rows), uncommittable plan (confirm disabled with the reason), expired or stale plan, cancelled or committed intake | implemented locally; `src/app/(pm)/inventory/catalog-intake/page.jsx`, FR-208, FR-209 (ADR-084); production migration pending |
+| `/inventory/catalog-intake` | Import — catalogue intake (Inventory tab 8) | BusinessShell → Inventory / Import | Download this Business's workbook template; upload a filled `.xlsx` or paste JSON items and read the preview — each row's decision (create, match with additions, unchanged, conflict, invalid), the SKU it matched and by what, the issues and warnings; confirm the whole batch or cancel; reopen a recent intake from any channel, LINE included | Business visibility and the `inventory` domain to read; Inventory write authority to preview, confirm or cancel; no Business selected, workbook not the template (header, sheet, size, rows), uncommittable plan (confirm disabled with the reason), expired or stale plan, cancelled or committed intake | implemented locally; `src/app/(pm)/inventory/catalog-intake/page.jsx`, FR-208, FR-209 (ADR-084); production migration pending |
 
 ### 3.6c Knowledge (GKS) domain
 
@@ -433,6 +436,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.46.0b | 2026-11-10 | candidate | Add `/inventory/recipes` for FR-156 recipe management; page routes 119 -> 120 | working-tree | Codex Luna |
 | 1.43.1b | 2026-10-30 | candidate | Link the 117-route UI dimensional atlas as a derived schematic companion; route authority unchanged | working-tree | Codex |
 | 1.40.0b | 2026-10-05 | candidate | Add the FR-278 `/growth/line-sales` executive dashboard; 116 page routes | working-tree | Codex |
 | 1.39.0b | 2026-09-27 | candidate | Add the FR-275 `/growth/insights` page; 115 page routes | working-tree | Claude Opus 5.5 (MC0) |

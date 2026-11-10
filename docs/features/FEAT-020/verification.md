@@ -142,16 +142,21 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/(pm)/inventory/recipes/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/recipes/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/(pm)/inventory/work-orders/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/work-orders/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/inventory/recipes/\[id\]/build/route.js](../../../apps/server/src/app/api/inventory/recipes/%5Bid%5D/build/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/inventory/recipes/\[id\]/route.js](../../../apps/server/src/app/api/inventory/recipes/%5Bid%5D/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/inventory/recipes/route.js](../../../apps/server/src/app/api/inventory/recipes/route.js) — `implements` (`annotation`)
+- [apps/server/src/lib/module-tabs.js](../../../apps/server/src/lib/module-tabs.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/inventory-recipe-service.js](../../../apps/server/src/modules/inventory/application/inventory-recipe-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/components/recipe-ui.js](../../../apps/server/src/modules/inventory/components/recipe-ui.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory.js](../../../apps/server/src/modules/inventory/domain/inventory.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr156-inventory-recipes.spec.js](../../../apps/server/tests/e2e/fr156-inventory-recipes.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -168,9 +173,12 @@ status: generated
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-domain.test.js](../../../apps/server/tests/unit/inventory-domain.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/inventory-recipe-ui.test.js](../../../apps/server/tests/unit/inventory-recipe-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/module-tabs.test.js](../../../apps/server/tests/unit/module-tabs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/programme-containers.test.js](../../../apps/server/tests/unit/programme-containers.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/scm-console-routes.test.js](../../../apps/server/tests/unit/scm-console-routes.test.js) — `verifies` (`transitive`)
 
 ## Limits
 

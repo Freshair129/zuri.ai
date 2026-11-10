@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
+import Link from 'next/link'
 import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { useScope } from '@/context/ScopeContext'
 import { INVENTORY_TABS } from '@/lib/module-tabs'
@@ -15,8 +16,9 @@ import { CUSTOMIZATION_TECHNIQUES } from '@/lib/validation/enums'
 // @req FR-177 — kitting: open a run against a recipe, release it to the line,
 //   and complete it with the sets assembled. A run that finished fewer than it
 //   planned reads BLOCKED_SHORTAGE here, not COMPLETED.
+// @req FR-156 — route users from the empty recipe selector to recipe management.
 // @spec ADR-074 D4, D5; BR-028; BR-029; SEC-001
-// @tested tests/unit/scm-console-routes.test.js
+// @tested tests/unit/scm-console-routes.test.js, tests/e2e/fr156-inventory-recipes.spec.js
 
 async function api(url, method = 'GET', body) {
   const response = await fetch(url, { method, ...(body ? { headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) } : {}) })
@@ -247,7 +249,7 @@ export default function InventoryWorkOrdersPage() {
           <Select label="ไลน์ประกอบ" options={[['', '(ไม่ระบุ)'], ...locations.map((l) => [l.id, l.code])]} {...bindKwo('wipLocationId')} />
           <Select label="คลังสินค้าสำเร็จรูป" options={[['', '(ไม่ระบุ)'], ...locations.map((l) => [l.id, l.code])]} {...bindKwo('targetLocationId')} />
         </fieldset>
-        {!recipes.length && <p className="mt-2 text-xs text-muted">ยังไม่มีสูตร (BOM)</p>}
+        {!recipes.length && <p className="mt-2 text-xs text-muted"><Link className="underline" href="/inventory/recipes">ยังไม่มีสูตร (BOM)</Link></p>}
         <div className="mt-3"><button type="button" className="btn btn-primary" onClick={openKwo} disabled={busy || !kwo.plannedQty || !recipes.length}>เปิดใบสั่ง</button></div>
       </Card>
     </div>}

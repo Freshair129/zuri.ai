@@ -95,6 +95,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr156-inventory-recipes.spec.js](../../../apps/server/tests/e2e/fr156-inventory-recipes.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -120,10 +121,12 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/(pm)/inventory/recipes/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/recipes/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/inventory/work-orders/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/work-orders/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/api/inventory/kitting-work-orders/\[id\]/route.js](../../../apps/server/src/app/api/inventory/kitting-work-orders/%5Bid%5D/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/inventory/kitting-work-orders/route.js](../../../apps/server/src/app/api/inventory/kitting-work-orders/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/kitting-work-order-service.js](../../../apps/server/src/modules/inventory/application/kitting-work-order-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/components/recipe-ui.js](../../../apps/server/src/modules/inventory/components/recipe-ui.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory-costing.js](../../../apps/server/src/modules/inventory/domain/inventory-costing.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory-wip.js](../../../apps/server/src/modules/inventory/domain/inventory-wip.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory.js](../../../apps/server/src/modules/inventory/domain/inventory.js) — `implements` (`annotation`)
@@ -132,6 +135,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr156-inventory-recipes.spec.js](../../../apps/server/tests/e2e/fr156-inventory-recipes.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
@@ -147,6 +151,7 @@ status: generated
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-costing.test.js](../../../apps/server/tests/unit/inventory-costing.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/inventory-domain.test.js](../../../apps/server/tests/unit/inventory-domain.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/inventory-recipe-ui.test.js](../../../apps/server/tests/unit/inventory-recipe-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/inventory-wip.test.js](../../../apps/server/tests/unit/inventory-wip.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/scm-console-routes.test.js](../../../apps/server/tests/unit/scm-console-routes.test.js) — `verifies` (`transitive`)
@@ -266,6 +271,7 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/fr156-inventory-recipes.spec.js](../../../apps/server/tests/e2e/fr156-inventory-recipes.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr182-scm-console-actions.test.js](../../../apps/server/tests/integration/fr182-scm-console-actions.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
