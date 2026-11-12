@@ -1,5 +1,5 @@
 ---
-version: "0.6.2b"
+version: "0.6.3b"
 status: active
 last_update: "2026-10-16,Codex"
 id: ZAI:DOMAIN-INTEGRATION
@@ -136,27 +136,24 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - The `/platform/integrations` page and its API are this domain's surfaces. They
   show metadata and redacted secret status only, and accept only an opaque
   `supabase-vault:<uuid>` reference in the implemented generic FR-080 form. Raw
-  secret entry stays in the Supabase Dashboard Vault UI until an approved
-  provider-specific `SecretManagerProvisionPort` exists. Candidate FR-125 /
+  secret entry through the generic form stays in the Supabase Dashboard Vault UI.
+  Candidate FR-125 /
   ADR-053 proposes the first such write-only path for FlowAccount; it does not
   relax the generic form and no browser response may contain secret material.
 - ADR-061 adds an owner-only LINE connection metadata provisioner at `POST /api/line-oa/connections`. It accepts a deployment-secret reference, never secret bytes. Server LINE channel credentials may resolve from an out-of-checkout read-only deployment secret mount, scoped to Tenant, Business, account, connection and destination. This exception concerns channel transport credentials only.
-- **Decided, not built: browser write-only credential entry (ADR-089).** The two
-  bullets above describe today. ADR-089 decides that this lane will own a
-  write-only `SecretStorePort` — Supabase Vault primary, an envelope-encryption
-  store for self-host, the mount kept as an operator-only read adapter,
-  cross-store resolution refused (SDD-097) — and that `POST /api/line-oa/connections`
-  will accept a Channel ID and Channel secret from an AAL2 Business owner, never
-  echoing them (SEC-030). Until FR-223..FR-228 land, the reference-only rules above
-  stay in force. See "Credential vault and self-serve LINE OA onboarding" below.
+- **Implemented in the repository: browser write-only LINE credentials (ADR-089).**
+  `connectLineChannelWithSecret` validates the Channel ID and secret, writes through
+  the `SecretStorePort` with compensation, and returns masked credential metadata;
+  the connect and credential routes are described below. The generic FR-080 form
+  remains reference-only.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
 - Ollama is a local/dev/test evaluation provider and is not a public LINE or
-  production provider **of this cloud runtime**. An EDGE-mode LINE OA account
-  (ADR-060 D5) answers on its own Zuri Edge Device, whose local Ollama or Codex
-  CLI is the device's provider — never one this lane resolves, proxies or lists
-  (ADR-031 revision 0.3.0b).
+  production provider **of this cloud runtime**. Edge Device and harness credential,
+  pairing and reporting surfaces were retired by ADR-110; `EdgeDeviceCredential`
+  and `HarnessCredential` remain in the schema as historical data, not active
+  Integration credentials.
 - **This lane owns the execution ledger — the six `Pipeline*` models — for every
   pipeline, not only its own.** `PipelineRun`, `PipelineStep`,
   `PipelineEventReceipt`, `PipelineRecordEvent`, `PipelineReconciliation` and
@@ -285,7 +282,7 @@ or publishing raw provider records into an owner domain.
 
 ## FEAT-019 execution handoffs
 
-See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Edge execution is retired by ADR-110; BR-011/FR-050 describe retained legacy forwarding only.
 
 ## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — Phase 1 merged and migrations applied, not deployed)
 
@@ -353,9 +350,9 @@ material in any response (`line-channel-credential-service.js` for the last thre
 - **Boundaries that do not move.** No read-back route in any store; display is a
   mask plus the last four characters of the Channel ID; the store functions
   re-prove Tenant, Business, connection and destination from rows; a reference
-  whose store is not configured resolves `Unavailable`. EDGE-mode accounts keep
-  their credentials on the device (ADR-041 D2). The Phase-1 model-credential
-  resolver is untouched.
+  whose store is not configured resolves `Unavailable`. ADR-110 retired the Edge
+  Device and harness credential routes; their schema models remain historical.
+  The Phase-1 model-credential resolver is untouched.
 - **Who calls it.** The Studio's connect wizard posts to this lane's route and
   holds nothing; identity supplies the AAL2 gate and the rate limit (FR-224).
 - **Design evidence.** [Credential vault and chat-history design](../../plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md) §4–5.
@@ -368,6 +365,7 @@ material in any response (`line-channel-credential-service.js` for the last thre
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.6.3b | 2026-11-12 | Reconciled browser write-only LINE credential status with the implemented service and marked Edge/harness credential surfaces retired | Codex |
 | 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id) and of their own message events, found by `event.message.id` inside the payload since those records are keyed by webhook event id too | Claude Opus 5.5 (MC0) |
 | 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
 | 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |

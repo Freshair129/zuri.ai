@@ -27,6 +27,7 @@ relations:
 แทนที่ data flow diagram ใน [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) §3 (2026-08-15) และเสริม
 [SYSTEM-DIAGRAM.md](SYSTEM-DIAGRAM.md) (2026-09-05) ซึ่งทั้งสองเก็บไว้เป็นบันทึกตามวันที่วาด
 รายละเอียดเฉพาะโดเมน knowledge อยู่ที่ [KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
+ส่วนคำถามว่าแต่ละ pipeline **ถูกควบคุมอย่างไร** — validate อะไร, มี preview ไหม, transaction จบตรงไหน, รู้ได้อย่างไรว่าเป็นการส่งซ้ำ, record ที่ fail ไปอยู่ที่ไหน — อยู่ที่ [architecture/DATA-PIPELINE-ARCHITECTURE.md](architecture/DATA-PIPELINE-ARCHITECTURE.md) ซึ่งระบุ flow ที่มี code แล้วแต่ยังไม่อยู่ใน registry ด้านล่างด้วย
 
 ## 1. อะไรเขียนเอง อะไร generate
 
