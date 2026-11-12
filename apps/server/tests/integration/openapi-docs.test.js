@@ -429,11 +429,13 @@ describe('OpenAPI document', () => {
       // FR-235 adds owner-only product disclosure GET/POST on one path.
       // OR3 adds three gated paths/operations to the current Office inventory.
       // FR-293 adds seven transfer paths plus the actor-bound job recovery list.
-      pathCount: 373,
+      // FR-230 adds the Integration raw-record and Agent trace retention sweeps:
+      // two paths and two operations.
+      pathCount: 375,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
       // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
       // Register page's ready-intake list): one operation, no new path.
-      operationCount: 489,
+      operationCount: 491,
     })
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])

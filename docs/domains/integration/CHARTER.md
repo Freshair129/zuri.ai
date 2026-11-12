@@ -1,7 +1,7 @@
 ---
-version: "0.6.2b"
+version: "0.7.0b"
 status: active
-last_update: "2026-10-16,Codex"
+last_update: "2026-11-12,Codex"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -34,6 +34,7 @@ owns_routes:
   - src/app/api/platform/integrations/**
   - src/app/api/line-oa/connections/**
   - src/app/api/integration/model-providers/**
+  - src/app/api/integration/raw-retention-sweep/**
   - src/app/api/integrations/notion/**
   - src/app/api/platform/integrations/notion/webhook-verification/**
   - src/app/oauth/notion/callback/**
@@ -361,13 +362,25 @@ material in any response (`line-channel-credential-service.js` for the last thre
 - **Design evidence.** [Credential vault and chat-history design](../../plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md) §4–5.
 - **Chat retention touches raw evidence.** Under [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
   D2, LINE `RawExternalRecord.payloadJson` gets a 90-day retention tombstone with a
-  second reason code beside `PDPA_ERASURE`; envelope columns are kept, as the
-  erasure boundary above already requires.
+  second reason code (`RETENTION_EXPIRED`) beside `PDPA_ERASURE`; its evidence
+  envelope, including `payloadHash` and `processingStatus`, stays while `updatedAt`
+  advances with the write. The Integration sweep
+  lives in `src/platform/integrations/core/raw-line-retention-sweep-service.js`,
+  beside the provider-neutral raw record substrate: it reads the shared
+  `getEffectiveRetentionWindowDays` port, limits writes to `LINE_OA_PROVIDER_CODE`,
+  and uses `RawExternalRecord.externalId = LineConversationJob.eventId` to find
+  active work. It leaves PDPA/retention tombstones alone, and skips/counts
+  `ADMITTING` rows because `line-admission-reconciler.js` reparses their payload.
+  `POST /api/integration/raw-retention-sweep` is the bodyless, deployment-bearer
+  trigger. The shared worker calls it after CRM; no deployment schedule is claimed.
+  A page failure stops this Tenant, leaves earlier committed pages intact and later
+  rows untouched, reports `{ tenantId, code }`, then continues with the next Tenant.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.7.0b | 2026-11-12 | FR-230 / ADR-091 D2: Integration now tombstones expired LINE OA raw payloads in bounded pages, preserves the full envelope, skips live jobs and ADMITTING outbox rows, and exposes `/api/integration/raw-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id) and of their own message events, found by `event.message.id` inside the payload since those records are keyed by webhook event id too | Claude Opus 5.5 (MC0) |
 | 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
 | 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |

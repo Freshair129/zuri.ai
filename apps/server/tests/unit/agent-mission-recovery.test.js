@@ -12,7 +12,7 @@ const source = Object.freeze({
   digest: 'a'.repeat(64),
 })
 
-function fixture({ event = {}, draft = {}, status = 'ACTIVE' } = {}) {
+function fixture({ event = {}, draft = {}, status = 'ACTIVE', sourceJobErrorCode = null } = {}) {
   const row = {
     id: source.draftId, schemaVersion: source.schemaVersion, sourceAgentRef: source.sourceAgentRef,
     missionId: source.missionId, revision: source.revision, ...scope,
@@ -58,7 +58,7 @@ function fixture({ event = {}, draft = {}, status = 'ACTIVE' } = {}) {
     tables: {
       agentMissionDraft: [row], agentMissionEvidence: [],
       lineConversationJob: [{ id: row.sourceTurnId, tenantId: row.tenantId, businessId: row.businessId,
-        executionId: row.executionId, errorCode: null }],
+        executionId: row.executionId, errorCode: sourceJobErrorCode }],
       auditEvent: auditEvent ? [auditEvent] : [],
       agentTraceEvent: [{ id: row.sourceTraceEventId, tenantId: row.tenantId, businessId: row.businessId,
         turnId: row.sourceTurnId, executionId: row.executionId, kind: 'CONTEXT_COMMITTED', payloadJson: '{}' }],
@@ -71,9 +71,54 @@ function fixture({ event = {}, draft = {}, status = 'ACTIVE' } = {}) {
   }
 }
 
+function legacyLineEvidenceFixture(sourceJobErrorCode = null) {
+  const snapshot = fixture()
+  snapshot.tables.lineConversationJob.push(
+    { id: 'legacy-turn', tenantId: scope.tenantId, businessId: scope.businessId,
+      executionId: 'legacy-execution', errorCode: sourceJobErrorCode },
+    { id: 'legacy-confirmation', tenantId: scope.tenantId, businessId: scope.businessId,
+      executionId: 'confirmation-execution', inboundMessageId: 'confirmation-message', errorCode: null },
+  )
+  snapshot.tables.agentTraceEvent.push({ id: 'legacy-trace', tenantId: scope.tenantId,
+    businessId: scope.businessId, turnId: 'legacy-turn', executionId: 'legacy-execution',
+    kind: 'CONTEXT_COMMITTED', payloadJson: '{"redacted":true}' })
+  snapshot.tables.auditEvent.push({ id: 'legacy-proposal', entityType: 'LINE_WORK_PROPOSAL',
+    entityId: 'work-item-1', requestId: 'legacy-turn', tenantId: scope.tenantId,
+    businessId: scope.businessId, actorId: source.actorPersonId })
+  snapshot.tables.workItem.push({ id: 'work-item-1', workstreamId: scope.workstreamId, deletedAt: null })
+  snapshot.tables.agentMissionEvidence.push({
+    id: 'legacy-evidence', schemaVersion: 'agent-mission-evidence.v1', draftId: source.draftId,
+    sourceAgentRef: source.sourceAgentRef, missionId: source.missionId, ...scope,
+    workItemId: 'work-item-1', workItemVersion: 1, origin: 'AGENT_DRAFT_HUMAN_CONFIRMED',
+    actorId: source.actorPersonId, sourceTurnId: 'legacy-turn', executionId: 'legacy-execution',
+    sourceEventId: 'legacy-proposal', sourceTraceEventId: 'legacy-trace', sourceRevision: 1,
+    sourceDigest: source.digest, missionSnapshotJson: '{}', missionSnapshotDigest: 'b'.repeat(64),
+    idempotencyKey: 'legacy-key', confirmationKind: 'LINE_JOB', confirmationJobId: 'legacy-confirmation',
+    confirmationInboundMessageId: 'confirmation-message', confirmationActorId: source.actorPersonId,
+    confirmationIdentityVersion: 1, confirmationExecutionId: 'confirmation-execution',
+    status: 'ACTIVE', createdAt: '2026-10-29T10:00:00.000Z',
+  })
+  return snapshot
+}
+
 describe('Mission draft recovery source event', () => {
   it('accepts a persisted MISSION_DRAFT_CREATED event bound to the exact draft tuple', () => {
     expect(validateAgentMissionEvidenceRecovery(fixture()).status).toBe('AVAILABLE')
+  })
+
+  it('accepts a retained source-trace envelope after FR-230 redacts its expired payload', () => {
+    const snapshot = fixture()
+    snapshot.tables.agentTraceEvent[0].payloadJson = '{"redacted":true}'
+    expect(validateAgentMissionEvidenceRecovery(snapshot).status).toBe('AVAILABLE')
+  })
+
+  it('still rejects a PDPA-erased source turn when its retained trace payload is redacted', () => {
+    const snapshot = fixture({ sourceJobErrorCode: 'PDPA_ERASURE' })
+    snapshot.tables.agentTraceEvent[0].payloadJson = '{"redacted":true}'
+
+    const report = validateAgentMissionEvidenceRecovery(snapshot)
+
+    expect(report.errors.join(' ')).toContain('no matching retained source turn')
   })
 
   it('rejects a missing event and a legacy LINE proposal event for a new draft', () => {
@@ -137,32 +182,15 @@ describe('Mission draft recovery source event', () => {
   })
 
   it('keeps legacy LINE-confirmed evidence bound to LINE_WORK_PROPOSAL events', () => {
-    const snapshot = fixture()
-    snapshot.tables.lineConversationJob.push(
-      { id: 'legacy-turn', tenantId: scope.tenantId, businessId: scope.businessId,
-        executionId: 'legacy-execution', errorCode: null },
-      { id: 'legacy-confirmation', tenantId: scope.tenantId, businessId: scope.businessId,
-        executionId: 'confirmation-execution', inboundMessageId: 'confirmation-message', errorCode: null },
-    )
-    snapshot.tables.agentTraceEvent.push({ id: 'legacy-trace', tenantId: scope.tenantId,
-      businessId: scope.businessId, turnId: 'legacy-turn', executionId: 'legacy-execution',
-      kind: 'CONTEXT_COMMITTED', payloadJson: '{}' })
-    snapshot.tables.auditEvent.push({ id: 'legacy-proposal', entityType: 'LINE_WORK_PROPOSAL',
-      entityId: 'work-item-1', requestId: 'legacy-turn', tenantId: scope.tenantId,
-      businessId: scope.businessId, actorId: source.actorPersonId })
-    snapshot.tables.workItem.push({ id: 'work-item-1', workstreamId: scope.workstreamId, deletedAt: null })
-    snapshot.tables.agentMissionEvidence.push({
-      id: 'legacy-evidence', schemaVersion: 'agent-mission-evidence.v1', draftId: source.draftId,
-      sourceAgentRef: source.sourceAgentRef, missionId: source.missionId, ...scope,
-      workItemId: 'work-item-1', workItemVersion: 1, origin: 'AGENT_DRAFT_HUMAN_CONFIRMED',
-      actorId: source.actorPersonId, sourceTurnId: 'legacy-turn', executionId: 'legacy-execution',
-      sourceEventId: 'legacy-proposal', sourceTraceEventId: 'legacy-trace', sourceRevision: 1,
-      sourceDigest: source.digest, missionSnapshotJson: '{}', missionSnapshotDigest: 'b'.repeat(64),
-      idempotencyKey: 'legacy-key', confirmationKind: 'LINE_JOB', confirmationJobId: 'legacy-confirmation',
-      confirmationInboundMessageId: 'confirmation-message', confirmationActorId: source.actorPersonId,
-      confirmationIdentityVersion: 1, confirmationExecutionId: 'confirmation-execution',
-      status: 'ACTIVE', createdAt: '2026-10-29T10:00:00.000Z',
-    })
+    const snapshot = legacyLineEvidenceFixture()
     expect(validateAgentMissionEvidenceRecovery(snapshot).status).toBe('AVAILABLE')
+  })
+
+  it('still rejects PDPA-erased source evidence when its retained trace payload is redacted', () => {
+    const snapshot = legacyLineEvidenceFixture('PDPA_ERASURE')
+
+    const report = validateAgentMissionEvidenceRecovery(snapshot)
+
+    expect(report.errors.join(' ')).toContain('no matching retained source turn')
   })
 })

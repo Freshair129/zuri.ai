@@ -103,6 +103,7 @@ status: generated
 - [apps/server/tests/integration/agent-msp-thread-memory.test.js](../../../apps/server/tests/integration/agent-msp-thread-memory.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/agent-multi-principal.test.js](../../../apps/server/tests/integration/agent-multi-principal.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/agent-request-envelope.test.js](../../../apps/server/tests/integration/agent-request-envelope.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/agent-trace-retention-sweep.test.js](../../../apps/server/tests/integration/agent-trace-retention-sweep.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/auth-rate-limit.test.js](../../../apps/server/tests/integration/auth-rate-limit.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/conversation-runtime-answer-parity.test.js](../../../apps/server/tests/integration/conversation-runtime-answer-parity.test.js) — `verifies` (`test-reference`)

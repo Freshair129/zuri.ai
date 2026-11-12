@@ -738,10 +738,18 @@ function authorizationCheck(root, routes) {
     // any work. This exact route is covered by negative authentication tests.
     const hasMspRetentionAuth = route.route === '/api/agent/memory-retention'
       && /bearerMatches\(request.headers.get\('authorization'\), process.env.ZURI_MSP_RETENTION_SWEEP_TOKEN\)/.test(body)
+    // Integration raw LINE's 401 path is covered by
+    // tests/unit/raw-line-retention-sweep-route.test.js.
+    const hasIntegrationRawRetentionAuth = route.route === '/api/integration/raw-retention-sweep'
+      && body.includes("bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)")
+    // Agent trace's 401 path is covered by
+    // tests/unit/agent-trace-retention-sweep-route.test.js.
+    const hasAgentTraceRetentionAuth = route.route === '/api/agent/trace-retention-sweep'
+      && body.includes("bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)")
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1
-        if (hasViewer || hasPublicProviderAuth || hasMspRetentionAuth) guardedMutations += 1
+        if (hasViewer || hasPublicProviderAuth || hasMspRetentionAuth || hasIntegrationRawRetentionAuth || hasAgentTraceRetentionAuth) guardedMutations += 1
       }
       if (method === 'GET') {
         reads += 1

@@ -43,6 +43,26 @@ describe('domain state projection', () => {
     const denied = observe(other)
     expect(denied.domains['project-manager'].checks.authorization.status).toBe('partial')
   })
+  it('recognizes only the two exact shared-token retention routes as guarded mutations', () => {
+    const routeSources = [
+      { route: '/api/integration/raw-retention-sweep', path: 'src/app/api/integration/raw-retention-sweep/route.js' },
+      { route: '/api/agent/trace-retention-sweep', path: 'src/app/api/agent/trace-retention-sweep/route.js' },
+    ]
+    const observe = route => { const input = { nodes: [...nodes, route], edges: [...edges, { from: route.id, to: 'domain:project-manager', type: 'owned_by' }] }
+      return buildDomainState({ ...input, observations: collectDomainObservations({ ...input, root: process.cwd(), featureRequirements: new Map() }) }) }
+
+    for (const { route, path } of routeSources) {
+      const api = { id: `route:api:${route}`, type: 'route', kind: 'api', route, path }
+      const authorization = observe(api).domains['project-manager'].checks.authorization
+      expect(authorization.status).toBe('verified')
+      expect(authorization.details).toMatchObject({ mutations: 1, guardedMutations: 1 })
+    }
+
+    const other = { id: 'route:api:/api/untrusted', type: 'route', kind: 'api', route: '/api/untrusted', path: routeSources[0].path }
+    const denied = observe(other).domains['project-manager'].checks.authorization
+    expect(denied.status).toBe('partial')
+    expect(denied.details).toMatchObject({ mutations: 1, guardedMutations: 0 })
+  })
   it('serializes identical source inputs identically across different generation times', () => {
     vi.useFakeTimers()
     try {

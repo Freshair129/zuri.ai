@@ -1,7 +1,7 @@
 ---
-version: "0.13.0b"
+version: "0.14.0b"
 status: active
-last_update: "2026-10-05T04:38:57+07:00,Codex"
+last_update: "2026-11-12T00:00:00+07:00,Codex"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -190,9 +190,9 @@ turn flows through before any agent work happens.
   lengthen) the installation-default window for a retention data class; the
   writer refuses a value above the default outright rather than clamping it,
   audited as `TENANT_RETENTION_OVERRIDE`/`RETENTION_OVERRIDE_SET`. Declares all
-  four `RETENTION_DATA_CLASSES` (`src/lib/validation/enums.js`) so a Tenant can
-  already record an override for a class this codebase does not yet sweep; only
-  that class's own sweeper, once one exists, would read it.
+  four `RETENTION_DATA_CLASSES` (`src/lib/validation/enums.js`). CRM owns the
+  message class; Integration and Agent now read their own classes through this
+  shared effective-window port, while MSP content remains in its separate service.
 - `runRetentionSweep` — the FR-230 nightly sweep, and today it sweeps exactly
   one data class: `MESSAGE_BODY_AND_ATTACHMENTS` (`Message.body` /
   `MessageAttachment`, 24-month installation default). It tombstones content
@@ -202,13 +202,11 @@ turn flows through before any agent work happens.
   (`LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES`), refreshes
   `Conversation.lastMessageAt`/`lastMessagePreview` for every conversation it
   touches, and writes exactly one `RETENTION_SWEEP`/`RETENTION_SWEEP_COMPLETED`
-  audit event per run naming the counts it actually produced. It does **not**
-  sweep `RawExternalRecord.payloadJson` (integration's charter) or
-  `AgentTraceEvent` payloads (agent's charter) — each is another domain's model
-  to write, not this one's — and it cannot reach MSP session content at all
-  (a separate repository). `RETENTION_DATA_CLASSES` and
-  `RETENTION_DEFAULT_WINDOW_DAYS` already declare all four classes so neither
-  of those sweepers, once built, needs a schema change to slot in.
+  audit event per run naming the counts it actually produced. Integration's
+  `raw-line-retention-sweep-service.js` and Agent's
+  `trace-retention-sweep-service.js` sweep their own models with distinct audit
+  identities and are invoked by the shared worker after CRM. CRM does not write
+  either model; MSP session content remains in a separate repository.
 - `getConversationInbox` (extended, FR-233) — each row now carries
   `lastMessageAt`, `lastMessagePreview`, `retentionClass` (denormalised columns
   kept current by `conversation-preview-service.js` on every Message write —
@@ -449,6 +447,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.14.0b | 2026-11-12 | FR-230 / ADR-091 D2: corrects the CRM-owned sweep boundary; Integration and Agent now have separate sweep services and worker routes for their own retention classes, while CRM remains the Message/attachment writer | Codex |
 | 0.13.0b | 2026-10-05 | FR-278: add the CRM-owned aggregate SalesTask health read for Marketing; preserve Business/customer-domain visibility and omit task, Customer and Conversation details | Codex |
 | 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |
 | 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |

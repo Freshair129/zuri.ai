@@ -7,12 +7,10 @@
 //   one audit event per run naming the counts it actually produced.
 //
 //   RAW_LINE_PAYLOAD (integration's RawExternalRecord) and AGENT_TRACE_EVENT
-//   (agent's AgentTraceEvent) are each other domain's charter to sweep — this
-//   module does not write either model. MSP_SESSION_CONTENT lives in MSP, a
-//   separate repository this codebase never reaches. See the task report for
-//   the ownership boundary; RETENTION_DATA_CLASSES / RETENTION_DEFAULT_WINDOW_DAYS
-//   (src/lib/validation/enums.js) already declare all four so nothing here needs
-//   to change shape once those sweepers exist.
+//   (agent's AgentTraceEvent) have their own domain sweepers and routes. MSP
+//   session content lives in MSP, a separate repository this codebase never
+//   reaches. Each domain writes only its own model; the shared worker invokes
+//   the three callable sweeps in order.
 // @req FR-245 — before a candidate is tombstoned it is archived and verified
 //   (ADR-093 D2): `chat-evidence-archive-service.js` writes and verifies the
 //   Tenant's batch, and only that module's own transaction — never this one —
@@ -67,7 +65,7 @@ const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
 // an operator's acknowledgement to leave that status: LINE's own delivery
 // outcome is still unresolved, and a sweep must not remove evidence a human has
 // not yet closed out.
-const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN']
+export const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = Object.freeze(['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN'])
 
 // Re-exported unchanged so every existing import of this constant from this
 // module keeps working — see retention-sweep-tombstone.js for why it now lives
@@ -190,8 +188,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
   const settleFailures = []
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
-  // looping over it rather than hard-coding the call keeps this function's shape
-  // unchanged on the day a second crm-owned class exists.
+  // the Integration and Agent domains have separate sweep services for their classes.
   for (const dataClass of CRM_OWNED_RETENTION_CLASSES) {
     if (dataClass !== CLASS) continue // no second class exists yet to dispatch to
     const tenants = await db.tenant.findMany({ select: { id: true } })

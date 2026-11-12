@@ -14,6 +14,7 @@ import { makeViewer } from '../factories/viewer'
 
 function event({ businessId, reason, query, occurredAt }) {
   return {
+    kind: 'EVIDENCE_SELECTED',
     businessId,
     occurredAt: new Date(occurredAt),
     payloadJson: JSON.stringify({ source: 'GKS_CORPUS', reason, query, evidence: { records: [] } }),
@@ -21,7 +22,11 @@ function event({ businessId, reason, query, occurredAt }) {
 }
 
 function fakeDb(rows) {
-  return { agentTraceEvent: { findMany: async () => rows } }
+  return { agentTraceEvent: { findMany: async ({ where, take } = {}) => rows
+    .filter(row => !where?.businessId?.in || where.businessId.in.includes(row.businessId))
+    .filter(row => !where?.kind || row.kind === where.kind)
+    .filter(row => !where?.payloadJson?.not || row.payloadJson !== where.payloadJson.not)
+    .slice(0, take) } }
 }
 
 const KNOWLEDGE_VIEWER = (businessIds) => makeViewer({ visibleBusinessIds: businessIds, ownedBusinessIds: businessIds, visibleDomains: ['knowledge'] })
@@ -88,9 +93,21 @@ describe('FR-237 knowledge gap report — aggregation', () => {
 
   it('skips a malformed payload rather than throwing', async () => {
     const viewer = KNOWLEDGE_VIEWER(['biz-1'])
-    const malformedRow = { businessId: 'biz-1', occurredAt: new Date(), payloadJson: '{not json' }
+    const malformedRow = { businessId: 'biz-1', kind: 'EVIDENCE_SELECTED', occurredAt: new Date(), payloadJson: '{not json' }
     const db = fakeDb([malformedRow])
     await expect(getKnowledgeGapReport({ businessId: 'biz-1' }, { viewer, db })).resolves.toEqual({ businesses: [{ businessId: 'biz-1', gaps: [] }], truncated: false })
+  })
+
+  it('does not let a redacted old event consume the oldest-first query cap', async () => {
+    const viewer = KNOWLEDGE_VIEWER(['biz-1'])
+    const db = fakeDb([
+      { businessId: 'biz-1', occurredAt: new Date('2020-01-01T00:00:00Z'), payloadJson: '{"redacted":true}', kind: 'EVIDENCE_SELECTED' },
+      { ...event({ businessId: 'biz-1', reason: 'NO_EVIDENCE', query: { queryId: 'product_detail', params: { productCode: 'SKU-LIVE' } }, occurredAt: '2026-09-14T10:00:00Z' }), kind: 'EVIDENCE_SELECTED' },
+    ])
+    const report = await getKnowledgeGapReport({ businessId: 'biz-1' }, { viewer, db })
+    expect(report.businesses[0].gaps).toEqual([
+      { productLocator: ['SKU-LIVE'], locatorAvailable: true, count: 1, lastSeenAt: '2026-09-14T10:00:00.000Z' },
+    ])
   })
 
   it('refuses a businessId the viewer cannot see under the knowledge domain, 404-shaped', async () => {

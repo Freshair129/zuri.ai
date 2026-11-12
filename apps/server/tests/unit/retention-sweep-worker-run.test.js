@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce } from '../../scripts/retention-sweep-worker-run.mjs'
+import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce,
+  runRetentionSweepSequence, RETENTION_SWEEP_CALLS } from '../../scripts/retention-sweep-worker-run.mjs'
 
 // @req FR-230 — the testable core of the single-shot retention sweep worker:
 //   configuration validation, one authenticated call, and the one JSON line it
@@ -81,6 +82,17 @@ describe('runRetentionSweepOnce', () => {
     expect(result).toEqual({ ok: false, status: 503, body: null })
   })
 
+  it('reports a per-Tenant sweep failure as unsuccessful even when the route returned 200', async () => {
+    const body = { auditEventId: 'partial-audit', countsByClass: {
+      AGENT_TRACE_EVENT: { redactedTurns: 12, tenantFailures: [{ tenantId: 'tenant-1', code: 'DB_UNAVAILABLE' }] },
+    } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
   it('reports a network failure as UNAVAILABLE rather than throwing', async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'))
     const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
@@ -98,6 +110,28 @@ describe('runRetentionSweepOnce', () => {
   })
 })
 
+describe('runRetentionSweepSequence', () => {
+  it('calls CRM, Integration and Agent in order and continues after a failure', async () => {
+    const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ error: 'unavailable' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'i1' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'a1' }) })
+    const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl })
+    expect(result.ok).toBe(false)
+    expect(result.results.map(entry => entry.name)).toEqual(['crm', 'integration', 'agent'])
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      'http://127.0.0.1:3000/api/crm/retention-sweep',
+      'http://127.0.0.1:3000/api/integration/raw-retention-sweep',
+      'http://127.0.0.1:3000/api/agent/trace-retention-sweep',
+    ])
+    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    expect(RETENTION_SWEEP_CALLS.map(call => call.event)).toEqual([
+      'crm.retention-sweep.tick', 'integration.raw-line-retention-sweep.tick', 'agent.trace-retention-sweep.tick',
+    ])
+  })
+})
+
 describe('formatRetentionSweepLogLine', () => {
   it('produces one JSON line carrying only counts and status — never customer content', () => {
     const line = formatRetentionSweepLogLine({
@@ -107,6 +141,13 @@ describe('formatRetentionSweepLogLine', () => {
       event: 'crm.retention-sweep.tick', status: 200,
       auditEventId: 'a1', countsByClass: { MESSAGE_BODY_AND_ATTACHMENTS: { redactedMessages: 4 } }, alreadyRanToday: false,
     })
+  })
+
+  it('accepts the owning-domain event name for the additional sweep lines', () => {
+    const line = formatRetentionSweepLogLine({ ok: true, status: 200, body: { countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 1 } } } },
+      'integration.raw-line-retention-sweep.tick')
+    expect(JSON.parse(line)).toEqual({ event: 'integration.raw-line-retention-sweep.tick', status: 200,
+      countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 1 } } })
   })
 
   it('carries an error code instead of a body when the call itself failed', () => {

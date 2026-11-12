@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.123.0b to 1.124.0b (2026-11-12; author Codex): add the Integration raw LINE and Agent trace retention triggers to FR-230 and extend the shared worker to call CRM, Integration, then Agent. Inventory: 374 Next route handlers; the OpenAPI test counts 375 paths because the composition adds one explicit OAuth callback. Source implementation only; no deployment schedule or production run is evidenced.
+
 Version diff 1.122.0b to 1.123.0b (2026-11-09; author Codex): add a Business-scoped, bounded ready-intake listing for the Asset Register. Receiving still stops at READY_FOR_REGISTRATION; the Register page uses the existing promotion route to issue an Asset ID.
 
 Version diff 1.121.0b to 1.122.0b (2026-11-02): inventory eight PM-owned FR-293 managed-blob transfer routes (372 total), including actor-bound job recovery after a lost response. Export and confirm return 202 after durable job/attempt admission; replace-all remains limited to source-bound disposable TEST admission and leaves the generation NEEDS_ADMISSION. Ordinary recovery and installed/operator, provider and production qualification remain open.
@@ -227,7 +229,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=372 -->
+<!-- api-spec-counts: route_handlers=374 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -719,6 +721,21 @@ container.
 | Method | Route | Contract | Failure |
 |---|---|---|---|
 | POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
+
+### Integration and Agent payload retention triggers (FR-230, ADR-091 D2)
+
+Both routes use the same deployment bearer and 10-minute route ceiling as CRM,
+read no request body, return counts only, and guard against a second call in the
+same UTC day by their own distinct audit entity/action pair. The one-shot worker
+calls CRM first, then Integration, then Agent; it logs one JSON line per call,
+continues after a failed response and exits non-zero if any call failed. The
+worker source is present, but no deployment schedule or production run is
+claimed.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/integration/raw-retention-sweep` | FR-230 Integration-owned sweep of expired `LINE_OA` `RawExternalRecord.payloadJson`; uses `RAW_LINE_PAYLOAD`'s effective Tenant window, skips non-terminal jobs and `ADMITTING` records, keeps envelope columns and reports only counts. Audit identity: `INTEGRATION_RAW_LINE_RETENTION_SWEEP` / `RAW_LINE_RETENTION_SWEEP_COMPLETED`. | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` |
+| POST | `/api/agent/trace-retention-sweep` | FR-230 Agent-owned whole-turn sweep of `AgentTraceEvent` payloads by maximum `createdAt`; redacts through `redactTraceTurn`, writes the canonical retention tombstone, and protects non-terminal jobs, pending memory delivery and open MSP erasure requests. Audit identity: `AGENT_TRACE_RETENTION_SWEEP` / `AGENT_TRACE_RETENTION_SWEEP_COMPLETED`. | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` |
 
 ## Market Intelligence reader and translation trigger (FR-092 / SDD-049 / ADR-038)
 

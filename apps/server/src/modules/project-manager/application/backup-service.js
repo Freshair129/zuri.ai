@@ -6,6 +6,9 @@ import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-294 — legacy snapshots refuse while Office design custody exists.
 import {assertOfficeDesignBackupSafe} from '@/modules/business/office-design/backup-boundary'
+// @req FR-230 — expired AgentTraceEvent payloads retain source-event envelopes
+//   for separate Agent Mission provenance recovery.
+// @tested tests/unit/agent-mission-recovery.test.js
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
 // @spec ADR-098
@@ -1625,7 +1628,10 @@ function agentMissionEvidenceRecovery(snapshot) {
       }
       if (!trace || trace.tenantId !== draft.tenantId || trace.businessId !== draft.businessId
         || trace.turnId !== draft.sourceTurnId || trace.executionId !== draft.executionId
-        || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+        || trace.kind === 'RETENTION_TOMBSTONE') {
+        // FR-230 may redact the payload after 90 days while retaining this
+        // immutable envelope. Mission recovery needs the exact linked metadata,
+        // not the expired context payload itself.
         result.errors.push(`Agent mission draft ${label} has no matching source trace event`)
       }
     } else if (sourceKey === null && draft.status !== 'ERASED') {
@@ -1769,7 +1775,9 @@ function agentMissionEvidenceRecovery(snapshot) {
         const trace = traceEvents.get(row.sourceTraceEventId)
         if (!trace || trace.tenantId !== row.tenantId || trace.businessId !== row.businessId
           || trace.turnId !== row.sourceTurnId || trace.executionId !== row.executionId
-          || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+          || trace.kind === 'RETENTION_TOMBSTONE') {
+          // Retention keeps source-event identity/scope as provenance; an
+          // expired payload is not needed to validate this linked envelope.
           result.errors.push(`Agent mission evidence ${label} has no matching source execution trace event`)
         }
       }

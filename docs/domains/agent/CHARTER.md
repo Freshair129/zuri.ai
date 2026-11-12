@@ -1,7 +1,7 @@
 ---
-version: "0.8.0b"
+version: "0.9.0b"
 status: active
-last_update: "2026-10-16,Codex"
+last_update: "2026-11-12,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -75,6 +75,19 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   GKS or Edge state. The agent still does not own the production Postgres
   runtime (`zuri_core.line_channel_binding`, `line_activation_event`) or MSP
   vaults; those remain behind binding and vault ports.
+- **Trace payload retention (FR-230, ADR-091 D2).**
+  `trace-retention-sweep-service.js` sweeps whole `(tenantId, businessId, turnId)`
+  units by the maximum `AgentTraceEvent.createdAt`, so future retry timestamps in
+  `occurredAt` do not extend content life. It calls `redactTraceTurn` with
+  `RETENTION_EXPIRED`, retaining event envelopes and appending the canonical
+  `retentionTombstoneKey(turnId)` so playback closes as incomplete. The sweep
+  skips/counts the six shared non-terminal LINE job states, terminal jobs whose
+  MSP memory delivery remains `PENDING`, and open `MEMORY_THREAD_ERASURE_PENDING`
+  turns without an acknowledgement (including failed requests). Its trigger is
+  `POST /api/agent/trace-retention-sweep`; the shared deployment worker invokes
+  it after Integration. No deployment schedule is claimed. A turn failure stops
+  this Tenant, keeps earlier committed turns redacted and later turns intact,
+  reports `{ tenantId, code }`, then continues with the next Tenant.
 - **Owns the local Business Agent Factory configuration (FR-285).**
   `BusinessAgentConfig` pins the standard five role/tool/policy snapshots to one
   server-derived Tenant and Business. Existing Businesses have no implicit
@@ -103,6 +116,9 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 ## Public contract
 
+- `POST /api/agent/trace-retention-sweep` — bodyless deployment-bearer trigger
+  using the shared `ZURI_RETENTION_SWEEP_TOKEN`; it is guarded by this sweep's
+  own UTC-day audit identity and returns counts only.
 - `GET`/`POST /api/businesses/[id]/agent-template` (FR-285) — owner-scoped local
   configuration/preview and explicit initial apply. A missing persisted config
   remains `NOT_CONFIGURED` until apply; identical apply is idempotent, conflicting
@@ -190,7 +206,8 @@ code yet; `owns_models` changes only when a model lands.
   API-009 memory port and context-composition boundary. The principal erasure
   worker exposes `PENDING_MSP` until MSP returns an erasure receipt. Production
   episodic access stays off until the signed API-010 contract is accepted on MSP
-  main and release gates pass. Trace input snapshots gain a 90-day retention window.
+  main and release gates pass. The Agent trace sweeper now enforces the 90-day
+  window through `redactTraceTurn`; no deployment schedule is claimed.
 - **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
   lane's corpus reader into the server answer by the account's grounding mode and
   records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
@@ -200,6 +217,7 @@ code yet; `owns_models` changes only when a model lands.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.9.0b | 2026-11-12 | FR-230 / ADR-091 D2: Agent now sweeps whole expired trace turns through the shared redaction path; it protects open MSP erasures and pending memory delivery and exposes `/api/agent/trace-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.8.0b | 2026-10-16 | TASK-ZAI-010: owns the Agent L1-L4 request/decision ledger and authenticated same-Business OWNER decision API; preserves Identity, Gate F, HIGH step-up, canonical writers, audit and PM separation | Codex |
 | 0.7.0b | 2026-10-15 | FR-285: owns BusinessAgentConfig and its scoped administration route; separates internal FR-074 provisioning from persisted owner administration and preserves Gate F/provider boundaries | Codex |
 | 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |

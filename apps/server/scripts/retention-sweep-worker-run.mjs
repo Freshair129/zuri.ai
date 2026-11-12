@@ -35,6 +35,11 @@ export function resolveRetentionSweepWorkerConfig(env = process.env) {
   return { endpoint, token }
 }
 
+function hasTenantSweepFailures(body) {
+  return Object.values(body?.countsByClass ?? {}).some(counts =>
+    Array.isArray(counts?.tenantFailures) && counts.tenantFailures.length > 0)
+}
+
 /**
  * One authenticated call to the retention-sweep route. A nightly batch job can
  * afford minutes — `timeoutMs` defaults far past the LINE worker's ~1s-per-tick
@@ -45,10 +50,11 @@ export function resolveRetentionSweepWorkerConfig(env = process.env) {
  * "the sweep did not happen" — a re-run lands on the route's own same-day
  * idempotency guard instead of duplicating work.
  *
- * Never throws for an HTTP-level outcome (4xx/5xx/network/timeout) — those are
- * reported in the returned shape so the caller can log-and-exit
- * deterministically; only `resolveRetentionSweepWorkerConfig` throws, because
- * that failure is a deploy mistake, not a run to report on.
+ * Never throws for an HTTP-level outcome (4xx/5xx/network/timeout) or a
+ * successful-but-partial Tenant sweep — those are reported in the returned
+ * shape so the caller can log-and-exit deterministically. Only
+ * `resolveRetentionSweepWorkerConfig` throws, because that failure is a deploy
+ * mistake, not a run to report on.
  */
 export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch, timeoutMs = 600_000 }) {
   try {
@@ -61,16 +67,36 @@ export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch
     // Counts per class only — never customer content — matching what the route
     // itself returns and what the sweep's own audit event carries.
     const body = await response.json().catch(() => null)
-    return { ok: response.ok, status: response.status, body }
+    return { ok: response.ok && !hasTenantSweepFailures(body), status: response.status, body }
   } catch (err) {
     return { ok: false, status: null, body: null, error: err?.name === 'TimeoutError' ? 'TIMEOUT' : 'UNAVAILABLE' }
   }
 }
 
-/** The one JSON line this worker ever logs — counts and status, nothing else. */
-export function formatRetentionSweepLogLine(result) {
+// Ordered deployment sweep calls. Keep CRM first; additional domain sweeps
+// belong immediately after it so their order is explicit and easy to extend.
+export const RETENTION_SWEEP_CALLS = Object.freeze([
+  Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true }),
+  Object.freeze({ name: 'integration', path: '/api/integration/raw-retention-sweep', event: 'integration.raw-line-retention-sweep.tick' }),
+  Object.freeze({ name: 'agent', path: '/api/agent/trace-retention-sweep', event: 'agent.trace-retention-sweep.tick' }),
+])
+
+/** Call every owning-domain route in order; failures are reported but do not stop later calls. */
+export async function runRetentionSweepSequence({ endpoint, token, fetchImpl = fetch, timeoutMs = 600_000,
+  calls = RETENTION_SWEEP_CALLS } = {}) {
+  const results = []
+  for (const call of calls) {
+    const target = call.usesConfiguredEndpoint ? endpoint : new URL(call.path, endpoint.origin)
+    const result = await runRetentionSweepOnce({ endpoint: target, token, fetchImpl, timeoutMs })
+    results.push({ name: call.name, event: call.event, result })
+  }
+  return { ok: results.every(entry => entry.result.ok), results }
+}
+
+/** One JSON line per route — counts and status only. */
+export function formatRetentionSweepLogLine(result, event = 'crm.retention-sweep.tick') {
   return JSON.stringify({
-    event: 'crm.retention-sweep.tick',
+    event,
     status: result.status,
     ...(result.body && typeof result.body === 'object' ? result.body : {}),
     ...(result.error ? { error: result.error } : {}),
