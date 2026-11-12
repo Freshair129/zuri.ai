@@ -742,6 +742,10 @@ function authorizationCheck(root, routes) {
     // tests/unit/raw-line-retention-sweep-route.test.js.
     const hasIntegrationRawRetentionAuth = route.route === '/api/integration/raw-retention-sweep'
       && body.includes("bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)")
+    // ADR-093 D5 / FR-245 archive expiry's 401 path is covered by
+    // tests/unit/crm-archive-expiry-route.test.js.
+    const hasCrmArchiveExpiryAuth = route.route === '/api/crm/archive-expiry'
+      && body.includes("bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)")
     // Agent trace's 401 path is covered by
     // tests/unit/agent-trace-retention-sweep-route.test.js.
     const hasAgentTraceRetentionAuth = route.route === '/api/agent/trace-retention-sweep'
@@ -749,7 +753,7 @@ function authorizationCheck(root, routes) {
     for (const method of methods) {
       if (MUTATING_METHODS.includes(method)) {
         mutations += 1
-        if (hasViewer || hasPublicProviderAuth || hasMspRetentionAuth || hasIntegrationRawRetentionAuth || hasAgentTraceRetentionAuth) guardedMutations += 1
+        if (hasViewer || hasPublicProviderAuth || hasMspRetentionAuth || hasIntegrationRawRetentionAuth || hasCrmArchiveExpiryAuth || hasAgentTraceRetentionAuth) guardedMutations += 1
       }
       if (method === 'GET') {
         reads += 1

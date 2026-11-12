@@ -31,8 +31,9 @@ describe('the single-shot retention sweep worker script', () => {
     expect(script).toContain('process.exitCode = result.ok ? 0 : 1')
   })
 
-  it('gives all three ten-minute route calls time to finish in Task Scheduler', () => {
-    expect(taskRegistration).toContain('-ExecutionTimeLimit (New-TimeSpan -Minutes 40)')
+  it('gives all four ten-minute route calls time to finish in Task Scheduler', () => {
+    expect(taskRegistration).toContain('-ExecutionTimeLimit (New-TimeSpan -Minutes 50)')
+    expect(taskRegistration).toContain('CRM archive expiry')
   })
 })
 

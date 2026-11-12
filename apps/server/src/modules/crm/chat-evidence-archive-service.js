@@ -1,11 +1,11 @@
-// @req FR-245 — the chat evidence cold archive writer (ADR-093 D2-D4, D6; SDD-103;
-//   SEC-034). Called from `retention-sweep-service.js` in the gap between
+// @req FR-245, SEC-034 — the chat evidence cold archive writer (ADR-093 D2-D4,
+//   D5 (1.3.0), D6; SDD-103). Called from `retention-sweep-service.js` in the gap between
 //   candidate selection and the tombstone writes it used to run unconditionally:
 //   for each Tenant, this module writes the batch to a new file, flushes it,
 //   reads it back, verifies its hash, and only then does the caller's
 //   transaction insert a manifest row and tombstone exactly what was archived.
-// @spec ADR-093 D2, D3, D4, D6; SDD-103; SEC-034; BR-002
-// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+// @spec ADR-093 D2, D3, D4, D5 (1.3.0), D6; SDD-103; SEC-001; BR-002
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-archive-retirement.test.js
 //
 // FAIL CLOSED, STRUCTURALLY (ADR-093 D2)
 // ---------------------------------------
@@ -305,21 +305,104 @@ export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = 
     if (recomputed !== manifest.manifestHash) {
       return { valid: false, brokenAtManifestId: manifest.id, reason: 'MANIFEST_HASH_MISMATCH' }
     }
-    if (checkFiles) {
-      if (!baseDir) throw new Error('verifyManifestChain: checkFiles requires baseDir')
-      let actual
-      try {
-        actual = createHash('sha256').update(await fs.readFile(path.join(baseDir, manifest.filePath))).digest('hex')
-      } catch (error) {
-        return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
-      }
-      if (actual !== manifest.fileSha256) {
-        return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
-      }
-    }
     expectedPreviousHash = manifest.manifestHash
   }
-  return { valid: true }
+  if (!checkFiles) return { valid: true }
+  if (!baseDir) throw new Error('verifyManifestChain: checkFiles requires baseDir')
+
+  const byId = new Map(ordered.manifests.map((manifest, index) => [manifest.id, { manifest, index }]))
+  const retirementEntries = []
+  let retirementFileFailure = null
+  for (let index = 0; index < ordered.manifests.length; index += 1) {
+    const manifest = ordered.manifests[index]
+    if (!manifest.filePath.endsWith('.zcr')) continue
+
+    let raw
+    try {
+      raw = await fs.readFile(path.join(baseDir, manifest.filePath))
+    } catch (error) {
+      retirementFileFailure ??= { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
+      continue
+    }
+    if (createHash('sha256').update(raw).digest('hex') !== manifest.fileSha256) {
+      retirementFileFailure ??= { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
+      continue
+    }
+
+    let header
+    try {
+      const lines = raw.toString('utf8').split('\n')
+      if (lines.at(-1) === '') lines.pop()
+      if (lines.length !== 1) throw new Error('RETIREMENT_HAS_SEGMENTS')
+      header = JSON.parse(lines[0])
+    } catch {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+    }
+    const headerKeys = ['v', 'kind', 'tenantId', 'runId', 'createdAt', 'reason', 'retentionYears', 'retired']
+    if (!hasExactObjectKeys(header, headerKeys)
+      || header.v !== 4
+      || header.kind !== 'RETIREMENT'
+      || header.tenantId !== manifest.tenantId
+      || header.runId !== manifest.runId
+      || typeof header.createdAt !== 'string'
+      || !Number.isFinite(Date.parse(header.createdAt))
+      || header.reason !== 'RETENTION_EXPIRED'
+      || !Number.isInteger(header.retentionYears)
+      || header.retentionYears < 0
+      || !Array.isArray(header.retired)) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+    }
+
+    for (const entry of header.retired) {
+      const entryKeys = ['manifestId', 'runId', 'filePath', 'fileSha256', 'manifestHash', 'messageCount', 'messageIdListHash']
+      if (!hasExactObjectKeys(entry, entryKeys)
+        || typeof entry.manifestId !== 'string'
+        || typeof entry.runId !== 'string'
+        || typeof entry.filePath !== 'string'
+        || typeof entry.fileSha256 !== 'string'
+        || typeof entry.manifestHash !== 'string'
+        || !Number.isInteger(entry.messageCount)
+        || entry.messageCount < 0
+        || typeof entry.messageIdListHash !== 'string') {
+        return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+      }
+      const target = byId.get(entry.manifestId)
+      if (!target
+        || target.index >= index
+        || target.manifest.filePath.endsWith('.zcr')
+        || entry.manifestHash !== target.manifest.manifestHash
+        || entry.fileSha256 !== target.manifest.fileSha256
+        || entry.filePath !== target.manifest.filePath) {
+        return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+      }
+      retirementEntries.push(entry.manifestId)
+    }
+  }
+
+  const retiredManifestIds = [...new Set(retirementEntries)]
+    .sort((left, right) => byId.get(left).index - byId.get(right).index)
+  const retiredSet = new Set(retiredManifestIds)
+  for (const manifest of ordered.manifests) {
+    if (manifest.filePath.endsWith('.zcr') || retiredSet.has(manifest.id)) continue
+    let actual
+    try {
+      actual = createHash('sha256').update(await fs.readFile(path.join(baseDir, manifest.filePath))).digest('hex')
+    } catch (error) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
+    }
+    if (actual !== manifest.fileSha256) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
+    }
+  }
+  if (retirementFileFailure) return retirementFileFailure
+  return { valid: true, retiredManifestIds }
+}
+
+function hasExactObjectKeys(value, keys) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const actual = Object.keys(value).sort()
+  const expected = [...keys].sort()
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index])
 }
 
 /**
@@ -585,10 +668,15 @@ export function buildArchiveLine(message, { tenantId, replySource }) {
  *
  * @returns {Promise<{relativePath: string, fileSha256: string}>}
  */
-export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments }) {
+export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments, extension = '.zca' }) {
+  if (extension !== '.zca' && extension !== '.zcr') throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_EXTENSION_INVALID')
   const dir = path.join(baseDir, tenantId, String(now.getUTCFullYear()))
   if (!isPathInside(path.resolve(baseDir), path.resolve(dir))) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
-  await fs.mkdir(dir, { recursive: true })
+  try {
+    await fs.mkdir(dir, { recursive: true })
+  } catch (error) {
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_DIRECTORY_CREATE_FAILED', error)
+  }
   try {
     const rootRealPath = await fs.realpath(baseDir)
     const directoryRealPath = await fs.realpath(dir)
@@ -597,27 +685,42 @@ export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, 
     if (error instanceof ChatEvidenceArchiveWriteError) throw error
     throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_UNAVAILABLE', error)
   }
-  const finalPath = path.join(dir, `${runId}.zca`)
+  const finalPath = path.join(dir, `${runId}${extension}`)
   if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
 
-  const tempPath = path.join(dir, `.${runId}.zca.tmp-${randomBytes(4).toString('hex')}`)
+  const tempPath = path.join(dir, `.${runId}${extension}.tmp-${randomBytes(4).toString('hex')}`)
   const lines = [JSON.stringify(header), ...segments.map((segment) => JSON.stringify(segment))]
   const content = `${lines.join('\n')}\n`
   const expectedSha256 = createHash('sha256').update(content, 'utf8').digest('hex')
 
-  const handle = await fs.open(tempPath, 'wx')
+  let handle
+  try {
+    handle = await fs.open(tempPath, 'wx')
+  } catch (error) {
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_WRITE_FAILED', error)
+  }
+  let writeError = null
   try {
     await handle.writeFile(content, 'utf8')
     await handle.sync()
-  } finally {
+  } catch (error) {
+    writeError = error
+  }
+  try {
     await handle.close()
+  } catch (error) {
+    writeError ??= error
+  }
+  if (writeError) {
+    await fs.rm(tempPath, { force: true }).catch(() => {})
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_WRITE_FAILED', writeError)
   }
 
   try {
     if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
     await fs.rename(tempPath, finalPath)
   } catch (error) {
-    await fs.rm(tempPath, { force: true })
+    await fs.rm(tempPath, { force: true }).catch(() => {})
     throw error instanceof ChatEvidenceArchiveWriteError ? error : new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_RENAME_FAILED', error)
   }
 

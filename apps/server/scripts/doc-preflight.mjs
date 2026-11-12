@@ -1056,6 +1056,10 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // worker and the programme usage reports endpoint above. Proven by
       // tests/unit/crm-retention-sweep-route.test.js.
       rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
+      // ADR-093 D5 / FR-245 archive expiry is deployment-authenticated with the
+      // same bearer and proves refusal before work in its route unit test.
+      // tests/unit/crm-archive-expiry-route.test.js.
+      rel(file) === 'src/app/api/crm/archive-expiry/route.js' ||
       // ADR-091 D2 / FR-230: the Integration raw LINE retention trigger uses the
       // deployment bearer ZURI_RETENTION_SWEEP_TOKEN, compared before any work.
       // tests/unit/raw-line-retention-sweep-route.test.js proves the 401 path.

@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.124.0b to 1.125.0b (2026-11-13; author Codex): wire the FR-245 / SEC-034 archive-expiry trigger (ADR-093 D5 P1–P7), add its deployment-authenticated counts-only route, and place it after the CRM chain writer in the four-call retention worker. Inventory: 375 Next route handlers; the OpenAPI test counts 376 paths and 492 operations. Implementation source only; no production schedule or run is evidenced.
+
 Version diff 1.123.0b to 1.124.0b (2026-11-12; author Codex): add the Integration raw LINE and Agent trace retention triggers to FR-230 and extend the shared worker to call CRM, Integration, then Agent. Inventory: 374 Next route handlers; the OpenAPI test counts 375 paths because the composition adds one explicit OAuth callback. Source implementation only; no deployment schedule or production run is evidenced.
 
 Version diff 1.122.0b to 1.123.0b (2026-11-09; author Codex): add a Business-scoped, bounded ready-intake listing for the Asset Register. Receiving still stops at READY_FOR_REGISTRATION; the Register page uses the existing promotion route to issue an Asset ID.
@@ -229,7 +231,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=374 -->
+<!-- api-spec-counts: route_handlers=375 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -722,14 +724,26 @@ container.
 |---|---|---|---|
 | POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
 
+### CRM chat evidence archive expiry trigger (FR-245, SEC-034; ADR-093 D5 P7)
+
+The same one-shot deployment worker calls this route immediately after the CRM
+retention sweep. This order serializes the two writers of each Tenant's archive
+manifest chain. The trigger selects Tenants with archive or archive-key rows in
+stable order, checks production archive storage once before processing any
+Tenant, and keeps processing after an individual Tenant fails.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/crm/archive-expiry` | implemented (FR-245, SEC-034): `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN`; no request body; one run per UTC day guarded by the `ARCHIVE_EXPIRY_RUN` / `ARCHIVE_EXPIRY_RUN_COMPLETED` audit identity. The per-Tenant service verifies the manifest chain, appends a format-4 `.zcr` retirement row before deleting expired files, then records one aggregate run audit with counts per Tenant. The response contains aggregate counts only; it carries no Customer id or archive path. A Tenant failure or broken-chain skip is included in counts and makes the worker exit non-zero. A production storage refusal writes no run-level audit, so a later daily call can retry. | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 ARCHIVE_EXPIRY_UNAVAILABLE` (storage refusal, run-level failure, or the route exceeded its 10-minute bound) |
+
 ### Integration and Agent payload retention triggers (FR-230, ADR-091 D2)
 
 Both routes use the same deployment bearer and 10-minute route ceiling as CRM,
 read no request body, return counts only, and guard against a second call in the
 same UTC day by their own distinct audit entity/action pair. The one-shot worker
-calls CRM first, then Integration, then Agent; it logs one JSON line per call,
-continues after a failed response and exits non-zero if any call failed. The
-worker source is present, but no deployment schedule or production run is
+calls CRM, CRM archive expiry, Integration, then Agent; it logs one JSON line per
+call, continues after a failed response and exits non-zero if any call failed.
+The worker source is present, but no deployment schedule or production run is
 claimed.
 
 | Method | Route | Contract | Failure |

@@ -106,12 +106,12 @@ $action = New-ScheduledTaskAction -Execute $dockerExe `
 
 $trigger = New-ScheduledTaskTrigger -Daily -At $At
 
-# The worker makes three serial route calls, each bounded to ten minutes.
+# The worker makes four serial route calls, each bounded to ten minutes.
 # Leave room for all domain sweeps and process/logging overhead.
 $settings = New-ScheduledTaskSettingsSet `
   -StartWhenAvailable `
   -DontStopOnIdleEnd `
-  -ExecutionTimeLimit (New-TimeSpan -Minutes 40) `
+  -ExecutionTimeLimit (New-TimeSpan -Minutes 50) `
   -RestartCount 1 `
   -RestartInterval (New-TimeSpan -Minutes 5)
 
@@ -120,7 +120,7 @@ Register-ScheduledTask `
   -Action $action `
   -Trigger $trigger `
   -Settings $settings `
-  -Description 'FR-230 nightly CRM, Integration and Agent retention sweeps (ADR-091 D1, D2). Runs scripts/server-retention-sweep-worker.mjs once daily inside the running `web` container via docker compose exec. Registered by scripts/register-retention-sweep-task.ps1.'
+  -Description 'FR-230 and FR-245 nightly CRM, CRM archive expiry, Integration and Agent retention sweeps (ADR-091 D1, D2; ADR-093 D5). Runs scripts/server-retention-sweep-worker.mjs once daily inside the running `web` container via docker compose exec. Registered by scripts/register-retention-sweep-task.ps1.'
 
 Write-Host "[zuri] Registered scheduled task '$TaskName' — daily at $($At.ToString('HH:mm')) local time."
 Write-Host "[zuri] Verify: Get-ScheduledTaskInfo -TaskName '$TaskName'"

@@ -26,13 +26,13 @@
     ]
   },
   "summary": {
-    "nodes": 84,
-    "edges": 118,
+    "nodes": 85,
+    "edges": 120,
     "chains": 22,
     "byKind": {
       "SOURCE": 13,
       "ENTRY": 24,
-      "PROCESS": 23,
+      "PROCESS": 24,
       "STORE": 17,
       "RECIPIENT": 7
     },
@@ -47,14 +47,14 @@
       "BLOCKED": 1,
       "DECLARED": 3,
       "PARTIAL": 2,
-      "CODE_TESTS": 38,
+      "CODE_TESTS": 39,
       "PRODUCTION": 20
     },
     "internalBySurface": {
       "NONE": 11,
       "WORKER": 12,
       "MCP": 0,
-      "ENDPOINT": 9,
+      "ENDPOINT": 10,
       "UI": 32
     }
   },
@@ -1704,6 +1704,49 @@
       "blocked": null
     },
     {
+      "id": "p.crm-archive-expiry",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "CRM chat archive expiry and chain retirement",
+      "detail": "Format-4 retirement row commits before expired archive file deletion; daily trigger follows the CRM archive writer",
+      "domain": "crm",
+      "requirements": [
+        {
+          "id": "FR-245",
+          "status": "verified",
+          "title": "Chat evidence cold archive"
+        }
+      ],
+      "features": [
+        "FEAT-041"
+      ],
+      "decisions": [
+        "ADR-093"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/crm/archive-expiry"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-retention-sweep-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
       "id": "p.market-translator",
       "kind": "PROCESS",
       "system": "zuri-ai",
@@ -2772,6 +2815,22 @@
       "label": "ข้อความขาเข้า / ขาออก",
       "wired": true,
       "status": "PRODUCTION"
+    },
+    {
+      "id": "e.crm-to-archive-expiry",
+      "from": "s.crm",
+      "to": "p.crm-archive-expiry",
+      "label": "verified Tenant manifest chain and expired archive candidates",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.archive-expiry-to-crm",
+      "from": "p.crm-archive-expiry",
+      "to": "s.crm",
+      "label": "format-4 retirement manifest; delete only after commit",
+      "wired": true,
+      "status": "CODE_TESTS"
     },
     {
       "id": "e.legacy-to-raw",

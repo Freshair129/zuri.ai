@@ -1,9 +1,10 @@
-// @req FR-230 — the testable core of the single-shot nightly retention sweep
-//   worker. Split out of `server-retention-sweep-worker.mjs` for the same
+// @req FR-230, FR-245, SEC-034 — the testable core of the single-shot nightly
+//   retention worker, including serial CRM archive expiry after the CRM chain
+//   writer. Split out of `server-retention-sweep-worker.mjs` for the same
 //   reason `worker-cadence.mjs` was split out of `server-line-worker.mjs`: that
 //   file is a top-level-await script whose import *is* the process, so nothing
 //   inside it can be exercised from a test.
-// @spec ADR-091 D1, D2
+// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0); SEC-001
 // @tested tests/unit/retention-sweep-worker-run.test.js
 
 const ALLOWED_PLAIN_HTTP_HOSTS = ['web', 'localhost', '127.0.0.1', '[::1]']
@@ -38,6 +39,8 @@ export function resolveRetentionSweepWorkerConfig(env = process.env) {
 function hasTenantSweepFailures(body) {
   return Object.values(body?.countsByClass ?? {}).some(counts =>
     Array.isArray(counts?.tenantFailures) && counts.tenantFailures.length > 0)
+    || Number(body?.counts?.skipped ?? 0) > 0
+    || Number(body?.counts?.failures ?? 0) > 0
 }
 
 /**
@@ -73,10 +76,11 @@ export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch
   }
 }
 
-// Ordered deployment sweep calls. Keep CRM first; additional domain sweeps
-// belong immediately after it so their order is explicit and easy to extend.
+// Ordered deployment sweep calls. CRM archive expiry follows the CRM writer
+// so both manifest-chain writers run serially before the other domain sweeps.
 export const RETENTION_SWEEP_CALLS = Object.freeze([
   Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true }),
+  Object.freeze({ name: 'archive-expiry', path: '/api/crm/archive-expiry', event: 'crm.archive-expiry.tick' }),
   Object.freeze({ name: 'integration', path: '/api/integration/raw-retention-sweep', event: 'integration.raw-line-retention-sweep.tick' }),
   Object.freeze({ name: 'agent', path: '/api/agent/trace-retention-sweep', event: 'agent.trace-retention-sweep.tick' }),
 ])

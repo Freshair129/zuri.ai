@@ -15,7 +15,7 @@ import {
   previewImport,
   importSnapshot,
 } from '@/modules/project-manager/application/backup-service'
-import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { computeManifestHash, hashMessageIdList } from '@/modules/crm/chat-evidence-archive-service'
 import {
   createPortfolio,
   createTenant,
@@ -1070,7 +1070,7 @@ describe('snapshot backup round trip', () => {
     }
   })
 
-  it('rejects an invalid archive predecessor before the destructive transaction and restores a child after its parent', async () => {
+  it('rejects an invalid archive predecessor and restores a format-4 retirement row after its parent', async () => {
     const snapshot = await exportSnapshot()
     const parent = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
     expect(parent).toBeTruthy()
@@ -1083,9 +1083,9 @@ describe('snapshot backup round trip', () => {
     expect(await prisma.project.count()).toBe(beforeProjects)
 
     const child = {
-      id: `${parent.id}-child`, tenantId: parent.tenantId, runId: 'RUN-BAK-002',
-      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-002'), fileSha256: 'c'.repeat(64),
-      messageCount: 2, messageIdListHash: 'b'.repeat(64), previousManifestId: parent.id,
+      id: `${parent.id}-retirement`, tenantId: parent.tenantId, runId: 'RUN-BAK-RETIREMENT',
+      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-RETIREMENT').replace(/\.zca$/, '.zcr'), fileSha256: 'c'.repeat(64),
+      messageCount: 0, messageIdListHash: hashMessageIdList([]), previousManifestId: parent.id,
       previousManifestHash: parent.manifestHash, createdAt: new Date(new Date(parent.createdAt).getTime() + 1000),
     }
     child.manifestHash = computeManifestHash(child)
@@ -1095,6 +1095,7 @@ describe('snapshot backup round trip', () => {
     expect(restored.restored).toBe(true)
     const rows = await prisma.archiveManifest.findMany({ where: { tenantId: parent.tenantId }, orderBy: { createdAt: 'asc' } })
     expect(rows.map((row) => row.id)).toEqual([parent.id, child.id])
+    expect(rows[1]).toMatchObject({ filePath: expect.stringMatching(/\.zcr$/), messageCount: 0, messageIdListHash: hashMessageIdList([]) })
   })
 
   it('rechecks an unavailable archive family inside the restore transaction when a row appears after preview', async () => {

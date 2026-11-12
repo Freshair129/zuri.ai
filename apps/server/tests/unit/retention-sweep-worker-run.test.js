@@ -2,10 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce,
   runRetentionSweepSequence, RETENTION_SWEEP_CALLS } from '../../scripts/retention-sweep-worker-run.mjs'
 
-// @req FR-230 — the testable core of the single-shot retention sweep worker:
+// @req FR-230, FR-245, SEC-034 — the testable core of the single-shot retention sweep worker:
 //   configuration validation, one authenticated call, and the one JSON line it
 //   ever logs. No customer content in any of the three.
-// @spec ADR-091 D1, D2
+// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0); SEC-001
 // @tested tests/unit/retention-sweep-worker-run.test.js
 
 const token = 't'.repeat(40)
@@ -93,6 +93,13 @@ describe('runRetentionSweepOnce', () => {
     expect(result).toEqual({ ok: false, status: 200, body })
   })
 
+  it('reports a skipped broken-chain archive Tenant as unsuccessful even when the route returned 200', async () => {
+    const body = { counts: { tenantsVisited: 2, skipped: 1, failures: 0 } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
   it('reports a network failure as UNAVAILABLE rather than throwing', async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'))
     const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
@@ -111,23 +118,26 @@ describe('runRetentionSweepOnce', () => {
 })
 
 describe('runRetentionSweepSequence', () => {
-  it('calls CRM, Integration and Agent in order and continues after a failure', async () => {
+  it('calls CRM, archive expiry, Integration and Agent in order and continues after a failure', async () => {
     const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
     const fetchImpl = vi.fn()
       .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ error: 'unavailable' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ counts: { tenantsVisited: 1, skipped: 0, failures: 0 } }) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'i1' }) })
       .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'a1' }) })
     const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl })
     expect(result.ok).toBe(false)
-    expect(result.results.map(entry => entry.name)).toEqual(['crm', 'integration', 'agent'])
+    expect(result.results.map(entry => entry.name)).toEqual(['crm', 'archive-expiry', 'integration', 'agent'])
     expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
       'http://127.0.0.1:3000/api/crm/retention-sweep',
+      'http://127.0.0.1:3000/api/crm/archive-expiry',
       'http://127.0.0.1:3000/api/integration/raw-retention-sweep',
       'http://127.0.0.1:3000/api/agent/trace-retention-sweep',
     ])
-    expect(fetchImpl).toHaveBeenCalledTimes(3)
+    expect(fetchImpl).toHaveBeenCalledTimes(4)
     expect(RETENTION_SWEEP_CALLS.map(call => call.event)).toEqual([
-      'crm.retention-sweep.tick', 'integration.raw-line-retention-sweep.tick', 'agent.trace-retention-sweep.tick',
+      'crm.retention-sweep.tick', 'crm.archive-expiry.tick',
+      'integration.raw-line-retention-sweep.tick', 'agent.trace-retention-sweep.tick',
     ])
   })
 })

@@ -1618,7 +1618,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-025",
@@ -2060,7 +2060,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -2763,7 +2763,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -2921,7 +2921,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-023",
@@ -3120,8 +3120,8 @@
           "title": "Chat evidence cold archive",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 22
+          "codeCount": 7,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -3376,7 +3376,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -3942,7 +3942,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 1
           }
         },
@@ -4258,7 +4258,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-028",
@@ -4604,7 +4604,7 @@
           "details": {
             "routes": 19,
             "inventoried": 19,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -5069,7 +5069,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -5869,7 +5869,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -6214,7 +6214,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6455,7 +6455,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6707,7 +6707,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7115,7 +7115,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7340,7 +7340,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 375,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7590,7 +7590,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 55
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -8814,8 +8814,8 @@
           "title": "Chat evidence cold archive",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 22
+          "codeCount": 4,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -9460,9 +9460,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 201,
-            "inventoried": 201,
-            "openApiPaths": 375,
+            "routes": 202,
+            "inventoried": 202,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -9527,8 +9527,8 @@
             }
           ],
           "details": {
-            "mutations": 151,
-            "guardedMutations": 150,
+            "mutations": 152,
+            "guardedMutations": 151,
             "reads": 94,
             "unguardedReads": 12
           }
@@ -10224,8 +10224,8 @@
         }
       ],
       "details": {
-        "routes": 249,
-        "apiRoutes": 201,
+        "routes": 250,
+        "apiRoutes": 202,
         "pageRoutes": 48,
         "ownedModels": 53,
         "featureNotes": 45
@@ -15385,8 +15385,8 @@
           "title": "Chat evidence cold archive",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 22
+          "codeCount": 11,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -15399,10 +15399,14 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
+        "apps/server/src/app/api/crm/archive-expiry/route.js",
         "apps/server/src/app/api/crm/conversations/[id]/reply/route.js",
         "apps/server/src/app/api/crm/customers/[customerId]/chat-evidence/retrieve/route.js",
         "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js",
         "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+        "apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js",
         "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
@@ -15410,6 +15414,8 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-archive-retirement.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -15428,12 +15434,16 @@
         "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/archive-storage-readiness.test.js",
+        "apps/server/tests/unit/crm-archive-expiry-route.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
+        "apps/server/tests/unit/crm-chat-evidence-archive-expiry-run.test.js",
         "apps/server/tests/unit/crm-legal-hold-migration.test.js",
+        "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/retention-sweep-worker-run.test.js"
       ]
     },
     {
@@ -16781,7 +16791,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 36,
-          "testCount": 55
+          "testCount": 56
         }
       ],
       "evidence": [
@@ -16830,6 +16840,7 @@
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-archive-retirement.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",

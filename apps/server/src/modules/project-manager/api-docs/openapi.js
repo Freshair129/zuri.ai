@@ -281,6 +281,8 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.
   ['/api/crm/retention-sweep', ['POST']],
+  // @req FR-245, SEC-034 — chain-safe archive expiry trigger (ADR-093 D5, P7).
+  ['/api/crm/archive-expiry', ['POST']],
   // @req FR-230 — Integration and Agent retain ownership of their own payload sweeps.
   ['/api/integration/raw-retention-sweep', ['POST']],
   ['/api/agent/trace-retention-sweep', ['POST']],
@@ -401,6 +403,20 @@ const zRetentionSweepResponse = z.object({
   countsByClass: z.record(z.string(), z.unknown()),
   alreadyRanToday: z.boolean(),
 }).strict().openapi({ description: 'Counts-only receipt for one domain-owned daily retention sweep.' })
+
+const zArchiveExpiryResponse = z.object({
+  counts: z.object({
+    tenantsVisited: z.number().int().nonnegative(),
+    keysDestroyed: z.number().int().nonnegative(),
+    holdKeysDestroyed: z.number().int().nonnegative(),
+    manifestsRetired: z.number().int().nonnegative(),
+    filesDeleted: z.number().int().nonnegative(),
+    retiredFilesStillPresent: z.number().int().nonnegative(),
+    skipped: z.number().int().nonnegative(),
+    failures: z.number().int().nonnegative(),
+  }).strict(),
+  alreadyRanToday: z.boolean(),
+}).strict().openapi({ description: 'Aggregate counts for one daily CRM archive-expiry run; no Customer IDs or file paths.' })
 
 const zLineStockDisclosureRequest = z.object({
   businessId: z.string().trim().min(1).max(200),
@@ -708,6 +724,7 @@ function registerInventoryOperations(registry) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
       const retentionSweep = methodName === 'post' && RETENTION_SWEEP_PATHS.has(path)
+      const archiveExpiry = methodName === 'post' && path === '/api/crm/archive-expiry'
       const knowledgeStudio = path.startsWith('/api' + '/control/knowledge-studio' + '/')
       const knowledgeReplay = path === '/api/knowledge/ingestions/{runId}/replay'
       const conversationRuntime = CONVERSATION_RUNTIME_PATHS.has(path)
@@ -720,7 +737,8 @@ function registerInventoryOperations(registry) {
       registry.registerPath({
         method: methodName,
         path,
-        summary: retentionSweep ? 'Run one domain-owned retention sweep'
+        summary: archiveExpiry ? 'Expire and retire CRM chat archives'
+          : retentionSweep ? 'Run one domain-owned retention sweep'
           : conversationAnalysis ? 'Read consent-gated analysis for one CRM Inbox conversation'
           : missionSubmission ? 'Submit a verified Agent draft as one planned WorkItem'
           : conversationRuntime ? `Private Conversation Runtime ${method} adapter`
@@ -728,7 +746,9 @@ function registerInventoryOperations(registry) {
           : lineStockDisclosure ? 'Set explicit LINE stock-disclosure grant'
           : knowledgeStudio ? `Knowledge Studio ${method} read`
             : `Route inventory: ${method} ${path}`,
-        description: retentionSweep
+        description: archiveExpiry
+          ? 'Deployment-authenticated with ZURI_RETENTION_SWEEP_TOKEN; accepts no request body and runs once per UTC day. Verifies each Tenant chain, appends one format-4 retirement file before deleting expired archive files, and returns aggregate counts only. Storage refusal and run-level failure answer 503.'
+          : retentionSweep
           ? 'Deployment-authenticated with the shared ZURI_RETENTION_SWEEP_TOKEN bearer; accepts no request body and returns only the audit event ID, per-class counts and whether this domain already ran today. CRM, Integration and Agent retain separate audit identities and sweep ownership.'
           : conversationAnalysis
           ? 'Session-authenticated, read-only projection for a conversation already visible in the selected Business Inbox. Enforces customer-domain visibility and current consent and erasure state; the response omits raw analysis-provider output. It does not add sibling-Business visibility or inference/provider operations.'
@@ -749,7 +769,7 @@ function registerInventoryOperations(registry) {
               ? 'Installation-operator-only, read-only projection of the generated Zuri document graph. No Business scope or database access is added; see Appendix A for bounds and unavailable states.'
               : 'Installation-operator-only, read-only exact Markdown lookup by a node ID in the generated graph. Source paths are resolved from indexed documents; see Appendix A for bounds and unavailable states.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: retentionSweep ? ['Data retention'] : conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
+        tags: archiveExpiry || retentionSweep ? ['Data retention'] : conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
@@ -768,12 +788,18 @@ function registerInventoryOperations(registry) {
               description: 'Session-bound API-write token issued by GET /api/auth/csrf.',
             }] : []),
           ],
-        ...(retentionSweep ? {} : { request: missionSubmission
+        ...(retentionSweep || archiveExpiry ? {} : { request: missionSubmission
           ? { body: { required: true, content: { 'application/json': { schema: zAgentMissionSubmission } } } }
           : conversationRuntime && methodName === 'post'
           ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope(runtimeContractVersion) } } } }
           : genericRequest(path, methodName) }),
-        responses: retentionSweep
+        responses: archiveExpiry
+          ? {
+            200: json(zArchiveExpiryResponse, 'Archive expiry completed or already ran today; aggregate counts only.'),
+            401: json(zError, 'RETENTION_SWEEP_CREDENTIAL_REQUIRED: valid deployment bearer required.'),
+            503: json(zError, 'ARCHIVE_EXPIRY_UNAVAILABLE: storage was refused or the bounded run failed.'),
+          }
+          : retentionSweep
           ? {
             200: json(zRetentionSweepResponse, 'Sweep completed or already ran today; counts only, no retained payload content.'),
             401: json(zError, 'RETENTION_SWEEP_CREDENTIAL_REQUIRED: valid deployment bearer required.'),
@@ -800,7 +826,9 @@ function registerInventoryOperations(registry) {
             503: json(zError, 'The verified Agent mission source is unavailable.'),
           }
           : conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
-        ...(retentionSweep
+        ...(archiveExpiry
+          ? { security: [{ RetentionSweepOperator: [] }], 'x-zuri-contract': 'chat-evidence-archive-expiry/v1' }
+          : retentionSweep
           ? { security: [{ RetentionSweepOperator: [] }], 'x-zuri-contract': 'retention-sweep/v1' }
           : conversationRuntime
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': runtimeContractVersion }
@@ -968,7 +996,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   })
   registry.registerComponent('securitySchemes', 'RetentionSweepOperator', {
     type: 'http', scheme: 'bearer', bearerFormat: 'opaque deployment token',
-    description: 'ZURI_RETENTION_SWEEP_TOKEN authenticates the deployment caller for domain-owned retention sweeps.',
+      description: 'ZURI_RETENTION_SWEEP_TOKEN authenticates the deployment caller for domain-owned retention sweeps and CRM archive expiry.',
   })
   registry.register('Error', zError)
   registry.register('LocalOllamaModelListResponse', zLocalOllamaModelListResponse)

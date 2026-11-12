@@ -183,7 +183,7 @@ describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
     expect(secondManifest.previousManifestHash).toBe(firstManifest.manifestHash)
 
     const chain = await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })
-    expect(chain).toEqual({ valid: true })
+    expect(chain).toEqual({ valid: true, retiredManifestIds: [] })
   })
 
   it('follows previousManifestId when query order is reversed and timestamps tie', async () => {
@@ -213,7 +213,7 @@ describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
     const manifest = await prisma.archiveManifest.findUnique({ where: { id: manifestRef.manifestId } })
 
     // Nothing wrong yet.
-    expect(await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })).toEqual({ valid: true })
+    expect(await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })).toEqual({ valid: true, retiredManifestIds: [] })
 
     // An edit to the file on disk, made after archiving — the database row is
     // untouched, only the evidence itself changed.
@@ -282,7 +282,7 @@ describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
     expect(await prisma.customerArchiveKey.findMany({ where: { tenantId: tenant.id }, orderBy: { customerId: 'asc' } })).toEqual(keysBefore)
     expect(await prisma.message.findUnique({ where: { id: first.messageId } })).toEqual(firstAfterSweep)
     expect(await prisma.message.findUnique({ where: { id: second.messageId } })).toEqual(candidateBefore)
-    expect(await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })).toEqual({ valid: true })
+    expect(await verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true })).toEqual({ valid: true, retiredManifestIds: [] })
     const filesAfter = await archiveFileSnapshot(baseDir)
     expect(Object.keys(filesAfter)).toEqual(Object.keys(filesBefore))
     expect(filesAfter).toEqual(filesBefore)

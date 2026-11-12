@@ -1,7 +1,7 @@
 ---
-version: "0.14.0b"
+version: "0.15.0b"
 status: active
-last_update: "2026-11-12T00:00:00+07:00,Codex"
+last_update: "2026-11-13T00:00:00+07:00,Codex"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -118,6 +118,17 @@ turn flows through before any agent work happens.
   Customer is held, revoking therefore needs Business OWNER authority and a
   reason. Readers
   (`retention-consent-reader.js`) query it at erasure, sweep and retrieval time.
+- `expireChatEvidenceArchive` / `runChatEvidenceArchiveExpiry` — FR-245 and
+  SEC-034's Tenant-scoped retention expiry. The per-Tenant service writes and
+  verifies one format-4 `.zcr` retirement file, rechecks each referenced row and
+  appends its zero-message manifest inside one transaction before deleting any
+  expired archive file. A legal-hold re-seal and a retirement file are never
+  retired; retrieval and hold re-seal skip retired rows and report unavailable
+  lines as missing. The run service processes Tenants in stable order, checks
+  production archive storage before any Tenant work, and records one counts-only
+  run audit. `POST /api/crm/archive-expiry` uses the deployment bearer; the
+  scheduled retention worker calls it after CRM's archive writer so the two
+  manifest-chain writers run serially.
 - `redactConversationContent` — the PDPA erasure writer (FR-022). A
   fourth narrow writer, and the only one that is called by another domain: erasure
   belongs to identity ("the only flow allowed to do so", identity's charter), but
@@ -358,7 +369,7 @@ MSP's own `chat_sessions` stay the memory unit, and their id is stored beside
 this one, never in place of it.
 
 [ADR-093](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md)
-(accepted 2026-09-16) gives this lane the **chat evidence archive** (FR-245, SEC-034,
+(accepted 2026-09-16; D5 amended 2026-11-13) gives this lane the **chat evidence archive** (FR-245, SEC-034,
 SDD-103): the retention sweep writes and verifies an encrypted local archive file
 before it tombstones a message body, a manifest model chains the files per Tenant,
 and a legal-hold record on a Customer is the one thing that defers destroying their
@@ -383,6 +394,16 @@ archive key on erasure.
 - **Safety.** Re-seal files are never deleted. A qualifying hold with a broken
   chain blocks the erasure.
 
+**D5 amendment (1.3.0, 2026-11-13):** expiry writes a `.zcr` format-4 retirement
+header and appends its ordinary zero-message `ArchiveManifest` row before deleting
+the retired `.zca` files. Verification accepts an exemption only from a matching,
+later retirement entry for an earlier non-retirement row in this Tenant's chain.
+Retrieval and hold re-seal skip retired rows; requested lines they held are
+reported in `missingMessageIds`. The deployment trigger is
+`POST /api/crm/archive-expiry`, guarded by `ZURI_RETENTION_SWEEP_TOKEN` and a
+same-UTC-day run audit; the shared worker executes it after the CRM retention
+sweep and before Integration and Agent retention calls.
+
 **FR-245 slice 1 built (2026-09-16, TASK-ZAI-111, not merged):** `owns_models` +=
 `CustomerArchiveKey`, `ArchiveManifest`. `chat-evidence-archive-crypto.js` mirrors
 `envelope-secret-store.js`'s AES-256-GCM AAD-bound construction under a dedicated
@@ -404,9 +425,9 @@ nothing counted) rather than aborting every other Tenant's sweep, and the audit
 event's `countsByClass.MESSAGE_BODY_AND_ATTACHMENTS` gains `archiveFailures` and
 `manifests` entries, present only when non-empty. `ZURI_ARCHIVE_DIR` names the
 archive's base directory; unset, it defaults to a per-machine temp directory so
-tests and every developer checkout need no configuration — the real production
-mount (`F:\zuri-cold-archive`, ADR-093 D3) is wired through the same env var by
-TASK-ZAI-114, out of this slice's scope. `replySource` on an archived line is read
+tests and every developer checkout need no configuration. The archive-expiry
+route and worker are now wired; production still requires the separately admitted
+`/archive` mount and host storage evidence from ADR-093 D3. `replySource` on an archived line is read
 from the `REPLY_DELIVERED`/`OUTBOUND_ACCEPTED`/`STAFF_REPLY_DELIVERED` audit event
 naming that message (the only place `STACK`/`TRANSPORT_FALLBACK`/`STAFF` are
 actually recorded — `Message` itself carries no such column), falling back to
@@ -447,6 +468,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.15.0b | 2026-11-13 | FR-245 / SEC-034 / ADR-093 D5 1.3.0: expiry now appends format-4 retirement files and manifest rows before deleting expired files; retrieval and hold re-seal skip retired rows; `POST /api/crm/archive-expiry` and its serialized daily worker trigger are wired. Production mount qualification remains separate | Codex |
 | 0.14.0b | 2026-11-12 | FR-230 / ADR-091 D2: corrects the CRM-owned sweep boundary; Integration and Agent now have separate sweep services and worker routes for their own retention classes, while CRM remains the Message/attachment writer | Codex |
 | 0.13.0b | 2026-10-05 | FR-278: add the CRM-owned aggregate SalesTask health read for Marketing; preserve Business/customer-domain visibility and omit task, Customer and Conversation details | Codex |
 | 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |

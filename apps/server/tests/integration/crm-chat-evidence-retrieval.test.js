@@ -15,8 +15,9 @@ import { makeViewer } from '../factories/viewer'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { runRetentionSweep } from '@/modules/crm/retention-sweep-service'
 import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
-import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { computeManifestHash, verifyManifestChain } from '@/modules/crm/chat-evidence-archive-service'
 import { retrieveArchivedChatEvidence } from '@/modules/crm/chat-evidence-retrieval-service'
+import { expireChatEvidenceArchive } from '@/modules/crm/chat-evidence-archive-expiry-service'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const PAST = RETENTION_DEFAULT_WINDOW_DAYS.MESSAGE_BODY_AND_ATTACHMENTS + 1
@@ -151,6 +152,40 @@ describe('FR-245 chat evidence retrieval (TASK-ZAI-112)', () => {
     const payload = JSON.parse(audit.payloadJson)
     expect(payload.messageCount).toBe(1)
     expect(payload.missingMessageIds).toEqual([])
+  })
+
+  it('keeps the chain valid after expiry, is not skipped on the next run, and reports retired lines as missing', async () => {
+    const { tenant, business } = await freshScope('retired')
+    const { viewer } = await ownerFor(business)
+    const live = { ...session, personId: viewer.principal.id }
+    const backdated = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'retired archive evidence' })
+    await runRetentionSweep({ now: new Date(), baseDir })
+    const archived = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
+
+    const firstExpiry = await expireChatEvidenceArchive(prisma, {
+      tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0,
+    })
+    expect(firstExpiry.deletedFiles).toEqual([archived.id])
+    expect(firstExpiry.retiredManifestIds).toEqual([archived.id])
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [archived.id] })
+
+    const manifestCount = await prisma.archiveManifest.count({ where: { tenantId: tenant.id } })
+    const secondExpiry = await expireChatEvidenceArchive(prisma, {
+      tenantId: tenant.id, now: new Date(Date.now() + 1000), baseDir, retentionYears: 0,
+    })
+    expect(secondExpiry.skipped).toBe(false)
+    expect(secondExpiry.retiredManifestIds).toEqual([])
+    expect(await prisma.archiveManifest.count({ where: { tenantId: tenant.id } })).toBe(manifestCount)
+
+    const { startDate, endDate } = todayRange()
+    const result = await retrieveArchivedChatEvidence(backdated.customerId, {
+      businessId: business.id, startDate, endDate, caseReference: 'DSP-RETIRED',
+    }, { viewer, session: live, baseDir })
+    expect(result.chainIntegrity).toEqual({ valid: true, retiredManifestIds: [archived.id] })
+    expect(result.sessions).toEqual([])
+    expect(result.manifests).toEqual([])
+    expect(result.missingMessageIds).toEqual([backdated.messageId])
   })
 
   it('reports missingMessageIds, returns no sessions, and still audits — rather than failing — when the archive file cannot be read from this root', async () => {
