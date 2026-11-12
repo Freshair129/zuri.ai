@@ -1,7 +1,7 @@
 ---
 version: "1.2.1"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-09-28T01:00:00+07:00,Claude Opus 5.5 (MC0)"
+last_update: "2026-11-12T12:00:00+07:00,Claude Fable 5.2"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -159,6 +159,125 @@ Every sweep decides again. Consent is read inside the transaction that blanks, u
 - A restore brings back keys destroyed after the snapshot was taken. This is true for `legalHoldArchiveKey` and was already true for `customerArchiveKey`.
 - The 10-year expiry still deletes a Customer-key file whose lines have all expired while its manifest row stays. That breaks chain verification with files in the same way the re-seal file deletion did, and is a follow-up.
 
+### D5 amendment (1.3.0, PROPOSED — not in force) — an expired file is retired in the chain before it is deleted
+
+> **Status: proposed on 2026-11-12, awaiting the owner's decision.** Nothing in this
+> section is implemented. Until it is accepted, the known limit above stands, and the
+> expiry run must not be scheduled: its first run deletes files, and from its second run
+> on, the Tenant's chain check fails with `ARCHIVE_FILE_MISSING`, which refuses every
+> later expiry run, every retrieval (D7) and every hold re-seal (1.2.0) for that Tenant.
+
+**The problem.** D5 deletes a file once every line in it has expired. The file's
+`ArchiveManifest` row must stay, because every later row's hash covers it and the sweep's
+audit events recorded those hashes. Chain verification with files then finds a row whose
+file is gone, and it cannot tell an expired file from a file somebody removed.
+
+Destroying keys alone does not replace deletion. A data key belongs to a Customer, not to
+a file: a Customer who keeps writing keeps their key alive, so their eleven-year-old lines
+stay readable until the old file itself is gone. D5 holds for a long-lived Customer only
+if expired files are really deleted.
+
+**P1 — The retirement record is a file in the archive, covered by the chain.** An expiry
+run that finds files to delete first writes one **retirement file** for the Tenant:
+archive format `v: 4`, a single JSON header line and no segments.
+
+```json
+{ "v": 4, "kind": "RETIREMENT", "tenantId": "…", "runId": "…", "createdAt": "…",
+  "reason": "RETENTION_EXPIRED", "retentionYears": 10,
+  "retired": [ { "manifestId": "…", "runId": "…", "filePath": "…", "fileSha256": "…",
+                 "manifestHash": "…", "messageCount": 12, "messageIdListHash": "…" } ] }
+```
+
+It holds no message content, no key and no Customer id. It is written with the routine
+every archive file uses (temporary name, fsync, rename, read back, compare the hash), under
+its own extension, `<runId>.zcr`, beside the `.zca` files. The extension is part of
+`filePath`, which the manifest hash covers, so what kind of file a row names cannot be
+changed without breaking the chain.
+
+**P2 — One ordinary manifest row is appended for it.** The retirement file gets a normal
+`ArchiveManifest` row at the end of the Tenant's chain, with `messageCount: 0` and the
+id-list hash of an empty list. There is **no schema change**: no new column or table, no
+migration, no change to `computeManifestHash`, to the backup validator or to the Phase B
+snapshot inventory. Every existing row keeps its hash.
+
+**P3 — Retire, then delete, and fail closed.** The order mirrors D2:
+
+1. write the retirement file and verify it on disk;
+2. in one transaction, re-read each manifest being retired and confirm it is unchanged,
+   then append the retirement file's manifest row to the chain tail;
+3. only after that commit, delete the retired files.
+
+A failure in step 1 or 2 deletes nothing, and a retirement file that no manifest row
+references is removed (the existing `removeUnreferencedArchiveFile` rule). A file that
+cannot be deleted in step 3 is not an error: it is *retired and still present*, and the
+next run deletes it. A file is therefore never missing without a committed retirement
+that names it.
+
+**P4 — What chain verification accepts.** The hash walk is unchanged. In the file pass, a
+manifest's file must be present and match its `fileSha256`, **unless the manifest is
+retired**. A manifest is retired only when a retirement file
+
+- is itself present and matches the `fileSha256` of its own manifest row,
+- belongs to a row **later in the same Tenant's chain**, whose `tenantId` and `runId`
+  equal the header's, and
+- names the retired manifest by id with the same `manifestHash`, `fileSha256` and
+  `filePath` the row holds.
+
+A retired manifest's file is neither required nor hashed. Anything else fails closed: a
+retirement entry naming an unknown row, a later row, another Tenant's row or a retirement
+row, or carrying a hash that does not match, makes the chain invalid
+(`RETIREMENT_INVALID`); a missing file with no valid retirement is still
+`ARCHIVE_FILE_MISSING`; and a missing or altered retirement file retires nothing, so the
+files it excused read as missing. A valid result names the retired manifest ids.
+
+**P5 — What may be retired.** Exactly the files the expiry run may delete today: every
+line in the file has expired for every Customer named in it, by the per-file rule already
+in `chat-evidence-archive-expiry-service.js`. A file holding a legal-hold re-seal segment
+is still never deleted (1.2.0 is unchanged), and a retirement file is never retired. A
+retirement file is a few hundred bytes, is written only by a run that retires at least one
+file, and is kept for the life of the chain.
+
+**P6 — What readers see.** Retrieval (D7) and the hold re-seal skip a retired manifest.
+The lines it held are reported in `missingMessageIds`, exactly as lines whose key was
+destroyed are reported today. The expiry run's `ARCHIVE_EXPIRY_COMPLETED` audit event
+additionally names the retirement manifest (id and hash), the manifests it retired, the
+files actually deleted, and the retired files still waiting to be deleted.
+
+**P7 — The trigger, built only after this amendment is accepted.** A bearer-authenticated
+route in the crm lane, called once per UTC day by the existing retention-sweep worker
+**after** that day's sweep has answered, runs the expiry for each Tenant in turn and
+writes one run-level audit event with per-Tenant counts beside each Tenant's own
+`ARCHIVE_EXPIRY_COMPLETED`. Running it after the sweep in the same worker keeps the two
+chain writers from appending at the same time.
+
+**Known limits this amendment adds or leaves.**
+- Chain appends are not serialised by a lock (true today for the sweep and the hold
+  re-seal). An erasure that re-seals at the same moment the expiry run appends could fork
+  the chain (`MANIFEST_CHAIN_BRANCH`). A unique index on the previous-manifest link would
+  turn that into a retryable conflict. It is a schema change and a separate follow-up.
+- A restore from a snapshot taken before a retirement brings back a chain that does not
+  know the retirement, while the files stay deleted. The `.zcr` file on disk still says
+  which rows were retired and why. Re-linking it is work for the chain-repair tooling
+  1.2.1 already records as missing.
+- The offline copy (D8, not built) must treat a retired manifest as not required, and
+  must delete retired files from the copy. Otherwise the expired lines of a Customer
+  whose key is still alive stay readable on the offline drive.
+- The format-1 migration in the 1.1.0 amendment needs "a missing file retired by a later
+  manifest". P4 is that rule; the migration itself stays unimplemented.
+
+**Alternatives considered.**
+
+| Alternative | Why not |
+|---|---|
+| A `retiredAt` column on `ArchiveManifest` | The flag sits outside the hash chain, so a row can be marked retired without leaving a trace in it. It also needs a migration applied under ADR-057 and a snapshot-inventory rebind before expiry could run |
+| Delete the manifest row and re-link the chain | Every later hash changes, and the manifest hashes the sweep's audit events recorded stop matching anything |
+| Never delete a file; destroy keys only (the re-seal file's rule) | A long-lived Customer's key never dies, so their expired lines would stay readable. D5 would not hold |
+| Mark the file itself | Archive files are write-once (D3), and their bytes are fixed by `fileSha256` |
+
+**Requirements.** No new id. SEC-034 already states the chain and FR-245 the archive's
+retention. On acceptance, SDD-103's record gains an explanatory note naming format 4; no
+statement, id or subject anchor changes.
+
 ## Owner decisions (2026-09-16)
 
 The owner accepted every proposed default.
@@ -208,6 +327,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.3.0 | 2026-11-12 | **proposed, not in force** | D5 amendment proposed: an expired file is retired by a chained retirement file (format 4, one ordinary manifest row, no schema change) before it is deleted, and chain verification accepts a missing file only when a valid later retirement names it. Closes the known limit of 1.2.0 once accepted and built. The frontmatter version stays 1.2.1 until the owner accepts |
 | 1.2.1 | 2026-09-28 | accepted | Runbook for a blocked erasure. The 409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` alert is now written durably after the rollback, as an ErrorEvent plus an `ERASURE_BLOCKED` audit event. The three ways to unblock are recorded, and so is the missing chain-repair tooling. A failure deciding orphaned lines after an archive committed is reported as its own `settleFailures` in the sweep audit, never as an archive failure |
 | 1.2.0 | 2026-09-27 | accepted | D6 amendment on the owner's ruling "consent to retain = keep": a sales-recorded, revocable, tenant-bound retention consent (`CustomerRetentionConsent`, `crm.retention-consent.write` on SALES_REP). (Q1) Erasing a member of a shared thread re-seals, under the held member's per-hold key (`LegalHoldArchiveKey`, format 3, one appended manifest), the lines that key would shred, only while that member has an active hold and an active consent. The hold key dies with the hold, the consent or the member. Re-seal files are never deleted, and a broken chain blocks the erasure. Revoking while held needs OWNER and a reason. Membership is per line. (Q2) A line past retention whose key Customer is erased is never archived: a staff, push or unknown-author line stays deferred while a member for it consents, and every other such line is blanked. Erasure revokes the erased Customer's consent and clears the FR-103 note and recorder |
 | 1.1.0 | 2026-09-27 | accepted | D4 amendment: a shared LINE group or room thread's archived lines are sealed per speaker (format 2), so erasure and the legal hold act on exactly one member's lines (FR-022); format-1 group files and their migration path recorded, not implemented |
