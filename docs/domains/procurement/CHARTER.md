@@ -18,7 +18,7 @@ owns_code:
   - src/modules/procurement/**
 technical_owner: TD-PROCUREMENT
 status: active-foundation
-version: "1.1.0"
+version: "1.1.1"
 created_at: "2026-09-07T02:00:00+07:00"
 updated_at: "2026-09-20T19:45:00+07:00"
 ---
@@ -97,7 +97,7 @@ paid amount already follow.
 | Sales orders, payments, revenue | Commerce | the sell side; the two lanes meet only in the ledger (a receipt adds, a fulfilled order removes) |
 | Purchase requests, approvals, RFQs, supplier quotes | **this lane, later** — each its own FR | a purchase order is created directly today |
 | Purchase returns, credit notes, supplier advances, supplier invoices and payables | future Procurement / Finance FRs | not modelled; a wrong receipt is corrected by an Inventory ADJUSTMENT |
-| Landed cost, valuation, COGS | future Finance | `unitCostSatang` is the agreed purchase price of this line, not a valuation and not Inventory's `baseCost` |
+| Landed unit cost and inventory valuation | Inventory | Procurement's receipt writer passes the computed landed unit cost to Inventory's `appendMovement` for `StockMovement.costSatang`; Procurement keeps the PO's `unitCostSatang` as the agreed purchase price. Future Finance owns COGS, journals and books |
 | Supplier candidates found in the market | Market Intelligence (`SupplierCandidate`) | evidence, not an approved `Supplier`; promotion is a human's decision recorded here as a new `Supplier` |
 | Asset procurement references (`AssetProcurementRef`) | Asset Management | a typed string that may name a PO or GRN code; resolving it to a row is a later FR |
 
@@ -189,5 +189,6 @@ notes, supplier invoices and payables, PricingRuleSet or quote lifecycle.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.1.1 | 2026-11-12 | active-foundation | Corrected the landed unit-cost valuation boundary: Inventory owns valuation, Procurement retains PO purchase price, and Finance owns COGS and books | working-tree | Codex |
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Procurement lane with suppliers, purchase orders, lines and goods receipts; the receipt-to-ledger contract and the two-ladder rule recorded in ADR-066 | working-tree | Claude Fable 5.1 |
 | 1.1.0 | 2026-09-20 | active-foundation | Added the bounded TASK-ZAI-053 supplier cost-sheet intake boundary: locked-FX source versions, confirmed price-break lines, Inventory-owned carton writes, Excel reader and local-only migration evidence | working-tree | Codex |

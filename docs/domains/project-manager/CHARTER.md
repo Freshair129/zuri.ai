@@ -109,8 +109,10 @@ identity, rename a domain, or change any model, route or write boundary.
   authority, and the five FR-285 agent roles remain a separate configuration.
 - **Every write goes through a service in `application/`** and records an
   AuditEvent — route handlers stay thin (CLAUDE.md convention).
-- **Progress is recomputed from pure calculators** in `progress/` (no I/O, no
-  clock); `progressCache` is advisory.
+- **Progress is recomputed from pure calculators** in `progress/` (no I/O).
+  Calculations are deterministic when `now` is supplied; `smartChecks`,
+  `expectedProgress` and `weekStartFor` default to the wall clock when it is
+  omitted. `progressCache` is advisory.
 - All intake converges on the one import lane (`import/`) — a new surface adds a
   converter/orchestrator, never a second write path (BR-009, SDD-009). A
   `PlanEnvelope` remains the canonical per-Project import unit and its
@@ -178,15 +180,18 @@ identity, rename a domain, or change any model, route or write boundary.
 
 ## Satellite modules in this lane
 
-Two small `src/modules/` folders are read-slices of this domain, not domains of
-their own — both write **nothing**:
+Two `src/modules/` folders support this domain; they are not separate domains,
+and their read/write duties differ:
 
-- `business` — the Business Strategy read model (FR-041/FR-043): serializes
-  BusinessRoadmap/Goals/Projects and projects the FR-269 KPI scorecard; all
-  source models are owned here.
-- `people` — the People Directory (FR-042): a Business-scoped view joining this
-  domain's `Membership` with crm's `Person` (read-only cross-domain read, the
-  pattern the architecture spec's §5.3 explicitly allows).
+- `business` — the Business Strategy read model (FR-041/FR-043) serializes
+  BusinessRoadmap/Goals/Projects and projects the FR-269 KPI scorecard. Its
+  capability and knowledge-candidate services update `Business` with audit
+  events; `office-design/service.js` writes the Office Design registry, revisions
+  and import receipts.
+- `people` — the People Directory (FR-042) is a Business-scoped read view joining
+  this domain's `Membership` with crm's `Person`. The adjacent `employment-service.js`
+  writes this domain's `Employment` model; it does not write CRM `Person` or Identity
+  `Membership`.
 
 ## Delivered in Phase 1 (FEAT-002, ADR-101 D6)
 
@@ -243,6 +248,9 @@ gates under ADR-057. See the
   retention — not that others cannot append through the helper.
 
 ## Documentation change history
+
+2026-11-12: Corrected satellite-module write descriptions and the progress
+calculator clock defaults; no ownership manifest changed.
 
 2026-10-23: expose the existing `project-manager` key as `domain_id` and link
 the proposed source-linked SRS. All ownership lists and public contracts are

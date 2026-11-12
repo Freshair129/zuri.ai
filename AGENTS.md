@@ -755,10 +755,12 @@ the same reason the group itself does not.
 place in Zuri's domain, client, authentication, API, or persistence boundaries,
 read the [client architecture design](docs/architecture/2026-10-22-visual-office-zuri-client-design.md)
 (candidate; it records the owner's 2026-10-23 approval of an optional, separately
-deployed client) and the candidate [ADR-116](docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md),
-which would amend the client-registration prerequisite for a same-origin first
-slice. Zuri owns identity, Business scope, business data and the contracts it
-produces. Neither document establishes a route, schema, permission or service
+deployed client; its §12 describes the FR-294/FR-295 handoff as built) and
+[ADR-116](docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md), accepted
+by the owner on 2026-11-07. For the first slice only, its decision 4 replaces
+the client-registration prerequisite with same-origin serving under explicit
+conditions. Zuri owns identity, Business scope, business data and the contracts
+it produces. Neither document establishes a route, schema, permission or service
 owner.
 
 ### 20. The legacy project's documentation (retired)
@@ -883,3 +885,5 @@ atlas and identifies its schematic limits and source authority; no UI behavior
 or design-system rule changes.
 
 Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.
+
+Version diff (2026-11-12): §19 states ADR-116 as accepted (2026-11-07) instead of candidate and points to the as-built handoff section of the Visual Office client design; no rule changes.
