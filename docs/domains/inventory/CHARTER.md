@@ -34,9 +34,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.6.0"
+version: "1.7.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-10-23T13:00:00+07:00"
+updated_at: "2026-11-12T21:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -234,7 +234,7 @@ another, an intake that does not know the SKU exists. Since ADR-083:
 | Catalogue *offers*, gift tiers, recipient segments, price tiers, corporate clients and their orders (`CatalogOffer`, `GiftTier`, `RecipientSegment`, `CorporateClient`, `ORDERED` in the owner's ontology) | future Commerce lane | Inventory holds the goods an offer is made of; the offer, its price and who bought it are Commerce's. See [ONTOLOGY.md](ONTOLOGY.md) |
 | Purchase orders, goods receipts, suppliers | Procurement (`docs/domains/procurement/CHARTER.md`, FR-164 / FR-165) | a goods receipt posts RECEIPT rows through this lane's exported `appendMovement` with `PO:<code>/GRN:<code>` as the reference; the PO and supplier stay Procurement's, and Procurement's role never widens this lane's write authority |
 | Physical company assets (equipment the Business owns and depreciates) | Asset Management | a different question — "what do we own" versus "what do we hold to sell or use up" |
-| COGS, journal posting, the books | future Finance | **inventory valuation** is owned here since ADR-074 D3: `StockMovement.costSatang` is the landed unit cost of a movement, integer satang, computed by `domain/inventory-costing.js`. It is a valuation of what we hold, not a book entry; `ProductMaster.baseCost` remains a catalogue attribute and is neither |
+| COGS, journal posting, the books | future Finance | **inventory valuation** is owned here since ADR-074 D3: `StockMovement.costSatang` is the landed unit cost of a movement, integer satang, computed by `domain/inventory-costing.js`. It is a valuation of what we hold, not a book entry; `ProductMaster.baseCost` remains a catalogue attribute and is neither. The valuation rule and its scope are stated once, in [Valuation](#valuation--one-rule-one-scope-fr-175-adr-074-d3) |
 | Warehouse bins, stocktake campaigns and the Warehouse console | the reserved `warehouse` bar slot (ADR-069 D3), still `soon` | **locations themselves are owned here** since ADR-074 D1: the location columns are attributes of `StockMovement`, which only this lane may write, and splitting the table from the columns would put a foreign key across a charter boundary. What stays reserved is the bins-and-stocktake UI, not the model |
 | FlowAccount catalogue and stock synchronisation | future Integration lane | this lane records FlowAccount's item code for a tradeable set on `Product.flowAccountSku`, unique per Tenant and never a key (BR-002/BR-032), and refuses a kitting run whose output has none; pushing anything to FlowAccount is not this lane's |
 | The graph projection (Neo4j-style nodes and edges) | Knowledge / GKS | the relational rows are the source; a projection reads them |
@@ -265,12 +265,74 @@ OWNER or the `INVENTORY_MANAGER` role binding (permission
 - On-hand, below-safety-stock and bundle availability are pure calculators in
   `domain/inventory.js`; no page shows a number a service would disagree with.
 
+## Valuation — one rule, one scope (FR-175, ADR-074 D3)
+
+This section is the single statement of how a unit of stock is valued. Code
+comments, feature notes and other documents point here instead of restating it.
+
+**The rule.** The unit cost zuri-ai shows on a product page, carries into a
+work order's output and prices a quote from is one number per product: the
+**moving weighted average of the stock on hand**, in integer satang. It is
+recomputed from the ledger on every read by `movingAverageValuation` in
+`domain/inventory-costing.js`, through the one reader in
+`application/inventory-valuation-service.js`. Nothing stores it, and no column
+holds a running average.
+
+**The scope is the product, Business-wide — not the location.** A `Product`
+belongs to one Business, so "per product" and "per product and Business" are the
+same thing. Valuation is deliberately not kept per location, for three reasons
+the decision record gives: ADR-074 D3 refuses any scheme in which one physical
+unit has two costs depending on who asks; D2 makes a transfer a change of place
+only, a pair of rows that sums to zero; and location is nullable on a movement,
+so a located figure could never account for the whole position. A transfer pair
+is therefore removed from the replay before anything is priced, whatever cost
+its rows carry.
+
+**How the replay works.** Movements are replayed in ledger order: `occurredAt`,
+then `createdAt`, then inflows before outflows, then `id`.
+
+| Movement | Effect on quantity | Effect on the average |
+|---|---|---|
+| Receipt with a cost | adds | blends in: `ceil((onHand × average + qty × cost) / (onHand + qty))`, exact integer arithmetic, rounded up as BR-027 rounds every shared cost |
+| Receipt with a cost onto an empty position | adds | becomes the receipt's cost; the position restarts |
+| Issue, or adjustment down | removes at the current average | none |
+| Transfer (issue at the source, receipt at the target) | none for the product | none |
+| Adjustment up with no cost (a count correction) | adds at the current average | none |
+| Receipt with **no** cost | adds, carried at the current average | none — and the figure is reported **partial** |
+
+The average moves only when a costed inflow lands. When the last unit leaves,
+the position keeps the average those units left at, so a work order that has
+just issued its final raw unit can still cost its output; the next costed
+receipt replaces that figure outright.
+
+**A receipt without a cost is never counted as free.** Its units enter the
+quantity and are carried at the running average (unknown stays unknown: a
+product that has never had a costed receipt reports `null`, not 0.00). The
+valuation is then flagged `partial`, with the number of uncosted units, from
+that receipt until the position empties and a costed receipt restarts it. A
+ledger row that cannot be interpreted is skipped, reported, and keeps the
+figure partial for the rest of the replay.
+
+**Who accepts a partial figure.** The product page shows it with a warning. The
+kitting, customization and de-kitting work orders use it, as they used an
+incomplete figure before. The pricing catalogue and the agent's quote tool
+refuse it (`PRICING_CATALOG_COMPLETE_LEDGER_COST_REQUIRED`,
+`INVENTORY_COST_UNKNOWN`): a published price must rest on complete cost
+evidence.
+
+**What is not the valuation.** `allTimeReceiptAverageSatang` — the average
+price paid across every receipt ever — is a purchasing statistic. It is shown
+under its own name and nothing may price, cost a work order or value stock from
+it. `ProductMaster.baseCost` is a catalogue attribute. Neither COGS nor a
+journal entry is produced here; those remain Finance's.
+
 ## Source layout
 
 ```text
 src/modules/inventory/
 ├── domain/inventory.js                      vocabularies, Zod contracts, pure calculators
-├── domain/inventory-costing.js              landed cost in satang, WAVG, the FlowAccount set pattern (FR-175, FR-177)
+├── domain/inventory-costing.js              landed cost in satang, the moving-average valuation replay, the FlowAccount set pattern (FR-175, FR-177)
+├── application/inventory-valuation-service.js the one reader every cost projection replays the ledger through (FR-175)
 ├── domain/inventory-wip.js                  scrap allowance, dedication guard, shelf life, ATP (FR-176..FR-180)
 ├── domain/warehouse-location.js             location contract, transfer rules, located on-hand (FR-174)
 ├── application/inventory-authority.js       the view / manage ladder, FR-072 refusals
@@ -344,6 +406,7 @@ from an import.
 - [ONTOLOGY.md](ONTOLOGY.md) — the owner's node/edge ontology and how each concept maps here
 - [FR-154 catalogue identity](features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 stock ledger](features/FR-155-inventory-stock-ledger.md)
+- [FR-175 moving-average valuation](features/FR-175-moving-average-valuation.md) — what each cost figure showed before and shows now
 - [FR-184 stocktake](features/FR-184-inventory-stocktake.md)
 - [FR-201 nature at the master](features/FR-201-nature-at-the-master.md)
 - [FR-202 variant identity](features/FR-202-variant-identity.md)
@@ -357,6 +420,7 @@ from an import.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.7.0 | 2026-11-12 | active-foundation | States the valuation rule and its scope in one place: the moving weighted average of the stock on hand, per product and Business-wide, replayed from the ledger (FR-175, ADR-074 D3). Every cost projection now follows it; the all-time receipt average is kept only as a separately named purchasing statistic. No model, migration or ownership change | working-tree | Claude Fable 5.2 (lead), Codex gpt-6-luna (implementation) |
 | 1.6.0 | 2026-10-23 | active-foundation | Registers FR-291 scoped customer stock disclosure policy and projection, default-OFF owner authorization and non-portable recovery boundary; Commerce and Knowledge retain price and publication authority | working-tree | Codex |
 | 1.5.0 | 2026-09-13 | active-foundation | Claimed `InventoryCatalogIntake` (FR-208) and recorded ADR-084: one catalogue intake envelope for JSON, Excel and LINE, a planner that resolves before it creates and never overwrites, a persisted preview whose plan hash an all-or-nothing commit must match, the Excel template/reader and Import tab (FR-209), and the parser and formatters behind the agent lane's `#sku` LINE command (FR-210). The catalogue writers now accept a transaction client | working-tree | Claude Opus 5 |
 | 1.4.0 | 2026-09-13 | active-foundation | Claimed `ProductIdentifier` and `ProductUnitConversion` (FR-203, FR-204) and recorded ADR-083's SKU governance: the nature declared at the master and inherited (FR-201), variant identity with a unique key per master and the lookalike guard (FR-202), the SKU lifecycle with PHASE_OUT / REACTIVATE / MERGE and the guarded ARCHIVE (FR-205), the read-only hygiene report on the new `/inventory/hygiene` tab (FR-206) and replenishment parameters (FR-207). Every ledger rule still reads the SKU; nothing existing changes meaning | working-tree | Claude Fable 5.1 |

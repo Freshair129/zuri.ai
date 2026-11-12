@@ -3,6 +3,8 @@
 // tests/integration/fr154-inventory-catalog.test.js and the in-scope cases of
 // fr201-inventory-sku-governance.test.js with the same inputs and expectations;
 // ARCHIVE and MERGE (AC-205) are in inventory-lifecycle.test.js.
+// @req FR-175 — product-page valuation reflects every ledger movement and marks uncosted stock partial.
+// @spec ADR-074 D3
 import { test, describe, before, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHarness, rejects } from '../support/harness.js'
@@ -206,6 +208,11 @@ describe('SCM additions', () => {
     assert.deepEqual(page.supplierCostPriceBreaks.map((b) => [b.minQty, b.unitCostBaht, b.currency, b.sheet.code, b.sheet.supplier.code]), [[1, 42.5, 'USD', confirmed.code, 'SUP-PAGE']])
     assert.deepEqual(page.costing.supplierCostPriceBreaks, page.supplierCostPriceBreaks)
     assert.equal(page.costing.costHistory.length, 1)
+    assert.deepEqual(page.costing.valuation, {
+      method: 'MOVING_WEIGHTED_AVERAGE', scope: 'PRODUCT', unitCostSatang: null, onHandQty: 4,
+      partial: true, partialReasons: ['UNCOSTED_RECEIPT'], uncostedQty: 4,
+    })
+    assert.equal(page.costing.allTimeReceiptAverageSatang, null)
   })
 
   test('a duplicate FlowAccount SKU is refused with the setFlowAccountSku code (legacy surfaced a bare database error)', async () => {

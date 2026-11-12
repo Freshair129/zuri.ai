@@ -81,9 +81,16 @@ export function workOrdersOf(sql, kind, businessId, { status, salesOrderId } = {
   ).map((row) => (kind === 'customization' ? { ...row, scrapAllowanceFactor: Number(row.scrapAllowanceFactor) } : { ...row }))
 }
 
+// @req FR-175 — the valuation readers replay every product movement through
+//   this common projection; receipt-only queries cannot represent depletion.
+// @spec ADR-074 D2, D3
+// @tested test/component/inventory-work-orders.test.js
 // ── Reads the work orders need from Inventory-owned tables ──────────────────
-/** RECEIPT rows of one SKU (quantity, costSatang) — the weighted-average landed cost input. */
-export const receiptsOf = (sql, productId) => sql.all("SELECT quantity, costSatang FROM StockMovement WHERE productId = ? AND kind = 'RECEIPT'", productId)
+/** Every movement field the Business-wide moving-average ledger replay reads. */
+export const movementsOf = (sql, productId) => sql.all(
+  'SELECT id, kind, quantity, costSatang, occurredAt, createdAt, reference, reason, sourceLocationId, targetLocationId, workOrderId FROM StockMovement WHERE productId = ? ORDER BY id ASC',
+  productId,
+)
 /** ACTIVE reservation rows of the given SKUs (liveness is decided against the clock by the kernel). */
 export function activeReservationsOf(sql, businessId, productIds) {
   if (!productIds.length) return []

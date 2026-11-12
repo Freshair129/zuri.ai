@@ -2,7 +2,7 @@ import {
   FACTORY_ENTITY, INVENTORY_CATEGORY_ENTITY, PRODUCT_BUNDLE_ENTITY, PRODUCT_ENTITY, PRODUCT_FAMILY_ENTITY, PRODUCT_MASTER_ENTITY,
   bundleAvailability, stockOnHand, zCreateBundle, zCreateCategory, zCreateFactory, zCreateFamily, zCreateProduct, zCreateProductMaster, zProductAction,
 } from '../../../kernel/inventory/inventory.js'
-import { weightedAverageUnitCostSatang } from '../../../kernel/inventory/inventory-costing.js'
+import { allTimeReceiptAverageSatang, movingAverageValuation } from '../../../kernel/inventory/inventory-costing.js'
 import { archiveGuard, lookalikeFingerprint, mergeRule, natureRule, parseVariant, parseVariantAxes, productLifecycleRule, variantKeyFor, variantValues } from '../../../kernel/inventory/inventory-governance.js'
 import { denied, inventoryAuthority } from '../../../infrastructure/delegation.js'
 import { enqueueOutbox, recordAudit } from '../../../infrastructure/evidence.js'
@@ -11,6 +11,10 @@ import * as repo from '../adapters/catalog-repo.js'
 import * as identityRepo from '../adapters/identity-repo.js'
 import * as wipRepo from '../adapters/wip-repo.js'
 
+// @req FR-175 — the product projection uses all ledger movements for the
+//   Business-wide moving valuation and keeps all-time receipt price separate.
+// @spec ADR-074 D2, D3; BR-027
+// @tested test/component/inventory-catalog.test.js
 // The Inventory catalogue writers (FR-154, FR-201, FR-202, FR-205, FR-207) inside
 // SCM — port of apps/server inventory-catalog-service with the same codes, the
 // same order of refusals and the same audit actions:
@@ -346,20 +350,32 @@ export function listBundles(sql, scope, { businessId }) {
   return bundles.map((b) => ({ ...b, availableSets: bundleAvailability(b.items, onHandByProductId) }))
 }
 
-/** The product page's Inventory half: the product, recomputed on-hand, receipt costing. */
+/** The product page's Inventory half: the product, recomputed on-hand and shared moving valuation. */
 export function getProduct(sql, scope, id) {
   const productId = typeof id === 'string' ? id.trim() : ''
   const row = productId ? repo.byId(sql, 'product', productId) : null
   if (!row || row.tenantId !== scope.tenantId) throw denied()
   reader(scope, row.businessId)
-  const movements = repo.productMovements(sql, row.id)
+  const movements = wipRepo.movementsOf(sql, row.id)
   const receipts = movements.filter((m) => m.kind === 'RECEIPT')
+    .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime() || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
   const latestWithCost = receipts.find((m) => m.costSatang !== null && m.costSatang !== undefined)
+  const valuation = movingAverageValuation(movements)
   return {
     ...productDto(row),
     onHand: row.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null,
     costing: {
-      weightedAverageLandedCostSatang: weightedAverageUnitCostSatang(receipts),
+      weightedAverageLandedCostSatang: valuation.unitCostSatang,
+      valuation: {
+        method: 'MOVING_WEIGHTED_AVERAGE',
+        scope: 'PRODUCT',
+        unitCostSatang: valuation.unitCostSatang,
+        onHandQty: valuation.onHandQty,
+        partial: valuation.partial,
+        partialReasons: valuation.partialReasons,
+        uncostedQty: valuation.uncostedQty,
+      },
+      allTimeReceiptAverageSatang: allTimeReceiptAverageSatang(receipts),
       lastReceiptCostSatang: latestWithCost ? latestWithCost.costSatang : null,
       costHistory: receipts.map((m) => ({ id: m.id, quantity: m.quantity, costSatang: m.costSatang ?? null, occurredAt: m.occurredAt, reference: m.reference ?? null })),
     },

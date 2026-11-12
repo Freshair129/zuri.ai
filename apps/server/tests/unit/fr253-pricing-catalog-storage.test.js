@@ -1,4 +1,4 @@
-// @req FR-253, FR-291 — computed PCAT sources use the configured private catalog
+// @req FR-175, FR-253, FR-291 — computed PCAT sources use the configured private catalog
 // storage path and retain byte-stable managed-blob reads for verified lineage.
 // @tested tests/unit/fr253-pricing-catalog-storage.test.js
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -25,8 +25,13 @@ const mocks = vi.hoisted(() => ({
 }))
 
 vi.mock('@/lib/db', () => ({ default: {} }))
-vi.mock('@/modules/inventory', () => ({ assertMayView: (...args) => mocks.assertMayView(...args) }))
-vi.mock('@/modules/inventory/domain/inventory-costing', () => ({ weightedAverageUnitCostSatang: vi.fn(() => 100) }))
+vi.mock('@/modules/inventory', () => ({
+  assertMayView: (...args) => mocks.assertMayView(...args),
+  INVENTORY_VALUATION_MOVEMENT_SELECT: {
+    id: true, kind: true, quantity: true, costSatang: true, occurredAt: true, createdAt: true,
+    reference: true, reason: true, sourceLocationId: true, targetLocationId: true, workOrderId: true,
+  },
+}))
 vi.mock('@/modules/project-manager/application/file-asset-service', async (importOriginal) => {
   const actual = await importOriginal()
   return { ...actual, createManagedBlobFileAsset: (...args) => mocks.createAsset(...args) }
@@ -134,7 +139,11 @@ function makeDatabase() {
       }),
     },
     product: { findFirst: vi.fn(async () => product) },
-    stockMovement: { findMany: vi.fn(async () => [{ id: 'receipt-1', quantity: 1, costSatang: 100, occurredAt: new Date('2026-10-01T00:00:00.000Z') }]) },
+    stockMovement: { findMany: vi.fn(async () => [{
+      id: 'receipt-1', kind: 'RECEIPT', quantity: 1, costSatang: 100,
+      occurredAt: new Date('2026-10-01T00:00:00.000Z'), createdAt: new Date('2026-10-01T00:00:00.000Z'),
+      reference: null, reason: null, sourceLocationId: null, targetLocationId: null, workOrderId: null,
+    }]) },
   }
   const db = {
     $transaction: vi.fn(async (callback) => callback(tx)),

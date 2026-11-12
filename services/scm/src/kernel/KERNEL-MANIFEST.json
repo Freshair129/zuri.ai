@@ -64,8 +64,8 @@
     {
       "source": "apps/server/src/modules/inventory/domain/inventory-costing.js",
       "kernel": "src/kernel/inventory/inventory-costing.js",
-      "sourceSha256": "85bb2db729276b13534a26db8bab562be6fa4ce75c68efb30babfd76be9271a9",
-      "kernelSha256": "85bb2db729276b13534a26db8bab562be6fa4ce75c68efb30babfd76be9271a9"
+      "sourceSha256": "0506e3868fc38d7553806db651d39e2263bb42aa08512a0af19305c58d2d2300",
+      "kernelSha256": "0506e3868fc38d7553806db651d39e2263bb42aa08512a0af19305c58d2d2300"
     },
     {
       "source": "apps/server/src/modules/inventory/domain/inventory-governance.js",
