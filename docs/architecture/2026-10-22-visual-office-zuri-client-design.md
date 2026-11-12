@@ -1,10 +1,10 @@
 ---
 id: ZAI:VISUAL-OFFICE-CLIENT-DESIGN
 title: Visual Office as an optional Zuri platform client
-version: "0.3.1"
+version: "0.4.0"
 status: candidate
 created_at: "2026-10-22"
-last_update: "2026-11-07"
+last_update: "2026-11-12"
 author: Freshair129 (2026-10-22 draft); Claude Opus 5.5 (2026-11-06 reconciliation)
 superseded_by: null
 source_of_truth: false
@@ -206,5 +206,114 @@ No snapshot/domain registry, roster, command, event or scene-save contract from 
 The 2026-10-23 owner approval stated in the status line is recorded in this design itself (checkpoint `f4aec274`, committed from the owner's account). No separate approval artifact exists, and that checkpoint noted that governance and semantic re-review were still pending. The frontmatter therefore stays `candidate`. The approval covers the client placement and floor projection only.
 
 **Version diff 0.2.0 → 0.3.0 (2026-11-06):** Lands the checkpoint on current `main`; adopts current metadata; replaces links to the removed plan with a commit-pinned historical link; adds §11 reconciliation with FR-294/FR-295 and the ADR-116 proposal. The 2026-10-23 owner approval of the client placement is unchanged; no contract, route or implementation claim is added.
+
+## 12. The handoff as built (FR-294, FR-295)
+
+Sections 1 to 10 describe a target. This section describes the one integration
+that exists in code, on both sides, read from `apps/server/` at `49b10eb3` and
+the Visual Office repository (`Freshair129/visual-office`) at `1dff013d`. It
+adopts nothing new and does not satisfy the §8 gates.
+
+### 12.1 What each side holds
+
+| | Visual Office | zuri.ai |
+|---|---|---|
+| Runs as | A static browser application (Three.js) | The Core server (`apps/server`) |
+| Stores | Editor state and drafts in `localStorage`; custom GLB files in IndexedDB. No shared scene database | `OfficeDesignRegistry`, `OfficeDesignIdentity`, `OfficeDesignRevision`, `OfficeDesignBlob` (GLB bytes in the database), `OfficeDesignImportReceipt` |
+| Identity | Stable UUIDv5 design ids derived from entity kind and semantic key | Its own UUID per design entity, with the crosswalk `(registryId, externalId)` |
+| Authenticates | It does not. It holds no Zuri credential | The signed-in person's `zuri_session` in the popup |
+| Authority | None over Zuri data | Current Business ownership, rechecked at commit |
+
+The package is `zuri-office-design-handoff/v1`: a ZIP with a manifest of typed
+entities and optional GLB assets. Its Tenant, Business and Workspace context is
+null — the person chooses the target inside Zuri, never inside the package.
+
+### 12.2 The flow
+
+```text
+Visual Office (its own origin)                 Zuri (its own origin)
+  person clicks "send to Zuri"
+  ── open popup /office-handoff#origin&nonce ─▶  page checks the opener's origin
+                                                 against OFFICE_HANDOFF_ALLOWED_ORIGINS
+  ◀──────────── office-ready (nonce) ─────────  
+  build ZIP from the saved scene
+  ── office-package (ZIP bytes, nonce) ───────▶  GET /api/office-design-targets
+                                                 person picks a Business Workspace
+                                                 GET /api/auth/csrf
+                                                 POST /api/businesses/[id]/office-designs
+                                                   If-Match · Idempotency-Key · x-csrf-token
+                                                 verify → one transaction → audit
+                                                 GET the committed revision and mappings
+  ◀──────────── office-complete (version, count)
+```
+
+Both sides check `event.origin`, the window that sent the message, and the
+nonce. Visual Office refuses a Zuri origin that shares its hostname on a
+different port, and anything that is not HTTPS or loopback; Zuri accepts only exact origins from its
+allow-list, HTTPS or loopback. The API call is same-origin from the popup, so
+no CORS configuration exists or is needed.
+
+### 12.3 What the receiver does with an untrusted archive
+
+1. **Request gate** (`office-design/http.js`): a `cross-site` fetch is refused;
+   the session-bound API write CSRF token is required; `If-Match` carries the
+   expected registry version; `Idempotency-Key` is required; the body must be a
+   ZIP of at most 100 MB, enforced while streaming.
+2. **Admission**: at most two uploads are in flight per process; a third gets
+   `503 OFFICE_VERIFIER_BUSY`.
+3. **Verification** (`verify.js`, `validation-worker.mjs`): a Node worker thread
+   with V8 heap limits and a 30-second timeout runs the **pinned** archive
+   reader and semantic verifier from `apps/server/vendor/office-design/`. It
+   never runs code from the package. Paths and compression are allow-listed,
+   sizes and CRCs are checked without extracting, GLB containers are inspected
+   and external `uri` references are refused, and the graph is capped at 20,000
+   entities, 15 workflows and 63 steps.
+4. **Commit** (`service.js`): one transaction re-authorizes the target
+   (current Business owner; active Workspace, Business and Tenant), replays an
+   identical earlier request from its receipt, compares and increments the
+   registry version, adds identities for entities not seen before, stores
+   blobs not already held, writes the revision and an `OFFICE_DESIGN` /
+   `REGISTER_DESIGN_REVISION` audit event scoped to the Tenant and Business,
+   then writes the receipt. A same-key request with different content is a
+   `409`. `?dryRun=1` validates and reports counts without writing.
+5. **Refusals are 404-shaped** for anything about the target the caller may not
+   see.
+
+The result states `runtimeAgentsCreated: 0` and `permissionsGranted: 0`. The
+receiver creates design custody only: no Agent runtime, no physical Asset, no
+Membership and no approval.
+
+### 12.4 The verifier pin
+
+`apps/server/vendor/office-design/provenance.json` pins the producer at
+revision `b4e2d8ed…` of `Freshair129/zuri-visual-office`, and every stored
+revision records that value as `producerRevision`.
+
+- That repository is the archived predecessor. In the current Visual Office
+  checkout the pinned commit is reachable only from the `archive` remote, not
+  from `origin` (`Freshair129/visual-office`).
+- Of the 31 pinned producer source files, 28 are identical at `1dff013d` and
+  three have changed since the pin: `web/office-characters.js`,
+  `web/tycoon-models.js` and `web/tycoon-state.js`. The Three.js version is the
+  same (`0.180.0`).
+- zuri.ai's package tests use fixtures built from the pinned revision. No test
+  on either side feeds a package built by current Visual Office to the pinned
+  verifier, so whether today's exports are accepted is not established.
+
+### 12.5 Not built
+
+| Gap | State |
+|---|---|
+| Portable recovery | Generic JSON backup and restore refuse while any Office Design registry exists (`backup-boundary.js`, `OFFICE_DESIGN_RECOVERY_UNAVAILABLE`). Whole-database recovery is the only path |
+| Same-origin `/office/` serving | Accepted in ADR-116 decision 4 with its CSP and artifact-hash conditions; not implemented |
+| Separately hosted client enrollment | The fallback if same-origin serving cannot meet its conditions; no registration or token contract exists |
+| Identities dropped from a later design | A later revision adds missing identities and never retires one. Whether an omitted entity stays as history, is retired or may be deleted is undecided |
+| Process-level containment of the verifier | The worker has heap limits and a timeout; total process memory is not bounded by them |
+| Snapshot, roster, command and event contracts | Named by ADR-116 for separate requirements; none issued |
+
+**Version diff 0.3.1 → 0.4.0 (2026-11-12):** Adds §12, an as-built description
+of the FR-294/FR-295 handoff on both sides, the state of the verifier pin and
+the list of what is not built. No contract, route, permission or approval is
+added, and the §8 gates are unchanged.
 
 **Version diff 0.3.0 → 0.3.1 (2026-11-07):** Records that the owner accepted ADR-116, including its decision 4 amendment of §8 gate 1 for the first slice. No contract, route or implementation claim is added.

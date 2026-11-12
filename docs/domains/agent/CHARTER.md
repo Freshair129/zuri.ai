@@ -1,5 +1,5 @@
 ---
-version: "0.8.0b"
+version: "0.8.1b"
 status: active
 last_update: "2026-10-16,Codex"
 id: ZAI:DOMAIN-AGENT
@@ -108,10 +108,10 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   remains `NOT_CONFIGURED` until apply; identical apply is idempotent, conflicting
   versions or content refuse without overwrite. Provider provisioning, live-agent
   activation, upgrades and bulk backfill are outside this v1 contract.
-- `POST /api/agent/line-webhook` — this lane's inbound seam (FR-028). It is no longer
-  the product's only LINE inbound seam: a `serverEnabled` account is refused here and
-  enters through the Studio's native `POST /api/line-oa/accounts/[id]/webhook`
-  (FR-149, ADR-061), which never calls `handleAgentTurn`.
+- `POST /api/agent/line-webhook` — the former FR-028 Agent ingress. The route is
+  absent from the current API tree. Inbound LINE traffic enters through LINE OA
+  Studio's `POST /api/line-oa/accounts/[id]/webhook` (FR-149, ADR-061), which
+  never calls `handleAgentTurn`.
 - `withLineCatalogCommand(answer)` / `lineCatalogViewer(job)` (`line-catalog-command.js`,
   FR-210, ADR-084 D4) — wraps the native worker's answer port: a DIRECT-chat `#sku`
   text from a sender whose LINE channel identity is verified and whose resolved
@@ -122,11 +122,8 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   (SDD-091, BR-042).
 - `handleAgentTurn` — one end-to-end turn; identity resolution and policy
   checks happen before any memory-port call (FR-057).
-- `GET`/`POST`/`DELETE /api/agent/heartbeat` — the Business-scoped Edge Device
-  liveness view (FR-141, ADR-041 D3): trusted viewer on every method, registry
-  keyed by the viewer's owned Business, process-local per instance by decision,
-  registration/transition/removal audited. It is a cache of a device's last
-  heartbeat, not a pairing record — durable pairing is undeclared.
+- `/api/agent/heartbeat` — the former FR-141 Edge Device liveness route, retired
+  by ADR-110 and absent from the current API tree.
 - `GET /api/agent/approval-requests?businessId=...` and
   `POST /api/agent/approval-requests/{requestId}/decision` — authenticated
   same-Business OWNER queue and decision surface for Agent-owned FR-026 approval
@@ -161,28 +158,32 @@ owner-only read-only playback route. MSP Soul sessions and runtime assembly,
 GKS retrieval and the optional Edge adapter remain external phase gates; this
 charter does not authorize direct writes to their repositories or databases.
 
-## Context Composer, memory tiers and grounding composition (ADR-091, ADR-090 — declared, not built)
+## Context Composer, memory tiers and grounding composition (ADR-091, ADR-090 — composer and grounding implemented)
 
 [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
 and [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)
-(accepted 2026-09-14) give this lane three planned responsibilities. None exists in
-code yet; `owns_models` changes only when a model lands.
+(accepted 2026-09-14) assign this lane three responsibilities. The Context Composer
+and GKS grounding are implemented in the repository: `apps/server/src/modules/agent/context-composer.js`
+is called from `apps/server/src/modules/agent/server-line-answer.js` and covered by
+`apps/server/tests/unit/context-composer.test.js`. CRM/ERP fact records remain a
+later phase and `records` is empty on every caller today. Agent-side memory
+consolidation summaries remain unbuilt; `owns_models` is unchanged.
 
-- **Context Composer (FR-234, SDD-100).** A module, `src/modules/agent/context-composer.js`,
-  not a service: this lane stays the turn orchestrator. It assembles every model
-  prompt from the AuthContext, MSP slices with provenance, knowledge evidence with
-  citation ids, CRM/ERP facts and account policy; authorization first, then
+- **Context Composer (FR-234, SDD-100) — implemented.** A pure module, not a service:
+  this lane stays the turn orchestrator. It composes already-fetched MSP slices
+  with knowledge evidence and citation ids under one prompt-wide budget; authorization first, then
   CRM/ERP record over GKS evidence over MSP memory, with memory that contradicts a
   record dropped as `SUPERSEDED_BY_RECORD`; one prompt-wide budget with reported
   trims; group slices never cross threads; a denial yields an empty packet; no
   evidence and no facts means no model call. Each model invocation records one
   `ContextReceipt` (references, hash, budget) on `AgentTraceEvent`, referenced by
-  MSP's injection receipt. A follow-on to FR-171-P2; it moves assembly out of
-  `createServerLineAnswer`.
+  MSP's injection receipt. CRM/ERP records are not yet supplied by callers. A
+  follow-on to FR-171-P2, it moves composition into this module.
 - **Memory tiers (FR-230, FR-231, FR-232).** CRM holds the business record; MSP's
-  session tier is the agent's 90-day ledger, consolidated on session close into
-  episodic and passport memory. MSP calls no model, so **this lane produces the
-  consolidation summaries** and sends them back. MSP persists nothing into
+  session tier is the agent's 90-day ledger. LINE OA Studio implements the
+  per-job `MemoryProjectionReceipt`; publisher opt-in for memory sync defaults to
+  off. Agent-side summaries for session-close consolidation into episodic and
+  passport memory are not built. MSP calls no model, persists nothing into
   GenesisBlockDB, and the GenesisBlockDB write-ahead log is never a chat buffer.
   API-011 session/thread projection and API-010 → API-009 episodic access remain
   separate authorization paths. LINE OA Studio owns the per-job
@@ -191,15 +192,16 @@ code yet; `owns_models` changes only when a model lands.
   worker exposes `PENDING_MSP` until MSP returns an erasure receipt. Production
   episodic access stays off until the signed API-010 contract is accepted on MSP
   main and release gates pass. Trace input snapshots gain a 90-day retention window.
-- **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
-  lane's corpus reader into the server answer by the account's grounding mode and
-  records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
-  for this.
+- **Grounding composition (FR-235, SDD-099) — implemented.** The server answer
+  composes budgeted corpus evidence by the account's grounding mode in the same
+  call as MSP slices and records `retrievalRefs`, source and reason on
+  `EVIDENCE_SELECTED`; this lane owns no model for it.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.8.1b | 2026-11-12 | Corrected the Context Composer and grounding status, marked Agent memory consolidation unbuilt, and retired the former Agent LINE webhook and heartbeat routes | Codex |
 | 0.8.0b | 2026-10-16 | TASK-ZAI-010: owns the Agent L1-L4 request/decision ledger and authenticated same-Business OWNER decision API; preserves Identity, Gate F, HIGH step-up, canonical writers, audit and PM separation | Codex |
 | 0.7.0b | 2026-10-15 | FR-285: owns BusinessAgentConfig and its scoped administration route; separates internal FR-074 provisioning from persisted owner administration and preserves Gate F/provider boundaries | Codex |
 | 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |
