@@ -25,7 +25,20 @@ All three first drafts were rejected:
 Every correction was checked against source by the lead and applied. About
 half of the Identity diagram's errors predated this change (function names that
 do not exist, viewer fields, the plugin token prefix, a LINE flow the code does
-not follow). The corrected documents have not been reviewed a second time.
+not follow).
+
+A second independent pass followed. The Identity diagram was rejected again
+(8 wrong, 10 imprecise; several were lines the first pass had not reached, such
+as the Asset Register refusal being 403 for an ungranted domain and 404 for an
+invisible Business, and a route count of 24, not 17, once helper-delegated
+routes are counted). The identifier document was accepted with corrections
+(2 wrong, 6 imprecise). Both were corrected. The pipeline document has had one
+independent pass. No document has been checked a third time.
+
+One finding from the second pass is a code gap, not a documentation error: the
+password-reset token is not enforced as single-use under concurrent requests,
+because consumption does not condition the update on `usedAt` being null
+(`apps/server/src/modules/identity/auth-service.js`, around line 357).
 
 ## 1. Verdict per domain
 

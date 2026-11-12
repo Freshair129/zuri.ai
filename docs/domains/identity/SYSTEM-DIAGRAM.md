@@ -55,7 +55,7 @@ flowchart TB
         
         DOMAIN_PEP["<b>Domain Visibility Gate</b><br/><code>assertDomainVisible(viewer, bizId, domain)</code><br/><i>(CRM, Market, Assets, PM)</i>"]
         
-        SCOPE_PEP["<b>Scope Isolation Guard</b><br/><code>authorizeScope(viewer, targetScope)</code><br/><i>404-shaped Generic Refusals (FR-072)</i>"]
+        SCOPE_PEP["<b>Scope Isolation Guard</b><br/><code>authorizeScope(context, options)</code><br/><i>Returns a decision; the calling gate maps a refusal to 404 (FR-072)</i>"]
     end
 
     %% Domain Subsystems & Protected Workloads
@@ -70,7 +70,7 @@ flowchart TB
     subgraph PERSISTENCE["5. Identity Persistence Models (SQLite / PostgreSQL)"]
         direction TB
         DB_PERSON[("👤 Person & PersonCredential<br/>PasswordResetToken, PlatformGrant")]
-        DB_MEMBERSHIP[("🏢 Membership & RoleBinding<br/>(BusinessId, Role, DomainGrants)")]
+        DB_MEMBERSHIP[("🏢 Membership (businessId, role, domainKeysJson)<br/>& RoleBinding (businessId, roleKey)")]
         DB_WORKSPACE[("📁 WorkspaceMembership & AccessInvite<br/>(Collaboration boundary)")]
         DB_KEYS[("🔑 Session, ApiAccessKey,<br/>SotDataPlaneKey, PluginSession<br/><i>(SHA-256 Digests only)</i>")]
         DB_EXT[("🔗 ExternalIdentity & ChannelIdentity<br/><i>(External IDs != Primary Keys)</i>")]
@@ -79,14 +79,13 @@ flowchart TB
 
     %% Connections
     C_WEB --> R_SESSION
-    C_LINE --> R_LINE
+    C_LINE -. "webhook, admission, CRM ingest (Flow C)" .-> R_LINE
     C_API --> R_APIKEY
     C_SOT --> R_SOTKEY
     C_PLUGIN --> R_PLUGIN
 
     R_SESSION --> VIEWER_GEN
     R_LINE --> DB_EXT
-    R_LINE --> VIEWER_GEN
     R_PLUGIN --> VIEWER_GEN
     
     VIEWER_GEN --> DB_PERSON
@@ -121,7 +120,7 @@ Per **ADR-047 D2**, credentials cannot be reused across mismatched security boun
 | **SoT Data Plane Key** | `Bearer sdpk_...` | **Tenant-bound** | `{ isSotDataPlane: true, tenantId, serviceAccountId }` — no Person; routes test it with `isSotDataPlaneFor(tenantId)` | SoT decision submit and export; the knowledge pipeline reporter routes under `/api/pipelines/knowledge/[executionRunId]` (ADR-067) |
 | **Plugin Session** | An opaque Bearer token (32 random bytes, base64url; 15-min TTL), stored as a hash | **Person-Delegated** via PKCE + Consent | `Viewer` without platform authority | IDE Tools, Codex MCP calls |
 | **API write CSRF token** | Header token from `GET /api/auth/csrf`, bound to the live session; lives at most 15 minutes and never past the session's expiry | **One session** | None. The write guard checks `Origin` separately; the token proves the caller holds that session | The session-cookie writes listed in §7 |
-| **Password reset token** | One-use token, 1-hour TTL, stored as a SHA-256 digest | **One Person** | None — it authorizes one credential change | `POST /api/auth/reset-password` |
+| **Password reset token** | Token meant for one use (rejected once used; see §8 on concurrent use), 1-hour TTL, stored as a SHA-256 digest | **One Person** | None — it authorizes one credential change | `POST /api/auth/reset-password` |
 | **Internal service bearer** | Deployment bearer token, one per contract | **One service contract** | Service identity only; Core re-resolves scope per call | `/api/internal/conversation-runtime/*`, `/api/internal/market-intelligence/*`, `/api/internal/scm/*`, `/api/line-oa/worker` and `/api/line-oa/rich-menu-worker` (the two LINE workers share one token) |
 | **Provider webhook signature** | HMAC-SHA256 over the raw body (`X-Line-Signature`, `X-Notion-Signature`). Notion's first-time setup challenge is checked against a pinned verification token instead | **One provider account** | Verified origin of one event | LINE and Notion webhook routes |
 | ~~Edge Device Credential~~ | `Bearer edgk_...` | Retired by ADR-110 | — | No route. Schema rows are historical |
@@ -158,10 +157,13 @@ sequenceDiagram
     DB-->>IdentitySvc: Grants & Roles
     IdentitySvc-->>DomainRoute: Canonical Viewer (ownedBiz, visibleBiz, domains)
     
-    DomainRoute->>IdentitySvc: assertDomainVisible(viewer, "biz_01", "assets")
-    alt User lacks "assets" domain grant in biz_01
-        IdentitySvc-->>DomainRoute: Refuses (404-shaped)
+    DomainRoute->>IdentitySvc: resolveAssetRequestScope(viewer, "biz_01")
+    alt Business not visible to the viewer
+        IdentitySvc-->>DomainRoute: Refuses
         DomainRoute-->>Web: 404 Not Found (Generic Security Shape - FR-072)
+    else "assets" domain not granted in biz_01
+        IdentitySvc-->>DomainRoute: Refuses
+        DomainRoute-->>Web: 403 Forbidden
     else User is Authorized
         DomainRoute->>DB: Query Registered Assets for biz_01
         DB-->>DomainRoute: Return Asset records
@@ -199,8 +201,8 @@ sequenceDiagram
     Line->>Hook: POST events, header X-Line-Signature
     Hook->>Hook: Verify HMAC-SHA256 over the raw body
     Hook->>Hook: Store raw evidence and an admission marker
+    Hook-)Admit: Start admission (not awaited)
     Hook-->>Line: 2xx
-    Hook-)Admit: Start admission (asynchronous)
     Admit->>Ingest: Ingest the message in the admission transaction
     Ingest->>Resolver: resolveLineIdentity({ tenantId, lineUserId, channelAccountId, displayName })
     Resolver->>DB: Look up ChannelIdentity, then ExternalIdentity
@@ -209,7 +211,7 @@ sequenceDiagram
     else First contact
         Resolver->>DB: Create Person + ExternalIdentity + ChannelIdentity
     end
-    Resolver-->>Ingest: Person and channel identity
+    Resolver-->>Ingest: personId, identity ids and status, channelIdentity
     Ingest->>Ingest: Find or create the Tenant's Customer for that Person
 ```
 
@@ -225,13 +227,13 @@ a LINE subject is mapped through `ExternalIdentity` and `ChannelIdentity`. The
 ## 4. Non-Negotiable Invariants
 
 1. **External IDs are Never Primary Keys (BR-002):**
-   - External identifiers (`lineUserId`, `taxId`, `dbdNumber`, `deviceId`) are never used as internal primary keys. Entities use internal UUIDs and human-readable codes. A LINE subject maps to a `Person` through `ExternalIdentity` and `ChannelIdentity`; `ExternalRef` maps a customer system's id to a Project-system entity and is not used for people. The [identifier and code system](../../architecture/IDENTIFIER-AND-CODE-SYSTEM.md) page lists every mapping table and the known exceptions to this rule.
+   - External identifiers (`lineUserId`, `taxId`, `dbdNumber`, `deviceId`) are never to be used as internal primary keys. Records use internal UUID primary keys, and many business records also carry a human-readable code (identity records such as `Session` and `MfaFactor` have no code). The rule has known exceptions in the current schema, `NotionWebhookReceipt.eventId` being keyed by Notion's event id among them; the identifier page lists them. A LINE subject maps to a `Person` through `ExternalIdentity` and `ChannelIdentity`; `ExternalRef` maps a customer system's id to a Project-system entity and is not used for people. The [identifier and code system](../../architecture/IDENTIFIER-AND-CODE-SYSTEM.md) page lists the mapping tables found in a static review (not proven complete) and the known exceptions to this rule.
 2. **Generic 404-Shaped Refusal (FR-072 / SEC-001):**
    - At the visibility and ownership gates — an invisible Business, a missing domain grant, a target the caller may not see — the system returns `404 Not Found` rather than `403 Forbidden` to prevent resource enumeration. This is a rule of those gates, not of every API: other refusals keep their own status, for example a `422` for an out-of-scope reference inside a sales-task write, or a `403` when minting a password reset without authority.
 3. **Digest-Only Token Storage (SEC-025):**
-   - All bearer credentials (`apik_`, `sdpk_`, `plgk_`) and password reset tokens exist in plaintext only in the mint response and are persisted exclusively as SHA-256 hashes.
+   - Bearer credentials (`apik_…` API keys, `sdpk_…` SoT keys, and plugin access tokens, which are opaque random strings with no fixed prefix) and password reset tokens exist in plaintext only in the mint response and are persisted as hashes.
 4. **PDPA One-Way Erasure Boundary (FR-022):**
-   - `eraseCustomerPrincipal` (`POST /api/crm/customers/[id]/erasure`) requires explicit `confirmation: 'ERASE'`, executes in a single transaction, tombstoning `Message.body` and `RawExternalRecord` payloads permanently.
+   - `eraseCustomerPrincipal` (`POST /api/crm/customers/[customerId]/erasure`) requires explicit `confirmation: 'ERASE'`, executes in a single transaction, tombstoning `Message.body` and `RawExternalRecord` payloads permanently.
 
 ---
 
@@ -279,7 +281,9 @@ sequenceDiagram
   stored `assuranceLevel` column is descriptive and grants nothing.
 - Step-up raises the current session; it does not issue a new one.
 - TOTP secrets are AES-256-GCM envelopes bound to the Person and factor
-  (ADR-088). Production refuses MFA operations when the sealing key is missing.
+  (ADR-088). Enrolling a factor and verifying a secret need the sealing key; in
+  production a missing key makes those operations fail closed. Listing and
+  revoking factors do not need it.
 - The passkey challenge lives in a `Map` inside one Node process
   (`webauthn-challenge.js`). With more than one web process, the verify call
   must reach the process that issued the challenge.
@@ -323,9 +327,11 @@ route; ADR-079 records that as follow-on work.
 | Revocation | Sign-out revokes one session; password reset revokes all |
 | Viewer | `resolveRequestViewer` returns 401 without a session and 503 on a store failure. `resolveViewer({ principalId })` recomputes active, unexpired Memberships on every request; operator and superadmin grants are re-read from the database, never taken from the cookie |
 
-There is no `middleware` file under `apps/server/src`. A browser-facing route
-resolves its own viewer, and the owning service decides whether that viewer may
-touch the resource; a machine-facing route checks its own bearer, signature or
+There is no `middleware` file under `apps/server/src`. An authenticated
+resource route resolves its own viewer, and the owning service decides whether
+that viewer may touch the resource. Public sign-in, signup, reset consumption
+and logout use their own seams (logout accepts a missing cookie and revokes only
+when one is present); a machine-facing route checks its own bearer, signature or
 token instead. Nothing global stands in front of a route that checks none of
 these: the control is each route's own code and tests.
 
@@ -336,12 +342,15 @@ Two controls exist, and they do not cover the same routes.
 | Control | What it checks | Where it applies |
 |---|---|---|
 | `SameSite=Lax` | The browser withholds the cookie on cross-site `POST` | Every cookie-authenticated route |
-| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals `PUBLIC_BASE_URL`, and a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery |
+| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL`, and a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery |
 
 A static scan at `49b10eb3` found 268 route files that export a write method.
-Seventeen of them do not call `resolveRequestViewer` or `resolveViewer` in the
-route file. Each has another seam, and the scan does not judge whether that
-seam is sufficient:
+Twenty-four of them do not name `resolveRequestViewer` or `resolveViewer` in the
+route file. Seven delegate to a helper that resolves the viewer: the project
+feature subroutes (`contributions`, `requirement-bindings`, `restore`,
+`work-links`), `projects/[id]/feature-work-links` and the two file
+recovery-operation routes. The other seventeen have another seam, and the scan
+does not judge whether that seam is sufficient:
 
 - public credential flows: `auth/login`, `auth/signup`, `auth/reset-password`;
 - session read directly: `auth/logout`;
@@ -368,8 +377,9 @@ for cross-site protection:
 - `workspace-invites`, `workspace-invites/accept`, `workspace-invites/[id]`,
   `workspace-memberships`.
 
-Other route-specific checks still apply to each of them (a viewer, step-up, an
-owner or operator gate). This is a coverage statement about one verifier, not a
+Other route-specific checks apply to most of them (a viewer, step-up, an owner
+or operator gate); sign-out is the exception, since it needs no session and
+revokes one only if a cookie is present. This is a coverage statement about one verifier, not a
 finding that any of them is exploitable.
 
 Sign-in and signup accept a form-encoded `POST` and set a cookie without
@@ -388,7 +398,7 @@ decision is made on purpose.
 | Credential writes | 5 per Person + Business per 15 min; actions that call LINE also consume an installation-wide 60 per 60 s | `RateLimitBucket` | ADR-089 D4 |
 | Signup | 20 per source key per 15 min | **Memory of one process** | Multiplies by replica count and resets on restart; `signup-rate-limit.js` says so itself |
 | Passkey sign-in options and verify | **None** | — | Each options call also adds a challenge to the in-process map |
-| Reset-password consume | **None found** | — | The token is single-use and expires in an hour |
+| Reset-password consume | **None found** | — | The token expires in an hour and is rejected once used. Consumption does not condition the update on `usedAt` being null, so two concurrent requests with the same token can both succeed |
 
 ## 9. Application authorization and database isolation
 

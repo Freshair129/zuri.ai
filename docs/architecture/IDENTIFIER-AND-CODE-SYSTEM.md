@@ -113,11 +113,19 @@ the day's rows for the Tenant and probing upward:
 | `KWO` | Kitting work order | inventory |
 | `RSV` | Stock reservation | inventory |
 
-Other generated forms exist outside these four patterns and are not catalogued
-here: `S-` conversation session codes, hash-based `CIT-` (catalogue intake) and
-`SCS-` (supplier cost sheet) codes, `MKT-CAM-`, `MKT-CRE-` and `BRD-` marketing
-codes, and `RegisteredAsset.assetCode` (`AST-YYYY-XXXXX`, per Business), which
-is a separate column from `code`.
+`NNN` is a minimum width of three digits, not a fixed one; the sequence can grow
+past 999. The probe is bounded: `PO`, `GRN`, `ORD`, `PAY` and `TSK` try at most 49
+candidates and `CWO`, `KWO` and `RSV` at most 199, and exhaustion fails the create
+with a 409 code-exhausted error. The POS cashier service allocates `ORD` and
+`PAY` codes the same way.
+
+Other generated forms exist outside these patterns, and this list is
+illustrative rather than complete: `S-` conversation session codes, hash-based
+`CIT-` (catalogue intake), `SCS-` (supplier cost sheet), `AIT-` (asset intake)
+and `PCAT-` (pricing catalogue) codes, `MKT-CAM-`, `MKT-CRE-`, `BRD-` and
+Marketing-to-Project-Manager handoff `MKT-` codes. `RegisteredAsset` has no
+generic `code` column: its human code is `assetCode` (`AST-YYYY-XXXXX`, unique
+per Business, with `XXXXX` a minimum width of five digits).
 
 ### 3.3 Id-derived codes
 
@@ -208,21 +216,26 @@ not enforce that pair on every table — the owning service does.
 - Route segments carry internal ids. Across the 372 route files the dynamic
   segments are `[id]` (the most common) and named ids such as
   `[executionRunId]`, `[customerId]` and `[jobId]`; the ones that are not record
-  ids are `[operation]`, `[action]`, `[metricKey]` and `[sha256]`. No route uses
-  a `[code]` segment.
-- Two resolvers turn a code or an external reference into an internal id:
-  `GET /api/resolve` for Project-system entities and
+  ids are `[operation]`, `[action]`, `[metricKey]`, `[sha256]` and `[citationId]`
+  (a `kc1.` reference that encodes corpus, generation, source, ingestion and chunk
+  identifiers). No route uses a `[code]` segment.
+- Three routes turn a code or an external reference into an internal id:
+  `GET /api/resolve` for Project-system entities,
   `/api/inventory/products/resolve` for product codes, FlowAccount SKUs and
-  product identifiers. Each checks the caller's visibility before returning.
-- At the visibility and ownership gates FR-072 covers, a refusal is 404-shaped:
-  a record the caller may not see is indistinguishable from one that does not
-  exist. That is not a rule for every API; other refusals keep their own status.
+  product identifiers, and `/api/assets/lookup` for asset codes. Each checks the
+  caller's visibility before returning.
+- FR-072 clause (a) makes the refusal for a Business-governed target the caller
+  does not own nonexistent-shaped (404): a record the caller may not see is
+  indistinguishable from one that does not exist. Clause (b) refusals name the
+  missing authority. Neither is a rule for every API; other refusals keep their
+  own status.
 
 ## 7. Bindings owned by other decisions
 
 - **Execution plans** (ADR-029): `planId` is `Workstream.id` and `planCode` is
-  `Workstream.code`. Codes inside an import envelope are temporary references
-  resolved at commit.
+  `Workstream.code`. A code inside an import envelope is used to resolve
+  references at commit and is also persisted as `Workstream.code`, which reads
+  back as `planCode`.
 - **Threads** (ADR-044): the unified thread id (`th_grp_…`, `th_usr_…`) is
   issued by MSP, outside this repository. No code in `apps/server/src` or
   `services/` names that prefix; CRM keys a conversation by the channel's
