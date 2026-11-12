@@ -25,6 +25,8 @@ status: generated
 - [apps/server/src/modules/crm/sales-task-domain.js](../../../apps/server/src/modules/crm/sales-task-domain.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/sales-task-service.js](../../../apps/server/src/modules/crm/sales-task-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/rbac.js](../../../apps/server/src/modules/identity/rbac.js) — `implements` (`annotation`)
+- [apps/server/src/modules/line-crm/LineCrmLiveChat.jsx](../../../apps/server/src/modules/line-crm/LineCrmLiveChat.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/line-crm/lineCrmViewModels.js](../../../apps/server/src/modules/line-crm/lineCrmViewModels.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
@@ -55,6 +57,9 @@ status: generated
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-routes.test.js](../../../apps/server/tests/unit/inventory-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-live-chat-render.test.js](../../../apps/server/tests/unit/line-crm-live-chat-render.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-members-render.test.js](../../../apps/server/tests/unit/line-crm-members-render.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-view-models.test.js](../../../apps/server/tests/unit/line-crm-view-models.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js](../../../apps/server/tests/unit/marketing/line-sales-dashboard-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)

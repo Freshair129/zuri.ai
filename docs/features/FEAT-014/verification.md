@@ -32,6 +32,8 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/src/app/api/crm/conversations/\[id\]/analysis/route.js](../../../apps/server/src/app/api/crm/conversations/%5Bid%5D/analysis/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/conversation-analysis-service.js](../../../apps/server/src/modules/crm/conversation-analysis-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/customer-memory-erasure.js](../../../apps/server/src/modules/identity/customer-memory-erasure.js) — `implements` (`annotation`)
+- [apps/server/src/modules/line-crm/LineCrmLiveChat.jsx](../../../apps/server/src/modules/line-crm/LineCrmLiveChat.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/line-crm/lineCrmViewModels.js](../../../apps/server/src/modules/line-crm/lineCrmViewModels.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
@@ -54,6 +56,9 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/tests/unit/conversation-analysis-inbox-route.test.js](../../../apps/server/tests/unit/conversation-analysis-inbox-route.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr091-inbox-ui-contract.test.js](../../../apps/server/tests/unit/fr091-inbox-ui-contract.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-live-chat-render.test.js](../../../apps/server/tests/unit/line-crm-live-chat-render.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-members-render.test.js](../../../apps/server/tests/unit/line-crm-members-render.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-view-models.test.js](../../../apps/server/tests/unit/line-crm-view-models.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-128](requirements/FR-128.md)
