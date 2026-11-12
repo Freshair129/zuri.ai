@@ -1,16 +1,15 @@
-// @req FR-091, FR-103, FR-127, FR-161 — LINE CRM views use recorded CRM and Integration values.
-// @spec SDD-050, SEC-005, BR-001
+// @req FR-091, FR-103 — LINE CRM views use recorded CRM and Integration values.
+// @spec SDD-050, SEC-005, BR-001, FR-127
 // @tested tests/unit/line-crm-view-models.test.js
 import { describe, expect, it, vi } from 'vitest'
 import { CUSTOMER_CONSENT_STATUSES } from '@/lib/validation/enums'
 import {
   buildCustomerRows,
   buildRegistryRows,
-  createFollowUpTask,
   formatDateTime,
-  followUpTaskNotice,
   getConsentLabel,
   loadRecordedAnalysis,
+  selectionFor,
 } from '@/modules/line-crm/lineCrmViewModels'
 
 describe('LINE CRM recorded-value view models', () => {
@@ -19,6 +18,17 @@ describe('LINE CRM recorded-value view models', () => {
 
     expect(formatted).toMatch(/10 พ\.ย\. 2569/)
     expect(formatted).toMatch(/\d{1,2}:\d{2}/)
+  })
+
+  it('shows a selected member only for the Business that owns the selection', () => {
+    const member = { id: 'member-1' }
+
+    expect(selectionFor('biz-1', { businessId: 'biz-1', member })).toBe(member)
+    expect(selectionFor('biz-2', { businessId: 'biz-1', member })).toBeNull()
+    expect(selectionFor(null, { businessId: 'biz-1', member })).toBeNull()
+    expect(selectionFor('biz-1', null)).toBeNull()
+    expect(selectionFor('biz-1', undefined)).toBeNull()
+    expect(selectionFor('biz-1', { member })).toBeNull()
   })
 
   it('labels every recorded consent status and leaves unknown values unknown', () => {
@@ -111,94 +121,22 @@ describe('LINE CRM recorded-value view models', () => {
     })
     expect(row.role).toBeUndefined()
     expect(row.department).toBeUndefined()
+    expect(row.phone).toBeUndefined()
     expect(row.createdAt).toBeUndefined()
   })
 
-  it('uses only the recorded person role from metadata, not the connection role', () => {
+  it('uses recorded person role and phone from metadata, not the connection role', () => {
     const [row] = buildRegistryRows([{
       id: 'registration-2',
       kind: 'USER',
       role: 'SECONDARY',
-      metadata: { role: 'SALES_REP', department: 'Sales' },
+      metadata: { role: 'SALES_REP', department: 'Sales', phone: '0812345678' },
     }])
 
     expect(row.role).toBe('SALES_REP')
     expect(row.role).not.toBe('SECONDARY')
     expect(row.department).toBe('Sales')
-  })
-})
-
-describe('LINE CRM follow-up task action', () => {
-  const input = {
-    businessId: 'business-1',
-    conversationId: 'conversation-1',
-    title: 'ติดตามลูกค้า Recorded Name',
-    dueDate: '2026-11-20',
-  }
-
-  it('returns an error result for rejected requests without success notice text', async () => {
-    const request = vi.fn().mockRejectedValue(Object.assign(new Error('server unavailable'), { status: 503 }))
-    const result = await createFollowUpTask({ request, ...input })
-    const notice = followUpTaskNotice(result)
-
-    expect(result).toMatchObject({ ok: false, status: 503, error: 'server unavailable' })
-    expect(notice.type).toBe('error')
-    expect(notice.text).not.toMatch(/^สร้างงานติดตาม .+ แล้ว$/)
-  })
-
-  it.each([
-    { ok: true },
-    { ok: true, task: { id: 'x' } },
-  ])('returns an error notice when a success response lacks complete task identity', (result) => {
-    expect(followUpTaskNotice(result).type).toBe('error')
-  })
-
-  it('treats a resolved response without a code as failure', async () => {
-    const request = vi.fn().mockResolvedValue({ id: 'task-1' })
-    const result = await createFollowUpTask({ request, ...input })
-
-    expect(result.ok).toBe(false)
-    expect(followUpTaskNotice(result).type).toBe('error')
-  })
-
-  it('posts the exact owning-contract request and names the created task code', async () => {
-    const request = vi.fn().mockResolvedValue({ id: 'task-1', code: 'TSK-20261112-001' })
-    const result = await createFollowUpTask({ request, ...input })
-
-    expect(result).toEqual({ ok: true, task: { id: 'task-1', code: 'TSK-20261112-001' } })
-    expect(request.mock.calls).toEqual([[
-      '/api/crm/sales-tasks',
-      {
-        method: 'POST',
-        body: {
-          businessId: 'business-1',
-          conversationId: 'conversation-1',
-          title: 'ติดตามลูกค้า Recorded Name',
-          type: 'FOLLOW_UP',
-          dueDate: '2026-11-20',
-        },
-      },
-    ]])
-    expect(followUpTaskNotice(result)).toMatchObject({ type: 'success' })
-    expect(followUpTaskNotice(result).text).toContain('TSK-20261112-001')
-  })
-
-  it.each([
-    [{ ...input, title: '  ' }],
-    [{ ...input, dueDate: '' }],
-    [{ ...input, dueDate: '   ' }],
-  ])('refuses a missing required input without calling the request', async (invalidInput) => {
-    const request = vi.fn()
-    const result = await createFollowUpTask({ request, ...invalidInput })
-
-    expect(result.ok).toBe(false)
-    expect(request).not.toHaveBeenCalled()
-  })
-
-  it('explains the required Business role and preserves the server error after a 403 response', () => {
-    const notice = followUpTaskNotice({ ok: false, status: 403, error: 'forbidden' })
-    expect(notice.text).toContain('SALES_REP')
-    expect(notice.text).toContain('forbidden')
+    expect(row.phone).toBe('0812345678')
   })
 })
 

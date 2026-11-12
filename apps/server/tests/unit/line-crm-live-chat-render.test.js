@@ -11,7 +11,7 @@ import { sampleInventory } from '../factories/scope-context'
 
 globalThis.React = React
 
-const h = vi.hoisted(() => ({ responses: new Map(), requests: [], apiCalls: [], apiResults: [] }))
+const h = vi.hoisted(() => ({ responses: new Map(), requests: [] }))
 
 vi.mock('@/context/ScopeContext', async () => {
   const { createScopeContextDouble } = await import('../factories/scope-context')
@@ -19,10 +19,7 @@ vi.mock('@/context/ScopeContext', async () => {
 })
 
 vi.mock('@/modules/project-manager/components/useApi', () => ({
-  api: (path, options) => {
-    h.apiCalls.push({ path, options })
-    return Promise.resolve(h.apiResults.shift())
-  },
+  api: () => Promise.resolve(),
   useFetch: (path) => {
     if (path) h.requests.push(path)
     return path
@@ -66,8 +63,6 @@ function renderChat(businessId = 'biz-1') {
 function setInbox(result) {
   h.responses = new Map([[inboxPath, result]])
   h.requests = []
-  h.apiCalls = []
-  h.apiResults = []
 }
 
 function setConversationThread(messages = [{
@@ -87,8 +82,6 @@ function setConversationThread(messages = [{
 afterEach(() => {
   h.responses = new Map()
   h.requests = []
-  h.apiCalls = []
-  h.apiResults = []
 })
 
 describe('Live CRM inbox source states', () => {
@@ -150,6 +143,7 @@ describe('Live CRM recorded thread rendering', () => {
     expect(html).toContain('ยังไม่มีระบบสะสมแต้ม')
     expect(html).toContain('ไม่มีข้อมูล')
     expect(html).toContain('href="/customer/conversations"')
+    expect(html).toContain('ต้องเป็นเจ้าของ Business')
     expect(html).not.toContain('<input type="text"')
     expect(html).not.toMatch(/<textarea\b/)
 
@@ -158,15 +152,28 @@ describe('Live CRM recorded thread rendering', () => {
       .join(' ')
     expect(disabledButtons).toContain('แนะนำคำตอบ')
     expect(disabledButtons).toContain('เพิ่มแท็ก')
+    expect(disabledButtons).toContain('สร้างงานติดตาม')
     expect(disabledButtons).toContain('เพิ่มแต้ม')
     expect(disabledButtons).toContain('ดูโปรไฟล์เต็ม')
-    expect((disabledButtons.match(/ยังไม่พร้อมใช้งาน/g) || []).length).toBe(4)
+    expect((disabledButtons.match(/ยังไม่พร้อมใช้งาน/g) || []).length).toBe(5)
     expect(html).toMatch(/<dt[^>]*>ช่องทาง<\/dt><dd>LINE<\/dd>/)
     expect(html).toMatch(/<dt[^>]*>สถานะบทสนทนา<\/dt><dd>OPEN<\/dd>/)
     expect(html).toMatch(/<dt[^>]*>ข้อความยังไม่อ่าน<\/dt><dd>2<\/dd>/)
     expect(html).toContain('CUS-001')
     expect(html).toContain('LEAD')
     expect(html).toContain('Recorded inbox preview')
+  })
+
+  it('wraps a long unbroken recorded message body', () => {
+    const body = 'x'.repeat(300)
+    setConversationThread([{ id: 'long-message', direction: 'INBOUND', body, createdAt: '2026-11-10T08:30:00.000Z' }])
+    const html = renderChat()
+    const bodyElement = html.match(/<p class="([^"]*)">x{300}<\/p>/)
+
+    expect(bodyElement).not.toBeNull()
+    expect(bodyElement[1]).toContain('whitespace-pre-line')
+    expect(bodyElement[1]).toContain('break-words')
+    expect(bodyElement[1]).toContain('[overflow-wrap:anywhere]')
   })
 
   it('shows a plain empty-thread line only after the thread request completes', () => {
@@ -217,8 +224,9 @@ describe('Live CRM recorded thread rendering', () => {
     }
   })
 
-  it('keeps the source free of canned actions and the second reply surface', () => {
+  it('keeps the source free of canned actions, follow-up task creation and a second reply surface', () => {
     const source = readFileSync(new URL('../../src/modules/line-crm/LineCrmLiveChat.jsx', import.meta.url), 'utf8')
+    const viewModelsSource = readFileSync(new URL('../../src/modules/line-crm/lineCrmViewModels.js', import.meta.url), 'utf8')
 
     for (const forbidden of [
       'AI สรุป',
@@ -233,6 +241,9 @@ describe('Live CRM recorded thread rendering', () => {
     ]) {
       expect(source).not.toContain(forbidden)
     }
+    expect(source).not.toContain('/api/crm/sales-tasks')
+    expect(source).not.toContain('createFollowUpTask')
+    expect(viewModelsSource).not.toContain('/api/crm/sales-tasks')
   })
 })
 

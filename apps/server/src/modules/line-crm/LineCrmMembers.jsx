@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { Search, Users } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { useFetch } from '@/modules/project-manager/components/useApi'
@@ -8,6 +8,7 @@ import {
   buildCustomerRows,
   buildRegistryRows,
   formatDateTime,
+  selectionFor,
 } from './lineCrmViewModels'
 
 // @req FR-091, FR-078, FR-080, FR-103 — CRM Member 360 Directory and detail drawer.
@@ -75,6 +76,7 @@ function RegistryTable({ members, onSelect }) {
           <tr>
             <th className="px-4 py-3">ชื่อ</th>
             <th className="px-4 py-3">LINE user ID</th>
+            <th className="px-4 py-3">โทรศัพท์</th>
             <th className="px-4 py-3">สถานะการลงทะเบียน</th>
             <th className="px-4 py-3">บทบาท / แผนก</th>
             <th className="px-4 py-3">เวลาลงทะเบียน</th>
@@ -87,6 +89,7 @@ function RegistryTable({ members, onSelect }) {
             <tr key={member.id || member.externalAccountId || index} className="hover:bg-purple-50/40 dark:hover:bg-purple-950/20">
               <td className="px-4 py-3.5 font-bold text-slate-900 dark:text-white">{member.name}</td>
               <td className="px-4 py-3.5 font-mono">{member.externalAccountId || 'ไม่ทราบ'}</td>
+              <td className="px-4 py-3.5">{member.phone || 'ไม่มีข้อมูล'}</td>
               <td className="px-4 py-3.5">{member.status || 'ไม่ทราบ'}</td>
               <td className="px-4 py-3.5">
                 {[member.role && 'บทบาท: ' + member.role, member.department && 'แผนก: ' + member.department].filter(Boolean).join(' · ') || '—'}
@@ -142,6 +145,7 @@ export function MemberDetail({ member, onClose, onOpenInbox }) {
           ) : (
             <>
               <div className="flex justify-between gap-3"><span className="text-slate-500">สถานะการลงทะเบียน</span><span>{member.status || 'ไม่ทราบ'}</span></div>
+              <div className="flex justify-between gap-3"><span className="text-slate-500">โทรศัพท์</span><span>{member.phone || 'ไม่มีข้อมูล'}</span></div>
               {member.role && <div className="flex justify-between gap-3"><span className="text-slate-500">บทบาท</span><span>{member.role}</span></div>}
               {member.department && <div className="flex justify-between gap-3"><span className="text-slate-500">แผนก</span><span>{member.department}</span></div>}
               <div className="flex justify-between gap-3"><span className="text-slate-500">เวลาลงทะเบียน</span><time>{formatDateTime(member.createdAt)}</time></div>
@@ -175,7 +179,11 @@ export default function LineCrmMembers({ onNavigate }) {
   const { shell } = useScope()
   const businessId = shell.activeBusinessId
   const [search, setSearch] = useState('')
-  const [activeMember, setActiveMember] = useState(null)
+  const [selection, setSelection] = useState(null)
+
+  useEffect(() => {
+    setSelection(null)
+  }, [businessId])
 
   const conversationsPath = businessId
     ? '/api/crm/conversations?businessId=' + encodeURIComponent(businessId)
@@ -202,10 +210,15 @@ export default function LineCrmMembers({ onNavigate }) {
   const searchText = search.trim().toLocaleLowerCase()
   const matchesSearch = (values) => !searchText || values.some((value) => String(value || '').toLocaleLowerCase().includes(searchText))
   const filteredCustomers = customerRows.filter((member) => matchesSearch([member.displayName, member.code]))
-  const filteredRegistry = registryRows.filter((member) => matchesSearch([member.name, member.externalAccountId]))
+  const filteredRegistry = registryRows.filter((member) => matchesSearch([member.name, member.externalAccountId, member.phone]))
+  const selectedMember = selectionFor(businessId, selection)
   const sourceCaption = conversationsData?.truncated
     ? 'รายการนี้มาจากบทสนทนาในกล่องข้อความ โดยอ่านเฉพาะ ' + conversationsData.limit + ' รายการล่าสุด'
     : 'รายการนี้มาจากลูกค้าที่มีบทสนทนาในกล่องข้อความนี้'
+
+  function selectMember(member) {
+    setSelection({ businessId, member })
+  }
 
   return (
     <div className="space-y-6">
@@ -228,7 +241,7 @@ export default function LineCrmMembers({ onNavigate }) {
         <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
         <input
           type="search"
-          placeholder="ค้นหาชื่อ รหัสลูกค้า หรือ LINE user ID"
+          placeholder="ค้นหาชื่อ รหัสลูกค้า LINE user ID หรือโทรศัพท์"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
           className="w-full rounded-xl border border-slate-200 bg-white py-2 pl-9 pr-3 text-xs text-slate-900 focus:border-purple-500 focus:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-white"
@@ -254,14 +267,14 @@ export default function LineCrmMembers({ onNavigate }) {
             ) : filteredCustomers.length === 0 ? (
               <p className="px-4 py-8 text-center text-xs text-slate-500">ไม่พบลูกค้า CRM ที่ตรงกับการค้นหา</p>
             ) : (
-              <CustomerTable members={filteredCustomers} onSelect={setActiveMember} />
+              <CustomerTable members={filteredCustomers} onSelect={selectMember} />
             )}
           </section>
 
           <section className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900" aria-labelledby="line-registrations-heading">
             <div className="border-b border-slate-100 px-4 py-4 dark:border-slate-800">
               <h2 id="line-registrations-heading" className="text-sm font-bold text-slate-900 dark:text-white">ผู้ใช้ LINE ที่ลงทะเบียน (Integration)</h2>
-              <p className="mt-1 text-[11px] text-slate-500">รายการ Integration registrations ที่ยังไม่เชื่อมโยงกับลูกค้า CRM จึงแสดงแยกกัน</p>
+              <p className="mt-1 text-[11px] text-slate-500">รายการลงทะเบียน LINE จาก Integration แสดงแยกจากรายการลูกค้า CRM</p>
             </div>
             {registryError || registryLoading || registryData == null ? (
               <SourceMessage loading={registryLoading} error={registryError} data={registryData} emptyText="ยังไม่มีผู้ใช้ LINE ที่ลงทะเบียน" />
@@ -270,18 +283,18 @@ export default function LineCrmMembers({ onNavigate }) {
             ) : filteredRegistry.length === 0 ? (
               <p className="px-4 py-8 text-center text-xs text-slate-500">ไม่พบผู้ใช้ LINE ที่ตรงกับการค้นหา</p>
             ) : (
-              <RegistryTable members={filteredRegistry} onSelect={setActiveMember} />
+              <RegistryTable members={filteredRegistry} onSelect={selectMember} />
             )}
           </section>
         </>
       )}
 
-      {activeMember && (
+      {selectedMember && (
         <MemberDetail
-          member={activeMember}
-          onClose={() => setActiveMember(null)}
-          onOpenInbox={activeMember.kind === 'customer' && typeof onNavigate === 'function'
-            ? () => { onNavigate('chat'); setActiveMember(null) }
+          member={selectedMember}
+          onClose={() => setSelection(null)}
+          onOpenInbox={selectedMember.kind === 'customer' && typeof onNavigate === 'function'
+            ? () => { onNavigate('chat'); setSelection(null) }
             : undefined}
         />
       )}

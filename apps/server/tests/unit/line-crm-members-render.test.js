@@ -138,7 +138,40 @@ describe('LINE CRM Member 360 rendering', () => {
     expect(html).not.toContain('SECONDARY')
     expect((html.match(/Pending Customer/g) || []).length).toBe(1)
     expect(html).toContain('FACEBOOK')
-    expect(html).toContain('ไม่เชื่อมโยงกับลูกค้า CRM')
+    expect(html).toContain('รายการลงทะเบียน LINE จาก Integration แสดงแยกจากรายการลูกค้า CRM')
+    expect(html).not.toContain('เชื่อมโยง')
+  })
+
+  it('renders a recorded Integration phone in the registry table and detail', () => {
+    const phone = '0812345678'
+    const registration = {
+      ...registryResponse[0],
+      metadata: { ...registryResponse[0].metadata, phone },
+    }
+    setResponses({
+      ['/api/platform/integrations/line-registry?businessId=biz-1']: {
+        data: [registration],
+        loading: false,
+        error: null,
+      },
+    })
+    const tableHtml = renderMembers()
+    const [member] = buildRegistryRows([registration])
+    const detailHtml = renderToStaticMarkup(createElement(MemberDetail, { member, onClose: () => {} }))
+
+    expect(tableHtml).toContain('<th class="px-4 py-3">โทรศัพท์</th>')
+    expect(tableHtml).toContain('<td class="px-4 py-3.5">0812345678</td>')
+    expect(detailHtml).toContain('<span class="text-slate-500">โทรศัพท์</span><span>0812345678</span>')
+  })
+
+  it('shows missing Integration phone as unavailable in the registry table and detail', () => {
+    setResponses()
+    const tableHtml = renderMembers()
+    const [member] = buildRegistryRows(registryResponse)
+    const detailHtml = renderToStaticMarkup(createElement(MemberDetail, { member, onClose: () => {} }))
+
+    expect(tableHtml).toMatch(/<td class="px-4 py-3\.5 font-mono">U-REG-001<\/td><td class="px-4 py-3\.5">ไม่มีข้อมูล<\/td><td class="px-4 py-3\.5">ACTIVE<\/td>/)
+    expect(detailHtml).toContain('<span class="text-slate-500">โทรศัพท์</span><span>ไม่มีข้อมูล</span>')
   })
 
   it('requests exactly the two Business-scoped sources', () => {
@@ -251,6 +284,7 @@ describe('LINE CRM Member 360 rendering', () => {
     const html = renderToStaticMarkup(createElement(MemberDetail, { member, onClose: () => {} }))
 
     expect(html).toMatch(/สถานะ consent<\/span><span>ไม่มีข้อมูล<\/span>/)
+    expect((html.match(/ไม่มีข้อมูล/g) || []).length).toBe(5)
     expect(html).toContain('aria-label="ปิด"')
     expect(html).not.toContain('ไปที่กล่องข้อความ')
     for (const consentLabel of ['รอยืนยัน consent', 'ยืนยัน consent แล้ว', 'ลูกค้าปฏิเสธ', 'ลูกค้าเก่า (ก่อนมีระบบนี้)']) {
@@ -303,5 +337,13 @@ describe('LINE CRM Member 360 rendering', () => {
     ]) {
       expect(source).not.toContain(forbidden)
     }
+  })
+
+  it('renders the drawer through the Business-scoped selection helper', () => {
+    const source = readFileSync(new URL('../../src/modules/line-crm/LineCrmMembers.jsx', import.meta.url), 'utf8')
+
+    // Static rendering cannot click between Business selections; this guard checks the render-time selection gate.
+    expect(source).toContain('selectionFor(')
+    expect(source).not.toMatch(/activeMember\s*&&\s*\(\s*<MemberDetail/)
   })
 })

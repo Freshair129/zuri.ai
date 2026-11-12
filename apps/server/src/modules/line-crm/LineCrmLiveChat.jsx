@@ -5,15 +5,13 @@ import { MessageSquare, Search } from 'lucide-react'
 import { useScope } from '@/context/ScopeContext'
 import { api, useFetch } from '@/modules/project-manager/components/useApi'
 import {
-  createFollowUpTask,
-  followUpTaskNotice,
   formatDateTime,
   getConsentLabel,
   loadRecordedAnalysis,
 } from './lineCrmViewModels'
 
-// @req FR-091, FR-093, FR-127, FR-161 — Live CRM renders recorded conversations, analysis and follow-up actions.
-// @spec SDD-050, ADR-060, ADR-061
+// @req FR-091, FR-093 — Live CRM renders recorded conversations and messages.
+// @spec SDD-050, ADR-060, ADR-061, FR-127
 // @tested tests/unit/line-crm-live-chat-render.test.js
 
 function UnavailableButton({ label }) {
@@ -34,8 +32,6 @@ export default function LineCrmLiveChat() {
   const businessId = shell.activeBusinessId
   const [selectedChatId, setSelectedChatId] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [taskForm, setTaskForm] = useState({ key: null, open: false, title: '', dueDate: '', pending: false })
-  const [taskNotice, setTaskNotice] = useState(null)
   const [analysisState, setAnalysisState] = useState({ key: null, state: 'IDLE' })
   const currentConversationKey = useRef(null)
 
@@ -75,8 +71,6 @@ export default function LineCrmLiveChat() {
   const threadLoaded = Boolean(threadData && !threadLoading && !threadError)
 
   useEffect(() => {
-    setTaskForm({ key: conversationKey, open: false, title: '', dueDate: '', pending: false })
-    setTaskNotice(null)
     setAnalysisState({ key: conversationKey, state: 'IDLE' })
   }, [businessId, conversationKey])
 
@@ -92,44 +86,7 @@ export default function LineCrmLiveChat() {
   })
 
   const activeName = recordedText(activeConversation?.customer?.displayName, 'ไม่ระบุชื่อ')
-  const visibleTaskForm = taskForm.key === conversationKey
-    ? taskForm
-    : { key: conversationKey, open: false, title: '', dueDate: '', pending: false }
-  const visibleTaskNotice = taskNotice?.key === conversationKey ? taskNotice : null
   const visibleAnalysis = analysisState.key === conversationKey ? analysisState : { key: conversationKey, state: 'IDLE' }
-
-  function openFollowUpForm() {
-    if (!activeConversation) return
-    setTaskNotice(null)
-    setTaskForm({
-      key: conversationKey,
-      open: true,
-      title: 'ติดตามลูกค้า ' + activeName,
-      dueDate: '',
-      pending: false,
-    })
-  }
-
-  async function submitFollowUpTask(event) {
-    event.preventDefault()
-    if (!activeConversation || visibleTaskForm.pending) return
-    const requestKey = conversationKey
-    setTaskForm((current) => current.key === requestKey ? { ...current, pending: true } : current)
-    const result = await createFollowUpTask({
-      request: api,
-      businessId,
-      conversationId: activeConversation.id,
-      title: visibleTaskForm.title,
-      dueDate: visibleTaskForm.dueDate,
-    })
-    if (currentConversationKey.current !== requestKey) return
-
-    const notice = followUpTaskNotice(result)
-    setTaskNotice({ key: requestKey, ...notice })
-    setTaskForm((current) => current.key === requestKey
-      ? { ...current, pending: false, open: !result.ok }
-      : current)
-  }
 
   async function viewRecordedAnalysis() {
     if (!activeConversation) return
@@ -244,7 +201,7 @@ export default function LineCrmLiveChat() {
               </div>
             </header>
 
-            <div className="flex-1 space-y-4 overflow-y-auto p-4">
+            <div className="min-w-0 flex-1 space-y-4 overflow-y-auto p-4">
               {threadError ? (
                 <p role="alert" className="text-center text-xs text-rose-700">ไม่สามารถโหลดข้อความได้: {threadError}</p>
               ) : threadLoading ? (
@@ -258,10 +215,10 @@ export default function LineCrmLiveChat() {
                   const isInbound = message.direction === 'INBOUND'
                   return (
                     <div key={message.id} className={'flex flex-col ' + (isInbound ? 'items-start' : 'items-end')}>
-                      <div className={'max-w-md rounded-2xl border p-3.5 text-xs leading-relaxed shadow-sm ' + (isInbound
+                      <div className={'min-w-0 max-w-md rounded-2xl border p-3.5 text-xs leading-relaxed shadow-sm ' + (isInbound
                         ? 'rounded-tl-sm border-slate-200 bg-white text-slate-800 dark:border-slate-700 dark:bg-slate-800 dark:text-white'
                         : 'rounded-tr-sm border-purple-700 bg-purple-600 text-white')}>
-                        <p className="whitespace-pre-line">{message.body == null ? 'เนื้อหาข้อความไม่พร้อมใช้งาน' : message.body}</p>
+                        <p className="whitespace-pre-line break-words [overflow-wrap:anywhere]">{message.body == null ? 'เนื้อหาข้อความไม่พร้อมใช้งาน' : message.body}</p>
                       </div>
                       <time className="mt-1 text-[10px] text-slate-400">{formatDateTime(message.createdAt)}</time>
                     </div>
@@ -271,7 +228,7 @@ export default function LineCrmLiveChat() {
             </div>
 
             <div className="border-t border-slate-200 bg-white p-3 text-xs text-slate-600 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
-              หน้านี้ยังส่งข้อความไม่ได้ ไปที่กล่องข้อความหลักเพื่อดูและตอบข้อความ: <a className="font-semibold text-purple-700 underline dark:text-purple-300" href="/customer/conversations">กล่องข้อความหลัก</a>
+              หน้านี้ส่งข้อความไม่ได้ การตอบกลับทำได้ที่กล่องข้อความหลักและต้องเป็นเจ้าของ Business: <a className="font-semibold text-purple-700 underline dark:text-purple-300" href="/customer/conversations">กล่องข้อความหลัก</a>
             </div>
           </section>
 
@@ -301,13 +258,13 @@ export default function LineCrmLiveChat() {
               </p>
             </section>
 
-            <section className="p-4">
+            <section className="min-w-0 p-4">
               <h2 className="text-xs font-bold text-slate-800 dark:text-white">เครื่องมือสำหรับบทสนทนา</h2>
               <div className="mt-3 grid grid-cols-1 gap-2">
                 <button type="button" onClick={viewRecordedAnalysis} className="rounded-xl border border-purple-200 bg-white p-2 text-left text-xs font-semibold text-purple-900 hover:bg-purple-50 dark:border-purple-800 dark:bg-slate-800 dark:text-purple-200">📄 ดูสรุปที่บันทึกไว้</button>
                 <UnavailableButton label="💡 แนะนำคำตอบ" />
                 <UnavailableButton label="🏷️ เพิ่มแท็ก" />
-                <button type="button" onClick={openFollowUpForm} className="rounded-xl border border-purple-200 bg-white p-2 text-left text-xs font-semibold text-purple-900 hover:bg-purple-50 dark:border-purple-800 dark:bg-slate-800 dark:text-purple-200">⏰ สร้างงานติดตาม</button>
+                <UnavailableButton label="⏰ สร้างงานติดตาม" />
                 <UnavailableButton label="⭐ เพิ่มแต้ม" />
                 <UnavailableButton label="👤 ดูโปรไฟล์เต็ม" />
               </div>
@@ -320,41 +277,9 @@ export default function LineCrmLiveChat() {
                 <div className="mt-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
                   <p className="text-[10px] text-slate-500">ข้อมูลสรุปเพื่อช่วยประกอบการพิจารณา ไม่ใช่ข้อเท็จจริงที่ยืนยันแล้ว</p>
                   <time className="mt-1 block text-[10px] text-slate-400">{formatDateTime(analysis.analyzedAt)}</time>
-                  <p className="mt-2 whitespace-pre-wrap text-xs">{analysis.summary}</p>
+                  <p className="mt-2 whitespace-pre-wrap break-words [overflow-wrap:anywhere] text-xs">{analysis.summary}</p>
                 </div>
               )}
-
-              {visibleTaskForm.open && (
-                <form onSubmit={submitFollowUpTask} className="mt-3 space-y-2 rounded-xl border border-slate-200 p-3 dark:border-slate-700">
-                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-200">
-                    หัวข้องาน
-                    <input
-                      type="text"
-                      required
-                      value={visibleTaskForm.title}
-                      onChange={(event) => setTaskForm((current) => current.key === conversationKey ? { ...current, title: event.target.value } : current)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs dark:border-slate-700 dark:bg-slate-900"
-                    />
-                  </label>
-                  <label className="block text-[11px] font-semibold text-slate-700 dark:text-slate-200">
-                    วันที่ติดตาม
-                    <input
-                      type="date"
-                      required
-                      value={visibleTaskForm.dueDate}
-                      onChange={(event) => setTaskForm((current) => current.key === conversationKey ? { ...current, dueDate: event.target.value } : current)}
-                      className="mt-1 w-full rounded-lg border border-slate-200 bg-white px-2.5 py-2 text-xs dark:border-slate-700 dark:bg-slate-900"
-                    />
-                  </label>
-                  <div className="flex gap-2">
-                    <button type="submit" disabled={visibleTaskForm.pending} className="rounded-lg bg-purple-600 px-3 py-2 text-[11px] font-bold text-white disabled:opacity-60">
-                      {visibleTaskForm.pending ? 'กำลังบันทึก…' : 'บันทึกงานติดตาม'}
-                    </button>
-                    <button type="button" disabled={visibleTaskForm.pending} onClick={() => setTaskForm({ key: conversationKey, open: false, title: '', dueDate: '', pending: false })} className="rounded-lg border border-slate-200 px-3 py-2 text-[11px] dark:border-slate-700">ยกเลิก</button>
-                  </div>
-                </form>
-              )}
-              {visibleTaskNotice && <p role={visibleTaskNotice.type === 'error' ? 'alert' : 'status'} className={'mt-3 text-[11px] ' + (visibleTaskNotice.type === 'error' ? 'text-rose-700' : 'text-emerald-700')}>{visibleTaskNotice.text}</p>}
             </section>
           </aside>
         </>

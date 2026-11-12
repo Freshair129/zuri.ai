@@ -1,5 +1,5 @@
-// @req FR-091, FR-103, FR-127, FR-161 — LINE CRM view models use recorded values and existing CRM contracts.
-// @spec SDD-050, SEC-005, BR-001
+// @req FR-091, FR-103 — LINE CRM view models use recorded CRM and Integration values.
+// @spec SDD-050, SEC-005, BR-001, FR-127
 // @tested tests/unit/line-crm-view-models.test.js, tests/unit/line-crm-members-render.test.js, tests/unit/line-crm-live-chat-render.test.js
 
 const CONSENT_LABELS = Object.freeze({
@@ -60,6 +60,10 @@ function storedText(value) {
   return typeof value === 'string' && value.trim() ? value : undefined
 }
 
+export function selectionFor(businessId, selection) {
+  return businessId && selection?.businessId === businessId ? selection.member ?? null : null
+}
+
 export function buildRegistryRows(registry) {
   return (Array.isArray(registry) ? registry : [])
     .filter((registration) => registration?.kind === 'USER')
@@ -72,6 +76,7 @@ export function buildRegistryRows(registry) {
         id: registration.id,
         name: storedText(registration.name) || 'ไม่ระบุชื่อ',
         externalAccountId: storedText(registration.externalAccountId),
+        phone: storedText(metadata.phone),
         status: storedText(registration.status),
         role: storedText(metadata.role),
         department: storedText(metadata.department),
@@ -79,43 +84,6 @@ export function buildRegistryRows(registry) {
         consentLabel: NO_DATA_LABEL,
       }
     })
-}
-
-export async function createFollowUpTask(input = {}) {
-  const { request, businessId, conversationId, title, dueDate } = input && typeof input === 'object' ? input : {}
-  const cleanTitle = typeof title === 'string' ? title.trim() : ''
-  const cleanDueDate = typeof dueDate === 'string' ? dueDate.trim() : ''
-  if (!businessId || !conversationId || !cleanTitle || !cleanDueDate || typeof request !== 'function') {
-    return { ok: false, status: null, error: 'กรุณาระบุ Business บทสนทนา หัวข้องาน และวันที่ติดตาม' }
-  }
-
-  try {
-    const task = await request('/api/crm/sales-tasks', {
-      method: 'POST',
-      body: { businessId, conversationId, title: cleanTitle, type: 'FOLLOW_UP', dueDate: cleanDueDate },
-    })
-    if (!task?.id || !task?.code) {
-      return { ok: false, status: null, error: 'ยืนยันผลการสร้างงานติดตามไม่ได้จากข้อมูลตอบกลับ' }
-    }
-    return { ok: true, task }
-  } catch (error) {
-    return {
-      ok: false,
-      status: Number.isInteger(error?.status) ? error.status : null,
-      error: typeof error?.message === 'string' && error.message ? error.message : 'ไม่สามารถสร้างงานติดตามได้',
-    }
-  }
-}
-
-export function followUpTaskNotice(result) {
-  if (result?.ok && result.task?.id && result.task?.code) {
-    return { type: 'success', text: `สร้างงานติดตาม ${result.task.code} แล้ว` }
-  }
-  if (result?.status === 403) {
-    const permissionMessage = 'ต้องเป็นเจ้าของ Business หรือมีสิทธิ์ SALES_REP จึงจะสร้างงานติดตามได้'
-    return { type: 'error', text: result.error ? permissionMessage + ': ' + result.error : permissionMessage }
-  }
-  return { type: 'error', text: result?.error || 'ไม่สามารถสร้างงานติดตามได้' }
 }
 
 export async function loadRecordedAnalysis({ request, businessId, conversationId, consentStatus }) {

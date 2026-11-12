@@ -32,8 +32,6 @@ No current binding of this type is present in the frozen graph.
 - [apps/server/src/app/api/crm/conversations/\[id\]/analysis/route.js](../../../apps/server/src/app/api/crm/conversations/%5Bid%5D/analysis/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/conversation-analysis-service.js](../../../apps/server/src/modules/crm/conversation-analysis-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/customer-memory-erasure.js](../../../apps/server/src/modules/identity/customer-memory-erasure.js) — `implements` (`annotation`)
-- [apps/server/src/modules/line-crm/LineCrmLiveChat.jsx](../../../apps/server/src/modules/line-crm/LineCrmLiveChat.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/line-crm/lineCrmViewModels.js](../../../apps/server/src/modules/line-crm/lineCrmViewModels.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
