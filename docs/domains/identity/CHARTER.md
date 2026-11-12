@@ -70,6 +70,10 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 
 ## Public contract
 
+For the session contract, write-protection coverage, rate limits and the
+application/database isolation boundary, see [Identity System Diagram, sections
+5–9](SYSTEM-DIAGRAM.md#5-human-sign-in-flows).
+
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.
@@ -91,21 +95,11 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
-- `resolveEdgeDeviceContext(request)` (FR-144) is a **third** request identity,
-  beside the session seam and `resolveSotDataPlaneViewer`: an `EdgeDeviceCredential`
-  bearer token (`Authorization: Bearer edgk_…`) scoped to one **Business**, resolving
-  to `{ deviceId, businessId, tenantId, credentialId }` and to nothing Person-shaped.
-  It exists because no existing credential answers "which device at which Business" —
-  `ApiAccessKey` is Tenant-bound (FR-106) and a `PluginSession` is a browser-obtained
-  public-client identity (FR-123) — and collapsing the three would let one leaked
-  credential satisfy a check it was never issued for (ADR-047 D2, ADR-059 D2). It
-  never produces `isOperator`, never satisfies `ownsBusiness` or `isApiAccessFor`,
-  and refuses with one generic 401 in which missing, malformed, unknown, revoked and
-  foreign-prefix keys are indistinguishable. Mint / list / revoke live at
-  `/api/platform/edge-devices/credentials` under Business OWNER or operator
-  authority, with 404-shaped refusals (FR-072); the raw `edgk_` key exists only in
-  the mint response and is stored only as SHA-256 (SEC-025, ADR-041 D3). Its
-  consumers are the FR-143 edge extraction routes and the FR-141 heartbeat `POST`.
+- **Retired Edge device credential contract (FR-144, ADR-041 D3; ADR-110).** The
+  former `resolveEdgeDeviceContext` resolver and `/api/platform/edge-devices/**`
+  routes are retired; the former FR-143 Edge extraction and FR-141 heartbeat
+  consumers are absent from the active route tree. `EdgeDeviceCredential` remains
+  in the schema as historical data.
 - `listUserPermissions`, `updateUserPermissions` and `addBusinessMembership`
   (FR-038) are the one seam that administers `Membership` role and per-domain
   grants. `addBusinessMembership` attaches an **existing** Person to a Business
@@ -196,19 +190,12 @@ domain. Implemented by FR-066/067 (`onboarding-service.js`,
   same allowance rather than a new claim: it writes the same three columns, in
   the same lane, for the step that comes immediately before FR-066's.
 
-## Agent harness devices (FR-220, ADR-087)
+## Agent harness devices (FR-220, ADR-087 — retired by ADR-110)
 
-A Claude Code or Codex installation pairs the way a Zuri Edge Device does: an
-anonymous bounded start, approval by a signed-in person on `/harness/pair` who
-compares the check code and device label, and one redemption by the harness
-holding the device secret. The resulting `HarnessCredential` is bound to that
-**person** and a server-issued installation id, stored as a hash, and scoped to
-`PROGRAMME_USAGE_REPORT` only — it is not a viewer, and every route except
-platform-control's usage report endpoint and its whoami read refuses it. Only an
-installation operator or a person holding a visible Business may approve; a
-non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
-the Agent devices tab. `describeHarnessReporters` is the read port the board uses
-for device labels and person names; it returns no key material.
+Historically, an approved harness carried a person-bound, hashed
+`HarnessCredential` for programme usage attribution. ADR-110 retired pairing,
+device-management and reporting routes in the repository; `HarnessCredential`
+remains in the schema as historical data.
 
 ## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate merged, erasure fan-out declared)
 

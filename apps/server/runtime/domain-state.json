@@ -1752,7 +1752,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-085",
@@ -2945,15 +2945,23 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 31
+        },
+        {
+          "id": "FR-080",
+          "title": "Platform Integrations UI",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 28
         },
         {
           "id": "FR-091",
           "title": "CRM Conversation Inbox",
           "declared": "done",
           "status": "verified",
-          "codeCount": 12,
-          "testCount": 26
+          "codeCount": 13,
+          "testCount": 28
         },
         {
           "id": "FR-093",
@@ -2976,8 +2984,8 @@
           "title": "SEC-005 PDPA consent, MVP scope",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 25
+          "codeCount": 5,
+          "testCount": 28
         },
         {
           "id": "FR-127",
@@ -2985,7 +2993,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 21
         },
         {
           "id": "FR-146",
@@ -3496,7 +3504,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-094",
@@ -3552,7 +3560,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 25
+          "testCount": 28
         },
         {
           "id": "FR-104",
@@ -3624,7 +3632,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 18
+          "testCount": 21
         },
         {
           "id": "FR-144",
@@ -4306,7 +4314,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-081",
@@ -5909,7 +5917,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-091",
@@ -5917,7 +5925,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-093",
@@ -7894,7 +7902,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 30
+          "testCount": 31
         },
         {
           "id": "FR-079",
@@ -7910,7 +7918,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 28
         },
         {
           "id": "FR-081",
@@ -8127,7 +8135,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 26
+          "testCount": 28
         },
         {
           "id": "FR-092",
@@ -8183,7 +8191,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 25
+          "testCount": 28
         },
         {
           "id": "FR-104",
@@ -8263,7 +8271,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 18
+          "testCount": 21
         },
         {
           "id": "FR-133",
@@ -10732,6 +10740,7 @@
       "primaryDomain": "integration",
       "contributorDomains": [
         "agent",
+        "crm",
         "integration",
         "knowledge",
         "line-oa-studio",
@@ -10766,8 +10775,8 @@
           "title": "Platform Integrations UI",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 27
+          "codeCount": 20,
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -10795,6 +10804,7 @@
         "apps/server/src/modules/integration/application/local-ollama-selection-service.js",
         "apps/server/src/modules/knowledge/line-product-disclosure-contract.js",
         "apps/server/src/modules/knowledge/line-product-disclosure-source.js",
+        "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioProjects.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioSettings.jsx",
         "apps/server/src/modules/line-oa-studio/ui/LocalOllamaModelCard.jsx",
@@ -10834,6 +10844,7 @@
         "apps/server/tests/unit/grounded-business-answer.test.js",
         "apps/server/tests/unit/integrations-page-claims.test.js",
         "apps/server/tests/unit/line-binding-status.test.js",
+        "apps/server/tests/unit/line-crm-members-render.test.js",
         "apps/server/tests/unit/line-customer-product-answer.test.js",
         "apps/server/tests/unit/line-customer-product-decision.test.js",
         "apps/server/tests/unit/line-customer-product-knowledge.test.js",
@@ -10940,7 +10951,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 30
+          "testCount": 31
         }
       ],
       "evidence": [
@@ -10981,6 +10992,7 @@
         "apps/server/tests/unit/db-runtime-config.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
+        "apps/server/tests/unit/line-crm-members-render.test.js",
         "apps/server/tests/unit/platform-approver-profile-migration.test.js",
         "apps/server/tests/unit/postgres-runtime-client.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
@@ -11310,8 +11322,8 @@
           "title": "CRM Conversation Inbox",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 26
+          "codeCount": 21,
+          "testCount": 28
         },
         {
           "id": "FR-093",
@@ -11343,6 +11355,7 @@
         "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/line-crm/LineCrmShell.jsx",
         "apps/server/src/modules/line-crm/lineCrmModules.js",
+        "apps/server/src/modules/line-crm/lineCrmViewModels.js",
         "apps/server/src/modules/line-crm/mockData.js",
         "apps/server/src/modules/line-oa-studio/ui/LineStudioLiveCrm.jsx",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
@@ -11369,7 +11382,9 @@
         "apps/server/tests/unit/inventory-routes.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
         "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+        "apps/server/tests/unit/line-crm-members-render.test.js",
         "apps/server/tests/unit/line-crm-module-availability.test.js",
+        "apps/server/tests/unit/line-crm-view-models.test.js",
         "apps/server/tests/unit/line-studio-design-preview-render.test.js",
         "apps/server/tests/unit/marketing-navigation.test.js",
         "apps/server/tests/unit/procurement-routes.test.js",
@@ -11998,7 +12013,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 18
+          "testCount": 21
         },
         {
           "id": "FR-128",
@@ -12034,6 +12049,9 @@
         "apps/server/tests/unit/data-pipeline-map.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+        "apps/server/tests/unit/line-crm-members-render.test.js",
+        "apps/server/tests/unit/line-crm-view-models.test.js",
         "apps/server/tests/unit/pricing-backup.test.js"
       ]
     },
@@ -19729,8 +19747,8 @@
           "title": "SEC-005 PDPA consent, MVP scope",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 8,
-          "testCount": 25
+          "codeCount": 10,
+          "testCount": 28
         }
       ],
       "evidence": [
@@ -19742,6 +19760,8 @@
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/line-crm/LineCrmAuditLog.jsx",
+        "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
+        "apps/server/src/modules/line-crm/lineCrmViewModels.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-conversation-inbox.test.js",
@@ -19763,6 +19783,9 @@
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/e2e-scope-transport.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
+        "apps/server/tests/unit/line-crm-live-chat-render.test.js",
+        "apps/server/tests/unit/line-crm-members-render.test.js",
+        "apps/server/tests/unit/line-crm-view-models.test.js",
         "apps/server/tests/unit/marketing/marketing-broadcast-backup.test.js",
         "apps/server/tests/unit/marketing/marketing-broadcast-contract.test.js",
         "apps/server/tests/unit/marketing/marketing-broadcast-service.test.js",

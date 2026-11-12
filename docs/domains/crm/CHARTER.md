@@ -343,37 +343,41 @@ per run. `conversation-search-service.js` adds the third reader: message search
 (`pg_trgm` on Postgres, `LIKE` on SQLite) and per-account follow/unfollow counts
 from `ConversationEvent`. `getConversationInbox` gained a per-Business
 `unreadCount` computed on read. Migration `20260914150400`, written and not yet
-applied. `Message` sender channel identity is **not** part of this landing —
-no FR-230/FR-233 acceptance criterion names it, and it stays declared-only here
-until a requirement actually needs it.
+applied. `Message.authorChannelIdentityId` is now in the schema, and
+`line-ingest-service.js` sets it for inbound LINE messages; outbound and
+unattributed inbound messages keep it null. The 2026-09-16 planning note marked
+this declared-only; the current writer supersedes that status.
 
 Still planned under this charter, not in `owns_models` until it lands:
 
 - A consent-gated read projection for the knowledge lane's candidate extractor
   (ADR-090 D6), in the shape of `getConversationAnalyses`; crm gains no writer for it.
-- `Message` sender channel identity (mentioned in the original ADR-091 design
-  evidence, not yet required by any FR).
 
 Consent keeps its current meaning and gains one: it never gates recording an
 inbound message, and it now also gates episodic, passport and cross-thread agent
 memory (ADR-091 D4, SEC-031).
 
-## Declared, not yet in schema (FEAT-040, FEAT-041, ADR-093, ADR-094)
+## Session and chat-evidence archive in schema and code (FEAT-040, FEAT-041, ADR-093, ADR-094)
 
 [ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
-(accepted 2026-09-16) gives this lane **`ConversationSession`** (FR-243, SDD-102): the
-session id of the business record, assigned inside the ADR-061 admission
-transaction by a 30-minute idle rule the account may set between 10 and 120
-minutes. `Message`, `ConversationEvent` and `LineConversationJob` will carry it;
+(accepted 2026-09-16) is implemented in the schema and admission code:
+**`ConversationSession`** (FR-243, SDD-102) is the session id of the business
+record, assigned inside the ADR-061 admission transaction by a 30-minute idle
+rule the account may set between 10 and 120 minutes. `Message`,
+`ConversationEvent` and `LineConversationJob` carry it;
 MSP's own `chat_sessions` stay the memory unit, and their id is stored beside
 this one, never in place of it.
 
 [ADR-093](../../decisions/ADR-093-SWEPT-CHAT-CONTENT-MOVES-TO-AN-ENCRYPTED-LOCAL-COLD-ARCHIVE.md)
-(accepted 2026-09-16; D5 amended 2026-11-13) gives this lane the **chat evidence archive** (FR-245, SEC-034,
-SDD-103): the retention sweep writes and verifies an encrypted local archive file
-before it tombstones a message body, a manifest model chains the files per Tenant,
-and a legal-hold record on a Customer is the one thing that defers destroying their
-archive key on erasure.
+(accepted 2026-09-16; D5 amended 2026-11-13) is implemented in the schema and code: **`CustomerArchiveKey`,
+`ArchiveManifest`, `CustomerLegalHold` and `LegalHoldArchiveKey`** support the chat
+evidence archive (FR-245, SEC-034, SDD-103). The retention sweep writes and verifies
+an encrypted local archive file before it tombstones a message body, a manifest
+model chains the files per Tenant, and a legal-hold record on a Customer defers
+destroying their archive key on erasure. Expiry is wired: `chat-evidence-archive-expiry-service.js`
+retires expired files in the manifest chain before deleting them (ADR-093 D5
+amendment 1.3.0, accepted 2026-11-13), and `POST /api/crm/archive-expiry`
+triggers it through the shared retention worker.
 
 **ADR-093 1.2.0 (2026-09-27): consent to retain = keep.** `owns_models` +=
 `CustomerRetentionConsent`, `LegalHoldArchiveKey`.
@@ -470,6 +474,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 |---|---|---|---|
 | 0.15.0b | 2026-11-13 | FR-245 / SEC-034 / ADR-093 D5 1.3.0: expiry now appends format-4 retirement files and manifest rows before deleting expired files; retrieval and hold re-seal skip retired rows; `POST /api/crm/archive-expiry` and its serialized daily worker trigger are wired. Production mount qualification remains separate | Codex |
 | 0.14.0b | 2026-11-12 | FR-230 / ADR-091 D2: corrects the CRM-owned sweep boundary; Integration and Agent now have separate sweep services and worker routes for their own retention classes, while CRM remains the Message/attachment writer | Codex |
+| 0.13.1b | 2026-11-12 | Corrected session, archive-model and inbound sender-identity status; recorded that archive expiry has no route or scheduled worker | Codex |
 | 0.13.0b | 2026-10-05 | FR-278: add the CRM-owned aggregate SalesTask health read for Marketing; preserve Business/customer-domain visibility and omit task, Customer and Conversation details | Codex |
 | 0.12.0b | 2026-09-27 | FR-022 / ADR-093 1.2.0, the owner's ruling "consent to retain = keep". `owns_models` += `CustomerRetentionConsent`, `LegalHoldArchiveKey`. New writer `customer-retention-consent-service.js` (SALES_REP `crm.retention-consent.write`, OWNER implicit, audited, revocable, tenant-bound). Erasure re-seals a held, consenting member's evidence under a per-hold key into one appended format-3 file before the erased key is destroyed, then revokes the erased Customer's consent and clears the FR-103 note and recorder. The sweep blanks, without archiving, past-window lines whose erased key Customer nobody consented for. The expiry run destroys lapsed hold keys. Retrieval opens active hold keys. Migrations `20260927230000` written, not applied; Phase B inventory rebound to 194 tables | Claude Opus 5.5 (MC0) |
 | 0.11.0b | 2026-09-27 | Added `readCustomerFact` / `readConversationFact` (`scm-reference-reader.js`, ADR-111 D5): a narrow, internal, Tenant-bounded read port for the scm-core.v1 façade's Customer / Conversation facts, so core's façade no longer reads crm's models directly; read-only, field allow-list, no `owns_models` change | Claude Opus 5.5 |
