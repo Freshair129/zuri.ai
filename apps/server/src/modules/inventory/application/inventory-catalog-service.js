@@ -18,7 +18,7 @@ import {
   zProductCartonAttributesInput,
   zProductAction,
 } from '../domain/inventory'
-import { FINISHED_SET_SKU_PATTERN, isFinishedSetSku, weightedAverageUnitCostSatang } from '../domain/inventory-costing'
+import { FINISHED_SET_SKU_PATTERN, allTimeReceiptAverageSatang, isFinishedSetSku, movingAverageValuation } from '../domain/inventory-costing'
 import {
   archiveGuard,
   lookalikeFingerprint,
@@ -32,6 +32,7 @@ import {
 } from '../domain/inventory-governance'
 import { assertMayView, loadBusiness, notFound } from './inventory-authority'
 import { appendMovement } from './inventory-stock-service'
+import { INVENTORY_VALUATION_MOVEMENT_SELECT } from './inventory-valuation-service'
 import { supplierCostBaht, supplierCostSatang } from '@/modules/procurement/domain/procurement'
 
 // @req FR-154 — the only writer of the Inventory catalogue: category, family,
@@ -44,6 +45,8 @@ import { supplierCostBaht, supplierCostSatang } from '@/modules/procurement/doma
 //   ledger's meaning depends on them, so they are not editable after the
 //   first movement could exist. `UPDATE` edits the descriptive fields and the
 //   safety stock; `ARCHIVE` keeps the row. Nothing is ever deleted.
+// @req FR-175 — the product detail projection reports moving valuation apart
+//   from its all-time purchasing average.
 // @req FR-201 — a master declares its nature once; a SKU's policy is derived
 //   from it and a request that disagrees is refused (`INVENTORY_NATURE_MISMATCH`).
 //   A service SKU is stored with no stock fields (BR-038).
@@ -326,7 +329,7 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
     select: {
       ...PRODUCT_SELECT,
       movements: {
-        select: { id: true, kind: true, quantity: true, costSatang: true, occurredAt: true, createdAt: true, reference: true },
+        select: INVENTORY_VALUATION_MOVEMENT_SELECT,
         orderBy: [{ occurredAt: 'desc' }, { createdAt: 'desc' }],
       },
       supplierCostLines: {
@@ -352,7 +355,9 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
   const receipts = (movements || [])
     .filter((m) => m.kind === 'RECEIPT')
     .sort((a, b) => new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime() || new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-  const weightedAverageLandedCostSatang = weightedAverageUnitCostSatang(receipts)
+  const valuation = movingAverageValuation(movements)
+  const weightedAverageLandedCostSatang = valuation.unitCostSatang
+  const allTimeReceiptAverage = allTimeReceiptAverageSatang(receipts)
   const latestWithCost = receipts.find((m) => m.costSatang !== null && m.costSatang !== undefined)
   const lastReceiptCostSatang = latestWithCost ? latestWithCost.costSatang : null
   const costHistory = receipts.map((m) => ({
@@ -390,6 +395,16 @@ export async function getProduct(id, { viewer, db = prisma } = {}) {
     onHand: product.stockPolicy === 'TRACKED' ? stockOnHand(movements) : null,
     costing: {
       weightedAverageLandedCostSatang,
+      valuation: {
+        method: 'MOVING_WEIGHTED_AVERAGE',
+        scope: 'PRODUCT',
+        unitCostSatang: valuation.unitCostSatang,
+        onHandQty: valuation.onHandQty,
+        partial: valuation.partial,
+        partialReasons: valuation.partialReasons,
+        uncostedQty: valuation.uncostedQty,
+      },
+      allTimeReceiptAverageSatang: allTimeReceiptAverage,
       lastReceiptCostSatang,
       costHistory,
       supplierCostPriceBreaks,

@@ -1,8 +1,8 @@
 import { createHash, randomUUID } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
-import { assertMayView } from '@/modules/inventory'
-import { weightedAverageUnitCostSatang } from '@/modules/inventory/domain/inventory-costing'
+import { assertMayView, INVENTORY_VALUATION_MOVEMENT_SELECT } from '@/modules/inventory'
+import { movingAverageValuation } from '@/modules/inventory/domain/inventory-costing'
 import { createManagedBlobFileAsset, resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { createConfiguredKnowledgeCatalogObjectStoragePort, createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
@@ -21,7 +21,9 @@ import { priceLandedInventoryQuote } from './pricing-inventory-service'
 // enters the existing FR-187 pre-Stage-1 admission queue. Frozen snapshots and
 // managed file identity make retries stable; no calculation/publication claim
 // from the client can promote a trial input into verified source data.
-// @spec ADR-098; ADR-075; SEC-001; BR-002
+// @req FR-175 — prices from complete Business-wide moving valuation and hashes
+//   every movement that contributes to the replay.
+// @spec ADR-074 D2, D3; ADR-098; ADR-075; SEC-001; BR-002
 // @tested tests/integration/fr253-pricing-catalog.test.js, tests/unit/fr253-pricing-catalog-storage.test.js
 
 const schema = z.object({
@@ -71,23 +73,49 @@ async function buildLedgerPlan(data, { db, viewer, now }) {
   const product = await db.product.findFirst({ where: { id: data.productId, businessId: data.businessId, tenantId: active.tenantId, status: 'ACTIVE' }, include: { productMaster: true } })
   if (!product) throw fail(404, 'Product not found')
   if (product.itemKind === 'CUSTOM_COMPONENT' || product.dedicatedCustomerId || product.dedicatedSalesOrderId) throw fail(422, 'PRICING_CATALOG_DEDICATED_PRODUCT')
-  const receipts = await db.stockMovement.findMany({ where: { productId: product.id, businessId: data.businessId, tenantId: active.tenantId, kind: 'RECEIPT', quantity: { gt: 0 } }, orderBy: { id: 'asc' } })
-  if (!receipts.length || receipts.some((row) => !Number.isSafeInteger(row.costSatang) || row.costSatang < 0)) throw fail(422, 'PRICING_CATALOG_COMPLETE_LEDGER_COST_REQUIRED')
-  const totalValue = receipts.reduce((total, row) => total + BigInt(row.quantity) * BigInt(row.costSatang), 0n)
-  if (totalValue > BigInt(Number.MAX_SAFE_INTEGER)) throw fail(422, 'PRICING_CATALOG_COST_OVERFLOW')
-  const costSatang = weightedAverageUnitCostSatang(receipts)
-  const receiptManifest = receipts.map((row) => ({ id: row.id, quantity: row.quantity, costSatang: row.costSatang, occurredAt: row.occurredAt.toISOString() }))
+  const movements = await db.stockMovement.findMany({
+    where: { productId: product.id, businessId: data.businessId, tenantId: active.tenantId },
+    select: INVENTORY_VALUATION_MOVEMENT_SELECT,
+    orderBy: { id: 'asc' },
+  })
+  const receipts = movements.filter((row) => row.kind === 'RECEIPT')
+  const valuation = movingAverageValuation(movements)
+  if (!receipts.length || valuation.unitCostSatang === null || valuation.partial) throw fail(422, 'PRICING_CATALOG_COMPLETE_LEDGER_COST_REQUIRED')
+  const validQuantity = (row) => Number.isSafeInteger(row.quantity)
+    && ((row.kind === 'RECEIPT' && row.quantity > 0)
+      || (row.kind === 'ISSUE' && row.quantity < 0)
+      || (row.kind === 'ADJUSTMENT'))
+  const onHandQty = movements.filter(validQuantity).reduce((sum, row) => sum + BigInt(row.quantity), 0n)
+  const positionValue = onHandQty * BigInt(valuation.unitCostSatang)
+  const allReceiptValue = receipts
+    .filter((row) => validQuantity(row) && Number.isSafeInteger(row.costSatang) && row.costSatang >= 0)
+    .reduce((sum, row) => sum + BigInt(row.quantity) * BigInt(row.costSatang), 0n)
+  const safeLimit = BigInt(Number.MAX_SAFE_INTEGER)
+  if ((positionValue > safeLimit || positionValue < -safeLimit) || allReceiptValue > safeLimit) throw fail(422, 'PRICING_CATALOG_COST_OVERFLOW')
   // The full append-only ledger is not a user-authored rules/input array.
-  // Rows are id-sorted above and each manifest row has this fixed key order.
+  // Rows are id-sorted above; every replay field is included in fixed key order.
+  const receiptManifest = movements.map((row) => ({
+    id: row.id,
+    kind: row.kind,
+    quantity: row.quantity,
+    costSatang: row.costSatang,
+    occurredAt: row.occurredAt,
+    createdAt: row.createdAt,
+    reference: row.reference,
+    reason: row.reason,
+    sourceLocationId: row.sourceLocationId,
+    targetLocationId: row.targetLocationId,
+    workOrderId: row.workOrderId,
+  }))
   const receiptManifestHash = sha256(JSON.stringify(receiptManifest))
   const sourceRefs = [{ kind: 'INVENTORY_LEDGER', productId: product.id, receiptCount: receipts.length, sha256: receiptManifestHash }]
   const quotes = []
   for (const quantity of data.quantities) {
-    const quote = await priceLandedInventoryQuote({ businessId: data.businessId, productId: product.id, quantity, baseCostSatang: costSatang, kind: product.itemKind === 'FINISHED_SET' ? 'set' : 'single', sourceRefs }, { viewer, db, now })
+    const quote = await priceLandedInventoryQuote({ businessId: data.businessId, productId: product.id, quantity, baseCostSatang: valuation.unitCostSatang, kind: product.itemKind === 'FINISHED_SET' ? 'set' : 'single', sourceRefs }, { viewer, db, now })
     if (quote.ruleSetId !== active.id || quote.rulesHash !== active.rulesHash || quote.ruleRevision !== active.version) throw fail(409, 'PRICING_CATALOG_POLICY_CHANGED')
     quotes.push({ quote, quantity, catalogProjection: buildPricingCatalogProjection(product, quantity, quote.result.unitPriceSatang, now) })
   }
-  const previewHash = pricingHash({ request: data, policy: { id: active.id, version: active.version, hash: active.rulesHash }, receiptManifestHash, receiptCount: receipts.length, quotes: quotes.map(({ quote, quantity, catalogProjection }) => ({ quantity, inputHash: quote.result.inputHash, result: quote.result, catalogProjection })) })
+  const previewHash = pricingHash({ request: data, policy: { id: active.id, version: active.version, hash: active.rulesHash }, receiptManifestHash, receiptCount: receipts.length, movementCount: movements.length, quotes: quotes.map(({ quote, quantity, catalogProjection }) => ({ quantity, inputHash: quote.result.inputHash, result: quote.result, catalogProjection })) })
   return { active, quotes, receiptManifest, previewHash }
 }
 
@@ -116,7 +144,7 @@ async function freezeLedgerCalculations(data, { db, viewer, now, previewHash }) 
         inputProvenance: 'INVENTORY_LEDGER', requestHash, idempotencyKey: `${prefix}${quantity}`,
         createdByPersonId: viewer.principal?.id ?? null, createdAt: now,
       } })
-      await recordAudit(tx, { entityType: 'PRICING_CALCULATION', entityId: row.id, action: 'PRICING_CATALOG_PRICE_APPROVED', tenantId: active.tenantId, businessId: data.businessId, actorId: viewer.principal?.id ?? null, reason: data.reason, payload: { productId: data.productId, quantity, ruleSetId: active.id, rulesHash: active.rulesHash, inputHash: row.inputHash, previewHash, receiptIds: plan.receiptManifest.map((receipt) => receipt.id) } })
+      await recordAudit(tx, { entityType: 'PRICING_CALCULATION', entityId: row.id, action: 'PRICING_CATALOG_PRICE_APPROVED', tenantId: active.tenantId, businessId: data.businessId, actorId: viewer.principal?.id ?? null, reason: data.reason, payload: { productId: data.productId, quantity, ruleSetId: active.id, rulesHash: active.rulesHash, inputHash: row.inputHash, previewHash, receiptIds: plan.receiptManifest.filter((movement) => movement.kind === 'RECEIPT').map((receipt) => receipt.id), movementCount: plan.receiptManifest.length } })
       rows.push(row)
     }
     return { rows, requestKey }

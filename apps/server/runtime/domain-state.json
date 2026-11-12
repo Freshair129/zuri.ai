@@ -1879,6 +1879,14 @@
           "testCount": 38
         },
         {
+          "id": "FR-175",
+          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 15
+        },
+        {
           "id": "FR-181",
           "title": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path",
           "declared": "n/a",
@@ -2648,6 +2656,14 @@
           "status": "verified",
           "codeCount": 8,
           "testCount": 38
+        },
+        {
+          "id": "FR-175",
+          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
+          "declared": "n/a",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 15
         },
         {
           "id": "FR-181",
@@ -4845,8 +4861,8 @@
           "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 10
+          "codeCount": 10,
+          "testCount": 15
         },
         {
           "id": "FR-176",
@@ -5144,6 +5160,7 @@
         "docs/domains/inventory/features/FR-154-inventory-catalogue-identity.md",
         "docs/domains/inventory/features/FR-155-inventory-stock-ledger.md",
         "docs/domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md",
+        "docs/domains/inventory/features/FR-175-moving-average-valuation.md",
         "docs/domains/inventory/features/FR-184-inventory-stocktake.md",
         "docs/domains/inventory/features/FR-201-nature-at-the-master.md",
         "docs/domains/inventory/features/FR-202-variant-identity.md",
@@ -5222,7 +5239,7 @@
         "apiRoutes": 43,
         "pageRoutes": 8,
         "ownedModels": 22,
-        "featureNotes": 8
+        "featureNotes": 9
       },
       "featureIds": [
         "FEAT-020",
@@ -7298,7 +7315,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 10
+          "testCount": 15
         },
         {
           "id": "FR-196",
@@ -13463,8 +13480,8 @@
           "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 10
+          "codeCount": 14,
+          "testCount": 15
         },
         {
           "id": "FR-176",
@@ -13557,6 +13574,7 @@
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/module-tabs.js",
         "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
+        "apps/server/src/modules/commerce/application/pricing-catalog-service.js",
         "apps/server/src/modules/commerce/application/pricing-inventory-service.js",
         "apps/server/src/modules/inventory/application/customization-work-order-service.js",
         "apps/server/src/modules/inventory/application/de-kitting-service.js",
@@ -13565,6 +13583,7 @@
         "apps/server/src/modules/inventory/application/inventory-shelf-life-service.js",
         "apps/server/src/modules/inventory/application/inventory-stock-service.js",
         "apps/server/src/modules/inventory/application/inventory-stocktake-service.js",
+        "apps/server/src/modules/inventory/application/inventory-valuation-service.js",
         "apps/server/src/modules/inventory/application/kitting-work-order-service.js",
         "apps/server/src/modules/inventory/application/line-stock-projection.js",
         "apps/server/src/modules/inventory/application/location-transfer-service.js",
@@ -13614,6 +13633,7 @@
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/fr253-pricing-catalog-storage.test.js",
         "apps/server/tests/unit/inventory-costing.test.js",
         "apps/server/tests/unit/inventory-domain.test.js",
         "apps/server/tests/unit/inventory-product-page.test.js",

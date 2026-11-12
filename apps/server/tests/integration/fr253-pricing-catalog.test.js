@@ -1,21 +1,24 @@
-// @req FR-253 — ledger-only sell-side admission, immutable retry and no fabricated publication.
-// @spec ADR-098; ADR-075; SEC-001; BR-002
+// @req FR-175, FR-253 — ledger-only sell-side admission, moving valuation,
+//   immutable retry and no fabricated publication.
+// @spec ADR-074 D2, D3; ADR-098; ADR-075; SEC-001; BR-002
 // @tested tests/integration/fr253-pricing-catalog.test.js
+import { createHash } from 'node:crypto'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
-import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
+import { createCategory, createProduct, createProductMaster, getProduct } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { defaultPricingRules, pricingHash } from '@/modules/commerce/domain/pricing-engine'
 import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
+import { priceLandedInventoryQuote } from '@/modules/commerce/application/pricing-inventory-service'
 import { assertKnowledgeFileCurrent, assertKnowledgeFileReadable } from '@/modules/knowledge/knowledge-authorization'
 import { renderStructuredCatalogDocument } from '@/modules/knowledge/genesisrag17-structured-record'
 
 const NOW = new Date(Date.now() - 60000)
 const EXPIRES = new Date(NOW.getTime() + 3600000)
-let business, owner, member, product, missing, partial, approved, env, first, reviewHash
+let business, owner, member, product, missing, partial, depleted, backdated, positionOverflow, receiptOverflow, approved, env, first, reviewHash
 const blobs = new Map()
 const storage = {
   async put({ key, content }) { const ref = `memory://${key}`; blobs.set(ref, Buffer.from(content)); return { ref } },
@@ -43,9 +46,19 @@ describe('FR-253 computed catalog admission', () => {
     product = await sku('SKU-PCAT')
     missing = await sku('SKU-PCAT-MISSING')
     partial = await sku('SKU-PCAT-PARTIAL')
+    depleted = await sku('SKU-PCAT-DEPLETED')
+    backdated = await sku('SKU-PCAT-BACKDATED')
+    positionOverflow = await sku('SKU-PCAT-POSITION-OVERFLOW')
+    receiptOverflow = await sku('SKU-PCAT-RECEIPT-OVERFLOW')
     await recordMovement({ businessId: business.id, productId: product.id, kind: 'RECEIPT', quantity: 200, costSatang: 10000 }, { viewer: owner })
     await recordMovement({ businessId: business.id, productId: partial.id, kind: 'RECEIPT', quantity: 200, costSatang: 10000 }, { viewer: owner })
     await recordMovement({ businessId: business.id, productId: partial.id, kind: 'RECEIPT', quantity: 100 }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: depleted.id, kind: 'RECEIPT', quantity: 10, costSatang: 10000, occurredAt: new Date('2026-09-01T00:00:00.000Z') }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: depleted.id, kind: 'ISSUE', quantity: 10, occurredAt: new Date('2026-09-02T00:00:00.000Z') }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: depleted.id, kind: 'RECEIPT', quantity: 10, costSatang: 20000, occurredAt: new Date('2026-09-03T00:00:00.000Z') }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: backdated.id, kind: 'RECEIPT', quantity: 10, costSatang: 10000, occurredAt: new Date('2026-09-02T00:00:00.000Z') }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: backdated.id, kind: 'RECEIPT', quantity: 10, costSatang: 20000, occurredAt: new Date('2026-09-03T00:00:00.000Z') }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: backdated.id, kind: 'ISSUE', quantity: 15, occurredAt: new Date('2026-09-01T00:00:00.000Z') }, { viewer: owner })
     const scope = { portfolioId: portfolio.id, tenantId: tenant.id, businessId: business.id, workspaceId: 'workspace-pricing-catalog', agentId: 'agent-pricing-catalog', visibility: 'private' }
     env = { ZURI_KNOWLEDGE_ENABLED: '1', ZURI_KNOWLEDGE_BINDINGS: JSON.stringify([{ scope, policy: { allowEmbedding: true, allowPublication: true } }]), MSP_PIPELINE_PRINCIPALS: JSON.stringify([{ role: 'source', credential: 'fixture-only-catalog-credential', scope }]), ZURI_MSP_COMMAND: process.execPath }
   })
@@ -76,7 +89,11 @@ describe('FR-253 computed catalog admission', () => {
     expect(blobs.size).toBe(0)
     const refreshed = await admit({ previewOnly: true })
     expect(refreshed.previewHash).not.toBe(preview.previewHash)
-    reviewHash = refreshed.previewHash
+    const issueAt = new Date(Date.now() + 1000)
+    await recordMovement({ businessId: business.id, productId: product.id, kind: 'ISSUE', quantity: 1, occurredAt: issueAt, reference: 'ISSUE:HASH-CHECK' }, { viewer: owner, now: issueAt })
+    const afterIssue = await admit({ previewOnly: true })
+    expect(afterIssue.previewHash).not.toBe(refreshed.previewHash)
+    reviewHash = afterIssue.previewHash
   })
 
   it('freezes ledger-calculated allowlisted records and queues the existing 17-stage admission without claiming publication', async () => {
@@ -125,6 +142,61 @@ describe('FR-253 computed catalog admission', () => {
     await expect(admit({ calculationId: first.calculationIds[0] })).rejects.toThrow()
     await expect(admit({ unitPriceSatang: 100, sourceRefs: [{ verified: true }] })).rejects.toThrow()
     expect(await prisma.pricingCalculation.count({ where: { businessId: business.id } })).toBe(2)
+  })
+
+  it('refuses a pricing preview when back-dated movements make the replay go negative', async () => {
+    const detail = await getProduct(backdated.id, { viewer: owner })
+    expect(detail.costing.valuation.partialReasons).toContain('NEGATIVE_BALANCE')
+    await expect(admit({ productId: backdated.id, idempotencyKey: backdated.code, previewOnly: true }))
+      .rejects.toMatchObject({ status: 422, message: 'PRICING_CATALOG_COMPLETE_LEDGER_COST_REQUIRED' })
+  })
+
+  it('prices from the new stock position after depletion and receipt', async () => {
+    const quantity = 100
+    const preview = await admit({ productId: depleted.id, quantities: [quantity], idempotencyKey: 'depleted-cost-preview', previewOnly: true })
+    const movements = await prisma.stockMovement.findMany({
+      where: { businessId: business.id, tenantId: business.tenantId, productId: depleted.id },
+      select: { id: true, kind: true, quantity: true, costSatang: true, occurredAt: true, createdAt: true, reference: true, reason: true, sourceLocationId: true, targetLocationId: true, workOrderId: true },
+      orderBy: { id: 'asc' },
+    })
+    const receiptManifest = movements.map((row) => ({
+      id: row.id,
+      kind: row.kind,
+      quantity: row.quantity,
+      costSatang: row.costSatang,
+      occurredAt: row.occurredAt,
+      createdAt: row.createdAt,
+      reference: row.reference,
+      reason: row.reason,
+      sourceLocationId: row.sourceLocationId,
+      targetLocationId: row.targetLocationId,
+      workOrderId: row.workOrderId,
+    }))
+    const kind = depleted.itemKind === 'FINISHED_SET' ? 'set' : 'single'
+    const sourceRefs = [{ kind: 'INVENTORY_LEDGER', productId: depleted.id, receiptCount: movements.filter((row) => row.kind === 'RECEIPT').length, sha256: createHash('sha256').update(JSON.stringify(receiptManifest)).digest('hex') }]
+    const expected = await priceLandedInventoryQuote({
+      businessId: business.id, productId: depleted.id, quantity, baseCostSatang: 20000, kind, sourceRefs,
+    }, { viewer: owner, db: prisma, now: NOW })
+    const oldAllTimeAverage = await priceLandedInventoryQuote({
+      businessId: business.id, productId: depleted.id, quantity, baseCostSatang: 15000, kind, sourceRefs,
+    }, { viewer: owner, db: prisma, now: NOW })
+    expect(expected.unitCostSatang).toBe(20000)
+    expect(preview.prices).toEqual([{ quantity, currency: 'THB', unitPriceSatang: expected.result.unitPriceSatang, totalPriceSatang: expected.result.totalPriceSatang }])
+    expect(preview.prices[0].unitPriceSatang).not.toBe(oldAllTimeAverage.result.unitPriceSatang)
+    await expect(admit({ productId: partial.id, quantities: [1], idempotencyKey: 'partial-cost-refusal', previewOnly: true }))
+      .rejects.toMatchObject({ status: 422, message: 'PRICING_CATALOG_COMPLETE_LEDGER_COST_REQUIRED' })
+  })
+
+  it('retains the cost-overflow refusal for both current stock value and all-time receipt value', async () => {
+    await recordMovement({ businessId: business.id, productId: positionOverflow.id, kind: 'RECEIPT', quantity: 1_000_000, costSatang: 1_000_000_000 }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: positionOverflow.id, kind: 'ADJUSTMENT', quantity: 10_000_000 }, { viewer: owner })
+    await expect(admit({ productId: positionOverflow.id, quantities: [1], idempotencyKey: 'position-overflow', previewOnly: true }))
+      .rejects.toMatchObject({ status: 422, message: 'PRICING_CATALOG_COST_OVERFLOW' })
+
+    await recordMovement({ businessId: business.id, productId: receiptOverflow.id, kind: 'RECEIPT', quantity: 10_000_000, costSatang: 1_000_000_000 }, { viewer: owner })
+    await recordMovement({ businessId: business.id, productId: receiptOverflow.id, kind: 'ISSUE', quantity: 10_000_000 }, { viewer: owner })
+    await expect(admit({ productId: receiptOverflow.id, quantities: [1], idempotencyKey: 'receipt-overflow', previewOnly: true }))
+      .rejects.toMatchObject({ status: 422, message: 'PRICING_CATALOG_COST_OVERFLOW' })
   })
 
   it('hashes more than 200 receipt rows and detects a tail receipt even when the sell prices stay identical', async () => {
