@@ -58,6 +58,7 @@ status: generated
 - [apps/server/tests/unit/db-runtime-config.test.js](../../../apps/server/tests/unit/db-runtime-config.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/line-crm-members-render.test.js](../../../apps/server/tests/unit/line-crm-members-render.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/platform-approver-profile-migration.test.js](../../../apps/server/tests/unit/platform-approver-profile-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/postgres-runtime-client.test.js](../../../apps/server/tests/unit/postgres-runtime-client.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
