@@ -252,11 +252,13 @@ export default function InventoryProductPage() {
             </p>
             {product?.costing?.valuation?.partial && (
               <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
-                {product.costing.valuation.partialReasons?.includes('UNCOSTED_RECEIPT')
-                  ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยรับเข้าหรือปรับเพิ่มโดยไม่มีต้นทุนในบัญชีเคลื่อนไหว`
-                  : product.costing.valuation.partialReasons?.includes('UNCOSTED_ADJUSTMENT')
-                    ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยปรับเพิ่มขณะที่ยังไม่มีต้นทุน`
-                    : 'ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมีรายการเคลื่อนไหวที่ไม่ถูกต้องในบัญชี'}
+                {product.costing.valuation.partialReasons?.includes('NEGATIVE_BALANCE')
+                  ? 'ยอดคงเหลือติดลบในบางช่วงเมื่อเรียงรายการเคลื่อนไหวตามวันที่ (มักเกิดจากรายการย้อนหลังหรือกำหนดวันที่มีผลภายหลัง) จึงยังยืนยันตัวเลขนี้ไม่ได้'
+                  : product.costing.valuation.partialReasons?.includes('UNCOSTED_RECEIPT')
+                    ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยรับเข้าหรือปรับเพิ่มโดยไม่มีต้นทุนในบัญชีเคลื่อนไหว`
+                    : product.costing.valuation.partialReasons?.includes('UNCOSTED_ADJUSTMENT')
+                      ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยปรับเพิ่มขณะที่ยังไม่มีต้นทุน`
+                      : 'ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมีรายการเคลื่อนไหวที่ไม่ถูกต้องในบัญชี'}
               </p>
             )}
             <p className="mt-1 text-xs text-muted">

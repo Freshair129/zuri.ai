@@ -142,7 +142,8 @@ function timestampValue(value) {
 const compareNumber = (left, right) => (left < right ? -1 : left > right ? 1 : 0)
 const compareString = (left, right) => (left < right ? -1 : left > right ? 1 : 0)
 
-// Order by ledger time, then creation time, inflow-first, and stable ID.
+// Order replay steps by ledger time and creation time, then rows inflow-first
+// and by stable ID. Rows in the same step are aggregated before valuation.
 function compareMovement(leftValue, rightValue) {
   const left = leftValue && typeof leftValue === 'object' ? leftValue : {}
   const right = rightValue && typeof rightValue === 'object' ? rightValue : {}
@@ -214,7 +215,18 @@ function neutralTransferIds(movements) {
  * order that just issued its final raw unit can still read that cost. Valuation
  * deliberately ignores location; matched transfer pairs change custody, not
  * the product's cost basis. Invalid rows are skipped and reported as partial
- * evidence. This is pure: no Prisma, clock or input mutation.
+ * evidence. Rows with the same `occurredAt` and `createdAt` replay as one step:
+ * costed inflows blend once, then uncosted inflows enter, then outflows leave;
+ * their IDs do not affect the result.
+ *
+ * @returns {{unitCostSatang: number|null, onHandQty: number, partial: boolean, partialReasons: string[], uncostedQty: number}}
+ *   `partialReasons` can contain `INVALID_ROW`, `NEGATIVE_BALANCE`,
+ *   `UNCOSTED_RECEIPT`, and `UNCOSTED_ADJUSTMENT`. A negative balance at any
+ *   point of the replay makes the figure partial; only correcting the ledger's
+ *   history so a movement is dated when the balance never goes negative removes
+ *   `NEGATIVE_BALANCE`.
+ *
+ * This is pure: no Prisma, clock or input mutation.
  */
 export function movingAverageValuation(movements = []) {
   const rows = Array.isArray(movements) ? [...movements] : []
@@ -226,41 +238,80 @@ export function movingAverageValuation(movements = []) {
   let onHandQty = 0n
   let uncostedQty = 0n
   const markPartial = () => { partial = true }
+  const hasStickyPartialReason = () => partialReasons.has('INVALID_ROW') || partialReasons.has('NEGATIVE_BALANCE')
 
-  for (const row of ordered) {
-    if (!validMovement(row)) {
-      partialReasons.add('INVALID_ROW')
-      markPartial()
-      continue
-    }
-    const cost = movementCost(row, partialReasons, markPartial)
-    const quantity = BigInt(row.quantity)
+  for (let start = 0; start < ordered.length;) {
+    const first = ordered[start]
+    const occurredAt = timestampValue(first?.occurredAt)
+    const createdAt = timestampValue(first?.createdAt)
+    let end = start + 1
+    while (end < ordered.length
+      && timestampValue(ordered[end]?.occurredAt) === occurredAt
+      && timestampValue(ordered[end]?.createdAt) === createdAt) end += 1
 
-    if (row.kind === 'RECEIPT' || (row.kind === 'ADJUSTMENT' && row.quantity > 0)) {
-      if (cost !== null) {
-        if (onHandQty <= 0n) {
-          unitCost = cost
-          partialReasons.delete('UNCOSTED_RECEIPT')
-          partialReasons.delete('UNCOSTED_ADJUSTMENT')
-          partial = partialReasons.has('INVALID_ROW')
-          uncostedQty = 0n
-        } else if (unitCost === null) {
-          unitCost = cost
+    let costedInflowQty = 0n
+    let costedInflowValue = 0n
+    let uncostedReceiptQty = 0n
+    let uncostedAdjustmentQty = 0n
+    let outflowQty = 0n
+
+    for (const row of ordered.slice(start, end)) {
+      if (!validMovement(row)) {
+        partialReasons.add('INVALID_ROW')
+        markPartial()
+        continue
+      }
+      const cost = movementCost(row, partialReasons, markPartial)
+      const quantity = BigInt(row.quantity)
+
+      if (row.kind === 'RECEIPT' || (row.kind === 'ADJUSTMENT' && quantity > 0n)) {
+        if (cost !== null) {
+          costedInflowQty += quantity
+          costedInflowValue += quantity * cost
+        } else if (row.kind === 'RECEIPT') {
+          uncostedReceiptQty += quantity
         } else {
-          unitCost = ceilDivNonnegative(onHandQty * unitCost + quantity * cost, onHandQty + quantity)
+          uncostedAdjustmentQty += quantity
         }
-      } else if (row.kind === 'RECEIPT') {
-        partialReasons.add('UNCOSTED_RECEIPT')
-        markPartial()
-        uncostedQty += quantity
-      } else if (unitCost === null) {
-        partialReasons.add('UNCOSTED_ADJUSTMENT')
-        markPartial()
-        uncostedQty += quantity
+      } else {
+        outflowQty += quantity
       }
     }
 
-    onHandQty += quantity
+    if (costedInflowQty > 0n) {
+      const incomingAverage = ceilDivNonnegative(costedInflowValue, costedInflowQty)
+      if (onHandQty <= 0n) {
+        unitCost = incomingAverage
+        partialReasons.delete('UNCOSTED_RECEIPT')
+        partialReasons.delete('UNCOSTED_ADJUSTMENT')
+        partial = hasStickyPartialReason()
+        uncostedQty = 0n
+      } else if (unitCost === null) {
+        unitCost = incomingAverage
+      } else {
+        unitCost = ceilDivNonnegative(onHandQty * unitCost + costedInflowValue, onHandQty + costedInflowQty)
+      }
+      onHandQty += costedInflowQty
+    }
+
+    if (uncostedReceiptQty > 0n) {
+      partialReasons.add('UNCOSTED_RECEIPT')
+      markPartial()
+      uncostedQty += uncostedReceiptQty
+    }
+    if (uncostedAdjustmentQty > 0n && unitCost === null) {
+      partialReasons.add('UNCOSTED_ADJUSTMENT')
+      markPartial()
+      uncostedQty += uncostedAdjustmentQty
+    }
+    onHandQty += uncostedReceiptQty + uncostedAdjustmentQty + outflowQty
+
+    if (onHandQty < 0n) {
+      partialReasons.add('NEGATIVE_BALANCE')
+      markPartial()
+    }
+
+    start = end
   }
 
   const safeUnitCost = unitCost === null ? null : safeSatangFromBigInt(unitCost)

@@ -102,7 +102,7 @@ Generated navigation for current source documents in the product grouping. A pat
 - [FR-154 — Inventory catalogue identity (คลังสินค้า)](../domains/inventory/features/FR-154-inventory-catalogue-identity.md)
 - [FR-155 — Inventory stock ledger (lot · serial · movement)](../domains/inventory/features/FR-155-inventory-stock-ledger.md)
 - [FR-156 — Recipe / bill of materials at a batch size (recipe_id)](../domains/inventory/features/FR-156-inventory-recipe-bill-of-materials.md)
-- [FR-175 — Valuation follows the moving weighted average](../domains/inventory/features/FR-175-moving-average-valuation.md)
+- [Why the cost figures changed on 2026-11-12](../domains/inventory/features/FR-175-moving-average-valuation.md)
 - [FR-184 — Inventory physical stocktake](../domains/inventory/features/FR-184-inventory-stocktake.md)
 - [FR-201 — The nature is declared at the master, once](../domains/inventory/features/FR-201-nature-at-the-master.md)
 - [FR-202 — Variant identity: one physical variant is one SKU](../domains/inventory/features/FR-202-variant-identity.md)

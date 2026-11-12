@@ -273,10 +273,17 @@ comments, feature notes and other documents point here instead of restating it.
 **The rule.** The unit cost zuri-ai shows on a product page, carries into a
 work order's output and prices a quote from is one number per product: the
 **moving weighted average of the stock on hand**, in integer satang. It is
-recomputed from the ledger on every read by `movingAverageValuation` in
-`domain/inventory-costing.js`, through the one reader in
-`application/inventory-valuation-service.js`. Nothing stores it, and no column
-holds a running average.
+recomputed from the ledger on every read by one pure function,
+`movingAverageValuation` in `domain/inventory-costing.js`. Nothing stores it,
+and no column holds a running average.
+
+Every caller replays the same columns, named once by
+`INVENTORY_VALUATION_MOVEMENT_SELECT` in
+`application/inventory-valuation-service.js`. The work orders and the agent's
+quote tool read through that module's `readInventoryValuation`. The product
+page and the pricing catalogue load the rows themselves with the same select,
+because they also need the rows — for the cost history and for the evidence
+hash — and pass them to the same function.
 
 **The scope is the product, Business-wide — not the location.** A `Product`
 belongs to one Business, so "per product" and "per product and Business" are the
@@ -289,7 +296,11 @@ is therefore removed from the replay before anything is priced, whatever cost
 its rows carry.
 
 **How the replay works.** Movements are replayed in ledger order: `occurredAt`,
-then `createdAt`, then inflows before outflows, then `id`.
+then `createdAt`. Movements that share both timestamps — the lines of one goods
+receipt, written in one transaction — are a single step: their costed receipts
+blend together with one rounding, then their uncosted inflows enter, then their
+outflows leave. The result therefore never depends on row order or on a row's
+`id`.
 
 | Movement | Effect on quantity | Effect on the average |
 |---|---|---|
@@ -309,9 +320,16 @@ receipt replaces that figure outright.
 quantity and are carried at the running average (unknown stays unknown: a
 product that has never had a costed receipt reports `null`, not 0.00). The
 valuation is then flagged `partial`, with the number of uncosted units, from
-that receipt until the position empties and a costed receipt restarts it. A
-ledger row that cannot be interpreted is skipped, reported, and keeps the
-figure partial for the rest of the replay.
+that receipt until the position empties and a costed receipt restarts it.
+
+**Two conditions a later receipt cannot clear.** A ledger row that cannot be
+interpreted is skipped and reported (`INVALID_ROW`). A balance that goes below
+zero at any point of the replay is reported (`NEGATIVE_BALANCE`): the ledger
+accepts a movement dated in the past or the future, so its rows can describe
+stock leaving before it arrived, and the cost of such a position cannot be
+proven. Either keeps the figure partial for the rest of the replay. The ledger
+writer does not yet refuse such a movement; the
+[FR-175 note](features/FR-175-moving-average-valuation.md) lists that gap.
 
 **Who accepts a partial figure.** The product page shows it with a warning. The
 kitting, customization and de-kitting work orders use it, as they used an
@@ -332,7 +350,7 @@ journal entry is produced here; those remain Finance's.
 src/modules/inventory/
 ├── domain/inventory.js                      vocabularies, Zod contracts, pure calculators
 ├── domain/inventory-costing.js              landed cost in satang, the moving-average valuation replay, the FlowAccount set pattern (FR-175, FR-177)
-├── application/inventory-valuation-service.js the one reader every cost projection replays the ledger through (FR-175)
+├── application/inventory-valuation-service.js the one movement select every cost projection replays, and the reader the work orders and agent tool call (FR-175)
 ├── domain/inventory-wip.js                  scrap allowance, dedication guard, shelf life, ATP (FR-176..FR-180)
 ├── domain/warehouse-location.js             location contract, transfer rules, located on-hand (FR-174)
 ├── application/inventory-authority.js       the view / manage ladder, FR-072 refusals

@@ -34,6 +34,10 @@ const movement = (id, kind, quantity, costSatang, occurredAt, extra = {}) => ({
   ...extra,
 })
 
+const permutations = (rows) => rows.length < 2
+  ? [rows]
+  : rows.flatMap((row, index) => permutations(rows.filter((_, other) => other !== index)).map((rest) => [row, ...rest]))
+
 describe('FR-175 landed cost (BR-027)', () => {
   it('AC-175.1 — a shared batch cost is divided across the batch and rounded UP, so a batch is never valued below what it cost', () => {
     // 2,500 THB over 500 units divides exactly.
@@ -154,7 +158,7 @@ describe('FR-175 landed cost (BR-027)', () => {
     ])).toMatchObject({ unitCostSatang: 200, onHandQty: 10, partial: false })
   })
 
-  it('AC-175.15a — missing timestamps sort as zero and same-time inflows precede outflows after createdAt', () => {
+  it('AC-175.15a — missing timestamps sort as zero and same-time steps blend inflows before outflows after createdAt', () => {
     expect(movingAverageValuation([
       movement('c', 'RECEIPT', 2, 200, '1970-01-01T00:00:00.002Z'),
       movement('b', 'ISSUE', -2, null, '1970-01-01T00:00:00.001Z'),
@@ -173,7 +177,54 @@ describe('FR-175 landed cost (BR-027)', () => {
       movement('a-start', 'RECEIPT', 1, 0, '2026-01-01T00:00:00.000Z'),
       movement('b', 'RECEIPT', 1, 2, sameInstant),
       movement('a', 'RECEIPT', 1, 1, sameInstant),
-    ])).toMatchObject({ unitCostSatang: 2, onHandQty: 3 })
+    ])).toMatchObject({ unitCostSatang: 1, onHandQty: 3 })
+  })
+
+  it('AC-175.21 — a negative historical balance makes valuation partial and survives later cost resets', () => {
+    expect(movingAverageValuation([
+      movement('receipt-day-2', 'RECEIPT', 10, 100, '2026-01-02T00:00:00.000Z'),
+      movement('receipt-day-3', 'RECEIPT', 10, 200, '2026-01-03T00:00:00.000Z'),
+      movement('issue-day-1', 'ISSUE', -15, null, '2026-01-01T00:00:00.000Z'),
+    ])).toEqual({ unitCostSatang: 200, onHandQty: 5, partial: true, partialReasons: ['NEGATIVE_BALANCE'], uncostedQty: 0 })
+
+    expect(movingAverageValuation([
+      movement('issue-day-1', 'ISSUE', -2, null, '2026-01-01T00:00:00.000Z'),
+      movement('receipt-day-2', 'RECEIPT', 2, 100, '2026-01-02T00:00:00.000Z'),
+      movement('receipt-day-3', 'RECEIPT', 3, 200, '2026-01-03T00:00:00.000Z'),
+    ])).toEqual({ unitCostSatang: 200, onHandQty: 3, partial: true, partialReasons: ['NEGATIVE_BALANCE'], uncostedQty: 0 })
+  })
+
+  it('AC-175.22 — the same ledger with an issue after both receipts has the complete append-order average', () => {
+    expect(movingAverageValuation([
+      movement('receipt-day-2', 'RECEIPT', 10, 100, '2026-01-02T00:00:00.000Z'),
+      movement('receipt-day-3', 'RECEIPT', 10, 200, '2026-01-03T00:00:00.000Z'),
+      movement('issue-day-4', 'ISSUE', -15, null, '2026-01-04T00:00:00.000Z'),
+    ])).toEqual({ unitCostSatang: 150, onHandQty: 5, partial: false, partialReasons: [], uncostedQty: 0 })
+  })
+
+  it('AC-175.23 — same-time costed receipts blend once independent of row order and IDs', () => {
+    const sameInstant = '2026-01-03T00:00:00.000Z'
+    for (const ids of [['a', 'b', 'c'], ['c', 'b', 'a']]) {
+      const rows = [100, 101, 102].map((costSatang, index) => movement(ids[index], 'RECEIPT', 1, costSatang, sameInstant, { createdAt: sameInstant }))
+      for (const shuffled of permutations(rows)) {
+        expect(movingAverageValuation(shuffled)).toEqual({ unitCostSatang: 101, onHandQty: 3, partial: false, partialReasons: [], uncostedQty: 0 })
+      }
+    }
+  })
+
+  it('AC-175.24 — a same-time issue and uncosted receipt share one inflow-first step on existing stock', () => {
+    const sameInstant = '2026-01-02T00:00:00.000Z'
+    for (const ids of [['a', 'b', 'c', 'd'], ['d', 'c', 'b', 'a']]) {
+      const rows = [
+        movement(ids[0], 'RECEIPT', 2, 100, '2026-01-01T00:00:00.000Z'),
+        movement(ids[1], 'RECEIPT', 1, 102, sameInstant, { createdAt: sameInstant }),
+        movement(ids[2], 'RECEIPT', 1, null, sameInstant, { createdAt: sameInstant }),
+        movement(ids[3], 'ISSUE', -2, null, sameInstant, { createdAt: sameInstant }),
+      ]
+      for (const shuffled of permutations(rows)) {
+        expect(movingAverageValuation(shuffled)).toEqual({ unitCostSatang: 101, onHandQty: 2, partial: true, partialReasons: ['UNCOSTED_RECEIPT'], uncostedQty: 1 })
+      }
+    }
   })
 
   it('AC-175.16 — a located transfer, including one of the whole position, does not change business valuation', () => {
@@ -234,19 +285,25 @@ describe('FR-175 landed cost (BR-027)', () => {
   it('AC-175.20 — every permutation of seeded ledgers replays identically and replay is repeatable', () => {
     let state = 0x51f15e
     const random = () => { state = (Math.imul(state, 1664525) + 1013904223) >>> 0; return state }
-    const permutations = (rows) => rows.length < 2
-      ? [rows]
-      : rows.flatMap((row, index) => permutations(rows.filter((_, other) => other !== index).map((item) => item)).map((rest) => [row, ...rest]))
     const kinds = ['RECEIPT', 'ISSUE', 'ADJUSTMENT']
     for (let ledgerIndex = 0; ledgerIndex < 250; ledgerIndex += 1) {
-      const rows = Array.from({ length: 4 }, (_, rowIndex) => {
+      const sharedInstant = new Date(Date.UTC(2026, 0, 1 + (random() % 4))).toISOString()
+      const entries = Array.from({ length: 4 }, (_, rowIndex) => {
         const kind = kinds[random() % kinds.length]
         const magnitude = 1 + (random() % 5)
         const quantity = kind === 'RECEIPT' ? magnitude : kind === 'ISSUE' ? -magnitude : (random() % 2 ? magnitude : -magnitude)
         const cost = random() % 5 === 0 ? null : random() % 1000
-        const at = new Date(Date.UTC(2026, 0, 1 + (random() % 4))).toISOString()
-        return movement(`ledger-${ledgerIndex}-${rowIndex}`, kind, quantity, cost, at, { createdAt: at })
+        const sameStep = ledgerIndex % 2 === 0 && rowIndex < 2
+        const occurredAt = sameStep ? sharedInstant : new Date(Date.UTC(2026, 0, 1 + (random() % 4))).toISOString()
+        const createdAt = sameStep ? sharedInstant : new Date(Date.UTC(2026, 0, 1 + (random() % 4))).toISOString()
+        return { kind, quantity, cost, occurredAt, createdAt }
       })
+      const ids = entries.map((_, index) => `ledger-${ledgerIndex}-${random().toString(16).padStart(8, '0')}-${index}`)
+      for (let index = ids.length - 1; index > 0; index -= 1) {
+        const other = random() % (index + 1)
+        ;[ids[index], ids[other]] = [ids[other], ids[index]]
+      }
+      const rows = entries.map((entry, index) => movement(ids[index], entry.kind, entry.quantity, entry.cost, entry.occurredAt, { createdAt: entry.createdAt }))
       const originalRows = rows.map((row) => ({ ...row }))
       const expected = movingAverageValuation(rows)
       expect(rows).toEqual(originalRows)
