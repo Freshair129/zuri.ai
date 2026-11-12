@@ -1,7 +1,7 @@
 ---
-version: "1.2.1"
+version: "1.3.0"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-11-12T12:00:00+07:00,Claude Fable 5.2"
+last_update: "2026-11-13T09:00:00+07:00,Claude Fable 5.2"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -157,15 +157,16 @@ Every sweep decides again. Consent is read inside the transaction that blanks, u
 
 **Known limits, recorded rather than fixed here.**
 - A restore brings back keys destroyed after the snapshot was taken. This is true for `legalHoldArchiveKey` and was already true for `customerArchiveKey`.
-- The 10-year expiry still deletes a Customer-key file whose lines have all expired while its manifest row stays. That breaks chain verification with files in the same way the re-seal file deletion did, and is a follow-up.
+- The 10-year expiry still deletes a Customer-key file whose lines have all expired while its manifest row stays. That breaks chain verification with files in the same way the re-seal file deletion did, and is a follow-up. **Closed by the D5 amendment (1.3.0) below.**
 
-### D5 amendment (1.3.0, PROPOSED — not in force) — an expired file is retired in the chain before it is deleted
+### D5 amendment (1.3.0) — an expired file is retired in the chain before it is deleted
 
-> **Status: proposed on 2026-11-12, awaiting the owner's decision.** Nothing in this
-> section is implemented. Until it is accepted, the known limit above stands, and the
-> expiry run must not be scheduled: its first run deletes files, and from its second run
-> on, the Tenant's chain check fails with `ARCHIVE_FILE_MISSING`, which refuses every
-> later expiry run, every retrieval (D7) and every hold re-seal (1.2.0) for that Tenant.
+> **Status: accepted.** Proposed on 2026-11-12 and accepted by the owner on 2026-11-13
+> ("อนุมัติ ทำเลย"). It closes the last known limit of 1.2.0. The expiry run may be
+> scheduled only from a build that contains this amendment: an earlier build deletes
+> files without retiring them, and its second run fails the Tenant's chain check with
+> `ARCHIVE_FILE_MISSING`, which refuses every later expiry run, every retrieval (D7) and
+> every hold re-seal (1.2.0) for that Tenant.
 
 **The problem.** D5 deletes a file once every line in it has expired. The file's
 `ArchiveManifest` row must stay, because every later row's hash covers it and the sweep's
@@ -243,7 +244,7 @@ destroyed are reported today. The expiry run's `ARCHIVE_EXPIRY_COMPLETED` audit 
 additionally names the retirement manifest (id and hash), the manifests it retired, the
 files actually deleted, and the retired files still waiting to be deleted.
 
-**P7 — The trigger, built only after this amendment is accepted.** A bearer-authenticated
+**P7 — The trigger.** A bearer-authenticated
 route in the crm lane, called once per UTC day by the existing retention-sweep worker
 **after** that day's sweep has answered, runs the expiry for each Tenant in turn and
 writes one run-level audit event with per-Tenant counts beside each Tenant's own
@@ -327,7 +328,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
-| 1.3.0 | 2026-11-12 | **proposed, not in force** | D5 amendment proposed: an expired file is retired by a chained retirement file (format 4, one ordinary manifest row, no schema change) before it is deleted, and chain verification accepts a missing file only when a valid later retirement names it. Closes the known limit of 1.2.0 once accepted and built. The frontmatter version stays 1.2.1 until the owner accepts |
+| 1.3.0 | 2026-11-13 | accepted | D5 amendment, proposed 2026-11-12 and accepted by the owner on 2026-11-13: an expired file is retired by a chained retirement file (format 4, one ordinary manifest row, no schema change) before it is deleted, and chain verification accepts a missing file only when a valid later retirement names it. Closes the known limit of 1.2.0, and the expiry run gets its trigger (P7) |
 | 1.2.1 | 2026-09-28 | accepted | Runbook for a blocked erasure. The 409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` alert is now written durably after the rollback, as an ErrorEvent plus an `ERASURE_BLOCKED` audit event. The three ways to unblock are recorded, and so is the missing chain-repair tooling. A failure deciding orphaned lines after an archive committed is reported as its own `settleFailures` in the sweep audit, never as an archive failure |
 | 1.2.0 | 2026-09-27 | accepted | D6 amendment on the owner's ruling "consent to retain = keep": a sales-recorded, revocable, tenant-bound retention consent (`CustomerRetentionConsent`, `crm.retention-consent.write` on SALES_REP). (Q1) Erasing a member of a shared thread re-seals, under the held member's per-hold key (`LegalHoldArchiveKey`, format 3, one appended manifest), the lines that key would shred, only while that member has an active hold and an active consent. The hold key dies with the hold, the consent or the member. Re-seal files are never deleted, and a broken chain blocks the erasure. Revoking while held needs OWNER and a reason. Membership is per line. (Q2) A line past retention whose key Customer is erased is never archived: a staff, push or unknown-author line stays deferred while a member for it consents, and every other such line is blanked. Erasure revokes the erased Customer's consent and clears the FR-103 note and recorder |
 | 1.1.0 | 2026-09-27 | accepted | D4 amendment: a shared LINE group or room thread's archived lines are sealed per speaker (format 2), so erasure and the legal hold act on exactly one member's lines (FR-022); format-1 group files and their migration path recorded, not implemented |
