@@ -74,6 +74,7 @@ For the session contract, write-protection coverage, rate limits and the
 application/database isolation boundary, see [Identity System Diagram, sections
 5–9](SYSTEM-DIAGRAM.md#5-human-sign-in-flows).
 
+- `same-origin-write.js` and `src/middleware.js` are the one browser-origin gate in front of every API write route (`POST`/`PUT`/`PATCH`/`DELETE` under `/api/**`): it refuses a cross-site or `null` `Origin` with 403 `CSRF_INVALID` before any route code runs and authenticates nothing. A new write route inherits it; `tests/unit/identity/write-route-coverage.test.js` enumerates the route tree and fails on a write route outside `/api`, an unrefused cross-site `Origin`, or an allowlist entry without a bearer/signature reason (the allowlist is empty). The session-bound API-write CSRF token (`api-write-csrf.js`) stays as the stricter second check where a route names it. Details: [SYSTEM-DIAGRAM.md §7](SYSTEM-DIAGRAM.md#7-protection-of-cookie-authenticated-writes).
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.

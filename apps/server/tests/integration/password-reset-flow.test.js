@@ -4,17 +4,21 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import {
+  PASSWORD_RESET_TTL_MS,
   authenticateUser,
   hashPassword,
   hashPasswordResetToken,
+  hashSessionToken,
   mintPasswordReset,
   resetPassword,
+  verifyPassword,
 } from '@/modules/identity/auth-service'
 
 // @req FR-104 — the whole cycle against the real database: an owner mints for a
 // member, the member's old password dies, the new one logs in, the token burns,
 // and the live session from before the reset is revoked.
 // @spec SDD-054, SEC-008, SEC-014
+// @tested tests/integration/password-reset-flow.test.js
 
 const secretEnv = { ZURI_SESSION_SECRET: 'integration-reset-secret-0123456789abcdef' }
 
@@ -90,6 +94,132 @@ describe('password reset flow (FR-104)', () => {
     for (const event of audits) {
       expect(event.payloadJson).not.toContain(minted.resetToken)
       expect(event.payloadJson).not.toContain(hashPasswordResetToken(minted.resetToken))
+    }
+  })
+
+  it('allows only one of eight concurrent reset attempts to claim a token', async () => {
+    let person
+    let attemptsPromise
+    let releasePrechecks = () => {}
+
+    try {
+      const suffix = randomUUID()
+      person = await prisma.person.create({
+        data: {
+          id: randomUUID(),
+          code: `PER-RESET-RACE-${suffix.slice(0, 8)}`,
+          displayName: 'Concurrent Reset User',
+          credential: { create: { passwordHash: hashPassword('the-original-password') } },
+        },
+      })
+      const sessionId = randomUUID()
+      await prisma.session.create({
+        data: {
+          id: sessionId,
+          personId: person.id,
+          tokenHash: hashSessionToken(randomUUID()),
+          expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS),
+        },
+      })
+      const before = await prisma.session.findUnique({ where: { id: sessionId } })
+      expect(before.status).toBe('ACTIVE')
+      const resetToken = randomUUID()
+      await prisma.passwordResetToken.create({
+        data: {
+          personId: person.id,
+          token: hashPasswordResetToken(resetToken),
+          expiresAt: new Date(Date.now() + PASSWORD_RESET_TTL_MS),
+        },
+      })
+      const passwords = Array.from({ length: 8 }, (_, index) => `concurrent-reset-password-${index}`)
+
+      // Hold every real SQLite pre-check until all eight calls have read the live
+      // token. This forces the stale-read race even if SQLite serializes writers.
+      let prechecksReached = 0
+      const allPrechecksReady = new Promise((resolve) => { releasePrechecks = resolve })
+      let sessionRevocationCalls = 0
+      // Eight real SQLite writers contending for one file lock time out on a slow
+      // runner (Prisma's 5 s socket and interactive-transaction limits), which is
+      // lock-manager behaviour and not what this test proves. The stale-read gate
+      // above is what recreates the race: all eight calls hold a stale "unused"
+      // view, so only the database-evaluated conditional claim can pick one
+      // winner. Queue the writes so SQLite sees them one at a time, exactly as it
+      // would serialize them, without changing which statements run.
+      let writeQueue = Promise.resolve()
+      const serialized = (operation) => {
+        const run = writeQueue.then(operation)
+        writeQueue = run.catch(() => {})
+        return run
+      }
+      const db = {
+        passwordResetToken: {
+          findUnique: async (args) => {
+            let record
+            try {
+              record = await prisma.passwordResetToken.findUnique(args)
+            } finally {
+              prechecksReached += 1
+              if (prechecksReached === passwords.length) releasePrechecks()
+              await allPrechecksReady
+            }
+            return record
+          },
+          updateMany: (args) => serialized(() => prisma.passwordResetToken.updateMany(args)),
+        },
+        $transaction: (callback) => serialized(() => prisma.$transaction(callback)),
+        session: {
+          updateMany: (args) => {
+            sessionRevocationCalls += 1
+            return serialized(() => prisma.session.updateMany(args))
+          },
+        },
+      }
+
+      attemptsPromise = Promise.allSettled(passwords.map((newPassword) => resetPassword({
+        token: resetToken,
+        newPassword,
+        db,
+      })))
+      const attemptOutcomes = await attemptsPromise
+      expect(attemptOutcomes.filter((outcome) => outcome.status === 'rejected')).toEqual([])
+      const results = attemptOutcomes.map((outcome) => outcome.value)
+
+      const winners = results.flatMap((result, index) => result.success ? [index] : [])
+      expect(winners).toHaveLength(1)
+      expect(results[winners[0]]).toEqual({ success: true })
+      expect(results.filter((result) => !result.success)).toEqual(
+        Array.from({ length: passwords.length - 1 }, () => ({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })),
+      )
+
+      const storedCredential = await prisma.personCredential.findUnique({ where: { personId: person.id } })
+      expect(passwords.map((password) => verifyPassword(password, storedCredential.passwordHash))).toEqual(
+        passwords.map((_, index) => index === winners[0]),
+      )
+
+      const completedAudits = await prisma.auditEvent.findMany({
+        where: { entityType: 'PERSON', entityId: person.id, action: 'PASSWORD_RESET_COMPLETED' },
+      })
+      expect(completedAudits).toHaveLength(1)
+
+      const revokedSession = await prisma.session.findUnique({ where: { id: before.id } })
+      expect(revokedSession.status).toBe('REVOKED')
+      expect(revokedSession.revokeReason).toBe('PASSWORD_RESET')
+      expect(sessionRevocationCalls).toBe(1)
+
+      // The same token remains rejected after its winning concurrent use.
+      const secondUse = await resetPassword({ token: resetToken, newPassword: 'sequential-second-use-password', db })
+      expect(secondUse).toEqual({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })
+      expect(sessionRevocationCalls).toBe(1)
+    } finally {
+      releasePrechecks()
+      if (attemptsPromise) await attemptsPromise
+      if (person) {
+        try {
+          await prisma.auditEvent.deleteMany({ where: { entityType: 'PERSON', entityId: person.id } })
+        } finally {
+          await prisma.person.deleteMany({ where: { id: person.id } })
+        }
+      }
     }
   })
 
