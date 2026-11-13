@@ -1,10 +1,10 @@
 ---
 id: ZAI:DATA-PIPELINE-MAP
 title: Data pipeline map — where data enters, where it is combined, who receives it
-version: "1.1.0b"
+version: "1.2.0b"
 status: beta
 created_at: "2026-09-13T22:00:00+07:00,Claude Opus 5,base b919c98b"
-last_update: "2026-09-17T03:35:00+07:00,RWANG"
+last_update: "2026-11-13T12:00:00+07:00,Claude Sonnet 5.5"
 relations:
   - type: references
     target: ZAI:ADR-085
@@ -27,7 +27,7 @@ relations:
 แทนที่ data flow diagram ใน [ARCHITECTURE-DIAGRAMS.md](ARCHITECTURE-DIAGRAMS.md) §3 (2026-08-15) และเสริม
 [SYSTEM-DIAGRAM.md](SYSTEM-DIAGRAM.md) (2026-09-05) ซึ่งทั้งสองเก็บไว้เป็นบันทึกตามวันที่วาด
 รายละเอียดเฉพาะโดเมน knowledge อยู่ที่ [KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md](KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md)
-ส่วนคำถามว่าแต่ละ pipeline **ถูกควบคุมอย่างไร** — validate อะไร, มี preview ไหม, transaction จบตรงไหน, รู้ได้อย่างไรว่าเป็นการส่งซ้ำ, record ที่ fail ไปอยู่ที่ไหน — อยู่ที่ [architecture/DATA-PIPELINE-ARCHITECTURE.md](architecture/DATA-PIPELINE-ARCHITECTURE.md) ซึ่งระบุ flow ที่มี code แล้วแต่ยังไม่อยู่ใน registry ด้านล่างด้วย
+ส่วนคำถามว่าแต่ละ pipeline **ถูกควบคุมอย่างไร** — validate อะไร, มี preview ไหม, transaction จบตรงไหน, รู้ได้อย่างไรว่าเป็นการส่งซ้ำ, record ที่ fail ไปอยู่ที่ไหน — อยู่ที่ [architecture/DATA-PIPELINE-ARCHITECTURE.md](architecture/DATA-PIPELINE-ARCHITECTURE.md) ซึ่งมี inventory ของทุก flow ว่าแต่ละตัวอยู่ใน registry ด้านล่างที่ node และ chain ไหน (ตั้งแต่ 2026-11-13 เจ็ด flow ที่ inventory เคยระบุว่าขาดถูกเพิ่มเข้า registry แล้ว — generator ตรวจไม่ได้ว่ายังมี flow อื่นที่ขาดอยู่หรือไม่ ดู §6 ของหน้านั้น)
 
 ## 1. อะไรเขียนเอง อะไร generate
 
@@ -85,6 +85,8 @@ edge ได้สถานะอ่อนสุดของ node ภายใน
 - **GKS (Tier 3)** — stage evidence ที่ push กลับหรือถูก pull ผ่าน MSP
 - **SoT data plane ภายนอก** — plan และคำขอ decision
 - **ซัพพลายเออร์และไฟล์ภายนอก** — ใบเสร็จ, xlsx, Google Sheets snapshot, ของที่ส่งมอบตาม PO
+- **Notion** — verification challenge ครั้งเดียวและ event ที่ลงลายเซ็น (เก็บเฉพาะ receipt ไม่เก็บ payload)
+- **Operator** — snapshot และ managed-blob transfer package สำหรับ restore (ต้องมีสิทธิ์ installation operator)
 - **Repository ของ zuri-ai** — docs, annotations และ tests ที่กลายเป็น readiness snapshot
 - **ยังไม่ต่อ:** marketplace / ราคาตลาด (adapter ยังไม่ wire), FlowAccount (FR-125 declared), GitHub (FR-130 ถูก block)
 
@@ -127,6 +129,10 @@ chain คือเส้นทางจากต้นทางภายนอ�
 | CH-21 | LINE turn — grounded ด้วย corpus ที่ publish แล้ว | คำถาม + snapshot ที่ publish (citation) → evidence packet → model → คำตอบที่ตรวจแล้ว → LINE; business_knowledge เป็น fallback ที่บันทึกใน trace (ADR-090, declared) |
 | CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → OWNER / LINE_OA_PUBLISHER อนุมัติ (audited) → Text admission → Stage 1–17 → corpus manifest (ADR-090 D6, FR-236 built) |
 | CH-23 | LINE v2 — MemoryOS → CIN → model (server) | scoped memory + pinned knowledge + current records → bounded CIN → model ที่ server เรียกด้วย API key ของธุรกิจ → execution receipt; live LINE qualification pending |
+| CH-24 | Supplier cost sheet → confirmed cost lines | xlsx / JSON cost sheet → persisted draft with mapping suggestions → person-confirmed mappings → cost lines + Product carton attributes in one transaction |
+| CH-25 | Snapshot restore | operator snapshot + remounts → required preview → explicit confirm → whole-installation replacement in one Serializable transaction → file-content postpass |
+| CH-26 | Managed-blob transfer | operator package → preview → confirm → verified objects in the target bucket + metadata replacement by the snapshot restore; confirm limited to a signed-admitted local TEST target |
+| CH-27 | SmartGift document staging → monitor | smartgift.document-intake.v1 contract → raw evidence record (STAGED or QUARANTINED) → redacted monitor; no canonical write |
 
 ## 6. แก้ map เมื่อไหร่
 
@@ -154,6 +160,8 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "src.market-sources", "kind": "SOURCE", "system": "external", "label": "Marketplace / ราคาขายปลีก" },
     { "id": "src.flowaccount", "kind": "SOURCE", "system": "external", "label": "FlowAccount" },
     { "id": "src.github", "kind": "SOURCE", "system": "external", "label": "GitHub" },
+    { "id": "src.notion", "kind": "SOURCE", "system": "external", "label": "Notion", "detail": "one-time verification challenge and signed workspace events" },
+    { "id": "src.operator", "kind": "SOURCE", "system": "external", "label": "Operator (snapshot and managed-blob transfer package files)", "detail": "installation-operator authority only" },
 
     { "id": "in.line-webhook", "kind": "ENTRY", "system": "zuri-ai", "domain": "line-oa-studio", "label": "LINE webhook (server-owned)", "detail": "ตรวจลายเซ็นก่อน parse, บันทึก evidence ทุก event ก่อน ack",
       "requirements": ["FR-148", "FR-149"], "decisions": ["ADR-061"],
@@ -244,6 +252,18 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "requirements": ["FR-130"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/repositories" }, { "type": "UI", "ref": "/repositories" }],
       "blocked": "Repository records are local metadata; the GitHub read and webhook projection is blocked on the PII attestation gap recorded in FR-130's feature note" },
+    { "id": "in.supplier-cost-sheet", "kind": "ENTRY", "system": "zuri-ai", "domain": "procurement", "label": "Supplier cost-sheet intake", "detail": "JSON body or .xlsx upload (only the upload route caps size at 5 MiB and reads the fixed CostSheet header) → persisted DRAFT; repeat recognised by Business + source SHA-256; refuses a stale preview hash or an unconfirmed mapping and the draft stays; production evidence: none",
+      "requirements": ["FR-164", "FR-154"], "decisions": ["ADR-066"],
+      "surfaces": [
+        { "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets/preview" }, { "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets/xlsx" },
+        { "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets/commit" }, { "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets/template" },
+        { "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets" }, { "type": "UI", "ref": "/procurement/cost-sheets" }] },
+    { "id": "in.notion-webhook", "kind": "ENTRY", "system": "zuri-ai", "domain": "integration", "label": "Notion webhook receipt", "detail": "public provider endpoint: an unsigned verification challenge pins an encrypted token (a repeat with the same token is acknowledged, a different one is refused 409), then each event needs an HMAC over the exact bytes; event payload is discarded, only a receipt row is kept; repeat recognised by Notion event id; no AuditEvent per event; production evidence: none",
+      "requirements": ["FR-274"], "decisions": ["ADR-109"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/integrations/notion/webhook" }, { "type": "FILE", "ref": "apps/server/src/modules/integration/application/notion-webhook-service.js" }] },
+    { "id": "in.document-intake", "kind": "ENTRY", "system": "zuri-ai", "domain": "integration", "label": "SmartGift document staging", "detail": "smartgift.document-intake.v1 contract → RawExternalRecord STAGED or QUARANTINED, never a canonical write; differs from the BR-009 intake sequence: stages raw evidence only, with no preview; the receipt names DOMAIN_VALIDATION (REVIEW_REQUIRED when quarantined) as the next step, but nothing under apps/server/src promotes a staged record to a canonical row, and the code reads staged records only for the duplicate lookup, the monitor and backup; POST needs installation-operator authority; repeat recognised by the ingestion idempotency key (Tenant + connection + entity type + document id + payload hash); production evidence: none",
+      "requirements": ["FR-071"], "decisions": ["ADR-040"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/ingest/documents" }, { "type": "MCP", "ref": "data_pipeline.document_stage" }, { "type": "FILE", "ref": "apps/server/src/platform/integrations/core/cloud-sot-agent.js" }] },
 
     { "id": "p.line-jobs", "kind": "PROCESS", "system": "zuri-ai", "domain": "line-oa-studio", "label": "LINE conversation jobs + line-worker", "detail": "LineConversationJob ledger, reply/push transport, transport health",
       "requirements": ["FR-149", "FR-190"], "decisions": ["ADR-061"],
@@ -326,6 +346,25 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "p.backup-export", "kind": "PROCESS", "system": "zuri-ai", "domain": "project-manager", "label": "Backup export",
       "requirements": ["FR-013", "FR-045"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/backup/export" }, { "type": "UI", "ref": "/backup" }] },
+    { "id": "p.cost-sheet-planner", "kind": "PROCESS", "system": "zuri-ai", "domain": "procurement", "label": "Cost-sheet preview and confirmed commit", "detail": "preview persists a DRAFT with mapping suggestions and writes SUPPLIER_COST_SHEET_PREVIEWED (a persisted draft, not a read-only dry run); commit takes the preview hash and person-confirmed mappings, then in one transaction writes the lines, the Product carton attributes through Inventory's writer and supersedes the supplier's prior CONFIRMED sheet, auditing SUPPLIER_COST_SHEET_COMMITTED",
+      "requirements": ["FR-164", "FR-154"], "decisions": ["ADR-066"],
+      "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js" }, { "type": "FILE", "ref": "apps/server/src/modules/procurement/import/supplier-cost-workbook.js" }] },
+    { "id": "p.crm-retention-sweep", "kind": "PROCESS", "system": "zuri-ai", "domain": "crm", "label": "CRM chat message retention sweep and cold archive", "detail": "per Tenant, message bodies and attachments past the effective window (730 days by default, an override never longer): the encrypted archive file is written and verified before the tombstone transaction; a failed archive write leaves that Tenant's rows for the next run; lines of an erased, keyless Customer are deferred or blanked without an archive; a message a non-terminal LineConversationJob still references is skipped; one RETENTION_SWEEP_COMPLETED AuditEvent per UTC day (checked before the run starts, not atomically); no dry run; production evidence: none",
+      "requirements": ["FR-230", "FR-245"], "decisions": ["ADR-091", "ADR-093"],
+      "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/crm/retention-sweep-service.js" }, { "type": "FILE", "ref": "apps/server/src/modules/crm/chat-evidence-archive-service.js" }, { "type": "ENDPOINT", "ref": "/api/crm/retention-sweep" }, { "type": "WORKER", "ref": "apps/server/scripts/server-retention-sweep-worker.mjs" }] },
+    { "id": "p.msp-retention", "kind": "PROCESS", "system": "zuri-ai", "domain": "agent", "label": "MSP session-content retention", "detail": "one configured Tenant, a window of at most 90 days (an override only shortens it), bounded batches (200 rows per table, at most 10 per run) through the MSP thread-retention tick; defers while a LineConversationJob or memory delivery is pending; an uncertain provider call is reported UNKNOWN with reconciliationRequired; a run that started and never wrote an outcome defers every later run for that Tenant (PRIOR_RUN_UNSETTLED) and holds the MSP admission gate until a signed stopped-container attestation records MSP_RETENTION_RECONCILED; dry_run supported; AuditEvents MSP_RETENTION_* (the outcome event carries the counts); production evidence: none",
+      "requirements": ["FR-230"], "decisions": ["ADR-091"],
+      "surfaces": [{ "type": "FILE", "ref": "apps/server/src/modules/agent/msp-retention-service.js" }, { "type": "ENDPOINT", "ref": "/api/agent/memory-retention" }, { "type": "WORKER", "ref": "apps/server/scripts/server-msp-retention-worker.mjs" }] },
+    { "id": "p.backup-restore", "kind": "PROCESS", "system": "zuri-ai", "domain": "project-manager", "label": "Snapshot restore (preview, then confirmed replacement)", "detail": "installation-operator authority; preview is required and confirm=true is explicit; deletes and re-inserts every replaceable snapshot model for all Tenants (the Phase B families are not replaced; plugin installations and workspace mounts are cleared and only the supplied remounts recreated) in one Serializable transaction that rolls back whole; RESTORED and BACKUP_RESTORE AuditEvents are written after the re-insert so they survive; no repeat recognition; the file-content postpass runs after the commit, cannot undo it and reports unresolvedContentFileIds; production evidence: none",
+      "requirements": ["FR-013", "FR-045", "FR-075", "FR-197"], "decisions": ["ADR-016"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/backup/import" }, { "type": "UI", "ref": "/backup" }, { "type": "FILE", "ref": "apps/server/src/modules/project-manager/application/backup-service.js" }] },
+    { "id": "p.blob-transfer", "kind": "PROCESS", "system": "zuri-ai", "domain": "project-manager", "label": "Managed-blob backup transfer", "detail": "export → preview → confirm of a bounded sealed package (asset-evidence and business-catalog objects) under a durable job; confirm needs a signed admission for a local TEST target (loopback zuri_server_test, bound to the source package and synthetic-dataset evidence), otherwise MANAGED_BLOB_TRANSFER_NOT_ADMITTED; provider writes sit outside any database transaction, so an ambiguous write leaves the job UNKNOWN for operator inspect (never a blind retry); metadata is committed by the snapshot restore; production evidence: none",
+      "requirements": ["FR-293"], "decisions": ["ADR-115"],
+      "surfaces": [
+        { "type": "ENDPOINT", "ref": "/api/backup/transfers/export" }, { "type": "ENDPOINT", "ref": "/api/backup/transfers/preview" },
+        { "type": "ENDPOINT", "ref": "/api/backup/transfers/[jobId]/package" }, { "type": "ENDPOINT", "ref": "/api/backup/transfers/[jobId]/confirm" },
+        { "type": "ENDPOINT", "ref": "/api/backup/transfers/[jobId]/inspect" }, { "type": "ENDPOINT", "ref": "/api/backup/transfers/[jobId]/abandon" },
+        { "type": "FILE", "ref": "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js" }] },
 
     { "id": "s.crm", "kind": "STORE", "system": "zuri-ai", "domain": "crm", "label": "CRM: Customer · Conversation · Message",
       "requirements": ["FR-023", "FR-091", "FR-148"],
@@ -373,6 +412,11 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "requirements": ["FR-146", "FR-151"] },
     { "id": "s.agent-trace", "kind": "STORE", "system": "zuri-ai", "domain": "agent", "label": "AgentTraceEvent (execution trace)",
       "requirements": ["FR-171"] },
+    { "id": "s.supplier-cost-sheets", "kind": "STORE", "system": "zuri-ai", "domain": "procurement", "label": "SupplierCostSheet · SupplierCostLine", "detail": "DRAFT → CONFIRMED → SUPERSEDED; one CONFIRMED sheet per supplier",
+      "requirements": ["FR-164"], "decisions": ["ADR-066"],
+      "surfaces": [{ "type": "ENDPOINT", "ref": "/api/procurement/cost-sheets" }, { "type": "UI", "ref": "/procurement/cost-sheets" }] },
+    { "id": "s.notion-receipts", "kind": "STORE", "system": "zuri-ai", "domain": "integration", "label": "NotionWebhookReceipt", "detail": "event id, type, workspace id and times only; no payload; read only by backup export and restore",
+      "requirements": ["FR-274"], "decisions": ["ADR-109"] },
     { "id": "s.domain-state", "kind": "STORE", "system": "zuri-ai", "domain": "project-manager", "label": "runtime/domain-state.json · data-pipeline-map.json",
       "requirements": ["FR-124", "FR-212"],
       "surfaces": [{ "type": "FILE", "ref": "apps/server/runtime/domain-state.json" }],
@@ -513,6 +557,30 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.pull-to-raw", "from": "in.flowaccount-pull", "to": "p.raw-ingestion", "label": "envelope", "wired": false },
     { "id": "e.github-to-projection", "from": "src.github", "to": "in.github-projection", "label": "repo metadata", "wired": false },
     { "id": "e.github-to-project", "from": "in.github-projection", "to": "s.project-data", "label": "Repository links (local metadata)" },
+
+    { "id": "e.staff-to-cost-sheet", "from": "src.staff", "to": "in.supplier-cost-sheet", "label": "xlsx or JSON supplier cost sheet" },
+    { "id": "e.suppliers-to-cost-sheet", "from": "src.suppliers", "to": "in.supplier-cost-sheet", "label": "supplier price file (the source of the sheet)" },
+    { "id": "e.cost-sheet-to-planner", "from": "in.supplier-cost-sheet", "to": "p.cost-sheet-planner", "label": "normalise → source hash → mapping suggestions" },
+    { "id": "e.cost-sheet-planner-to-store", "from": "p.cost-sheet-planner", "to": "s.supplier-cost-sheets", "label": "DRAFT on preview; confirmed lines in one transaction on commit" },
+    { "id": "e.cost-sheet-planner-to-catalogue", "from": "p.cost-sheet-planner", "to": "s.catalogue", "label": "Product carton attributes through Inventory's writer, same transaction" },
+    { "id": "e.cost-sheets-to-staff", "from": "s.supplier-cost-sheets", "to": "r.staff", "label": "cost-sheet register and mapping review" },
+    { "id": "e.notion-to-webhook", "from": "src.notion", "to": "in.notion-webhook", "label": "verification challenge and HMAC-signed events" },
+    { "id": "e.notion-webhook-to-receipts", "from": "in.notion-webhook", "to": "s.notion-receipts", "label": "receipt row keyed by event id; payload discarded" },
+    { "id": "e.smartgift-to-document-intake", "from": "src.smartgift", "to": "in.document-intake", "label": "smartgift.document-intake.v1 contract (operator-authenticated)" },
+    { "id": "e.document-intake-to-raw", "from": "in.document-intake", "to": "s.raw-records", "label": "STAGED or QUARANTINED raw record; no canonical write" },
+    { "id": "e.raw-records-to-document-monitor", "from": "s.raw-records", "to": "r.staff", "label": "redacted document-intake monitor (GET /api/ingest/documents)" },
+    { "id": "e.crm-to-retention-sweep", "from": "s.crm", "to": "p.crm-retention-sweep", "label": "message bodies and attachments past the effective window" },
+    { "id": "e.retention-sweep-to-crm", "from": "p.crm-retention-sweep", "to": "s.crm", "label": "tombstones after the verified archive (lines that cannot be sealed are deferred or blanked)" },
+    { "id": "e.line-jobs-to-msp-retention", "from": "p.line-jobs", "to": "p.msp-retention", "label": "pending job and memory-delivery fence (defer)" },
+    { "id": "e.msp-retention-to-msp", "from": "p.msp-retention", "to": "r.msp", "label": "thread-retention tick, bounded per Tenant (dry_run optional)" },
+    { "id": "e.operator-to-restore", "from": "src.operator", "to": "p.backup-restore", "label": "snapshot + remounts + explicit confirm" },
+    { "id": "e.restore-to-project", "from": "p.backup-restore", "to": "s.project-data", "label": "replaces every replaceable snapshot model for all Tenants, not only the Project system" },
+    { "id": "e.restore-to-operator", "from": "p.backup-restore", "to": "r.operator", "label": "preview counts, warnings and restore result" },
+    { "id": "e.operator-to-blob-transfer", "from": "src.operator", "to": "p.blob-transfer", "label": "sealed package (preview, confirm)" },
+    { "id": "e.blob-transfer-to-operator", "from": "p.blob-transfer", "to": "r.operator", "label": "sealed package (export)" },
+    { "id": "e.storage-to-blob-transfer", "from": "s.object-storage", "to": "p.blob-transfer", "label": "original object bytes (export)" },
+    { "id": "e.blob-transfer-to-storage", "from": "p.blob-transfer", "to": "s.object-storage", "label": "verified target-local objects (confirm); the catalog bucket has no node of its own" },
+    { "id": "e.blob-transfer-to-restore", "from": "p.blob-transfer", "to": "p.backup-restore", "label": "metadata replacement under the transfer permit" },
     { "id": "e.corpus-to-agent", "from": "s.knowledge-corpus", "to": "p.agent-turn", "label": "published corpus → evidence ตาม grounding mode ของบัญชี (FR-235, ADR-090, ยังไม่ wire)", "wired": false },
     { "id": "e.crm-to-candidate-review", "from": "s.crm", "to": "p.knowledge-candidate-review", "label": "บทสนทนาที่ consent = GRANTED (FR-236, CRM read projection)" },
     { "id": "e.candidate-review-to-store", "from": "p.knowledge-candidate-review", "to": "s.knowledge-candidates", "label": "draft · edit · decision (audited)" },
@@ -575,7 +643,18 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "branches": ["e.memory-to-context", "e.corpus-to-cin", "e.cin-to-trace", "e.model-key-to-turn", "e.agent-to-models"] },
     { "id": "CH-22", "name": "FAQ candidate จาก LINE → review → 17 stage → corpus", "summary": "ADR-090: ความรู้จากแชทเข้า GKS ได้เฉพาะ Q/A แบบ locator-only ที่คนอนุมัติ",
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-candidate-review", "e.candidate-review-to-admission", "e.admission-to-tier1", "e.tier1-to-msp"],
-      "branches": ["e.candidate-review-to-store", "e.staff-to-admission", "e.tier1-to-corpus"] }
+      "branches": ["e.candidate-review-to-store", "e.staff-to-admission", "e.tier1-to-corpus"] },
+    { "id": "CH-24", "name": "Supplier cost sheet → confirmed cost lines", "summary": "preview persists a draft; commit needs the preview hash and person-confirmed mappings",
+      "path": ["e.staff-to-cost-sheet", "e.cost-sheet-to-planner", "e.cost-sheet-planner-to-store", "e.cost-sheets-to-staff"],
+      "branches": ["e.suppliers-to-cost-sheet", "e.cost-sheet-planner-to-catalogue"] },
+    { "id": "CH-25", "name": "Snapshot restore", "summary": "installation-operator only; preview is required, replacement is one Serializable transaction",
+      "path": ["e.operator-to-restore", "e.restore-to-operator"],
+      "branches": ["e.restore-to-project", "e.blob-transfer-to-restore"] },
+    { "id": "CH-26", "name": "Managed-blob transfer", "summary": "export → preview → confirm under a durable job; confirm is limited to a signed-admitted local TEST target",
+      "path": ["e.operator-to-blob-transfer", "e.blob-transfer-to-operator"],
+      "branches": ["e.storage-to-blob-transfer", "e.blob-transfer-to-storage", "e.blob-transfer-to-restore"] },
+    { "id": "CH-27", "name": "SmartGift document staging → monitor", "summary": "raw evidence only; nothing under apps/server/src promotes a staged record to a canonical row",
+      "path": ["e.smartgift-to-document-intake", "e.document-intake-to-raw", "e.raw-records-to-document-monitor"] }
   ]
 }
 ```
