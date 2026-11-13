@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.127.0b to 1.128.0b (2026-11-13; author Codex): expose the FR-195 AccessInvite service through four session-bound, CSRF-protected HTTP operations. Inventory moves from 375 to 379 Next route handlers and from 376 paths / 492 operations to 380 paths / 496 operations. The existing `/api/workspace-invites` routes remain unchanged.
+
 Version diff 1.126.0b to 1.127.0b (2026-11-13; author Codex): serialize the three Tenant archive-chain appenders, add the atomic daily archive-expiry claim and in-progress response, and document the Tenant-start deadline, crash resumption and already-absent retirement count. No route or `api-spec-counts` marker change.
 
 Version diff 1.125.0b to 1.126.0b (2026-11-13; author Codex): harden FR-230 override reads/restores and add count-only `dry_run` for the Integration and Agent retention routes plus the worker's `--dry-run` mode. Dry-run skips CRM and archive expiry; route inventory is unchanged at 375 handlers and the `api-spec-counts` marker is unchanged. No schedule or production run is evidenced.
@@ -235,7 +237,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=375 -->
+<!-- api-spec-counts: route_handlers=379 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -849,6 +851,10 @@ the top-level collaboration container, schema `Portfolio` (ADR-027 §D2).
 | POST | `/api/workspace-invites` | Workspace/Tenant-owner authority mints a single-use, expiring invite; the raw token appears exactly once in this response and is stored digest-only (SEC-014) | `404 Workspace not found` for absent and unauthorized alike; `400 INVITE_ROLE_NOT_ALLOWED` — OWNER is never mintable |
 | POST | `/api/workspace-invites/accept` | `{ token }` plus the session principal becomes an audited ACTIVE WorkspaceMembership with the server-decided role | `400 { error: "INVALID_OR_EXPIRED_INVITE" }` — one generic refusal across unknown/replayed/revoked/expired/wrong-target |
 | DELETE | `/api/workspace-invites/[id]` | revokes a PENDING invite (same authority as mint); the token then fails the next acceptance closed | `404 Invite not found`; `409 INVITE_NOT_PENDING` |
+| POST | `/api/access-invites` | Session-bound `X-CSRF-Token` plus strict body `{ scopeType, portfolioId?, tenantId?, businessId?, role?, targetPersonId?, invitedEmail?, invitedLineUserId?, reason?, domainKeys? }`. `scopeType` is `PORTFOLIO`, `TENANT` or `BUSINESS`; role defaults to `MEMBER` and is passed as a string so the service returns `400 INVITE_ROLE_NOT_ALLOWED` for OWNER. `invitedEmail` is trimmed and validated. The raw token appears exactly once in a `Cache-Control: no-store` response; the database stores only its SHA-256 hash. Scope authority refusals are 404, indistinguishable from an absent scope. | `400` invalid body or `INVITE_ROLE_NOT_ALLOWED`; `401 AUTH_REQUIRED`; `403 CSRF_INVALID`; `404` absent or unauthorized scope; `503 SESSION_UNAVAILABLE` |
+| POST | `/api/access-invites/accept` | Strict `{ token }`; acceptance always uses the session principal, never the invited email. TENANT/BUSINESS acceptance creates a `Membership` with `grantSource: INVITE`; PORTFOLIO acceptance keeps the service's WorkspaceMembership delegation. | `400 { error: "INVALID_OR_EXPIRED_INVITE" }` for unknown, expired, revoked, replayed or wrong-target token; `401 AUTH_REQUIRED`; `403 CSRF_INVALID`; `503 SESSION_UNAVAILABLE` |
+| POST | `/api/access-invites/decline` | Strict `{ token }`; records decline for the session principal through the AccessInvite service. | `400 { error: "INVALID_OR_EXPIRED_INVITE" }` for unknown, expired, revoked or wrong-target token; `401 AUTH_REQUIRED`; `403 CSRF_INVALID`; `503 SESSION_UNAVAILABLE` |
+| DELETE | `/api/access-invites/[id]` | Revokes a PENDING AccessInvite using the authority encoded by its stored scope. Requires the session-bound `X-CSRF-Token`; the caller cannot supply a different scope. | `404` unknown or unauthorized invite; `409 INVITE_NOT_PENDING`; `401 AUTH_REQUIRED`; `403 CSRF_INVALID`; `503 SESSION_UNAVAILABLE` |
 | GET | `/api/workspace-memberships?portfolioId=…` | Workspace owner roster (FR-067): ACTIVE members (`personId`, `code`, `displayName`, `role`, `joinedAt`, `isSelf` marked by the server) and still-PENDING invites (`id`, `role`, `invitedEmail`, `targetPersonId`, `targetName`, `expiresAt`, `createdAt`); same Workspace-owner authority as mint/revoke/remove; read-only, returns no token material, records no audit event | `404 Workspace not found` — also for a non-owner (ADR-027 D9) |
 | DELETE | `/api/workspace-memberships?portfolioId=…&personId=…` | flips the membership to REMOVED, audited; the next protected read re-derives from the row (AC-067.7) | `404 Membership not found`; `404 Workspace not found` without owner authority |
 
@@ -1419,6 +1425,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.128.0b | 2026-11-13 | candidate | FR-195 adds `POST /api/access-invites`, `POST .../accept`, `POST .../decline` and `DELETE .../[id]`; 379 Next route handlers, 380 OpenAPI paths and 496 operations. The existing WorkspaceInvite route family is unchanged. | working-tree | Codex |
 | 1.105.0b | 2026-10-12 | candidate | FR-270 OWNER-scoped weekly WIG execution: additive Strategy projection and seven write handlers; 342 route handlers, 343 OpenAPI paths, 448 operations; migrations authored locally, not production-applied | working-tree | Codex |
 | 1.102.0b | 2026-10-05 | candidate | FR-278 read-only Business-scoped executive dashboard at `/api/growth/line-sales`; 331 route handlers, 332 OpenAPI paths, 437 operations; local implementation only | working-tree | Codex |
 | 1.101.0b | 2026-09-27 | candidate | FR-022 (ADR-093 1.2.0): `POST /api/crm/customers/[customerId]/retention-consent` and `.../retention-consent/revoke`. Route handler count 328 -> 330 | working-tree | Claude Opus 5.5 (MC0) |

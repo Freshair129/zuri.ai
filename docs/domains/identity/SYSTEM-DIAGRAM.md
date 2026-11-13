@@ -311,8 +311,15 @@ accepted without a row, and sign-out has no row to revoke for it.
 Workspace invitations (`/api/workspace-invites`, `/accept`) require a live
 session and bind the new `WorkspaceMembership` to that session's Person — the
 invite link alone creates nothing. Tenant- and Business-scoped `AccessInvite`
-minting and acceptance exist in `access-invite-service.js` but have no HTTP
-route; ADR-079 records that as follow-on work.
+operations are exposed through `POST /api/access-invites`, `POST
+/api/access-invites/accept`, `POST /api/access-invites/decline` and `DELETE
+/api/access-invites/[id]`. All four resolve the live request viewer and verify
+the session-bound API-write CSRF token before mutation. Acceptance and decline
+use the session principal, never an invited email or LINE identity. TENANT and
+BUSINESS grants remain `Membership` writes through the Identity service; the
+scope-specific authority refusals and audit events are unchanged. The existing
+`/api/workspace-invites` routes and `mintWorkspaceInvite` are unchanged under
+AC-195.9.
 
 ## 6. Session contract
 
@@ -342,7 +349,7 @@ Two controls exist, and they do not cover the same routes.
 | Control | What it checks | Where it applies |
 |---|---|---|
 | `SameSite=Lax` | The browser withholds the cookie on cross-site `POST` | Every cookie-authenticated route |
-| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL`, and a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery |
+| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL`, and a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery, `POST /api/access-invites`, `POST /api/access-invites/accept`, `POST /api/access-invites/decline`, `DELETE /api/access-invites/[id]` |
 
 A static scan at `49b10eb3` found 268 route files that export a write method.
 Twenty-four of them do not name `resolveRequestViewer` or `resolveViewer` in the

@@ -107,7 +107,9 @@ export async function mintAccessInvite({
 
   const scope = await assertScopeAuthority({ viewer, scopeType, portfolioId, tenantId, businessId, db })
 
-  const hasAddressee = Boolean(targetPersonId) || Boolean(invitedEmail) || Boolean(invitedLineUserId)
+  const email = typeof invitedEmail === 'string' && invitedEmail.trim() ? invitedEmail.trim().toLowerCase() : null
+  const lineUserId = typeof invitedLineUserId === 'string' && invitedLineUserId.trim() ? invitedLineUserId.trim() : null
+  const hasAddressee = Boolean(targetPersonId) || Boolean(email) || Boolean(lineUserId)
   if (!hasAddressee) throw failure(400, 'ACCESS_INVITE_ADDRESSEE_REQUIRED')
 
   if (targetPersonId != null) {
@@ -115,8 +117,6 @@ export async function mintAccessInvite({
     const target = await db.person.findUnique({ where: { id: targetPersonId }, select: { id: true } })
     if (!target) throw failure(404, 'Person not found')
   }
-  const email = typeof invitedEmail === 'string' && invitedEmail.trim() ? invitedEmail.trim().toLowerCase() : null
-  const lineUserId = typeof invitedLineUserId === 'string' && invitedLineUserId.trim() ? invitedLineUserId.trim() : null
   const domains = Array.isArray(domainKeys) ? domainKeys.filter((key) => DOMAIN_KEYS.includes(key)) : []
 
   const raw = randomBytes(32).toString('hex')
@@ -305,9 +305,14 @@ export async function revokeAccessInvite({ viewer, inviteId, db = prisma, now = 
     select: { id: true, scopeType: true, portfolioId: true, tenantId: true, businessId: true, status: true },
   })
   if (!invite) throw failure(404, 'Invite not found')
-  await assertScopeAuthority({
-    viewer, scopeType: invite.scopeType, portfolioId: invite.portfolioId, tenantId: invite.tenantId, businessId: invite.businessId, db,
-  })
+  try {
+    await assertScopeAuthority({
+      viewer, scopeType: invite.scopeType, portfolioId: invite.portfolioId, tenantId: invite.tenantId, businessId: invite.businessId, db,
+    })
+  } catch (error) {
+    if (Number(error?.status) === 404) throw failure(404, 'Invite not found')
+    throw error
+  }
 
   const revoked = await db.accessInvite.updateMany({
     where: { id: invite.id, status: 'PENDING' },
