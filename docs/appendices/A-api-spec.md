@@ -1,5 +1,13 @@
 # Appendix A — API Specification
 
+Version diff 1.126.0b to 1.127.0b (2026-11-13; author Codex): serialize the three Tenant archive-chain appenders, add the atomic daily archive-expiry claim and in-progress response, and document the Tenant-start deadline, crash resumption and already-absent retirement count. No route or `api-spec-counts` marker change.
+
+Version diff 1.125.0b to 1.126.0b (2026-11-13; author Codex): harden FR-230 override reads/restores and add count-only `dry_run` for the Integration and Agent retention routes plus the worker's `--dry-run` mode. Dry-run skips CRM and archive expiry; route inventory is unchanged at 375 handlers and the `api-spec-counts` marker is unchanged. No schedule or production run is evidenced.
+
+Version diff 1.124.0b to 1.125.0b (2026-11-13; author Codex): wire the FR-245 / SEC-034 archive-expiry trigger (ADR-093 D5 P1–P7), add its deployment-authenticated counts-only route, and place it after the CRM chain writer in the four-call retention worker. Inventory: 375 Next route handlers; the OpenAPI test counts 376 paths and 492 operations. Implementation source only; no production schedule or run is evidenced.
+
+Version diff 1.123.0b to 1.124.0b (2026-11-12; author Codex): add the Integration raw LINE and Agent trace retention triggers to FR-230 and extend the shared worker to call CRM, Integration, then Agent. Inventory: 374 Next route handlers; the OpenAPI test counts 375 paths because the composition adds one explicit OAuth callback. Source implementation only; no deployment schedule or production run is evidenced.
+
 Version diff 1.122.0b to 1.123.0b (2026-11-09; author Codex): add a Business-scoped, bounded ready-intake listing for the Asset Register. Receiving still stops at READY_FOR_REGISTRATION; the Register page uses the existing promotion route to issue an Asset ID.
 
 Version diff 1.121.0b to 1.122.0b (2026-11-02): inventory eight PM-owned FR-293 managed-blob transfer routes (372 total), including actor-bound job recovery after a lost response. Export and confirm return 202 after durable job/attempt admission; replace-all remains limited to source-bound disposable TEST admission and leaves the generation NEEDS_ADMISSION. Ordinary recovery and installed/operator, provider and production qualification remain open.
@@ -227,7 +235,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=372 -->
+<!-- api-spec-counts: route_handlers=375 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -719,6 +727,50 @@ container.
 | Method | Route | Contract | Failure |
 |---|---|---|---|
 | POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
+
+### CRM chat evidence archive expiry trigger (FR-245, SEC-034; ADR-093 D5 P7)
+
+The same one-shot deployment worker normally calls this route immediately after
+the CRM retention sweep. All three archive-chain appenders—the retention
+sweep's archive writer, hold re-seal, and retirement—take the same per-Tenant
+row lock and read the unique chain tail inside the manifest-create transaction.
+The worker's call order is therefore an efficiency choice, not a safety control.
+The trigger selects Tenants with archive or archive-key rows in stable order,
+checks production archive storage before claiming the UTC day, and keeps
+processing after an individual Tenant fails.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/crm/archive-expiry` | implemented (FR-245, SEC-034): `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN`; no request body. After production storage readiness succeeds, the route claims the UTC date with deterministic `AuditEvent.id = archive-expiry-claim:<YYYY-MM-DD>` (`ARCHIVE_EXPIRY_RUN_CLAIMED`); a unique-key loser rechecks completion, then returns `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS` if no completed audit exists. A crash after claim and before completion leaves the claim: same-day calls return 409 and the next UTC day may retry. The per-Tenant service verifies the manifest chain and appends a format-4 `.zcr` retirement row before deleting expired files. Its default deadline is nine minutes from run start and it stops starting Tenants at that boundary; `counts.tenantsDeferred` reports the remainder and the run audit records `timedOut: true`. The route awaits the run, including its current Tenant. Run and per-Tenant counts include `retiredFilesAlreadyAbsent` for a retired file already missing at deletion time; `filesDeleted` counts only files deleted by that run. The response contains aggregate counts only, with no Customer id or archive path. A Tenant failure, broken-chain skip or deferred Tenant makes the worker exit non-zero. | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS`; `503 ARCHIVE_EXPIRY_UNAVAILABLE` (storage refusal or run-level failure) |
+
+### Integration and Agent payload retention triggers (FR-230, ADR-091 D2)
+
+Both routes use the same deployment bearer and 10-minute route ceiling as the
+CRM retention-sweep route,
+read no request body and normally return counts only with their own distinct
+same-UTC-day audit guard. Each permits only one `dry_run=true` or
+`dry_run=false` query parameter; `true` bypasses the guard and writes nothing,
+returning `{ dryRun: true, countsByClass, tenants }` with per-Tenant counts and
+Tenant ids only. The one-shot worker normally calls CRM, CRM archive expiry,
+Integration, then Agent; with `--dry-run` it calls only Integration and Agent
+with `?dry_run=true`, and logs `{ event, skipped: 'NO_DRY_RUN' }` for CRM and
+archive expiry. Any non-empty `tenantFailures`, `archiveFailures` or
+`settleFailures` array in a class result fails the worker; archive expiry also
+fails when top-level `counts.failures`, `counts.skipped` or
+`counts.tenantsDeferred` is positive. The
+worker source is present, but no deployment schedule or production run is
+claimed.
+
+The shared retention reader accepts only safe-integer override values of at
+least one day and clamps valid values to the installation default. A corrupt
+value is ignored in favor of that default and reported without record payloads;
+snapshot restore accepts only a known data class, a non-empty Tenant id and a
+window from one day through that class's default.
+
+| Method | Route | Contract | Failure |
+|---|---|---|---|
+| POST | `/api/integration/raw-retention-sweep` | FR-230 Integration-owned sweep of expired `LINE_OA` `RawExternalRecord.payloadJson`; uses `RAW_LINE_PAYLOAD`'s effective Tenant window, skips non-terminal jobs and `ADMITTING` records, keeps envelope columns and reports only counts. Optional strict `dry_run` query (`true` or `false`), at most once; `true` performs the same paginated selection without tombstones, audit or daily-guard access and returns `{ dryRun: true, countsByClass, tenants }`. Audit identity: `INTEGRATION_RAW_LINE_RETENTION_SWEEP` / `RAW_LINE_RETENTION_SWEEP_COMPLETED`. | `400 RETENTION_SWEEP_REQUEST_INVALID`; `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` |
+| POST | `/api/agent/trace-retention-sweep` | FR-230 Agent-owned whole-turn sweep of `AgentTraceEvent` payloads by maximum `createdAt`; redacts through `redactTraceTurn`, writes the canonical retention tombstone, and protects non-terminal jobs, pending memory delivery and open MSP erasure requests. Optional strict `dry_run` query (`true` or `false`), at most once; `true` counts eligible event rows using the selected groups without redaction, tombstone, audit or daily-guard access and returns `{ dryRun: true, countsByClass, tenants }`. Audit identity: `AGENT_TRACE_RETENTION_SWEEP` / `AGENT_TRACE_RETENTION_SWEEP_COMPLETED`. | `400 RETENTION_SWEEP_REQUEST_INVALID`; `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` |
 
 ## Market Intelligence reader and translation trigger (FR-092 / SDD-049 / ADR-038)
 

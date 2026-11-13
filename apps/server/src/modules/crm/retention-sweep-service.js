@@ -7,12 +7,10 @@
 //   one audit event per run naming the counts it actually produced.
 //
 //   RAW_LINE_PAYLOAD (integration's RawExternalRecord) and AGENT_TRACE_EVENT
-//   (agent's AgentTraceEvent) are each other domain's charter to sweep — this
-//   module does not write either model. MSP_SESSION_CONTENT lives in MSP, a
-//   separate repository this codebase never reaches. See the task report for
-//   the ownership boundary; RETENTION_DATA_CLASSES / RETENTION_DEFAULT_WINDOW_DAYS
-//   (src/lib/validation/enums.js) already declare all four so nothing here needs
-//   to change shape once those sweepers exist.
+//   (agent's AgentTraceEvent) have their own domain sweepers and routes. MSP
+//   session content lives in MSP, a separate repository this codebase never
+//   reaches. Each domain writes only its own model; the shared worker invokes
+//   the three callable sweeps in order.
 // @req FR-245 — before a candidate is tombstoned it is archived and verified
 //   (ADR-093 D2): `chat-evidence-archive-service.js` writes and verifies the
 //   Tenant's batch, and only that module's own transaction — never this one —
@@ -50,7 +48,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { CUSTOMER_ERASURE_TOMBSTONE } from './conversation-redaction-service'
 import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
 import { refreshConversationPreview } from './conversation-preview-service'
-import { getEffectiveRetentionWindowDays } from './retention-override-service'
+import { resolveEffectiveRetentionWindow } from './retention-override-service'
 import { CRM_OWNED_RETENTION_CLASSES } from '@/lib/validation/enums'
 import { archiveAndTombstoneTenantMessages } from './chat-evidence-archive-service'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
@@ -67,7 +65,7 @@ const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
 // an operator's acknowledgement to leave that status: LINE's own delivery
 // outcome is still unresolved, and a sweep must not remove evidence a human has
 // not yet closed out.
-const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN']
+export const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = Object.freeze(['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN'])
 
 // Re-exported unchanged so every existing import of this constant from this
 // module keeps working — see retention-sweep-tombstone.js for why it now lives
@@ -93,7 +91,10 @@ async function countSkippedNonTerminalJob(db, tenantId, cutoff) {
 }
 
 async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir } = {}) {
-  const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
+  const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
+  const invalidOverride = source === 'DEFAULT_INVALID_OVERRIDE'
+    ? { invalidOverrideIgnored: true }
+    : {}
   const cutoff = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
 
   const candidates = await db.message.findMany({
@@ -115,7 +116,8 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       },
     },
   })
-  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0, archiveFailed: false, manifest: null }
+  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0,
+    archiveFailed: false, manifest: null, ...invalidOverride }
 
   // @req FR-245 — archive before tombstone, fail closed (ADR-093 D2). A failure
   // anywhere in the archive write leaves every one of this Tenant's candidates
@@ -134,6 +136,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       archiveFailed: true,
       archiveFailureReason: error?.code || error?.message || 'ARCHIVE_FAILED',
       manifest: null,
+      ...invalidOverride,
     }
   }
 
@@ -166,6 +169,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     manifest: archiveResult.manifest
       ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
       : null,
+    ...invalidOverride,
   }
 }
 
@@ -185,13 +189,13 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
   const manifests = []
   const archiveFailures = []
+  const invalidOverrides = []
   let deferredErasedKey = 0
   let blankedWithoutArchive = 0
   const settleFailures = []
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
-  // looping over it rather than hard-coding the call keeps this function's shape
-  // unchanged on the day a second crm-owned class exists.
+  // the Integration and Agent domains have separate sweep services for their classes.
   for (const dataClass of CRM_OWNED_RETENTION_CLASSES) {
     if (dataClass !== CLASS) continue // no second class exists yet to dispatch to
     const tenants = await db.tenant.findMany({ select: { id: true } })
@@ -203,6 +207,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       deferredErasedKey += result.deferredErasedKey ?? 0
       blankedWithoutArchive += result.blankedWithoutArchive ?? 0
       if (result.settleFailed) settleFailures.push({ tenantId: tenant.id, reason: result.settleFailureReason })
+      if (result.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -229,7 +234,8 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
     entityId: `sweep:${now.toISOString()}`,
     action: 'RETENTION_SWEEP_COMPLETED',
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), countsByClass },
+    payload: { ranAt: now.toISOString(), countsByClass,
+      ...(invalidOverrides.length > 0 ? { invalidOverrides } : {}) },
   })
 
   return { auditEventId: event.id, countsByClass }

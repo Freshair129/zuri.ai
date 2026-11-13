@@ -1,10 +1,10 @@
 ---
 id: ZAI:DATA-PIPELINE-ARCHITECTURE
 title: Data pipeline architecture — how each pipeline is controlled
-version: "0.1.0"
+version: "0.1.1"
 status: candidate
 created_at: "2026-11-12"
-last_update: "2026-11-12"
+last_update: "2026-11-13"
 author: Claude Fable 5.2 (as-built description from a static review at 49b10eb3)
 superseded_by: null
 source_of_truth: false
@@ -125,7 +125,7 @@ returned to the caller is a refusal, not a hold.
 | 20 | Snapshot restore | Lifecycle | Snapshot and recovery schema | Required, with explicit confirmation | One serializable replacement transaction | None | The replacement rolls back | Operator AuditEvents | project-manager | **No** — the map draws export only |
 | 21 | Managed-blob transfer | Staged run | Transfer contract; custody checks | Preview → package → inspect → confirm | Per step | Job id, lease, epoch, hashes | State conflicts refuse | Job state, per-object receipts | project-manager | **No** |
 | 22 | CRM retention sweep and cold archive | Lifecycle | Age, consent and legal-hold checks | — | Per Tenant; the archive file is written and verified before the tombstone transaction | One run per UTC day | An archive failure leaves the rows untouched | Manifests, counts, one AuditEvent per run | crm | **No** |
-| 23 | Chat-archive expiry | Lifecycle | Chain verification | — | — | — | Lapsed legal-hold keys are expired first; if the Tenant's chain is then invalid, key and file destruction is skipped for that Tenant | An `ARCHIVE_EXPIRY_COMPLETED` AuditEvent on both a skipped and a completed run | crm | **No**, and **no route or scheduled worker calls it** |
+| 23 | Chat-archive expiry | Lifecycle | Chain verification | — | — | — | Lapsed legal-hold keys are expired first; if the Tenant's chain is then invalid, key and file destruction is skipped for that Tenant | An `ARCHIVE_EXPIRY_COMPLETED` AuditEvent on both a skipped and a completed run | crm | **No.** Since 2026-11-13 `POST /api/crm/archive-expiry` and the shared retention worker call it; nothing is scheduled in any deployment |
 | 24 | MSP memory retention | Lifecycle | Bounded request; Tenant scope | Dry run supported | Per Tenant | Run id; deferred and partial outcomes | Reconciliation path | Counts, AuditEvents | agent | **No** |
 | 25 | Knowledge query and citation | Read path | Query contract and scope | — | None | — | An empty result is an answer | Citation and trace read model | knowledge, agent | CH-06, 21, 23 |
 | 26 | Repository → readiness | Projection | — | — | — | — | — | Generated snapshots | project-manager | CH-16 |
@@ -178,10 +178,18 @@ where a reader of the rule would look.
    in its header that it is not wired to a route or a scheduled worker, and no
    caller exists in `apps/server/src` or `apps/server/scripts`. Unless something
    outside the repository invokes it, archive files and keys past the ten-year
-   window are not destroyed.
+   window are not destroyed. *Closed in code on 2026-11-13:* the run service and
+   `POST /api/crm/archive-expiry` exist, the worker calls it after the CRM sweep,
+   and ADR-093 1.3.0 makes expiry chain-safe (a retirement file is committed
+   before an expired file is deleted). It still needs an operator to set
+   `ZURI_RETENTION_SWEEP_TOKEN` and register the task.
 5. **Raw LINE payloads and agent trace payloads have no age-based sweep.**
    ADR-091 gives both a 90-day window; `retention-sweep-service.js` names them
-   as another domain's job and no sweeper for either was found.
+   as another domain's job and no sweeper for either was found. *Closed in code
+   on 2026-11-13:* Integration (`raw-line-retention-sweep-service.js`) and Agent
+   (`trace-retention-sweep-service.js`) each sweep their own model, with routes
+   under `/api/integration/raw-retention-sweep` and
+   `/api/agent/trace-retention-sweep`. Nothing is scheduled in any deployment.
 
 ## 6. Differences from the map
 
@@ -209,6 +217,10 @@ real surface path and requirement ids the readiness snapshot knows, and
 7. A lifecycle worker is not finished until something calls it on a schedule.
 
 ## Version diff
+
+0.1.0 → 0.1.1 (2026-11-13): findings 4 and 5 and the flow 23 row note that the
+expiry trigger, the chain-safe retirement and the two 90-day sweepers now exist
+in code. The body of the document remains the static review at `49b10eb3`.
 
 0.0 → 0.1.0 (2026-11-12): first inventory of pipeline control properties, the
 four failure behaviours, the departures from BR-009 / SDD-009 and the flows the

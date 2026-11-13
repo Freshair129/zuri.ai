@@ -6,6 +6,9 @@ import { recoveryError } from './managed-blob-recovery-contract'
 import { dependencyHandoffRecoveryErrors } from './pipeline-handoff-recovery'
 // @req FR-294 — legacy snapshots refuse while Office design custody exists.
 import {assertOfficeDesignBackupSafe} from '@/modules/business/office-design/backup-boundary'
+// @req FR-230 — expired AgentTraceEvent payloads retain source-event envelopes
+//   for separate Agent Mission provenance recovery.
+// @tested tests/unit/agent-mission-recovery.test.js
 // @req FR-149 — restored LINE jobs preserve delivery evidence but cannot resume sends.
 // @req FR-253 — pricing evidence restores in scoped derivation order without legacy erasure.
 // @spec ADR-098
@@ -37,7 +40,11 @@ import {assertOfficeDesignBackupSafe} from '@/modules/business/office-design/bac
 // @tested tests/integration/fr075-restore-authorization.test.js
 import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
-import { LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES } from '@/lib/validation/enums'
+import {
+  LIVE_ACCESS_STATUSES as LIVE_GRANT_STATUSES,
+  RETENTION_DATA_CLASSES,
+  RETENTION_DEFAULT_WINDOW_DAYS,
+} from '@/lib/validation/enums'
 import { BROADCAST_INTENT_STATUSES, hashMarketingBroadcastPayload, parseMarketingBroadcastPayload } from '@/modules/marketing/domain/marketing-broadcast-contract'
 import { recordAudit } from './audit'
 // @req FR-286 — restore validates historical metadata without provisioning it.
@@ -827,6 +834,41 @@ function archiveManifestRestoreRows(rows, result) {
   }
   if (result.errors.length) return []
   return ordered
+}
+
+function tenantRetentionOverrideRecovery(snapshot) {
+  const tables = snapshot?.tables || {}
+  const state = snapshotTableState(tables, 'tenantRetentionOverride')
+  const result = { status: state === 'MISSING' ? 'UNAVAILABLE' : 'AVAILABLE', errors: [] }
+  if (state === 'MISSING') return result
+  if (state === 'MALFORMED') {
+    result.status = 'INVALID'
+    result.errors.push('Retention override snapshot tenantRetentionOverride must be an array')
+    return result
+  }
+
+  const keys = new Set()
+  for (const [index, row] of tables.tenantRetentionOverride.entries()) {
+    const label = row?.id || `row ${index + 1}`
+    if (!isSnapshotObject(row)) {
+      result.errors.push(`Retention override ${label} is not an object`)
+      continue
+    }
+    if (typeof row.tenantId !== 'string' || !row.tenantId.trim()) {
+      result.errors.push(`Retention override ${label} has no valid tenantId`)
+    }
+    if (!RETENTION_DATA_CLASSES.includes(row.dataClass)) {
+      result.errors.push(`Retention override ${label} has an unknown dataClass`)
+    } else if (!Number.isSafeInteger(row.windowDays) || row.windowDays < 1
+      || row.windowDays > RETENTION_DEFAULT_WINDOW_DAYS[row.dataClass]) {
+      result.errors.push(`Retention override ${label} has an invalid windowDays`)
+    }
+    const key = JSON.stringify([row.tenantId, row.dataClass])
+    if (keys.has(key)) result.errors.push(`Retention overrides reuse Tenant/dataClass ${key}`)
+    keys.add(key)
+  }
+  if (result.errors.length) result.status = 'INVALID'
+  return result
 }
 
 function archiveRecovery(snapshot) {
@@ -1625,7 +1667,10 @@ function agentMissionEvidenceRecovery(snapshot) {
       }
       if (!trace || trace.tenantId !== draft.tenantId || trace.businessId !== draft.businessId
         || trace.turnId !== draft.sourceTurnId || trace.executionId !== draft.executionId
-        || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+        || trace.kind === 'RETENTION_TOMBSTONE') {
+        // FR-230 may redact the payload after 90 days while retaining this
+        // immutable envelope. Mission recovery needs the exact linked metadata,
+        // not the expired context payload itself.
         result.errors.push(`Agent mission draft ${label} has no matching source trace event`)
       }
     } else if (sourceKey === null && draft.status !== 'ERASED') {
@@ -1769,7 +1814,9 @@ function agentMissionEvidenceRecovery(snapshot) {
         const trace = traceEvents.get(row.sourceTraceEventId)
         if (!trace || trace.tenantId !== row.tenantId || trace.businessId !== row.businessId
           || trace.turnId !== row.sourceTurnId || trace.executionId !== row.executionId
-          || trace.kind === 'RETENTION_TOMBSTONE' || snapshotTracePayload(trace)?.redacted === true) {
+          || trace.kind === 'RETENTION_TOMBSTONE') {
+          // Retention keeps source-event identity/scope as provenance; an
+          // expired payload is not needed to validate this linked envelope.
           result.errors.push(`Agent mission evidence ${label} has no matching source execution trace event`)
         }
       }
@@ -2182,6 +2229,8 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const errors = dependencyHandoffRecoveryErrors(snapshot)
   if (unsupportedMarketingReportSnapshot(snapshot)) errors.push('MARKETING_REPORT_LEGACY_BACKUP_UNSUPPORTED')
   const warnings = []
+  const retentionOverrideRecoveryResult = tenantRetentionOverrideRecovery(snapshot)
+  errors.push(...retentionOverrideRecoveryResult.errors)
   let recovery = { status: 'UNKNOWN', manifestVersion: null }
   let artifactStorageRecovery = { status: 'UNKNOWN', manifestVersion: null }
   if (!snapshot || typeof snapshot !== 'object') errors.push('Snapshot is not an object')
@@ -2204,7 +2253,10 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   if (errors.length) return {
     valid: false, errors, warnings, recovery, artifactStorageRecovery, counts: null,
     businessProvisioningRecovery: provisioning,
-    ...(provisioning.errors.length ? { errorCode: 'BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID' } : {}),
+    retentionOverrideRecovery: retentionOverrideRecoveryResult,
+    ...(retentionOverrideRecoveryResult.errors.length
+      ? { errorCode: 'BACKUP_RETENTION_OVERRIDE_INVALID' }
+      : provisioning.errors.length ? { errorCode: 'BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID' } : {}),
   }
   const counts = Object.fromEntries(SNAPSHOT_MODELS.map((model) => [model, Array.isArray(snapshot.tables[model]) ? snapshot.tables[model].length : 0]))
   const remounted = new Set(remounts.map((mount) => mount.businessId))
@@ -2212,6 +2264,7 @@ export function previewSnapshot(snapshot, { remounts = [] } = {}) {
   const included = new Set(contentManifest(snapshot).filter((entry) => entry.contentIncluded).map((entry) => entry.fileId))
   return {
     valid: true, errors: [], warnings, recovery, artifactStorageRecovery, businessProvisioningRecovery: provisioning, counts, exportedAt: snapshot.exportedAt || null,
+    retentionOverrideRecovery: retentionOverrideRecoveryResult,
     mountRequiredBusinessIds: businessIds.filter((businessId) => !remounted.has(businessId)).sort(),
     missingContentFileIds: localAssets(snapshot).filter((asset) => !included.has(asset.id)).map((asset) => asset.id).sort(),
   }
@@ -2395,6 +2448,10 @@ export async function previewImport(snapshot, { remounts = [], db = prisma, view
  */
 async function assertProtectedRecoveryStillSafe(tx, snapshot, preview) {
   await assertOfficeDesignBackupSafe(tx,snapshot)
+  const retentionOverrides = tenantRetentionOverrideRecovery(snapshot)
+  if (retentionOverrides.errors.length) {
+    throw new BackupRestoreSafetyError('BACKUP_RETENTION_OVERRIDE_INVALID', retentionOverrides.errors.join('; '))
+  }
   const provisioning = businessProvisioningRecovery(snapshot)
   if (provisioning.errors.length) {
     throw new BackupRestoreSafetyError('BACKUP_BUSINESS_PROVISIONING_RECOVERY_INVALID', provisioning.errors.join('; '))

@@ -234,15 +234,10 @@ export const CONVERSATION_EVENT_KINDS = [
 // FR-230 — every copy of a person's conversation content has a declared retention
 // data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
 // may only shorten a window (TenantRetentionOverride); lengthening one is refused
-// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
-// — the other three name a model this crm-scoped change does not own:
-//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
-//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
-//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
-//                             codebase never reaches
-// Their entries here exist so a Tenant can already declare an override for them
-// (and TenantRetentionOverride never needs a schema change when their own
-// sweepers land), not because this change sweeps them.
+// by the writer. Three classes are swept in this codebase by their owning
+// domains: RawExternalRecord.payloadJson (Integration), Message body/attachments
+// (CRM), and AgentTraceEvent payloads (Agent). MSP_SESSION_CONTENT lives in MSP's
+// own storage, a separate repository this codebase never reaches.
 export const RETENTION_DATA_CLASSES = [
   'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
 ]
@@ -255,9 +250,8 @@ export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
   AGENT_TRACE_EVENT: 90,
   MSP_SESSION_CONTENT: 90,
 })
-// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
-// see the module comment above. retention-sweep-service.js sweeps exactly this
-// list; a class outside it is not this crm-scoped change's model to write.
+// The subset of RETENTION_DATA_CLASSES owned by CRM. Integration and Agent
+// dispatch their own classes from their domain services.
 export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
 // LineConversationJob's own status vocabulary is deliberately NOT registered
 // here — see the FR-152 comment above this block: a registry entry would read

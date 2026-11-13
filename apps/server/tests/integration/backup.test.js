@@ -15,7 +15,7 @@ import {
   previewImport,
   importSnapshot,
 } from '@/modules/project-manager/application/backup-service'
-import { computeManifestHash } from '@/modules/crm/chat-evidence-archive-service'
+import { computeManifestHash, hashMessageIdList } from '@/modules/crm/chat-evidence-archive-service'
 import {
   createPortfolio,
   createTenant,
@@ -26,6 +26,7 @@ import { createProject } from '@/modules/project-manager/application/project-ser
 import { makeViewer } from '../factories/viewer'
 import { createLocalFilesystemPort } from '@/modules/project-manager/local-files/filesystem-port'
 import { decideAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 
 vi.mock('@/modules/identity/request-viewer', () => ({
   resolveRequestViewer: async (request) => {
@@ -1070,7 +1071,7 @@ describe('snapshot backup round trip', () => {
     }
   })
 
-  it('rejects an invalid archive predecessor before the destructive transaction and restores a child after its parent', async () => {
+  it('rejects an invalid archive predecessor and restores a format-4 retirement row after its parent', async () => {
     const snapshot = await exportSnapshot()
     const parent = snapshot.tables.archiveManifest.find((row) => row.runId === 'RUN-BAK-001')
     expect(parent).toBeTruthy()
@@ -1083,9 +1084,9 @@ describe('snapshot backup round trip', () => {
     expect(await prisma.project.count()).toBe(beforeProjects)
 
     const child = {
-      id: `${parent.id}-child`, tenantId: parent.tenantId, runId: 'RUN-BAK-002',
-      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-002'), fileSha256: 'c'.repeat(64),
-      messageCount: 2, messageIdListHash: 'b'.repeat(64), previousManifestId: parent.id,
+      id: `${parent.id}-retirement`, tenantId: parent.tenantId, runId: 'RUN-BAK-RETIREMENT',
+      filePath: parent.filePath.replace('RUN-BAK-001', 'RUN-BAK-RETIREMENT').replace(/\.zca$/, '.zcr'), fileSha256: 'c'.repeat(64),
+      messageCount: 0, messageIdListHash: hashMessageIdList([]), previousManifestId: parent.id,
       previousManifestHash: parent.manifestHash, createdAt: new Date(new Date(parent.createdAt).getTime() + 1000),
     }
     child.manifestHash = computeManifestHash(child)
@@ -1095,6 +1096,7 @@ describe('snapshot backup round trip', () => {
     expect(restored.restored).toBe(true)
     const rows = await prisma.archiveManifest.findMany({ where: { tenantId: parent.tenantId }, orderBy: { createdAt: 'asc' } })
     expect(rows.map((row) => row.id)).toEqual([parent.id, child.id])
+    expect(rows[1]).toMatchObject({ filePath: expect.stringMatching(/\.zcr$/), messageCount: 0, messageIdListHash: hashMessageIdList([]) })
   })
 
   it('rechecks an unavailable archive family inside the restore transaction when a row appears after preview', async () => {
@@ -1133,5 +1135,44 @@ describe('snapshot backup round trip', () => {
     expect(await prisma.auditEvent.count({ where: { action: 'RESTORED' } })).toBe(restoredAuditBefore)
     expect(await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })).toBe(operatorAuditBefore)
     await prisma.customerArchiveKey.deleteMany()
+  })
+
+  it('refuses invalid retention overrides before replacement and restores a valid override', async () => {
+    const dataClass = 'RAW_LINE_PAYLOAD'
+    const where = { tenantId_dataClass: { tenantId: business.tenantId, dataClass } }
+    await prisma.tenantRetentionOverride.upsert({
+      where,
+      create: { tenantId: business.tenantId, dataClass, windowDays: 30 },
+      update: { windowDays: 30 },
+    })
+    const snapshot = await exportSnapshot()
+    const rowIndex = snapshot.tables.tenantRetentionOverride.findIndex(row =>
+      row.tenantId === business.tenantId && row.dataClass === dataClass)
+    expect(rowIndex).toBeGreaterThanOrEqual(0)
+    const projectCount = await prisma.project.count()
+    const invalidRows = [
+      { windowDays: 0 },
+      { windowDays: -1 },
+      { windowDays: 1.5 },
+      { dataClass: 'UNKNOWN_RETENTION_CLASS', windowDays: 1 },
+      { windowDays: RETENTION_DEFAULT_WINDOW_DAYS[dataClass] + 1 },
+    ]
+
+    for (const invalidFields of invalidRows) {
+      const invalid = structuredClone(snapshot)
+      invalid.tables.tenantRetentionOverride[rowIndex] = {
+        ...invalid.tables.tenantRetentionOverride[rowIndex], ...invalidFields,
+      }
+      const result = await importSnapshot(invalid, { confirm: true, viewer: makeOperatorViewer() })
+      expect(result).toMatchObject({ restored: false, valid: false, errorCode: 'BACKUP_RETENTION_OVERRIDE_INVALID' })
+      expect(await prisma.project.count()).toBe(projectCount)
+      expect(await prisma.project.findUnique({ where: { id: project.id } })).toBeTruthy()
+      expect((await prisma.tenantRetentionOverride.findUnique({ where })).windowDays).toBe(30)
+    }
+
+    await prisma.tenantRetentionOverride.update({ where, data: { windowDays: 5 } })
+    const restored = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(restored.restored).toBe(true)
+    expect((await prisma.tenantRetentionOverride.findUnique({ where })).windowDays).toBe(30)
   })
 })

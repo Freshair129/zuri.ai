@@ -1,11 +1,11 @@
-// @req FR-245 — the chat evidence cold archive writer (ADR-093 D2-D4, D6; SDD-103;
-//   SEC-034). Called from `retention-sweep-service.js` in the gap between
+// @req FR-245, SEC-034 — the chat evidence cold archive writer (ADR-093 D2-D4,
+//   D5 (1.3.0), D6; SDD-103). Called from `retention-sweep-service.js` in the gap between
 //   candidate selection and the tombstone writes it used to run unconditionally:
 //   for each Tenant, this module writes the batch to a new file, flushes it,
 //   reads it back, verifies its hash, and only then does the caller's
 //   transaction insert a manifest row and tombstone exactly what was archived.
-// @spec ADR-093 D2, D3, D4, D6; SDD-103; SEC-034; BR-002
-// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js
+// @spec ADR-093 D2, D3, D4, D5 (1.3.0), D6; SDD-103; SEC-001; BR-002
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-archive-retirement.test.js
 //
 // FAIL CLOSED, STRUCTURALLY (ADR-093 D2)
 // ---------------------------------------
@@ -130,6 +130,10 @@ export class ChatEvidenceArchiveTransactionError extends Error {
 }
 
 const PRODUCTION_ARCHIVE_ROOT = '/archive'
+const ARCHIVE_CHAIN_UNCOMMITTED_CODES = new Set([
+  'ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CHAIN_TAIL_INVALID', 'ARCHIVE_CHAIN_INVALID', 'ARCHIVE_TENANT_NOT_FOUND',
+  'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED',
+])
 
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
 
@@ -305,21 +309,104 @@ export async function verifyManifestChain(db, tenantId, { baseDir, checkFiles = 
     if (recomputed !== manifest.manifestHash) {
       return { valid: false, brokenAtManifestId: manifest.id, reason: 'MANIFEST_HASH_MISMATCH' }
     }
-    if (checkFiles) {
-      if (!baseDir) throw new Error('verifyManifestChain: checkFiles requires baseDir')
-      let actual
-      try {
-        actual = createHash('sha256').update(await fs.readFile(path.join(baseDir, manifest.filePath))).digest('hex')
-      } catch (error) {
-        return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
-      }
-      if (actual !== manifest.fileSha256) {
-        return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
-      }
-    }
     expectedPreviousHash = manifest.manifestHash
   }
-  return { valid: true }
+  if (!checkFiles) return { valid: true }
+  if (!baseDir) throw new Error('verifyManifestChain: checkFiles requires baseDir')
+
+  const byId = new Map(ordered.manifests.map((manifest, index) => [manifest.id, { manifest, index }]))
+  const retirementEntries = []
+  let retirementFileFailure = null
+  for (let index = 0; index < ordered.manifests.length; index += 1) {
+    const manifest = ordered.manifests[index]
+    if (!manifest.filePath.endsWith('.zcr')) continue
+
+    let raw
+    try {
+      raw = await fs.readFile(path.join(baseDir, manifest.filePath))
+    } catch (error) {
+      retirementFileFailure ??= { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
+      continue
+    }
+    if (createHash('sha256').update(raw).digest('hex') !== manifest.fileSha256) {
+      retirementFileFailure ??= { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
+      continue
+    }
+
+    let header
+    try {
+      const lines = raw.toString('utf8').split('\n')
+      if (lines.at(-1) === '') lines.pop()
+      if (lines.length !== 1) throw new Error('RETIREMENT_HAS_SEGMENTS')
+      header = JSON.parse(lines[0])
+    } catch {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+    }
+    const headerKeys = ['v', 'kind', 'tenantId', 'runId', 'createdAt', 'reason', 'retentionYears', 'retired']
+    if (!hasExactObjectKeys(header, headerKeys)
+      || header.v !== 4
+      || header.kind !== 'RETIREMENT'
+      || header.tenantId !== manifest.tenantId
+      || header.runId !== manifest.runId
+      || typeof header.createdAt !== 'string'
+      || !Number.isFinite(Date.parse(header.createdAt))
+      || header.reason !== 'RETENTION_EXPIRED'
+      || !Number.isInteger(header.retentionYears)
+      || header.retentionYears < 0
+      || !Array.isArray(header.retired)) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+    }
+
+    for (const entry of header.retired) {
+      const entryKeys = ['manifestId', 'runId', 'filePath', 'fileSha256', 'manifestHash', 'messageCount', 'messageIdListHash']
+      if (!hasExactObjectKeys(entry, entryKeys)
+        || typeof entry.manifestId !== 'string'
+        || typeof entry.runId !== 'string'
+        || typeof entry.filePath !== 'string'
+        || typeof entry.fileSha256 !== 'string'
+        || typeof entry.manifestHash !== 'string'
+        || !Number.isInteger(entry.messageCount)
+        || entry.messageCount < 0
+        || typeof entry.messageIdListHash !== 'string') {
+        return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+      }
+      const target = byId.get(entry.manifestId)
+      if (!target
+        || target.index >= index
+        || target.manifest.filePath.endsWith('.zcr')
+        || entry.manifestHash !== target.manifest.manifestHash
+        || entry.fileSha256 !== target.manifest.fileSha256
+        || entry.filePath !== target.manifest.filePath) {
+        return { valid: false, brokenAtManifestId: manifest.id, reason: 'RETIREMENT_INVALID' }
+      }
+      retirementEntries.push(entry.manifestId)
+    }
+  }
+
+  const retiredManifestIds = [...new Set(retirementEntries)]
+    .sort((left, right) => byId.get(left).index - byId.get(right).index)
+  const retiredSet = new Set(retiredManifestIds)
+  for (const manifest of ordered.manifests) {
+    if (manifest.filePath.endsWith('.zcr') || retiredSet.has(manifest.id)) continue
+    let actual
+    try {
+      actual = createHash('sha256').update(await fs.readFile(path.join(baseDir, manifest.filePath))).digest('hex')
+    } catch (error) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_MISSING', cause: error }
+    }
+    if (actual !== manifest.fileSha256) {
+      return { valid: false, brokenAtManifestId: manifest.id, reason: 'ARCHIVE_FILE_TAMPERED' }
+    }
+  }
+  if (retirementFileFailure) return retirementFileFailure
+  return { valid: true, retiredManifestIds }
+}
+
+function hasExactObjectKeys(value, keys) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
+  const actual = Object.keys(value).sort()
+  const expected = [...keys].sort()
+  return actual.length === expected.length && actual.every((key, index) => key === expected[index])
 }
 
 /**
@@ -585,10 +672,15 @@ export function buildArchiveLine(message, { tenantId, replySource }) {
  *
  * @returns {Promise<{relativePath: string, fileSha256: string}>}
  */
-export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments }) {
+export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments, extension = '.zca' }) {
+  if (extension !== '.zca' && extension !== '.zcr') throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_EXTENSION_INVALID')
   const dir = path.join(baseDir, tenantId, String(now.getUTCFullYear()))
   if (!isPathInside(path.resolve(baseDir), path.resolve(dir))) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
-  await fs.mkdir(dir, { recursive: true })
+  try {
+    await fs.mkdir(dir, { recursive: true })
+  } catch (error) {
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_DIRECTORY_CREATE_FAILED', error)
+  }
   try {
     const rootRealPath = await fs.realpath(baseDir)
     const directoryRealPath = await fs.realpath(dir)
@@ -597,27 +689,42 @@ export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, 
     if (error instanceof ChatEvidenceArchiveWriteError) throw error
     throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_UNAVAILABLE', error)
   }
-  const finalPath = path.join(dir, `${runId}.zca`)
+  const finalPath = path.join(dir, `${runId}${extension}`)
   if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
 
-  const tempPath = path.join(dir, `.${runId}.zca.tmp-${randomBytes(4).toString('hex')}`)
+  const tempPath = path.join(dir, `.${runId}${extension}.tmp-${randomBytes(4).toString('hex')}`)
   const lines = [JSON.stringify(header), ...segments.map((segment) => JSON.stringify(segment))]
   const content = `${lines.join('\n')}\n`
   const expectedSha256 = createHash('sha256').update(content, 'utf8').digest('hex')
 
-  const handle = await fs.open(tempPath, 'wx')
+  let handle
+  try {
+    handle = await fs.open(tempPath, 'wx')
+  } catch (error) {
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_WRITE_FAILED', error)
+  }
+  let writeError = null
   try {
     await handle.writeFile(content, 'utf8')
     await handle.sync()
-  } finally {
+  } catch (error) {
+    writeError = error
+  }
+  try {
     await handle.close()
+  } catch (error) {
+    writeError ??= error
+  }
+  if (writeError) {
+    await fs.rm(tempPath, { force: true }).catch(() => {})
+    throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_WRITE_FAILED', writeError)
   }
 
   try {
     if (existsSync(finalPath)) throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_ALREADY_EXISTS')
     await fs.rename(tempPath, finalPath)
   } catch (error) {
-    await fs.rm(tempPath, { force: true })
+    await fs.rm(tempPath, { force: true }).catch(() => {})
     throw error instanceof ChatEvidenceArchiveWriteError ? error : new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_RENAME_FAILED', error)
   }
 
@@ -796,11 +903,6 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
 
   const messageIds = sealable.map((message) => message.id)
   const messageIdListHash = hashMessageIdList(messageIds)
-  const previous = await db.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
-  const previousManifestHash = previous?.manifestHash ?? null
-  const manifestHash = computeManifestHash({
-    tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestHash,
-  })
 
   // Everything above this line either produced exactly what this transaction
   // needs or already threw. Nothing below can run without a written, verified
@@ -810,6 +912,15 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   let archivedResult
   try {
     archivedResult = await db.$transaction(async (tx) => {
+      await lockTenantArchiveChain(tx, { tenantId })
+      const previous = await readArchiveChainTail(tx, tenantId)
+      if (!(await verifyManifestChain(tx, tenantId)).valid) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_INVALID')
+      }
+      const previousManifestHash = previous?.manifestHash ?? null
+      const manifestHash = computeManifestHash({
+        tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestHash,
+      })
       const manifest = await tx.archiveManifest.create({
         data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
       })
@@ -831,7 +942,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     // erasure has since destroyed), or no manifest for this run exists. Any other
     // error may be a commit whose outcome is unknown (the connection dropped after
     // COMMIT); if its manifest is there, the file is the only copy and stays.
-    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED'
+    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED' || ARCHIVE_CHAIN_UNCOMMITTED_CODES.has(error?.code)
     if (!unreferenced) {
       try {
         unreferenced = !(await db.archiveManifest.findFirst({ where: { tenantId, runId }, select: { id: true } }))
@@ -904,6 +1015,91 @@ function customerNotFound() {
 async function queryRaw(tx, sql, params = []) {
   if (typeof tx.$queryRawUnsafe === 'function') return tx.$queryRawUnsafe(sql, ...params)
   throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+}
+
+const ARCHIVE_CHAIN_CONFLICT_CODES = new Set(['P1008', 'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED'])
+function isArchiveChainConflict(error) {
+  if ([error?.code, error?.meta?.code, error?.cause?.code].some((code) => ARCHIVE_CHAIN_CONFLICT_CODES.has(code))) return true
+  return /database is (?:locked|busy)|SQLITE_(?:BUSY|LOCKED)|could not serialize|serialization failure|deadlock detected|lock timeout/i
+    .test(String(error?.message ?? ''))
+}
+
+/**
+ * Take the Tenant row as the shared append lock for the manifest chain.
+ * Call only with the open Prisma transaction that will create the manifest.
+ * PostgreSQL's no-op UPDATE marks the Tenant row version as well as retaining
+ * the row lock, so a Serializable waiter cannot continue with a stale snapshot;
+ * only `id` is assigned to itself, leaving logical fields and `updatedAt` alone.
+ * SQLite takes its writer reservation with the same-value UPDATE before any
+ * tail read; its positional bind marker is `?`.
+ */
+export async function lockTenantArchiveChain(tx, { tenantId, dialect = null } = {}) {
+  if (typeof tenantId !== 'string' || !tenantId || typeof tx?.$transaction === 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+  }
+  const provider = detectCrmDialect(tx, dialect)
+  if (!provider) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+
+  try {
+    if (provider === 'postgres') {
+      const rows = await queryArchiveChainRaw(
+        tx,
+        'SELECT "id" FROM "Tenant" WHERE "id" = $1 FOR UPDATE',
+        [tenantId],
+      )
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== tenantId) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+      }
+      const marked = await queryArchiveChainRaw(
+        tx,
+        'UPDATE "Tenant" SET "id" = "id" WHERE "id" = $1 RETURNING "id"',
+        [tenantId],
+      )
+      if (!Array.isArray(marked) || marked.length !== 1 || marked[0]?.id !== tenantId) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+      }
+      return
+    }
+
+    if (typeof tx?.$executeRawUnsafe !== 'function') {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+    }
+    const affected = await tx.$executeRawUnsafe(
+      'UPDATE "Tenant" SET "id" = "id" WHERE "id" = ?',
+      tenantId,
+    )
+    if (affected !== 1) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+  } catch (error) {
+    if (error instanceof ChatEvidenceArchiveTransactionError) throw error
+    if (isArchiveChainConflict(error)) {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE', error)
+    }
+    throw error
+  }
+}
+
+async function queryArchiveChainRaw(tx, sql, params) {
+  if (typeof tx?.$queryRawUnsafe !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+  }
+  return tx.$queryRawUnsafe(sql, ...params)
+}
+
+/** Return the unique leaf of a Tenant's persisted archive chain, or null. */
+export async function readArchiveChainTail(tx, tenantId) {
+  if (typeof tenantId !== 'string' || !tenantId
+    || typeof tx?.archiveManifest?.findMany !== 'function'
+    || typeof tx?.archiveManifest?.count !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
+  }
+  const tails = await tx.archiveManifest.findMany({
+    where: { tenantId, nextManifests: { none: {} } },
+    select: { id: true, manifestHash: true },
+  })
+  if (tails.length === 1) return tails[0]
+  if (tails.length > 1) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
+  if (await tx.archiveManifest.count({ where: { tenantId } }) === 0) return null
+  throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
 }
 
 /**

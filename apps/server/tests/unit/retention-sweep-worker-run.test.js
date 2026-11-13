@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce } from '../../scripts/retention-sweep-worker-run.mjs'
+import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce,
+  runRetentionSweepSequence, RETENTION_SWEEP_CALLS } from '../../scripts/retention-sweep-worker-run.mjs'
 
-// @req FR-230 — the testable core of the single-shot retention sweep worker:
+// @req FR-230, FR-245, SEC-034 — the testable core of the single-shot retention sweep worker:
 //   configuration validation, one authenticated call, and the one JSON line it
 //   ever logs. No customer content in any of the three.
-// @spec ADR-091 D1, D2
+// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0); SEC-001
 // @tested tests/unit/retention-sweep-worker-run.test.js
 
 const token = 't'.repeat(40)
@@ -81,6 +82,82 @@ describe('runRetentionSweepOnce', () => {
     expect(result).toEqual({ ok: false, status: 503, body: null })
   })
 
+  it('reports a per-Tenant sweep failure as unsuccessful even when the route returned 200', async () => {
+    const body = { auditEventId: 'partial-audit', countsByClass: {
+      AGENT_TRACE_EVENT: { redactedTurns: 12, tenantFailures: [{ tenantId: 'tenant-1', code: 'DB_UNAVAILABLE' }] },
+    } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
+  it.each([
+    ['archiveFailures', { tenantId: 'tenant-1', reason: 'ARCHIVE_FAILED' }],
+    ['settleFailures', { tenantId: 'tenant-1', reason: 'SETTLE_FAILED' }],
+  ])('reports a CRM %s failure from the actual countsByClass shape', async (failureKey, failure) => {
+    const body = { auditEventId: 'crm-audit', countsByClass: {
+      MESSAGE_BODY_AND_ATTACHMENTS: {
+        redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0,
+        [failureKey]: [failure],
+      },
+    } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
+  it('keeps the real clean CRM countsByClass shape successful', async () => {
+    const body = { auditEventId: 'crm-audit', countsByClass: {
+      MESSAGE_BODY_AND_ATTACHMENTS: {
+        redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0,
+      },
+    } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+
+    expect(result).toEqual({ ok: true, status: 200, body })
+  })
+
+  it('does not treat empty failure arrays as failures', async () => {
+    const body = { countsByClass: {
+      MESSAGE_BODY_AND_ATTACHMENTS: { archiveFailures: [], settleFailures: [], tenantFailures: [] },
+    } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+
+    const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
+
+    expect(result).toEqual({ ok: true, status: 200, body })
+  })
+
+  it('reports a skipped broken-chain archive Tenant as unsuccessful even when the route returned 200', async () => {
+    const body = { counts: { tenantsVisited: 2, skipped: 1, failures: 0 } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+    const archiveEndpoint = new URL('/api/crm/archive-expiry', endpoint.origin)
+    const result = await runRetentionSweepOnce({ endpoint: archiveEndpoint, token, fetchImpl })
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
+  it('reports an archive expiry Tenant failure as unsuccessful even when the route returned 200', async () => {
+    const body = { counts: { tenantsVisited: 2, skipped: 0, failures: 1 } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+    const archiveEndpoint = new URL('/api/crm/archive-expiry', endpoint.origin)
+    const result = await runRetentionSweepOnce({ endpoint: archiveEndpoint, token, fetchImpl })
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
+  it('reports deferred archive expiry Tenants as unsuccessful even when the route returned 200', async () => {
+    const body = { counts: { tenantsVisited: 2, tenantsDeferred: 1, skipped: 0, failures: 0 } }
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => body })
+    const archiveEndpoint = new URL('/api/crm/archive-expiry', endpoint.origin)
+    const result = await runRetentionSweepOnce({ endpoint: archiveEndpoint, token, fetchImpl })
+    expect(result).toEqual({ ok: false, status: 200, body })
+  })
+
   it('reports a network failure as UNAVAILABLE rather than throwing', async () => {
     const fetchImpl = vi.fn().mockRejectedValue(new Error('ECONNREFUSED'))
     const result = await runRetentionSweepOnce({ endpoint, token, fetchImpl })
@@ -98,6 +175,61 @@ describe('runRetentionSweepOnce', () => {
   })
 })
 
+describe('runRetentionSweepSequence', () => {
+  it('calls CRM, archive expiry, Integration and Agent in order and continues after a failure', async () => {
+    const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce({ ok: false, status: 503, json: async () => ({ error: 'unavailable' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ counts: { tenantsVisited: 1, skipped: 0, failures: 0 } }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'i1' }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ auditEventId: 'a1' }) })
+    const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl })
+    expect(result.ok).toBe(false)
+    expect(result.results.map(entry => entry.name)).toEqual(['crm', 'archive-expiry', 'integration', 'agent'])
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      'http://127.0.0.1:3000/api/crm/retention-sweep',
+      'http://127.0.0.1:3000/api/crm/archive-expiry',
+      'http://127.0.0.1:3000/api/integration/raw-retention-sweep',
+      'http://127.0.0.1:3000/api/agent/trace-retention-sweep',
+    ])
+    expect(fetchImpl).toHaveBeenCalledTimes(4)
+    expect(RETENTION_SWEEP_CALLS.map(call => call.event)).toEqual([
+      'crm.retention-sweep.tick', 'crm.archive-expiry.tick',
+      'integration.raw-line-retention-sweep.tick', 'agent.trace-retention-sweep.tick',
+    ])
+  })
+
+  it('dry-runs only the two supporting calls, appends the query, and logs explicit skips', async () => {
+    const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
+    const fetchImpl = vi.fn()
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ dryRun: true,
+        countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } }, tenants: [{ tenantId: 't1', redactedRawRecords: 3 }] }) })
+      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ dryRun: true,
+        countsByClass: { AGENT_TRACE_EVENT: { redactedTurns: 2, redactedEvents: 5 } }, tenants: [{ tenantId: 't2', redactedTurns: 2, redactedEvents: 5 }] }) })
+
+    const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl, dryRun: true })
+
+    expect(result.ok).toBe(true)
+    expect(RETENTION_SWEEP_CALLS.map(call => call.supportsDryRun)).toEqual([false, false, true, true])
+    expect(result.results.map(entry => entry.name)).toEqual(['crm', 'archive-expiry', 'integration', 'agent'])
+    expect(result.results.slice(0, 2).map(entry => entry.result)).toEqual([
+      { skipped: 'NO_DRY_RUN' }, { skipped: 'NO_DRY_RUN' },
+    ])
+    expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      'http://127.0.0.1:3000/api/integration/raw-retention-sweep?dry_run=true',
+      'http://127.0.0.1:3000/api/agent/trace-retention-sweep?dry_run=true',
+    ])
+    expect(result.results.map(entry => formatRetentionSweepLogLine(entry.result, entry.event))).toEqual([
+      JSON.stringify({ event: 'crm.retention-sweep.tick', skipped: 'NO_DRY_RUN' }),
+      JSON.stringify({ event: 'crm.archive-expiry.tick', skipped: 'NO_DRY_RUN' }),
+      JSON.stringify({ event: 'integration.raw-line-retention-sweep.tick', status: 200, dryRun: true,
+        countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } }, tenants: [{ tenantId: 't1', redactedRawRecords: 3 }] }),
+      JSON.stringify({ event: 'agent.trace-retention-sweep.tick', status: 200, dryRun: true,
+        countsByClass: { AGENT_TRACE_EVENT: { redactedTurns: 2, redactedEvents: 5 } }, tenants: [{ tenantId: 't2', redactedTurns: 2, redactedEvents: 5 }] }),
+    ])
+  })
+})
+
 describe('formatRetentionSweepLogLine', () => {
   it('produces one JSON line carrying only counts and status — never customer content', () => {
     const line = formatRetentionSweepLogLine({
@@ -107,6 +239,13 @@ describe('formatRetentionSweepLogLine', () => {
       event: 'crm.retention-sweep.tick', status: 200,
       auditEventId: 'a1', countsByClass: { MESSAGE_BODY_AND_ATTACHMENTS: { redactedMessages: 4 } }, alreadyRanToday: false,
     })
+  })
+
+  it('accepts the owning-domain event name for the additional sweep lines', () => {
+    const line = formatRetentionSweepLogLine({ ok: true, status: 200, body: { countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 1 } } } },
+      'integration.raw-line-retention-sweep.tick')
+    expect(JSON.parse(line)).toEqual({ event: 'integration.raw-line-retention-sweep.tick', status: 200,
+      countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 1 } } })
   })
 
   it('carries an error code instead of a body when the call itself failed', () => {

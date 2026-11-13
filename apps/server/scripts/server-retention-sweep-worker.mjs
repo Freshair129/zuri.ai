@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // @req FR-230 — single-shot nightly retention sweep worker: authenticate to
-//   POST /api/crm/retention-sweep once, log the JSON result, exit. Unlike
+//   POST /api/crm/retention-sweep, then the Integration and Agent sweep routes,
+//   log one JSON result for each and exit non-zero if any call fails. Unlike
 //   `server-line-worker.mjs` this is NOT a supervised polling loop — there is
 //   no cadence, no backoff, no SIGTERM/SIGINT handling to drain in-flight work,
 //   because there is never more than one in-flight call. The daily cadence is
@@ -13,9 +14,10 @@
 //   is a thin wrapper around; the wrapper itself is exercised by
 //   tests/unit/server-retention-sweep-worker-script.test.js (shape only, no
 //   live network call — see the file-shape checks there for why).
-import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepOnce } from './retention-sweep-worker-run.mjs'
+import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepSequence } from './retention-sweep-worker-run.mjs'
 
 const { endpoint, token } = resolveRetentionSweepWorkerConfig(process.env)
-const result = await runRetentionSweepOnce({ endpoint, token })
-console.log(formatRetentionSweepLogLine(result))
-process.exit(result.ok ? 0 : 1)
+const dryRun = process.argv.slice(2).includes('--dry-run')
+const result = await runRetentionSweepSequence({ endpoint, token, dryRun })
+for (const entry of result.results) console.log(formatRetentionSweepLogLine(entry.result, entry.event))
+process.exitCode = result.ok ? 0 : 1

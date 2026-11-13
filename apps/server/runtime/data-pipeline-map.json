@@ -26,13 +26,13 @@
     ]
   },
   "summary": {
-    "nodes": 82,
-    "edges": 114,
+    "nodes": 85,
+    "edges": 120,
     "chains": 22,
     "byKind": {
       "SOURCE": 13,
       "ENTRY": 24,
-      "PROCESS": 21,
+      "PROCESS": 24,
       "STORE": 17,
       "RECIPIENT": 7
     },
@@ -47,14 +47,14 @@
       "BLOCKED": 1,
       "DECLARED": 3,
       "PARTIAL": 2,
-      "CODE_TESTS": 36,
+      "CODE_TESTS": 39,
       "PRODUCTION": 20
     },
     "internalBySurface": {
       "NONE": 11,
       "WORKER": 12,
       "MCP": 0,
-      "ENDPOINT": 7,
+      "ENDPOINT": 10,
       "UI": 32
     }
   },
@@ -1381,6 +1381,45 @@
       "blocked": null
     },
     {
+      "id": "p.agent-trace-retention",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "AgentTraceEvent payload retention",
+      "detail": "90-day whole-turn redaction by createdAt; protects live jobs, pending memory delivery and open MSP erasure requests; production evidence: none",
+      "domain": "agent",
+      "requirements": [
+        {
+          "id": "FR-230",
+          "status": "verified",
+          "title": "Chat record and agent memory split with declared retention"
+        }
+      ],
+      "features": [
+        "FEAT-037"
+      ],
+      "decisions": [
+        "ADR-091"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/agent/trace-retention-sweep-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/agent/trace-retention-sweep"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-retention-sweep-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
       "id": "p.edge-execution",
       "kind": "PROCESS",
       "system": "edge",
@@ -1621,6 +1660,88 @@
         }
       ],
       "surfaceLevel": "WORKER",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.raw-line-retention",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "LINE OA raw payload retention",
+      "detail": "90-day LINE_OA payload tombstone by receivedAt; preserves envelope and fences admission/job readers; production evidence: none",
+      "domain": "integration",
+      "requirements": [
+        {
+          "id": "FR-230",
+          "status": "verified",
+          "title": "Chat record and agent memory split with declared retention"
+        }
+      ],
+      "features": [
+        "FEAT-037"
+      ],
+      "decisions": [
+        "ADR-091"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/platform/integrations/core/raw-line-retention-sweep-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/integration/raw-retention-sweep"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-retention-sweep-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.crm-archive-expiry",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "CRM chat archive expiry and chain retirement",
+      "detail": "Format-4 retirement row commits before expired archive file deletion; daily trigger follows the CRM archive writer",
+      "domain": "crm",
+      "requirements": [
+        {
+          "id": "FR-245",
+          "status": "verified",
+          "title": "Chat evidence cold archive"
+        }
+      ],
+      "features": [
+        "FEAT-041"
+      ],
+      "decisions": [
+        "ADR-093"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/crm/archive-expiry"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-retention-sweep-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
       "buildStatus": "CODE_TESTS",
       "evidence": null,
       "blocked": null
@@ -2696,6 +2817,22 @@
       "status": "PRODUCTION"
     },
     {
+      "id": "e.crm-to-archive-expiry",
+      "from": "s.crm",
+      "to": "p.crm-archive-expiry",
+      "label": "verified Tenant manifest chain and expired archive candidates",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.archive-expiry-to-crm",
+      "from": "p.crm-archive-expiry",
+      "to": "s.crm",
+      "label": "format-4 retirement manifest; delete only after commit",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
       "id": "e.legacy-to-raw",
       "from": "in.line-legacy",
       "to": "p.raw-ingestion",
@@ -2708,6 +2845,22 @@
       "from": "p.raw-ingestion",
       "to": "s.raw-records",
       "label": "raw record (redacted)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.raw-records-to-retention",
+      "from": "s.raw-records",
+      "to": "p.raw-line-retention",
+      "label": "expired LINE_OA payload + receivedAt / job fence",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.raw-retention-to-records",
+      "from": "p.raw-line-retention",
+      "to": "s.raw-records",
+      "label": "RETENTION_EXPIRED payload; envelope preserved",
       "wired": true,
       "status": "CODE_TESTS"
     },
@@ -2836,6 +2989,22 @@
       "from": "p.agent-turn",
       "to": "s.agent-trace",
       "label": "execution trace",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.trace-to-retention",
+      "from": "s.agent-trace",
+      "to": "p.agent-trace-retention",
+      "label": "expired whole turns by max createdAt",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.retention-to-trace",
+      "from": "p.agent-trace-retention",
+      "to": "s.agent-trace",
+      "label": "redacted payloads + RETENTION_TOMBSTONE",
       "wired": true,
       "status": "CODE_TESTS"
     },

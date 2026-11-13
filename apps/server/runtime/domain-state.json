@@ -1618,7 +1618,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-025",
@@ -1860,7 +1860,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 82
+          "testCount": 83
         },
         {
           "id": "FR-150",
@@ -1876,7 +1876,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-175",
@@ -1907,8 +1907,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "declared": "done",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 27
+          "codeCount": 7,
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -1940,7 +1940,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 17
+          "testCount": 18
         },
         {
           "id": "FR-235",
@@ -2066,9 +2066,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 6,
-            "inventoried": 6,
-            "openApiPaths": 373,
+            "routes": 7,
+            "inventoried": 7,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -2116,8 +2116,8 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 7,
-            "guardedMutations": 7,
+            "mutations": 8,
+            "guardedMutations": 8,
             "reads": 3,
             "unguardedReads": 0
           }
@@ -2305,8 +2305,8 @@
         }
       ],
       "details": {
-        "routes": 6,
-        "apiRoutes": 6,
+        "routes": 7,
+        "apiRoutes": 7,
         "pageRoutes": 0,
         "ownedModels": 5,
         "featureNotes": 18
@@ -2779,7 +2779,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -2937,7 +2937,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-023",
@@ -3089,7 +3089,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -3144,8 +3144,8 @@
           "title": "Chat evidence cold archive",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 4,
-          "testCount": 22
+          "codeCount": 7,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -3400,7 +3400,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -3966,7 +3966,7 @@
           "details": {
             "routes": 28,
             "inventoried": 26,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 1
           }
         },
@@ -4282,7 +4282,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-028",
@@ -4338,7 +4338,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-092",
@@ -4458,7 +4458,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 82
+          "testCount": 83
         },
         {
           "id": "FR-152",
@@ -4531,6 +4531,14 @@
           "status": "verified",
           "codeCount": 1,
           "testCount": 15
+        },
+        {
+          "id": "FR-230",
+          "title": "Chat record and agent memory split with declared retention",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 3,
+          "testCount": 38
         },
         {
           "id": "FR-236",
@@ -4618,9 +4626,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 18,
-            "inventoried": 18,
-            "openApiPaths": 373,
+            "routes": 19,
+            "inventoried": 19,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -4672,8 +4680,8 @@
           ],
           "gaps": [],
           "details": {
-            "mutations": 14,
-            "guardedMutations": 14,
+            "mutations": 15,
+            "guardedMutations": 15,
             "reads": 8,
             "unguardedReads": 0
           }
@@ -4749,8 +4757,8 @@
         }
       ],
       "details": {
-        "routes": 22,
-        "apiRoutes": 18,
+        "routes": 23,
+        "apiRoutes": 19,
         "pageRoutes": 4,
         "ownedModels": 22,
         "featureNotes": 14
@@ -5085,7 +5093,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -5477,6 +5485,14 @@
           "status": "verified",
           "codeCount": 3,
           "testCount": 5
+        },
+        {
+          "id": "FR-230",
+          "title": "Chat record and agent memory split with declared retention",
+          "declared": "done",
+          "status": "verified",
+          "codeCount": 1,
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -5878,7 +5894,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -5950,7 +5966,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 25,
-          "testCount": 82
+          "testCount": 83
         },
         {
           "id": "FR-150",
@@ -5990,7 +6006,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 39
         },
         {
           "id": "FR-190",
@@ -6223,7 +6239,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6464,7 +6480,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6716,7 +6732,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7124,7 +7140,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7349,7 +7365,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 373,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7599,7 +7615,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 53
+          "testCount": 56
         },
         {
           "id": "FR-026",
@@ -7927,7 +7943,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 26
+          "testCount": 27
         },
         {
           "id": "FR-082",
@@ -8352,7 +8368,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 82
+          "testCount": 83
         },
         {
           "id": "FR-150",
@@ -8768,7 +8784,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 27
+          "testCount": 38
         },
         {
           "id": "FR-233",
@@ -8823,8 +8839,8 @@
           "title": "Chat evidence cold archive",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 22
+          "codeCount": 4,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -9469,9 +9485,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 201,
-            "inventoried": 201,
-            "openApiPaths": 373,
+            "routes": 202,
+            "inventoried": 202,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -9536,8 +9552,8 @@
             }
           ],
           "details": {
-            "mutations": 151,
-            "guardedMutations": 150,
+            "mutations": 152,
+            "guardedMutations": 151,
             "reads": 94,
             "unguardedReads": 12
           }
@@ -10233,8 +10249,8 @@
         }
       ],
       "details": {
-        "routes": 249,
-        "apiRoutes": 201,
+        "routes": 250,
+        "apiRoutes": 202,
         "pageRoutes": 48,
         "ownedModels": 53,
         "featureNotes": 45
@@ -12586,7 +12602,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 49,
-          "testCount": 82
+          "testCount": 83
         },
         {
           "id": "FR-150",
@@ -12658,6 +12674,7 @@
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
         "apps/server/tests/integration/agent-request-envelope.test.js",
+        "apps/server/tests/integration/agent-trace-retention-sweep.test.js",
         "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/conversation-runtime-answer-parity.test.js",
@@ -14814,6 +14831,7 @@
         "agent",
         "crm",
         "identity",
+        "integration",
         "knowledge",
         "line-oa-studio",
         "project-manager"
@@ -14841,8 +14859,8 @@
           "title": "Chat record and agent memory split with declared retention",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 27
+          "codeCount": 17,
+          "testCount": 38
         },
         {
           "id": "FR-231",
@@ -14874,7 +14892,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 17
+          "testCount": 18
         }
       ],
       "evidence": [
@@ -14883,9 +14901,11 @@
         "apps/edge/tests/unit/context-injection.test.ts",
         "apps/edge/tests/unit/context-invocation-provider.test.ts",
         "apps/server/src/app/api/agent/memory-retention/route.js",
+        "apps/server/src/app/api/agent/trace-retention-sweep/route.js",
         "apps/server/src/app/api/crm/conversations/event-counts/route.js",
         "apps/server/src/app/api/crm/conversations/search/route.js",
         "apps/server/src/app/api/crm/retention-sweep/route.js",
+        "apps/server/src/app/api/integration/raw-retention-sweep/route.js",
         "apps/server/src/lib/validation/enums.js",
         "apps/server/src/modules/agent/context-composer.js",
         "apps/server/src/modules/agent/edge-context-receipt.js",
@@ -14896,6 +14916,7 @@
         "apps/server/src/modules/agent/msp-stdio-transport.js",
         "apps/server/src/modules/agent/msp-thread-memory-port.js",
         "apps/server/src/modules/agent/server-line-answer.js",
+        "apps/server/src/modules/agent/trace-retention-sweep-service.js",
         "apps/server/src/modules/crm/conversation-preview-service.js",
         "apps/server/src/modules/crm/conversation-read-model.js",
         "apps/server/src/modules/crm/conversation-redaction-service.js",
@@ -14910,12 +14931,16 @@
         "apps/server/src/modules/identity/customer-memory-erasure.js",
         "apps/server/src/modules/identity/erase-principal.js",
         "apps/server/src/modules/knowledge/application/knowledge-candidate-erasure-service.js",
+        "apps/server/src/modules/knowledge/application/knowledge-gap-report-service.js",
         "apps/server/src/modules/line-oa-studio/application/line-conversation-jobs.js",
         "apps/server/src/modules/line-oa-studio/application/line-oa-account-service.js",
         "apps/server/src/modules/line-oa-studio/domain/line-oa-account.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
+        "apps/server/src/platform/integrations/core/raw-line-retention-sweep-service.js",
+        "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+        "apps/server/tests/integration/agent-trace-retention-sweep.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/credential-vault-lifecycle.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
@@ -14935,6 +14960,7 @@
         "apps/server/tests/integration/fr225-line-oa-self-serve-onboarding.test.js",
         "apps/server/tests/integration/fr227-line-oa-webhook-registration.test.js",
         "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+        "apps/server/tests/integration/fr237-knowledge-gap-report.test.js",
         "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/identity-erase-group-speakers.test.js",
         "apps/server/tests/integration/identity-erase-speaker-events.test.js",
@@ -14953,10 +14979,12 @@
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
+        "apps/server/tests/integration/raw-line-retention-sweep.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
+        "apps/server/tests/unit/agent-trace-retention-sweep-route.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-read-model.test.js",
@@ -14967,6 +14995,7 @@
         "apps/server/tests/unit/customer-consent-service.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
+        "apps/server/tests/unit/knowledge-gap-report-service.test.js",
         "apps/server/tests/unit/line-execution-trace.test.js",
         "apps/server/tests/unit/line-gks-citation-fence.test.js",
         "apps/server/tests/unit/line-oa-account-domain.test.js",
@@ -14976,8 +15005,11 @@
         "apps/server/tests/unit/msp-stdio-transport.test.js",
         "apps/server/tests/unit/plan-schema.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
+        "apps/server/tests/unit/raw-line-retention-sweep-route.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/retention-override-resolver.test.js",
         "apps/server/tests/unit/retention-sweep-worker-run.test.js",
+        "apps/server/tests/unit/retention-sweeper-job-statuses.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
         "apps/server/tests/unit/server-retention-sweep-worker-script.test.js",
         "services/conversation-runtime/src/context.js",
@@ -15392,8 +15424,8 @@
           "title": "Chat evidence cold archive",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
-          "testCount": 22
+          "codeCount": 11,
+          "testCount": 28
         },
         {
           "id": "FR-246",
@@ -15406,10 +15438,14 @@
       ],
       "evidence": [
         "apps/server/src/app/(pm)/customer/conversations/page.jsx",
+        "apps/server/src/app/api/crm/archive-expiry/route.js",
         "apps/server/src/app/api/crm/conversations/[id]/reply/route.js",
         "apps/server/src/app/api/crm/customers/[customerId]/chat-evidence/retrieve/route.js",
         "apps/server/src/modules/crm/chat-evidence-archive-crypto.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js",
+        "apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js",
         "apps/server/src/modules/crm/chat-evidence-archive-service.js",
+        "apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js",
         "apps/server/src/modules/crm/chat-evidence-retrieval-service.js",
         "apps/server/src/modules/crm/reply-record-service.js",
         "apps/server/src/modules/crm/retention-sweep-service.js",
@@ -15417,6 +15453,8 @@
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
+        "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-archive-retirement.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -15435,12 +15473,16 @@
         "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/archive-storage-readiness.test.js",
+        "apps/server/tests/unit/crm-archive-expiry-route.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
+        "apps/server/tests/unit/crm-chat-evidence-archive-expiry-run.test.js",
         "apps/server/tests/unit/crm-legal-hold-migration.test.js",
+        "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
         "apps/server/tests/unit/pricing-backup.test.js",
-        "apps/server/tests/unit/reply-record-service.test.js"
+        "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/retention-sweep-worker-run.test.js"
       ]
     },
     {
@@ -16788,7 +16830,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 36,
-          "testCount": 53
+          "testCount": 56
         }
       ],
       "evidence": [
@@ -16830,12 +16872,14 @@
         "apps/server/src/platform/integrations/core/raw-record-redaction.js",
         "apps/server/tests/integration/agent-action-gate.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
+        "apps/server/tests/integration/agent-trace-retention-sweep.test.js",
         "apps/server/tests/integration/agent-turn.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
+        "apps/server/tests/integration/crm-archive-retirement.test.js",
         "apps/server/tests/integration/crm-chat-evidence-archive.test.js",
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
@@ -16867,6 +16911,7 @@
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-recovery.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
+        "apps/server/tests/integration/raw-line-retention-sweep.test.js",
         "apps/server/tests/integration/release-safety-backup.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -19431,7 +19476,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 26
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -19461,6 +19506,7 @@
         "apps/server/tests/integration/marketing-content-backup.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
+        "apps/server/tests/integration/raw-line-retention-sweep.test.js",
         "apps/server/tests/integration/server-line-webhook.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -20976,7 +21022,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 38
+          "testCount": 39
         }
       ],
       "evidence": [
@@ -21002,6 +21048,7 @@
         "apps/server/tests/integration/agent-msp-port.test.js",
         "apps/server/tests/integration/agent-msp-thread-memory.test.js",
         "apps/server/tests/integration/agent-multi-principal.test.js",
+        "apps/server/tests/integration/agent-trace-retention-sweep.test.js",
         "apps/server/tests/integration/conversation-runtime-catalog-command.test.js",
         "apps/server/tests/integration/conversation-runtime-group-room.test.js",
         "apps/server/tests/integration/conversation-runtime-legacy-parity.test.js",

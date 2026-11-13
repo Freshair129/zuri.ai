@@ -23,9 +23,10 @@ afterEach(async () => {
   }
 })
 
-function fakeErasureTransaction({ tenantId, erasedCustomerId, heldCustomerId, conversationId, speakerIdentityId, speakerPersonId, holdId, speakerAt, messageAt }) {
+function fakeErasureTransaction({ tenantId, erasedCustomerId, heldCustomerId, conversationId, speakerIdentityId, speakerPersonId, holdId, speakerAt, messageAt, affectedRows = 1 }) {
   return {
     _activeProvider: 'sqlite',
+    $executeRawUnsafe: vi.fn().mockResolvedValue(affectedRows),
     customerRetentionConsent: {
       count: vi.fn().mockResolvedValue(1),
       findFirst: vi.fn().mockResolvedValue({ tenantId, customerId: heldCustomerId, revokedAt: null }),
@@ -51,8 +52,11 @@ function fakeErasureTransaction({ tenantId, erasedCustomerId, heldCustomerId, co
       findFirst: vi.fn().mockResolvedValue({ id: holdId, tenantId, customerId: heldCustomerId, endDate: new Date('2099-01-01T00:00:00.000Z') }),
     },
     archiveManifest: {
-      findMany: vi.fn().mockResolvedValue([]),
-      findFirst: vi.fn().mockRejectedValue(new Error('manifest read failed after archive write')),
+      count: vi.fn().mockResolvedValue(0),
+      findMany: vi.fn(async ({ where } = {}) => {
+        if (where && 'nextManifests' in where) throw new Error('manifest read failed after archive write')
+        return []
+      }),
     },
     legalHoldArchiveKey: {
       findUnique: vi.fn().mockResolvedValue(null),
@@ -63,7 +67,7 @@ function fakeErasureTransaction({ tenantId, erasedCustomerId, heldCustomerId, co
 }
 
 describe('FR-022 legal-hold re-seal file error propagation', () => {
-  it('attaches rollback cleanup metadata when archiveManifest.findFirst fails after the file write', async () => {
+  it('attaches rollback cleanup metadata when the chain tail read fails after the file write', async () => {
     const tenantId = `tenant-${randomUUID()}`
     const erasedCustomerId = `erased-${randomUUID()}`
     const heldCustomerId = `held-${randomUUID()}`
@@ -108,6 +112,60 @@ describe('FR-022 legal-hold re-seal file error propagation', () => {
     }
 
     expect(caught).toMatchObject({ message: 'manifest read failed after archive write' })
+    expect(caught.archiveFile).toMatchObject({
+      runId: expect.any(String),
+      relativePath: expect.stringMatching(new RegExp(`^${tenantId}/2026/.*\\.zca$`)),
+      baseDir,
+    })
+    await expect(fs.stat(path.join(baseDir, caught.archiveFile.relativePath))).resolves.toBeTruthy()
+  })
+
+  it('attaches rollback cleanup metadata when the archive chain lock finds no tenant after the file write', async () => {
+    const tenantId = `tenant-${randomUUID()}`
+    const erasedCustomerId = `erased-${randomUUID()}`
+    const heldCustomerId = `held-${randomUUID()}`
+    const conversationId = `conversation-${randomUUID()}`
+    const speakerIdentityId = `identity-${randomUUID()}`
+    const speakerPersonId = `person-${randomUUID()}`
+    const holdId = `hold-${randomUUID()}`
+    const now = new Date('2026-10-23T12:00:00.000Z')
+    const messageAt = new Date(now.getTime() - 5_000)
+    const tx = fakeErasureTransaction({
+      tenantId, erasedCustomerId, heldCustomerId, conversationId, speakerIdentityId, speakerPersonId, holdId,
+      speakerAt: new Date(messageAt.getTime() - 1_000), messageAt, affectedRows: 0,
+    })
+    const capturedLines = [{
+      id: `message-${randomUUID()}`,
+      conversationId,
+      direction: 'INBOUND',
+      body: 'captured held evidence',
+      contentKind: 'TEXT',
+      sessionId: null,
+      createdAt: messageAt,
+      externalMessageId: `external-${randomUUID()}`,
+      authorChannelIdentityId: speakerIdentityId,
+      conversation: { id: conversationId, customerId: erasedCustomerId, businessId: `business-${randomUUID()}` },
+      attachments: [],
+    }]
+
+    let caught
+    try {
+      await resealErasedEvidenceUnderLegalHolds(tx, {
+        tenantId,
+        erasedCustomerIds: [erasedCustomerId],
+        speakerChannelIdentityIds: [speakerIdentityId],
+        capturedLines,
+        now,
+        env: { NODE_ENV: 'test' },
+        baseDir,
+        includeArchivedCustomerLines: false,
+      })
+    } catch (error) {
+      caught = error
+    }
+
+    expect(tx.$executeRawUnsafe).toHaveBeenCalledWith('UPDATE "Tenant" SET "id" = "id" WHERE "id" = ?', tenantId)
+    expect(caught).toMatchObject({ code: 'ARCHIVE_TENANT_NOT_FOUND' })
     expect(caught.archiveFile).toMatchObject({
       runId: expect.any(String),
       relativePath: expect.stringMatching(new RegExp(`^${tenantId}/2026/.*\\.zca$`)),

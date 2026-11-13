@@ -429,12 +429,20 @@ describe('OpenAPI document', () => {
       // FR-235 adds owner-only product disclosure GET/POST on one path.
       // OR3 adds three gated paths/operations to the current Office inventory.
       // FR-293 adds seven transfer paths plus the actor-bound job recovery list.
-      pathCount: 373,
+      // FR-230 adds the Integration raw-record and Agent trace retention sweeps;
+      // FR-245 adds the CRM archive-expiry trigger: three paths and operations.
+      pathCount: 376,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
       // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
       // Register page's ready-intake list): one operation, no new path.
-      operationCount: 489,
+      operationCount: 492,
     })
+    const archiveExpiry = doc.paths['/api/crm/archive-expiry'].post
+    expect(archiveExpiry.security).toEqual([{ RetentionSweepOperator: [] }])
+    expect(archiveExpiry['x-zuri-contract']).toBe('chat-evidence-archive-expiry/v1')
+    expect(archiveExpiry.requestBody).toBeUndefined()
+    expect(archiveExpiry.responses['200'].content['application/json'].schema.required).toEqual(['counts', 'alreadyRanToday'])
+    expect(archiveExpiry.description).toContain('format-4 retirement file')
     expect(doc.paths['/api/growth/line-sales'].get).toBeTruthy()
     expect(doc.paths['/api/agent/memory-retention'].post.security).toEqual([{ MspRetentionOperator: [] }])
     expect(doc.paths['/api/agent/memory-retention'].post.requestBody.required).toBe(false)
