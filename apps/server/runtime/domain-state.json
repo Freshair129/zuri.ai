@@ -3804,7 +3804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-232",
@@ -3836,8 +3836,8 @@
           "title": "Project Feature authority",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 51
+          "codeCount": 6,
+          "testCount": 54
         },
         {
           "id": "FR-293",
@@ -4499,7 +4499,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -4507,7 +4507,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -6031,7 +6031,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -6039,7 +6039,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -8753,7 +8753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -8761,7 +8761,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-226",
@@ -8897,7 +8897,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 51
+          "testCount": 54
         },
         {
           "id": "FR-253",
@@ -14671,7 +14671,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -14679,7 +14679,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -14797,6 +14797,7 @@
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",
         "apps/server/tests/unit/integration/channel-account-claim-migration.test.js",
+        "apps/server/tests/unit/integration/credential-route-body-cap.test.js",
         "apps/server/tests/unit/integration/credential-vault-migrations.test.js",
         "apps/server/tests/unit/integration/credential-vault-schema-contract.test.js",
         "apps/server/tests/unit/integration/dispatching-secret-manager.test.js",
@@ -21537,8 +21538,8 @@
           "title": "Project Feature authority",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 28,
-          "testCount": 51
+          "codeCount": 30,
+          "testCount": 54
         }
       ],
       "evidence": [
@@ -21553,9 +21554,11 @@
         "apps/server/src/app/api/projects/[id]/features/[featureId]/work-links/route.js",
         "apps/server/src/app/api/projects/[id]/features/route.js",
         "apps/server/src/app/api/projects/[id]/governance-snapshots/route.js",
+        "apps/server/src/middleware.js",
         "apps/server/src/modules/identity/api-write-csrf.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
+        "apps/server/src/modules/identity/same-origin-write.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -21611,6 +21614,9 @@
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/api-write-csrf-route.test.js",
         "apps/server/tests/unit/identity/api-write-csrf.test.js",
+        "apps/server/tests/unit/identity/same-origin-write.test.js",
+        "apps/server/tests/unit/identity/write-client-origin-contract.test.js",
+        "apps/server/tests/unit/identity/write-route-coverage.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/phase-b-backup.test.js",
         "apps/server/tests/unit/phase-b-feature-migration.test.js",
