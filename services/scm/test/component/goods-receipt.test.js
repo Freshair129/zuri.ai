@@ -1,3 +1,6 @@
+// @req FR-165, FR-175 — PO → GRN → Stock → PO state through the real SCM use cases and store.
+// @spec ADR-074 D3 — this separate port refuses receipt cost inputs until it owns the provenance flow.
+// @tested test/component/goods-receipt.test.js
 // PO → GRN → Stock → PO state through the real SCM use cases and store.
 // Acceptance B8, B11 (receipt half), C17, C18 — see SCM-HANDOFF.md.
 import { test, describe, beforeEach, afterEach } from 'node:test'
@@ -10,8 +13,32 @@ let h
 beforeEach(() => { h = createHarness() })
 afterEach(() => h.close())
 const receiver = (role = ROLES.receiverFull, extra = {}) => h.as({ sub: 'person-receiver', grants: { [BIZ]: role }, ...extra })
+const sentOrderInCurrency = async (lines, currency) => {
+  const buyer = h.as({ sub: 'person-buyer' })
+  const { supplier } = await h.run(buyer, 'procurement.supplier.create', {
+    body: { businessId: BIZ, code: `SUP-${Math.random().toString(36).slice(2, 8)}`, name: 'Synthetic Supplier Co.' },
+  })
+  const { order } = await h.run(buyer, 'procurement.purchase-order.create', {
+    body: { businessId: BIZ, supplierId: supplier.id, currency, lines },
+  })
+  const sent = await h.run(buyer, 'procurement.purchase-order.action', {
+    targetId: order.id, body: { action: 'SEND', version: order.version },
+  })
+  return sent.order
+}
 
 describe('happy path and readback', () => {
+  test('a THB receipt keeps the agreed purchase-order cost in satang', async () => {
+    const order = await sentOrderInCurrency([{ productId: PRODUCTS.plain.id, qty: 2, unitCost: 3.45 }], 'THB')
+    const result = await h.run(receiver(), GRN, {
+      targetId: order.id, body: { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 2 }] },
+    })
+
+    assert.equal(result.order.currency, 'THB')
+    assert.equal(result.posted[0].costSatang, 345)
+    assert.equal(await h.count('StockMovement'), 1)
+  })
+
   test('partial then completing receipt: GRN, ledger, lot, PO state, audit, outbox and receipts agree', async () => {
     const order = await h.sentOrder([
       { productId: PRODUCTS.plain.id, qty: 10, unitCost: 12.5 },
@@ -49,6 +76,12 @@ describe('happy path and readback', () => {
     const lot = await h.store.read((sql) => sql.get("SELECT * FROM ProductLot WHERE code = 'LOT-SYN-1'"))
     assert.equal(lot.receivedQty, 4)
     assert.equal(lot.expiresAt, '2027-01-31T00:00:00.000Z')
+    assert.equal(lot.version, 3, 'create + receipt movement + Inventory expiry CAS')
+    const expiryAudit = await h.store.read((sql) => sql.get("SELECT payloadJson FROM ScmAuditEvent WHERE entityType = 'PRODUCT_LOT' AND entityId = ? AND action = 'PRODUCT_LOT_EXPIRY_SET'", lot.id))
+    assert.deepEqual(JSON.parse(expiryAudit.payloadJson), {
+      businessId: BIZ, lotCode: 'LOT-SYN-1', productId: PRODUCTS.lot.id,
+      expiresAt: '2027-01-31T00:00:00.000Z', previous: null, version: 3,
+    })
     const refs = await h.store.read((sql) => sql.all('SELECT DISTINCT reference FROM StockMovement').map((r) => r.reference))
     assert.deepEqual(refs.sort(), [`PO:${order.code}/GRN:${first.receipt.code}`, `PO:${order.code}/GRN:${second.receipt.code}`].sort())
     const audit = await h.store.read((sql) => sql.all('SELECT action FROM ScmAuditEvent').map((r) => r.action))
@@ -56,6 +89,15 @@ describe('happy path and readback', () => {
     const fence = await h.store.read((sql) => sql.get('SELECT mutationRevision FROM InventoryLedgerFence').mutationRevision)
     assert.equal(fence, 3, 'one fence advance per ledger append')
     assert.equal(await h.count('ScmOperationReceipt'), 5)
+
+    const followupOrder = await h.sentOrder([{ productId: PRODUCTS.lot.id, qty: 2, unitCost: 3 }])
+    await h.run(receiver(), GRN, { targetId: followupOrder.id, body: {
+      lines: [{ purchaseOrderLineId: followupOrder.lines[0].id, qty: 2, lotCode: 'LOT-SYN-1', expiresAt: '2030-01-01T00:00:00.000Z' }],
+    } })
+    const lotAfterFollowup = await h.store.read((sql) => sql.get("SELECT expiresAt, version FROM ProductLot WHERE id = ?", lot.id))
+    assert.equal(lotAfterFollowup.expiresAt, '2027-01-31T00:00:00.000Z')
+    assert.equal(lotAfterFollowup.version, 4)
+    assert.equal(await h.store.read((sql) => sql.get("SELECT COUNT(*) AS count FROM ScmAuditEvent WHERE entityType = 'PRODUCT_LOT' AND entityId = ? AND action = 'PRODUCT_LOT_EXPIRY_SET'", lot.id).count), 1)
 
     await h.reopen()
     const again = await h.bus.queries.purchaseOrder(receiver(), order.id)
@@ -110,6 +152,56 @@ describe('idempotency and recovery', () => {
 })
 
 describe('refusals (legacy parity)', () => {
+  test('a foreign-currency receipt with a counted line is refused before any write', async () => {
+    const order = await sentOrderInCurrency([{ productId: PRODUCTS.plain.id, qty: 2, unitCost: 1 }], 'usd')
+    const before = await h.snapshot()
+
+    const error = await rejects(h.run(receiver(), GRN, {
+      targetId: order.id, body: { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }] },
+    }), { status: 422, code: 'PROCUREMENT_RECEIPT_FX_RATE_REQUIRED' })
+
+    assert.deepEqual(error.details, { currency: 'USD' })
+    assert.deepEqual(await h.snapshot(), before)
+  })
+
+  test('a foreign-currency receipt with only an uncounted free-text line posts', async () => {
+    const order = await sentOrderInCurrency([{ description: 'Inbound freight', qty: 1, unitCost: 5 }], 'USD')
+    const result = await h.run(receiver(), GRN, {
+      targetId: order.id, body: { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }] },
+    })
+
+    assert.equal(result.receipt.purchaseOrderId, order.id)
+    assert.equal(result.order.status, 'RECEIVED')
+    assert.deepEqual(result.posted, [])
+    assert.equal(await h.count('GoodsReceipt'), 1)
+    assert.equal(await h.count('StockMovement'), 0)
+  })
+
+  test('receipt cost provenance inputs are refused before any SCM write', async () => {
+    const order = await h.sentOrder([{ productId: PRODUCTS.plain.id, qty: 5, unitCost: 1 }])
+    const before = await h.snapshot()
+    const cases = [
+      { landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 10 }] },
+      { fxCostSheetId: 'cost-sheet-not-supported-in-scm' },
+    ]
+    for (const costInput of cases) {
+      await rejects(h.run(receiver(), GRN, {
+        targetId: order.id,
+        body: { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }], ...costInput },
+      }), { status: 422, code: 'PROCUREMENT_RECEIPT_COST_INPUTS_NOT_SUPPORTED' })
+      assert.deepEqual(await h.snapshot(), before)
+    }
+    await assert.rejects(h.run(receiver(), GRN, {
+      targetId: order.id,
+      body: { lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }], batchCostSatang: 2147483648 },
+    }), (error) => {
+      assert.equal(error.name, 'ZodError')
+      assert.ok(error.issues.some((issue) => issue.code === 'too_big' && issue.path.join('.') === 'batchCostSatang'))
+      return true
+    })
+    assert.deepEqual(await h.snapshot(), before)
+  })
+
   test('over-receipt is refused whole with the per-line list', async () => {
     const order = await h.sentOrder([{ productId: PRODUCTS.plain.id, qty: 3, unitCost: 1 }])
     const before = await h.snapshot()

@@ -2184,6 +2184,9 @@ erDiagram
         uuid     purchaseOrderId   FK
         string   supplierReference     "เลขที่ใบส่งของของผู้ขาย — attribute"
         string   notes
+        uuid     fxCostSheetId     FK  "SupplierCostSheet ที่ล็อกอัตรา FX (PO ต่างสกุล)"
+        float    fxRateLocked          "อัตราที่ล็อก — rate ไม่ใช่เงิน"
+        string   landedCostsJson       "ส่วนประกอบ landed cost ที่บันทึก"
         datetime receivedAt
         uuid     postedByPersonId      "scalar"
     }
@@ -2196,6 +2199,7 @@ erDiagram
         string   lotCode                 "Lot ที่ตั้งชื่อหรือสร้างใน ledger"
         datetime expiresAt               "ตั้งบน lot ที่ยังไม่มีวันหมดอายุ"
         string   serialNosJson           "JSON array ของ serial ที่รับ"
+        int      unitCostSatang          "landed unit cost ที่คำนวณและส่งเข้า ledger"
     }
 ```
 

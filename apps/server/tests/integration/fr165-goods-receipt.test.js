@@ -7,16 +7,20 @@
 //   receipt that completes every line makes the order RECEIVED; audit.
 // @spec ADR-066; ADR-054 D3/D4; BR-002; SEC-001; FR-072; FR-155
 // @tested tests/integration/fr165-goods-receipt.test.js
-import { beforeAll, describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it, vi } from 'vitest'
 import prisma from '@/lib/db'
+import * as inventory from '@/modules/inventory'
+import * as procurementDomain from '@/modules/procurement/domain/procurement'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ROLE_GOODS_RECEIVER, ROLE_INVENTORY_MANAGER, ROLE_PROCUREMENT_BUYER } from '@/modules/identity/rbac'
 import { createCategory, createProduct, createProductMaster, getProduct } from '@/modules/inventory/application/inventory-catalog-service'
-import { listLots, listSerialUnits, recordMovement, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
+import { createLot, listLots, listSerialUnits, recordMovement, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
 import { createSupplier } from '@/modules/procurement/application/supplier-service'
 import { applyPurchaseOrderAction, createPurchaseOrder, getPurchaseOrder } from '@/modules/procurement/application/purchase-order-service'
 import { listGoodsReceipts, postGoodsReceipt, listAllGoodsReceipts, getGoodsReceiptDetail } from '@/modules/procurement/application/goods-receipt-service'
+import { commitSupplierCostSheet, previewSupplierCostSheet } from '@/modules/procurement/application/supplier-cost-sheet-service'
+import { zPostReceipt } from '@/modules/procurement/domain/procurement'
 
 const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'procurement', 'inventory']
@@ -50,11 +54,39 @@ describe('FR-165 GoodsReceipt', () => {
     supplier = await createSupplier({ businessId: b(), code: 'SUP-GRN', name: 'ผู้ขายกล่อง' }, { viewer: owner })
   })
 
-  const sentOrder = async (lines, viewer = owner) => {
-    const order = await createPurchaseOrder({ businessId: b(), supplierId: supplier.id, lines }, { viewer, now: NOW })
+  const sentOrder = async (lines, viewer = owner, currency = 'THB') => {
+    const order = await createPurchaseOrder({ businessId: b(), supplierId: supplier.id, currency, lines }, { viewer, now: NOW })
     return applyPurchaseOrderAction(order.id, { action: 'SEND', version: 1 }, { viewer, now: NOW })
   }
   const lineOf = (order, description) => order.lines.find((l) => l.description === description)
+  let sheetSequence = 0
+  const nextSheetHash = () => (++sheetSequence).toString(16).padStart(64, '0')
+  const makeCostSheet = async ({
+    businessId = b(), supplierId = supplier.id, currency = 'USD', fxRateLocked = 34,
+    sourceSku = box.code, productId = box.id, viewer = owner, confirm = false,
+  } = {}) => {
+    const preview = await previewSupplierCostSheet({
+      businessId, supplierId, currency, fxRateLocked, sourceSha256: nextSheetHash(),
+      lines: [{ sku: sourceSku, minQty: 1, unitCostForeign: 1.25 }],
+    }, { viewer })
+    if (!confirm) return preview.sheet
+    const committed = await commitSupplierCostSheet({
+      businessId, sheetId: preview.sheet.id, previewHash: preview.sheet.preview.hash,
+      mappings: [{ sourceSku, productId, confirmed: true }],
+    }, { viewer })
+    return committed.sheet
+  }
+  const createOtherScope = async (suffix) => {
+    const portfolio = await createPortfolio({ name: `Receipt Group ${suffix}`, code: `PF-${suffix}` })
+    const tenant = await createTenant({ portfolioId: portfolio.id, name: `Receipt Tenant ${suffix}`, code: `TNT-${suffix}` })
+    const otherBusiness = await createBusiness({ tenantId: tenant.id, name: `Receipt Business ${suffix}`, code: `BUS-${suffix}` })
+    const otherOwner = makeViewer({ visibleBusinessIds: [otherBusiness.id], ownedBusinessIds: [otherBusiness.id], visibleDomains: DOMAINS, principal: { id: `per-${suffix}-owner`, code: `PER-${suffix}-OWNER`, displayName: 'Owner' } })
+    const category = await createCategory({ businessId: otherBusiness.id, code: `CAT-${suffix}`, nameTh: 'ของใช้', nameEn: 'Goods' }, { viewer: otherOwner })
+    const master = await createProductMaster({ businessId: otherBusiness.id, code: `PM-${suffix}`, categoryId: category.id, nameTh: 'สินค้า', nameEn: 'Goods' }, { viewer: otherOwner })
+    const product = await createProduct({ businessId: otherBusiness.id, code: `SKU-${suffix}`, productMasterId: master.id, name: 'Other business stock', trackingMode: 'LOT' }, { viewer: otherOwner })
+    const otherSupplier = await createSupplier({ businessId: otherBusiness.id, code: `SUP-${suffix}`, name: 'Other business supplier' }, { viewer: otherOwner })
+    return { business: otherBusiness, owner: otherOwner, product, supplier: otherSupplier }
+  }
 
   it('AC-165.1 — a receipt posts counted lines into the Inventory ledger with the PO/GRN reference, and needs Inventory authority for that half', async () => {
     const order = await sentOrder([{ productId: box.id, qty: 5, unitCost: 20 }, { productId: service.id, qty: 2, unitCost: 30 }, { description: 'ค่าขนส่ง', qty: 1, unitCost: 100 }])
@@ -138,10 +170,15 @@ describe('FR-165 GoodsReceipt', () => {
     expect(first.receipt.lines[0]).toMatchObject({ qty: 4, lotCode: 'TEA-2026-09', serialNos: [] })
     let lots = await listLots({ businessId: b(), productId: lotted.id, viewer: owner })
     expect(lots.map((l) => [l.code, l.receivedQty, l.expiresAt])).toEqual([['TEA-2026-09', 4, new Date('2027-09-01T00:00:00Z')]])
+    expect(lots[0].version).toBe(3) // create + received quantity + first expiry
+    const expiryAudit = await prisma.auditEvent.findFirst({ where: { entityType: 'PRODUCT_LOT', entityId: first.posted[0].lotId, action: 'PRODUCT_LOT_EXPIRY_SET' } })
+    expect(JSON.parse(expiryAudit.payloadJson)).toMatchObject({ businessId: b(), lotCode: 'TEA-2026-09', productId: lotted.id, previous: null, version: 3 })
     // A second receipt into the same lot keeps the expiry it already has.
     await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: teaLine.id, qty: 6, lotCode: 'TEA-2026-09', expiresAt: '2030-01-01T00:00:00Z' }], selfVerifyAttested: true }, { viewer: owner, now: NOW })
     lots = await listLots({ businessId: b(), productId: lotted.id, viewer: owner })
     expect(lots.map((l) => [l.code, l.receivedQty, l.expiresAt])).toEqual([['TEA-2026-09', 10, new Date('2027-09-01T00:00:00Z')]])
+    expect(lots[0].version).toBe(4) // receipt bump only; an already-set expiry is a no-op
+    expect(await prisma.auditEvent.count({ where: { entityType: 'PRODUCT_LOT', entityId: first.posted[0].lotId, action: 'PRODUCT_LOT_EXPIRY_SET' } })).toBe(1)
 
     await expect(postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: gadgetLine.id, qty: 2, serialNos: ['SN-1'] }], selfVerifyAttested: true }, { viewer: owner })).rejects.toMatchObject({ status: 422, message: 'INVENTORY_SERIAL_COUNT_MISMATCH' })
     const done = await postGoodsReceipt(order.id, { lines: [{ purchaseOrderLineId: gadgetLine.id, qty: 2, serialNos: ['SN-1', 'SN-2'] }], selfVerifyAttested: true }, { viewer: owner, now: NOW })
@@ -150,6 +187,217 @@ describe('FR-165 GoodsReceipt', () => {
     const units = await listSerialUnits({ businessId: b(), productId: serial.id, viewer: owner })
     expect(units.map((u) => [u.serialNo, u.status]).sort()).toEqual([['SN-1', 'IN_STOCK'], ['SN-2', 'IN_STOCK']])
     expect(await onHand('GADGET-GRN')).toBe(2)
+  })
+
+  it('C8 — Inventory expiry contract versions and audits its one-time write', async () => {
+    const lot = await createLot({ businessId: b(), productId: lotted.id, code: 'LOT-EXPIRY-CONTRACT' }, { viewer: owner })
+    const expiresAt = new Date('2028-02-03T00:00:00Z')
+    const applied = await prisma.$transaction((tx) => inventory.setLotExpiryIfUnset(tx, { businessId: b(), lotId: lot.id, expiresAt }, { viewer: owner }))
+    expect(applied).toEqual({ applied: true, version: lot.version + 1 })
+
+    const repeated = await prisma.$transaction((tx) => inventory.setLotExpiryIfUnset(tx, { businessId: b(), lotId: lot.id, expiresAt: new Date('2030-01-01T00:00:00Z') }, { viewer: owner }))
+    expect(repeated).toEqual({ applied: false, reason: 'ALREADY_SET', version: lot.version + 1 })
+    const stored = await prisma.productLot.findUnique({ where: { id: lot.id }, select: { expiresAt: true, version: true } })
+    expect(stored).toEqual({ expiresAt, version: lot.version + 1 })
+    const audits = await prisma.auditEvent.findMany({ where: { entityType: 'PRODUCT_LOT', entityId: lot.id, action: 'PRODUCT_LOT_EXPIRY_SET' } })
+    expect(audits).toHaveLength(1)
+    expect(JSON.parse(audits[0].payloadJson)).toMatchObject({ businessId: b(), lotCode: lot.code, productId: lotted.id, expiresAt: expiresAt.toISOString(), previous: null, version: lot.version + 1 })
+  })
+
+  it('C8 — stale and racing expiry writers conflict without leaving a write', async () => {
+    const staleLot = await createLot({ businessId: b(), productId: lotted.id, code: 'LOT-EXPIRY-STALE' }, { viewer: owner })
+    await expect(prisma.$transaction((tx) => inventory.setLotExpiryIfUnset(tx, {
+      businessId: b(), lotId: staleLot.id, expiresAt: new Date('2028-02-03T00:00:00Z'), expectedVersion: staleLot.version - 1,
+    }, { viewer: owner }))).rejects.toMatchObject({ status: 409, message: 'PRODUCT_LOT_VERSION_CONFLICT' })
+    expect(await prisma.productLot.findUnique({ where: { id: staleLot.id }, select: { expiresAt: true, version: true } })).toEqual({ expiresAt: null, version: staleLot.version })
+
+    const racedLot = await createLot({ businessId: b(), productId: lotted.id, code: 'LOT-EXPIRY-RACE' }, { viewer: owner })
+    await expect(prisma.$transaction(async (tx) => {
+      const updateMany = tx.productLot.updateMany.bind(tx.productLot)
+      vi.spyOn(tx.productLot, 'updateMany').mockImplementation(async (args) => {
+        await tx.productLot.update({ where: { id: racedLot.id }, data: { version: { increment: 1 } } })
+        return updateMany(args)
+      })
+      return inventory.setLotExpiryIfUnset(tx, { businessId: b(), lotId: racedLot.id, expiresAt: new Date('2028-02-03T00:00:00Z') }, { viewer: owner })
+    })).rejects.toMatchObject({ status: 409, message: 'PRODUCT_LOT_VERSION_CONFLICT' })
+    expect(await prisma.productLot.findUnique({ where: { id: racedLot.id }, select: { expiresAt: true, version: true } })).toEqual({ expiresAt: null, version: racedLot.version })
+  })
+
+  it('C8 — expiry before manufacture and a lot from another Business are refused', async () => {
+    const lot = await createLot({ businessId: b(), productId: lotted.id, code: 'LOT-EXPIRY-MFG', manufacturedAt: new Date('2027-05-01T00:00:00Z') }, { viewer: owner })
+    await expect(prisma.$transaction((tx) => inventory.setLotExpiryIfUnset(tx, {
+      businessId: b(), lotId: lot.id, expiresAt: new Date('2027-05-01T00:00:00Z'),
+    }, { viewer: owner }))).rejects.toMatchObject({ status: 422, message: 'PRODUCT_LOT_EXPIRY_BEFORE_MANUFACTURE' })
+
+    const other = await createOtherScope('LOT-FOREIGN')
+    const foreignLot = await createLot({ businessId: other.business.id, productId: other.product.id, code: 'LOT-FOREIGN' }, { viewer: other.owner })
+    await expect(prisma.$transaction((tx) => inventory.setLotExpiryIfUnset(tx, {
+      businessId: b(), lotId: foreignLot.id, expiresAt: new Date('2028-02-03T00:00:00Z'),
+    }, { viewer: owner }))).rejects.toMatchObject({ status: 422, message: 'PRODUCT_LOT_NOT_FOUND' })
+  })
+
+  it('C14 — strict receipt contract validates recorded cost inputs and rejects typed costs', () => {
+    const line = { purchaseOrderLineId: 'line', qty: 1 }
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 1 }] }).success).toBe(true)
+    expect(zPostReceipt.safeParse({ lines: [line], batchCostSatang: 1, landedCosts: [{ component: 'IMPORT_DUTY', amountSatang: 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'OTHER', amountSatang: 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 1 }, { component: 'SEA_FREIGHT', amountSatang: 2 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'STORAGE', amountSatang: 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], costSatang: 100 }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [{ ...line, costSatang: 100 }] }).success).toBe(false)
+  })
+
+  it('C14 — landed cost components are amortised over all counted receipt quantity and persisted with movement cost', async () => {
+    const costed = await createProduct({ businessId: b(), code: 'LANDED-COST-GRN', productMasterId: box.productMasterId, name: 'Landed cost test product' }, { viewer: owner })
+    const order = await sentOrder([{ productId: costed.id, qty: 3, unitCost: 20 }, { productId: box.id, qty: 2, unitCost: 30 }])
+    const landedCosts = [
+      { component: 'SEA_FREIGHT', amountSatang: 10, reference: 'FRT-001' },
+      { component: 'IMPORT_DUTY', amountSatang: 8, reference: 'DUTY-001' },
+      { component: 'INBOUND_TRUCK', amountSatang: 4, reference: 'TRUCK-001' },
+    ]
+    const posted = await postGoodsReceipt(order.id, {
+      lines: order.lines.map((line) => ({ purchaseOrderLineId: line.id, qty: line.qty })), landedCosts, selfVerifyAttested: true,
+    }, { viewer: owner, now: NOW })
+    expect(posted.receipt).toMatchObject({ fxCostSheetId: null, fxRateLocked: null, landedCosts })
+    expect(posted.receipt.lines.map((line) => [line.unitCostSatang, line.unitCostBaht]).sort((a, c) => a[0] - c[0])).toEqual([[2005, 20.05], [3005, 30.05]])
+    const movements = await prisma.stockMovement.findMany({ where: { reference: `PO:${order.code}/GRN:${posted.receipt.code}` }, orderBy: { productId: 'asc' } })
+    expect(movements.map((movement) => movement.costSatang).sort((a, c) => a - c)).toEqual([2005, 3005])
+    expect(posted.posted.map((line) => line.costSatang).sort((a, c) => a - c)).toEqual([2005, 3005])
+    const stored = await prisma.goodsReceipt.findUnique({ where: { id: posted.receipt.id }, select: { landedCostsJson: true, lines: { select: { unitCostSatang: true } } } })
+    expect(JSON.parse(stored.landedCostsJson)).toEqual(landedCosts)
+    expect(stored.lines.map((line) => line.unitCostSatang).sort((a, c) => a - c)).toEqual([2005, 3005])
+    const audit = await prisma.auditEvent.findFirst({ where: { entityType: 'GOODS_RECEIPT', entityId: posted.receipt.id, action: 'GOODS_RECEIPT_POSTED' } })
+    expect(JSON.parse(audit.payloadJson)).toMatchObject({ landedCosts, fxCostSheetId: null, fxRateLocked: null, posted: expect.arrayContaining([
+      expect.objectContaining({ agreedUnitCostSatang: 2000, factoryUnitCostSatang: 2000, componentUnitCostSatang: { SEA_FREIGHT: 2, IMPORT_DUTY: 2, INBOUND_TRUCK: 1 }, unitCostSatang: 2005 }),
+      expect.objectContaining({ agreedUnitCostSatang: 3000, factoryUnitCostSatang: 3000, componentUnitCostSatang: { SEA_FREIGHT: 2, IMPORT_DUTY: 2, INBOUND_TRUCK: 1 }, unitCostSatang: 3005 }),
+    ]) })
+  })
+
+  it('C14 — refuses a derived Int32 overflow before creating the receipt or stock movement', async () => {
+    const costed = await createProduct({ businessId: b(), code: 'COST-OVERFLOW-GRN', productMasterId: box.productMasterId, name: 'Int32 overflow test product' }, { viewer: owner })
+    const order = await sentOrder([{ productId: costed.id, qty: 1, unitCost: 0.01 }])
+    expect((await prisma.purchaseOrderLine.findUnique({ where: { id: order.lines[0].id }, select: { unitCostSatang: true } })).unitCostSatang).toBe(1)
+    const beforeMovements = await prisma.stockMovement.count({ where: { productId: costed.id } })
+
+    await expect(postGoodsReceipt(order.id, {
+      lines: [{ purchaseOrderLineId: order.lines[0].id, qty: 1 }],
+      landedCosts: [{ component: 'OTHER', amountSatang: 2147483647, note: 'maximum Int32 component' }],
+      selfVerifyAttested: true,
+    }, { viewer: owner, now: NOW })).rejects.toMatchObject({
+      status: 422,
+      message: 'PROCUREMENT_RECEIPT_COST_OUT_OF_RANGE',
+      details: { purchaseOrderLineId: order.lines[0].id },
+    })
+
+    expect(await prisma.goodsReceipt.count({ where: { purchaseOrderId: order.id } })).toBe(0)
+    expect(await prisma.stockMovement.count({ where: { productId: costed.id } })).toBe(beforeMovements)
+  })
+
+  it('C14 — foreign receipts require a matching confirmed cost sheet, but uncounted receipts do not', async () => {
+    const thbOrder = await sentOrder([{ productId: box.id, qty: 1, unitCost: 1 }])
+    await expect(postGoodsReceipt(thbOrder.id, { fxCostSheetId: 'sheet-id', lines: [{ purchaseOrderLineId: thbOrder.lines[0].id, qty: 1 }] }, { viewer: receiver, now: NOW }))
+      .rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_NOT_APPLICABLE' })
+
+    const foreignOrder = await sentOrder([{ productId: box.id, qty: 2, unitCost: 1.25 }], owner, 'USD')
+    const receive = (fxCostSheetId) => postGoodsReceipt(foreignOrder.id, {
+      lines: [{ purchaseOrderLineId: foreignOrder.lines[0].id, qty: 2 }], ...(fxCostSheetId ? { fxCostSheetId } : {}),
+    }, { viewer: receiver, now: NOW })
+    await expect(receive()).rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_RATE_REQUIRED', details: { currency: 'USD' } })
+
+    const jpyOrder = await sentOrder([{ productId: box.id, qty: 1, unitCost: 1 }], owner, 'JPY')
+    const beforeJpyMovements = await prisma.stockMovement.count({ where: { productId: box.id } })
+    await expect(postGoodsReceipt(jpyOrder.id, {
+      lines: [{ purchaseOrderLineId: jpyOrder.lines[0].id, qty: 1 }],
+    }, { viewer: receiver, now: NOW })).rejects.toMatchObject({
+      status: 422, message: 'PROCUREMENT_RECEIPT_FX_CURRENCY_UNSUPPORTED', details: { currency: 'JPY' },
+    })
+    expect(await prisma.goodsReceipt.count({ where: { purchaseOrderId: jpyOrder.id } })).toBe(0)
+    expect(await prisma.stockMovement.count({ where: { productId: box.id } })).toBe(beforeJpyMovements)
+
+    const xdrOrder = await sentOrder([{ productId: box.id, qty: 1, unitCost: 1 }], owner, 'XDR')
+    const beforeXdrMovements = await prisma.stockMovement.count({ where: { productId: box.id } })
+    await expect(postGoodsReceipt(xdrOrder.id, {
+      lines: [{ purchaseOrderLineId: xdrOrder.lines[0].id, qty: 1 }],
+    }, { viewer: receiver, now: NOW })).rejects.toMatchObject({
+      status: 422, message: 'PROCUREMENT_RECEIPT_FX_CURRENCY_UNSUPPORTED', details: { currency: 'XDR' },
+    })
+    expect(await prisma.goodsReceipt.count({ where: { purchaseOrderId: xdrOrder.id } })).toBe(0)
+    expect(await prisma.stockMovement.count({ where: { productId: box.id } })).toBe(beforeXdrMovements)
+
+    const draft = await makeCostSheet()
+    await expect(receive(draft.id)).rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_SHEET_INVALID' })
+    const otherSupplier = await createSupplier({ businessId: b(), code: 'SUP-GRN-OTHER', name: 'Other supplier' }, { viewer: owner })
+    const supplierSheet = await makeCostSheet({ supplierId: otherSupplier.id })
+    await expect(receive(supplierSheet.id)).rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_SHEET_INVALID' })
+    const currencySheet = await makeCostSheet({ currency: 'EUR' })
+    await expect(receive(currencySheet.id)).rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_SHEET_INVALID' })
+    const other = await createOtherScope('FX-FOREIGN')
+    const foreignSheet = await makeCostSheet({ businessId: other.business.id, supplierId: other.supplier.id, sourceSku: other.product.code, productId: other.product.id, viewer: other.owner })
+    await expect(receive(foreignSheet.id)).rejects.toMatchObject({ status: 422, message: 'PROCUREMENT_RECEIPT_FX_SHEET_INVALID' })
+    expect(await prisma.goodsReceipt.count({ where: { purchaseOrderId: foreignOrder.id } })).toBe(0)
+
+    const uncountedOrder = await sentOrder([{ description: 'Imported service', qty: 1, unitCost: 20 }], owner, 'JPY')
+    const uncounted = await postGoodsReceipt(uncountedOrder.id, { lines: [{ purchaseOrderLineId: uncountedOrder.lines[0].id, qty: 1 }] }, { viewer: receiverOnly, now: NOW })
+    expect(uncounted.receipt).toMatchObject({ fxCostSheetId: null, fxRateLocked: null, landedCosts: [] })
+    expect(uncounted.posted).toEqual([])
+  })
+
+  it('C14 — confirmed and superseded sheet rates reproduce stored receipt cost and feed moving average', async () => {
+    const sheet = await makeCostSheet({ confirm: true, fxRateLocked: 34 })
+    const foreignOrder = await sentOrder([{ productId: box.id, qty: 2, unitCost: 1.25 }], owner, 'usd')
+    const receipt = await postGoodsReceipt(foreignOrder.id, {
+      lines: [{ purchaseOrderLineId: foreignOrder.lines[0].id, qty: 2 }],
+      landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 5 }], fxCostSheetId: sheet.id,
+    }, { viewer: receiver, now: NOW })
+    expect(receipt.receipt).toMatchObject({ fxCostSheetId: sheet.id, fxRateLocked: 34, landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 5 }] })
+    expect(receipt.receipt.lines[0]).toMatchObject({ unitCostSatang: 4253, unitCostBaht: 42.53 })
+
+    await prisma.supplierCostSheet.update({ where: { id: sheet.id }, data: { fxRateLocked: 99 } })
+    const storedReceipt = await prisma.goodsReceipt.findUnique({
+      where: { id: receipt.receipt.id },
+      select: { id: true, fxCostSheetId: true, fxRateLocked: true, landedCostsJson: true, lines: { select: { id: true, purchaseOrderLineId: true, qty: true, unitCostSatang: true } } },
+    })
+    const storedOrder = await prisma.purchaseOrder.findUnique({ where: { id: foreignOrder.id }, select: { currency: true } })
+    const storedOrderLine = await prisma.purchaseOrderLine.findUnique({ where: { id: foreignOrder.lines[0].id }, select: { id: true, unitCostSatang: true } })
+    const storedReceiptLines = await prisma.goodsReceiptLine.findMany({ where: { receiptId: storedReceipt.id }, select: { id: true, purchaseOrderLineId: true, qty: true, unitCostSatang: true } })
+    const components = JSON.parse(storedReceipt.landedCostsJson)
+    const countedQty = storedReceiptLines.reduce((sum, line) => sum + line.qty, 0)
+    const reproduced = procurementDomain.deriveReceiptLineCost({
+      currency: storedOrder.currency, agreedUnitCostSatang: storedOrderLine.unitCostSatang,
+      fxRateLocked: storedReceipt.fxRateLocked, countedQty, components,
+    })
+    expect(storedReceipt.fxRateLocked).toBe(34)
+    expect(reproduced.unitCostSatang).toBe(storedReceiptLines[0].unitCostSatang)
+    const movement = await prisma.stockMovement.findFirst({ where: { reference: `PO:${foreignOrder.code}/GRN:${receipt.receipt.code}` }, select: { costSatang: true } })
+    expect(movement.costSatang).toBe(storedReceiptLines[0].unitCostSatang)
+
+    const supersedingSheet = await makeCostSheet({ confirm: true, fxRateLocked: 35 })
+    expect((await prisma.supplierCostSheet.findUnique({ where: { id: sheet.id }, select: { status: true } })).status).toBe('SUPERSEDED')
+    const supersededOrder = await sentOrder([{ productId: box.id, qty: 1, unitCost: 1.25 }], owner, 'USD')
+    const supersededReceipt = await postGoodsReceipt(supersededOrder.id, {
+      lines: [{ purchaseOrderLineId: supersededOrder.lines[0].id, qty: 1 }], fxCostSheetId: sheet.id,
+    }, { viewer: receiver, now: new Date(NOW.getTime() + 1000) })
+    expect(supersededReceipt.receipt).toMatchObject({ fxCostSheetId: sheet.id, fxRateLocked: 99 })
+    expect(supersededReceipt.receipt.lines[0].unitCostSatang).toBe(12375)
+    expect(supersedingSheet.status).toBe('CONFIRMED')
+
+    const weighted = await createProduct({ businessId: b(), code: 'WAVG-RECEIPT-GRN', productMasterId: box.productMasterId, name: 'Weighted average receipt product' }, { viewer: owner })
+    const firstOrder = await sentOrder([{ productId: weighted.id, qty: 2, unitCost: 10 }])
+    const firstReceipt = await postGoodsReceipt(firstOrder.id, { lines: [{ purchaseOrderLineId: firstOrder.lines[0].id, qty: 2 }], selfVerifyAttested: true }, { viewer: owner, now: new Date(NOW.getTime() + 2000) })
+    const secondOrder = await sentOrder([{ productId: weighted.id, qty: 3, unitCost: 20 }])
+    await postGoodsReceipt(secondOrder.id, { lines: [{ purchaseOrderLineId: secondOrder.lines[0].id, qty: 3 }], selfVerifyAttested: true }, { viewer: owner, now: new Date(NOW.getTime() + 3000) })
+    expect(firstReceipt.receipt.lines[0].unitCostSatang).toBe(1000)
+    const valuation = await inventory.readInventoryValuation(weighted.id, { businessId: b() })
+    expect(valuation).toMatchObject({ unitCostSatang: 1600, onHandQty: 5, partial: false })
+  })
+
+  it('Inventory public recordMovement reserves GOODS_RECEIPT but keeps other receipt reasons available', async () => {
+    const before = await prisma.stockMovement.count({ where: { productId: box.id } })
+    await expect(recordMovement({ businessId: b(), productId: box.id, kind: 'RECEIPT', quantity: 1, costSatang: 1234, reason: 'GOODS_RECEIPT' }, { viewer: owner }))
+      .rejects.toMatchObject({ status: 422, message: 'INVENTORY_RECEIPT_REASON_RESERVED' })
+    expect(await prisma.stockMovement.count({ where: { productId: box.id } })).toBe(before)
+    const movement = await recordMovement({ businessId: b(), productId: box.id, kind: 'RECEIPT', quantity: 1, costSatang: 1234, reason: 'MANUAL_RECEIPT' }, { viewer: owner })
+    expect(movement.movements[0]).toMatchObject({ reason: 'MANUAL_RECEIPT', costSatang: 1234 })
   })
 
   it('AC-165.5 — the receipts of an order are listed with their lines; the ladder applies to reading them too', async () => {
