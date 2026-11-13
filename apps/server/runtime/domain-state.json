@@ -2069,7 +2069,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -2780,7 +2780,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -3755,8 +3755,8 @@
           "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "declared": "done",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 22
+          "codeCount": 7,
+          "testCount": 25
         },
         {
           "id": "FR-196",
@@ -3965,9 +3965,9 @@
             }
           ],
           "details": {
-            "routes": 28,
-            "inventoried": 26,
-            "openApiPaths": 376,
+            "routes": 32,
+            "inventoried": 30,
+            "openApiPaths": 380,
             "missingFromOpenApi": 1
           }
         },
@@ -4024,8 +4024,8 @@
             }
           ],
           "details": {
-            "mutations": 23,
-            "guardedMutations": 19,
+            "mutations": 27,
+            "guardedMutations": 23,
             "reads": 7,
             "unguardedReads": 1
           }
@@ -4236,8 +4236,8 @@
         }
       ],
       "details": {
-        "routes": 36,
-        "apiRoutes": 28,
+        "routes": 40,
+        "apiRoutes": 32,
         "pageRoutes": 8,
         "ownedModels": 22,
         "featureNotes": 27
@@ -4629,7 +4629,7 @@
           "details": {
             "routes": 19,
             "inventoried": 19,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -5094,7 +5094,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -6240,7 +6240,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -6481,7 +6481,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -6733,7 +6733,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -7141,7 +7141,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -7366,7 +7366,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -7839,7 +7839,7 @@
           "title": "Workspace collaboration boundary",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
+          "codeCount": 2,
           "testCount": 22
         },
         {
@@ -8640,8 +8640,8 @@
           "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "declared": "done",
           "status": "verified",
-          "codeCount": 1,
-          "testCount": 22
+          "codeCount": 2,
+          "testCount": 25
         },
         {
           "id": "FR-197",
@@ -9489,7 +9489,7 @@
           "details": {
             "routes": 202,
             "inventoried": 202,
-            "openApiPaths": 376,
+            "openApiPaths": 380,
             "missingFromOpenApi": 0
           }
         },
@@ -14016,8 +14016,8 @@
           "title": "AccessInvite generalises WorkspaceInvite to a scoped invitation over all three authority layers",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 5,
-          "testCount": 22
+          "codeCount": 10,
+          "testCount": 25
         },
         {
           "id": "FR-196",
@@ -14048,6 +14048,10 @@
         "apps/server/src/app/(pm)/commerce/orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx",
         "apps/server/src/app/(pm)/procurement/receipts/page.jsx",
+        "apps/server/src/app/api/access-invites/[id]/route.js",
+        "apps/server/src/app/api/access-invites/accept/route.js",
+        "apps/server/src/app/api/access-invites/decline/route.js",
+        "apps/server/src/app/api/access-invites/route.js",
         "apps/server/src/app/api/audit/route.js",
         "apps/server/src/app/api/backup/export/route.js",
         "apps/server/src/lib/validation/enums.js",
@@ -14066,6 +14070,7 @@
         "apps/server/src/modules/identity/workspace-membership-service.js",
         "apps/server/src/modules/procurement/application/goods-receipt-service.js",
         "apps/server/src/modules/procurement/domain/procurement.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/e2e/fr164-procurement.spec.js",
         "apps/server/tests/e2e/fr165-receipt-workstation.spec.js",
@@ -14075,6 +14080,7 @@
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
         "apps/server/tests/integration/fr163-payment.test.js",
         "apps/server/tests/integration/fr165-goods-receipt.test.js",
+        "apps/server/tests/integration/fr195-access-invite-http.test.js",
         "apps/server/tests/integration/fr195-access-invite.test.js",
         "apps/server/tests/integration/fr196-segregation-of-duties.test.js",
         "apps/server/tests/integration/fr196-sod-cannot-be-assembled.test.js",
@@ -14084,6 +14090,7 @@
         "apps/server/tests/integration/line-stock-policy-backup.test.js",
         "apps/server/tests/integration/marketing-backup.test.js",
         "apps/server/tests/integration/marketing-content-backup.test.js",
+        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
         "apps/server/tests/integration/release-safety-backup.test.js",
@@ -14094,6 +14101,7 @@
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/postgres/operator-bootstrap-races.test.js",
         "apps/server/tests/unit/access-history-service.test.js",
+        "apps/server/tests/unit/access-invite-routes.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/audit-page.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
@@ -18963,7 +18971,7 @@
           "title": "Workspace collaboration boundary",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 11,
+          "codeCount": 12,
           "testCount": 22
         }
       ],
@@ -18978,6 +18986,7 @@
         "apps/server/src/modules/identity/resolve-viewer.js",
         "apps/server/src/modules/identity/workspace-collaboration-view.js",
         "apps/server/src/modules/identity/workspace-membership-service.js",
+        "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",

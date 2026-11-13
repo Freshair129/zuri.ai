@@ -353,6 +353,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/projects/{id}/execution-runs/{executionRunId}/approvals/{approvalRequestId}/decision', ['POST']],
   ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
+  // @req FR-195 — service-backed scoped invitation routes; FR-067 routes above stay unchanged.
+  ['/api/access-invites', ['POST']], ['/api/access-invites/accept', ['POST']],
+  ['/api/access-invites/decline', ['POST']], ['/api/access-invites/{id}', ['DELETE']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
   ['/api/platform/users/memberships', ['POST']],
   // @req FR-191 — the withdrawal half of a grant's life (ADR-077 D2).
@@ -639,6 +642,37 @@ function genericResponses(path, method) {
   }
 }
 
+function accessInviteResponses(path) {
+  const successDescription = path === '/api/access-invites'
+    ? 'AccessInvite minted; the raw single-use token is returned once to the authenticated caller.'
+    : path === '/api/access-invites/accept'
+      ? 'AccessInvite accepted using the authenticated session principal.'
+      : path === '/api/access-invites/decline'
+        ? 'AccessInvite declined by the authenticated session principal.'
+        : 'Pending AccessInvite revoked.'
+  const common = {
+    200: json(zRouteInventoryResponse, successDescription),
+    401: json(zError, 'Authenticated session required.'),
+    403: json(zError, 'CSRF_INVALID: the request Origin or session-bound X-CSRF-Token is missing or invalid.'),
+    503: json(zError, 'Session or CSRF configuration is unavailable.'),
+  }
+
+  if (path === '/api/access-invites') return {
+    ...common,
+    400: json(zError, 'The strict mint request, scope, role, or addressee is invalid.'),
+    404: json(zError, 'The requested Portfolio, Tenant, or Business scope, scope authority, or target Person was not found; scope refusals are hidden as 404.'),
+  }
+  if (path === '/api/access-invites/accept' || path === '/api/access-invites/decline') return {
+    ...common,
+    400: json(zError, 'The strict request is invalid or the invite token is invalid, expired, revoked, or for another target; these token refusals use one generic 400.'),
+  }
+  return {
+    ...common,
+    404: json(zError, 'The AccessInvite or its stored scope authority was not found; these refusals are hidden as 404.'),
+    409: json(zError, 'The AccessInvite is no longer PENDING and cannot be revoked.'),
+  }
+}
+
 function conversationRuntimeResponses(method, contractVersion) {
   if (method === 'get') return {
     200: json(zConversationRuntimeHealth(contractVersion), 'Authenticated operational health only; it is not a claim or ownership gate.'),
@@ -734,10 +768,12 @@ function registerInventoryOperations(registry) {
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'
       const missionSubmission = path === '/api/work/agent-mission-submissions' && methodName === 'post'
       const conversationAnalysis = path === '/api/crm/conversations/{id}/analysis' && methodName === 'get'
+      const accessInviteMutation = path.startsWith('/api/access-invites')
       registry.registerPath({
         method: methodName,
         path,
         summary: archiveExpiry ? 'Expire and retire CRM chat archives'
+          : accessInviteMutation ? `AccessInvite ${method.toLowerCase()}`
           : retentionSweep ? 'Run one domain-owned retention sweep'
           : conversationAnalysis ? 'Read consent-gated analysis for one CRM Inbox conversation'
           : missionSubmission ? 'Submit a verified Agent draft as one planned WorkItem'
@@ -748,6 +784,8 @@ function registerInventoryOperations(registry) {
             : `Route inventory: ${method} ${path}`,
         description: archiveExpiry
           ? 'Deployment-authenticated with ZURI_RETENTION_SWEEP_TOKEN; accepts no request body and runs once per UTC day. Verifies each Tenant chain, appends one format-4 retirement file before deleting expired archive files, and returns aggregate counts only. Storage refusal and run-level failure answer 503.'
+          : accessInviteMutation
+          ? 'Session-authenticated Identity AccessInvite mutation. Requires the configured application Origin and the session-bound X-CSRF-Token issued by GET /api/auth/csrf. The actor comes from the trusted session; see Appendix A for strict bodies, scope authority and refusal behavior.'
           : retentionSweep
           ? 'Deployment-authenticated with the shared ZURI_RETENTION_SWEEP_TOKEN bearer; accepts no request body and returns only the audit event ID, per-class counts and whether this domain already ran today. CRM, Integration and Agent retain separate audit identities and sweep ownership.'
           : conversationAnalysis
@@ -769,7 +807,7 @@ function registerInventoryOperations(registry) {
               ? 'Installation-operator-only, read-only projection of the generated Zuri document graph. No Business scope or database access is added; see Appendix A for bounds and unavailable states.'
               : 'Installation-operator-only, read-only exact Markdown lookup by a node ID in the generated graph. Source paths are resolved from indexed documents; see Appendix A for bounds and unavailable states.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: archiveExpiry || retentionSweep ? ['Data retention'] : conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
+        tags: accessInviteMutation ? ['Identity AccessInvite'] : archiveExpiry || retentionSweep ? ['Data retention'] : conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
@@ -780,7 +818,7 @@ function registerInventoryOperations(registry) {
               description: 'Live-session-bound API-write token issued by GET /api/auth/csrf.',
             }] : []),
             ...(conversationAnalysis ? [{ name: 'businessId', in: 'query', required: true, schema: { type: 'string', minLength: 1 } }] : []),
-            ...((approvalDecision || approvalNotificationRead || missionSubmission) ? [{
+            ...((approvalDecision || approvalNotificationRead || missionSubmission || accessInviteMutation) ? [{
               name: 'X-CSRF-Token',
               in: 'header',
               required: true,
@@ -825,6 +863,7 @@ function registerInventoryOperations(registry) {
             500: json(zError, 'Unexpected submission failure.'),
             503: json(zError, 'The verified Agent mission source is unavailable.'),
           }
+          : accessInviteMutation ? accessInviteResponses(path)
           : conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
         ...(archiveExpiry
           ? { security: [{ RetentionSweepOperator: [] }], 'x-zuri-contract': 'chat-evidence-archive-expiry/v1' }
@@ -836,6 +875,8 @@ function registerInventoryOperations(registry) {
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'crm-conversation-analysis-read/v1' }
           : missionSubmission
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-mission-intake/v1' }
+          : accessInviteMutation
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'identity-access-invite/v1' }
           : lineStockDisclosure
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
           : path.startsWith('/api/backup/transfers')

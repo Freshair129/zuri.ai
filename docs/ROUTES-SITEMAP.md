@@ -46,6 +46,14 @@ mutations are served at `/api/workspace-invites`; there is no separate
 `/workspaces/:id` route — Workspace Home and membership/invitation state both
 render at `/workspace-home`.
 
+FR-195 also exposes the AccessInvite service at `/api/access-invites` (mint),
+`/api/access-invites/accept`, `/api/access-invites/decline` and
+`/api/access-invites/[id]` (revoke). These handlers require a live session and
+the session-bound API-write CSRF token; acceptance and decline use the session
+principal. Scope-specific authority and Membership creation remain in the
+Identity service. The `/api/workspace-invites` contract above remains unchanged
+under AC-195.9.
+
 ## Logical layout boundaries
 
 ```text
@@ -185,6 +193,10 @@ ADR-027's Profile/Workspace entry data and invitation mutations are implemented
 at `/api/workspace-invites` (FR-067); the owner roster behind Workspace Home reads
 `GET /api/workspace-memberships` (FR-067). The Market Intelligence dashboard reads
 translated observations from `GET /api/market/observations` (FR-092, GET only).
+FR-195's AccessInvite lifecycle is separately reachable through `POST
+/api/access-invites`, `POST /api/access-invites/accept`, `POST
+/api/access-invites/decline` and `DELETE /api/access-invites/[id]`; all four
+mutations use the session-bound API-write CSRF guard.
 The CRM Inbox thread header reaches PDPA erasure through
 `POST /api/crm/customers/[customerId]/erasure` (FR-022, owner-only, typed confirmation).
 `/platform/users` owns `POST /api/platform/users/memberships` (FR-038, attach an

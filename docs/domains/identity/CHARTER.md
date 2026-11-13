@@ -11,6 +11,7 @@ owns_routes:
   - src/app/api/entry/**
   - src/app/api/onboarding/**
   - src/app/api/workspace-invites/**
+  - src/app/api/access-invites/**
   - src/app/api/workspace-memberships/**
   - src/app/api/plugin/auth/**
   - src/app/api/platform/edge-devices/**
@@ -172,14 +173,24 @@ Profile completion is an identity step over `Person`
 (`Person.profileCompletedAt`, written by `onboarding-service`), not an
 authorization grant. The Profile-first entry resolves a Profile-only person into
 the Waiting Room without creating a Tenant, Business or Project. Workspace
-invitation (`AccessInvite`, renamed from `WorkspaceInvite` by FR-195/ADR-079 to
-also cover TENANT/BUSINESS scope; hash-bound single-use tokens per SEC-014) and
-`WorkspaceMembership` (keyed by `portfolioId`, ADR-027 §D2) are a separate
-collaboration contract from the existing Tenant/Business `Membership`; they
-widen nothing — `resolveViewer` never reads `WorkspaceMembership` (BR-016), so
-holding one grants no `visibleBusinessIds`, `ownedBusinessIds`, or per-Business
-domain. Implemented by FR-066/067 (`onboarding-service.js`,
-`workspace-membership-service.js`).
+invitations use hash-bound single-use `AccessInvite` tokens (FR-195/ADR-079,
+SEC-014). At PORTFOLIO scope, accepting one creates a `WorkspaceMembership`
+(keyed by `portfolioId`, ADR-027 §D2), the Workspace collaboration contract
+that widens nothing: `resolveViewer` never reads `WorkspaceMembership` (BR-016),
+so holding one grants no `visibleBusinessIds`, `ownedBusinessIds`, or
+per-Business domain. TENANT/BUSINESS-scope acceptance instead creates a real
+Tenant/Business `Membership` through `grantBusinessMembership` (ADR-077 D8).
+Implemented by FR-066/067 (`onboarding-service.js`,
+`workspace-membership-service.js`) and FR-195 (`access-invite-service.js`).
+
+FR-195's `AccessInvite` HTTP lifecycle is owned by this domain at
+`POST /api/access-invites`, `POST /api/access-invites/accept`, `POST
+/api/access-invites/decline` and `DELETE /api/access-invites/[id]`. Every
+mutation resolves a live request viewer and checks the session-bound API-write
+CSRF token before the body or service mutation. Acceptance and decline pass the
+session principal; invited email and LINE identity never select the recipient.
+The existing `/api/workspace-invites` handlers and `mintWorkspaceInvite` remain
+the separate FR-067 path, unchanged under AC-195.9.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 

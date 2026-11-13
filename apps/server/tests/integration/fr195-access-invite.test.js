@@ -56,6 +56,20 @@ describe('FR-195 AccessInvite', () => {
     expect(minted.inviteToken).toMatch(/^[a-f0-9]{64}$/)
   })
 
+  it('does not treat a whitespace-only LINE user id as an addressee for direct service calls', async () => {
+    const reason = `ACCESS_INVITE_BLANK_LINE_SERVICE_${Date.now()}`
+
+    await expect(mintAccessInvite({
+      viewer: tenantOwner,
+      scopeType: 'TENANT',
+      tenantId: tenant.id,
+      invitedLineUserId: '   ',
+      reason,
+    })).rejects.toMatchObject({ status: 400, message: 'ACCESS_INVITE_ADDRESSEE_REQUIRED' })
+
+    expect(await prisma.accessInvite.findFirst({ where: { reason } })).toBeNull()
+  })
+
   it('accepting a TENANT invite binds the Membership to the ACCEPTING session, not the invited email', async () => {
     const minted = await mintAccessInvite({ viewer: tenantOwner, scopeType: 'TENANT', tenantId: tenant.id, invitedEmail: 'other@example.com' })
     // `otherPerson` holds the invited email, but `acceptor` is the session

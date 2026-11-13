@@ -340,8 +340,15 @@ the browser already sends a matching `Origin`. A caller that sends no `Origin`
 Workspace invitations (`/api/workspace-invites`, `/accept`) require a live
 session and bind the new `WorkspaceMembership` to that session's Person — the
 invite link alone creates nothing. Tenant- and Business-scoped `AccessInvite`
-minting and acceptance exist in `access-invite-service.js` but have no HTTP
-route; ADR-079 records that as follow-on work.
+operations are exposed through `POST /api/access-invites`, `POST
+/api/access-invites/accept`, `POST /api/access-invites/decline` and `DELETE
+/api/access-invites/[id]`. All four resolve the live request viewer and verify
+the session-bound API-write CSRF token before mutation. Acceptance and decline
+use the session principal, never an invited email or LINE identity. TENANT and
+BUSINESS grants remain `Membership` writes through the Identity service; the
+scope-specific authority refusals and audit events are unchanged. The existing
+`/api/workspace-invites` routes and `mintWorkspaceInvite` are unchanged under
+AC-195.9.
 
 ## 6. Session contract
 
@@ -375,7 +382,7 @@ session-bound token on the routes it names.
 |---|---|---|
 | `SameSite=Lax` | The browser withholds the cookie on a cross-site `POST` | Every cookie-authenticated route. Kept as defence in depth; it is no longer the only control |
 | Same-origin write guard (FR-252, ADR-097; `src/middleware.js` calling `modules/identity/same-origin-write.js`) | For `POST`, `PUT`, `PATCH` and `DELETE` under `/api/**`: a present `Origin` must equal the origin of `PUBLIC_BASE_URL` (when it is configured) or the request's own host (first `X-Forwarded-Host` value, else `Host`) with the same scheme (the configured origin's scheme, else the first `X-Forwarded-Proto` value, else any). `Origin: null`, an empty or an unparsable value is refused. With no `Origin`, `Sec-Fetch-Site: cross-site` or `same-site` is refused. A refusal is `403 CSRF_INVALID` with `Cache-Control: no-store` and an `X-Request-ID`, returned before the route runs | Every route handler that exports a write method: 271 route files at `d01c388c`, all under `/api` |
-| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL` (never the request host, and a missing `Origin` is refused), plus a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery. These keep the stricter check on top of the guard |
+| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL` (never the request host, and a missing `Origin` is refused), plus a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery, `POST /api/access-invites`, `POST /api/access-invites/accept`, `POST /api/access-invites/decline`, `DELETE /api/access-invites/[id]`. These keep the stricter check on top of the guard |
 
 **What the guard does and does not prove.** It makes a cross-site page unable to
 drive a browser into an API write, including `POST /api/auth/login`,

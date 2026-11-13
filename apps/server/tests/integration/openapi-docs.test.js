@@ -186,6 +186,45 @@ describe('OpenAPI document', () => {
     }
   })
 
+  // @req FR-195 — every AccessInvite mutation is session-bound and carries the same CSRF header contract.
+  it('documents the four AccessInvite routes with session-bound CSRF', () => {
+    for (const [route, method] of [
+      ['/api/access-invites', 'post'],
+      ['/api/access-invites/accept', 'post'],
+      ['/api/access-invites/decline', 'post'],
+      ['/api/access-invites/{id}', 'delete'],
+    ]) {
+      const operation = doc.paths[route]?.[method]
+      expect(operation).toBeTruthy()
+      expect(operation.security).toEqual([{ SessionAuth: [] }])
+      expect(operation.parameters).toContainEqual(expect.objectContaining({
+        name: 'X-CSRF-Token', in: 'header', required: true,
+      }))
+      expect(operation.description).toContain('session-bound X-CSRF-Token')
+      const expectedResponses = route === '/api/access-invites'
+        ? ['200', '400', '401', '403', '404', '503']
+        : method === 'delete'
+          ? ['200', '401', '403', '404', '409', '503']
+          : ['200', '400', '401', '403', '503']
+      expect(Object.keys(operation.responses).sort()).toEqual(expectedResponses)
+      expect(operation.responses['200'].description).toContain('AccessInvite')
+      expect(operation.responses['401'].description).toContain('session')
+      expect(operation.responses['403'].description).toContain('CSRF')
+      expect(operation.responses['403'].description).toContain('CSRF_INVALID')
+      expect(operation.responses['403'].description).toContain('Origin')
+      expect(operation.responses['503'].description).toContain('CSRF')
+      if (route === '/api/access-invites') {
+        expect(operation.responses['400'].description).toContain('request')
+        expect(operation.responses['404'].description).toContain('scope')
+      } else if (method === 'delete') {
+        expect(operation.responses['404'].description).toContain('scope')
+        expect(operation.responses['409'].description).toContain('PENDING')
+      } else {
+        expect(operation.responses['400'].description).toContain('generic 400')
+      }
+    }
+  })
+
   it('documents the default-off main-dev local Ollama owner routes with strict scoped contracts', () => {
     const models = doc.paths['/api/integration/local-ollama/models'].get
     const selection = doc.paths['/api/integration/local-ollama/selection'].post
@@ -431,11 +470,12 @@ describe('OpenAPI document', () => {
       // FR-293 adds seven transfer paths plus the actor-bound job recovery list.
       // FR-230 adds the Integration raw-record and Agent trace retention sweeps;
       // FR-245 adds the CRM archive-expiry trigger: three paths and operations.
-      pathCount: 376,
+      // FR-195 adds four AccessInvite paths and operations: 376 + 4 = 380.
+      pathCount: 380,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
       // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
       // Register page's ready-intake list): one operation, no new path.
-      operationCount: 492,
+      operationCount: 496,
     })
     const archiveExpiry = doc.paths['/api/crm/archive-expiry'].post
     expect(archiveExpiry.security).toEqual([{ RetentionSweepOperator: [] }])
