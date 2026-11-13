@@ -121,8 +121,8 @@ describe('Phase B offline recovery runners', () => {
   // @req TASK-ZAI-012 — mission draft/evidence join the complete portable recovery census.
   it('loads the committed pinned 219-table inventory and preserves prior mappings', () => {
     expect(inventory.applicationTables).toHaveLength(219)
-    expect(inventory.schemaSha256).toBe('d31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4')
-    expect(inventory.targetSchemaSha256).toBe('d8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2')
+    expect(inventory.schemaSha256).toBe('20f8aaeaec011716977832042d7311b173bd8545cc576a0b5aeeab2cb48728d9')
+    expect(inventory.targetSchemaSha256).toBe('4cd23aa28f862f446778d8e341b5b10004675ec10880a7f7be32fefbb2afb844')
     expect(inventory.applicationTables.map(({ modelName }) => modelName)).toEqual(
       expect.arrayContaining(['CustomerRetentionConsent', 'LegalHoldArchiveKey'])
     )

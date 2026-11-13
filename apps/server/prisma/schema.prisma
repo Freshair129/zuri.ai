@@ -6410,6 +6410,9 @@ model GoodsReceipt {
   purchaseOrderId   String
   supplierReference String?
   notes             String?
+  fxCostSheetId     String?
+  fxRateLocked      Float?
+  landedCostsJson   String?
   receivedAt        DateTime @default(now())
   postedByPersonId  String?
   createdAt         DateTime @default(now())
@@ -6417,11 +6420,13 @@ model GoodsReceipt {
   tenant        Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business      Business           @relation(fields: [businessId], references: [id], onDelete: Cascade)
   purchaseOrder PurchaseOrder      @relation(fields: [purchaseOrderId], references: [id], onDelete: Cascade)
+  fxCostSheet   SupplierCostSheet?  @relation(fields: [fxCostSheetId], references: [id], onDelete: Restrict)
   lines         GoodsReceiptLine[]
 
   @@unique([tenantId, code])
   @@index([purchaseOrderId])
   @@index([businessId, receivedAt])
+  @@index([fxCostSheetId])
 }
 
 model GoodsReceiptLine {
@@ -6432,6 +6437,7 @@ model GoodsReceiptLine {
   lotCode             String?
   expiresAt           DateTime?
   serialNosJson       String?
+  unitCostSatang      Int?
 
   receipt           GoodsReceipt      @relation(fields: [receiptId], references: [id], onDelete: Cascade)
   purchaseOrderLine PurchaseOrderLine @relation(fields: [purchaseOrderLineId], references: [id], onDelete: Cascade)
@@ -6469,6 +6475,7 @@ model SupplierCostSheet {
   business Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
   supplier Supplier            @relation(fields: [supplierId], references: [id], onDelete: Restrict)
   lines    SupplierCostLine[]
+  goodsReceipts GoodsReceipt[]
 
   @@unique([tenantId, code])
   @@unique([businessId, sourceSha256])
