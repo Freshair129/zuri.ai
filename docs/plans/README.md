@@ -8,6 +8,9 @@ checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 
 # Plans location and retained sources
 
+- [Documentation architecture redesign proposal](DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md)
+  is a candidate design and review document (`source_of_truth: false`); it moves
+  nothing and authorizes nothing, and each of its stages needs separate owner approval.
 - [Office design receiver implementation](OFFICE-DESIGN-RECEIVER-20261031.md)
   implements the scoped owner request; local validation and deployment remain
   separate from its implementation mandate.
