@@ -1,5 +1,7 @@
 # Appendix A — API Specification
 
+Version diff 1.127.0b to 1.128.0b (2026-11-13; author Codex): add strict count-only `dry_run` handling to the CRM message-retention and archive-expiry routes and enable all four retention calls in the worker's `--dry-run` sequence. Dry-run responses omit archive manifest identifiers; the real CRM response may include manifest metadata in `countsByClass`. No route or `api-spec-counts` marker change; no schedule or production run is evidenced.
+
 Version diff 1.126.0b to 1.127.0b (2026-11-13; author Codex): serialize the three Tenant archive-chain appenders, add the atomic daily archive-expiry claim and in-progress response, and document the Tenant-start deadline, crash resumption and already-absent retirement count. No route or `api-spec-counts` marker change.
 
 Version diff 1.125.0b to 1.126.0b (2026-11-13; author Codex): harden FR-230 override reads/restores and add count-only `dry_run` for the Integration and Agent retention routes plus the worker's `--dry-run` mode. Dry-run skips CRM and archive expiry; route inventory is unchanged at 375 handlers and the `api-spec-counts` marker is unchanged. No schedule or production run is evidenced.
@@ -726,7 +728,7 @@ container.
 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
-| POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the crm-owned slice of the nightly retention sweep across every Tenant and returns `{ auditEventId, countsByClass, alreadyRanToday }` — the exact per-class counts the sweep's own `RETENTION_SWEEP_COMPLETED` audit event carries, never message or customer content. A second call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running the sweep or writing a second audit event, so a scheduler retry cannot double-count or duplicate the day's audit trail | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
+| POST | `/api/crm/retention-sweep` | implemented (FR-230): under `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN` (at least 32 characters), runs the CRM-owned nightly retention sweep across every Tenant. A real call returns `{ auditEventId, countsByClass, alreadyRanToday }`; `countsByClass.MESSAGE_BODY_AND_ATTACHMENTS` carries aggregate message, attachment and skipped-job counts, with optional `archiveFailures`, `manifests`, `deferredErasedKey`, `blankedWithoutArchive` and `settleFailures` when present. Each real-run `manifests` entry contains `{ tenantId, manifestId, runId, manifestHash }`; no message or Customer content is returned. A second real call inside the same UTC day answers from the existing audit event (`alreadyRanToday: true`) instead of running or writing another audit event. One strict optional `dry_run` query (`true` or `false`) is accepted; `true` bypasses the same-day audit lookup, uses ordinary eligibility and skip rules, reads no message body, writes no tombstone/archive/key/attribution/audit data and refreshes no conversation preview, then returns `{ dryRun: true, countsByClass, tenants }` with per-Tenant counts and status/failure fields (`archiveFailed`, `archiveFailureReason`, `settleFailed`, `settleFailureReason`, `invalidOverrideIgnored`). A dry-run response contains no Customer or manifest ids, message or Customer content, or archive paths. `false` follows the real path | `400 RETENTION_SWEEP_REQUEST_INVALID`; `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `503 RETENTION_SWEEP_UNAVAILABLE` (database, or the sweep exceeded its own 10-minute bound) |
 
 ### CRM chat evidence archive expiry trigger (FR-245, SEC-034; ADR-093 D5 P7)
 
@@ -741,25 +743,37 @@ processing after an individual Tenant fails.
 
 | Method | Route | Contract | Failure |
 |---|---|---|---|
-| POST | `/api/crm/archive-expiry` | implemented (FR-245, SEC-034): `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN`; no request body. After production storage readiness succeeds, the route claims the UTC date with deterministic `AuditEvent.id = archive-expiry-claim:<YYYY-MM-DD>` (`ARCHIVE_EXPIRY_RUN_CLAIMED`); a unique-key loser rechecks completion, then returns `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS` if no completed audit exists. A crash after claim and before completion leaves the claim: same-day calls return 409 and the next UTC day may retry. The per-Tenant service verifies the manifest chain and appends a format-4 `.zcr` retirement row before deleting expired files. Its default deadline is nine minutes from run start and it stops starting Tenants at that boundary; `counts.tenantsDeferred` reports the remainder and the run audit records `timedOut: true`. The route awaits the run, including its current Tenant. Run and per-Tenant counts include `retiredFilesAlreadyAbsent` for a retired file already missing at deletion time; `filesDeleted` counts only files deleted by that run. The response contains aggregate counts only, with no Customer id or archive path. A Tenant failure, broken-chain skip or deferred Tenant makes the worker exit non-zero. | `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS`; `503 ARCHIVE_EXPIRY_UNAVAILABLE` (storage refusal or run-level failure) |
+| POST | `/api/crm/archive-expiry` | implemented (FR-245, SEC-034): `Authorization: Bearer $ZURI_RETENTION_SWEEP_TOKEN`; no request body. The real path checks production storage, claims the UTC date with deterministic `AuditEvent.id = archive-expiry-claim:<YYYY-MM-DD>` (`ARCHIVE_EXPIRY_RUN_CLAIMED`), and then processes Tenants. A unique-key loser rechecks completion, then returns `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS` if no completed audit exists; a crash after claim and before completion leaves the claim, so same-day calls return 409 and the next UTC day may retry. The per-Tenant service verifies the manifest chain and appends a format-4 `.zcr` retirement row before deleting expired files. Its default deadline is nine minutes from run start; it stops starting Tenants at that boundary and `counts.tenantsDeferred` reports the remainder. The route awaits the current Tenant; the run audit records `timedOut: true` when Tenants remain. Counts include `retiredFilesAlreadyAbsent`; `filesDeleted` counts only files deleted by that run. One strict optional `dry_run` query (`true` or `false`) is accepted; `true` performs the production storage readiness precheck, reads chain/key/file state, simulates the same in-run key-destruction order and uses read-only `lstat` classification (every non-directory entry is unlinkable; directories and entries whose inspection fails for a reason other than `ENOENT` are reported as still present), but reads no daily claim or completion row and writes no claim, audit, retirement manifest, key change or deletion. It returns `{ dryRun: true, counts, tenants }` with per-Tenant counts, `skippedReason` and `failureCode`; the real-run response remains aggregate. Neither response includes message or customer content, Customer or manifest ids, or archive paths. `false` follows the real path. Tenant failures, broken-chain skips or deferred Tenants make the worker exit non-zero | `400 RETENTION_SWEEP_REQUEST_INVALID`; `401 RETENTION_SWEEP_CREDENTIAL_REQUIRED`; `409 ARCHIVE_EXPIRY_RUN_IN_PROGRESS`; `503 ARCHIVE_EXPIRY_UNAVAILABLE` (storage refusal or run-level failure) |
 
 ### Integration and Agent payload retention triggers (FR-230, ADR-091 D2)
 
-Both routes use the same deployment bearer and 10-minute route ceiling as the
-CRM retention-sweep route,
-read no request body and normally return counts only with their own distinct
-same-UTC-day audit guard. Each permits only one `dry_run=true` or
-`dry_run=false` query parameter; `true` bypasses the guard and writes nothing,
-returning `{ dryRun: true, countsByClass, tenants }` with per-Tenant counts and
-Tenant ids only. The one-shot worker normally calls CRM, CRM archive expiry,
-Integration, then Agent; with `--dry-run` it calls only Integration and Agent
-with `?dry_run=true`, and logs `{ event, skipped: 'NO_DRY_RUN' }` for CRM and
-archive expiry. Any non-empty `tenantFailures`, `archiveFailures` or
-`settleFailures` array in a class result fails the worker; archive expiry also
-fails when top-level `counts.failures`, `counts.skipped` or
-`counts.tenantsDeferred` is positive. The
-worker source is present, but no deployment schedule or production run is
-claimed.
+All four retention routes use the deployment bearer and accept at most one
+strict `dry_run=true|false` query parameter. The CRM, Integration and Agent
+triggers read no request body, use a 10-minute route ceiling and have distinct
+same-UTC-day guards on real runs. Their dry runs bypass those guards, apply the
+ordinary eligibility and skip rules, write no retention changes or audit
+events, and return `{ dryRun: true, countsByClass, tenants }` with per-Tenant
+counts and CRM status/failure fields (`archiveFailed`, `archiveFailureReason`,
+`settleFailed`, `settleFailureReason`, `invalidOverrideIgnored`). Archive expiry returns
+`{ dryRun: true, counts, tenants }`; its dry run still performs the production
+storage readiness precheck, simulates key-destruction order, and classifies
+files with `lstat` (every non-directory entry is unlinkable; directories and
+entries whose inspection fails for a reason other than `ENOENT` are reported as
+still present), but reads or writes no claim/completion/audit record and writes no
+manifest, key or file. The worker prints one JSON line per route containing
+the full response body, including aggregate counts and per-Tenant `tenants`
+rows with status/failure fields; archive expiry includes `skippedReason` and
+`failureCode`. No dry-run response includes message/customer content, Customer or
+manifest ids, or archive paths, so the operator can compare results. The real
+CRM retention response remains aggregate but may include the `manifests` array
+inside its class counts, with `{ tenantId, manifestId, runId, manifestHash }`
+per entry.
+The one-shot worker calls CRM, CRM archive expiry, Integration, then Agent;
+`--dry-run` sends `?dry_run=true` to all four and logs their count/status results.
+Non-empty `tenantFailures`, `archiveFailures` or `settleFailures` arrays fail
+the worker; archive expiry also fails when `counts.failures`, `counts.skipped`
+or `counts.tenantsDeferred` is positive. The worker source is present, but no
+deployment schedule or production run is claimed.
 
 The shared retention reader accepts only safe-integer override values of at
 least one day and clamps valid values to the installation default. A corrupt
@@ -1419,6 +1433,7 @@ canary evidence; those remain owner-gated release criteria.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.128.0b | 2026-11-13 | candidate | FR-230 / FR-245 / SEC-034: strict count-only dry runs for CRM retention and archive expiry; all four worker calls participate in `--dry-run`; route inventory and count marker unchanged; no production schedule or run claimed | working-tree | Codex |
 | 1.105.0b | 2026-10-12 | candidate | FR-270 OWNER-scoped weekly WIG execution: additive Strategy projection and seven write handlers; 342 route handlers, 343 OpenAPI paths, 448 operations; migrations authored locally, not production-applied | working-tree | Codex |
 | 1.102.0b | 2026-10-05 | candidate | FR-278 read-only Business-scoped executive dashboard at `/api/growth/line-sales`; 331 route handlers, 332 OpenAPI paths, 437 operations; local implementation only | working-tree | Codex |
 | 1.101.0b | 2026-09-27 | candidate | FR-022 (ADR-093 1.2.0): `POST /api/crm/customers/[customerId]/retention-consent` and `.../retention-consent/revoke`. Route handler count 328 -> 330 | working-tree | Claude Opus 5.5 (MC0) |

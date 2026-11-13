@@ -1,7 +1,7 @@
 ---
-version: "1.3.1"
+version: "1.3.2"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-11-13T15:00:00+07:00,Claude Fable 5.2"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -290,9 +290,14 @@ destroying a key twice.
   deletion out of `deletedFiles`. The next run reports the id under
   `retiredFilesAlreadyAbsent`, so the state is visible, but when the deletion happened is
   not recorded.
-- Archive expiry has no dry run, unlike the two 90-day sweepers. The keys destroyed in a
-  run decide which files have expired in that run, so the decision cannot be previewed
-  without destroying them.
+- Archive expiry has a count-only dry run. It simulates the same in-run key-destruction
+  order in memory, then previews retirement and file deletion. It cannot predict a hold
+  recorded, a file changed or deleted, or an erasure that lands between preview and the
+  real run. Its read-only writability probe checks permissions on the exact destination
+  directories, or the nearest existing ancestor when a destination does not yet exist;
+  it does not guarantee a later write will succeed. A full disk, quota exhaustion or a
+  concurrent storage or permission change can still make the real run fail. A retirement
+  or chain conflict at run time is not predicted.
 - A run that crashes after claiming blocks that UTC day's retries (see above).
 - A restore from a snapshot taken before a retirement brings back a chain that does not
   know the retirement, while the files stay deleted. The `.zcr` file on disk still says
@@ -303,6 +308,24 @@ destroying a key twice.
   whose key is still alive stay readable on the offline drive.
 - The format-1 migration in the 1.1.0 amendment needs "a missing file retired by a later
   manifest". P4 is that rule; the migration itself stays unimplemented.
+
+**Operator notes.** Before enabling the daily task, run
+`docker compose exec -T web node scripts/server-retention-sweep-worker.mjs --dry-run`
+from the deployment's Compose directory. The worker prints one JSON line per
+route, including the per-Tenant `tenants` count rows, so the operator can
+compare them. Stop if any of `tenantFailures`, `archiveFailures` or
+`settleFailures` is non-empty, or if `skipped`, `failures` or
+`tenantsDeferred` is positive; the worker exits non-zero. The first real run
+tombstones every eligible CRM message past the Tenant's effective window (24 months
+by default, shorter with an override) that is not skipped by the non-terminal-job,
+tombstone, archive-failure or deferral rules, and archive expiry irreversibly destroys
+expired archive keys and deletes expired archive files. A CRM dry run can still emit
+the existing server-side `console.error` line when an invalid stored override is ignored;
+it contains the Tenant id, data class and code and causes no data-state change.
+The preview is advisory: counts can change before the real run. Roadmap revision
+2.101.0b records an earlier production retention-sweep task/token, so verify the host's
+scheduler registration and `ZURI_RETENTION_SWEEP_TOKEN` state before assuming nothing is
+scheduled; this repository checkout cannot show host state.
 
 **Alternatives considered.**
 
@@ -366,6 +389,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.3.2 | 2026-11-13 | accepted | Count-only dry run added without changing the decision. Archive expiry simulates in-run key destruction and previews retired-file deletion with read-only lstat and a permission probe; known limits and the 24-month CRM default are recorded |
 | 1.3.1 | 2026-11-13 | accepted | Review fixes to the 1.3.0 implementation, no change to the decision: every chain writer takes a per-Tenant lock and reads the tail inside its transaction (P7 note), the daily run is an atomic claim and the route no longer returns while a run continues, the crash between key destruction and retirement is analysed as resumable and covered by tests, and the known limits are updated (no dry run for expiry, the unlogged deletion after a crash, PostgreSQL lock untested here). The owner confirmed the 1.3.0 approval a second time to the lead session on 2026-11-13 ("approve"), as relayed by that session; the first approval was given in the implementing session ("อนุมัติ ทำเลย") |
 | 1.3.0 | 2026-11-13 | accepted | D5 amendment, proposed 2026-11-12 and accepted by the owner on 2026-11-13: an expired file is retired by a chained retirement file (format 4, one ordinary manifest row, no schema change) before it is deleted, and chain verification accepts a missing file only when a valid later retirement names it. Closes the known limit of 1.2.0, and the expiry run gets its trigger (P7) |
 | 1.2.1 | 2026-09-28 | accepted | Runbook for a blocked erasure. The 409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` alert is now written durably after the rollback, as an ErrorEvent plus an `ERASURE_BLOCKED` audit event. The three ways to unblock are recorded, and so is the missing chain-repair tooling. A failure deciding orphaned lines after an archive committed is reported as its own `settleFailures` in the sweep audit, never as an archive failure |

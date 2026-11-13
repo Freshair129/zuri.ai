@@ -17,7 +17,7 @@ vi.mock('@/lib/db', () => ({ default: { auditEvent: { findFirst: mocks.findFirst
 import { POST as sweepPost } from '@/app/api/crm/retention-sweep/route'
 
 const token = 'r'.repeat(40)
-const request = (authorization) => new Request('http://local/api/crm/retention-sweep', {
+const request = (authorization, query = '') => new Request(`http://local/api/crm/retention-sweep${query}`, {
   method: 'POST', headers: authorization ? { authorization } : {},
 })
 
@@ -41,6 +41,44 @@ describe('deployment-authenticated retention sweep route', () => {
     }
     expect(mocks.findFirst).not.toHaveBeenCalled()
     expect(mocks.runRetentionSweep).not.toHaveBeenCalled()
+  })
+
+  it('validates only one strict dry_run value after the bearer check', async () => {
+    for (const query of ['?dry_run=1', '?dry_run=TRUE', '?dry_run=', '?dry_run=true&dry_run=false', '?other=true']) {
+      const response = await sweepPost(request(`Bearer ${token}`, query))
+      expect(response.status).toBe(400)
+      expect(await response.json()).toEqual({ error: 'RETENTION_SWEEP_REQUEST_INVALID' })
+    }
+    const unauthorized = await sweepPost(request(undefined, '?other=true'))
+    expect(unauthorized.status).toBe(401)
+    expect(mocks.runRetentionSweep).not.toHaveBeenCalled()
+    expect(mocks.findFirst).not.toHaveBeenCalled()
+  })
+
+  it('returns count-only dry-run results without reading the same-day audit guard', async () => {
+    const result = {
+      dryRun: true,
+      countsByClass: { MESSAGE_BODY_AND_ATTACHMENTS: { redactedMessages: 2, redactedAttachments: 1, skippedNonTerminalJob: 1 } },
+      tenants: [{ tenantId: 'tenant-1', redactedMessages: 2, redactedAttachments: 1, skippedNonTerminalJob: 1,
+        deferredErasedKey: 0, blankedWithoutArchive: 0 }],
+    }
+    mocks.runRetentionSweep.mockResolvedValueOnce(result)
+
+    const response = await sweepPost(request(`Bearer ${token}`, '?dry_run=true'))
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual(result)
+    expect(mocks.runRetentionSweep).toHaveBeenCalledTimes(1)
+    expect(mocks.runRetentionSweep.mock.calls[0][0]).toMatchObject({ db: expect.anything(), dryRun: true })
+    expect(mocks.findFirst).not.toHaveBeenCalled()
+  })
+
+  it('accepts dry_run=false and keeps the real guarded path', async () => {
+    const response = await sweepPost(request(`Bearer ${token}`, '?dry_run=false'))
+    expect(response.status).toBe(200)
+    expect(mocks.findFirst).toHaveBeenCalledTimes(1)
+    expect(mocks.runRetentionSweep).toHaveBeenCalledTimes(1)
+    expect(mocks.runRetentionSweep.mock.calls[0][0]).not.toHaveProperty('dryRun')
   })
 
   it('rejects every bearer when the configured token itself is short or unset — never a partial sweep', async () => {

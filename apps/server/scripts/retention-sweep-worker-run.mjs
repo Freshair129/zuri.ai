@@ -1,11 +1,12 @@
 // @req FR-230, FR-245, SEC-034 — the testable core of the single-shot nightly
-//   retention worker, including serial CRM archive expiry after the CRM chain
-//   writer. Split out of `server-retention-sweep-worker.mjs` for the same
+//   retention worker, including count-only dry runs across all four owning
+//   routes and serial CRM archive expiry after the CRM chain writer. Split out
+//   of `server-retention-sweep-worker.mjs` for the same
 //   reason `worker-cadence.mjs` was split out of `server-line-worker.mjs`: that
 //   file is a top-level-await script whose import *is* the process, so nothing
 //   inside it can be exercised from a test.
-// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0); SEC-001
-// @tested tests/unit/retention-sweep-worker-run.test.js
+// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0, 1.3.2); SEC-001
+// @tested tests/unit/retention-sweep-worker-run.test.js, tests/unit/retention-sweep-worker-dry-run-guards.test.js
 
 const ALLOWED_PLAIN_HTTP_HOSTS = ['web', 'localhost', '127.0.0.1', '[::1]']
 
@@ -30,6 +31,7 @@ export function resolveRetentionSweepWorkerConfig(env = process.env) {
   const token = env.ZURI_RETENTION_SWEEP_TOKEN
   if (!token || token.length < 32) throw new Error('ZURI_RETENTION_SWEEP_TOKEN_REQUIRED')
   if (endpoint.username || endpoint.password || endpoint.pathname !== '/api/crm/retention-sweep'
+    || endpoint.searchParams.size > 0 || endpoint.hash !== ''
     || (endpoint.protocol !== 'https:' && !(endpoint.protocol === 'http:' && ALLOWED_PLAIN_HTTP_HOSTS.includes(endpoint.hostname)))) {
     throw new Error('RETENTION_SWEEP_URL_INVALID')
   }
@@ -45,6 +47,18 @@ function hasRetentionSweepFailures(body, endpoint) {
       || Number(body?.counts?.failures ?? 0) > 0
       || Number(body?.counts?.tenantsDeferred ?? 0) > 0)
   return classFailures || archiveExpiryFailures
+}
+
+function isPlainObject(value) {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) return false
+  const prototype = Object.getPrototypeOf(value)
+  return prototype === Object.prototype || prototype === null
+}
+
+function hasValidDryRunBody(body, endpoint) {
+  if (body?.dryRun !== true || !Array.isArray(body.tenants)) return false
+  const counts = endpoint.pathname === '/api/crm/archive-expiry' ? body.counts : body.countsByClass
+  return isPlainObject(counts)
 }
 
 /**
@@ -65,6 +79,7 @@ function hasRetentionSweepFailures(body, endpoint) {
  */
 export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch, timeoutMs = 600_000 }) {
   try {
+    const dryRunRequested = endpoint.searchParams?.get('dry_run') === 'true'
     const response = await fetchImpl(endpoint, {
       method: 'POST',
       redirect: 'error',
@@ -74,7 +89,11 @@ export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch
     // Counts per class only — never customer content — matching what the route
     // itself returns and what the sweep's own audit event carries.
     const body = await response.json().catch(() => null)
-    return { ok: response.ok && !hasRetentionSweepFailures(body, endpoint), status: response.status, body }
+    return {
+      ok: response.ok && (!dryRunRequested || hasValidDryRunBody(body, endpoint)) && !hasRetentionSweepFailures(body, endpoint),
+      status: response.status,
+      body,
+    }
   } catch (err) {
     return { ok: false, status: null, body: null, error: err?.name === 'TimeoutError' ? 'TIMEOUT' : 'UNAVAILABLE' }
   }
@@ -84,8 +103,8 @@ export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch
 // the sweep, hold re-seal and retirement writers provides safety; this order
 // reduces contention but is not a correctness boundary.
 export const RETENTION_SWEEP_CALLS = Object.freeze([
-  Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true, supportsDryRun: false }),
-  Object.freeze({ name: 'archive-expiry', path: '/api/crm/archive-expiry', event: 'crm.archive-expiry.tick', supportsDryRun: false }),
+  Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true, supportsDryRun: true }),
+  Object.freeze({ name: 'archive-expiry', path: '/api/crm/archive-expiry', event: 'crm.archive-expiry.tick', supportsDryRun: true }),
   Object.freeze({ name: 'integration', path: '/api/integration/raw-retention-sweep', event: 'integration.raw-line-retention-sweep.tick', supportsDryRun: true }),
   Object.freeze({ name: 'agent', path: '/api/agent/trace-retention-sweep', event: 'agent.trace-retention-sweep.tick', supportsDryRun: true }),
 ])
@@ -99,7 +118,9 @@ export async function runRetentionSweepSequence({ endpoint, token, fetchImpl = f
       results.push({ name: call.name, event: call.event, result: { skipped: 'NO_DRY_RUN' } })
       continue
     }
-    const target = call.usesConfiguredEndpoint ? endpoint : new URL(call.path, endpoint.origin)
+    const target = call.usesConfiguredEndpoint
+      ? (dryRun ? new URL(endpoint.href) : endpoint)
+      : new URL(call.path, endpoint.origin)
     if (dryRun) target.searchParams.set('dry_run', 'true')
     const result = await runRetentionSweepOnce({ endpoint: target, token, fetchImpl, timeoutMs })
     results.push({ name: call.name, event: call.event, result })
