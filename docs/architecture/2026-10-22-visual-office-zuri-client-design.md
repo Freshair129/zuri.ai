@@ -1,10 +1,10 @@
 ---
 id: ZAI:VISUAL-OFFICE-CLIENT-DESIGN
 title: Visual Office as an optional Zuri platform client
-version: "0.4.0"
+version: "0.5.0"
 status: candidate
 created_at: "2026-10-22"
-last_update: "2026-11-12"
+last_update: "2026-11-13"
 author: Freshair129 (2026-10-22 draft); Claude Opus 5.5 (2026-11-06 reconciliation)
 superseded_by: null
 source_of_truth: false
@@ -287,29 +287,167 @@ Membership and no approval.
 
 `apps/server/vendor/office-design/provenance.json` pins the producer at
 revision `b4e2d8ed…` of `Freshair129/zuri-visual-office`, and every stored
-revision records that value as `producerRevision`.
+revision records that value as `producerRevision` (`OFFICE_PRODUCER_REVISION`
+in `office-design/service.js`).
 
-- That repository is the archived predecessor. In the current Visual Office
-  checkout the pinned commit is reachable only from the `archive` remote, not
-  from `origin` (`Freshair129/visual-office`).
+- That repository is the archived predecessor. The pinned commit
+  (`b4e2d8edec9d8dbad32573d860cff3a6a27efbbd`, "Merge pull request #12:
+  accepted low-rate Office MVP") is reachable from `archive/main` of
+  `https://github.com/Freshair129/zuri-visual-office.git`, and from no branch of
+  the current repository, `Freshair129/visual-office` (`origin`). The two
+  histories have no common ancestor, so "unchanged" below means identical git
+  blob content, not an ancestor relationship.
 - Of the 31 pinned producer source files, 28 are identical at `1dff013d` and
   three have changed since the pin: `web/office-characters.js`,
   `web/tycoon-models.js` and `web/tycoon-state.js`. The Three.js version is the
-  same (`0.180.0`).
-- zuri.ai's package tests use fixtures built from the pinned revision. No test
-  on either side feeds a package built by current Visual Office to the pinned
-  verifier, so whether today's exports are accepted is not established.
+  same (`0.180.0`, declared in the producer's `package.json` and installed; checked
+  by hand, not asserted by a test). `tycoon-models.js` changes `bakeActorClips` to bake bone nodes as well as
+  groups, and `tycoon-state.js` rewrites the browser `localStorage` store.
+  `office-characters.js` (about 170 changed lines) was not reviewed line by
+  line.
+- Observed on 2026-11-13, generating in memory from a read-only checkout at
+  `1dff013d` and writing nothing to it: the current producer's default stock
+  export is byte-identical to the committed `stock.zip.gz` fixture (archive
+  sha256 `9c21ab58…`, content hash `97599a01…`), and rebuilding the custom
+  fixture's scenes with the current `buildOfficeHandoff` and `handoffZip`
+  reproduces `custom.zip.gz` byte for byte (`8394bbab…`). So the three changed
+  files do not alter the default export or the actor GLB digest the receiver
+  pins. They are not shown to be irrelevant for edited scenes: a Visual Office
+  scene that exercises the changed actor or animation code has not been
+  exported or tested.
+- `tests/unit/office-design-current-producer.test.js` and its ledger
+  `tests/fixtures/office-design/current-producer.json` keep this finding
+  checkable. The always-on part pins the ledger to the committed fixtures and
+  runs raw tamper cases against the pinned verifier. The opt-in part, enabled
+  with `VISUAL_OFFICE_CHECKOUT=<path to a local read-only checkout>`, regenerates
+  both exports from that checkout, requires the pinned verifier to accept them
+  and, when the checkout is at the ledger's revision, requires the drift list to
+  equal the ledger. CI does not have the checkout, so the opt-in part is a local
+  pre-bump check and not a merge gate.
+
+#### Re-obtaining the pinned revision
+
+The vendored `verifier.mjs`, `archive.mjs` and `schema.json` are the runtime
+artifacts and are self-contained. The producer source is needed only to audit
+or rebuild them. To get the exact source:
+
+```bash
+git clone https://github.com/Freshair129/zuri-visual-office.git <empty-dir>
+git -C <empty-dir> cat-file -t b4e2d8edec9d8dbad32573d860cff3a6a27efbbd   # must print: commit
+git -C <empty-dir> merge-base --is-ancestor b4e2d8edec9d8dbad32573d860cff3a6a27efbbd origin/main
+git -C <empty-dir> checkout --detach b4e2d8edec9d8dbad32573d860cff3a6a27efbbd
+```
+
+In an existing Visual Office checkout, the same revision is fetched through
+the `archive` remote (`git fetch archive`). Install the producer's own
+dependencies in that clean checkout (Three.js `0.180.0`, esbuild `0.28.2`), then
+run `node scripts/vendor-office-design.mjs <that-checkout>` from `apps/server`.
+The script overwrites the files in `apps/server/vendor/office-design/` in place,
+so it is a rebuild, not a read-only check: run it in a scratch worktree of
+zuri.ai, then `git diff --stat -- apps/server/vendor/office-design` must be
+empty (the committed bytes are the reference); restore any difference with
+`git checkout -- apps/server/vendor/office-design`. Hashes in
+`provenance.json` were computed on a Windows checkout and match the repository
+blobs either as stored (LF) or with CRLF line endings; all 31 producer inputs
+were matched against the pinned commit on 2026-11-13 (the Three.js files were
+not re-checked).
+That a clean rebuild reproduces `bundleSha256` byte for byte was not re-run in
+the change that wrote this section. The archive repository's availability is an
+external dependency: if it is deleted, runtime verification still works, but
+the source audit and rebuild do not.
+
+#### Reviewing a verifier bump
+
+Changing the pin is a contract review, never a dependency upgrade, and needs
+the owner's approval before the pin file changes. In order:
+
+1. Name the new revision, which must be reachable from `origin` of the current
+   producer repository, and the reason for the bump.
+2. Diff the new revision against the pinned one at blob level for all producer
+   inputs the build lists, the Three.js version, the handoff schema
+   (`contracts/office-design-handoff-v1.schema.json`) and
+   `scripts/office-handoff-archive.mjs`. A schema or archive-format change is a
+   new contract version for FR-294, not a bump.
+3. Rebuild with `scripts/vendor-office-design.mjs` from a clean checkout and
+   update together: `provenance.json`, the revision constant in that script,
+   `OFFICE_PRODUCER_REVISION` in `office-design/service.js`, the vendor README
+   and the tests that assert the revision.
+4. Re-review the receiver's own pins that the new producer could invalidate: the
+   actor GLB digest and the fixed workflow catalog preflight in
+   `validation-worker.mjs`.
+5. Regenerate the fixtures from the new producer, update the ledger, and run
+   `office-design-package`, `office-design-provenance` and
+   `office-design-current-producer` with `VISUAL_OFFICE_CHECKOUT` set.
+6. Stored revisions keep the `producerRevision` they were verified under; a bump
+   neither re-verifies nor rewrites them.
+7. Independent review of the same patch, exact-head CI, then the owner's
+   approval recorded in the change request that authorizes the bump.
 
 ### 12.5 Not built
 
 | Gap | State |
 |---|---|
-| Portable recovery | Generic JSON backup and restore refuse while any Office Design registry exists (`backup-boundary.js`, `OFFICE_DESIGN_RECOVERY_UNAVAILABLE`). Whole-database recovery is the only path |
+| Portable recovery | Generic JSON backup and restore refuse while any Office Design registry exists (`backup-boundary.js`, `OFFICE_DESIGN_RECOVERY_UNAVAILABLE`). Whole-database recovery is the only path. §13 is a candidate proposal |
 | Same-origin `/office/` serving | Accepted in ADR-116 decision 4 with its CSP and artifact-hash conditions; not implemented |
 | Separately hosted client enrollment | The fallback if same-origin serving cannot meet its conditions; no registration or token contract exists |
 | Identities dropped from a later design | A later revision adds missing identities and never retires one. Whether an omitted entity stays as history, is retired or may be deleted is undecided |
 | Process-level containment of the verifier | The worker has heap limits and a timeout; total process memory is not bounded by them |
 | Snapshot, roster, command and event contracts | Named by ADR-116 for separate requirements; none issued |
+
+## 13. Portable recovery of Office design custody — candidate proposal
+
+**Status: candidate proposal. Not approved, not scheduled.** It adds no requirement, route, contract or permission and does not change FR-294. Approving any option below is the owner's decision and needs its own change request.
+
+### 13.1 The gap
+
+`assertOfficeDesignBackupSafe` (`office-design/backup-boundary.js`) makes generic JSON export and restore refuse with `409 OFFICE_DESIGN_RECOVERY_UNAVAILABLE` as soon as one `OfficeDesignRegistry` row exists. The refusal is installation-wide: one Business registering one design stops the generic backup for every tenant on that installation, and there is no Office-specific export to use instead. The only recovery that preserves Office custody is whole-database recovery (a consistent database and volume copy), which cannot restore one Business, cannot move a Business to another installation and cannot be exercised by the application.
+
+Other domains handled the same problem with a versioned recovery manifest. `phase-b-recovery.v1` (`phase-b-backup.js`, `docs/architecture/project-manager-system/26-PHASE-B-RECOVERY-AND-ERASURE-DECISION.md`) has a protected offline export and a clean-target restore guard, and is the closest precedent. Others (`knowledge-artifact-storage-recovery.v1`, `commerce-billing-recovery.v1` and more in `backup-service.js`) are manifests carried inside the generic snapshot object with their own validation. A new Office format would follow the first pattern, because Office data does not fit the generic replace-everything restore.
+
+### 13.2 What recovery has to preserve
+
+| Custody item | Why it cannot be regenerated |
+|---|---|
+| `OfficeDesignRegistry` (`id`, `code` `ODR-…`, scope ids, `version`) | `version` is the compare-and-swap counter that `If-Match` is checked against; a restored value that is lower or higher breaks replay and conflict behavior |
+| `OfficeDesignIdentity` (`id`, `code` `ODI-…`, `externalId`, `kind`, `semanticKey`) | The server UUIDs were already returned to callers as `mapping[].zuriId`; minting new ones silently breaks every reference held outside the database |
+| `OfficeDesignRevision` (`version` 1…N, `contentHash`, `archiveSha256`, `manifestJson`, `producerRevision`, `createdByPersonId`) | Immutable design history and attribution; `manifestJson` must come back byte for byte |
+| `OfficeDesignBlob` (`sha256`, `byteLength`, `bytes`) | The GLB bytes are held only here; sha256 is recomputable |
+| `OfficeDesignImportReceipt` (`requestKey`, `commandHash`, `resultJson`) | Idempotent replay returns the stored result, which embeds `registryId`, `revisionId`, identity codes and `auditEventId` |
+| `AuditEvent` rows `OFFICE_DESIGN` / `REGISTER_DESIGN_REVISION` | Referenced by `auditEventId` in receipts and by `revisionId` in the payload; lives in a generic table owned by another recovery path |
+| Rows the above point to: Tenant, Business, Workspace | Foreign keys are `Restrict`; the targets must already exist. `createdByPersonId` on a revision is a plain string with no foreign key, so it restores without a Person row but may then name a Person the target does not hold |
+
+Hash and chain integrity as it exists today: the Office tables carry no row-level hash chain, and `AuditEvent` in `schema.prisma` has no chained-hash column. The integrity anchors are `contentHash` (recomputable from `manifestJson` by the pinned canonicalization), blob `sha256` (recomputable from `bytes`), `archiveSha256` and the receipt `commandHash`. `archiveSha256` is the hash of the uploaded ZIP, and the ZIP is not stored (only its manifest and blobs are), so after a restore it can be carried and compared but not recomputed. `commandHash` is a hash over `workspaceId`, `expectedVersion`, `contentHash` and `archiveSha256`; it can be recomputed only from the carried values.
+
+### 13.3 Options
+
+| | Option | For | Against |
+|---|---|---|---|
+| A | **Keep the refusal; declare whole-database recovery the supported path** and rehearse it | No code; custody and identities are preserved by construction | No per-Business or cross-installation recovery; generic JSON backup stays blocked everywhere while any registry exists; not exercised by tests |
+| B | **Add the five Office models to the generic JSON snapshot** | Smallest change to the backup surface | Generic restore replaces every tenant and deletes graphs before insert; GLB `bytes` in one JSON document (up to the 100 MB package bound per upload, many uploads); `Restrict` foreign keys and audit linkage are not handled; the refusal in `SNAPSHOT_EXCLUDED_MODELS` was written to prevent exactly this |
+| C | **A dedicated `office-design-recovery.v1` manifest**, protected offline export first, clean-target restore second | Follows the existing precedent; export is non-destructive; blobs as separate content-addressed files; completeness is checkable (counts, recomputed hashes, revision continuity `1…version`, receipt-to-revision linkage) | New contract to specify and qualify on SQLite and PostgreSQL; has to decide how audit events travel |
+| D | **Re-import the stored manifests through the receiver** | Reuses the receiver | Mints new server UUIDs and receipts, so the crosswalk, replay and audit linkage change; `SNAPSHOT_EXCLUDED_MODELS` refuses this for that reason |
+
+### 13.4 Risks to custody and integrity
+
+- **Identity continuity.** Any path that regenerates `id`, `code` or receipts (option D, or a careless option C) breaks references that already left the database.
+- **Immutability.** A restore that writes into an existing registry could overwrite or reorder revisions. Restore must refuse a target that already has a registry for the same scope instead of merging.
+- **Split brain on `version`.** Restoring an older export over a newer registry reopens the compare-and-swap window and lets a stale client's `If-Match` succeed.
+- **Audit linkage.** Restoring Office rows without their audit events leaves dangling `auditEventId` values; restoring audit events needs the generic audit recovery to agree. Fabricating audit events at restore would be false custody.
+- **Hash verification limits.** `archiveSha256` cannot be re-derived, and a later verifier bump (§12.4) must not re-verify or rewrite restored historical revisions, which stay labelled with the `producerRevision` they were accepted under.
+- **Scope and disclosure.** An export contains design data and GLB bytes for a Business; it must be produced only under operator authority and keep per-scope boundaries, as the existing protected exports do.
+- **Retention.** Whether an identity omitted by a later design is history, retired or deletable is undecided (§12.5); recovery completeness is defined against that rule.
+
+### 13.5 Recommended minimal first step
+
+Option C, in two slices, with the first one not restoring anything:
+
+1. **Owner decisions first:** the supported interim position (option A is already true in practice and should be stated and rehearsed), whether recovery must be per Business or may be installation-wide, and how audit events are carried.
+2. **Slice 1, export and offline verifier only.** A protected offline export of every registry and its identities, revisions, blobs and receipts, with a manifest of counts and digests, and a command that verifies a package (recomputes `contentHash` and blob `sha256`, checks revision continuity and receipt linkage) without touching a database. It cannot lose data, gives backup evidence, and settles the format before any restore code exists.
+3. **Slice 2, clean-target restore** after the format is qualified: refuse any target that already holds a registry for the scope or lacks a referenced Tenant, Business or Workspace, preserve every id and code, and write no synthesized receipts or audit rows.
+
+Until slice 1 exists the refusal in `backup-boundary.js` stays unchanged.
+
+**Version diff 0.4.0 → 0.5.0 (2026-11-13):** Expands §12.4 with the observed comparison of the current producer against the pinned verifier, how to re-obtain the pinned revision and how a verifier bump is reviewed; points §12.5 at the new candidate §13 on portable recovery. No contract, route, permission or approval is added, and the pin is unchanged.
 
 **Version diff 0.3.1 → 0.4.0 (2026-11-12):** Adds §12, an as-built description
 of the FR-294/FR-295 handoff on both sides, the state of the verifier pin and
