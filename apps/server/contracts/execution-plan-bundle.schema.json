@@ -258,7 +258,8 @@
         "idempotencyKey": {
           "type": "string",
           "minLength": 1,
-          "maxLength": 256
+          "maxLength": 256,
+          "not": { "pattern": "^zai-legacy-plan:" }
         },
         "sourceType": {
           "type": "string",
@@ -432,7 +433,8 @@
             },
             "idempotencyKey": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "not": { "pattern": "^zai-legacy-plan:" }
             },
             "sourceType": {
               "type": "string",

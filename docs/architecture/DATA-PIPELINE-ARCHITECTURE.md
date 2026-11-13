@@ -1,7 +1,7 @@
 ---
 id: ZAI:DATA-PIPELINE-ARCHITECTURE
 title: Data pipeline architecture — how each pipeline is controlled
-version: "0.1.1"
+version: "0.1.2"
 status: candidate
 created_at: "2026-11-12"
 last_update: "2026-11-13"
@@ -43,8 +43,9 @@ where it is combined and who receives it*. This page answers the other half:
 where its transaction ends, how a repeat is recognised, and what happens to a
 record that fails.
 
-It is a description of the code at `49b10eb3`, not a new authority. The owning
-charter, ADR and machine-readable contract decide each pipeline's behaviour.
+It began as a description of the code at `49b10eb3`, not a new authority; the
+dated version diffs record later code changes and verification limits. The
+owning charter, ADR and machine-readable contract decide each pipeline's behaviour.
 A cell marked **unverified** was not established by the review; it is not a
 claim that the property is absent.
 
@@ -103,7 +104,7 @@ returned to the caller is a refusal, not a hold.
 
 | # | Pipeline | Kind | Contract and validation | Preview | Transaction boundary | Repeat recognised by | On failure | Evidence | Owner | In the map |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | Plan, delta and bundle import | Intake | Zod + JSON Schema; bundle semantics | Dry run | Plan: one transaction. Bundle: one outer transaction | `trace.idempotencyKey` — required for a full plan at `schemaVersion` 1.2, a delta at 1.3 and a bundle at 1.1; optional for a full plan at 1.0 or 1.1 and for a legacy bundle | Refusal with preview errors | Execution run/step, receipt, AuditEvent | project-manager | CH-10 |
+| 1 | Plan, delta and bundle import | Intake | Zod + JSON Schema; bundle semantics | Dry run | Plan: one transaction. Bundle: one outer transaction | Full plan: derived for `schemaVersion` 1.0/1.1; caller-supplied `trace.idempotencyKey` required for 1.2. Delta 1.3 and bundle 1.1 require a caller-supplied key; a legacy bundle may omit it | Refusal with preview errors | Execution run/step, receipt, AuditEvent | project-manager | CH-10 |
 | 2 | Catalogue intake | Intake | Envelope + per-item validation | Persisted, hashed plan | One transaction; plan re-computed inside it | Business + channel + correlation key, and the plan hash | Stale or conflicting plan refuses | Intake status, writer AuditEvents | inventory | CH-11 |
 | 3 | Supplier cost sheet | Intake | Envelope normalisation | Persisted draft with mapping suggestions | One transaction after mappings are confirmed | Business + source SHA-256, and the preview hash | Unconfirmed or stale mappings refuse; the draft stays | Sheet and line status, audit counts | procurement | **No** |
 | 4 | Asset intake and registration | Intake | Strict envelope from the converters | Workbook or sheet preview | Intake: one transaction. Registration: a later one | Business + channel + correlation, bound to the payload hash | Invalid envelope refuses | `AssetIntake`, evidence, AuditEvents, ledger definition `DPL-ASSET-REGISTER-IMPORT-V1` | asset-management | CH-08 |
@@ -165,11 +166,32 @@ where a reader of the rule would look.
    (`build_business_knowledge_import.py`) does not touch the database: it
    generates a SQL file that an operator runs. The "every write goes through a
    service" rule has no stated exception for either.
-2. **A full plan at `schemaVersion` 1.0 or 1.1 has no replay key.**
-   `plan-schema.js` requires `trace.idempotencyKey` for a full plan only at
-   1.2, and `plan-import-service.js` reads it only there, so a repeated
-   submission of an older full plan is not recognised as a repeat. Deltas (1.3)
-   and handoff bundles (1.1) always carry a key; a legacy bundle may omit it.
+2. **A full plan at `schemaVersion` 1.0 or 1.1 has no caller-supplied replay key.**
+   `plan-schema.js` does not require `trace.idempotencyKey` for these versions.
+   **Closed in code on 2026-11-13:** rejecting them is not viable because every
+   producer (Excel converter, task envelope, human plan builder, wizard and
+   sample plans) emits 1.0. The service now derives
+   `zai-legacy-plan:v1:<sha256>` from the Workspace id, receipt actor and
+   normalized plan after removing `trace.correlationId` and
+   `trace.idempotencyKey` (with a `v: 1` hash marker). It uses that key through
+    the same `PlanImportReceipt`, replay and conflict path as a 1.2 key. If no
+    trace fields remain after those two are removed, the service drops `trace`
+    before hashing, so absent trace and an empty trace have the same identity.
+
+    The `zai-legacy-plan:` prefix is reserved for this server-derived identity.
+    Full-plan 1.2, delta 1.3 and bundle validators refuse caller-supplied keys
+    with that prefix before they can occupy a `PlanImportReceipt` key. A
+    successful replay response carries `replay: true`; PlanImportPanel displays
+    a distinct Thai message that the plan was imported earlier and nothing
+    changed in this submission.
+
+   For operators, an identical resubmission by the same actor into the same
+   Workspace is a replay (`replay: true`): nothing is reapplied, and edits made
+   since the first import are preserved. To force a reapply, change the plan
+   content or use schemaVersion 1.2 with a fresh `trace.idempotencyKey`. The
+   ledger replay API is unaffected: it upgrades to 1.2 with a random key.
+   Bundle-internal commits are unaffected because they opt out of legacy-key
+   derivation.
 3. **Staged runs have no end-to-end preview.** That is inherent — a run that
    leaves the process cannot be dry-run as one transaction — but BR-009 is
    worded as if every intake previews.
@@ -218,9 +240,14 @@ real surface path and requirement ids the readiness snapshot knows, and
 
 ## Version diff
 
+0.1.1 → 0.1.2 (2026-11-13): records the derived replay identity for full plans
+at schemaVersion 1.0/1.1, empty-trace normalization, the reserved
+`zai-legacy-plan:` prefix, the `replay: true` response and Thai import-panel
+message, plus the still separate ledger and bundle paths.
+
 0.1.0 → 0.1.1 (2026-11-13): findings 4 and 5 and the flow 23 row note that the
 expiry trigger, the chain-safe retirement and the two 90-day sweepers now exist
-in code. The body of the document remains the static review at `49b10eb3`.
+in code. The original inventory was based on static review at `49b10eb3`.
 
 0.0 → 0.1.0 (2026-11-12): first inventory of pipeline control properties, the
 four failure behaviours, the departures from BR-009 / SDD-009 and the flows the

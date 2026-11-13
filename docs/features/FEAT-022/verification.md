@@ -34,6 +34,7 @@ status: generated
 - [apps/server/tests/e2e/fr161-sales-tasks.spec.js](../../../apps/server/tests/e2e/fr161-sales-tasks.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/code-allocation-retry.test.js](../../../apps/server/tests/integration/code-allocation-retry.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr161-sales-task.test.js](../../../apps/server/tests/integration/fr161-sales-task.test.js) — `verifies` (`test-reference`)

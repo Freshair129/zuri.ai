@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { z } from 'zod'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendMovement, mayManage as mayManageInventory } from '@/modules/inventory'
@@ -95,7 +96,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
   const id = typeof orderId === 'string' ? orderId.trim() : ''
   if (!id) throw notFound()
   const data = zPostReceipt.parse(input)
-  const result = await db.$transaction(async (tx) => {
+  const result = await retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const order = await tx.purchaseOrder.findUnique({ where: { id }, select: PO_SELECT })
     if (!order) throw notFound()
     const business = await loadBusiness(tx, viewer, order.businessId, { capability: 'receipt' })
@@ -200,7 +201,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     }
     const updated = await tx.purchaseOrder.findUnique({ where: { id: order.id }, select: PO_SELECT })
     return { receipt, order: updated, posted }
-  })
+  }), { exhausted: () => failure(409, 'GOODS_RECEIPT_CODE_EXHAUSTED') })
   return { receipt: receiptDto(result.receipt), order: purchaseOrderDto(result.order), posted: result.posted }
 }
 
