@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { zPlanDelta } from './plan-delta-schema'
+import { isReservedPlanImportIdempotencyKey, RESERVED_PLAN_IMPORT_KEY_MESSAGE } from './reserved-keys'
 import {
   zExecutionMode,
   zProgressStrategy,
@@ -122,7 +123,10 @@ const zTagRef = z.object({
 
 const zTrace = z.object({
   correlationId: z.string().min(1).optional(),
-  idempotencyKey: z.string().min(1).optional(),
+  idempotencyKey: z.string().min(1)
+    .describe('Caller-supplied receipt key; the zai-legacy-plan: prefix is reserved for server-derived legacy replay identities.')
+    .refine((value) => !isReservedPlanImportIdempotencyKey(value), { message: RESERVED_PLAN_IMPORT_KEY_MESSAGE })
+    .optional(),
   replayOfExecutionRunId: z.string().min(1).nullable().optional(),
   replayOfExecutionStepId: z.string().min(1).nullable().optional(),
   replayStepKeys: z.array(z.string().min(1)).max(20).optional(),

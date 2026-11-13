@@ -6,6 +6,7 @@ import {
 import { listWorkForViewer as defaultListWorkForViewer } from '@/modules/project-manager/application/work-read-service'
 import { updateItem as defaultUpdateWorkItem } from '@/modules/project-manager/application/work-service'
 import { EXECUTION_MODES, WORK_STATUSES } from '@/lib/validation/enums'
+import { isReservedPlanImportIdempotencyKey, RESERVED_PLAN_IMPORT_KEY_MESSAGE } from '../import/reserved-keys'
 import {
   createPipelineRunFromWorker as defaultCreatePipelineRunFromWorker,
   getPipelineMonitor as defaultGetPipelineMonitor,
@@ -66,7 +67,7 @@ const TOOL_DEFINITIONS = [
     argumentKeys: PROJECT_MANAGER_ARGUMENT_KEYS,
     required: ['plan'],
     properties: {
-      plan: { type: 'object', description: 'PlanEnvelope data validated by the Project Manager contract.' },
+      plan: { type: 'object', description: 'PlanEnvelope data validated by the Project Manager contract. Caller-supplied trace.idempotencyKey values must not start with the reserved prefix zai-legacy-plan:.' },
       workspaceId: { type: 'string', description: 'Optional server-resolved target workspace id.' },
     },
   },
@@ -78,7 +79,7 @@ const TOOL_DEFINITIONS = [
     argumentKeys: PROJECT_MANAGER_ARGUMENT_KEYS,
     required: ['plan'],
     properties: {
-      plan: { type: 'object', description: 'PlanEnvelope data validated by the Project Manager contract.' },
+      plan: { type: 'object', description: 'PlanEnvelope data validated by the Project Manager contract. Caller-supplied trace.idempotencyKey values must not start with the reserved prefix zai-legacy-plan:.' },
       workspaceId: { type: 'string', description: 'Optional server-resolved target workspace id.' },
     },
   },
@@ -299,6 +300,9 @@ function validateToolArguments(name, rawArguments) {
   }
   if (name === 'project_manager.plan_dry_run' || name === 'project_manager.plan_commit') {
     if (!isRecord(args.plan)) throw new Error(`${name} requires a PlanEnvelope object in arguments.plan`)
+    if (isReservedPlanImportIdempotencyKey(args.plan.trace?.idempotencyKey)) {
+      throw new Error(RESERVED_PLAN_IMPORT_KEY_MESSAGE)
+    }
     if (args.workspaceId !== undefined && typeof args.workspaceId !== 'string') {
       throw new Error('arguments.workspaceId must be a string when provided')
     }

@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { describe, expect, it } from 'vitest'
 import {
   PASSWORD_MIN_LENGTH,
+  SIGNUP_ERROR_CODE_BUSY,
   SIGNUP_ERROR_EMAIL_TAKEN,
   SIGNUP_ERROR_PASSWORD,
   SIGNUP_ERROR_UNAVAILABLE,
@@ -68,6 +69,7 @@ describe('FR-120 signup copy', () => {
       expect(signupErrorMessage({ error: code }), `${code} has no sentence of its own`)
         .not.toBe(SIGNUP_ERROR_UNAVAILABLE)
     }
+    expect(signupErrorMessage({ error: 'PERSON_CODE_EXHAUSTED' })).toBe(SIGNUP_ERROR_CODE_BUSY)
   })
 })
 

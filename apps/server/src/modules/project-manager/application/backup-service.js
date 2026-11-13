@@ -471,13 +471,14 @@ export const SNAPSHOT_MODELS = [
   // @req FR-164, FR-165 — a supplier hangs off Tenant and Business, a purchase
   // order off the supplier, its lines off the order and Product, a goods
   // receipt off the order and its lines off the receipt and the order lines —
-  // parents first, so these restore here and delete in the reverse. Contact
-  // and cost data, no secret: exported whole.
-  'supplier', 'purchaseOrder', 'purchaseOrderLine', 'goodsReceipt', 'goodsReceiptLine',
+  // parents first, so these restore here and delete in the reverse. A receipt's
+  // optional locked-FX parent must precede the receipt. Contact and cost data,
+  // no secret: exported whole.
+  'supplier', 'purchaseOrder', 'purchaseOrderLine', 'supplierCostSheet', 'goodsReceipt', 'goodsReceiptLine',
   // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053 —
   // a supplier cost-sheet version references Supplier and Business; its
   // confirmed lines reference Product and the sheet, so both follow parents.
-  'supplierCostSheet', 'supplierCostLine',
+  'supplierCostLine',
   // Its account and inbound Message must both exist before restoring the ledger.
   'lineConversationJob',
   'agentTraceEvent', 'memoryProjectionReceipt',

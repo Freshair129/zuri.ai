@@ -1,6 +1,7 @@
 import { z } from 'zod'
 import { PURCHASE_ORDER_ACTIONS, SUPPLIER_ACTIONS } from '@/lib/validation/enums'
 import { zInventoryCode } from '@/modules/inventory/domain/inventory'
+import { amortiseSatang } from '@/modules/inventory/domain/inventory-costing'
 
 // @req FR-164 — the pure vocabulary and calculators of the buy side: the
 //   supplier contract, the purchase-order line and its cost (integer satang —
@@ -25,6 +26,26 @@ export const PROCUREMENT_TIME_ZONE = 'Asia/Bangkok'
 export const PURCHASE_ORDER_OPEN_STATUSES = Object.freeze(['DRAFT', 'SENT'])
 /** The derived receipt state of a purchase order — computed on read, never a column. */
 export const RECEIPT_STATES = Object.freeze(['NONE', 'PARTIAL', 'COMPLETE'])
+export const LANDED_COST_COMPONENTS = Object.freeze(['SEA_FREIGHT', 'IMPORT_DUTY', 'INBOUND_TRUCK', 'OTHER'])
+export const NON_TWO_DECIMAL_CURRENCIES = Object.freeze([
+  'BIF', 'CLP', 'DJF', 'GNF', 'ISK', 'JPY', 'KMF', 'KRW', 'PYG', 'RWF', 'UGX', 'UYI', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+  'BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND',
+  'CLF', 'UYW', 'XDR',
+])
+
+/** ISO currency minor-unit digits; malformed/unsupported codes have no usable exponent. */
+export function currencyMinorUnitDigits(currency) {
+  if (typeof currency !== 'string') return null
+  try {
+    return new Intl.NumberFormat('en', {
+      style: 'currency',
+      currency: currency.trim().toUpperCase(),
+    }).resolvedOptions().maximumFractionDigits
+  } catch (error) {
+    if (error instanceof RangeError) return null
+    throw error
+  }
+}
 
 // ── Money (the Commerce rule: integer satang in columns, baht in the API) ───
 
@@ -226,6 +247,17 @@ export const zReceiptLine = z.object({
   serialNos: z.array(zText(100)).max(500).optional(),
 }).strict()
 
+const zLandedCost = z.object({
+  component: z.enum(LANDED_COST_COMPONENTS),
+  amountSatang: z.number().int().nonnegative().max(2147483647),
+  reference: z.string().trim().max(100).optional(),
+  note: z.string().trim().max(200).optional(),
+}).strict().superRefine((component, ctx) => {
+  if (component.component === 'OTHER' && !component.note) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['note'], message: 'OTHER requires a non-empty note' })
+  }
+})
+
 export const zPostReceipt = z.object({
   supplierReference: zOptionalText(100),
   notes: zOptionalText(2000),
@@ -233,7 +265,9 @@ export const zPostReceipt = z.object({
   lines: z.array(zReceiptLine).min(1).max(200),
   // @req FR-175, FR-165 — batch costs (freight, customs, handling) amortised
   // across counted lines into the movement's landed cost.
-  batchCostSatang: z.number().int().nonnegative().optional(),
+  batchCostSatang: z.number().int().nonnegative().max(2147483647).optional(),
+  landedCosts: z.array(zLandedCost).max(20).optional(),
+  fxCostSheetId: zId.optional(),
   // @req FR-196 — same shape as commerce's `selfVerifyAttested`: an explicit,
   // auditable exemption from refusing a receipt against a purchase order the
   // same person created. Never silent — it lands in the audit payload.
@@ -246,6 +280,17 @@ export const zPostReceipt = z.object({
     }
     seen.add(line.purchaseOrderLineId)
   }
+  if (value.batchCostSatang !== undefined && value.landedCosts !== undefined) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['landedCosts'], message: 'batchCostSatang and landedCosts are mutually exclusive' })
+  }
+  const seenComponents = new Set()
+  for (const [index, item] of (value.landedCosts ?? []).entries()) {
+    if (item.component === 'OTHER') continue
+    if (seenComponents.has(item.component)) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['landedCosts', index, 'component'], message: 'a non-OTHER component appears once per receipt' })
+    }
+    seenComponents.add(item.component)
+  }
 })
 
 // ── Calculators ─────────────────────────────────────────────────────────────
@@ -253,6 +298,41 @@ export const zPostReceipt = z.object({
 /** qty × unit cost, in satang. */
 export function lineCostSatang(line) {
   return line.qty * line.unitCostSatang
+}
+
+/** Derive one receipt line's THB landed cost from the PO basis and recorded shared components. */
+export function deriveReceiptLineCost({ currency, agreedUnitCostSatang, fxRateLocked = null, countedQty, components = [] } = {}) {
+  if (!Number.isSafeInteger(countedQty) || countedQty <= 0) throw new Error('countedQty must be a positive integer')
+  const normalizedCurrency = typeof currency === 'string' ? currency.trim().toUpperCase() : currency
+  const isBaht = normalizedCurrency === 'THB'
+  if (!isBaht && (NON_TWO_DECIMAL_CURRENCIES.includes(normalizedCurrency) || currencyMinorUnitDigits(normalizedCurrency) !== 2)) {
+    throw new Error(`unsupported non-two-decimal receipt currency: ${normalizedCurrency}`)
+  }
+  if (!isBaht && (!Number.isFinite(fxRateLocked) || fxRateLocked <= 0)) {
+    throw new Error('a positive locked FX rate is required for foreign-currency receipt cost')
+  }
+
+  const lockedRate = isBaht ? null : fxRateLocked
+  const factoryUnitCostSatang = agreedUnitCostSatang == null
+    ? null
+    : isBaht
+      ? agreedUnitCostSatang
+      : supplierCostSatang(agreedUnitCostSatang / 100, lockedRate)
+  const componentUnitCostSatang = {}
+  for (const item of components) {
+    componentUnitCostSatang[item.component] = (componentUnitCostSatang[item.component] ?? 0) + amortiseSatang(item.amountSatang, countedQty)
+  }
+  const unitCostSatang = factoryUnitCostSatang == null
+    ? null
+    : factoryUnitCostSatang + Object.values(componentUnitCostSatang).reduce((sum, value) => sum + value, 0)
+
+  return {
+    agreedUnitCostSatang: agreedUnitCostSatang ?? null,
+    fxRateLocked: lockedRate,
+    factoryUnitCostSatang,
+    componentUnitCostSatang,
+    unitCostSatang,
+  }
 }
 
 /** What one order line has received (from its receipt lines) and what is still outstanding. */

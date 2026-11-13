@@ -5,7 +5,7 @@ import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRete
 // @req FR-230, FR-245, SEC-034 — the testable core of the single-shot retention sweep worker:
 //   configuration validation, one authenticated call, and the one JSON line it
 //   ever logs. No customer content in any of the three.
-// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0); SEC-001
+// @spec ADR-091 D1, D2; ADR-093 D5 (1.3.0, 1.3.2); SEC-001
 // @tested tests/unit/retention-sweep-worker-run.test.js
 
 const token = 't'.repeat(40)
@@ -199,34 +199,50 @@ describe('runRetentionSweepSequence', () => {
     ])
   })
 
-  it('dry-runs only the two supporting calls, appends the query, and logs explicit skips', async () => {
+  it('dry-runs all four calls in order and appends the strict query', async () => {
     const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
+    const bodies = [
+      { dryRun: true, countsByClass: { MESSAGE_BODY_AND_ATTACHMENTS: { redactedMessages: 2 } }, tenants: [{ tenantId: 't0', redactedMessages: 2 }] },
+      { dryRun: true, counts: { tenantsVisited: 1, keysDestroyed: 1, skipped: 0, failures: 0, tenantsDeferred: 0 }, tenants: [{ tenantId: 't0', keysDestroyed: 1 }] },
+      { dryRun: true, countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } }, tenants: [{ tenantId: 't1', redactedRawRecords: 3 }] },
+      { dryRun: true, countsByClass: { AGENT_TRACE_EVENT: { redactedTurns: 2, redactedEvents: 5 } }, tenants: [{ tenantId: 't2', redactedTurns: 2, redactedEvents: 5 }] },
+    ]
     const fetchImpl = vi.fn()
-      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ dryRun: true,
-        countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } }, tenants: [{ tenantId: 't1', redactedRawRecords: 3 }] }) })
-      .mockResolvedValueOnce({ ok: true, status: 200, json: async () => ({ dryRun: true,
-        countsByClass: { AGENT_TRACE_EVENT: { redactedTurns: 2, redactedEvents: 5 } }, tenants: [{ tenantId: 't2', redactedTurns: 2, redactedEvents: 5 }] }) })
+    for (const body of bodies) fetchImpl.mockResolvedValueOnce({ ok: true, status: 200, json: async () => body })
 
     const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl, dryRun: true })
 
     expect(result.ok).toBe(true)
-    expect(RETENTION_SWEEP_CALLS.map(call => call.supportsDryRun)).toEqual([false, false, true, true])
+    expect(RETENTION_SWEEP_CALLS.map(call => call.supportsDryRun)).toEqual([true, true, true, true])
     expect(result.results.map(entry => entry.name)).toEqual(['crm', 'archive-expiry', 'integration', 'agent'])
-    expect(result.results.slice(0, 2).map(entry => entry.result)).toEqual([
-      { skipped: 'NO_DRY_RUN' }, { skipped: 'NO_DRY_RUN' },
-    ])
     expect(fetchImpl.mock.calls.map(([url]) => String(url))).toEqual([
+      'http://127.0.0.1:3000/api/crm/retention-sweep?dry_run=true',
+      'http://127.0.0.1:3000/api/crm/archive-expiry?dry_run=true',
       'http://127.0.0.1:3000/api/integration/raw-retention-sweep?dry_run=true',
       'http://127.0.0.1:3000/api/agent/trace-retention-sweep?dry_run=true',
     ])
     expect(result.results.map(entry => formatRetentionSweepLogLine(entry.result, entry.event))).toEqual([
-      JSON.stringify({ event: 'crm.retention-sweep.tick', skipped: 'NO_DRY_RUN' }),
-      JSON.stringify({ event: 'crm.archive-expiry.tick', skipped: 'NO_DRY_RUN' }),
-      JSON.stringify({ event: 'integration.raw-line-retention-sweep.tick', status: 200, dryRun: true,
-        countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } }, tenants: [{ tenantId: 't1', redactedRawRecords: 3 }] }),
-      JSON.stringify({ event: 'agent.trace-retention-sweep.tick', status: 200, dryRun: true,
-        countsByClass: { AGENT_TRACE_EVENT: { redactedTurns: 2, redactedEvents: 5 } }, tenants: [{ tenantId: 't2', redactedTurns: 2, redactedEvents: 5 }] }),
+      JSON.stringify({ event: 'crm.retention-sweep.tick', status: 200, ...bodies[0] }),
+      JSON.stringify({ event: 'crm.archive-expiry.tick', status: 200, ...bodies[1] }),
+      JSON.stringify({ event: 'integration.raw-line-retention-sweep.tick', status: 200, ...bodies[2] }),
+      JSON.stringify({ event: 'agent.trace-retention-sweep.tick', status: 200, ...bodies[3] }),
     ])
+  })
+
+  it('still skips explicitly a call-table entry that has no dry-run support', async () => {
+    const endpoint = new URL('http://127.0.0.1:3000/api/crm/retention-sweep')
+    const fetchImpl = vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => ({ dryRun: true, countsByClass: {}, tenants: [] }) })
+    const calls = [
+      { name: 'legacy', path: '/api/legacy', event: 'legacy.tick', supportsDryRun: false },
+      { name: 'supported', path: '/api/supported', event: 'supported.tick', supportsDryRun: true },
+    ]
+
+    const result = await runRetentionSweepSequence({ endpoint, token, fetchImpl, dryRun: true, calls })
+
+    expect(result.ok).toBe(true)
+    expect(result.results[0].result).toEqual({ skipped: 'NO_DRY_RUN' })
+    expect(fetchImpl).toHaveBeenCalledTimes(1)
+    expect(String(fetchImpl.mock.calls[0][0])).toBe('http://127.0.0.1:3000/api/supported?dry_run=true')
   })
 })
 

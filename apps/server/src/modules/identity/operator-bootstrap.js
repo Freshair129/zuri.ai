@@ -19,7 +19,7 @@
 // '@/' alias does not resolve.
 import { randomBytes, scryptSync } from 'node:crypto'
 import prisma from '../../lib/db.js'
-import { uniqueHumanCode } from '../../lib/ids.js'
+import { retryOnCodeConflict, uniqueHumanCode } from '../../lib/ids.js'
 import { isInstallationOperator } from './viewer-authority.js'
 import { recordAudit } from '../project-manager/application/audit.js'
 
@@ -74,7 +74,7 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
   await readBootstrapState(db, email, grantOnly)
   const provider = db?._engineConfig?.activeProvider
   if (!['postgresql', 'sqlite'].includes(provider)) throw failure(503, 'BOOTSTRAP_DATABASE_PROVIDER_INVALID')
-  return db.$transaction(async (tx) => {
+  const create = () => db.$transaction(async (tx) => {
     if (provider === 'postgresql') {
       // Shared with the Compact wrapper; advisory transaction locks are
       // reentrant on its existing transaction/connection.
@@ -131,6 +131,9 @@ export async function bootstrapOperator({ email, displayName, grantOnly = false,
       personId: person.id, personCode: person.code, displayName: person.displayName,
       grantId: grant.id, initialPassword,
     }
+  })
+  return grantOnly ? create() : retryOnCodeConflict(create, {
+    exhausted: () => failure(409, 'PERSON_CODE_EXHAUSTED'),
   })
 }
 

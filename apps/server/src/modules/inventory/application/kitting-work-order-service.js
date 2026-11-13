@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { explodeRecipe, stockOnHand } from '../domain/inventory'
 import { isFinishedSetSku, kittedUnitCostSatang } from '../domain/inventory-costing'
@@ -115,7 +116,7 @@ const perAttempt = (line, attempts) => (line.fixed ? line.grossQty : Math.ceil((
 
 export async function openKittingWorkOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zOpenKittingWorkOrder.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     const recipe = await tx.productRecipe.findUnique({ where: { id: data.recipeId }, select: RECIPE_SELECT })
     if (!recipe || recipe.businessId !== business.id) throw failure(422, 'PRODUCT_RECIPE_NOT_FOUND')
@@ -197,6 +198,11 @@ export async function openKittingWorkOrder(input, { viewer, db = prisma, now = n
     })
     return kittingDto(created)
   })
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'KITTING_WORK_ORDER_CODE_EXHAUSTED') })
 }
 
 /** Stage the frozen gross quantities at the assembly line. On-hand is unchanged. */

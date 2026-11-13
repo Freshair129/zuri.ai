@@ -4,7 +4,7 @@
 //   per-Tenant window, keeps envelope columns (id, direction, timestamps —
 //   the same shape conversation-redaction-service.js already keeps), skips a
 //   row a non-terminal LineConversationJob still references, and writes exactly
-//   one audit event per run naming the counts it actually produced.
+//   one audit event per real run naming the counts it actually produced.
 //
 //   RAW_LINE_PAYLOAD (integration's RawExternalRecord) and AGENT_TRACE_EVENT
 //   (agent's AgentTraceEvent) have their own domain sweepers and routes. MSP
@@ -21,7 +21,7 @@
 //   are exactly what this run tombstoned, never a placeholder for a class it did
 //   not touch.
 // @spec BR-002, SEC-031, ADR-093 D2, D4; SEC-034
-// @tested tests/integration/crm-retention-sweep.test.js, tests/integration/crm-chat-evidence-archive.test.js
+// @tested tests/integration/crm-retention-sweep.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-retention-sweep-dry-run.test.js
 //
 // IDEMPOTENCY
 // -----------
@@ -90,7 +90,7 @@ async function countSkippedNonTerminalJob(db, tenantId, cutoff) {
   })
 }
 
-async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir } = {}) {
+export async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir, dryRun = false } = {}) {
   const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
   const invalidOverride = source === 'DEFAULT_INVALID_OVERRIDE'
     ? { invalidOverrideIgnored: true }
@@ -103,7 +103,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       id: true,
       conversationId: true,
       direction: true,
-      body: true,
+      ...(!dryRun ? { body: true } : {}),
       contentKind: true,
       sessionId: true,
       createdAt: true,
@@ -126,7 +126,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
   // anything by the time this catch fires.
   let archiveResult
   try {
-    archiveResult = await archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env, baseDir })
+    archiveResult = await archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env, baseDir, dryRun })
   } catch (error) {
     const skippedNonTerminalJob = await countSkippedNonTerminalJob(db, tenantId, cutoff)
     return {
@@ -140,9 +140,11 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     }
   }
 
-  const conversationIds = [...new Set(candidates.map((row) => row.conversationId))]
-  for (const conversationId of conversationIds) {
-    await refreshConversationPreview(db, conversationId)
+  if (!dryRun) {
+    const conversationIds = [...new Set(candidates.map((row) => row.conversationId))]
+    for (const conversationId of conversationIds) {
+      await refreshConversationPreview(db, conversationId)
+    }
   }
 
   // Reported for visibility only — how many otherwise-eligible rows this run left
@@ -182,14 +184,15 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
  * candidates stay in the database, untouched) rather than aborting the whole
  * multi-Tenant sweep, and the failure is named in the audit payload.
  *
- * @param {{db?: object, now?: Date, env?: object, baseDir?: string}} [options]
- * @returns {Promise<{auditEventId: string, countsByClass: Record<string, object>}>}
+ * @param {{db?: object, now?: Date, env?: object, baseDir?: string, dryRun?: boolean}} [options]
+ * @returns {Promise<{auditEventId?: string, dryRun?: boolean, countsByClass: Record<string, object>, tenants?: object[]}>}
  */
-export async function runRetentionSweep({ db = prisma, now = new Date(), env = process.env, baseDir } = {}) {
+export async function runRetentionSweep({ db = prisma, now = new Date(), env = process.env, baseDir, dryRun = false } = {}) {
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
   const manifests = []
   const archiveFailures = []
   const invalidOverrides = []
+  const tenantCounts = []
   let deferredErasedKey = 0
   let blankedWithoutArchive = 0
   const settleFailures = []
@@ -200,7 +203,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
     if (dataClass !== CLASS) continue // no second class exists yet to dispatch to
     const tenants = await db.tenant.findMany({ select: { id: true } })
     for (const tenant of tenants) {
-      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now, { env, baseDir })
+      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now, { env, baseDir, dryRun })
       totals.redactedMessages += result.redactedMessages
       totals.redactedAttachments += result.redactedAttachments
       totals.skippedNonTerminalJob += result.skippedNonTerminalJob
@@ -208,6 +211,17 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       blankedWithoutArchive += result.blankedWithoutArchive ?? 0
       if (result.settleFailed) settleFailures.push({ tenantId: tenant.id, reason: result.settleFailureReason })
       if (result.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
+      tenantCounts.push({
+        tenantId: tenant.id,
+        redactedMessages: result.redactedMessages,
+        redactedAttachments: result.redactedAttachments,
+        skippedNonTerminalJob: result.skippedNonTerminalJob,
+        deferredErasedKey: result.deferredErasedKey ?? 0,
+        blankedWithoutArchive: result.blankedWithoutArchive ?? 0,
+        ...(result.archiveFailed ? { archiveFailed: true, archiveFailureReason: result.archiveFailureReason } : {}),
+        ...(result.settleFailed ? { settleFailed: true, settleFailureReason: result.settleFailureReason } : {}),
+        ...(result.invalidOverrideIgnored ? { invalidOverrideIgnored: true } : {}),
+      })
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -223,12 +237,17 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       //   "truthful reporting": a run with nothing to archive or no failure
       //   names neither, rather than an empty array claiming it checked.
       ...(archiveFailures.length > 0 ? { archiveFailures } : {}),
-      ...(manifests.length > 0 ? { manifests } : {}),
+      ...(!dryRun && manifests.length > 0 ? { manifests } : {}),
       ...(deferredErasedKey > 0 ? { deferredErasedKey } : {}),
       ...(blankedWithoutArchive > 0 ? { blankedWithoutArchive } : {}),
       ...(settleFailures.length > 0 ? { settleFailures } : {}),
     },
   }
+  if (dryRun) {
+    tenantCounts.sort((left, right) => left.tenantId < right.tenantId ? -1 : left.tenantId > right.tenantId ? 1 : 0)
+    return { dryRun: true, countsByClass, tenants: tenantCounts }
+  }
+
   const event = await recordAudit(db, {
     entityType: 'RETENTION_SWEEP',
     entityId: `sweep:${now.toISOString()}`,

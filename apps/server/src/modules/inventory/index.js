@@ -93,6 +93,7 @@ export {
   listMovements,
   listSerialUnits,
   recordMovement,
+  setLotExpiryIfUnset,
   stockSummary,
 } from './application/inventory-stock-service'
 export {

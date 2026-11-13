@@ -20,7 +20,7 @@
 // the two shapes drifting apart undetected.
 import prisma from '@/lib/db'
 import { z } from 'zod'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import {
   zRoadmapStatus,
   zGoalStatus,
@@ -445,7 +445,7 @@ export async function createRoadmap(input, { db = prisma, viewer } = {}) {
   assertHorizonsWellFormed(data.horizons)
   const business = await db.business.findUnique({ where: { id: data.businessId }, select: { id: true } })
   if (!business) throw new Error('Business not found')
-  let code
+  let code = data.code
   if (data.code) {
     // A declared code is an identity claim, not a suggestion: if it is already
     // taken the caller's premise is wrong, so refuse rather than suffix it.
@@ -453,16 +453,15 @@ export async function createRoadmap(input, { db = prisma, viewer } = {}) {
       throw conflict(`Roadmap code "${data.code}" already exists`)
     }
     code = data.code
-  } else {
-    code = await uniqueHumanCode('RM', data.title, async (candidate) =>
-      Boolean(await db.businessRoadmap.findUnique({ where: { code: candidate } }))
-    )
   }
 
-  const roadmap = await db.$transaction(async (tx) => {
+  const create = () => db.$transaction(async (tx) => {
+    const allocatedCode = code || await uniqueHumanCode('RM', data.title, async (candidate) =>
+      Boolean(await tx.businessRoadmap.findUnique({ where: { code: candidate } }))
+    )
     const created = await tx.businessRoadmap.create({
       data: {
-        code,
+        code: allocatedCode,
         businessId: data.businessId,
         title: data.title,
         description: data.description ?? null,
@@ -485,11 +484,14 @@ export async function createRoadmap(input, { db = prisma, viewer } = {}) {
       entityType: 'BUSINESS_ROADMAP',
       entityId: created.id,
       action: 'CREATED',
-      payload: { code, businessId: data.businessId, horizonKeys: data.horizons.map((horizon) => horizon.key) },
+      payload: { code: allocatedCode, businessId: data.businessId, horizonKeys: data.horizons.map((horizon) => horizon.key) },
       actorId: viewer.principal?.id ?? null,
     })
     return created
   })
+  const roadmap = await (code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => Object.assign(new Error('BUSINESS_ROADMAP_CODE_EXHAUSTED'), { status: 409 }),
+  }))
 
   return serializeRoadmapDto(roadmap, data.businessId)
 }
@@ -640,7 +642,7 @@ export async function createGoal(input, { db = prisma, viewer } = {}) {
   }
   const roadmapId = data.roadmapId ?? horizon.roadmapId
 
-  let code
+  let code = data.code
   if (data.code) {
     // Same identity rule as createRoadmap: a declared code that is already
     // taken is refused, never quietly suffixed into a lookalike.
@@ -648,16 +650,15 @@ export async function createGoal(input, { db = prisma, viewer } = {}) {
       throw conflict(`Goal code "${data.code}" already exists`)
     }
     code = data.code
-  } else {
-    code = await uniqueHumanCode('GOAL', data.title, async (candidate) =>
-      Boolean(await db.businessGoal.findUnique({ where: { code: candidate } }))
-    )
   }
 
-  const goal = await db.$transaction(async (tx) => {
+  const create = () => db.$transaction(async (tx) => {
+    const allocatedCode = code || await uniqueHumanCode('GOAL', data.title, async (candidate) =>
+      Boolean(await tx.businessGoal.findUnique({ where: { code: candidate } }))
+    )
     const created = await tx.businessGoal.create({
       data: {
-        code,
+        code: allocatedCode,
         businessId: data.businessId,
         roadmapId,
         horizonId: data.horizonId,
@@ -676,11 +677,14 @@ export async function createGoal(input, { db = prisma, viewer } = {}) {
       entityType: 'BUSINESS_GOAL',
       entityId: created.id,
       action: 'CREATED',
-      payload: { code, businessId: data.businessId, roadmapId, horizonId: data.horizonId },
+      payload: { code: allocatedCode, businessId: data.businessId, roadmapId, horizonId: data.horizonId },
       actorId: viewer.principal?.id ?? null,
     })
     return created
   })
+  const goal = await (code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => Object.assign(new Error('BUSINESS_GOAL_CODE_EXHAUSTED'), { status: 409 }),
+  }))
 
   return serializeGoalDto(goal, data.businessId)
 }
@@ -1001,27 +1005,26 @@ export async function createKeyResult(goalId, input, { db = prisma, viewer, now:
   if (!goal) throw new Error('Goal not found')
   assertBusinessOwned(goal.businessId, viewer)
 
-  let code
+  let code = data.code
   if (data.code) {
     if (await db.businessKeyResult.findUnique({ where: { code: data.code } })) {
       throw conflict(`Key Result code "${data.code}" already exists`)
     }
     code = data.code
-  } else {
-    code = await uniqueHumanCode('KR', data.title, async (candidate) =>
-      Boolean(await db.businessKeyResult.findUnique({ where: { code: candidate } }))
-    )
   }
 
-  const kr = await db.$transaction(async (tx) => {
+  const create = () => db.$transaction(async (tx) => {
     await lockBusinessWigState(tx, goal.businessId, { preserveVersion: true })
     const currentGoal = await tx.businessGoal.findUnique({ where: { id: goalId } })
     if (!currentGoal || currentGoal.businessId !== goal.businessId) throw badRequest('Goal scope changed; refresh and retry')
     const now = suppliedNow ?? Date.now()
     assertKeyResultSmart(data, currentGoal, { now, checkDate: true })
+    const allocatedCode = code || await uniqueHumanCode('KR', data.title, async (candidate) =>
+      Boolean(await tx.businessKeyResult.findUnique({ where: { code: candidate } }))
+    )
     const created = await tx.businessKeyResult.create({
       data: {
-        code,
+        code: allocatedCode,
         businessId: goal.businessId,
         goalId,
         title: data.title,
@@ -1044,12 +1047,15 @@ export async function createKeyResult(goalId, input, { db = prisma, viewer, now:
       entityType: 'BUSINESS_KEY_RESULT',
       entityId: created.id,
       action: 'CREATED',
-      payload: { code, goalId, businessId: goal.businessId },
+      payload: { code: allocatedCode, goalId, businessId: goal.businessId },
       actorId: viewer.principal?.id ?? null,
       businessId: goal.businessId,
     })
     return keyResultFeedback(created, currentGoal, now)
   })
+  const kr = await (code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => Object.assign(new Error('BUSINESS_KEY_RESULT_CODE_EXHAUSTED'), { status: 409 }),
+  }))
 
   return kr
 }

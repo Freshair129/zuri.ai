@@ -1,7 +1,7 @@
 ---
 version: "0.8.0b"
 status: active
-last_update: "2026-11-13,Codex"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -382,15 +382,21 @@ material in any response (`line-channel-credential-service.js` for the last thre
   daily claim. The shared worker calls it after CRM; no deployment schedule is claimed.
   A page failure stops this Tenant, leaves earlier committed pages intact and later
   rows untouched, reports `{ tenantId, code }`, then continues with the next Tenant.
-  Before the first scheduled run, an operator must run
+  Before enabling a scheduled run, an operator must run
   `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
-  container and compare the dry-run counts; the first actual run redacts the
-  entire eligible backlog irreversibly.
+  container and compare per-Tenant counts for `POST /api/crm/retention-sweep`,
+  `POST /api/crm/archive-expiry`, `POST /api/integration/raw-retention-sweep`,
+  and `POST /api/agent/trace-retention-sweep`. On the first real run, the CRM
+  sweep targets every eligible CRM message past the Tenant's effective window
+  (24 months by default, shorter with an override) that is not skipped by the
+  non-terminal-job, tombstone, archive-failure or deferral rules, and archive
+  expiry also irreversibly destroys expired archive keys and deletes expired files.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.9.0b | 2026-11-13 | FR-230 / FR-245: the shared `--dry-run` worker now previews all four retention routes and reports their per-Tenant counts before any first real run | Codex |
 | 0.8.0b | 2026-11-13 | FR-230: invalid stored retention windows now fall back to the installation default and are reported; raw LINE sweep adds a bodyless count-only dry run and the shared worker exposes it through `--dry-run` | Codex |
 | 0.7.0b | 2026-11-12 | FR-230 / ADR-091 D2: Integration now tombstones expired LINE OA raw payloads in bounded pages, preserves the full envelope, skips live jobs and ADMITTING outbox rows, and exposes `/api/integration/raw-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.6.3b | 2026-11-12 | Reconciled browser write-only LINE credential status with the implemented service and marked Edge/harness credential surfaces retired | Codex |

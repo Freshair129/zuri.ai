@@ -112,4 +112,4 @@ where the all-time figure was 1.00.
   from the cost of the set it came out of.
 - `transferStock` accepts a `costSatang` and writes it on both halves; the
   valuation ignores it.
-- Capturing landed-cost components at goods receipt is a separate review finding.
+- Landed-cost components and locked FX at goods receipt are now derived and stored by Procurement (review finding C14, [FR-165](../../procurement/features/FR-165-goods-receipts.md)); the valuation reads the resulting `costSatang` unchanged.
