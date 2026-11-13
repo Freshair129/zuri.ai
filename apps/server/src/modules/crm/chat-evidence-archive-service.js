@@ -130,6 +130,10 @@ export class ChatEvidenceArchiveTransactionError extends Error {
 }
 
 const PRODUCTION_ARCHIVE_ROOT = '/archive'
+const ARCHIVE_CHAIN_UNCOMMITTED_CODES = new Set([
+  'ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CHAIN_TAIL_INVALID', 'ARCHIVE_CHAIN_INVALID', 'ARCHIVE_TENANT_NOT_FOUND',
+  'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED',
+])
 
 const REPLY_AUDIT_ACTIONS = ['REPLY_DELIVERED', 'OUTBOUND_ACCEPTED', 'STAFF_REPLY_DELIVERED']
 
@@ -899,11 +903,6 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
 
   const messageIds = sealable.map((message) => message.id)
   const messageIdListHash = hashMessageIdList(messageIds)
-  const previous = await db.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
-  const previousManifestHash = previous?.manifestHash ?? null
-  const manifestHash = computeManifestHash({
-    tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestHash,
-  })
 
   // Everything above this line either produced exactly what this transaction
   // needs or already threw. Nothing below can run without a written, verified
@@ -913,6 +912,15 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   let archivedResult
   try {
     archivedResult = await db.$transaction(async (tx) => {
+      await lockTenantArchiveChain(tx, { tenantId })
+      const previous = await readArchiveChainTail(tx, tenantId)
+      if (!(await verifyManifestChain(tx, tenantId)).valid) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_INVALID')
+      }
+      const previousManifestHash = previous?.manifestHash ?? null
+      const manifestHash = computeManifestHash({
+        tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestHash,
+      })
       const manifest = await tx.archiveManifest.create({
         data: { tenantId, runId, filePath: relativePath, fileSha256, messageCount: messageIds.length, messageIdListHash, previousManifestId: previous?.id ?? null, previousManifestHash, manifestHash },
       })
@@ -934,7 +942,7 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
     // erasure has since destroyed), or no manifest for this run exists. Any other
     // error may be a commit whose outcome is unknown (the connection dropped after
     // COMMIT); if its manifest is there, the file is the only copy and stays.
-    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED'
+    let unreferenced = error?.code === 'ARCHIVE_CANDIDATES_CHANGED' || ARCHIVE_CHAIN_UNCOMMITTED_CODES.has(error?.code)
     if (!unreferenced) {
       try {
         unreferenced = !(await db.archiveManifest.findFirst({ where: { tenantId, runId }, select: { id: true } }))
@@ -1007,6 +1015,91 @@ function customerNotFound() {
 async function queryRaw(tx, sql, params = []) {
   if (typeof tx.$queryRawUnsafe === 'function') return tx.$queryRawUnsafe(sql, ...params)
   throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE')
+}
+
+const ARCHIVE_CHAIN_CONFLICT_CODES = new Set(['P1008', 'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED'])
+function isArchiveChainConflict(error) {
+  if ([error?.code, error?.meta?.code, error?.cause?.code].some((code) => ARCHIVE_CHAIN_CONFLICT_CODES.has(code))) return true
+  return /database is (?:locked|busy)|SQLITE_(?:BUSY|LOCKED)|could not serialize|serialization failure|deadlock detected|lock timeout/i
+    .test(String(error?.message ?? ''))
+}
+
+/**
+ * Take the Tenant row as the shared append lock for the manifest chain.
+ * Call only with the open Prisma transaction that will create the manifest.
+ * PostgreSQL's no-op UPDATE marks the Tenant row version as well as retaining
+ * the row lock, so a Serializable waiter cannot continue with a stale snapshot;
+ * only `id` is assigned to itself, leaving logical fields and `updatedAt` alone.
+ * SQLite takes its writer reservation with the same-value UPDATE before any
+ * tail read; its positional bind marker is `?`.
+ */
+export async function lockTenantArchiveChain(tx, { tenantId, dialect = null } = {}) {
+  if (typeof tenantId !== 'string' || !tenantId || typeof tx?.$transaction === 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+  }
+  const provider = detectCrmDialect(tx, dialect)
+  if (!provider) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+
+  try {
+    if (provider === 'postgres') {
+      const rows = await queryArchiveChainRaw(
+        tx,
+        'SELECT "id" FROM "Tenant" WHERE "id" = $1 FOR UPDATE',
+        [tenantId],
+      )
+      if (!Array.isArray(rows) || rows.length !== 1 || rows[0]?.id !== tenantId) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+      }
+      const marked = await queryArchiveChainRaw(
+        tx,
+        'UPDATE "Tenant" SET "id" = "id" WHERE "id" = $1 RETURNING "id"',
+        [tenantId],
+      )
+      if (!Array.isArray(marked) || marked.length !== 1 || marked[0]?.id !== tenantId) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+      }
+      return
+    }
+
+    if (typeof tx?.$executeRawUnsafe !== 'function') {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+    }
+    const affected = await tx.$executeRawUnsafe(
+      'UPDATE "Tenant" SET "id" = "id" WHERE "id" = ?',
+      tenantId,
+    )
+    if (affected !== 1) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_TENANT_NOT_FOUND')
+  } catch (error) {
+    if (error instanceof ChatEvidenceArchiveTransactionError) throw error
+    if (isArchiveChainConflict(error)) {
+      throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE', error)
+    }
+    throw error
+  }
+}
+
+async function queryArchiveChainRaw(tx, sql, params) {
+  if (typeof tx?.$queryRawUnsafe !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_LOCK_UNAVAILABLE')
+  }
+  return tx.$queryRawUnsafe(sql, ...params)
+}
+
+/** Return the unique leaf of a Tenant's persisted archive chain, or null. */
+export async function readArchiveChainTail(tx, tenantId) {
+  if (typeof tenantId !== 'string' || !tenantId
+    || typeof tx?.archiveManifest?.findMany !== 'function'
+    || typeof tx?.archiveManifest?.count !== 'function') {
+    throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
+  }
+  const tails = await tx.archiveManifest.findMany({
+    where: { tenantId, nextManifests: { none: {} } },
+    select: { id: true, manifestHash: true },
+  })
+  if (tails.length === 1) return tails[0]
+  if (tails.length > 1) throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
+  if (await tx.archiveManifest.count({ where: { tenantId } }) === 0) return null
+  throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_TAIL_INVALID')
 }
 
 /**

@@ -21,6 +21,7 @@ import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const CLASS = 'AGENT_TRACE_EVENT'
+const NO_OVERRIDE_WINDOW = Symbol('NO_OVERRIDE_WINDOW')
 let provider
 
 async function bundle(label) {
@@ -81,7 +82,7 @@ async function createOldTurns(owner, count, now = new Date(), prefix = 'backlog'
   return turns
 }
 
-function scopedDb(tenantIds, { failOnTraceId, traceQueries = [] } = {}) {
+function scopedDb(tenantIds, { failOnTraceId, traceQueries = [], overrideWindowDays = NO_OVERRIDE_WINDOW } = {}) {
   const wrapTrace = delegate => new Proxy(delegate, {
     get(model, method) {
       if (method === 'groupBy') return args => {
@@ -114,6 +115,14 @@ function scopedDb(tenantIds, { failOnTraceId, traceQueries = [] } = {}) {
           return Reflect.get(delegate, method, delegate)
         },
       })
+      if (property === 'tenantRetentionOverride' && overrideWindowDays !== NO_OVERRIDE_WINDOW) {
+        return new Proxy(target.tenantRetentionOverride, {
+          get(delegate, method) {
+            if (method === 'findUnique') return async () => ({ windowDays: overrideWindowDays })
+            return Reflect.get(delegate, method, delegate)
+          },
+        })
+      }
       if (property === 'agentTraceEvent') return wrapTrace(target.agentTraceEvent)
       return Reflect.get(target, property, target)
     },
@@ -339,6 +348,7 @@ describe('Agent trace payload retention sweep — FR-230', () => {
     expect(traceQueries.length).toBeGreaterThan(1)
     expect(traceQueries.every(query => query.take === AGENT_TRACE_RETENTION_CHUNK_SIZE
       && query.having.createdAt._max.lt instanceof Date
+      && query._count._all === true
       && query.orderBy.every(order => ['businessId', 'turnId'].some(field => field in order)))).toBe(true)
     const tombstones = await prisma.agentTraceEvent.count({
       where: { tenantId: owner.tenant.id, turnId: { in: turns.map(turn => turn.turnId) }, kind: 'RETENTION_TOMBSTONE' },
@@ -361,6 +371,7 @@ describe('Agent trace payload retention sweep — FR-230', () => {
       [CLASS]: { redactedTurns: 1, redactedEvents: 1, skippedNonTerminalJob: 0,
         skippedPendingMemoryDelivery: 0, skippedOpenErasure: 0 },
     } })
+    expect(payload.invalidOverrides).toBeUndefined()
     expect(result.countsByClass[CLASS].tenantFailures).toBeUndefined()
     expect(audit.payloadJson).not.toContain('sensitive-')
     const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
@@ -389,5 +400,64 @@ describe('Agent trace payload retention sweep — FR-230', () => {
         kind: 'RETENTION_TOMBSTONE', idempotencyKey: retentionTombstoneKey(turnId) },
     })
     expect(JSON.parse(tombstone.payloadJson).reason).toBe('RETENTION_EXPIRED')
+  })
+
+  it.each([0, -5, 1.5, Number.NaN])('ignores an invalid stored override %s and keeps a recent turn', async windowDays => {
+    const owner = await bundle(`trace-invalid-override-${String(windowDays).replace('.', '-')}`)
+    const now = new Date()
+    const event = await append(owner, randomUUID(), { now, ageDays: 2 })
+    const db = Number.isSafeInteger(windowDays)
+      ? scopedDb([owner.tenant.id])
+      : scopedDb([owner.tenant.id], { overrideWindowDays: windowDays })
+    if (Number.isSafeInteger(windowDays)) {
+      await prisma.tenantRetentionOverride.create({ data: {
+        tenantId: owner.tenant.id, dataClass: CLASS, windowDays,
+      } })
+    }
+
+    const tenantCounts = await sweepAgentTraceTurnsForTenant(db, { tenantId: owner.tenant.id, now, dryRun: true })
+    expect(tenantCounts).toMatchObject({ redactedTurns: 0, invalidOverrideIgnored: true })
+    const result = await runAgentTraceRetentionSweep({ db, now })
+    const after = await prisma.agentTraceEvent.findUnique({ where: { id: event.id } })
+    const audit = await prisma.auditEvent.findUnique({ where: { id: result.auditEventId } })
+
+    expect(result.countsByClass[CLASS].redactedTurns).toBe(0)
+    expect(after.payloadJson).toBe(event.payloadJson)
+    expect(after.createdAt).toEqual(event.createdAt)
+    expect(after.version).toEqual(event.version)
+    expect(JSON.parse(audit.payloadJson).invalidOverrides).toEqual([{ tenantId: owner.tenant.id }])
+  })
+
+  it('dry-runs the same counts as the next real run without changing rows or claiming the audit day', async () => {
+    const owner = await bundle('trace-dry-run')
+    const now = new Date()
+    await append(owner, randomUUID(), { now, ageDays: RETENTION_DEFAULT_WINDOW_DAYS[CLASS] + 1 })
+    await append(owner, randomUUID(), { now, ageDays: 1 })
+    const db = scopedDb([owner.tenant.id])
+    const beforeRows = await prisma.agentTraceEvent.findMany({
+      where: { tenantId: owner.tenant.id },
+      select: { id: true, payloadJson: true, createdAt: true, version: true }, orderBy: { id: 'asc' },
+    })
+    const beforeAuditCount = await prisma.auditEvent.count({ where: {
+      entityType: AGENT_TRACE_RETENTION_AUDIT_ENTITY, action: AGENT_TRACE_RETENTION_AUDIT_ACTION,
+    } })
+
+    const dryRun = await runAgentTraceRetentionSweep({ db, now, dryRun: true })
+    const afterDryRunRows = await prisma.agentTraceEvent.findMany({
+      where: { tenantId: owner.tenant.id },
+      select: { id: true, payloadJson: true, createdAt: true, version: true }, orderBy: { id: 'asc' },
+    })
+    expect(dryRun).toMatchObject({ dryRun: true, countsByClass: { [CLASS]: { redactedTurns: 1, redactedEvents: 1 } },
+      tenants: [{ tenantId: owner.tenant.id, redactedTurns: 1, redactedEvents: 1, skippedNonTerminalJob: 0,
+        skippedPendingMemoryDelivery: 0, skippedOpenErasure: 0 }] })
+    expect(afterDryRunRows).toEqual(beforeRows)
+    expect(await prisma.auditEvent.count({ where: {
+      entityType: AGENT_TRACE_RETENTION_AUDIT_ENTITY, action: AGENT_TRACE_RETENTION_AUDIT_ACTION,
+    } })).toBe(beforeAuditCount)
+
+    const realRun = await runAgentTraceRetentionSweep({ db, now })
+    expect(realRun.countsByClass[CLASS].redactedTurns).toBe(dryRun.countsByClass[CLASS].redactedTurns)
+    expect(realRun.countsByClass[CLASS].redactedEvents).toBe(dryRun.countsByClass[CLASS].redactedEvents)
+    expect(realRun.auditEventId).toBeTruthy()
   })
 })

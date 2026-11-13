@@ -9,7 +9,7 @@
 
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { getEffectiveRetentionWindowDays } from '@/modules/crm/retention-override-service'
+import { resolveEffectiveRetentionWindow } from '@/modules/crm/retention-override-service'
 import { LINE_OA_PROVIDER_CODE } from './integration-registry'
 import {
   RAW_RECORD_TOMBSTONE_PREFIXES,
@@ -35,8 +35,9 @@ function notTombstoned() {
   return { NOT: RAW_RECORD_TOMBSTONE_PREFIXES.map(prefix => ({ payloadJson: { startsWith: prefix } })) }
 }
 
-async function sweepTenantPages(db, { tenantId, now, counts }) {
-  const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
+async function sweepTenantPages(db, { tenantId, now, counts, dryRun }) {
+  const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
+  if (source === 'DEFAULT_INVALID_OVERRIDE') counts.invalidOverrideIgnored = true
   const cutoff = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
   let afterId = null
 
@@ -81,20 +82,24 @@ async function sweepTenantPages(db, { tenantId, now, counts }) {
     }
 
     if (eligibleIds.length) {
-      // One atomic statement per page. Repeat every eligibility guard so a
-      // concurrent erasure, admission, or receivedAt change cannot be undone.
-      const result = await db.rawExternalRecord.updateMany({
-        where: {
-          id: { in: eligibleIds },
-          tenantId,
-          provider: LINE_OA_PROVIDER_CODE,
-          receivedAt: { lt: cutoff },
-          processingStatus: { not: 'ADMITTING' },
-          ...notTombstoned(),
-        },
-        data: { payloadJson: rawRecordRetentionTombstone(now) },
-      })
-      counts.redactedRawRecords += result.count
+      if (dryRun) {
+        counts.redactedRawRecords += eligibleIds.length
+      } else {
+        // One atomic statement per page. Repeat every eligibility guard so a
+        // concurrent erasure, admission, or receivedAt change cannot be undone.
+        const result = await db.rawExternalRecord.updateMany({
+          where: {
+            id: { in: eligibleIds },
+            tenantId,
+            provider: LINE_OA_PROVIDER_CODE,
+            receivedAt: { lt: cutoff },
+            processingStatus: { not: 'ADMITTING' },
+            ...notTombstoned(),
+          },
+          data: { payloadJson: rawRecordRetentionTombstone(now) },
+        })
+        counts.redactedRawRecords += result.count
+      }
     }
 
     afterId = page[page.length - 1].id
@@ -104,10 +109,10 @@ async function sweepTenantPages(db, { tenantId, now, counts }) {
 }
 
 /** Sweep one Tenant without writing a run-level audit event. */
-export async function sweepRawLinePayloadsForTenant(db, { tenantId, now = new Date() } = {}) {
+export async function sweepRawLinePayloadsForTenant(db, { tenantId, now = new Date(), dryRun = false } = {}) {
   const counts = { redactedRawRecords: 0, skippedNonTerminalJob: 0, skippedAdmitting: 0 }
   try {
-    await sweepTenantPages(db, { tenantId, now, counts })
+    await sweepTenantPages(db, { tenantId, now, counts, dryRun })
   } catch (error) {
     // Pages committed before this point remain due and idempotent; no later page
     // for this Tenant is attempted. The caller continues with the next Tenant.
@@ -117,25 +122,33 @@ export async function sweepRawLinePayloadsForTenant(db, { tenantId, now = new Da
 }
 
 /** Run the Integration-owned raw LINE payload sweep across all Tenants. */
-export async function runRawLineRetentionSweep({ db = prisma, now = new Date() } = {}) {
+export async function runRawLineRetentionSweep({ db = prisma, now = new Date(), dryRun = false } = {}) {
   const totals = { redactedRawRecords: 0, skippedNonTerminalJob: 0, skippedAdmitting: 0 }
   const tenantFailures = []
+  const tenantCounts = []
+  const invalidOverrides = []
   const tenants = await db.tenant.findMany({ select: { id: true }, orderBy: { id: 'asc' } })
   for (const tenant of tenants) {
-    const counts = await sweepRawLinePayloadsForTenant(db, { tenantId: tenant.id, now })
-    for (const key of Object.keys(totals)) totals[key] += counts[key]
+    const counts = await sweepRawLinePayloadsForTenant(db, { tenantId: tenant.id, now, dryRun })
+    for (const key of Object.keys(totals)) totals[key] += counts[key] ?? 0
+    const { tenantFailure, ...countsOnly } = counts
+    tenantCounts.push({ tenantId: tenant.id, ...countsOnly })
+    if (counts.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
     if (counts.tenantFailure) tenantFailures.push(counts.tenantFailure)
   }
 
   const countsByClass = {
     [CLASS]: { ...totals, ...(tenantFailures.length ? { tenantFailures } : {}) },
   }
+  if (dryRun) return { dryRun: true, countsByClass, tenants: tenantCounts }
+
   const event = await recordAudit(db, {
     entityType: RAW_LINE_RETENTION_AUDIT_ENTITY,
     entityId: `raw-line-retention:${now.toISOString()}`,
     action: RAW_LINE_RETENTION_AUDIT_ACTION,
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), countsByClass },
+    payload: { ranAt: now.toISOString(), countsByClass,
+      ...(invalidOverrides.length ? { invalidOverrides } : {}) },
   })
   return { auditEventId: event.id, countsByClass, alreadyRanToday: false }
 }

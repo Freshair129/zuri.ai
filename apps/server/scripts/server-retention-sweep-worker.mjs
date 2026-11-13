@@ -17,6 +17,7 @@
 import { formatRetentionSweepLogLine, resolveRetentionSweepWorkerConfig, runRetentionSweepSequence } from './retention-sweep-worker-run.mjs'
 
 const { endpoint, token } = resolveRetentionSweepWorkerConfig(process.env)
-const result = await runRetentionSweepSequence({ endpoint, token })
+const dryRun = process.argv.slice(2).includes('--dry-run')
+const result = await runRetentionSweepSequence({ endpoint, token, dryRun })
 for (const entry of result.results) console.log(formatRetentionSweepLogLine(entry.result, entry.event))
 process.exitCode = result.ok ? 0 : 1

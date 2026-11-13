@@ -9,7 +9,7 @@
 
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { getEffectiveRetentionWindowDays } from '@/modules/crm/retention-override-service'
+import { resolveEffectiveRetentionWindow } from '@/modules/crm/retention-override-service'
 import { redactTraceTurn, retentionTombstoneKey } from './execution-trace'
 
 const CLASS = 'AGENT_TRACE_EVENT'
@@ -34,8 +34,9 @@ function turnKey({ businessId, turnId }) {
   return `${businessId}\u0000${turnId}`
 }
 
-async function sweepTenantPages(db, { tenantId, now, counts }) {
-  const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
+async function sweepTenantPages(db, { tenantId, now, counts, dryRun }) {
+  const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
+  if (source === 'DEFAULT_INVALID_OVERRIDE') counts.invalidOverrideIgnored = true
   // createdAt is persistence age. occurredAt can intentionally be future-dated
   // (for example MEMORY_THREAD_ERASURE_DEFERRED's next retry), so it is not a
   // safe clock for deciding when retained model-input content expires.
@@ -60,6 +61,7 @@ async function sweepTenantPages(db, { tenantId, now, counts }) {
       orderBy: [{ businessId: 'asc' }, { turnId: 'asc' }],
       take: AGENT_TRACE_RETENTION_CHUNK_SIZE,
       _max: { createdAt: true },
+      _count: { _all: true },
     })
     if (turns.length === 0) break
 
@@ -127,13 +129,18 @@ async function sweepTenantPages(db, { tenantId, now, counts }) {
         continue
       }
 
-      const result = await redactTraceTurn(db, {
-        scope: { tenantId, businessId: turn.businessId }, turnId: turn.turnId, now,
-        reason: 'RETENTION_EXPIRED',
-      })
-      if (result.alreadyRedacted) continue
-      counts.redactedTurns += 1
-      counts.redactedEvents += result.redactedCount
+      if (dryRun) {
+        counts.redactedTurns += 1
+        counts.redactedEvents += turn._count._all
+      } else {
+        const result = await redactTraceTurn(db, {
+          scope: { tenantId, businessId: turn.businessId }, turnId: turn.turnId, now,
+          reason: 'RETENTION_EXPIRED',
+        })
+        if (result.alreadyRedacted) continue
+        counts.redactedTurns += 1
+        counts.redactedEvents += result.redactedCount
+      }
     }
 
     const last = turns[turns.length - 1]
@@ -144,11 +151,11 @@ async function sweepTenantPages(db, { tenantId, now, counts }) {
 }
 
 /** Sweep one Tenant without writing a run-level audit event. */
-export async function sweepAgentTraceTurnsForTenant(db, { tenantId, now = new Date() } = {}) {
+export async function sweepAgentTraceTurnsForTenant(db, { tenantId, now = new Date(), dryRun = false } = {}) {
   const counts = { redactedTurns: 0, redactedEvents: 0, skippedNonTerminalJob: 0,
     skippedPendingMemoryDelivery: 0, skippedOpenErasure: 0 }
   try {
-    await sweepTenantPages(db, { tenantId, now, counts })
+    await sweepTenantPages(db, { tenantId, now, counts, dryRun })
   } catch (error) {
     // Redactions committed by earlier per-turn transactions stay due and
     // idempotent; later turns for this Tenant are left for the next invocation.
@@ -158,26 +165,34 @@ export async function sweepAgentTraceTurnsForTenant(db, { tenantId, now = new Da
 }
 
 /** Run the Agent-owned trace payload sweep across all Tenants. */
-export async function runAgentTraceRetentionSweep({ db = prisma, now = new Date() } = {}) {
+export async function runAgentTraceRetentionSweep({ db = prisma, now = new Date(), dryRun = false } = {}) {
   const totals = { redactedTurns: 0, redactedEvents: 0, skippedNonTerminalJob: 0,
     skippedPendingMemoryDelivery: 0, skippedOpenErasure: 0 }
   const tenantFailures = []
+  const tenantCounts = []
+  const invalidOverrides = []
   const tenants = await db.tenant.findMany({ select: { id: true }, orderBy: { id: 'asc' } })
   for (const tenant of tenants) {
-    const counts = await sweepAgentTraceTurnsForTenant(db, { tenantId: tenant.id, now })
-    for (const key of Object.keys(totals)) totals[key] += counts[key]
+    const counts = await sweepAgentTraceTurnsForTenant(db, { tenantId: tenant.id, now, dryRun })
+    for (const key of Object.keys(totals)) totals[key] += counts[key] ?? 0
+    const { tenantFailure, ...countsOnly } = counts
+    tenantCounts.push({ tenantId: tenant.id, ...countsOnly })
+    if (counts.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
     if (counts.tenantFailure) tenantFailures.push(counts.tenantFailure)
   }
 
   const countsByClass = {
     [CLASS]: { ...totals, ...(tenantFailures.length ? { tenantFailures } : {}) },
   }
+  if (dryRun) return { dryRun: true, countsByClass, tenants: tenantCounts }
+
   const event = await recordAudit(db, {
     entityType: AGENT_TRACE_RETENTION_AUDIT_ENTITY,
     entityId: `agent-trace-retention:${now.toISOString()}`,
     action: AGENT_TRACE_RETENTION_AUDIT_ACTION,
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), countsByClass },
+    payload: { ranAt: now.toISOString(), countsByClass,
+      ...(invalidOverrides.length ? { invalidOverrides } : {}) },
   })
   return { auditEventId: event.id, countsByClass, alreadyRanToday: false }
 }

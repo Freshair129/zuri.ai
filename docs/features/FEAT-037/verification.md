@@ -107,6 +107,7 @@ status: generated
 - [apps/server/tests/unit/msp-stdio-transport.test.js](../../../apps/server/tests/unit/msp-stdio-transport.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/raw-line-retention-sweep-route.test.js](../../../apps/server/tests/unit/raw-line-retention-sweep-route.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/retention-override-resolver.test.js](../../../apps/server/tests/unit/retention-override-resolver.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/retention-sweep-worker-run.test.js](../../../apps/server/tests/unit/retention-sweep-worker-run.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/retention-sweeper-job-statuses.test.js](../../../apps/server/tests/unit/retention-sweeper-job-statuses.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/server-retention-sweep-worker-script.test.js](../../../apps/server/tests/unit/server-retention-sweep-worker-script.test.js) — `verifies` (`test-reference`)

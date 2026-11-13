@@ -1,7 +1,7 @@
 ---
-version: "0.7.0b"
+version: "0.8.0b"
 status: active
-last_update: "2026-11-12,Codex"
+last_update: "2026-11-13,Codex"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -364,19 +364,31 @@ material in any response (`line-channel-credential-service.js` for the last thre
   advances with the write. The Integration sweep
   lives in `src/platform/integrations/core/raw-line-retention-sweep-service.js`,
   beside the provider-neutral raw record substrate: it reads the shared
-  `getEffectiveRetentionWindowDays` port, limits writes to `LINE_OA_PROVIDER_CODE`,
+  `resolveEffectiveRetentionWindow` port, limits writes to `LINE_OA_PROVIDER_CODE`,
   and uses `RawExternalRecord.externalId = LineConversationJob.eventId` to find
-  active work. It leaves PDPA/retention tombstones alone, and skips/counts
-  `ADMITTING` rows because `line-admission-reconciler.js` reparses their payload.
+  active work. A stored override must be a safe integer of at least one day;
+  invalid values are ignored in favor of the installation default, reported per
+  Tenant and in the run audit, and logged without record payloads. Snapshot
+  restore accepts only a known class and a window from one day through its
+  installation default. It leaves PDPA/retention tombstones alone, and
+  skips/counts `ADMITTING` rows because `line-admission-reconciler.js` reparses
+  their payload.
   `POST /api/integration/raw-retention-sweep` is the bodyless, deployment-bearer
-  trigger. The shared worker calls it after CRM; no deployment schedule is claimed.
+  trigger. Strict `dry_run=true|false` is its only optional query; `true` returns
+  the same per-Tenant counts without writing tombstones, audit events or the
+  daily claim. The shared worker calls it after CRM; no deployment schedule is claimed.
   A page failure stops this Tenant, leaves earlier committed pages intact and later
   rows untouched, reports `{ tenantId, code }`, then continues with the next Tenant.
+  Before the first scheduled run, an operator must run
+  `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
+  container and compare the dry-run counts; the first actual run redacts the
+  entire eligible backlog irreversibly.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.8.0b | 2026-11-13 | FR-230: invalid stored retention windows now fall back to the installation default and are reported; raw LINE sweep adds a bodyless count-only dry run and the shared worker exposes it through `--dry-run` | Codex |
 | 0.7.0b | 2026-11-12 | FR-230 / ADR-091 D2: Integration now tombstones expired LINE OA raw payloads in bounded pages, preserves the full envelope, skips live jobs and ADMITTING outbox rows, and exposes `/api/integration/raw-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.6.3b | 2026-11-12 | Reconciled browser write-only LINE credential status with the implemented service and marked Edge/harness credential surfaces retired | Codex |
 | 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id) and of their own message events, found by `event.message.id` inside the payload since those records are keyed by webhook event id too | Claude Opus 5.5 (MC0) |

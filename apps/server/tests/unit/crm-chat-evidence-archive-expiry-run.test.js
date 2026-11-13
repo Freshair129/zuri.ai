@@ -55,16 +55,18 @@ describe('runChatEvidenceArchiveExpiry', () => {
     expect(mocks.expire.mock.calls.map(([, options]) => options.tenantId)).toEqual(['tenant-a', 'tenant-b', 'tenant-c'])
     expect(result.counts).toEqual({
       tenantsVisited: 3, keysDestroyed: 1, holdKeysDestroyed: 1, manifestsRetired: 0,
-      filesDeleted: 0, retiredFilesStillPresent: 1, skipped: 1, failures: 2,
+      filesDeleted: 0, retiredFilesAlreadyAbsent: 0, retiredFilesStillPresent: 1, skipped: 1, failures: 2,
+      tenantsDeferred: 0,
     })
     const auditData = db.auditEvent.create.mock.calls[0][0].data
     expect(auditData).toMatchObject({ entityType: 'ARCHIVE_EXPIRY_RUN', action: 'ARCHIVE_EXPIRY_RUN_COMPLETED', tenantId: null })
     const payload = JSON.parse(auditData.payloadJson)
     expect(payload.tenants).toEqual([
-      { tenantId: 'tenant-a', keysDestroyed: 1, holdKeysDestroyed: 1, manifestsRetired: 0, filesDeleted: 0, retiredFilesStillPresent: 1, skippedReason: null, failureCode: 'ARCHIVE_RETIREMENT_FAILED' },
-      { tenantId: 'tenant-b', keysDestroyed: 0, holdKeysDestroyed: 0, manifestsRetired: 0, filesDeleted: 0, retiredFilesStillPresent: 0, skippedReason: null, failureCode: 'ARCHIVE_EXPIRY_TENANT_FAILED' },
-      { tenantId: 'tenant-c', keysDestroyed: 0, holdKeysDestroyed: 0, manifestsRetired: 0, filesDeleted: 0, retiredFilesStillPresent: 0, skippedReason: 'MANIFEST_HASH_MISMATCH', failureCode: null },
+      { tenantId: 'tenant-a', keysDestroyed: 1, holdKeysDestroyed: 1, manifestsRetired: 0, filesDeleted: 0, retiredFilesAlreadyAbsent: 0, retiredFilesStillPresent: 1, skippedReason: null, failureCode: 'ARCHIVE_RETIREMENT_FAILED' },
+      { tenantId: 'tenant-b', keysDestroyed: 0, holdKeysDestroyed: 0, manifestsRetired: 0, filesDeleted: 0, retiredFilesAlreadyAbsent: 0, retiredFilesStillPresent: 0, skippedReason: null, failureCode: 'ARCHIVE_EXPIRY_TENANT_FAILED' },
+      { tenantId: 'tenant-c', keysDestroyed: 0, holdKeysDestroyed: 0, manifestsRetired: 0, filesDeleted: 0, retiredFilesAlreadyAbsent: 0, retiredFilesStillPresent: 0, skippedReason: 'MANIFEST_HASH_MISMATCH', failureCode: null },
     ])
+    expect(payload.timedOut).toBe(false)
     expect(JSON.stringify(payload)).not.toMatch(/customer-private|manifest-private|file-path-private|file-still-private|private detail/i)
   })
 
@@ -79,5 +81,21 @@ describe('runChatEvidenceArchiveExpiry', () => {
     expect(db.archiveManifest.findMany).not.toHaveBeenCalled()
     expect(mocks.expire).not.toHaveBeenCalled()
     expect(db.auditEvent.create).not.toHaveBeenCalled()
+  })
+
+  it('defers every Tenant when its injectable deadline is already past and audits the timeout', async () => {
+    const db = fakeDb()
+    const result = await runChatEvidenceArchiveExpiry(db, {
+      now: new Date('2026-11-13T00:00:00.000Z'),
+      deadlineAt: new Date(0),
+      env: { NODE_ENV: 'test' },
+    })
+
+    expect(mocks.expire).not.toHaveBeenCalled()
+    expect(result.counts).toMatchObject({ tenantsVisited: 0, tenantsDeferred: 3 })
+    const payload = JSON.parse(db.auditEvent.create.mock.calls[0][0].data.payloadJson)
+    expect(payload.timedOut).toBe(true)
+    expect(payload.counts.tenantsDeferred).toBe(3)
+    expect(payload.tenants).toEqual([])
   })
 })

@@ -26,6 +26,7 @@ import { createProject } from '@/modules/project-manager/application/project-ser
 import { makeViewer } from '../factories/viewer'
 import { createLocalFilesystemPort } from '@/modules/project-manager/local-files/filesystem-port'
 import { decideAgentApprovalRequest } from '@/modules/agent/approval-gateway'
+import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 
 vi.mock('@/modules/identity/request-viewer', () => ({
   resolveRequestViewer: async (request) => {
@@ -1134,5 +1135,44 @@ describe('snapshot backup round trip', () => {
     expect(await prisma.auditEvent.count({ where: { action: 'RESTORED' } })).toBe(restoredAuditBefore)
     expect(await prisma.auditEvent.count({ where: { entityType: 'OPERATOR_ACTION', action: 'BACKUP_RESTORE' } })).toBe(operatorAuditBefore)
     await prisma.customerArchiveKey.deleteMany()
+  })
+
+  it('refuses invalid retention overrides before replacement and restores a valid override', async () => {
+    const dataClass = 'RAW_LINE_PAYLOAD'
+    const where = { tenantId_dataClass: { tenantId: business.tenantId, dataClass } }
+    await prisma.tenantRetentionOverride.upsert({
+      where,
+      create: { tenantId: business.tenantId, dataClass, windowDays: 30 },
+      update: { windowDays: 30 },
+    })
+    const snapshot = await exportSnapshot()
+    const rowIndex = snapshot.tables.tenantRetentionOverride.findIndex(row =>
+      row.tenantId === business.tenantId && row.dataClass === dataClass)
+    expect(rowIndex).toBeGreaterThanOrEqual(0)
+    const projectCount = await prisma.project.count()
+    const invalidRows = [
+      { windowDays: 0 },
+      { windowDays: -1 },
+      { windowDays: 1.5 },
+      { dataClass: 'UNKNOWN_RETENTION_CLASS', windowDays: 1 },
+      { windowDays: RETENTION_DEFAULT_WINDOW_DAYS[dataClass] + 1 },
+    ]
+
+    for (const invalidFields of invalidRows) {
+      const invalid = structuredClone(snapshot)
+      invalid.tables.tenantRetentionOverride[rowIndex] = {
+        ...invalid.tables.tenantRetentionOverride[rowIndex], ...invalidFields,
+      }
+      const result = await importSnapshot(invalid, { confirm: true, viewer: makeOperatorViewer() })
+      expect(result).toMatchObject({ restored: false, valid: false, errorCode: 'BACKUP_RETENTION_OVERRIDE_INVALID' })
+      expect(await prisma.project.count()).toBe(projectCount)
+      expect(await prisma.project.findUnique({ where: { id: project.id } })).toBeTruthy()
+      expect((await prisma.tenantRetentionOverride.findUnique({ where })).windowDays).toBe(30)
+    }
+
+    await prisma.tenantRetentionOverride.update({ where, data: { windowDays: 5 } })
+    const restored = await importSnapshot(snapshot, { confirm: true, viewer: makeOperatorViewer() })
+    expect(restored.restored).toBe(true)
+    expect((await prisma.tenantRetentionOverride.findUnique({ where })).windowDays).toBe(30)
   })
 })

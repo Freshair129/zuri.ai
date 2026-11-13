@@ -72,6 +72,8 @@ import {
   removeUnreferencedArchiveFile,
   resolveArchiveBaseDir,
   verifyManifestChain,
+  lockTenantArchiveChain,
+  readArchiveChainTail,
   findActiveLegalHold,
   destroyCustomerArchiveKey,
   destroyLegalHoldArchiveKeys,
@@ -81,6 +83,11 @@ import { openCustomerArchiveKey, openArchiveSegment, ChatEvidenceArchiveCryptoEr
 
 export const CHAT_EVIDENCE_ARCHIVE_RETENTION_YEARS = 10
 const RETIREMENT_FORMAT_VERSION = 4
+const RETIREMENT_UNCOMMITTED_CODES = new Set([
+  'ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CHAIN_TAIL_INVALID', 'ARCHIVE_TENANT_NOT_FOUND',
+  'ARCHIVE_CHAIN_CHANGED', 'ARCHIVE_RETIREMENT_TARGET_CHANGED', 'ARCHIVE_RETIREMENT_ALREADY_COMMITTED',
+  'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED',
+])
 
 function archiveFailureCode(error) {
   return typeof error?.code === 'string' && error.code.startsWith('ARCHIVE_')
@@ -123,6 +130,14 @@ async function appendRetirementManifest(db, { tenantId, manifests, now, baseDir,
 
   try {
     const manifest = await db.$transaction(async (tx) => {
+      await lockTenantArchiveChain(tx, { tenantId })
+      const previous = await readArchiveChainTail(tx, tenantId)
+      const currentChain = await verifyManifestChain(tx, tenantId, { baseDir, checkFiles: true })
+      if (!currentChain.valid) {
+        const error = new Error('ARCHIVE_CHAIN_CHANGED')
+        error.code = 'ARCHIVE_CHAIN_CHANGED'
+        throw error
+      }
       const rows = await tx.archiveManifest.findMany({
         where: { tenantId },
         select: {
@@ -144,14 +159,12 @@ async function appendRetirementManifest(db, { tenantId, manifests, now, baseDir,
         }
       }
 
-      const referenced = new Set(rows.map((row) => row.previousManifestId).filter(Boolean))
-      const tails = rows.filter((row) => !referenced.has(row.id))
-      if ((rows.length === 0 && tails.length !== 0) || (rows.length > 0 && tails.length !== 1)) {
-        const error = new Error('ARCHIVE_RETIREMENT_CHAIN_TAIL_INVALID')
-        error.code = 'ARCHIVE_RETIREMENT_CHAIN_TAIL_INVALID'
+      const alreadyRetired = new Set(currentChain.retiredManifestIds ?? [])
+      if (retired.some((entry) => alreadyRetired.has(entry.manifestId))) {
+        const error = new Error('ARCHIVE_RETIREMENT_ALREADY_COMMITTED')
+        error.code = 'ARCHIVE_RETIREMENT_ALREADY_COMMITTED'
         throw error
       }
-      const previous = tails[0] ?? null
       const data = {
         tenantId,
         runId,
@@ -167,9 +180,16 @@ async function appendRetirementManifest(db, { tenantId, manifests, now, baseDir,
     })
     return { manifest, retiredManifestIds: retired.map((entry) => entry.manifestId) }
   } catch (error) {
-    // The shared helper removes only after proving no row references this run.
-    // If the commit response was lost, preserve and report the committed file.
-    await removeUnreferencedArchiveFile(db, { tenantId, runId, relativePath: written.relativePath, baseDir })
+    // Lock, tail and pre-create conflicts are known to precede any manifest
+    // insert, so remove this exact file directly even if a concurrent SQLite
+    // writer temporarily prevents a follow-up query. For uncertain outcomes,
+    // retain the shared reference check: a lost commit acknowledgement must
+    // never delete a file the database may already name.
+    if (RETIREMENT_UNCOMMITTED_CODES.has(error?.code)) {
+      await fs.rm(path.join(baseDir, written.relativePath)).catch(() => {})
+    } else {
+      await removeUnreferencedArchiveFile(db, { tenantId, runId, relativePath: written.relativePath, baseDir })
+    }
     try {
       const committed = await db.archiveManifest.findUnique({ where: { tenantId_runId: { tenantId, runId } } })
       if (committed) {
@@ -185,13 +205,17 @@ async function appendRetirementManifest(db, { tenantId, manifests, now, baseDir,
 
 async function deleteRetiredArchiveFiles(manifests, { baseDir }) {
   const deletedFiles = []
+  const retiredFilesAlreadyAbsent = []
   const retiredFilesStillPresent = []
   for (const manifest of manifests) {
     try {
       await fs.unlink(path.join(baseDir, manifest.filePath))
       deletedFiles.push(manifest.id)
     } catch (error) {
-      if (error?.code === 'ENOENT') continue
+      if (error?.code === 'ENOENT') {
+        retiredFilesAlreadyAbsent.push(manifest.id)
+        continue
+      }
       try {
         await fs.stat(path.join(baseDir, manifest.filePath))
         retiredFilesStillPresent.push(manifest.id)
@@ -200,7 +224,7 @@ async function deleteRetiredArchiveFiles(manifests, { baseDir }) {
       }
     }
   }
-  return { deletedFiles, retiredFilesStillPresent }
+  return { deletedFiles, retiredFilesAlreadyAbsent, retiredFilesStillPresent }
 }
 
 async function listPresentRetiredFiles(manifests, { baseDir }) {
@@ -335,6 +359,7 @@ export async function expireChatEvidenceArchive(db, {
   if (!chainIntegrity.valid) {
     const retirementManifest = null
     const retiredManifestIds = []
+    const retiredFilesAlreadyAbsent = []
     const retiredFilesStillPresent = []
     const retirementFailureReason = null
     const audit = await recordAudit(db, {
@@ -345,13 +370,13 @@ export async function expireChatEvidenceArchive(db, {
       tenantId,
       payload: {
         tenantId, ranAt: now.toISOString(), skipped: true, chainIntegrity,
-        destroyedKeys: [], deletedFiles: [], destroyedHoldKeys, retirementManifest,
+        destroyedKeys: [], deletedFiles: [], retiredFilesAlreadyAbsent, destroyedHoldKeys, retirementManifest,
         retiredManifestIds, retiredFilesStillPresent, retirementFailureReason,
       },
     })
     return {
       tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys,
-      retirementManifest, retiredManifestIds, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
+      retiredFilesAlreadyAbsent, retirementManifest, retiredManifestIds, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
     }
   }
 
@@ -433,6 +458,8 @@ export async function expireChatEvidenceArchive(db, {
 
       verifiedAges.set(keyRow.customerId, perManifestNewest)
       if (overallNewest && overallNewest < cutoff) {
+        // If the process dies after this key delete but before retirement commits,
+        // the next run treats its already-missing key as expired for that file and completes retirement.
         const result = await destroyCustomerArchiveKey(db, { tenantId, customerId: keyRow.customerId, now })
         if (result.destroyed) destroyedKeys.push(keyRow.customerId)
       }
@@ -506,6 +533,7 @@ export async function expireChatEvidenceArchive(db, {
   const allRetiredIds = new Set([...alreadyRetiredIds, ...retiredManifestIds])
   const retiredFiles = manifests.filter((manifest) => allRetiredIds.has(manifest.id) && !manifest.filePath.endsWith('.zcr'))
   let deletedFiles = []
+  let retiredFilesAlreadyAbsent = []
   let retiredFilesStillPresent = []
   if (retirementFailureReason) {
     // The failed batch is never deleted before its retirement commit. Files
@@ -515,6 +543,7 @@ export async function expireChatEvidenceArchive(db, {
     const previouslyRetiredFiles = retiredFiles.filter((manifest) => alreadyRetired.has(manifest.id))
     const priorDeletion = await deleteRetiredArchiveFiles(previouslyRetiredFiles, { baseDir })
     deletedFiles = priorDeletion.deletedFiles
+    retiredFilesAlreadyAbsent = priorDeletion.retiredFilesAlreadyAbsent
     retiredFilesStillPresent = [...priorDeletion.retiredFilesStillPresent]
     const committedButUnconfirmed = retirementManifest
       ? retiredFiles.filter((manifest) => !alreadyRetired.has(manifest.id))
@@ -524,6 +553,7 @@ export async function expireChatEvidenceArchive(db, {
   } else {
     const deletion = await deleteRetiredArchiveFiles(retiredFiles, { baseDir })
     deletedFiles = deletion.deletedFiles
+    retiredFilesAlreadyAbsent = deletion.retiredFilesAlreadyAbsent
     retiredFilesStillPresent = deletion.retiredFilesStillPresent
   }
 
@@ -536,12 +566,12 @@ export async function expireChatEvidenceArchive(db, {
     payload: {
       tenantId, ranAt: now.toISOString(), skipped: false, chainIntegrity,
       destroyedKeys, deletedFiles, retentionYears, destroyedHoldKeys,
-      retirementManifest, retiredManifestIds, retiredFilesStillPresent, retirementFailureReason,
+      retirementManifest, retiredManifestIds, retiredFilesAlreadyAbsent, retiredFilesStillPresent, retirementFailureReason,
     },
   })
 
   return {
     tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, destroyedHoldKeys,
-    retirementManifest, retiredManifestIds, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
+    retirementManifest, retiredManifestIds, retiredFilesAlreadyAbsent, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
   }
 }

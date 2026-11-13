@@ -19,6 +19,7 @@ import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 import { recordCustomerLegalHold } from '@/modules/crm/chat-evidence-legal-hold-service'
 import { recordCustomerRetentionConsent } from '@/modules/crm/customer-retention-consent-service'
 import { computeManifestHash, hashMessageIdList, verifyManifestChain, withLockedCustomer } from '@/modules/crm/chat-evidence-archive-service'
+import { retrieveArchivedChatEvidence } from '@/modules/crm/chat-evidence-retrieval-service'
 import { erasePrincipal } from '@/modules/identity/erase-principal'
 import { expireChatEvidenceArchive } from '@/modules/crm/chat-evidence-archive-expiry-service'
 import { runChatEvidenceArchiveExpiry } from '@/modules/crm/chat-evidence-archive-expiry-run-service'
@@ -77,6 +78,60 @@ async function freshScope(label) {
 async function ownerOf(business) {
   const person = await prisma.person.create({ data: { code: `PER-${randomUUID().slice(0, 8)}`, displayName: 'Hold owner' } })
   return { person, viewer: makeViewer({ principal: { id: person.id, code: person.code, displayName: person.displayName }, ownedBusinessIds: [business.id], visibleBusinessIds: [business.id], visibleDomains: [...VIEWER_DOMAINS] }) }
+}
+
+async function retrieveForTest({ business, customerId, caseReference }) {
+  const { person, viewer } = await ownerOf(business)
+  await prisma.mfaFactor.create({ data: {
+    personId: person.id, type: 'TOTP', secret: 'mfa.v0.sealed-in-test.placeholder.value', status: 'ACTIVE',
+  } })
+  const now = new Date()
+  const session = {
+    id: randomUUID(), personId: person.id, status: 'ACTIVE',
+    elevatedUntil: new Date(now.getTime() + 900_000), expiresAt: new Date(now.getTime() + 3_600_000),
+  }
+  return retrieveArchivedChatEvidence(customerId, {
+    businessId: business.id, startDate: '2000-01-01', endDate: '2100-01-01', caseReference,
+  }, { viewer, session, baseDir, now })
+}
+
+async function assertExpiryRetryCompletesRetirement({ tenant, business, message, archive, firstResult, failureReason }) {
+  expect(firstResult.destroyedKeys).toEqual([message.customerId])
+  expect(firstResult.retirementFailureReason).toBe(failureReason)
+  expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: message.customerId } })).toBeNull()
+  expect(await prisma.archiveManifest.findUnique({ where: { id: archive.id } })).toBeTruthy()
+  await expect(fs.stat(path.join(baseDir, archive.filePath))).resolves.toBeTruthy()
+  const rowsAfterFailure = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id } })
+  expect(rowsAfterFailure.filter((row) => row.filePath.endsWith('.zcr'))).toEqual([])
+  expect(Object.keys(await archiveFileSnapshot(baseDir))).toEqual([archive.filePath])
+
+  const retry = await expireChatEvidenceArchive(prisma, {
+    tenantId: tenant.id, now: new Date(Date.now() + 1000), baseDir, retentionYears: 0,
+  })
+  expect(retry.destroyedKeys).toEqual([])
+  expect(retry.retiredManifestIds).toEqual([archive.id])
+  expect(retry.deletedFiles).toEqual([archive.id])
+  expect(retry.retirementFailureReason).toBeNull()
+  await expect(fs.stat(path.join(baseDir, archive.filePath))).rejects.toThrow()
+  await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+    .resolves.toEqual({ valid: true, retiredManifestIds: [archive.id] })
+
+  const retrieval = await retrieveForTest({
+    business, customerId: message.customerId, caseReference: `DSP-RESUME-${randomUUID().slice(0, 8)}`,
+  })
+  expect(retrieval.sessions).toEqual([])
+  expect(retrieval.missingMessageIds).toEqual([message.messageId])
+
+  const beforeThirdRun = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } })
+  const filesBeforeThirdRun = await archiveFileSnapshot(baseDir)
+  const third = await expireChatEvidenceArchive(prisma, {
+    tenantId: tenant.id, now: new Date(Date.now() + 2000), baseDir, retentionYears: 0,
+  })
+  expect(third.destroyedKeys).toEqual([])
+  expect(third.retiredManifestIds).toEqual([])
+  expect(third.deletedFiles).toEqual([])
+  expect(await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { id: 'asc' } })).toEqual(beforeThirdRun)
+  expect(await archiveFileSnapshot(baseDir)).toEqual(filesBeforeThirdRun)
 }
 
 async function backdatedMessage({ tenant, business, ageDays, threadId, text }) {
@@ -596,6 +651,38 @@ describe('SEC-034 expireChatEvidenceArchive (ADR-093 D5)', () => {
     expect(header.retired.map((entry) => entry.manifestId).sort()).toEqual(archives.map((row) => row.id).sort())
   })
 
+  it('serializes concurrent expiry runs for one Tenant without forking or orphaning files', async () => {
+    const { tenant, business } = await freshScope('expire-concurrent')
+    await backdatedMessage({ tenant, business, ageDays: PAST, text: 'parallel expiry one' })
+    await backdatedMessage({ tenant, business, ageDays: PAST, text: 'parallel expiry two' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
+    const candidateManifest = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
+
+    const outcomes = await Promise.all([
+      expireChatEvidenceArchive(prisma, { tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0 })
+        .then((value) => ({ value }), (error) => ({ error })),
+      expireChatEvidenceArchive(prisma, { tenantId: tenant.id, now: new Date(Date.now() + 10), baseDir, retentionYears: 0 })
+        .then((value) => ({ value }), (error) => ({ error })),
+    ])
+    const conflictCodes = new Set(['ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', 'ARCHIVE_RETIREMENT_ALREADY_COMMITTED', 'ARCHIVE_CHAIN_CHANGED', 'P2034', '40001', '40P01', 'SQLITE_BUSY', 'SQLITE_LOCKED'])
+    for (const outcome of outcomes) {
+      if (outcome.error) expect(conflictCodes.has(outcome.error.code)).toBe(true)
+      else if (outcome.value.retirementFailureReason) expect(conflictCodes.has(outcome.value.retirementFailureReason)).toBe(true)
+      else expect(outcome.value.skipped).toBe(false)
+    }
+
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [candidateManifest.id] })
+    const rows = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id } })
+    const filePaths = new Set(rows.map((row) => row.filePath))
+    for (const filePath of Object.keys(await archiveFileSnapshot(baseDir))) expect(filePaths.has(filePath)).toBe(true)
+    const retirementRows = rows.filter((row) => row.filePath.endsWith('.zcr'))
+    expect(retirementRows).toHaveLength(1)
+    const retirementHeader = JSON.parse(await fs.readFile(path.join(baseDir, retirementRows[0].filePath), 'utf8'))
+    expect(retirementHeader.retired.map((entry) => entry.manifestId)).toEqual([candidateManifest.id])
+    await expect(fs.stat(path.join(baseDir, candidateManifest.filePath))).rejects.toThrow()
+  })
+
   it('leaves archive files and the chain intact when writing the retirement file fails', async () => {
     const { tenant, business } = await freshScope('expire-retirement-write-fails')
     await backdatedMessage({ tenant, business, ageDays: PAST })
@@ -696,6 +783,104 @@ describe('SEC-034 expireChatEvidenceArchive (ADR-093 D5)', () => {
     expect(JSON.parse(audit.payloadJson).retirementFailureReason).toBe('ARCHIVE_TRANSACTION_INJECTED')
   })
 
+  it('resumes retirement after the Customer key is destroyed and the retirement file write fails', async () => {
+    const { tenant, business } = await freshScope('expire-resume-file-write')
+    const message = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'resume after retirement write failure' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
+    const archive = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
+    const originalOpen = fs.open.bind(fs)
+    const openFailure = vi.spyOn(fs, 'open').mockImplementation((target, ...args) => {
+      if (String(target).includes('.zcr.tmp-')) return Promise.reject(Object.assign(new Error('injected retirement write failure'), { code: 'EIO' }))
+      return originalOpen(target, ...args)
+    })
+    let firstResult
+    try {
+      firstResult = await expireChatEvidenceArchive(prisma, {
+        tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0,
+      })
+    } finally {
+      openFailure.mockRestore()
+    }
+
+    await assertExpiryRetryCompletesRetirement({
+      tenant, business, message, archive, firstResult, failureReason: 'ARCHIVE_FILE_WRITE_FAILED',
+    })
+  })
+
+  it('resumes retirement after the Customer key is destroyed and its retirement transaction fails', async () => {
+    const { tenant, business } = await freshScope('expire-resume-transaction')
+    const message = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'resume after retirement transaction failure' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
+    const archive = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
+    const failingDb = prisma.$extends({
+      query: {
+        archiveManifest: {
+          async create({ args, query }) {
+            if (args.data?.filePath?.endsWith('.zcr')) {
+              throw Object.assign(new Error('injected retirement transaction failure'), { code: 'ARCHIVE_TRANSACTION_INJECTED' })
+            }
+            return query(args)
+          },
+        },
+      },
+    })
+
+    const firstResult = await expireChatEvidenceArchive(failingDb, {
+      tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0,
+    })
+
+    await assertExpiryRetryCompletesRetirement({
+      tenant, business, message, archive, firstResult, failureReason: 'ARCHIVE_TRANSACTION_INJECTED',
+    })
+  })
+
+  it('does not retire a file after resuming when another Customer segment is still inside its term', async () => {
+    const { tenant, business } = await freshScope('expire-resume-mixed-term')
+    const expired = await backdatedMessage({ tenant, business, ageDays: 4 * 365, text: 'expired Customer segment' })
+    // The sweep's two-year admission term archives this row, but it remains
+    // inside the expiry run's three-year term used below.
+    const recent = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'in-term Customer segment' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
+    const extraExpired = await backdatedMessage({ tenant, business, ageDays: 4 * 365, text: 'separate expired segment' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(Date.now() + 1000), baseDir })
+    const archives = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id }, orderBy: { createdAt: 'asc' } })
+    expect(archives).toHaveLength(2)
+    const [mixedArchive, separateArchive] = archives
+    const originalOpen = fs.open.bind(fs)
+    const openFailure = vi.spyOn(fs, 'open').mockImplementation((target, ...args) => {
+      if (String(target).includes('.zcr.tmp-')) return Promise.reject(Object.assign(new Error('injected retirement write failure'), { code: 'EIO' }))
+      return originalOpen(target, ...args)
+    })
+    let firstResult
+    try {
+      firstResult = await expireChatEvidenceArchive(prisma, {
+        tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 3,
+      })
+    } finally {
+      openFailure.mockRestore()
+    }
+
+    expect(firstResult.destroyedKeys).toEqual(expect.arrayContaining([expired.customerId, extraExpired.customerId]))
+    expect(firstResult.retirementFailureReason).toBe('ARCHIVE_FILE_WRITE_FAILED')
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: expired.customerId } })).toBeNull()
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: extraExpired.customerId } })).toBeNull()
+    expect(await prisma.customerArchiveKey.findUnique({ where: { customerId: recent.customerId } })).toBeTruthy()
+    for (const archive of archives) await expect(fs.stat(path.join(baseDir, archive.filePath))).resolves.toBeTruthy()
+    expect((await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id } })).filter((row) => row.filePath.endsWith('.zcr'))).toEqual([])
+
+    const retry = await expireChatEvidenceArchive(prisma, {
+      tenantId: tenant.id, now: new Date(Date.now() + 1000), baseDir, retentionYears: 3,
+    })
+    expect(retry.destroyedKeys).toEqual([])
+    expect(retry.retiredManifestIds).toEqual([separateArchive.id])
+    expect(retry.retiredManifestIds).not.toContain(mixedArchive.id)
+    expect(retry.retirementFailureReason).toBeNull()
+    await expect(fs.stat(path.join(baseDir, mixedArchive.filePath))).resolves.toBeTruthy()
+    await expect(fs.stat(path.join(baseDir, separateArchive.filePath))).rejects.toThrow()
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [separateArchive.id] })
+  })
+
   it('reports a post-commit delete failure and retries it without appending another retirement', async () => {
     const { tenant, business } = await freshScope('expire-delete-retry')
     await backdatedMessage({ tenant, business, ageDays: PAST })
@@ -729,6 +914,56 @@ describe('SEC-034 expireChatEvidenceArchive (ADR-093 D5)', () => {
     expect(retry.retiredFilesStillPresent).toEqual([])
     expect(await prisma.archiveManifest.count({ where: { tenantId: tenant.id } })).toBe(countBeforeRetry)
     await expect(fs.stat(path.join(baseDir, archive.filePath))).rejects.toThrow()
+  })
+
+  it('audits a retired file already absent after deletion happened before the prior completion audit', async () => {
+    const { tenant, business } = await freshScope('expire-already-absent')
+    await backdatedMessage({ tenant, business, ageDays: PAST, text: 'retired file absent before audit' })
+    await sweepFixtureTenant(tenant.id, { now: new Date(), baseDir })
+    const archive = await prisma.archiveManifest.findFirst({ where: { tenantId: tenant.id } })
+    const archivePath = path.join(baseDir, archive.filePath)
+    const originalUnlink = fs.unlink.bind(fs)
+    const leaveFile = vi.spyOn(fs, 'unlink').mockImplementation((target, ...args) => {
+      if (path.resolve(String(target)) === path.resolve(archivePath)) {
+        return Promise.reject(Object.assign(new Error('injected post-retirement delete failure'), { code: 'EACCES' }))
+      }
+      return originalUnlink(target, ...args)
+    })
+    let committed
+    try {
+      committed = await expireChatEvidenceArchive(prisma, {
+        tenantId: tenant.id, now: new Date(), baseDir, retentionYears: 0,
+      })
+    } finally {
+      leaveFile.mockRestore()
+    }
+    expect(committed.retiredManifestIds).toEqual([archive.id])
+    expect(committed.deletedFiles).toEqual([])
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [archive.id] })
+
+    await fs.unlink(archivePath)
+    const tenantResult = await expireChatEvidenceArchive(prisma, {
+      tenantId: tenant.id, now: new Date(Date.now() + 1000), baseDir, retentionYears: 0,
+    })
+    expect(tenantResult.deletedFiles).toEqual([])
+    expect(tenantResult.retiredFilesAlreadyAbsent).toEqual([archive.id])
+    expect(tenantResult.retirementFailureReason).toBeNull()
+    const tenantAudit = await prisma.auditEvent.findFirst({
+      where: { tenantId: tenant.id, action: 'ARCHIVE_EXPIRY_COMPLETED' }, orderBy: { occurredAt: 'desc' },
+    })
+    expect(JSON.parse(tenantAudit.payloadJson).retiredFilesAlreadyAbsent).toEqual([archive.id])
+
+    const run = await runChatEvidenceArchiveExpiry(expiryFixtureDb(tenant.id), {
+      now: new Date(Date.now() + 2000), baseDir, env: { NODE_ENV: 'test' },
+    })
+    expect(run.counts).toMatchObject({ filesDeleted: 0, retiredFilesAlreadyAbsent: 1, failures: 0 })
+    const runAudit = await prisma.auditEvent.findUnique({ where: { id: run.auditEventId } })
+    expect(JSON.parse(runAudit.payloadJson).tenants).toMatchObject([{
+      tenantId: tenant.id, filesDeleted: 0, retiredFilesAlreadyAbsent: 1,
+    }])
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [archive.id] })
   })
 
   it('never destroys a key or deletes a file for a Customer under an active legal hold', async () => {

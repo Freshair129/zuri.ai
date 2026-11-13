@@ -1,7 +1,7 @@
 ---
-version: "1.3.0"
+version: "1.3.1"
 created_at: "2026-09-15T23:00:00+07:00,Claude Opus 5"
-last_update: "2026-11-13T09:00:00+07:00,Claude Fable 5.2"
+last_update: "2026-11-13T15:00:00+07:00,Claude Fable 5.2"
 status: "accepted"
 superseded_by: null
 attributes:
@@ -248,14 +248,52 @@ files actually deleted, and the retired files still waiting to be deleted.
 route in the crm lane, called once per UTC day by the existing retention-sweep worker
 **after** that day's sweep has answered, runs the expiry for each Tenant in turn and
 writes one run-level audit event with per-Tenant counts beside each Tenant's own
-`ARCHIVE_EXPIRY_COMPLETED`. Running it after the sweep in the same worker keeps the two
-chain writers from appending at the same time.
+`ARCHIVE_EXPIRY_COMPLETED`.
+
+*Serialisation (1.3.1).* The order of the worker's calls is an efficiency choice, not what
+keeps the chain linear. Every writer that appends to a Tenant's chain (the sweep's archive
+writer, the hold re-seal and the retirement) takes a per-Tenant lock on the Tenant row and
+reads the chain tail inside the transaction that creates its row, so two appenders can no
+longer start from the same tail. The tail is the one row no other row names as its
+predecessor. A chain with no unique tail makes the writer fail closed (nothing is
+tombstoned or retired for that Tenant). The retirement also re-verifies the chain under the
+lock and refuses a target another run has already retired.
+
+*The daily claim (1.3.1).* The once-per-UTC-day guard is an atomic claim: an audit event with
+the deterministic id `archive-expiry-claim:<YYYY-MM-DD>` is created before any work, and a
+second call the same day finds it and answers 409 `ARCHIVE_EXPIRY_RUN_IN_PROGRESS` or the
+completed result. Storage readiness is checked before the claim, so a refused call does not
+use up the day. A run that crashes after claiming leaves the claim, and that day's later
+calls answer 409; the next UTC day claims again. The route awaits the run: it has no timer
+that returns while the run continues. The run stops starting new Tenants after a deadline
+(nine minutes) and records the rest as deferred.
+
+*Crash between the two destructive steps (1.3.1).* Expiry destroys a Customer's key first and
+retires the file second. A crash between them leaves the file and its manifest present, the
+key gone and no retirement. This is a resumability gap, not a safety problem: a key is
+destroyed only when every line the Customer has is past the term, so the data is past its
+retention either way. The next run counts a file whose Customer key is already gone as
+expired for that file, so the file lands in the retirement batch and is retired and deleted;
+a file that another Customer's unexpired segment still protects is not. The steps were not
+reordered, because the keys destroyed in a run feed that run's decision which files have
+expired. Tests simulate the crash and show the next run completes without error and without
+destroying a key twice.
 
 **Known limits this amendment adds or leaves.**
-- Chain appends are not serialised by a lock (true today for the sweep and the hold
-  re-seal). An erasure that re-seals at the same moment the expiry run appends could fork
-  the chain (`MANIFEST_CHAIN_BRANCH`). A unique index on the previous-manifest link would
-  turn that into a retryable conflict. It is a schema change and a separate follow-up.
+- Chain appends are serialised by the Tenant lock above, not by the database. A unique
+  index on the previous-manifest link would be a second, independent guard that turns a
+  missed lock into a retryable conflict. It is a schema change and a separate follow-up.
+  On SQLite (development and tests) the lock is the write lock the same-value update takes
+  at the start of the transaction; only PostgreSQL has a row lock, and no run on PostgreSQL
+  has exercised it in this repository's tests.
+- A crash after deleting a retired file and before the run's completion audit leaves that
+  deletion out of `deletedFiles`. The next run reports the id under
+  `retiredFilesAlreadyAbsent`, so the state is visible, but when the deletion happened is
+  not recorded.
+- Archive expiry has no dry run, unlike the two 90-day sweepers. The keys destroyed in a
+  run decide which files have expired in that run, so the decision cannot be previewed
+  without destroying them.
+- A run that crashes after claiming blocks that UTC day's retries (see above).
 - A restore from a snapshot taken before a retirement brings back a chain that does not
   know the retirement, while the files stay deleted. The `.zcr` file on disk still says
   which rows were retired and why. Re-linking it is work for the chain-repair tooling
@@ -328,6 +366,7 @@ No message is eligible before 2028-09-08, so these phases can follow the evidenc
 
 | Version | Date | Status | Change |
 |---|---|---|---|
+| 1.3.1 | 2026-11-13 | accepted | Review fixes to the 1.3.0 implementation, no change to the decision: every chain writer takes a per-Tenant lock and reads the tail inside its transaction (P7 note), the daily run is an atomic claim and the route no longer returns while a run continues, the crash between key destruction and retirement is analysed as resumable and covered by tests, and the known limits are updated (no dry run for expiry, the unlogged deletion after a crash, PostgreSQL lock untested here). The owner confirmed the 1.3.0 approval a second time to the lead session on 2026-11-13 ("approve"), as relayed by that session; the first approval was given in the implementing session ("อนุมัติ ทำเลย") |
 | 1.3.0 | 2026-11-13 | accepted | D5 amendment, proposed 2026-11-12 and accepted by the owner on 2026-11-13: an expired file is retired by a chained retirement file (format 4, one ordinary manifest row, no schema change) before it is deleted, and chain verification accepts a missing file only when a valid later retirement names it. Closes the known limit of 1.2.0, and the expiry run gets its trigger (P7) |
 | 1.2.1 | 2026-09-28 | accepted | Runbook for a blocked erasure. The 409 `ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID` alert is now written durably after the rollback, as an ErrorEvent plus an `ERASURE_BLOCKED` audit event. The three ways to unblock are recorded, and so is the missing chain-repair tooling. A failure deciding orphaned lines after an archive committed is reported as its own `settleFailures` in the sweep audit, never as an archive failure |
 | 1.2.0 | 2026-09-27 | accepted | D6 amendment on the owner's ruling "consent to retain = keep": a sales-recorded, revocable, tenant-bound retention consent (`CustomerRetentionConsent`, `crm.retention-consent.write` on SALES_REP). (Q1) Erasing a member of a shared thread re-seals, under the held member's per-hold key (`LegalHoldArchiveKey`, format 3, one appended manifest), the lines that key would shred, only while that member has an active hold and an active consent. The hold key dies with the hold, the consent or the member. Re-seal files are never deleted, and a broken chain blocks the erasure. Revoking while held needs OWNER and a reason. Membership is per line. (Q2) A line past retention whose key Customer is erased is never archived: a staff, push or unknown-author line stays deferred while a member for it consents, and every other such line is blanked. Erasure revokes the erased Customer's consent and clears the FR-103 note and recorder |

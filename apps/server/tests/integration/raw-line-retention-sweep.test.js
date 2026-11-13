@@ -23,6 +23,7 @@ import { RETENTION_DEFAULT_WINDOW_DAYS } from '@/lib/validation/enums'
 
 const DAY_MS = 24 * 60 * 60 * 1000
 const CLASS = 'RAW_LINE_PAYLOAD'
+const NO_OVERRIDE_WINDOW = Symbol('NO_OVERRIDE_WINDOW')
 let lineProvider, otherProvider, sequence = 0
 
 async function bundle(label) {
@@ -66,7 +67,7 @@ async function lineJob(owner, row, status = 'QUEUED') {
   } })
 }
 
-function scopedDb(tenantIds, { failOnRawId, rawQueries = [] } = {}) {
+function scopedDb(tenantIds, { failOnRawId, rawQueries = [], overrideWindowDays = NO_OVERRIDE_WINDOW } = {}) {
   return new Proxy(prisma, {
     get(target, property) {
       if (property === '$transaction') {
@@ -96,6 +97,14 @@ function scopedDb(tenantIds, { failOnRawId, rawQueries = [] } = {}) {
               }
               return delegate.updateMany(args)
             }
+            return Reflect.get(delegate, method, delegate)
+          },
+        })
+      }
+      if (property === 'tenantRetentionOverride' && overrideWindowDays !== NO_OVERRIDE_WINDOW) {
+        return new Proxy(target.tenantRetentionOverride, {
+          get(delegate, method) {
+            if (method === 'findUnique') return async () => ({ windowDays: overrideWindowDays })
             return Reflect.get(delegate, method, delegate)
           },
         })
@@ -338,6 +347,7 @@ describe('raw LINE payload retention sweep — FR-230', () => {
     expect(payload).toMatchObject({ ranAt: now.toISOString(), countsByClass: {
       [CLASS]: { redactedRawRecords: 1, skippedNonTerminalJob: 0, skippedAdmitting: 0 },
     } })
+    expect(payload.invalidOverrides).toBeUndefined()
     expect(audit.payloadJson).not.toContain('private')
     const dayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
     const crmGuardResult = await prisma.auditEvent.findFirst({
@@ -361,5 +371,61 @@ describe('raw LINE payload retention sweep — FR-230', () => {
     expect(erasure.tombstonedRawRecords).toBe(0)
     expect(JSON.parse((await prisma.rawExternalRecord.findUnique({ where: { id: row.id } })).payloadJson).reason)
       .toBe(RAW_RECORD_RETENTION_REASON)
+  })
+
+  it.each([0, -5, 1.5, Number.NaN])('ignores an invalid stored override %s and keeps a recent payload', async windowDays => {
+    const owner = await bundle(`raw-invalid-override-${String(windowDays).replace('.', '-')}`)
+    const now = new Date()
+    const row = await raw(owner, { now, ageDays: 2 })
+    const db = Number.isSafeInteger(windowDays)
+      ? scopedDb([owner.tenant.id])
+      : scopedDb([owner.tenant.id], { overrideWindowDays: windowDays })
+    if (Number.isSafeInteger(windowDays)) {
+      await prisma.tenantRetentionOverride.create({ data: {
+        tenantId: owner.tenant.id, dataClass: CLASS, windowDays,
+      } })
+    }
+
+    const tenantCounts = await sweepRawLinePayloadsForTenant(db, { tenantId: owner.tenant.id, now, dryRun: true })
+    expect(tenantCounts).toMatchObject({ redactedRawRecords: 0, invalidOverrideIgnored: true })
+    const result = await runRawLineRetentionSweep({ db, now })
+    const after = await prisma.rawExternalRecord.findUnique({ where: { id: row.id } })
+    const audit = await prisma.auditEvent.findUnique({ where: { id: result.auditEventId } })
+
+    expect(result.countsByClass[CLASS].redactedRawRecords).toBe(0)
+    expect(after.payloadJson).toBe(row.payloadJson)
+    expect(after.updatedAt).toEqual(row.updatedAt)
+    expect(JSON.parse(audit.payloadJson).invalidOverrides).toEqual([{ tenantId: owner.tenant.id }])
+  })
+
+  it('dry-runs the same counts as the next real run without changing records or claiming the audit day', async () => {
+    const owner = await bundle('raw-dry-run')
+    const now = new Date()
+    await raw(owner, { now, ageDays: RETENTION_DEFAULT_WINDOW_DAYS[CLASS] + 1 })
+    await raw(owner, { now, ageDays: 1 })
+    const db = scopedDb([owner.tenant.id])
+    const beforeRows = await prisma.rawExternalRecord.findMany({
+      where: { tenantId: owner.tenant.id, provider: LINE_OA_PROVIDER_CODE },
+      select: { id: true, payloadJson: true, updatedAt: true }, orderBy: { id: 'asc' },
+    })
+    const beforeAuditCount = await prisma.auditEvent.count({ where: {
+      entityType: RAW_LINE_RETENTION_AUDIT_ENTITY, action: RAW_LINE_RETENTION_AUDIT_ACTION,
+    } })
+
+    const dryRun = await runRawLineRetentionSweep({ db, now, dryRun: true })
+    const afterDryRunRows = await prisma.rawExternalRecord.findMany({
+      where: { tenantId: owner.tenant.id, provider: LINE_OA_PROVIDER_CODE },
+      select: { id: true, payloadJson: true, updatedAt: true }, orderBy: { id: 'asc' },
+    })
+    expect(dryRun).toMatchObject({ dryRun: true, countsByClass: { [CLASS]: { redactedRawRecords: 1 } },
+      tenants: [{ tenantId: owner.tenant.id, redactedRawRecords: 1, skippedNonTerminalJob: 0, skippedAdmitting: 0 }] })
+    expect(afterDryRunRows).toEqual(beforeRows)
+    expect(await prisma.auditEvent.count({ where: {
+      entityType: RAW_LINE_RETENTION_AUDIT_ENTITY, action: RAW_LINE_RETENTION_AUDIT_ACTION,
+    } })).toBe(beforeAuditCount)
+
+    const realRun = await runRawLineRetentionSweep({ db, now })
+    expect(realRun.countsByClass[CLASS].redactedRawRecords).toBe(dryRun.countsByClass[CLASS].redactedRawRecords)
+    expect(realRun.auditEventId).toBeTruthy()
   })
 })

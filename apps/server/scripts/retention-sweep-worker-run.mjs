@@ -36,11 +36,15 @@ export function resolveRetentionSweepWorkerConfig(env = process.env) {
   return { endpoint, token }
 }
 
-function hasTenantSweepFailures(body) {
-  return Object.values(body?.countsByClass ?? {}).some(counts =>
-    Array.isArray(counts?.tenantFailures) && counts.tenantFailures.length > 0)
-    || Number(body?.counts?.skipped ?? 0) > 0
-    || Number(body?.counts?.failures ?? 0) > 0
+function hasRetentionSweepFailures(body, endpoint) {
+  const classFailures = Object.values(body?.countsByClass ?? {}).some(counts =>
+    ['tenantFailures', 'archiveFailures', 'settleFailures'].some(key =>
+      Array.isArray(counts?.[key]) && counts[key].length > 0))
+  const archiveExpiryFailures = endpoint.pathname === '/api/crm/archive-expiry'
+    && (Number(body?.counts?.skipped ?? 0) > 0
+      || Number(body?.counts?.failures ?? 0) > 0
+      || Number(body?.counts?.tenantsDeferred ?? 0) > 0)
+  return classFailures || archiveExpiryFailures
 }
 
 /**
@@ -70,35 +74,42 @@ export async function runRetentionSweepOnce({ endpoint, token, fetchImpl = fetch
     // Counts per class only — never customer content — matching what the route
     // itself returns and what the sweep's own audit event carries.
     const body = await response.json().catch(() => null)
-    return { ok: response.ok && !hasTenantSweepFailures(body), status: response.status, body }
+    return { ok: response.ok && !hasRetentionSweepFailures(body, endpoint), status: response.status, body }
   } catch (err) {
     return { ok: false, status: null, body: null, error: err?.name === 'TimeoutError' ? 'TIMEOUT' : 'UNAVAILABLE' }
   }
 }
 
-// Ordered deployment sweep calls. CRM archive expiry follows the CRM writer
-// so both manifest-chain writers run serially before the other domain sweeps.
+// Ordered deployment sweep calls. The per-Tenant archive-chain lock shared by
+// the sweep, hold re-seal and retirement writers provides safety; this order
+// reduces contention but is not a correctness boundary.
 export const RETENTION_SWEEP_CALLS = Object.freeze([
-  Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true }),
-  Object.freeze({ name: 'archive-expiry', path: '/api/crm/archive-expiry', event: 'crm.archive-expiry.tick' }),
-  Object.freeze({ name: 'integration', path: '/api/integration/raw-retention-sweep', event: 'integration.raw-line-retention-sweep.tick' }),
-  Object.freeze({ name: 'agent', path: '/api/agent/trace-retention-sweep', event: 'agent.trace-retention-sweep.tick' }),
+  Object.freeze({ name: 'crm', path: '/api/crm/retention-sweep', event: 'crm.retention-sweep.tick', usesConfiguredEndpoint: true, supportsDryRun: false }),
+  Object.freeze({ name: 'archive-expiry', path: '/api/crm/archive-expiry', event: 'crm.archive-expiry.tick', supportsDryRun: false }),
+  Object.freeze({ name: 'integration', path: '/api/integration/raw-retention-sweep', event: 'integration.raw-line-retention-sweep.tick', supportsDryRun: true }),
+  Object.freeze({ name: 'agent', path: '/api/agent/trace-retention-sweep', event: 'agent.trace-retention-sweep.tick', supportsDryRun: true }),
 ])
 
 /** Call every owning-domain route in order; failures are reported but do not stop later calls. */
 export async function runRetentionSweepSequence({ endpoint, token, fetchImpl = fetch, timeoutMs = 600_000,
-  calls = RETENTION_SWEEP_CALLS } = {}) {
+  calls = RETENTION_SWEEP_CALLS, dryRun = false } = {}) {
   const results = []
   for (const call of calls) {
+    if (dryRun && !call.supportsDryRun) {
+      results.push({ name: call.name, event: call.event, result: { skipped: 'NO_DRY_RUN' } })
+      continue
+    }
     const target = call.usesConfiguredEndpoint ? endpoint : new URL(call.path, endpoint.origin)
+    if (dryRun) target.searchParams.set('dry_run', 'true')
     const result = await runRetentionSweepOnce({ endpoint: target, token, fetchImpl, timeoutMs })
     results.push({ name: call.name, event: call.event, result })
   }
-  return { ok: results.every(entry => entry.result.ok), results }
+  return { ok: results.every(entry => entry.result.skipped === 'NO_DRY_RUN' || entry.result.ok), results }
 }
 
 /** One JSON line per route — counts and status only. */
 export function formatRetentionSweepLogLine(result, event = 'crm.retention-sweep.tick') {
+  if (result?.skipped === 'NO_DRY_RUN') return JSON.stringify({ event, skipped: 'NO_DRY_RUN' })
   return JSON.stringify({
     event,
     status: result.status,

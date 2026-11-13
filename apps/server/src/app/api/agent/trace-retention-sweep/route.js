@@ -24,8 +24,18 @@ export async function POST(request) {
   if (!bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)) {
     return NextResponse.json({ error: 'RETENTION_SWEEP_CREDENTIAL_REQUIRED' }, { status: 401 })
   }
+  const query = new URL(request.url).searchParams
+  if ([...query.keys()].some(key => key !== 'dry_run') || query.getAll('dry_run').length > 1
+    || (query.has('dry_run') && !['true', 'false'].includes(query.get('dry_run')))) {
+    return NextResponse.json({ error: 'RETENTION_SWEEP_REQUEST_INVALID' }, { status: 400 })
+  }
+  const dryRun = query.get('dry_run') === 'true'
   const now = new Date()
   try {
+    if (dryRun) {
+      const result = await Promise.race([runAgentTraceRetentionSweep({ db: prisma, now, dryRun: true }), timeout(SWEEP_TIMEOUT_MS)])
+      return NextResponse.json({ dryRun: true, countsByClass: result.countsByClass, tenants: result.tenants })
+    }
     const { start, end } = utcDayWindow(now)
     const already = await prisma.auditEvent.findFirst({
       where: { entityType: AGENT_TRACE_RETENTION_AUDIT_ENTITY, action: AGENT_TRACE_RETENTION_AUDIT_ACTION,
@@ -36,7 +46,7 @@ export async function POST(request) {
       const payload = JSON.parse(already.payloadJson)
       return NextResponse.json({ auditEventId: already.id, countsByClass: payload.countsByClass, alreadyRanToday: true })
     }
-    const result = await Promise.race([runAgentTraceRetentionSweep({ db: prisma, now }), timeout(SWEEP_TIMEOUT_MS)])
+    const result = await Promise.race([runAgentTraceRetentionSweep({ db: prisma, now, dryRun }), timeout(SWEEP_TIMEOUT_MS)])
     return NextResponse.json({ auditEventId: result.auditEventId, countsByClass: result.countsByClass,
       alreadyRanToday: result.alreadyRanToday })
   } catch {

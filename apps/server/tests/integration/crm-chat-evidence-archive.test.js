@@ -15,6 +15,10 @@ import { runRetentionSweep, RETENTION_SWEEP_TOMBSTONE } from '@/modules/crm/rete
 import {
   archiveAndTombstoneTenantMessages,
   computeManifestHash,
+  getOrCreateCustomerArchiveKeyDek,
+  hashMessageIdList,
+  lockTenantArchiveChain,
+  readArchiveChainTail,
   verifyManifestChain,
 } from '@/modules/crm/chat-evidence-archive-service'
 import { openArchiveSegment, openCustomerArchiveKey } from '@/modules/crm/chat-evidence-archive-crypto'
@@ -98,6 +102,26 @@ const candidateFor = (messageId) => prisma.message.findUnique({
   },
 })
 
+async function createManifestRow({ tenantId, runId, previous = null }) {
+  const data = {
+    tenantId,
+    runId,
+    filePath: `${tenantId}/2026/${runId}.zca`,
+    fileSha256: 'a'.repeat(64),
+    messageCount: 0,
+    messageIdListHash: hashMessageIdList([]),
+    previousManifestId: previous?.id ?? null,
+    previousManifestHash: previous?.manifestHash ?? null,
+  }
+  data.manifestHash = computeManifestHash(data)
+  return prisma.archiveManifest.create({ data })
+}
+
+async function expectNoOrphanArchiveFiles(tenantId) {
+  const rows = await prisma.archiveManifest.findMany({ where: { tenantId }, select: { filePath: true } })
+  expect(Object.keys(await archiveFileSnapshot(baseDir)).sort()).toEqual(rows.map((row) => row.filePath).sort())
+}
+
 async function archiveFileSnapshot(directory) {
   const files = {}
   async function visit(current) {
@@ -114,6 +138,129 @@ async function archiveFileSnapshot(directory) {
 const PAST = RETENTION_DEFAULT_WINDOW_DAYS.MESSAGE_BODY_AND_ATTACHMENTS + 1
 
 describe('Chat evidence archive writer (FR-245, ADR-093)', () => {
+  it('takes the SQLite Tenant lock without changing updatedAt and refuses an unknown Tenant', async () => {
+    const { tenant } = await freshScope('sqlite-chain-lock')
+    const before = await prisma.tenant.findUnique({ where: { id: tenant.id }, select: { updatedAt: true } })
+    await prisma.$transaction((tx) => lockTenantArchiveChain(tx, { tenantId: tenant.id, dialect: 'sqlite' }))
+    const after = await prisma.tenant.findUnique({ where: { id: tenant.id }, select: { updatedAt: true } })
+    expect(after.updatedAt).toEqual(before.updatedAt)
+
+    await expect(prisma.$transaction((tx) => lockTenantArchiveChain(tx, {
+      tenantId: `missing-${randomUUID()}`,
+      dialect: 'sqlite',
+    }))).rejects.toMatchObject({ code: 'ARCHIVE_TENANT_NOT_FOUND' })
+    await expect(lockTenantArchiveChain(prisma, { tenantId: 'root-client-is-not-a-lock' }))
+      .rejects.toMatchObject({ code: 'ARCHIVE_CHAIN_LOCK_UNAVAILABLE' })
+    await expect(lockTenantArchiveChain({ _activeProvider: 'sqlite' }, { tenantId: 'unlocked-tenant' }))
+      .rejects.toMatchObject({ code: 'ARCHIVE_CHAIN_LOCK_UNAVAILABLE' })
+  })
+
+  it('rejects a forked tail and leaves the sweep candidate and archive directory untouched', async () => {
+    const { tenant, business } = await freshScope('forked-chain')
+    const root = await createManifestRow({ tenantId: tenant.id, runId: `root-${randomUUID()}` })
+    await createManifestRow({ tenantId: tenant.id, runId: `child-a-${randomUUID()}`, previous: root })
+    await createManifestRow({ tenantId: tenant.id, runId: `child-b-${randomUUID()}`, previous: root })
+    const message = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'must remain when the chain forks' })
+
+    await expect(prisma.$transaction((tx) => readArchiveChainTail(tx, tenant.id)))
+      .rejects.toMatchObject({ code: 'ARCHIVE_CHAIN_TAIL_INVALID' })
+    await expect(archiveAndTombstoneTenantMessages(prisma, {
+      tenantId: tenant.id, candidates: [await candidateFor(message.messageId)], now: new Date(), baseDir,
+    })).rejects.toMatchObject({ code: 'ARCHIVE_CHAIN_TAIL_INVALID' })
+
+    expect((await prisma.message.findUnique({ where: { id: message.messageId } })).body).toBe('must remain when the chain forks')
+    expect(await prisma.archiveManifest.count({ where: { tenantId: tenant.id } })).toBe(3)
+    expect(await archiveFileSnapshot(baseDir)).toEqual({})
+  })
+
+  it('reads the tail after a waiting writer acquires the Tenant lock', async () => {
+    const { tenant, business } = await freshScope('waited-chain-writer')
+    const first = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'first concurrent archive' })
+    const second = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'second concurrent archive' })
+    for (const message of [first, second]) {
+      const dek = await getOrCreateCustomerArchiveKeyDek(prisma, { tenantId: tenant.id, customerId: message.customerId }, process.env, { baseDir })
+      dek.fill(0)
+    }
+
+    let signalGate
+    let releaseGate
+    const enteredGate = new Promise((resolve) => { signalGate = resolve })
+    const gate = new Promise((resolve) => { releaseGate = resolve })
+    const gatedDb = new Proxy(prisma, { get(client, property) {
+      if (property === '$transaction') return async (...args) => {
+        signalGate()
+        await gate
+        return prisma.$transaction(...args)
+      }
+      const value = client[property]
+      return typeof value === 'function' ? value.bind(client) : value
+    } })
+
+    const firstRun = archiveAndTombstoneTenantMessages(gatedDb, {
+      tenantId: tenant.id, candidates: [await candidateFor(first.messageId)], now: new Date(), baseDir,
+    })
+    await enteredGate
+    let secondRun
+    try {
+      secondRun = await archiveAndTombstoneTenantMessages(prisma, {
+        tenantId: tenant.id, candidates: [await candidateFor(second.messageId)], now: new Date(), baseDir,
+      })
+    } finally {
+      releaseGate()
+    }
+    const firstResult = await firstRun
+
+    const rows = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id } })
+    const childCounts = new Map()
+    for (const row of rows) {
+      if (row.previousManifestId) childCounts.set(row.previousManifestId, (childCounts.get(row.previousManifestId) ?? 0) + 1)
+    }
+    expect(firstResult.archived).toBe(true)
+    expect(secondRun.archived).toBe(true)
+    expect(Math.max(...childCounts.values())).toBeLessThanOrEqual(1)
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [] })
+    await expectNoOrphanArchiveFiles(tenant.id)
+  })
+
+  it('keeps genuinely concurrent sweep writers linear and either archives or cleanly refuses each candidate', async () => {
+    const { tenant, business } = await freshScope('parallel-sweep-writers')
+    const messages = [
+      await backdatedMessage({ tenant, business, ageDays: PAST, text: 'parallel candidate one' }),
+      await backdatedMessage({ tenant, business, ageDays: PAST, text: 'parallel candidate two' }),
+    ]
+    for (const message of messages) {
+      const dek = await getOrCreateCustomerArchiveKeyDek(prisma, { tenantId: tenant.id, customerId: message.customerId }, process.env, { baseDir })
+      dek.fill(0)
+    }
+    const candidates = await Promise.all(messages.map((message) => candidateFor(message.messageId)))
+    const outcomes = await Promise.all(candidates.map((candidate) => archiveAndTombstoneTenantMessages(prisma, {
+      tenantId: tenant.id, candidates: [candidate], now: new Date(), baseDir,
+    }).then((value) => ({ value }), (error) => ({ error }))))
+
+    const conflictCodes = new Set(['ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CUSTOMER_LOCK_UNAVAILABLE', 'P2034', '40001', '40P01', 'SQLITE_BUSY', 'SQLITE_LOCKED'])
+    for (const outcome of outcomes) {
+      if (outcome.error) expect(conflictCodes.has(outcome.error.code)).toBe(true)
+      else expect(outcome.value.archived).toBe(true)
+    }
+    expect(outcomes.some((outcome) => outcome.value?.archived)).toBe(true)
+    const archivedIds = new Set(outcomes.flatMap((outcome) => outcome.value?.messageIds ?? []))
+    for (const message of messages) {
+      const after = await prisma.message.findUnique({ where: { id: message.messageId } })
+      expect(after.body === RETENTION_SWEEP_TOMBSTONE).toBe(archivedIds.has(message.messageId))
+    }
+    const rows = await prisma.archiveManifest.findMany({ where: { tenantId: tenant.id } })
+    expect(rows).toHaveLength(outcomes.filter((outcome) => outcome.value?.archived).length)
+    const childCounts = new Map()
+    for (const row of rows) {
+      if (row.previousManifestId) childCounts.set(row.previousManifestId, (childCounts.get(row.previousManifestId) ?? 0) + 1)
+    }
+    expect(Math.max(0, ...childCounts.values())).toBeLessThanOrEqual(1)
+    await expect(verifyManifestChain(prisma, tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toEqual({ valid: true, retiredManifestIds: [] })
+    await expectNoOrphanArchiveFiles(tenant.id)
+  })
+
   it('acceptance: writes, verifies and chains the archive, and tombstones only after', async () => {
     const { tenant, business } = await freshScope('acceptance')
     const message = await backdatedMessage({ tenant, business, ageDays: PAST, text: 'สัญญาลดราคาที่ต้องเก็บไว้เป็นหลักฐาน' })

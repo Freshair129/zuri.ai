@@ -1,7 +1,7 @@
 ---
-version: "0.9.0b"
+version: "0.10.0b"
 status: active
-last_update: "2026-11-12,Codex"
+last_update: "2026-11-13,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -81,13 +81,24 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   `occurredAt` do not extend content life. It calls `redactTraceTurn` with
   `RETENTION_EXPIRED`, retaining event envelopes and appending the canonical
   `retentionTombstoneKey(turnId)` so playback closes as incomplete. The sweep
+  reads the shared effective-window resolver: a stored override must be a safe
+  integer of at least one day, invalid values use the installation default and
+  are reported per Tenant and in the run audit, and restore accepts only a
+  known class and a window up to its installation default. Strict
+  `dry_run=true|false` counts eligible turns and events without redaction,
+  tombstones, audit events or the daily claim; the route returns per-Tenant
+  counts and Tenant ids only. The sweep
   skips/counts the six shared non-terminal LINE job states, terminal jobs whose
   MSP memory delivery remains `PENDING`, and open `MEMORY_THREAD_ERASURE_PENDING`
   turns without an acknowledgement (including failed requests). Its trigger is
   `POST /api/agent/trace-retention-sweep`; the shared deployment worker invokes
   it after Integration. No deployment schedule is claimed. A turn failure stops
   this Tenant, keeps earlier committed turns redacted and later turns intact,
-  reports `{ tenantId, code }`, then continues with the next Tenant.
+  reports `{ tenantId, code }`, then continues with the next Tenant. Before the
+  first scheduled run, an operator must run
+  `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
+  container and compare the dry-run counts; the first actual run redacts the
+  entire eligible backlog irreversibly.
 - **Owns the local Business Agent Factory configuration (FR-285).**
   `BusinessAgentConfig` pins the standard five role/tool/policy snapshots to one
   server-derived Tenant and Business. Existing Businesses have no implicit
@@ -118,7 +129,9 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 - `POST /api/agent/trace-retention-sweep` — bodyless deployment-bearer trigger
   using the shared `ZURI_RETENTION_SWEEP_TOKEN`; it is guarded by this sweep's
-  own UTC-day audit identity and returns counts only.
+  own UTC-day audit identity and returns counts only. Its optional query is
+  strictly one `dry_run=true|false` parameter; `true` bypasses the guard and
+  returns `{ dryRun: true, countsByClass, tenants }` without writes or audit.
 - `GET`/`POST /api/businesses/[id]/agent-template` (FR-285) — owner-scoped local
   configuration/preview and explicit initial apply. A missing persisted config
   remains `NOT_CONFIGURED` until apply; identical apply is idempotent, conflicting
@@ -218,6 +231,7 @@ consolidation summaries remain unbuilt; `owns_models` is unchanged.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.10.0b | 2026-11-13 | FR-230: trace retention adds a count-only dry run using grouped event counts; invalid stored windows fall back to the installation default and restore validates the override floor; worker dry-run calls Agent and Integration only | Codex |
 | 0.9.0b | 2026-11-12 | FR-230 / ADR-091 D2: Agent now sweeps whole expired trace turns through the shared redaction path; it protects open MSP erasures and pending memory delivery and exposes `/api/agent/trace-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.8.1b | 2026-11-12 | Corrected the Context Composer and grounding status, marked Agent memory consolidation unbuilt, and retired the former Agent LINE webhook and heartbeat routes | Codex |
 | 0.8.0b | 2026-10-16 | TASK-ZAI-010: owns the Agent L1-L4 request/decision ledger and authenticated same-Business OWNER decision API; preserves Identity, Gate F, HIGH step-up, canonical writers, audit and PM separation | Codex |

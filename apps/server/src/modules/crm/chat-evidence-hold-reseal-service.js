@@ -12,8 +12,10 @@ import {
   findThreadCustomerMembers,
   getOrCreateLegalHoldArchiveKeyDek,
   hashMessageIdList,
+  lockTenantArchiveChain,
   isMemberForLine,
   openExistingCustomerArchiveKeyDek,
+  readArchiveChainTail,
   resolveArchiveBaseDir,
   resolveReplySources,
   verifyManifestChain,
@@ -321,7 +323,8 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
   try {
     const ids = [...messageIds]
     const messageIdListHash = hashMessageIdList(ids)
-    const previous = await tx.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
+    await lockTenantArchiveChain(tx, { tenantId })
+    const previous = await readArchiveChainTail(tx, tenantId)
     const previousManifestHash = previous?.manifestHash ?? null
     const manifestHash = computeManifestHash({
       tenantId, runId, filePath: relativePath, fileSha256, messageCount: ids.length, messageIdListHash, previousManifestHash,

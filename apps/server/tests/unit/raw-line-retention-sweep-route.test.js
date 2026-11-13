@@ -15,7 +15,7 @@ import { POST } from '@/app/api/integration/raw-retention-sweep/route'
 // @tested tests/unit/raw-line-retention-sweep-route.test.js
 
 const token = 'r'.repeat(40)
-const request = authorization => new Request('http://local/api/integration/raw-retention-sweep', {
+const request = (authorization, suffix = '') => new Request(`http://local/api/integration/raw-retention-sweep${suffix}`, {
   method: 'POST', headers: authorization ? { authorization } : {},
 })
 
@@ -31,12 +31,44 @@ afterEach(() => vi.unstubAllEnvs())
 describe('Integration raw retention sweep route', () => {
   it('rejects missing and incorrect credentials before database or sweep work', async () => {
     for (const authorization of [undefined, 'Bearer short', `Bearer ${'x'.repeat(40)}`]) {
-      const response = await POST(request(authorization))
+      const response = await POST(request(authorization, '?unknown=1'))
       expect(response.status).toBe(401)
       expect(await response.json()).toEqual({ error: 'RETENTION_SWEEP_CREDENTIAL_REQUIRED' })
     }
     expect(mocks.findFirst).not.toHaveBeenCalled()
     expect(mocks.run).not.toHaveBeenCalled()
+  })
+
+  it('rejects malformed dry_run queries after bearer authentication and before database work', async () => {
+    for (const suffix of ['?dry_run=1', '?dry_run=TRUE', '?dry_run=true&dry_run=false', '?dry_run=true&other=1']) {
+      const response = await POST(request(`Bearer ${token}`, suffix))
+      expect(response.status).toBe(400)
+      expect(await response.json()).toEqual({ error: 'RETENTION_SWEEP_REQUEST_INVALID' })
+    }
+    expect(mocks.findFirst).not.toHaveBeenCalled()
+    expect(mocks.run).not.toHaveBeenCalled()
+  })
+
+  it('does not check or claim the daily guard during dry run, then allows a real run', async () => {
+    mocks.run.mockResolvedValueOnce({ dryRun: true,
+      countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } },
+      tenants: [{ tenantId: 'tenant-1', redactedRawRecords: 3 }] })
+    const dryRequest = request(`Bearer ${token}`, '?dry_run=true')
+    const bodyRead = vi.spyOn(dryRequest, 'text')
+    const dryResponse = await POST(dryRequest)
+
+    expect(dryResponse.status).toBe(200)
+    expect(await dryResponse.json()).toEqual({ dryRun: true,
+      countsByClass: { RAW_LINE_PAYLOAD: { redactedRawRecords: 3 } },
+      tenants: [{ tenantId: 'tenant-1', redactedRawRecords: 3 }] })
+    expect(mocks.findFirst).not.toHaveBeenCalled()
+    expect(mocks.run).toHaveBeenCalledWith(expect.objectContaining({ dryRun: true }))
+    expect(bodyRead).not.toHaveBeenCalled()
+
+    const realResponse = await POST(request(`Bearer ${token}`))
+    expect(realResponse.status).toBe(200)
+    expect(mocks.findFirst).toHaveBeenCalledTimes(1)
+    expect(mocks.run).toHaveBeenCalledTimes(2)
   })
 
   it('uses the Integration event identity for the same-day guard and returns counts only', async () => {

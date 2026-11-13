@@ -4,12 +4,12 @@
 //   point it happens instead of silently doing nothing later at sweep time
 //   (ADR-091 D2, TASK-ZAI-089 success criterion).
 // @spec BR-002, SEC-031
-// @tested tests/integration/crm-retention-override-service.test.js, tests/integration/crm-retention-sweep.test.js
+// @tested tests/integration/crm-retention-override-service.test.js, tests/integration/crm-retention-sweep.test.js, tests/unit/retention-override-resolver.test.js
 //
 // This is the one writer of `TenantRetentionOverride`. `retention-sweep-service.js`
-// only ever reads through `getEffectiveRetentionWindowDays`, and applies the same
-// downward-only clamp again there as a second, defensive floor — belt and braces,
-// not a place either rule is allowed to live only once.
+// only ever reads through the resolver-backed `getEffectiveRetentionWindowDays`.
+// That read path validates the floor and clamps to the installation default even
+// when a restore or another trusted database path bypasses this writer.
 
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
@@ -59,15 +59,30 @@ export async function setTenantRetentionOverride({ tenantId, dataClass, windowDa
 }
 
 /**
- * The window (in days) actually in force for this Tenant and data class right
- * now: its override when one exists, else the installation default. Clamped at
- * the installation default defensively — see the module comment.
+ * Resolve the window (in days) actually in force for this Tenant and data
+ * class, including where it came from. Stored rows are checked when read because
+ * snapshot restore and other trusted database paths can bypass the writer.
  */
-export async function getEffectiveRetentionWindowDays({ tenantId, dataClass, db = prisma }) {
+export async function resolveEffectiveRetentionWindow({ tenantId, dataClass, db = prisma }) {
+  if (!RETENTION_DATA_CLASSES.includes(dataClass)) throw failure(400, 'UNKNOWN_RETENTION_DATA_CLASS')
   const installationDefault = RETENTION_DEFAULT_WINDOW_DAYS[dataClass]
-  if (installationDefault === undefined) throw failure(400, 'UNKNOWN_RETENTION_DATA_CLASS')
-  if (!tenantId) return installationDefault
+  if (!tenantId) return { windowDays: installationDefault, source: 'DEFAULT' }
   const override = await db.tenantRetentionOverride.findUnique({ where: { tenantId_dataClass: { tenantId, dataClass } } })
-  if (!override) return installationDefault
-  return Math.min(override.windowDays, installationDefault)
+  if (!override) return { windowDays: installationDefault, source: 'DEFAULT' }
+  if (!Number.isSafeInteger(override.windowDays) || override.windowDays < 1) {
+    console.error(JSON.stringify({
+      scope: 'retention-override-service',
+      tenantId,
+      dataClass,
+      code: 'RETENTION_OVERRIDE_INVALID',
+    }))
+    return { windowDays: installationDefault, source: 'DEFAULT_INVALID_OVERRIDE' }
+  }
+  return { windowDays: Math.min(override.windowDays, installationDefault), source: 'OVERRIDE' }
+}
+
+/** Keep the established numeric reader contract for existing consumers. */
+export async function getEffectiveRetentionWindowDays(input) {
+  const result = await resolveEffectiveRetentionWindow(input)
+  return result.windowDays
 }

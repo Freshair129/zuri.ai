@@ -1900,7 +1900,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -3073,7 +3073,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -4522,7 +4522,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-236",
@@ -5475,7 +5475,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-232",
@@ -8767,7 +8767,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-233",
@@ -14840,7 +14840,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 37
+          "testCount": 38
         },
         {
           "id": "FR-231",
@@ -14987,6 +14987,7 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/raw-line-retention-sweep-route.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
+        "apps/server/tests/unit/retention-override-resolver.test.js",
         "apps/server/tests/unit/retention-sweep-worker-run.test.js",
         "apps/server/tests/unit/retention-sweeper-job-statuses.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",

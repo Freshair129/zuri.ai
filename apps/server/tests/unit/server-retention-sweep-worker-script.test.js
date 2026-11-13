@@ -25,6 +25,7 @@ describe('the single-shot retention sweep worker script', () => {
   it('calls the ordered sequence, logs one line per route and sets a combined exit code', () => {
     expect(script).toContain('resolveRetentionSweepWorkerConfig(process.env)')
     expect(script).toContain('runRetentionSweepSequence(')
+    expect(script).toContain("process.argv.slice(2).includes('--dry-run')")
     expect(script).toContain('formatRetentionSweepLogLine(')
     expect(script).toContain('console.log(')
     expect(script).toContain('for (const entry of result.results)')

@@ -48,7 +48,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { CUSTOMER_ERASURE_TOMBSTONE } from './conversation-redaction-service'
 import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
 import { refreshConversationPreview } from './conversation-preview-service'
-import { getEffectiveRetentionWindowDays } from './retention-override-service'
+import { resolveEffectiveRetentionWindow } from './retention-override-service'
 import { CRM_OWNED_RETENTION_CLASSES } from '@/lib/validation/enums'
 import { archiveAndTombstoneTenantMessages } from './chat-evidence-archive-service'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
@@ -91,7 +91,10 @@ async function countSkippedNonTerminalJob(db, tenantId, cutoff) {
 }
 
 async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir } = {}) {
-  const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
+  const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
+  const invalidOverride = source === 'DEFAULT_INVALID_OVERRIDE'
+    ? { invalidOverrideIgnored: true }
+    : {}
   const cutoff = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
 
   const candidates = await db.message.findMany({
@@ -113,7 +116,8 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       },
     },
   })
-  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0, archiveFailed: false, manifest: null }
+  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0,
+    archiveFailed: false, manifest: null, ...invalidOverride }
 
   // @req FR-245 — archive before tombstone, fail closed (ADR-093 D2). A failure
   // anywhere in the archive write leaves every one of this Tenant's candidates
@@ -132,6 +136,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       archiveFailed: true,
       archiveFailureReason: error?.code || error?.message || 'ARCHIVE_FAILED',
       manifest: null,
+      ...invalidOverride,
     }
   }
 
@@ -164,6 +169,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     manifest: archiveResult.manifest
       ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
       : null,
+    ...invalidOverride,
   }
 }
 
@@ -183,6 +189,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
   const manifests = []
   const archiveFailures = []
+  const invalidOverrides = []
   let deferredErasedKey = 0
   let blankedWithoutArchive = 0
   const settleFailures = []
@@ -200,6 +207,7 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       deferredErasedKey += result.deferredErasedKey ?? 0
       blankedWithoutArchive += result.blankedWithoutArchive ?? 0
       if (result.settleFailed) settleFailures.push({ tenantId: tenant.id, reason: result.settleFailureReason })
+      if (result.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -226,7 +234,8 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
     entityId: `sweep:${now.toISOString()}`,
     action: 'RETENTION_SWEEP_COMPLETED',
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), countsByClass },
+    payload: { ranAt: now.toISOString(), countsByClass,
+      ...(invalidOverrides.length > 0 ? { invalidOverrides } : {}) },
   })
 
   return { auditEventId: event.id, countsByClass }

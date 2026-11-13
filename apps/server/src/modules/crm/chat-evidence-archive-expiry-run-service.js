@@ -19,16 +19,22 @@ function resultCounts(result) {
     holdKeysDestroyed: result.destroyedHoldKeys?.length ?? 0,
     manifestsRetired: result.retiredManifestIds?.length ?? 0,
     filesDeleted: result.deletedFiles?.length ?? 0,
+    retiredFilesAlreadyAbsent: result.retiredFilesAlreadyAbsent?.length ?? 0,
     retiredFilesStillPresent: result.retiredFilesStillPresent?.length ?? 0,
   }
 }
 
 /** Run the archive expiry once across Tenants with any archive or archive-key rows. */
 export async function runChatEvidenceArchiveExpiry(db, {
-  now = new Date(), baseDir, env = process.env,
+  now = new Date(), deadlineAt, baseDir, env = process.env, storagePrechecked = false,
 } = {}) {
+  const startedAt = new Date()
+  const selectedDeadline = deadlineAt ?? new Date(startedAt.getTime() + 9 * 60 * 1000)
+  if (!(selectedDeadline instanceof Date) || !Number.isFinite(selectedDeadline.getTime())) {
+    throw new TypeError('runChatEvidenceArchiveExpiry deadlineAt must be a valid Date')
+  }
   const selectedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
-  if (env.NODE_ENV === 'production') await assertArchiveStorageReady(selectedBaseDir, env)
+  if (env.NODE_ENV === 'production' && !storagePrechecked) await assertArchiveStorageReady(selectedBaseDir, env)
 
   const [manifestTenants, customerKeyTenants, holdKeyTenants] = await Promise.all([
     db.archiveManifest.findMany({ select: { tenantId: true } }),
@@ -45,12 +51,21 @@ export async function runChatEvidenceArchiveExpiry(db, {
     holdKeysDestroyed: 0,
     manifestsRetired: 0,
     filesDeleted: 0,
+    retiredFilesAlreadyAbsent: 0,
     retiredFilesStillPresent: 0,
     skipped: 0,
     failures: 0,
+    tenantsDeferred: 0,
   }
   const tenants = []
-  for (const tenantId of tenantIds) {
+  let timedOut = false
+  for (let index = 0; index < tenantIds.length; index += 1) {
+    if (Date.now() >= selectedDeadline.getTime()) {
+      timedOut = true
+      counts.tenantsDeferred = tenantIds.length - index
+      break
+    }
+    const tenantId = tenantIds[index]
     counts.tenantsVisited += 1
     try {
       const result = await expireChatEvidenceArchive(db, { tenantId, now, baseDir: selectedBaseDir, env })
@@ -62,6 +77,7 @@ export async function runChatEvidenceArchiveExpiry(db, {
       counts.holdKeysDestroyed += perTenant.holdKeysDestroyed
       counts.manifestsRetired += perTenant.manifestsRetired
       counts.filesDeleted += perTenant.filesDeleted
+      counts.retiredFilesAlreadyAbsent += perTenant.retiredFilesAlreadyAbsent
       counts.retiredFilesStillPresent += perTenant.retiredFilesStillPresent
       const skippedReason = result.skipped ? result.chainIntegrity?.reason ?? 'ARCHIVE_CHAIN_INVALID' : null
       if (result.skipped) counts.skipped += 1
@@ -75,6 +91,7 @@ export async function runChatEvidenceArchiveExpiry(db, {
         holdKeysDestroyed: 0,
         manifestsRetired: 0,
         filesDeleted: 0,
+        retiredFilesAlreadyAbsent: 0,
         retiredFilesStillPresent: 0,
         skippedReason: null,
         failureCode: safeFailureCode(error),
@@ -87,7 +104,7 @@ export async function runChatEvidenceArchiveExpiry(db, {
     entityId: `archive-expiry:${now.toISOString()}`,
     action: 'ARCHIVE_EXPIRY_RUN_COMPLETED',
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), counts, tenants },
+    payload: { ranAt: now.toISOString(), timedOut, counts, tenants },
   })
   return { auditEventId: audit.id, counts }
 }
