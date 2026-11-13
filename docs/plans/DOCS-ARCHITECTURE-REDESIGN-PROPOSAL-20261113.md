@@ -150,7 +150,7 @@ values and counts in the frontmatter of hand-authored `docs/` files: `candidate`
 are a separate mix: `accepted` 111, `approved` 26, `beta` 22, `accepted.` 15,
 `candidate` 12, `proposed` 7, `superseded` 3, plus free-text variants. One status
 field is being asked to carry three different facts (approval, delivery, and
-document-currency), which `GOVERNANCE-PROFILE.md` explicitly says must stay
+document-currency), which `GOVERNANCE-PROFILE.md` keeps apart in the related form (it separates approval, requirement delivery, change-request state, task state and deployment evidence, and does not define a document-currency taxonomy; this proposal adds one) and which must stay
 separate. This proposal does not rewrite any of them (§7.3).
 
 ### 2.4 Generated, hand-written, frozen
@@ -159,7 +159,7 @@ separate. This proposal does not rewrite any of them (§7.3).
 |---|---|---|
 | Generated, ignored (ADR-081) | `docs/.doc-graph.json`, `FEATURE-MAP.md`, `DOMAIN-MAP.md`, `TRACE.md`, `DOCUMENT-LINKS.md`, `docs/.preflight-report.json`, `llms-full.txt`, `docs/architecture/SERVICE-MAP.md` | `git check-ignore -v` |
 | Generated, **tracked** | `docs/PRD-SDD-v1.0.md`, `docs/FEATURES.md` (compatibility exports), `docs/{product,architecture,operations,governance}/README.md` (`doc_type: generated-view`; `docs/prompts/README.md` is hand-written), `registry/document-registry/index.json` | file headers; `npm run docs:registry`, `docs:views` |
-| Hand-written, tracked, machine-read | `docs/.id-ledger.json` and nine `docs/.*-baseline.json` ratchets | `ROOT-FILE-REGISTER.md` |
+| Hand-written, tracked, machine-read | `docs/.id-ledger.json` and ten `docs/.*-baseline.json` ratchets | `ROOT-FILE-REGISTER.md` |
 | Frozen history | `docs/archive/` (53), `.brain/rca/evidence/` (110), `docs/migrations/document-reintegration/record-migrations/` approval copies, `registry/document-reintegration/*.json`, `docs/migrations/monorepo/source-manifest.json` | pinned blob hashes and paths |
 | Local only | `.brain/session-memory/CLAUDE-*`, `CODEX-*` | `.git/info/exclude`, `AGENTS.md` §0 |
 
@@ -215,7 +215,7 @@ matching over-approximates references, so these are **lower bounds on orphans**.
 | `reference/`, `agent/`, `.brain/waves`, `.brain/reviews`, `.brain/sessions`, `.brain/reports`, `.brain/plans` | 81 | 43 |
 | `reports/` | 37 | 0 |
 
-So the `docs/` tree proper is well linked; the findability problem is not orphaned
+So the `docs/` tree proper shows few or no orphans by this lower-bound method (a basename match anywhere counts as a reference, so the true orphan count may be higher); the findability problem is not orphaned
 files, it is that no index answers "what exists about subject X".
 
 Stale or inconsistent indexes found:
@@ -249,7 +249,7 @@ Observed in-repo write targets and who points agents there:
 |---|---|
 | `docs/plans/` | `docs/plans/README.md` says new bounded plans go here |
 | `docs/roadmap/PLAN-*` | 32 historical plans; `docs/roadmap/README.md` says "do not create new roadmap plans here" but the folder is the intuitive place |
-| `docs/superpowers/specs/` | default output path of the installed `superpowers:brainstorming` and `writing-plans` skills; created 2026-11-02 for FR-293 and registered by the directory register |
+| `docs/superpowers/specs/` | default output path of the installed `superpowers:brainstorming` skill (`writing-plans` defaults to `docs/superpowers/plans/`, a second write home that does not exist yet); created 2026-11-02 for FR-293 and registered by the directory register |
 | `docs/change-requests/<area>/` | CR intake (`README.md` rules) |
 | `docs/changes/` | issued ZV2-CR records only |
 | `docs/architecture/` | 2026-10-22 Visual Office design and others; the generated `README.md` there lists only what the graph sees |
@@ -284,7 +284,7 @@ guarantees.
 | Preflight Check 2 `cross-reference` | broken relative links in `docs/**` | warning; docs only |
 | Preflight Check 15 `untracked-docs` | warns on untracked files under `docs/`; blind in CI by design | not a CI guard |
 | Preflight `domain-srs-profile`, `canonical-record-registry`, `capability-classification` | opt-in SRS profile; registry validity | specific profiles |
-| ADR-081 | generated views are built, not committed; CI checks freshness | a catalog must follow this rule |
+| ADR-081 | generated views are built, not committed; CI builds and checks output and runs governance instead of committed-view freshness gates | a catalog must follow this rule. Existing tension: four category READMEs (`docs/{product,architecture,operations,governance}/README.md`) and the PRD/FEATURES exports are generated yet still tracked, and `govern` runs `docs:views:check` against them; adding a plan therefore forces a regenerated `docs/operations/README.md` in the same PR (this proposal's own PR did). Resolving that is outside this proposal |
 | `scripts/ci-code-changes.mjs`, `ci-change-scope.mjs` | PR is "documentation only" when every path is under `docs/`, `.brain/`, or is `AGENTS.md`/`CLAUDE.md`/`README.md` | `reports/`, `llms.txt`, `registry/`, `.agents/`, root loose files **count as code** and trigger the full Server path |
 | `DOCUMENTATION-REQUIREMENTS-SPEC.md` (proposed v0.1.2) | profiles, single-source boundaries, "do not add new standalone documents at `docs/` root" | status `proposed`; profiles are not machine-checked except domain SRS |
 | `AGENTS.md` §19, §21 | domain-first layout; enumerate before claiming existence | manual |
@@ -302,7 +302,7 @@ readers found by `git grep` at `d694d0c7`; any move must keep each working:
 | `apps/server/src/modules/platform-control/program-roadmap-containers.js` (`/control/roadmap`, `/roadmap`) | static data embedding **66 distinct `docs/...` paths** (ROADMAP.md, PRD-SDD, FEATURE-MAP.md, ADRs, CR files, appendices, domain feature notes) as rendered `doc` links | a moved file leaves a dead link on a production page; no checker fails |
 | `apps/server/src/modules/platform-control/roadmap-sot.js` | embedded `authority` paths (ingestion spec/flow, ADR-073/075) | same |
 | `apps/server/src/modules/project-manager/application/governance-source-verifier.js` | `git show`-style verification of pinned bytes at `registry/document-registry/index.json`, `docs/PRD-SDD-v1.0.md`, `docs/FEATURES.md`, `docs/.id-ledger.json` (constants at lines 22–26, 579), plus an absolute registry path from `ZURI_PM_CHECKOUT_REGISTRY_PATH` | PM governance snapshots verify against those exact paths and commits |
-| `apps/server/src/lib/validation/enums.js`, `apps/server/src/config/domains.js` | comments/config citing doc-graph and `docs/SITEMAP-DOMAIN-NAV.md` as the accepted grouping source (structural checks read it) | keep the path |
+| `apps/server/src/lib/validation/enums.js`, `apps/server/src/config/domains.js` | `enums.js` only mentions the doc-graph in a comment; `domains.js` cites `SITEMAP-V2-DOMAIN-NAV` in comments. The real reader of `docs/SITEMAP-DOMAIN-NAV.md` is the structural checks and tests, not these files | keep that path; neither file is a runtime doc reader |
 | `apps/server/runtime/domain-state.json`, `data-pipeline-map.json` | tracked generated runtime JSON read by `modules/knowledge/pipeline-map/*` | not under `docs/`; produced by the doc generators, so generator output paths are API |
 | `services/*/src`, `apps/edge/src` | no documentation-path reads found | none |
 
@@ -345,10 +345,10 @@ no path.
 | K6 | Architecture and design | `docs/architecture/` (candidate designs, blueprint, VERIFICATION-POLICY) | accepted ADRs, then `ARCHITECTURE.md`; code for implementation | root `ARCHITECTURE-*.md`, `SYSTEM-DIAGRAM.md`, atlases (derived) | architecture README |
 | K7 | Service execution and verification | `docs/services/<svc>/SERVICE.md`, `TESTING.md` | package scripts, wire schemas; service docs explain | `services/*/README.md`, `apps/*/README.md` (pointers only) | SERVICE-MAP (ignored) |
 | K8 | Contracts, API, data shape | source-owned schema (`apps/server/contracts/`, `prisma/`, route code) | the schema file | `docs/appendices/` (prose view) | appendix D (generated) |
-| K9 | Plans | `docs/plans/` | scope: the plan; **delivery state: ROADMAP.md only** | `docs/roadmap/PLAN-*`, `docs/superpowers/specs/`, `.brain/plans/` (all frozen for new docs) | 24-week projection |
+| K9 | Plans | `docs/plans/` | ROADMAP.md for state; the plan is authoritative for its bounded scope only, and its `source_of_truth` field stays `false` | `docs/roadmap/PLAN-*`, `docs/superpowers/specs/` and future `docs/superpowers/plans/`, `.brain/plans/` (all frozen for new docs) | 24-week projection |
 | K10 | Delivery state | `docs/roadmap/ROADMAP.md` (edit only) | the ledger in ROADMAP.md | 24-week `.md`/`.html` (derived, `source_of_truth: false`) | roadmap views |
 | K11 | Operations: runbooks, deployment | `docs/runbooks/` (procedures), `docs/deployment/` (environment contracts) | the runbook for the procedure; ADRs for the boundary | `apps/edge/docs/EDGE-*` (Edge's namespace) | operations README |
-| K12 | Evidence: dated assessments and test receipts | `reports/` | the report for its dated scope only; never for current state | `.brain/reports/`, `.agent/reports/`, `.brain/waves/`, `.brain/audits/` | reports index |
+| K12 | Evidence: dated assessments and test receipts | `reports/` | dated evidence for its scope only, never current state (`source_of_truth: false`) | `.brain/reports/`, `.agent/reports/`, `.brain/waves/`, `.brain/audits/` | reports index |
 | K13 | Incident analysis (RCA) | `.brain/rca/` | the RCA for its incident | `.brain/rca/evidence/` frozen | none |
 | K14 | Agent and team instructions | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` | `AGENTS.md` (CLAUDE.md is the short guide) | `apps/edge/AGENTS.md` (Edge namespace) | none |
 | K15 | Templates and generator scaffolds | `docs/templates/`, `registry/document-registry/*.template.md` | the template | none | none |
@@ -425,18 +425,18 @@ COMPACT plan as the live example) rather than a new one:
 
 | Field | Required | Rule |
 |---|---|---|
-| `id` | yes | `ZAI:<UPPER-KEBAB>` unique; never reused (checked by the link-metadata parser today) |
+| `id` | yes | `ZAI:<UPPER-KEBAB>` unique; the link-metadata parser rejects duplicate explicit ids and aliases only among documents that opt in with `relations:`, and has no tombstone against re-use of a retired id |
 | `title` | yes | human title |
 | `doc_type` | yes | from a closed list (§7.3), one per kind |
 | `status` | yes | from a closed list per `doc_type` (§7.3) |
 | `version`, `last_update` | yes | |
-| `source_of_truth` | yes | `true` only for a kind's SOT owner; every plan, report, proposal and view says `false` |
+| `source_of_truth` | yes | means authoritative for **current requirements, state or policy**; `true` only on a kind's SOT owner (PRODUCT, an accepted ADR, a charter, a runbook for its procedure); every plan, report, proposal and view says `false`, even where §4 calls it authoritative for a bounded scope |
 | `domain` | when a domain applies | must match a chartered domain, same rule as feature notes |
 | `subject` | recommended | the one-line subject key used for duplicate detection (§7.2) |
 | `relations` | yes when a prior document exists | `supersedes`, `superseded_by`, `references`, `relates_to`; existing relation vocabulary |
 | `prior_art` | yes for a new document | either the paths found by `docs:find` that were read, or the literal `none-found` plus the query string used |
 
-`prior_art` is the only new field. It makes the protocol auditable without claiming the
+`prior_art` and `subject` are the only new fields (`subject` recommended, `prior_art` required). It makes the protocol auditable without claiming the
 check can prove a search happened (§7.2 states the limit).
 
 ### 5.4 "Search before you write" protocol (what an agent does)
@@ -576,11 +576,11 @@ groups and 34 basename groups (§2.5), most legitimate and acknowledged by `rela
 
 | # | Check id | Rule | Severity | Applies to | Baseline |
 |---|---|---|---|---|---|
-| D1 | `doc-placement` | a tracked Markdown file added or renamed into a path that no kind assigns a **write** home, or into a **legacy/frozen/generated** home | CRITICAL for added files; info otherwise | all tracked `.md` outside Edge | none (added-file rule) |
-| D2 | `doc-metadata` | an added file in a write home lacks the §5.3 required fields or uses a `doc_type`/`status` outside the closed lists | CRITICAL for added files; warning for modified legacy files that already had frontmatter | write homes only | none |
+| D1 | `doc-placement` | a tracked Markdown file (K2 records excepted) added or renamed into a path that no kind assigns a **write** home, or into a **legacy/frozen/generated** home; an approved Stage 5 move and its `doc_type: redirect-stub` are exempt | CRITICAL for added files; info otherwise | all tracked `.md` outside Edge | none (added-file rule) |
+| D2 | `doc-metadata` | an added file in a write home **other than K2/K18** (canonical records keep `CANONICAL-FORMAT.md` and its own validators: `id: FR-nnn`, `namespace`, `source-preserved`/`reviewed-migration`) lacks the §5.3 required fields or uses a `doc_type`/`status` outside the closed lists | CRITICAL for added files; warning for modified legacy files that already had frontmatter | write homes only | none |
 | D3 | `doc-prior-art` | an added file lacks `prior_art`, or its `prior_art` names a path that does not exist | WARNING for one stage, then CRITICAL | added files in K3/K4/K5/K6/K9/K12 | none |
 | D4 | `doc-duplicate-subject` | two catalog entries of the same **kind** share a normalised `subject` (else normalised title), and neither lists the other in `supersedes`/`superseded_by`/`relates_to`/`references` | WARNING | all write and legacy homes | shrink-only list of the existing pairs, keyed by path pair |
-| D5 | `doc-sot-claim` | `source_of_truth: true` on a document whose kind has a different SOT owner, or `true` on more than one document claiming the same `subject` | CRITICAL | all | none |
+| D5 | `doc-sot-claim` | `source_of_truth: true` on a document whose kind has a different SOT owner, or `true` on more than one document claiming the same `subject` | CRITICAL for added files; the 17 existing declarations are audited first (O12) and are not checked until then | added files | none |
 
 What the checks deliberately cannot do, stated in the finding text:
 
@@ -592,8 +592,7 @@ What the checks deliberately cannot do, stated in the finding text:
 
 Not proposed, because the existing mechanisms already cover it or the inventory shows no
 need: a new "unregistered direct child of `docs/`" check (exists: `docs-inventory`); an
-orphan CRITICAL for `docs/` (the tree has 0 orphan files in the families that route work,
-§2.6); a broken-link upgrade from warning to critical (separate decision; Check 2 remains
+orphan CRITICAL for `docs/` (the lower-bound method finds none in the families that route work, §2.6; the catalog's `inbound` count can report link-precise orphans as INFO instead); a broken-link upgrade from warning to critical (separate decision; Check 2 remains
 a warning today for historical reasons); and any new check over frozen evidence.
 
 ### 7.3 Closed vocabularies (policy, applied to new and touched files only)
@@ -648,8 +647,7 @@ must be allocated at commit, not now). Until then this proposal governs nothing.
 Add `tools/document-catalog.mjs`, `tools/document-find.mjs`, `docs/governance/DOCUMENT-KINDS.json`,
 tests in `tools/tests/`, npm scripts `docs:catalog`, `docs:find`, and `.gitignore` for
 `docs/.doc-catalog.json`.
-- **Moves:** none. **Breaks:** nothing. **Touches:** root `package.json` (CI `changes` sees
-  code), `.gitignore`.
+- **Moves:** none. **Breaks:** nothing, provided the same PR adds `.doc-catalog.json` to the `generatedRootFiles` allowlist in `apps/server/scripts/doc-preflight.mjs` (the `docs-inventory` check reads the live filesystem and would otherwise report an unregistered direct file once the catalog is built; the file is ignored by git but not by that check). **Touches:** root `package.json` and `doc-preflight.mjs` (CI `changes` sees code), `.gitignore`.
 - **Risk:** classification rules wrong for some path → wrong kind in output only; no gate yet.
 - **Rollback:** revert the PR.
 - **Done when:** `docs:find` returns the three plan files named in §2.5 for
@@ -688,7 +686,7 @@ first.
 
 Only after Stages 1–4. Candidates and exact breakage, from `git grep` at `d694d0c7`:
 
-By the Stage 5 rule (no live inbound reference, stub left behind) only `todo.md` and
+By the Stage 5 rule (no live inbound reference from code, tests, workflows, runtime readers or other documents; revision-pinned manifests read git blobs at their pinned revision and are counted as provenance, not live readers, which each such PR must re-verify with `docs:inventory:check` and `docs:identity:check`; a stub is left behind, and D1 exempts approved moves and stubs) only `todo.md` and
 `hardware-performance-audit.md` currently qualify: nothing but revision-pinned manifests
 names them. `docs/superpowers/specs/*` has one live reader (a change request link) and a
 register row; the other rows below fail the rule and are listed to show why they stay.
@@ -722,7 +720,7 @@ rewrite of hundreds of `status` values is explicitly **not** proposed.
 | ADR numbers and `docs/decisions/ADR-nnn-*` paths | cited by number across 80 Markdown files, 29 code/config files; AGENTS §17–19 |
 | canonical record paths `docs/features/FEAT-nnn/…`, `docs/requirements/<ID>.md` | the registry index and 559 `recordSha256` values; CANONICAL-FORMAT |
 | `registry/document-registry/index.json` shape, `PRD-SDD-v1.0.md` and `FEATURES.md` as generated exports | readers and the pinned subject anchors |
-| `docs/.id-ledger.json` and the nine `docs/.*-baseline.json` files | preflight reads these exact paths; `ROOT-FILE-REGISTER.md` |
+| `docs/.id-ledger.json` and the ten `docs/.*-baseline.json` files | preflight reads these exact paths; `ROOT-FILE-REGISTER.md` |
 | `docs/archive/`, `.brain/rca/evidence/`, `docs/migrations/document-reintegration/record-migrations/`, `registry/document-reintegration/*.json`, `docs/migrations/monorepo/source-manifest.json` | pinned blob hashes and paths; frozen evidence |
 | `docs/domains/<d>/CHARTER.md` paths | model-ownership checks, SRS validation, `GOVERNANCE-MODEL-SOURCES.md` |
 | ZV2-CR issued records in `docs/changes/` | issued identity (GOVERNANCE-PROFILE) |
@@ -826,6 +824,19 @@ git grep -hE '@(spec|req|tested|see)[^
 git grep -lE 'docs/' -- apps/server/tests tools/tests apps/edge/tests 'services/*/test' | wc -l
 grep -oE 'docs/[A-Za-z0-9_./-]+\.(md|html|json)'   apps/server/src/modules/platform-control/program-roadmap-containers.js | sort -u | wc -l
 ```
+
+Remaining counts (status values, scripts, links, workflow lines):
+
+```bash
+for f in $(git ls-files 'docs/*.md' | grep -v '^docs/\(requirements\|features\)/' | tr ' ' '?'); do   sed -n '1,15p' "$f" 2>/dev/null | grep -m1 '^status:'; done | sed 's/"//g' | sort | uniq -c | sort -rn
+git grep -lE "docs" -- apps/server/scripts/doc-*.mjs apps/server/scripts/id-*.mjs   apps/server/scripts/roadmap-*.mjs apps/server/scripts/domain-*.mjs apps/server/scripts/canonical-*.mjs   apps/server/scripts/document-*.mjs apps/server/scripts/untracked-docs.mjs   apps/server/scripts/trace-annotations.mjs apps/server/scripts/table-integrity.mjs   tools/*.mjs scripts/*.mjs | wc -l                     # 30
+git grep -lE "'docs'|\"docs\"|docs/" -- apps/server/scripts scripts tools | wc -l   # 58
+git grep -ohE '\]\([^)#:]+\.md' -- '*.md' | wc -l                              # 5,256
+grep -nE "docs/|\.brain" .github/workflows/*.yml | wc -l                         # 6 lines
+```
+
+Paths with spaces make the status loop approximate (it skips `STD-Multi agent workflow S-01.md`);
+the counts are indicative, not exact.
 
 Frontmatter and duplicate-title scan (Node, read-only):
 
