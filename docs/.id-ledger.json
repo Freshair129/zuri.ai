@@ -849,6 +849,7 @@
     "ADR-114",
     "ADR-115",
     "ADR-116",
+    "ADR-117",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11122,6 +11123,19 @@
         {
           "anchor": "visual office repository data access and serving boundary",
           "since": "2026-11-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-117": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md",
+      "status": "current",
+      "statement_digest": "2cab988b03d8f28688072bdea597e86f5f431c32db6befdf7c216870671f5941",
+      "history": [
+        {
+          "anchor": "cancel the 24 week programme as the delivery plan",
+          "since": "2026-11-13",
           "reason": "declared"
         }
       ]
