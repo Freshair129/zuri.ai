@@ -26,36 +26,36 @@
     ]
   },
   "summary": {
-    "nodes": 85,
-    "edges": 120,
-    "chains": 22,
+    "nodes": 97,
+    "edges": 143,
+    "chains": 26,
     "byKind": {
-      "SOURCE": 13,
-      "ENTRY": 24,
-      "PROCESS": 24,
-      "STORE": 17,
+      "SOURCE": 15,
+      "ENTRY": 27,
+      "PROCESS": 29,
+      "STORE": 19,
       "RECIPIENT": 7
     },
     "chainsByStatus": {
       "BLOCKED": 0,
       "DECLARED": 5,
-      "PARTIAL": 1,
-      "CODE_TESTS": 14,
+      "PARTIAL": 3,
+      "CODE_TESTS": 16,
       "PRODUCTION": 2
     },
     "internalByStatus": {
       "BLOCKED": 1,
       "DECLARED": 3,
-      "PARTIAL": 2,
-      "CODE_TESTS": 39,
+      "PARTIAL": 3,
+      "CODE_TESTS": 48,
       "PRODUCTION": 20
     },
     "internalBySurface": {
-      "NONE": 11,
-      "WORKER": 12,
+      "NONE": 12,
+      "WORKER": 13,
       "MCP": 0,
-      "ENDPOINT": 10,
-      "UI": 32
+      "ENDPOINT": 15,
+      "UI": 35
     }
   },
   "nodes": [
@@ -257,6 +257,38 @@
       "system": "external",
       "label": "GitHub",
       "detail": "",
+      "domain": null,
+      "requirements": [],
+      "features": [],
+      "decisions": [],
+      "surfaces": [],
+      "surfaceLevel": null,
+      "buildStatus": null,
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "src.notion",
+      "kind": "SOURCE",
+      "system": "external",
+      "label": "Notion",
+      "detail": "one-time verification challenge and signed workspace events",
+      "domain": null,
+      "requirements": [],
+      "features": [],
+      "decisions": [],
+      "surfaces": [],
+      "surfaceLevel": null,
+      "buildStatus": null,
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "src.operator",
+      "kind": "SOURCE",
+      "system": "external",
+      "label": "Operator (snapshot and managed-blob transfer package files)",
+      "detail": "installation-operator authority only",
       "domain": null,
       "requirements": [],
       "features": [],
@@ -1210,6 +1242,137 @@
       "blocked": "Repository records are local metadata; the GitHub read and webhook projection is blocked on the PII attestation gap recorded in FR-130's feature note"
     },
     {
+      "id": "in.supplier-cost-sheet",
+      "kind": "ENTRY",
+      "system": "zuri-ai",
+      "label": "Supplier cost-sheet intake",
+      "detail": "JSON body or .xlsx upload (only the upload route caps size at 5 MiB and reads the fixed CostSheet header) → persisted DRAFT; repeat recognised by Business + source SHA-256; refuses a stale preview hash or an unconfirmed mapping and the draft stays; production evidence: none",
+      "domain": "procurement",
+      "requirements": [
+        {
+          "id": "FR-164",
+          "status": "verified",
+          "title": "Suppliers and purchase orders (procurement)"
+        },
+        {
+          "id": "FR-154",
+          "status": "verified",
+          "title": "Inventory catalogue identity (คลังสินค้า)"
+        }
+      ],
+      "features": [
+        "FEAT-020",
+        "FEAT-024"
+      ],
+      "decisions": [
+        "ADR-066"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets/preview"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets/xlsx"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets/commit"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets/template"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets"
+        },
+        {
+          "type": "UI",
+          "ref": "/procurement/cost-sheets"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "in.notion-webhook",
+      "kind": "ENTRY",
+      "system": "zuri-ai",
+      "label": "Notion webhook receipt",
+      "detail": "public provider endpoint: an unsigned verification challenge pins an encrypted token (a repeat with the same token is acknowledged, a different one is refused 409), then each event needs an HMAC over the exact bytes; event payload is discarded, only a receipt row is kept; repeat recognised by Notion event id; no AuditEvent per event; production evidence: none",
+      "domain": "integration",
+      "requirements": [
+        {
+          "id": "FR-274",
+          "status": "verified",
+          "title": "The Integration lane receives Notion's POST /api/integrations/notion/webhook, captures the initial verification token encrypted for…"
+        }
+      ],
+      "features": [
+        "FEAT-046"
+      ],
+      "decisions": [
+        "ADR-109"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/integrations/notion/webhook"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/integration/application/notion-webhook-service.js"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "in.document-intake",
+      "kind": "ENTRY",
+      "system": "zuri-ai",
+      "label": "SmartGift document staging",
+      "detail": "smartgift.document-intake.v1 contract → RawExternalRecord STAGED or QUARANTINED, never a canonical write; differs from the BR-009 intake sequence: stages raw evidence only, with no preview; the receipt names DOMAIN_VALIDATION (REVIEW_REQUIRED when quarantined) as the next step, but nothing under apps/server/src promotes a staged record to a canonical row, and the code reads staged records only for the duplicate lookup, the monitor and backup; POST needs installation-operator authority; repeat recognised by the ingestion idempotency key (Tenant + connection + entity type + document id + payload hash); production evidence: none",
+      "domain": "integration",
+      "requirements": [
+        {
+          "id": "FR-071",
+          "status": "verified",
+          "title": "Supabase data pipeline monitor and replay"
+        }
+      ],
+      "features": [
+        "FR-071"
+      ],
+      "decisions": [
+        "ADR-040"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/ingest/documents"
+        },
+        {
+          "type": "MCP",
+          "ref": "data_pipeline.document_stage"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/platform/integrations/core/cloud-sot-agent.js"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
       "id": "p.line-jobs",
       "kind": "PROCESS",
       "system": "zuri-ai",
@@ -2135,6 +2298,248 @@
       "blocked": null
     },
     {
+      "id": "p.cost-sheet-planner",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "Cost-sheet preview and confirmed commit",
+      "detail": "preview persists a DRAFT with mapping suggestions and writes SUPPLIER_COST_SHEET_PREVIEWED (a persisted draft, not a read-only dry run); commit takes the preview hash and person-confirmed mappings, then in one transaction writes the lines, the Product carton attributes through Inventory's writer and supersedes the supplier's prior CONFIRMED sheet, auditing SUPPLIER_COST_SHEET_COMMITTED",
+      "domain": "procurement",
+      "requirements": [
+        {
+          "id": "FR-164",
+          "status": "verified",
+          "title": "Suppliers and purchase orders (procurement)"
+        },
+        {
+          "id": "FR-154",
+          "status": "verified",
+          "title": "Inventory catalogue identity (คลังสินค้า)"
+        }
+      ],
+      "features": [
+        "FEAT-020",
+        "FEAT-024"
+      ],
+      "decisions": [
+        "ADR-066"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/procurement/import/supplier-cost-workbook.js"
+        }
+      ],
+      "surfaceLevel": "WORKER",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.crm-retention-sweep",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "CRM chat message retention sweep and cold archive",
+      "detail": "per Tenant, message bodies and attachments past the effective window (730 days by default, an override never longer): the encrypted archive file is written and verified before the tombstone transaction; a failed archive write leaves that Tenant's rows for the next run; lines of an erased, keyless Customer are deferred or blanked without an archive; a message a non-terminal LineConversationJob still references is skipped; one RETENTION_SWEEP_COMPLETED AuditEvent per UTC day (checked before the run starts, not atomically); no dry run; production evidence: none",
+      "domain": "crm",
+      "requirements": [
+        {
+          "id": "FR-230",
+          "status": "verified",
+          "title": "Chat record and agent memory split with declared retention"
+        },
+        {
+          "id": "FR-245",
+          "status": "verified",
+          "title": "Chat evidence cold archive"
+        }
+      ],
+      "features": [
+        "FEAT-037",
+        "FEAT-041"
+      ],
+      "decisions": [
+        "ADR-091",
+        "ADR-093"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/retention-sweep-service.js"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/crm/chat-evidence-archive-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/crm/retention-sweep"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-retention-sweep-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.msp-retention",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "MSP session-content retention",
+      "detail": "one configured Tenant, a window of at most 90 days (an override only shortens it), bounded batches (200 rows per table, at most 10 per run) through the MSP thread-retention tick; defers while a LineConversationJob or memory delivery is pending; an uncertain provider call is reported UNKNOWN with reconciliationRequired; a run that started and never wrote an outcome defers every later run for that Tenant (PRIOR_RUN_UNSETTLED) and holds the MSP admission gate until a signed stopped-container attestation records MSP_RETENTION_RECONCILED; dry_run supported; AuditEvents MSP_RETENTION_* (the outcome event carries the counts); production evidence: none",
+      "domain": "agent",
+      "requirements": [
+        {
+          "id": "FR-230",
+          "status": "verified",
+          "title": "Chat record and agent memory split with declared retention"
+        }
+      ],
+      "features": [
+        "FEAT-037"
+      ],
+      "decisions": [
+        "ADR-091"
+      ],
+      "surfaces": [
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/agent/msp-retention-service.js"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/agent/memory-retention"
+        },
+        {
+          "type": "WORKER",
+          "ref": "apps/server/scripts/server-msp-retention-worker.mjs"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.backup-restore",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "Snapshot restore (preview, then confirmed replacement)",
+      "detail": "installation-operator authority; preview is required and confirm=true is explicit; deletes and re-inserts every replaceable snapshot model for all Tenants (the Phase B families are not replaced; plugin installations and workspace mounts are cleared and only the supplied remounts recreated) in one Serializable transaction that rolls back whole; RESTORED and BACKUP_RESTORE AuditEvents are written after the re-insert so they survive; no repeat recognition; the file-content postpass runs after the commit, cannot undo it and reports unresolvedContentFileIds; production evidence: none",
+      "domain": "project-manager",
+      "requirements": [
+        {
+          "id": "FR-013",
+          "status": "verified",
+          "title": "Snapshot backup"
+        },
+        {
+          "id": "FR-045",
+          "status": "verified",
+          "title": "Managed local file workspace"
+        },
+        {
+          "id": "FR-075",
+          "status": "verified",
+          "title": "Installation-operator authority"
+        },
+        {
+          "id": "FR-197",
+          "status": "verified",
+          "title": "Operator access is time-boxed, issuable by a standing operator, and its use is recorded"
+        }
+      ],
+      "features": [
+        "FEAT-001",
+        "FEAT-029",
+        "FR-013",
+        "FR-075"
+      ],
+      "decisions": [
+        "ADR-016"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/import"
+        },
+        {
+          "type": "UI",
+          "ref": "/backup"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/project-manager/application/backup-service.js"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "p.blob-transfer",
+      "kind": "PROCESS",
+      "system": "zuri-ai",
+      "label": "Managed-blob backup transfer",
+      "detail": "export → preview → confirm of a bounded sealed package (asset-evidence and business-catalog objects) under a durable job; confirm needs a signed admission for a local TEST target (loopback zuri_server_test, bound to the source package and synthetic-dataset evidence), otherwise MANAGED_BLOB_TRANSFER_NOT_ADMITTED; provider writes sit outside any database transaction, so an ambiguous write leaves the job UNKNOWN for operator inspect (never a blind retry); metadata is committed by the snapshot restore; production evidence: none",
+      "domain": "project-manager",
+      "requirements": [
+        {
+          "id": "FR-293",
+          "status": "partial",
+          "title": "Managed-blob backup transfer preserves complete original-byte and metadata evidence for reserved recovery refs through a bounded operator…"
+        }
+      ],
+      "features": [
+        "FR-293"
+      ],
+      "decisions": [
+        "ADR-115"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/export"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/preview"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/[jobId]/package"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/[jobId]/confirm"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/[jobId]/inspect"
+        },
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/backup/transfers/[jobId]/abandon"
+        },
+        {
+          "type": "FILE",
+          "ref": "apps/server/src/modules/project-manager/application/managed-blob-transfer-service.js"
+        }
+      ],
+      "surfaceLevel": "ENDPOINT",
+      "buildStatus": "PARTIAL",
+      "evidence": null,
+      "blocked": null
+    },
+    {
       "id": "s.crm",
       "kind": "STORE",
       "system": "zuri-ai",
@@ -2621,6 +3026,67 @@
         "FR-171"
       ],
       "decisions": [],
+      "surfaces": [],
+      "surfaceLevel": "NONE",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "s.supplier-cost-sheets",
+      "kind": "STORE",
+      "system": "zuri-ai",
+      "label": "SupplierCostSheet · SupplierCostLine",
+      "detail": "DRAFT → CONFIRMED → SUPERSEDED; one CONFIRMED sheet per supplier",
+      "domain": "procurement",
+      "requirements": [
+        {
+          "id": "FR-164",
+          "status": "verified",
+          "title": "Suppliers and purchase orders (procurement)"
+        }
+      ],
+      "features": [
+        "FEAT-024"
+      ],
+      "decisions": [
+        "ADR-066"
+      ],
+      "surfaces": [
+        {
+          "type": "ENDPOINT",
+          "ref": "/api/procurement/cost-sheets"
+        },
+        {
+          "type": "UI",
+          "ref": "/procurement/cost-sheets"
+        }
+      ],
+      "surfaceLevel": "UI",
+      "buildStatus": "CODE_TESTS",
+      "evidence": null,
+      "blocked": null
+    },
+    {
+      "id": "s.notion-receipts",
+      "kind": "STORE",
+      "system": "zuri-ai",
+      "label": "NotionWebhookReceipt",
+      "detail": "event id, type, workspace id and times only; no payload; read only by backup export and restore",
+      "domain": "integration",
+      "requirements": [
+        {
+          "id": "FR-274",
+          "status": "verified",
+          "title": "The Integration lane receives Notion's POST /api/integrations/notion/webhook, captures the initial verification token encrypted for…"
+        }
+      ],
+      "features": [
+        "FEAT-046"
+      ],
+      "decisions": [
+        "ADR-109"
+      ],
       "surfaces": [],
       "surfaceLevel": "NONE",
       "buildStatus": "CODE_TESTS",
@@ -3689,6 +4155,190 @@
       "status": "BLOCKED"
     },
     {
+      "id": "e.staff-to-cost-sheet",
+      "from": "src.staff",
+      "to": "in.supplier-cost-sheet",
+      "label": "xlsx or JSON supplier cost sheet",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.suppliers-to-cost-sheet",
+      "from": "src.suppliers",
+      "to": "in.supplier-cost-sheet",
+      "label": "supplier price file (the source of the sheet)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cost-sheet-to-planner",
+      "from": "in.supplier-cost-sheet",
+      "to": "p.cost-sheet-planner",
+      "label": "normalise → source hash → mapping suggestions",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cost-sheet-planner-to-store",
+      "from": "p.cost-sheet-planner",
+      "to": "s.supplier-cost-sheets",
+      "label": "DRAFT on preview; confirmed lines in one transaction on commit",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cost-sheet-planner-to-catalogue",
+      "from": "p.cost-sheet-planner",
+      "to": "s.catalogue",
+      "label": "Product carton attributes through Inventory's writer, same transaction",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.cost-sheets-to-staff",
+      "from": "s.supplier-cost-sheets",
+      "to": "r.staff",
+      "label": "cost-sheet register and mapping review",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.notion-to-webhook",
+      "from": "src.notion",
+      "to": "in.notion-webhook",
+      "label": "verification challenge and HMAC-signed events",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.notion-webhook-to-receipts",
+      "from": "in.notion-webhook",
+      "to": "s.notion-receipts",
+      "label": "receipt row keyed by event id; payload discarded",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.smartgift-to-document-intake",
+      "from": "src.smartgift",
+      "to": "in.document-intake",
+      "label": "smartgift.document-intake.v1 contract (operator-authenticated)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.document-intake-to-raw",
+      "from": "in.document-intake",
+      "to": "s.raw-records",
+      "label": "STAGED or QUARANTINED raw record; no canonical write",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.raw-records-to-document-monitor",
+      "from": "s.raw-records",
+      "to": "r.staff",
+      "label": "redacted document-intake monitor (GET /api/ingest/documents)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.crm-to-retention-sweep",
+      "from": "s.crm",
+      "to": "p.crm-retention-sweep",
+      "label": "message bodies and attachments past the effective window",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.retention-sweep-to-crm",
+      "from": "p.crm-retention-sweep",
+      "to": "s.crm",
+      "label": "tombstones after the verified archive (lines that cannot be sealed are deferred or blanked)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.line-jobs-to-msp-retention",
+      "from": "p.line-jobs",
+      "to": "p.msp-retention",
+      "label": "pending job and memory-delivery fence (defer)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.msp-retention-to-msp",
+      "from": "p.msp-retention",
+      "to": "r.msp",
+      "label": "thread-retention tick, bounded per Tenant (dry_run optional)",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.operator-to-restore",
+      "from": "src.operator",
+      "to": "p.backup-restore",
+      "label": "snapshot + remounts + explicit confirm",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.restore-to-project",
+      "from": "p.backup-restore",
+      "to": "s.project-data",
+      "label": "replaces every replaceable snapshot model for all Tenants, not only the Project system",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.restore-to-operator",
+      "from": "p.backup-restore",
+      "to": "r.operator",
+      "label": "preview counts, warnings and restore result",
+      "wired": true,
+      "status": "CODE_TESTS"
+    },
+    {
+      "id": "e.operator-to-blob-transfer",
+      "from": "src.operator",
+      "to": "p.blob-transfer",
+      "label": "sealed package (preview, confirm)",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.blob-transfer-to-operator",
+      "from": "p.blob-transfer",
+      "to": "r.operator",
+      "label": "sealed package (export)",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.storage-to-blob-transfer",
+      "from": "s.object-storage",
+      "to": "p.blob-transfer",
+      "label": "original object bytes (export)",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.blob-transfer-to-storage",
+      "from": "p.blob-transfer",
+      "to": "s.object-storage",
+      "label": "verified target-local objects (confirm); the catalog bucket has no node of its own",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
+      "id": "e.blob-transfer-to-restore",
+      "from": "p.blob-transfer",
+      "to": "p.backup-restore",
+      "label": "metadata replacement under the transfer permit",
+      "wired": true,
+      "status": "PARTIAL"
+    },
+    {
       "id": "e.corpus-to-agent",
       "from": "s.knowledge-corpus",
       "to": "p.agent-turn",
@@ -4516,6 +5166,132 @@
         "FEAT-038",
         "FR-023",
         "FR-190"
+      ]
+    },
+    {
+      "id": "CH-24",
+      "name": "Supplier cost sheet → confirmed cost lines",
+      "summary": "preview persists a draft; commit needs the preview hash and person-confirmed mappings",
+      "path": [
+        "e.staff-to-cost-sheet",
+        "e.cost-sheet-to-planner",
+        "e.cost-sheet-planner-to-store",
+        "e.cost-sheets-to-staff"
+      ],
+      "branches": [
+        "e.suppliers-to-cost-sheet",
+        "e.cost-sheet-planner-to-catalogue"
+      ],
+      "nodeIds": [
+        "in.supplier-cost-sheet",
+        "p.cost-sheet-planner",
+        "r.staff",
+        "s.catalogue",
+        "s.supplier-cost-sheets",
+        "src.staff",
+        "src.suppliers"
+      ],
+      "status": "CODE_TESTS",
+      "domains": [
+        "inventory",
+        "procurement"
+      ],
+      "features": [
+        "FEAT-020",
+        "FEAT-024",
+        "FEAT-031"
+      ]
+    },
+    {
+      "id": "CH-25",
+      "name": "Snapshot restore",
+      "summary": "installation-operator only; preview is required, replacement is one Serializable transaction",
+      "path": [
+        "e.operator-to-restore",
+        "e.restore-to-operator"
+      ],
+      "branches": [
+        "e.restore-to-project",
+        "e.blob-transfer-to-restore"
+      ],
+      "nodeIds": [
+        "p.backup-restore",
+        "p.blob-transfer",
+        "r.operator",
+        "s.project-data",
+        "src.operator"
+      ],
+      "status": "PARTIAL",
+      "domains": [
+        "project-manager"
+      ],
+      "features": [
+        "FEAT-001",
+        "FEAT-029",
+        "FR-003",
+        "FR-012",
+        "FR-013",
+        "FR-075",
+        "FR-293"
+      ]
+    },
+    {
+      "id": "CH-26",
+      "name": "Managed-blob transfer",
+      "summary": "export → preview → confirm under a durable job; confirm is limited to a signed-admitted local TEST target",
+      "path": [
+        "e.operator-to-blob-transfer",
+        "e.blob-transfer-to-operator"
+      ],
+      "branches": [
+        "e.storage-to-blob-transfer",
+        "e.blob-transfer-to-storage",
+        "e.blob-transfer-to-restore"
+      ],
+      "nodeIds": [
+        "p.backup-restore",
+        "p.blob-transfer",
+        "r.operator",
+        "s.object-storage",
+        "src.operator"
+      ],
+      "status": "PARTIAL",
+      "domains": [
+        "asset-management",
+        "project-manager"
+      ],
+      "features": [
+        "FEAT-001",
+        "FEAT-016",
+        "FEAT-029",
+        "FR-013",
+        "FR-075",
+        "FR-293"
+      ]
+    },
+    {
+      "id": "CH-27",
+      "name": "SmartGift document staging → monitor",
+      "summary": "raw evidence only; nothing under apps/server/src promotes a staged record to a canonical row",
+      "path": [
+        "e.smartgift-to-document-intake",
+        "e.document-intake-to-raw",
+        "e.raw-records-to-document-monitor"
+      ],
+      "branches": [],
+      "nodeIds": [
+        "in.document-intake",
+        "r.staff",
+        "s.raw-records",
+        "src.smartgift"
+      ],
+      "status": "CODE_TESTS",
+      "domains": [
+        "integration"
+      ],
+      "features": [
+        "FR-071",
+        "FR-081"
       ]
     }
   ]

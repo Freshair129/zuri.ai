@@ -19,6 +19,8 @@ live_document: true
 
 # ROADMAP: zuri-ai — Live Delivery State
 
+> Revision 2.175.0b (2026-11-13): records, by [ADR-117](../decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md), the owner's chat instruction of 2026-11-13 (relayed by the lead session) that the 24-week programme is cancelled as the delivery plan: its schedule, phase and sprint dates and `GATE-ZAI-01..09` targets no longer govern delivery. The current plan is the architecture-review gap closure, tracked by delivery rows and pull requests without sprint dates. This is a documentation note only: no task, requirement or phase is declared done or reopened, no row, count or percentage in this file is changed, no id is renumbered, and no production, deployment or gate result is stated.
+
 > Revision 2.174.0b (2026-11-08): adds the owner-approved FR-296/FR-297 login and TOTP rate-limit traces.
 > Local tests and governance are distinct from review, merge and deployment; both requirements remain planned.
 
