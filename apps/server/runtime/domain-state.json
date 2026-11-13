@@ -3527,16 +3527,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 23,
-          "testCount": 31
+          "codeCount": 24,
+          "testCount": 34
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 26,
-          "testCount": 52
+          "codeCount": 27,
+          "testCount": 55
         },
         {
           "id": "FR-096",
@@ -6961,7 +6961,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-105",
@@ -8168,7 +8168,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 31
+          "testCount": 34
         },
         {
           "id": "FR-095",
@@ -8176,7 +8176,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-097",
@@ -11442,16 +11442,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
-          "testCount": 31
+          "codeCount": 26,
+          "testCount": 34
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 52
+          "codeCount": 32,
+          "testCount": 55
         },
         {
           "id": "FR-096",
@@ -11518,6 +11518,7 @@
         "apps/server/src/modules/identity/mfa-secret-seal.js",
         "apps/server/src/modules/identity/mfa-service.js",
         "apps/server/src/modules/identity/passkey-service.js",
+        "apps/server/src/modules/identity/rate-limit.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/identity/session-assurance.js",
         "apps/server/src/modules/identity/session-port.js",
@@ -11540,6 +11541,7 @@
         "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
+        "apps/server/tests/integration/credential-rate-limit.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -11567,6 +11569,7 @@
         "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/passkey-lifecycle.test.js",
+        "apps/server/tests/integration/passkey-login-rate-limit.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
@@ -11585,6 +11588,7 @@
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
         "apps/server/tests/unit/identity/mfa-secret-seal.test.js",
+        "apps/server/tests/unit/identity/passkey-login-rate-limit.test.js",
         "apps/server/tests/unit/identity/seal-mfa-factor-secrets-cli.test.js",
         "apps/server/tests/unit/identity/session-assurance.test.js",
         "apps/server/tests/unit/identity/totp.test.js",

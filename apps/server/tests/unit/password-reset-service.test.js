@@ -11,6 +11,7 @@ import {
 // @req FR-104 — mint is authority-gated and hash-bound; consume is single-use,
 // expiring, generic-on-failure, and evicts every live session.
 // @spec SDD-054, SEC-008, SEC-014
+// @tested tests/unit/password-reset-service.test.js
 
 const TARGET = { id: 'per-target', code: 'PER-TARGET', displayName: 'Staff' }
 
@@ -87,14 +88,17 @@ describe('mintPasswordReset authority', () => {
   })
 })
 
-function consumeDb(record) {
+function consumeDb(record, { claimCount = 1 } = {}) {
   const state = { credential: null, used: null, revoked: 0 }
   const tx = {
     personCredential: {
       upsert: vi.fn(async ({ update, create }) => { state.credential = update.passwordHash || create.passwordHash }),
     },
     passwordResetToken: {
-      update: vi.fn(async ({ data }) => { state.used = data.usedAt }),
+      updateMany: vi.fn(async ({ data }) => {
+        if (claimCount === 1) state.used = data.usedAt
+        return { count: claimCount }
+      }),
     },
     auditEvent: { create: vi.fn(async ({ data }) => ({ id: 'audit-2', ...data })) },
   }
@@ -121,6 +125,14 @@ describe('resetPassword consumption', () => {
     expect(result.success).toBe(true)
     expect(verifyPassword('a-new-password', db.state.credential)).toBe(true)
     expect(db.state.used).toBeInstanceOf(Date)
+    expect(db.tx.passwordResetToken.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 'prt-1',
+        usedAt: null,
+        expiresAt: { gt: expect.any(Date) },
+      },
+      data: { usedAt: expect.any(Date) },
+    })
     // A stolen session must not survive the reset that exists to evict it.
     expect(db.session.updateMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { personId: TARGET.id, status: 'ACTIVE' },
@@ -134,6 +146,20 @@ describe('resetPassword consumption', () => {
     expect(db.passwordResetToken.findUnique).toHaveBeenCalledWith(expect.objectContaining({
       where: { token: hashPasswordResetToken('raw-token') },
     }))
+  })
+
+  it('returns the generic failure when the transactional token claim loses and writes nothing else', async () => {
+    const db = consumeDb(liveRecord(), { claimCount: 0 })
+
+    const result = await resetPassword({ token: 'raw-token', newPassword: 'a-new-password', db })
+
+    expect(result).toEqual({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })
+    expect(db.tx.passwordResetToken.updateMany).toHaveBeenCalledTimes(1)
+    expect(db.tx.personCredential.upsert).not.toHaveBeenCalled()
+    expect(db.tx.auditEvent.create).not.toHaveBeenCalled()
+    expect(db.session.updateMany).not.toHaveBeenCalled()
+    expect(db.state.credential).toBeNull()
+    expect(db.state.revoked).toBe(0)
   })
 
   it.each([

@@ -9,12 +9,14 @@ import {
   hashPasswordResetToken,
   mintPasswordReset,
   resetPassword,
+  verifyPassword,
 } from '@/modules/identity/auth-service'
 
 // @req FR-104 — the whole cycle against the real database: an owner mints for a
 // member, the member's old password dies, the new one logs in, the token burns,
 // and the live session from before the reset is revoked.
 // @spec SDD-054, SEC-008, SEC-014
+// @tested tests/integration/password-reset-flow.test.js
 
 const secretEnv = { ZURI_SESSION_SECRET: 'integration-reset-secret-0123456789abcdef' }
 
@@ -91,6 +93,84 @@ describe('password reset flow (FR-104)', () => {
       expect(event.payloadJson).not.toContain(minted.resetToken)
       expect(event.payloadJson).not.toContain(hashPasswordResetToken(minted.resetToken))
     }
+  })
+
+  it('allows only one of eight concurrent reset attempts to claim a token', async () => {
+    const suffix = randomUUID()
+    const person = await prisma.person.create({
+      data: {
+        id: randomUUID(),
+        code: `PER-RESET-RACE-${suffix.slice(0, 8)}`,
+        displayName: 'Concurrent Reset User',
+        credential: { create: { passwordHash: hashPassword('the-original-password') } },
+      },
+    })
+    await prisma.membership.create({
+      data: { id: randomUUID(), tenantId: business.tenantId, businessId: business.id, personId: person.id, role: 'MEMBER', domainKeysJson: '[]' },
+    })
+    const before = await authenticateUser({ username: person.code, password: 'the-original-password', env: secretEnv })
+    expect(before.success).toBe(true)
+
+    const minted = await mintPasswordReset({ targetPersonId: person.id, viewer: ownerViewer })
+    const passwords = Array.from({ length: 8 }, (_, index) => `concurrent-reset-password-${index}`)
+
+    // Hold every real SQLite pre-check until all eight calls have read the live
+    // token. This forces the stale-read race even if SQLite serializes writers.
+    let releasePrechecks
+    const allPrechecksReady = new Promise((resolve) => { releasePrechecks = resolve })
+    let prechecksReached = 0
+    let sessionRevocationCalls = 0
+    const db = {
+      passwordResetToken: {
+        findUnique: async (args) => {
+          const record = await prisma.passwordResetToken.findUnique(args)
+          prechecksReached += 1
+          if (prechecksReached === passwords.length) releasePrechecks()
+          await allPrechecksReady
+          return record
+        },
+      },
+      $transaction: (callback) => prisma.$transaction(callback),
+      session: {
+        updateMany: (args) => {
+          sessionRevocationCalls += 1
+          return prisma.session.updateMany(args)
+        },
+      },
+    }
+
+    const results = await Promise.all(passwords.map((newPassword) => resetPassword({
+      token: minted.resetToken,
+      newPassword,
+      db,
+    })))
+
+    const winners = results.flatMap((result, index) => result.success ? [index] : [])
+    expect(winners).toHaveLength(1)
+    expect(results[winners[0]]).toEqual({ success: true })
+    expect(results.filter((result) => !result.success)).toEqual(
+      Array.from({ length: passwords.length - 1 }, () => ({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })),
+    )
+
+    const storedCredential = await prisma.personCredential.findUnique({ where: { personId: person.id } })
+    expect(passwords.map((password) => verifyPassword(password, storedCredential.passwordHash))).toEqual(
+      passwords.map((_, index) => index === winners[0]),
+    )
+
+    const completedAudits = await prisma.auditEvent.findMany({
+      where: { entityType: 'PERSON', entityId: person.id, action: 'PASSWORD_RESET_COMPLETED' },
+    })
+    expect(completedAudits).toHaveLength(1)
+
+    const revokedSession = await prisma.session.findUnique({ where: { id: before.sessionId } })
+    expect(revokedSession.status).toBe('REVOKED')
+    expect(revokedSession.revokeReason).toBe('PASSWORD_RESET')
+    expect(sessionRevocationCalls).toBe(1)
+
+    // The same token remains rejected after its winning concurrent use.
+    const secondUse = await resetPassword({ token: minted.resetToken, newPassword: 'sequential-second-use-password', db })
+    expect(secondUse).toEqual({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })
+    expect(sessionRevocationCalls).toBe(1)
   })
 
   it('an owner with no authority over the member cannot mint', async () => {
