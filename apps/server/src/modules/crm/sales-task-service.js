@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { assertDomainVisible } from '@/modules/identity/viewer-domains'
@@ -101,7 +102,7 @@ async function nextCode(tx, business, now) {
 
 export async function createSalesTask(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zCreateSalesTask.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const business = await resolveScope(tx, viewer, data.businessId, { write: true })
     let customerId = data.customerId ?? null
     if (customerId) await requireCustomer(tx, viewer, business, customerId)
@@ -127,7 +128,7 @@ export async function createSalesTask(input, { viewer, db = prisma, now = new Da
       payload: { businessId: business.id, code: created.code, type: created.type, priority: created.priority, dueDate: created.dueDate, customerId, conversationId, assigneePersonId },
     })
     return created
-  })
+  }), { exhausted: () => failure(409, 'SALES_TASK_CODE_EXHAUSTED') })
   return toDto(row, now)
 }
 

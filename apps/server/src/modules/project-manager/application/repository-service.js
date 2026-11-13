@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { zRepositoryInput, zProjectRepositoryInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
 import { assertProjectWritable, assertRepositoryWritable } from './project-authorization'
@@ -54,23 +54,28 @@ export async function createRepository(input, { viewer } = {}) {
     error.status = 404
     throw error
   }
-  const code = data.code || (await uniqueHumanCode('REP', data.repoName || data.fullName || data.provider, codeExists))
-  const repo = await prisma.repository.create({
-    data: {
-      code,
-      businessId: data.businessId,
-      provider: data.provider,
-      externalRepoId: data.externalRepoId ?? null,
-      ownerName: data.ownerName ?? null,
-      repoName: data.repoName ?? null,
-      fullName: data.fullName ?? null,
-      url: data.url ?? null,
-      defaultBranch: data.defaultBranch ?? null,
-      status: data.status || 'ACTIVE',
-    },
+  const create = async () => {
+    const code = data.code || (await uniqueHumanCode('REP', data.repoName || data.fullName || data.provider, codeExists))
+    const repo = await prisma.repository.create({
+      data: {
+        code,
+        businessId: data.businessId,
+        provider: data.provider,
+        externalRepoId: data.externalRepoId ?? null,
+        ownerName: data.ownerName ?? null,
+        repoName: data.repoName ?? null,
+        fullName: data.fullName ?? null,
+        url: data.url ?? null,
+        defaultBranch: data.defaultBranch ?? null,
+        status: data.status || 'ACTIVE',
+      },
+    })
+    await recordAudit(prisma, { entityType: 'REPOSITORY', entityId: repo.id, action: 'CREATED', payload: { code } })
+    return repo
+  }
+  return data.code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => Object.assign(new Error('REPOSITORY_CODE_EXHAUSTED'), { status: 409 }),
   })
-  await recordAudit(prisma, { entityType: 'REPOSITORY', entityId: repo.id, action: 'CREATED', payload: { code } })
-  return repo
 }
 
 export async function updateRepository(id, patch, { viewer } = {}) {

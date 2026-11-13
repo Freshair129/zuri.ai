@@ -249,6 +249,7 @@ export async function commitLegacyBundle(rawBundle, { viewer, db = prisma, hando
           viewer,
           db,
           traceSourceKind: 'BUNDLE',
+          legacyReplayKey: false,
           allocatedEntityIds: handoffContext?.allocations[entry.bundleProjectRef] || null,
         })
         if (!committed.committed) {

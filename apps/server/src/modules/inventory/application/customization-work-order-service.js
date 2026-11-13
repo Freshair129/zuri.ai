@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { PRODUCT_ENTITY } from '../domain/inventory'
 import { customizationUnitCostSatang } from '../domain/inventory-costing'
@@ -156,7 +157,7 @@ async function createOutputProduct(tx, { business, raw, code, customerId, salesO
 
 export async function openCustomizationWorkOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zOpenCustomizationWorkOrder.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     const raw = await requireProduct(tx, data.rawProductId, business.id)
     if (raw.stockPolicy !== 'TRACKED') throw failure(422, 'INVENTORY_PRODUCT_UNTRACKED')
@@ -212,6 +213,11 @@ export async function openCustomizationWorkOrder(input, { viewer, db = prisma, n
     })
     return customizationDto(created)
   })
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'CUSTOMIZATION_WORK_ORDER_CODE_EXHAUSTED') })
 }
 
 /**
