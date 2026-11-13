@@ -1,5 +1,5 @@
 ---
-version: "1.1.0b"
+version: "1.2.0b"
 status: declared
 domain: identity
 ---
@@ -21,6 +21,11 @@ login, session, write-protection and isolation mechanics as the code stands at
 `49b10eb3`; where a control is partial, the section says so. Function names,
 viewer fields and token formats in sections 1 to 4 were corrected against the
 same revision.
+
+**Update (2026-11-13).** Section 7 now describes the same-origin write guard
+(`src/middleware.js`) that sits in front of every API write route. Sections 5.1,
+5.4 and 6 were adjusted to match; the other statements above still describe
+`49b10eb3`.
 
 ---
 
@@ -248,7 +253,9 @@ being, changes strength, or ends.
 a session through the same path as a password sign-in. It grants no Business,
 Workspace, capability or platform authority — a new account can see nothing
 until someone gives it a Membership or it creates its own Workspace (ADR-027).
-The cookie is a browser-session cookie (no `maxAge`).
+The cookie is a browser-session cookie (no `maxAge`). Like every API write, the
+route sits behind the same-origin write guard (§7), so a form posted from another
+site is refused before the route runs.
 
 ### 5.2 Passkey sign-in and step-up
 
@@ -306,6 +313,12 @@ its row (§6), a revoked session stops working at once even if the cookie is
 replayed. Outside production, a legacy token that carries no session id is
 accepted without a row, and sign-out has no row to revoke for it.
 
+Sign-out is **not** an exception to the same-origin write guard (§7). A forged
+cross-site `POST /api/auth/logout` could otherwise end a victim's session, and the
+guard costs the legitimate caller nothing: the sign-out `fetch` is same-origin, so
+the browser already sends a matching `Origin`. A caller that sends no `Origin`
+(curl, a script) is still admitted, as for every write.
+
 ### 5.5 Invitation
 
 Workspace invitations (`/api/workspace-invites`, `/accept`) require a live
@@ -327,30 +340,75 @@ route; ADR-079 records that as follow-on work.
 | Revocation | Sign-out revokes one session; password reset revokes all |
 | Viewer | `resolveRequestViewer` returns 401 without a session and 503 on a store failure. `resolveViewer({ principalId })` recomputes active, unexpired Memberships on every request; operator and superadmin grants are re-read from the database, never taken from the cookie |
 
-There is no `middleware` file under `apps/server/src`. An authenticated
-resource route resolves its own viewer, and the owning service decides whether
-that viewer may touch the resource. Public sign-in, signup, reset consumption
-and logout use their own seams (logout accepts a missing cookie and revokes only
-when one is present); a machine-facing route checks its own bearer, signature or
-token instead. Nothing global stands in front of a route that checks none of
-these: the control is each route's own code and tests.
+There is exactly one `middleware` file, `apps/server/src/middleware.js`, and it
+does one thing: the same-origin write check in §7. It authenticates and
+authorizes nothing. An authenticated resource route still resolves its own viewer,
+and the owning service decides whether that viewer may touch the resource. Public
+sign-in, signup, reset consumption and logout use their own seams (logout accepts
+a missing cookie and revokes only when one is present); a machine-facing route
+checks its own bearer, signature or token instead. Nothing global stands in front
+of a route that checks none of these: that control is each route's own code and
+tests.
 
 ## 7. Protection of cookie-authenticated writes
 
-Two controls exist, and they do not cover the same routes.
+Three controls exist. The first two cover every API write route; the third adds a
+session-bound token on the routes it names.
 
 | Control | What it checks | Where it applies |
 |---|---|---|
-| `SameSite=Lax` | The browser withholds the cookie on cross-site `POST` | Every cookie-authenticated route |
-| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL`, and a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery |
+| `SameSite=Lax` | The browser withholds the cookie on a cross-site `POST` | Every cookie-authenticated route. Kept as defence in depth; it is no longer the only control |
+| Same-origin write guard (FR-252, ADR-097; `src/middleware.js` calling `modules/identity/same-origin-write.js`) | For `POST`, `PUT`, `PATCH` and `DELETE` under `/api/**`: a present `Origin` must equal the origin of `PUBLIC_BASE_URL` (when it is configured) or the request's own host (first `X-Forwarded-Host` value, else `Host`) with the same scheme (the configured origin's scheme, else the first `X-Forwarded-Proto` value, else any). `Origin: null`, an empty or an unparsable value is refused. With no `Origin`, `Sec-Fetch-Site: cross-site` or `same-site` is refused. A refusal is `403 CSRF_INVALID` with `Cache-Control: no-store` and an `X-Request-ID`, returned before the route runs | Every route handler that exports a write method: 271 route files at `d01c388c`, all under `/api` |
+| API write CSRF token (FR-252-P2, `api-write-csrf.js`) | `Origin` equals the origin parsed from `PUBLIC_BASE_URL` (never the request host, and a missing `Origin` is refused), plus a token bound to the live session that lives at most 15 minutes and never past the session's expiry | Project feature writes, project governance snapshots, agent approval decisions and notifications, agent mission submissions, Office Design registration, managed-blob transfer and recovery. These keep the stricter check on top of the guard |
 
-A static scan at `49b10eb3` found 268 route files that export a write method.
-Twenty-four of them do not name `resolveRequestViewer` or `resolveViewer` in the
-route file. Seven delegate to a helper that resolves the viewer: the project
-feature subroutes (`contributions`, `requirement-bindings`, `restore`,
-`work-links`), `projects/[id]/feature-work-links` and the two file
-recovery-operation routes. The other seventeen have another seam, and the scan
-does not judge whether that seam is sufficient:
+**What the guard does and does not prove.** It makes a cross-site page unable to
+drive a browser into an API write, including `POST /api/auth/login`,
+`/api/auth/signup`, `/api/auth/reset-password` and `/api/auth/logout`. It does not
+authenticate anyone, and it does not replace a route's viewer, step-up or
+ownership checks.
+
+A request that carries neither `Origin` nor `Sec-Fetch-Site` passes. That is
+deliberate: bearer callers, provider webhooks (LINE, Notion), service callers
+(`/api/internal/**`, the LINE workers), plugin tools and curl send neither header.
+A browser always sends `Origin` on a cross-origin write, so a missing header means
+no browser is forging the request. The guard trusts the `X-Forwarded-Host` the
+proxy supplies for the host comparison; a page on another site cannot set that
+header in the victim's browser, and a caller who can set it holds no browser
+cookie to forge.
+
+**Same-origin clients need no change.** A same-origin `fetch` or form `POST`
+carries an `Origin` equal to the page, so the web console, the sign-in and signup
+forms and the consent form already satisfy the guard. A contract test
+(`write-client-origin-contract.test.js`) fails if client code sets `mode:
+'no-cors'`, `referrerPolicy: 'no-referrer'` (which turns `Origin` into `null`) or
+posts to an absolute URL of an app write route.
+
+**Coverage is enforced, not assumed.** `write-route-coverage.test.js` walks every
+`route.*` under `src/app`, finds each exported write method, and fails when a
+write route lies outside `/api`, when the middleware matcher does not cover it,
+when a cross-site `Origin` is not refused for it, or when a Server Action
+(`'use server'`) appears. A future route therefore inherits the guard by default.
+
+**Exceptions.** `CROSS_ORIGIN_WRITE_ALLOWLIST` is empty. No route supports a
+browser caller from another origin, so no bearer or signature route needs an entry
+either: its callers send no `Origin` and already pass. An entry would be needed
+only for a route that a page on another origin must call. Its reason must state
+that the route authenticates by bearer token or signature and never by cookie, and
+the test fails on an entry with no reason or one that matches no route. Sign-out
+is covered, not excepted (§5.4).
+
+**Limits of this evidence.** The decision function, the middleware and the route
+walk are unit-tested. The refusal was also confirmed over HTTP against a built
+`next start` (cross-site login, logout with `Origin: null`, and a cross-site
+`DELETE` returned 403; a same-origin request passed the guard and reached the
+route, which then failed for lack of a database). No real browser was driven, so the claim that browsers send a matching `Origin` on
+same-origin writes rests on the Fetch specification and the contract test above.
+
+Other route-specific checks still apply to most routes (a viewer, step-up, an
+owner or operator gate). A static scan at `49b10eb3` found 24 write route files
+that do not name `resolveRequestViewer` or `resolveViewer` themselves; the scan was
+not repeated at `d01c388c` and judged no seam sufficient. Seven delegate to a
+helper that resolves the viewer. The other seventeen have another seam:
 
 - public credential flows: `auth/login`, `auth/signup`, `auth/reset-password`;
 - session read directly: `auth/logout`;
@@ -360,36 +418,8 @@ does not judge whether that seam is sufficient:
   `crm/retention-sweep`, `platform/programme-usage-reports`,
   `platform/usage-events/rollup`, `growth/external-marketing-reports`;
 - plugin tokens: `plugin/auth/token`, `plugin/auth/revoke`.
-
-Twenty-four session-authenticated write routes in the Identity-owned route
-groups do not call the API write CSRF verifier and so rely on `SameSite=Lax`
-for cross-site protection:
-
-- under `auth/`: `logout`, `mfa/factors`, `mfa/totp/enroll`, `mfa/totp/verify`,
-  `step-up`, `webauthn/credentials`, `webauthn/register/options`,
-  `webauthn/register/verify`, `webauthn/step-up`;
-- `identity/link-tokens`, `identity/meeting-bindings`;
-- `onboarding/profile`, `onboarding/workspaces`;
-- `platform/api-access-keys`, `platform/api-access-keys/[id]`;
-- `platform/users`, `platform/users/memberships`,
-  `platform/users/memberships/[id]/lifecycle`, `platform/users/offboard`,
-  `platform/users/password-resets`;
-- `workspace-invites`, `workspace-invites/accept`, `workspace-invites/[id]`,
-  `workspace-memberships`.
-
-Other route-specific checks apply to most of them (a viewer, step-up, an owner
-or operator gate); sign-out is the exception, since it needs no session and
-revokes one only if a cookie is present. This is a coverage statement about one verifier, not a
-finding that any of them is exploitable.
-
-Sign-in and signup accept a form-encoded `POST` and set a cookie without
-checking `Origin`. Nothing in either route stops a page on another site from
-submitting credentials it already knows, which would sign the browser into
-that account (login CSRF). This is read from the code and was not tested in a
-browser. Whether it matters is an owner decision; it is written here so the
-decision is made on purpose.
-
 ## 8. Rate limiting
+
 
 | Surface | Limit | Storage | Note |
 |---|---|---|---|
@@ -424,6 +454,8 @@ deployed application actually connects as. A migration file proves neither
 that the migration was applied nor which role the running application uses.
 
 ## Version diff
+
+1.1.0b → 1.2.0b (2026-11-13): adds the same-origin write guard (`src/middleware.js`, FR-252 / ADR-097) in front of every API write route, with a route-tree coverage test and an empty cross-origin allowlist; closes the sign-in/signup login-CSRF gap and covers sign-out instead of excepting it; replaces the former list of 24 session writes that relied on `SameSite=Lax` alone. Introduces no route, model, permission or requirement id.
 
 1.0.0b → 1.1.0b (2026-11-12): removes the retired Edge Device nodes and
 sequence diagram and strikes through its matrix row (ADR-110); corrects Flow A
