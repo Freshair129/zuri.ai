@@ -364,15 +364,18 @@ export async function resetPassword({ token, newPassword, db = prisma, now = Dat
     return { success: false, error: 'INVALID_OR_EXPIRED_TOKEN' }
   }
 
-  const claimFailed = new Error('PASSWORD_RESET_TOKEN_CLAIM_FAILED')
+  // The conditional UPDATE is the atomic single-use claim. Keep it outside the
+  // interactive transaction so waiting contenders do not hold transaction
+  // connections while they queue on the write lock. A process crash between
+  // this claim and the credential commit burns the token; the operator re-mints.
+  const claim = await db.passwordResetToken.updateMany({
+    where: { id: record.id, usedAt: null, expiresAt: { gt: nowDate } },
+    data: { usedAt: nowDate },
+  })
+  if (claim.count !== 1) return { success: false, error: 'INVALID_OR_EXPIRED_TOKEN' }
+
   try {
     await db.$transaction(async (tx) => {
-      const claim = await tx.passwordResetToken.updateMany({
-        where: { id: record.id, usedAt: null, expiresAt: { gt: nowDate } },
-        data: { usedAt: nowDate },
-      })
-      if (claim.count !== 1) throw claimFailed
-
       await tx.personCredential.upsert({
         where: { personId: record.personId },
         update: { passwordHash },
@@ -388,7 +391,14 @@ export async function resetPassword({ token, newPassword, db = prisma, now = Dat
       })
     })
   } catch (error) {
-    if (error === claimFailed) return { success: false, error: 'INVALID_OR_EXPIRED_TOKEN' }
+    try {
+      await db.passwordResetToken.updateMany({
+        where: { id: record.id, usedAt: nowDate },
+        data: { usedAt: null },
+      })
+    } catch {
+      // Preserve the transaction error; claim release is best-effort.
+    }
     throw error
   }
 

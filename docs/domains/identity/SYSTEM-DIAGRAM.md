@@ -305,11 +305,14 @@ token for that person (`POST /api/platform/users/password-resets`); being an
 owner somewhere else is not enough. The token is
 shown once, stored as a SHA-256 digest and expires after one hour. The person
 spends it at `POST /api/auth/reset-password`, which changes the credential and
-revokes **every** active session of that person. Spending is atomic: inside one
-transaction a conditional update claims the token (`usedAt` still null and not
-expired) before the credential is touched, so of any number of concurrent
-requests with the same token exactly one succeeds; the others roll back and get
-the same generic `INVALID_OR_EXPIRED_TOKEN`.
+revokes **every** active session of that person. Spending is atomic: a single
+conditional update claims the token (`usedAt` still null and not expired) before
+the credential is touched, so of any number of concurrent requests with the
+same token exactly one succeeds; the others open no transaction and get the
+same generic `INVALID_OR_EXPIRED_TOKEN`. Only the winner runs the short
+credential-and-audit transaction. If that transaction fails, the claim is
+released best-effort so the token is not burned; a process crash between claim
+and commit does burn it, and the operator mints a new one.
 
 ### 5.4 Sign-out
 
