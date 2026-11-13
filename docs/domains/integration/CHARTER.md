@@ -333,7 +333,10 @@ Channel ID and secret body (a `deployment-secret:` body still provisions the mou
 path, FR-149); `POST /api/line-oa/connections/[id]/credential` rotates,
 `…/credential/revoke` revokes with a typed `REVOKE` and fences the account, and
 `…/credential/validate` re-proves the stored pair. All four go through
-`credential-route.js`: a ≤ 16 KiB body refused with a generic 400, identity's write
+`credential-route.js`: the trusted viewer is resolved first (401/503 before any body byte is
+read), the body is then read through a bounded reader that counts actual bytes and
+stops at 16 KiB (413 `CREDENTIAL_INPUT_TOO_LARGE`, also for an oversized
+`Content-Length`; unparsable JSON is a generic 400), identity's write
 gate and rate limit before LINE or the store, `Cache-Control: no-store`, and no
 material in any response (`line-channel-credential-service.js` for the last three).
 
