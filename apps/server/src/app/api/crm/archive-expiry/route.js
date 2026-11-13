@@ -8,7 +8,9 @@ import { bearerMatches } from '@/modules/platform-control/application/programme-
 // @req FR-245, SEC-034 — scheduled, Tenant-scoped archive expiry and chain
 //   retirement. The deployment bearer is checked before database or archive
 //   work, and the route returns only aggregate counts (ADR-093 D5, P7).
-// @spec ADR-093 D5 (1.3.0), SDD-103, SEC-001
+// @spec ADR-093 D5 (1.3.0, 1.3.2), SDD-103, SEC-001
+//   Strict `dry_run=true|false` adds a storage-prechecked count-only path that
+//   skips the daily claim, completion lookup and audit writes.
 // @tested tests/unit/crm-archive-expiry-route.test.js
 export const dynamic = 'force-dynamic'
 
@@ -38,6 +40,12 @@ export async function POST(request) {
   if (!bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)) {
     return NextResponse.json({ error: 'RETENTION_SWEEP_CREDENTIAL_REQUIRED' }, { status: 401 })
   }
+  const query = new URL(request.url).searchParams
+  if ([...query.keys()].some(key => key !== 'dry_run') || query.getAll('dry_run').length > 1
+    || (query.has('dry_run') && !['true', 'false'].includes(query.get('dry_run')))) {
+    return NextResponse.json({ error: 'RETENTION_SWEEP_REQUEST_INVALID' }, { status: 400 })
+  }
+  const dryRun = query.get('dry_run') === 'true'
 
   const env = process.env
   const now = new Date()
@@ -50,6 +58,16 @@ export async function POST(request) {
     if (env.NODE_ENV === 'production') {
       archiveBaseDir = resolveArchiveBaseDir(env)
       await assertArchiveStorageReady(archiveBaseDir, env)
+    }
+
+    if (dryRun) {
+      const result = await runChatEvidenceArchiveExpiry(prisma, {
+        now,
+        dryRun: true,
+        ...(archiveBaseDir ? { baseDir: archiveBaseDir, storagePrechecked: true } : {}),
+        env,
+      })
+      return NextResponse.json({ dryRun: true, counts: result.counts, tenants: result.tenants })
     }
 
     const completed = await findCompletedRun(start, end)

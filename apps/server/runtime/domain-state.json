@@ -1619,7 +1619,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-025",
@@ -1909,7 +1909,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-232",
@@ -2938,7 +2938,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-023",
@@ -3082,7 +3082,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-230",
@@ -3090,7 +3090,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-232",
@@ -3122,7 +3122,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-236",
@@ -3146,7 +3146,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 28
+          "testCount": 31
         },
         {
           "id": "FR-246",
@@ -3401,7 +3401,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-026",
@@ -4283,7 +4283,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-028",
@@ -4539,7 +4539,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-236",
@@ -5493,7 +5493,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-232",
@@ -5895,7 +5895,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-026",
@@ -6079,7 +6079,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-231",
@@ -7616,7 +7616,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 56
+          "testCount": 59
         },
         {
           "id": "FR-026",
@@ -8777,7 +8777,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-230",
@@ -8785,7 +8785,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-233",
@@ -8793,7 +8793,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-235",
@@ -8841,7 +8841,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 28
+          "testCount": 31
         },
         {
           "id": "FR-246",
@@ -14864,7 +14864,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 22
+          "testCount": 23
         },
         {
           "id": "FR-230",
@@ -14872,7 +14872,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 17,
-          "testCount": 38
+          "testCount": 41
         },
         {
           "id": "FR-231",
@@ -14896,7 +14896,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 14
+          "testCount": 15
         },
         {
           "id": "FR-234",
@@ -14964,6 +14964,7 @@
         "apps/server/tests/integration/crm-customer-consent.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/crm-retention-override-service.test.js",
+        "apps/server/tests/integration/crm-retention-sweep-dry-run.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -15003,6 +15004,7 @@
         "apps/server/tests/unit/corpus-knowledge-reader.test.js",
         "apps/server/tests/unit/crm-conversation-retention-migration.test.js",
         "apps/server/tests/unit/crm-message-attachments-events-migration.test.js",
+        "apps/server/tests/unit/crm-retention-dry-run-helpers.test.js",
         "apps/server/tests/unit/crm-retention-sweep-route.test.js",
         "apps/server/tests/unit/customer-consent-service.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
@@ -15020,6 +15022,7 @@
         "apps/server/tests/unit/raw-line-retention-sweep-route.test.js",
         "apps/server/tests/unit/reply-record-service.test.js",
         "apps/server/tests/unit/retention-override-resolver.test.js",
+        "apps/server/tests/unit/retention-sweep-worker-dry-run-guards.test.js",
         "apps/server/tests/unit/retention-sweep-worker-run.test.js",
         "apps/server/tests/unit/retention-sweeper-job-statuses.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
@@ -15437,7 +15440,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 11,
-          "testCount": 28
+          "testCount": 31
         },
         {
           "id": "FR-246",
@@ -15464,6 +15467,7 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/tests/integration/backup.test.js",
+        "apps/server/tests/integration/crm-archive-expiry-dry-run.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-archive-retirement.test.js",
@@ -15471,6 +15475,7 @@
         "apps/server/tests/integration/crm-chat-evidence-retrieval.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-retention-consent.test.js",
+        "apps/server/tests/integration/crm-retention-sweep-dry-run.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
@@ -15489,6 +15494,7 @@
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/crm-chat-evidence-archive-expiry-run.test.js",
         "apps/server/tests/unit/crm-legal-hold-migration.test.js",
+        "apps/server/tests/unit/crm-retention-dry-run-helpers.test.js",
         "apps/server/tests/unit/domain-visibility-server-enforcement.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -16846,7 +16852,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 36,
-          "testCount": 56
+          "testCount": 59
         }
       ],
       "evidence": [
@@ -16893,6 +16899,7 @@
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
         "apps/server/tests/integration/conversation-runtime-memory-group-gks.test.js",
+        "apps/server/tests/integration/crm-archive-expiry-dry-run.test.js",
         "apps/server/tests/integration/crm-archive-group-speakers.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-archive-retirement.test.js",
@@ -16901,6 +16908,7 @@
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
         "apps/server/tests/integration/crm-retention-consent.test.js",
+        "apps/server/tests/integration/crm-retention-sweep-dry-run.test.js",
         "apps/server/tests/integration/crm-retention-sweep.test.js",
         "apps/server/tests/integration/crm-staff-reply.test.js",
         "apps/server/tests/integration/execution-trace.test.js",
@@ -16935,6 +16943,7 @@
         "apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js",
         "apps/server/tests/unit/crm-retention-consent-migration.test.js",
         "apps/server/tests/unit/crm-retention-consent-routes.test.js",
+        "apps/server/tests/unit/crm-retention-dry-run-helpers.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",

@@ -1,7 +1,7 @@
 // @req FR-245, SEC-034 — scheduled archive expiry processes each Tenant with
 //   archive evidence and records one counts-only run audit (ADR-093 D5, P7).
-// @spec ADR-093 D5 (1.3.0), SDD-103, SEC-001
-// @tested tests/unit/crm-chat-evidence-archive-expiry-run.test.js
+// @spec ADR-093 D5 (1.3.0, 1.3.2), SDD-103, SEC-001
+// @tested tests/unit/crm-chat-evidence-archive-expiry-run.test.js, tests/integration/crm-archive-expiry-dry-run.test.js
 
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { assertArchiveStorageReady, resolveArchiveBaseDir } from './chat-evidence-archive-service'
@@ -24,9 +24,9 @@ function resultCounts(result) {
   }
 }
 
-/** Run the archive expiry once across Tenants with any archive or archive-key rows. */
+/** Run archive expiry once across Tenants with archive or archive-key rows; dry runs omit the run audit. */
 export async function runChatEvidenceArchiveExpiry(db, {
-  now = new Date(), deadlineAt, baseDir, env = process.env, storagePrechecked = false,
+  now = new Date(), deadlineAt, baseDir, env = process.env, storagePrechecked = false, dryRun = false,
 } = {}) {
   const startedAt = new Date()
   const selectedDeadline = deadlineAt ?? new Date(startedAt.getTime() + 9 * 60 * 1000)
@@ -68,7 +68,7 @@ export async function runChatEvidenceArchiveExpiry(db, {
     const tenantId = tenantIds[index]
     counts.tenantsVisited += 1
     try {
-      const result = await expireChatEvidenceArchive(db, { tenantId, now, baseDir: selectedBaseDir, env })
+      const result = await expireChatEvidenceArchive(db, { tenantId, now, baseDir: selectedBaseDir, env, dryRun })
       const perTenant = resultCounts(result)
       const retirementFailureCode = result.retirementFailureReason
         ? safeFailureCode({ code: result.retirementFailureReason })
@@ -98,6 +98,8 @@ export async function runChatEvidenceArchiveExpiry(db, {
       })
     }
   }
+
+  if (dryRun) return { dryRun: true, counts, tenants }
 
   const audit = await recordAudit(db, {
     entityType: 'ARCHIVE_EXPIRY_RUN',
