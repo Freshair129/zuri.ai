@@ -1,5 +1,5 @@
 import { explodeRecipe } from '../../../kernel/inventory/inventory.js'
-import { isFinishedSetSku, kittedUnitCostSatang, weightedAverageUnitCostSatang } from '../../../kernel/inventory/inventory-costing.js'
+import { isFinishedSetSku, kittedUnitCostSatang, movingAverageValuation } from '../../../kernel/inventory/inventory-costing.js'
 import {
   KITTING_WORK_ORDER_ENTITY, dedicationRule, explodeWithScrap, kittingRequirements, kittingWorkOrderCode, workOrderDayKey,
   zCancelWorkOrder, zCompleteKittingWorkOrder, zOpenKittingWorkOrder, zWorkOrderAction,
@@ -13,6 +13,9 @@ import * as catalogRepo from '../adapters/catalog-repo.js'
 import * as repo from '../adapters/inventory-repo.js'
 import * as wipRepo from '../adapters/wip-repo.js'
 
+// @req FR-175 — component costs are the shared Business-wide moving valuation.
+// @spec ADR-074 D2, D3, D5; BR-027
+// @tested test/component/inventory-work-orders.test.js
 // Kitting work orders (FR-177) inside SCM — port of apps/server
 // kitting-work-order-service with the same codes, order of refusals and audit
 // actions. OPEN explodes the recipe with its scrap allowance (BR-029) and FREEZES
@@ -51,7 +54,7 @@ function nextCode(sql, business, now) {
   throw failure(409, 'KITTING_WORK_ORDER_CODE_EXHAUSTED')
 }
 
-const unitCostOf = (sql, productId) => weightedAverageUnitCostSatang(wipRepo.receiptsOf(sql, productId))
+const unitCostOf = (sql, productId) => movingAverageValuation(wipRepo.movementsOf(sql, productId)).unitCostSatang
 /** How many of a component the attempts consumed, from the frozen line. */
 const perAttempt = (line, attempts) => (line.fixed ? line.grossQty : Math.ceil((line.qtyPerBatch * attempts) / line.batchSize - 1e-9))
 

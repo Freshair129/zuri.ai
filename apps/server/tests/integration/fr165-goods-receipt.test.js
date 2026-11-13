@@ -1,4 +1,4 @@
-// @req FR-165 — goods receipts against a real database: posted only against a
+// @req FR-165, FR-175 — goods receipts against a real database: posted only against a
 //   SENT order, line by line and never beyond what is outstanding; a counted
 //   SKU's line lands in the Inventory ledger with the PO/GRN reference (lots
 //   with expiry, serial units) and needs Inventory's authority on top of the
@@ -13,7 +13,7 @@ import { createPortfolio, createTenant, createBusiness } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import { ROLE_GOODS_RECEIVER, ROLE_INVENTORY_MANAGER, ROLE_PROCUREMENT_BUYER } from '@/modules/identity/rbac'
 import { createCategory, createProduct, createProductMaster, getProduct } from '@/modules/inventory/application/inventory-catalog-service'
-import { listLots, listSerialUnits, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
+import { listLots, listSerialUnits, recordMovement, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
 import { createSupplier } from '@/modules/procurement/application/supplier-service'
 import { applyPurchaseOrderAction, createPurchaseOrder, getPurchaseOrder } from '@/modules/procurement/application/purchase-order-service'
 import { listGoodsReceipts, postGoodsReceipt, listAllGoodsReceipts, getGoodsReceiptDetail } from '@/modules/procurement/application/goods-receipt-service'
@@ -220,9 +220,23 @@ describe('FR-165 GoodsReceipt', () => {
     expect(productDetail.costing.lastReceiptCostSatang).toBe(5500)
     // Weighted average: (3 * 2000 + 2 * 5500) / 5 = 17000 / 5 = 3400 satang
     expect(productDetail.costing.weightedAverageLandedCostSatang).toBe(3400)
+    expect(productDetail.costing.valuation).toMatchObject({ method: 'MOVING_WEIGHTED_AVERAGE', scope: 'PRODUCT', unitCostSatang: 3400, onHandQty: 5, partial: false, partialReasons: [], uncostedQty: 0 })
+    expect(productDetail.costing.allTimeReceiptAverageSatang).toBe(3400)
     expect(productDetail.costing.costHistory).toHaveLength(2)
     expect(productDetail.costing.costHistory[0].costSatang).toBe(5500)
     expect(productDetail.costing.costHistory[1].costSatang).toBe(2000)
+
+    const depletedAt = new Date('2026-09-07T00:00:00.000Z')
+    await recordMovement({ businessId: b(), productId: costed.id, kind: 'ISSUE', quantity: 5, occurredAt: depletedAt, reference: 'ISSUE:DEPLETION' }, { viewer: owner, now: depletedAt })
+    const order3 = await sentOrder([{ productId: costed.id, qty: 4, unitCost: 90 }])
+    await postGoodsReceipt(order3.id, {
+      lines: [{ purchaseOrderLineId: order3.lines[0].id, qty: 4 }],
+      selfVerifyAttested: true,
+    }, { viewer: owner, now: new Date('2026-09-07T01:00:00.000Z') })
+    const restarted = await getProduct(costed.id, { viewer: owner })
+    expect(restarted.costing.valuation).toMatchObject({ unitCostSatang: 9000, onHandQty: 4, partial: false, partialReasons: [], uncostedQty: 0 })
+    expect(restarted.costing.weightedAverageLandedCostSatang).toBe(9000)
+    expect(restarted.costing.allTimeReceiptAverageSatang).toBe(5889)
   })
 
   // @req FR-196 — the person who wrote the order cannot also sign for its goods,

@@ -61,6 +61,10 @@ export {
 } from './application/inventory-identity-service'
 export { catalogHygiene, replenishment } from './application/inventory-hygiene-service'
 export {
+  INVENTORY_VALUATION_MOVEMENT_SELECT,
+  readInventoryValuation,
+} from './application/inventory-valuation-service'
+export {
   applyProductAction,
   createBundle,
   createCategory,

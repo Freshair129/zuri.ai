@@ -1,6 +1,6 @@
 import { z } from 'zod'
 import { STOCK_MOVEMENT_ENTITY, explodeRecipe } from '../../../kernel/inventory/inventory.js'
-import { weightedAverageUnitCostSatang } from '../../../kernel/inventory/inventory-costing.js'
+import { movingAverageValuation } from '../../../kernel/inventory/inventory-costing.js'
 import { isGenericStockLocation } from '../../../kernel/inventory/warehouse-location.js'
 import { inventoryAuthority } from '../../../infrastructure/delegation.js'
 import { enqueueOutbox, recordAudit } from '../../../infrastructure/evidence.js'
@@ -9,6 +9,9 @@ import * as catalogRepo from '../adapters/catalog-repo.js'
 import * as repo from '../adapters/inventory-repo.js'
 import * as wipRepo from '../adapters/wip-repo.js'
 
+// @req FR-175 — returned components carry the shared moving-average cost.
+// @spec ADR-074 D2, D3, D6; BR-027
+// @tested test/component/inventory-work-orders.test.js
 // Controlled disassembly (FR-178) inside SCM — port of apps/server
 // de-kitting-service.deKitFinishedSets: the finished sets are issued and their
 // surviving components received back, in one unit of work, at a stated location.
@@ -85,7 +88,7 @@ export function deKitFinishedSets(sql, scope, input, ctx) {
     }
     const result = appendMovement(sql, scope, {
       businessId: business.id, productId: component.id, kind: 'RECEIPT', quantity: qty, reason, reference, occurredAt,
-      targetLocationId: data.targetLocationId ?? null, costSatang: weightedAverageUnitCostSatang(wipRepo.receiptsOf(sql, component.id)),
+      targetLocationId: data.targetLocationId ?? null, costSatang: movingAverageValuation(wipRepo.movementsOf(sql, component.id)).unitCostSatang,
       customerId: component.dedicatedCustomerId ?? null, salesOrderId: component.dedicatedSalesOrderId ?? null, requestId: ctx.requestId,
     }, { now: ctx.now })
     returned.push({ componentProductId: component.id, code: component.code, quantity: qty, onHandAfter: result.onHandAfter })

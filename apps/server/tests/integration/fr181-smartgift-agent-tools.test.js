@@ -1,4 +1,4 @@
-// @req FR-181 — the six agent tools against a real database: the registries
+// @req FR-175, FR-181 — the six agent tools against a real database: the registries
 //   they land in and the sensitivity they declare, the SKU a customer says
 //   resolved through the FlowAccount ExternalRef, the quote that never shows a
 //   freight line, the hold that lands on components, the two dispatches that
@@ -220,13 +220,13 @@ describe('FR-181 SmartGift agent tools', () => {
   })
 
   it.each([
-    [{ quantity: 1, costSatang: 100 }, { quantity: 1, costSatang: null }],
-    [{ quantity: 1, costSatang: -1 }],
-    [{ quantity: 0, costSatang: 100 }],
-    [{ quantity: -1, costSatang: 100 }],
-    [{ quantity: 0.5, costSatang: 100 }],
-    [{ quantity: Number.MAX_SAFE_INTEGER + 1, costSatang: 100 }],
-    [{ quantity: 1, costSatang: Number.MAX_SAFE_INTEGER + 1 }],
+    [{ kind: 'RECEIPT', quantity: 1, costSatang: 100 }, { kind: 'RECEIPT', quantity: 1, costSatang: null }],
+    [{ kind: 'RECEIPT', quantity: 1, costSatang: -1 }],
+    [{ kind: 'RECEIPT', quantity: 0, costSatang: 100 }],
+    [{ kind: 'RECEIPT', quantity: -1, costSatang: 100 }],
+    [{ kind: 'RECEIPT', quantity: 0.5, costSatang: 100 }],
+    [{ kind: 'RECEIPT', quantity: Number.MAX_SAFE_INTEGER + 1, costSatang: 100 }],
+    [{ kind: 'RECEIPT', quantity: 1, costSatang: Number.MAX_SAFE_INTEGER + 1 }],
   ])('FR-253 — rejects incomplete or invalid ledger receipts %#', async (...receipts) => {
     const db = { product: prisma.product, stockMovement: { findMany: async () => receipts } }
     const tool = smartgiftReadTools({ ...ctx(member), db }).get('calculate_smartgift_quote')
@@ -236,7 +236,7 @@ describe('FR-181 SmartGift agent tools', () => {
   it('FR-253 — weighted receipts use exact ceil division beyond the Number aggregate range', async () => {
     const db = {
       product: prisma.product, productRecipe: prisma.productRecipe, business: prisma.business, pricingRuleSet: prisma.pricingRuleSet,
-      stockMovement: { findMany: async () => [{ quantity: Number.MAX_SAFE_INTEGER, costSatang: 100000 }, { quantity: 1, costSatang: 100001 }] },
+      stockMovement: { findMany: async () => [{ kind: 'RECEIPT', quantity: Number.MAX_SAFE_INTEGER, costSatang: 100000 }, { kind: 'RECEIPT', quantity: 1, costSatang: 100001 }] },
     }
     const quote = await smartgiftReadTools({ ...ctx(member), db }).get('calculate_smartgift_quote').handler({ skuCode: tumbler.code, quantity: 100 })
     expect(quote.breakdown.base).toBe(100001)

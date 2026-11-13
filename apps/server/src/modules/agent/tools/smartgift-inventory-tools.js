@@ -16,12 +16,15 @@ import {
   releaseCustomizationWorkOrder,
   releaseKittingWorkOrder,
   productByFlowAccountSku,
+  readInventoryValuation,
   satangToBaht,
   shelfLifeAudit,
 } from '@/modules/inventory'
 import { createToolRegistry } from '../tools'
 import { createWriteToolRegistry, STAFF_WRITE_ROLES } from '../write-tools'
 
+// @req FR-175 — the quote tool reads shared moving valuation and refuses
+//   partial cost evidence instead of averaging only its costed subset.
 // @req FR-181 — the six supply-chain tools an agent may call, and the only path
 //   it has into this lane. Each one is a thin adapter: it takes the viewer the
 //   caller already resolved, calls the same exported Inventory service a page
@@ -40,7 +43,7 @@ import { createWriteToolRegistry, STAFF_WRITE_ROLES } from '../write-tools'
 //   The Business's own system prompts — tone, Thai phrasing, what to say about
 //   free delivery — are its agent configuration, not zuri-ai code. This file
 //   ships the tools those prompts call.
-// @spec ADR-074 D9; SDD-091; ADR-007 §P6, §P7; BR-027 (a quote never shows a
+// @spec ADR-074 D3, D9; SDD-091; ADR-007 §P6, §P7; BR-027 (a quote never shows a
 //   freight line); BR-031; BR-032
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js
 
@@ -94,18 +97,9 @@ async function recipeForProduct(db, productId) {
 }
 
 async function unitCostOf(db, productId) {
-  const receipts = await db.stockMovement.findMany({ where: { productId, kind: 'RECEIPT' }, select: { quantity: true, costSatang: true } })
-  if (!receipts.length) return null
-  let quantity = 0n
-  let totalCost = 0n
-  for (const row of receipts) {
-    if (!Number.isSafeInteger(row.quantity) || row.quantity <= 0 || !Number.isSafeInteger(row.costSatang) || row.costSatang < 0) throw failure(422, 'INVENTORY_COST_UNKNOWN')
-    quantity += BigInt(row.quantity)
-    totalCost += BigInt(row.quantity) * BigInt(row.costSatang)
-  }
-  const average = (totalCost + quantity - 1n) / quantity
-  if (average > BigInt(Number.MAX_SAFE_INTEGER)) throw failure(422, 'INVENTORY_COST_UNKNOWN')
-  return Number(average)
+  const valuation = await readInventoryValuation(productId, { db })
+  if (valuation.partial) throw failure(422, 'INVENTORY_COST_UNKNOWN')
+  return valuation.unitCostSatang
 }
 
 // ── The three read tools (Gate E) ───────────────────────────────────────────

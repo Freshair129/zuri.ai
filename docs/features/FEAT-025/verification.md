@@ -58,7 +58,14 @@ status: generated
 ### Code paths — graph bindings
 
 - [apps/server/src/app/(pm)/inventory/products/\[productId\]/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/products/%5BproductId%5D/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/agent/tools/smartgift-inventory-tools.js](../../../apps/server/src/modules/agent/tools/smartgift-inventory-tools.js) — `implements` (`annotation`)
+- [apps/server/src/modules/commerce/application/pricing-catalog-service.js](../../../apps/server/src/modules/commerce/application/pricing-catalog-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/application/customization-work-order-service.js](../../../apps/server/src/modules/inventory/application/customization-work-order-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/application/de-kitting-service.js](../../../apps/server/src/modules/inventory/application/de-kitting-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/application/inventory-catalog-service.js](../../../apps/server/src/modules/inventory/application/inventory-catalog-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/inventory-stock-service.js](../../../apps/server/src/modules/inventory/application/inventory-stock-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/application/inventory-valuation-service.js](../../../apps/server/src/modules/inventory/application/inventory-valuation-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/inventory/application/kitting-work-order-service.js](../../../apps/server/src/modules/inventory/application/kitting-work-order-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory-costing.js](../../../apps/server/src/modules/inventory/domain/inventory-costing.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/domain/inventory.js](../../../apps/server/src/modules/inventory/domain/inventory.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/index.js](../../../apps/server/src/modules/inventory/index.js) — `implements` (`annotation`)
@@ -67,11 +74,16 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/integration/fr154-inventory-catalog.test.js](../../../apps/server/tests/integration/fr154-inventory-catalog.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr155-inventory-stock.test.js](../../../apps/server/tests/integration/fr155-inventory-stock.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr165-goods-receipt.test.js](../../../apps/server/tests/integration/fr165-goods-receipt.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr176-customization-work-order.test.js](../../../apps/server/tests/integration/fr176-customization-work-order.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr177-kitting-work-order.test.js](../../../apps/server/tests/integration/fr177-kitting-work-order.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/fr178-de-kitting.test.js](../../../apps/server/tests/integration/fr178-de-kitting.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr181-smartgift-agent-tools.test.js](../../../apps/server/tests/integration/fr181-smartgift-agent-tools.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr184-inventory-stocktake.test.js](../../../apps/server/tests/integration/fr184-inventory-stocktake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr253-pricing-catalog.test.js](../../../apps/server/tests/integration/fr253-pricing-catalog.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/fr253-pricing-catalog-storage.test.js](../../../apps/server/tests/unit/fr253-pricing-catalog-storage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/inventory-costing.test.js](../../../apps/server/tests/unit/inventory-costing.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/inventory-domain.test.js](../../../apps/server/tests/unit/inventory-domain.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/inventory-product-page.test.js](../../../apps/server/tests/unit/inventory-product-page.test.js) — `verifies` (`transitive`)
