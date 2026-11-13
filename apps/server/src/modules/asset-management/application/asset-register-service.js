@@ -2,6 +2,7 @@
 // @spec SDD-078, SDD-080, BR-023, SEC-023, ADR-055
 // @tested tests/unit/asset-register-service.test.js
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { ASSET_INTAKE_STATUS, ASSET_INTAKE_STATUSES } from '../domain/asset-intake'
 import { assertAssetIntakeWrite } from './asset-authority'
@@ -384,7 +385,7 @@ export async function registerAssetFromIntake({
   const financial = resolveAssetIntakeFinancial(envelope)
   const now = new Date()
 
-  return await db.$transaction(async (tx) => {
+  const create = () => db.$transaction(async (tx) => {
     const responsibilityPersonIds = [...new Set([
       responsibility?.accountablePersonId,
       responsibility?.custodianPersonId,
@@ -515,5 +516,8 @@ export async function registerAssetFromIntake({
     })
 
     return registeredAsset
+  })
+  return customAssetCode?.trim() ? create() : retryOnCodeConflict(create, {
+    exhausted: () => Object.assign(new Error('ASSET_CODE_EXHAUSTED'), { status: 409 }),
   })
 }

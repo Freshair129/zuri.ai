@@ -98,6 +98,7 @@ export async function provisionStandardBusinessTemplate(tx, {
     // backfill. Ordinary pre-existing Spaces are left untouched by refusal.
     refuse('BUSINESS_PROVISIONING_EXISTING_SPACE_CONFLICT', 409)
   } else {
+    // This helper uses the caller's transaction; the transaction owner handles code conflicts.
     const code = await uniqueHumanCode(
       'WS',
       workspaceName || `งานของ${persisted.name}`,

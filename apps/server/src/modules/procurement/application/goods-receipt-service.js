@@ -1,9 +1,13 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { z } from 'zod'
 import { recordAudit } from '@/modules/project-manager/application/audit'
-import { appendMovement, mayManage as mayManageInventory } from '@/modules/inventory'
+import { appendMovement, mayManage as mayManageInventory, setLotExpiryIfUnset } from '@/modules/inventory'
 import {
+  deriveReceiptLineCost,
   GOODS_RECEIPT_ENTITY,
+  currencyMinorUnitDigits,
+  NON_TWO_DECIMAL_CURRENCIES,
   PURCHASE_ORDER_ENTITY,
   dayKey,
   goodsReceiptCode,
@@ -14,19 +18,19 @@ import {
 import { loadBusiness, notFound } from './procurement-authority'
 import { PO_SELECT, RECEIPT_SELECT, purchaseOrderDto, receiptDto } from './purchase-order-service'
 
-import { amortiseSatang } from '@/modules/inventory/domain/inventory-costing'
-
 // @req FR-165, FR-175 — the only writer of GoodsReceipt: post what arrived against a
 //   SENT purchase order. Every receipt line names one order line of that
 //   order and may not receive more than the line still has outstanding
 //   (refused whole with the per-line list). A line whose order line names a
 //   counted SKU writes RECEIPT rows into the Inventory ledger through
 //   Inventory's exported `appendMovement` inside this same transaction —
-//   carrying `costSatang` computed from the line's agreed unitCostSatang plus
-//   the receipt's amortised batch costs (or null if no cost basis, never zero).
+//   carrying `costSatang` computed from its agreed PO cost at the recorded FX
+//   rate plus each recorded landed-cost component amortised across counted
+//   quantity (or null if there is no cost basis, never zero).
 //   `lotCode` names or creates the lot (LOT-tracked SKUs need one; a given
-//   `expiresAt` is set on a lot that has none yet), `serialNos` create the
-//   units (SERIAL-tracked SKUs need exactly one per unit), and the reference
+//   `expiresAt` is set through Inventory's versioned one-time setter),
+//   `serialNos` create the units (SERIAL-tracked SKUs need exactly one per
+//   unit), and the reference
 //   `PO:<code>/GRN:<code>` ties every ledger row back here. A free-text line
 //   or an uncounted SKU is recorded on the receipt and touches no ledger. The
 //   stock half needs Inventory's write authority on top of the buyer's — a
@@ -65,6 +69,7 @@ const RECEIPT_DETAIL_SELECT = {
     purchaseOrderLine: { select: { description: true, product: { select: { code: true, stockPolicy: true } } } },
   } },
 }
+const INT32_MAX = 2147483647
 const pageNumber = (maximum, fallback) => z.preprocess(
   value => typeof value === 'string' && /^\d+$/.test(value) ? Number(value) : value,
   z.number().int().min(fallback === 0 ? 0 : 1).max(maximum).default(fallback),
@@ -95,7 +100,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
   const id = typeof orderId === 'string' ? orderId.trim() : ''
   if (!id) throw notFound()
   const data = zPostReceipt.parse(input)
-  const result = await db.$transaction(async (tx) => {
+  const result = await retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const order = await tx.purchaseOrder.findUnique({ where: { id }, select: PO_SELECT })
     if (!order) throw notFound()
     const business = await loadBusiness(tx, viewer, order.businessId, { capability: 'receipt' })
@@ -125,39 +130,88 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     const stocked = data.lines.filter((line) => isCounted(byId.get(line.purchaseOrderLineId)))
     if (stocked.length && !mayManageInventory(viewer, business.id)) throw failure(403, 'PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY')
 
+    const orderCurrency = order.currency ?? 'THB'
+    const currency = orderCurrency.trim().toUpperCase()
+    if (currency === 'THB' && data.fxCostSheetId) throw failure(422, 'PROCUREMENT_RECEIPT_FX_NOT_APPLICABLE')
+    if (currency !== 'THB' && stocked.length
+      && (NON_TWO_DECIMAL_CURRENCIES.includes(currency) || currencyMinorUnitDigits(currency) !== 2)) {
+      throw Object.assign(failure(422, 'PROCUREMENT_RECEIPT_FX_CURRENCY_UNSUPPORTED'), { details: { currency } })
+    }
+    if (currency !== 'THB' && stocked.length && !data.fxCostSheetId) {
+      throw Object.assign(failure(422, 'PROCUREMENT_RECEIPT_FX_RATE_REQUIRED'), { details: { currency: orderCurrency } })
+    }
+    let fxCostSheet = null
+    if (data.fxCostSheetId) {
+      fxCostSheet = await tx.supplierCostSheet.findUnique({
+        where: { id: data.fxCostSheetId },
+        select: { id: true, businessId: true, supplierId: true, currency: true, status: true, fxRateLocked: true },
+      })
+      if (!fxCostSheet
+        || fxCostSheet.businessId !== business.id
+        || fxCostSheet.supplierId !== order.supplierId
+        || fxCostSheet.currency !== currency
+        || !['CONFIRMED', 'SUPERSEDED'].includes(fxCostSheet.status)
+        || !Number.isFinite(fxCostSheet.fxRateLocked)
+        || fxCostSheet.fxRateLocked <= 0) {
+        throw failure(422, 'PROCUREMENT_RECEIPT_FX_SHEET_INVALID')
+      }
+    }
+    const fxRateLocked = fxCostSheet?.fxRateLocked ?? null
+    const landedCosts = data.landedCosts ?? (data.batchCostSatang !== undefined
+      ? [{ component: 'OTHER', amountSatang: data.batchCostSatang, note: 'batchCostSatang (untyped batch cost)' }]
+      : [])
+    const totalCountedQty = stocked.reduce((sum, line) => sum + line.qty, 0)
+    const costByLineId = new Map(stocked.map((line) => {
+      const orderLine = byId.get(line.purchaseOrderLineId)
+      const cost = deriveReceiptLineCost({
+        currency,
+        agreedUnitCostSatang: orderLine.unitCostSatang,
+        fxRateLocked,
+        countedQty: totalCountedQty,
+        components: landedCosts,
+      })
+      // This value is persisted to both GoodsReceiptLine.unitCostSatang and
+      // StockMovement.costSatang, which are Int32 columns.
+      if (cost.unitCostSatang > INT32_MAX) {
+        throw Object.assign(failure(422, 'PROCUREMENT_RECEIPT_COST_OUT_OF_RANGE'), {
+          details: { purchaseOrderLineId: line.purchaseOrderLineId },
+        })
+      }
+      return [line.purchaseOrderLineId, cost]
+    }))
+    const landedCostsJson = data.batchCostSatang !== undefined || data.landedCosts !== undefined
+      ? JSON.stringify(landedCosts)
+      : null
+
     const code = await nextCode(tx, business, now)
     const receivedAt = data.receivedAt ?? now
     const receipt = await tx.goodsReceipt.create({
       data: {
         code, tenantId: business.tenantId, businessId: business.id, purchaseOrderId: order.id,
         supplierReference: data.supplierReference ?? null, notes: data.notes ?? null, receivedAt, postedByPersonId: actor(viewer),
-        lines: { create: data.lines.map((line) => ({ purchaseOrderLineId: line.purchaseOrderLineId, qty: line.qty, lotCode: line.lotCode ?? null, expiresAt: line.expiresAt ?? null, serialNosJson: line.serialNos?.length ? JSON.stringify(line.serialNos) : null })) },
+        fxCostSheetId: fxCostSheet?.id ?? null, fxRateLocked, landedCostsJson,
+        lines: { create: data.lines.map((line) => ({
+          purchaseOrderLineId: line.purchaseOrderLineId, qty: line.qty, lotCode: line.lotCode ?? null,
+          expiresAt: line.expiresAt ?? null, serialNosJson: line.serialNos?.length ? JSON.stringify(line.serialNos) : null,
+          unitCostSatang: costByLineId.get(line.purchaseOrderLineId)?.unitCostSatang ?? null,
+        })) },
       },
       select: RECEIPT_SELECT,
     })
 
     const reference = receiptReference(order.code, code)
-    const totalCountedQty = stocked.reduce((sum, line) => sum + line.qty, 0)
-    const batchCostPerUnit = (data.batchCostSatang && totalCountedQty > 0)
-      ? amortiseSatang(data.batchCostSatang, totalCountedQty)
-      : 0
 
     const posted = []
     for (const line of stocked) {
       const orderLine = byId.get(line.purchaseOrderLineId)
-      const costBasis = orderLine?.unitCostSatang != null
-        ? orderLine.unitCostSatang + batchCostPerUnit
-        : null
+      const cost = costByLineId.get(line.purchaseOrderLineId)
       const movement = await appendMovement(tx, {
         businessId: business.id, productId: orderLine.productId, kind: 'RECEIPT', quantity: line.qty,
-        costSatang: costBasis,
+        costSatang: cost.unitCostSatang,
         ...(line.lotCode ? { lotCode: line.lotCode } : {}), ...(line.serialNos?.length ? { serialNos: line.serialNos } : {}),
         reason: 'GOODS_RECEIPT', reference, occurredAt: receivedAt,
       }, { viewer })
-      if (movement.lotId && line.expiresAt) {
-        const lot = await tx.productLot.findUnique({ where: { id: movement.lotId }, select: { expiresAt: true } })
-        if (lot && !lot.expiresAt) await tx.productLot.update({ where: { id: movement.lotId }, data: { expiresAt: line.expiresAt } })
-      }
+      if (movement.lotId && line.expiresAt) await setLotExpiryIfUnset(tx, { businessId: business.id, lotId: movement.lotId, expiresAt: line.expiresAt }, { viewer })
       posted.push({
         purchaseOrderLineId: orderLine.id,
         productId: orderLine.productId,
@@ -165,7 +219,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
         quantity: line.qty,
         lotId: movement.lotId,
         onHandAfter: movement.onHandAfter,
-        costSatang: movement.costSatang ?? costBasis ?? null,
+        costSatang: movement.costSatang ?? cost.unitCostSatang,
       })
     }
 
@@ -189,7 +243,21 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
         businessId: business.id, code, purchaseOrderCode: order.code,
         supplierReference: receipt.supplierReference,
         batchCostSatang: data.batchCostSatang ?? null,
-        lines: data.lines.length, posted, completesOrder: plan.completesOrder, selfVerified,
+        landedCosts,
+        fxCostSheetId: fxCostSheet?.id ?? null,
+        fxRateLocked,
+        lines: data.lines.length,
+        posted: posted.map((line) => {
+          const cost = costByLineId.get(line.purchaseOrderLineId)
+          return {
+            ...line,
+            agreedUnitCostSatang: cost.agreedUnitCostSatang,
+            factoryUnitCostSatang: cost.factoryUnitCostSatang,
+            componentUnitCostSatang: cost.componentUnitCostSatang,
+            unitCostSatang: cost.unitCostSatang,
+          }
+        }),
+        completesOrder: plan.completesOrder, selfVerified,
       },
     })
     if (plan.completesOrder) {
@@ -200,7 +268,7 @@ export async function postGoodsReceipt(orderId, input, { viewer, db = prisma, no
     }
     const updated = await tx.purchaseOrder.findUnique({ where: { id: order.id }, select: PO_SELECT })
     return { receipt, order: updated, posted }
-  })
+  }), { exhausted: () => failure(409, 'GOODS_RECEIPT_CODE_EXHAUSTED') })
   return { receipt: receiptDto(result.receipt), order: purchaseOrderDto(result.order), posted: result.posted }
 }
 

@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { explodeRecipe, stockOnHand } from '../domain/inventory'
 import {
@@ -166,7 +167,7 @@ export async function maxBuildableSets({ businessId, recipeId, quantity, viewer,
  */
 export async function createReservation(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zCreateReservation.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     const product = await tx.product.findUnique({ where: { id: data.productId }, select: PRODUCT_SELECT })
     if (!product || product.businessId !== business.id) throw failure(422, 'INVENTORY_PRODUCT_NOT_FOUND')
@@ -211,6 +212,11 @@ export async function createReservation(input, { viewer, db = prisma, now = new 
     })
     return created
   })
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'STOCK_RESERVATION_CODE_EXHAUSTED') })
 }
 
 export async function listReservations({ businessId, productId, status, viewer, db = prisma, now = new Date() } = {}) {
@@ -232,7 +238,7 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
   const reservationId = typeof id === 'string' ? id.trim() : ''
   if (!reservationId) throw notFound()
   const data = zReservationAction.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const observed = await tx.stockReservation.findUnique({ where: { id: reservationId }, select: RESERVATION_SELECT })
     if (!observed) throw notFound()
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
@@ -296,6 +302,12 @@ export async function applyReservationAction(id, input, { viewer, db = prisma, n
     })
     return { released: await tx.stockReservation.findUnique({ where: { id: row.id }, select: RESERVATION_SELECT }), committed: null }
   })
+  if (data.action !== 'CONVERT') return attempt()
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'STOCK_RESERVATION_CODE_EXHAUSTED') })
 }
 
 /**

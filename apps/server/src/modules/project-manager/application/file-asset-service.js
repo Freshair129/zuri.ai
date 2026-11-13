@@ -1,4 +1,4 @@
-import { withPipelineTransaction } from './pipeline-writer'
+import { withPipelineTransaction, isPipelineTransaction } from './pipeline-writer'
 // @req FR-084 — new WorkItem file references share the inverse transaction boundary.
 // @tested tests/integration/pipeline-contract-regressions.test.js
 // @req FR-045, FR-284 — SQLite-authoritative managed files, lossless legacy migration and remount metadata.
@@ -11,7 +11,7 @@ import { withPipelineTransaction } from './pipeline-writer'
 import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from './audit'
 import { createLocalFilesystemPort } from '../local-files/filesystem-port'
 import { normalizeMountRoot, resolveLexicalContainedPath } from '../local-files/path-security'
@@ -108,7 +108,6 @@ export async function createManagedFileAsset(input, {
   const value = fileInput.parse(input)
   await assertBusinessWritable(viewer, value.businessId, { db, ...(authorize ? { authorize } : {}) })
   await businessScope(db, value.businessId, value.projectId, value.workItemId)
-  const code = await nextCode(db, value.name, value.code)
   const mount = value.storageKind === 'LOCAL_FILE'
     ? await db.localWorkspaceMount.findFirst({ where: { id: value.mountId, businessId: value.businessId, status: 'ACTIVE' } })
     : null
@@ -119,8 +118,9 @@ export async function createManagedFileAsset(input, {
   const sha256 = content ? createHash('sha256').update(content).digest('hex') : (value.sha256 ?? null)
   const status = content ? 'QUARANTINED' : 'ACTIVE'
 
-  const asset = await withPipelineTransaction(db, async (tx) => {
+  const create = () => withPipelineTransaction(db, async (tx) => {
     const { business } = await businessScope(tx, value.businessId, value.projectId, value.workItemId)
+    const code = await nextCode(tx, value.name, value.code)
     const created = await tx.fileAsset.create({ data: {
       code,
       tenantId: business.tenantId,
@@ -144,6 +144,17 @@ export async function createManagedFileAsset(input, {
     await recordAudit(tx, { entityType: 'FILE_ASSET', entityId: created.id, action: 'CREATED', payload: { code, businessId: value.businessId, projectId: value.projectId || null, storageKind: value.storageKind, status } })
     return created
   })
+  let asset
+  if (value.code) {
+    asset = await create()
+  } else if (isPipelineTransaction(db)) {
+    // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
+    asset = await create()
+  } else {
+    asset = await retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('FILE_ASSET_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
 
   if (!content) return asset
   const stagingRoot = resolveLexicalContainedPath({ mountRoot: mount.rootPath, relativePath: '.zuri/temp' }).absolutePath

@@ -1,7 +1,7 @@
 ---
 version: "0.10.0b"
 status: active
-last_update: "2026-11-13,Codex"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -97,8 +97,13 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   reports `{ tenantId, code }`, then continues with the next Tenant. Before the
   first scheduled run, an operator must run
   `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
-  container and compare the dry-run counts; the first actual run redacts the
-  entire eligible backlog irreversibly.
+  container and compare per-Tenant counts for `POST /api/crm/retention-sweep`,
+  `POST /api/crm/archive-expiry`, `POST /api/integration/raw-retention-sweep`,
+  and `POST /api/agent/trace-retention-sweep`. On the first real run, the CRM
+  sweep targets every eligible CRM message past the Tenant's effective window
+  (24 months by default, shorter with an override) that is not skipped by the
+  non-terminal-job, tombstone, archive-failure or deferral rules, and archive
+  expiry also irreversibly destroys expired archive keys and deletes expired files.
 - **Owns the local Business Agent Factory configuration (FR-285).**
   `BusinessAgentConfig` pins the standard five role/tool/policy snapshots to one
   server-derived Tenant and Business. Existing Businesses have no implicit
@@ -231,6 +236,7 @@ consolidation summaries remain unbuilt; `owns_models` is unchanged.
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.11.0b | 2026-11-13 | FR-230: shared worker `--dry-run` now previews CRM retention and archive expiry alongside Integration and Agent, with per-Tenant counts for comparison before the first real run | Codex |
 | 0.10.0b | 2026-11-13 | FR-230: trace retention adds a count-only dry run using grouped event counts; invalid stored windows fall back to the installation default and restore validates the override floor; worker dry-run calls Agent and Integration only | Codex |
 | 0.9.0b | 2026-11-12 | FR-230 / ADR-091 D2: Agent now sweeps whole expired trace turns through the shared redaction path; it protects open MSP erasures and pending memory delivery and exposes `/api/agent/trace-retention-sweep`; no deployment schedule is claimed | Codex |
 | 0.8.1b | 2026-11-12 | Corrected the Context Composer and grounding status, marked Agent memory consolidation unbuilt, and retired the former Agent LINE webhook and heartbeat routes | Codex |

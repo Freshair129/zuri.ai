@@ -18,9 +18,9 @@ owns_code:
   - src/modules/procurement/**
 technical_owner: TD-PROCUREMENT
 status: active-foundation
-version: "1.1.1"
+version: "1.2.0"
 created_at: "2026-09-07T02:00:00+07:00"
-updated_at: "2026-09-20T19:45:00+07:00"
+updated_at: "2026-11-13T10:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -75,7 +75,12 @@ Architecture decision: [ADR-066](../../decisions/ADR-066-PROCUREMENT-LANE-SUPPLI
   order with the supplier's delivery-note number as an attribute; never
   edited (FR-165).
 - `GoodsReceiptLine` — one received quantity against one order line, with the
-  lot code, expiry and serials it carried into the ledger (FR-165).
+  lot code, expiry and serials it carried into the ledger and the derived
+  landed unit cost it handed to Inventory (FR-165).
+- The receipt's **cost provenance** — the typed landed-cost components
+  (`landedCostsJson`), the locked FX rate and the confirmed cost sheet it came
+  from (`fxRateLocked`, `fxCostSheetId`) — is stored on the `GoodsReceipt`, so a
+  receipt's unit cost can be recomputed from stored rows (review finding C14).
 - `SupplierCostSheet` — one Business-scoped factory source version with its
   supplier, currency, locked FX rate, source hash and preview state; the source
   snapshot is idempotent on `(businessId, sourceSha256)` (TASK-ZAI-053).
@@ -93,11 +98,11 @@ paid amount already follow.
 
 | Concept | Authority | Procurement behavior |
 |---|---|---|
-| `Product`, `ProductLot`, `SerialUnit`, `StockMovement` — the goods and the ledger | Inventory | a receipt line naming a counted SKU calls Inventory's exported `appendMovement` inside the receipt's transaction (reference `PO:<code>/GRN:<code>`) and never widens Inventory's authority: the viewer needs Inventory's own write permission for that half |
+| `Product`, `ProductLot`, `SerialUnit`, `StockMovement` — the goods and the ledger | Inventory | a receipt line naming a counted SKU calls Inventory's exported `appendMovement` inside the receipt's transaction (reference `PO:<code>/GRN:<code>`) and never widens Inventory's authority: the viewer needs Inventory's own write permission for that half. A lot's first expiry is set through Inventory's exported `setLotExpiryIfUnset` (version-checked, bumps the lot `version`, audited by Inventory); Procurement never writes `ProductLot` (review finding C8) |
 | Sales orders, payments, revenue | Commerce | the sell side; the two lanes meet only in the ledger (a receipt adds, a fulfilled order removes) |
 | Purchase requests, approvals, RFQs, supplier quotes | **this lane, later** — each its own FR | a purchase order is created directly today |
 | Purchase returns, credit notes, supplier advances, supplier invoices and payables | future Procurement / Finance FRs | not modelled; a wrong receipt is corrected by an Inventory ADJUSTMENT |
-| Landed unit cost and inventory valuation | Inventory | Procurement's receipt writer passes the computed landed unit cost to Inventory's `appendMovement` for `StockMovement.costSatang`; Procurement keeps the PO's `unitCostSatang` as the agreed purchase price. Future Finance owns COGS, journals and books |
+| Landed unit cost and inventory valuation | Inventory | Procurement's receipt writer passes the landed unit cost it **derived** to Inventory's `appendMovement` for `StockMovement.costSatang`; Procurement keeps the PO's `unitCostSatang` as the agreed purchase price. The derivation is ADR-074 D3 over recorded inputs only: the PO line cost (converted at the rate locked on a confirmed `SupplierCostSheet` when the PO is not in THB) plus each typed landed-cost component amortised over the receipt's counted quantity. A caller can neither type a unit cost nor a rate, and there is **no manual-override path** (the approved text defines none). Inventory's public `recordMovement` refuses the reserved reason `GOODS_RECEIPT`. Future Finance owns COGS, journals and books |
 | Supplier candidates found in the market | Market Intelligence (`SupplierCandidate`) | evidence, not an approved `Supplier`; promotion is a human's decision recorded here as a new `Supplier` |
 | Asset procurement references (`AssetProcurementRef`) | Asset Management | a typed string that may name a PO or GRN code; resolving it to a row is a later FR |
 
@@ -137,6 +142,14 @@ Inventory authority by confirming a mapping (TASK-ZAI-053).
   transaction; a RECEIVED, SHORT_CLOSED or CANCELLED order receives nothing more.
 - CANCEL is refused once a receipt exists (the stock already moved); CLOSE is
   the short-close for an order that will not be completed.
+- A receipt's unit cost is derived, never typed: PO line cost, converted at a
+  stored locked FX rate when the PO currency is not THB, plus typed landed-cost
+  components (`SEA_FREIGHT`, `IMPORT_DUTY`, `INBOUND_TRUCK`, `OTHER` with a note)
+  each amortised `ceil(amount / counted quantity)`. A foreign-currency PO with a
+  counted line is refused without a confirmed (or superseded) cost sheet of the
+  same Business, supplier and currency (`PROCUREMENT_RECEIPT_FX_RATE_REQUIRED`,
+  `PROCUREMENT_RECEIPT_FX_SHEET_INVALID`); a THB PO refuses `fxCostSheetId`.
+  The inputs and the derived line cost are stored and audited.
 - Every write is one transaction that bumps `version` where the row has one
   and appends one `AuditEvent` (`SUPPLIER`, `PURCHASE_ORDER`,
   `GOODS_RECEIPT`); a receipt that completes an order also audits the order.
@@ -189,6 +202,7 @@ notes, supplier invoices and payables, PricingRuleSet or quote lifecycle.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.2.0 | 2026-11-13 | active-foundation | Closes review findings C8 and C14: lot expiry is set through Inventory's version-checked contract instead of a direct `ProductLot` write; goods-receipt cost is derived from recorded inputs (PO line cost, typed landed-cost components, locked FX from a confirmed cost sheet), stored on the receipt and audited. No manual-override path exists; the open policy question is recorded in FR-165 | working-tree | Claude Sonnet 5.5 |
 | 1.1.1 | 2026-11-12 | active-foundation | Corrected the landed unit-cost valuation boundary: Inventory owns valuation, Procurement retains PO purchase price, and Finance owns COGS and books | working-tree | Codex |
 | 1.0.0 | 2026-09-07 | active-foundation | Established the Procurement lane with suppliers, purchase orders, lines and goods receipts; the receipt-to-ledger contract and the two-ladder rule recorded in ADR-066 | working-tree | Claude Fable 5.1 |
 | 1.1.0 | 2026-09-20 | active-foundation | Added the bounded TASK-ZAI-053 supplier cost-sheet intake boundary: locked-FX source versions, confirmed price-break lines, Inventory-owned carton writes, Excel reader and local-only migration evidence | working-tree | Codex |

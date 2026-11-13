@@ -4,8 +4,8 @@
 //   for each Tenant, this module writes the batch to a new file, flushes it,
 //   reads it back, verifies its hash, and only then does the caller's
 //   transaction insert a manifest row and tombstone exactly what was archived.
-// @spec ADR-093 D2, D3, D4, D5 (1.3.0), D6; SDD-103; SEC-001; BR-002
-// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-archive-retirement.test.js
+// @spec ADR-093 D2, D3, D4, D5 (1.3.0, 1.3.2), D6; SDD-103; SEC-001; BR-002
+// @tested tests/unit/crm-chat-evidence-archive-crypto.test.js, tests/unit/crm-retention-dry-run-helpers.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-retention-sweep-dry-run.test.js, tests/integration/crm-archive-retirement.test.js
 //
 // FAIL CLOSED, STRUCTURALLY (ADR-093 D2)
 // ---------------------------------------
@@ -77,7 +77,7 @@
 
 import { createHash, randomBytes } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
-import { promises as fs, existsSync } from 'node:fs'
+import { constants as fsConstants, promises as fs, existsSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import {
@@ -211,6 +211,55 @@ export async function assertArchiveStorageReady(baseDir, env = process.env) {
   })
   if (!mounted) throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_MOUNT_UNVERIFIED')
   return selected
+}
+
+/** The directory used by every archive/retirement file for this Tenant and UTC year. */
+export function archiveTenantYearDirectory({ baseDir, tenantId, now }) {
+  return path.join(baseDir, tenantId, String(now.getUTCFullYear()))
+}
+
+/**
+ * Read-only permission probe for the exact directories a run would write into.
+ * For each target that does not exist yet, check its nearest existing ancestor
+ * without creating anything.
+ * @param {string|string[]} targetDirectories directories the real run would write into
+ * @returns {Promise<string[]>} nearest existing ancestors that passed the checks
+ */
+export async function assertArchiveStorageWritable(targetDirectories) {
+  const targets = Array.isArray(targetDirectories) ? targetDirectories : [targetDirectories]
+  const uniqueTargets = [...new Set(targets.map((target) => path.resolve(String(target ?? ''))))]
+  const checkedAncestors = []
+
+  for (const target of uniqueTargets) {
+    let ancestor = target
+    let stat
+    while (true) {
+      try {
+        stat = await fs.stat(ancestor)
+        break
+      } catch (error) {
+        if (error?.code !== 'ENOENT') {
+          throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_WRITABLE', error)
+        }
+        const parent = path.dirname(ancestor)
+        if (parent === ancestor) {
+          throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_WRITABLE', error)
+        }
+        ancestor = parent
+      }
+    }
+
+    if (!stat.isDirectory()) {
+      throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_WRITABLE')
+    }
+    try {
+      await fs.access(ancestor, fsConstants.W_OK | fsConstants.X_OK)
+    } catch (error) {
+      throw new ChatEvidenceArchiveStorageError('ARCHIVE_STORAGE_NOT_WRITABLE', error)
+    }
+    checkedAncestors.push(ancestor)
+  }
+  return checkedAncestors
 }
 
 export function buildRunId(now) {
@@ -482,8 +531,9 @@ const REPLY_EXTERNAL_PREFIX = 'reply:'
  * header). `messages` need `id`, `direction`, `externalMessageId`,
  * `authorChannelIdentityId` and `conversation: { id, customerId }`.
  *
- * `attribute: true` (the writer) first attributes and writes back every inbound row
- * with no author (`attributeInboundMessageAuthors`); a reader never writes.
+ * `attribute: true` first attributes every inbound row with no author
+ * (`attributeInboundMessageAuthors`). A live call also writes it back; `dryRun`
+ * applies the same would-write map in memory only. A reader never writes.
  *
  * Tenant-bound throughout: an author identity, a reply's inbound or a Customer
  * from another Tenant is never followed, and anything that does not resolve
@@ -503,9 +553,9 @@ export async function resolveArchiveKeyCustomers(db, { tenantId, messages, attri
  * `speakerCustomerId` null). The retention sweep needs that distinction for a line
  * whose key Customer is erased (ADR-093 1.2.0).
  *
- * @returns {Promise<Map<string, {keyCustomerId: string, speakerCustomerId: string|null}>>}
+ * @returns {Promise<{keys: Map<string, {keyCustomerId: string, speakerCustomerId: string|null}>, attributedAuthors: Map<string, string>}>}
  */
-export async function resolveArchiveKeyAttribution(db, { tenantId, messages, attribute = false }) {
+async function resolveArchiveKeyAttributionDetailed(db, { tenantId, messages, attribute = false, dryRun = false }) {
   const conversationOf = (message) => message.conversation?.id ?? message.conversationId
   const replyTargets = new Map()
   for (const message of messages) {
@@ -524,12 +574,15 @@ export async function resolveArchiveKeyAttribution(db, { tenantId, messages, att
     })
     for (const row of rows) inbound.set(row.id, { conversationId: row.conversationId, authorChannelIdentityId: row.authorChannelIdentityId })
   }
+  let attributedAuthors = new Map()
   if (attribute) {
     // The writer only: attribute (and write back) every inbound row it is about to
     // key that has no author, by the evidence erasure itself uses.
     const unattributed = [...inbound.entries()].filter(([, row]) => !row.authorChannelIdentityId).map(([id]) => id)
-    const attributed = unattributed.length ? await attributeInboundMessageAuthors(db, { tenantId, messageIds: unattributed }) : new Map()
-    for (const [id, identityId] of attributed) inbound.get(id).authorChannelIdentityId = identityId
+    attributedAuthors = unattributed.length
+      ? await attributeInboundMessageAuthors(db, { tenantId, messageIds: unattributed, dryRun })
+      : new Map()
+    for (const [id, identityId] of attributedAuthors) inbound.get(id).authorChannelIdentityId = identityId
   }
   const identityIds = [...new Set([...inbound.values()].map((row) => row.authorChannelIdentityId).filter(Boolean))]
   const identities = identityIds.length
@@ -555,6 +608,16 @@ export async function resolveArchiveKeyAttribution(db, { tenantId, messages, att
     }
     keys.set(message.id, { keyCustomerId: speaker ?? message.conversation.customerId, speakerCustomerId: speaker ?? null })
   }
+  return { keys, attributedAuthors }
+}
+
+/**
+ * Preserve the public key-to-customer map while the detailed helper also
+ * exposes dry-run author overrides.
+ * @returns {Promise<Map<string, {keyCustomerId: string, speakerCustomerId: string|null}>>}
+ */
+export async function resolveArchiveKeyAttribution(db, input) {
+  const { keys } = await resolveArchiveKeyAttributionDetailed(db, input)
   return keys
 }
 
@@ -567,21 +630,36 @@ export async function resolveArchiveKeyAttribution(db, { tenantId, messages, att
  * never heard speak is not known to be one. Erased Customers are included; a
  * caller that needs live ones filters on `deletedAt` itself.
  *
+ * @param {object} db Prisma client
+ * @param {{tenantId: string, conversationIds: string[], authorOverrides?: Map<string, string>}} input
  * @returns {Promise<Map<string, Map<string, Date|null>>>} conversation id → (Customer id → first-spoke time, null for the owner)
  */
-export async function findThreadCustomerMembers(db, { tenantId, conversationIds }) {
+export async function findThreadCustomerMembers(db, { tenantId, conversationIds, authorOverrides }) {
   const members = new Map()
   const ids = [...new Set((conversationIds ?? []).filter(Boolean))]
   if (!tenantId || ids.length === 0) return members
   const conversations = await db.conversation.findMany({ where: { tenantId, id: { in: ids } }, select: { id: true, customerId: true } })
   for (const conversation of conversations) members.set(conversation.id, new Map(conversation.customerId ? [[conversation.customerId, null]] : []))
   if (conversations.length === 0) return members
+  const overrideIds = authorOverrides instanceof Map ? [...authorOverrides.keys()].filter(Boolean) : []
+  const hasAuthorOverrides = overrideIds.length > 0
   const authored = await db.message.findMany({
-    where: { conversationId: { in: conversations.map((c) => c.id) }, direction: 'INBOUND', authorChannelIdentityId: { not: null } },
-    select: { conversationId: true, authorChannelIdentityId: true, createdAt: true },
+    where: {
+      conversationId: { in: conversations.map((c) => c.id) },
+      direction: 'INBOUND',
+      ...(hasAuthorOverrides
+        ? { OR: [{ authorChannelIdentityId: { not: null } }, { id: { in: overrideIds } }] }
+        : { authorChannelIdentityId: { not: null } }),
+    },
+    select: hasAuthorOverrides
+      ? { id: true, conversationId: true, authorChannelIdentityId: true, createdAt: true }
+      : { conversationId: true, authorChannelIdentityId: true, createdAt: true },
     orderBy: { createdAt: 'asc' },
   })
-  const identityIds = [...new Set(authored.map((row) => row.authorChannelIdentityId))]
+  const identityIdForRow = (row) => hasAuthorOverrides && authorOverrides.has(row.id)
+    ? authorOverrides.get(row.id)
+    : row.authorChannelIdentityId
+  const identityIds = [...new Set(authored.map(identityIdForRow).filter(Boolean))]
   const identities = identityIds.length
     ? await db.channelIdentity.findMany({ where: { tenantId, id: { in: identityIds } }, select: { id: true, personId: true } })
     : []
@@ -592,7 +670,7 @@ export async function findThreadCustomerMembers(db, { tenantId, conversationIds 
   const customerByPerson = new Map(customers.map((row) => [row.personId, row.id]))
   const customerByIdentity = new Map(identities.map((row) => [row.id, customerByPerson.get(row.personId) ?? null]))
   for (const row of authored) {
-    const customerId = customerByIdentity.get(row.authorChannelIdentityId)
+    const customerId = customerByIdentity.get(identityIdForRow(row))
     const thread = members.get(row.conversationId)
     if (customerId && thread && !thread.has(customerId)) thread.set(customerId, row.createdAt)
   }
@@ -674,7 +752,7 @@ export function buildArchiveLine(message, { tenantId, replySource }) {
  */
 export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, segments, extension = '.zca' }) {
   if (extension !== '.zca' && extension !== '.zcr') throw new ChatEvidenceArchiveWriteError('ARCHIVE_FILE_EXTENSION_INVALID')
-  const dir = path.join(baseDir, tenantId, String(now.getUTCFullYear()))
+  const dir = archiveTenantYearDirectory({ baseDir, tenantId, now })
   if (!isPathInside(path.resolve(baseDir), path.resolve(dir))) throw new ChatEvidenceArchiveWriteError('ARCHIVE_PATH_ESCAPES_ROOT')
   try {
     await fs.mkdir(dir, { recursive: true })
@@ -744,6 +822,14 @@ export async function writeArchiveFile({ baseDir, tenantId, runId, now, header, 
   }
 }
 
+/** The shared, read-only decision used by both live settlement and dry-run preview. */
+export function decideOrphanedLineSettlement({ message, members, consentingCustomerIds, speakerCustomerId }) {
+  const keeper = !speakerCustomerId && [...consentingCustomerIds].some((customerId) => isMemberForLine(members, {
+    conversationId: message.conversation.id, customerId, createdAt: message.createdAt,
+  }))
+  return keeper ? 'DEFERRED' : 'BLANKED'
+}
+
 /**
  * @req FR-022 — past-retention lines whose key Customer is erased and keyless
  * (ADR-093 1.2.0, revised after the #610 review). Decided and applied in ONE
@@ -782,15 +868,50 @@ async function settleOrphanedLines(db, { tenantId, orphaned, attribution }) {
     const blankIds = []
     let deferredMessages = 0
     for (const message of orphaned) {
-      const keeper = !attribution.get(message.id).speakerCustomerId && [...consenting].some((customerId) => isMemberForLine(members, {
-        conversationId: message.conversation.id, customerId, createdAt: message.createdAt,
-      }))
-      if (keeper) deferredMessages += 1
+      const decision = decideOrphanedLineSettlement({
+        message, members, consentingCustomerIds: consenting,
+        speakerCustomerId: attribution.get(message.id).speakerCustomerId,
+      })
+      if (decision === 'DEFERRED') deferredMessages += 1
       else blankIds.push(message.id)
     }
     const blankedMessages = blankIds.length ? await blankWithoutArchive(tx, blankIds) : 0
     return { deferredMessages, blankedMessages }
   })
+}
+
+/**
+ * Read-only counterpart to settleOrphanedLines; no transaction or customer lock is taken.
+ * @param {object} db Prisma client
+ * @param {{tenantId: string, orphaned: object[], attribution: Map<string, {keyCustomerId: string, speakerCustomerId: string|null}>, authorOverrides?: Map<string, string>}} input
+ * @returns {Promise<{deferredMessages: number, blankedMessages: number}>}
+ */
+export async function previewOrphanedLines(db, { tenantId, orphaned, attribution, authorOverrides }) {
+  if (orphaned.length === 0) return { deferredMessages: 0, blankedMessages: 0 }
+  const members = await findThreadCustomerMembers(db, {
+    tenantId, conversationIds: orphaned.map((message) => message.conversation.id), authorOverrides,
+  })
+  const memberIds = [...new Set([...members.values()].flatMap((thread) => [...thread.keys()]))].sort()
+  const liveCustomers = memberIds.length
+    ? await db.customer.findMany({
+      where: { tenantId, id: { in: memberIds }, deletedAt: null },
+      select: { id: true },
+    })
+    : []
+  const consenting = await customersWithActiveRetentionConsent(db, {
+    tenantId, customerIds: liveCustomers.map((customer) => customer.id),
+  })
+  let deferredMessages = 0
+  let blankedMessages = 0
+  for (const message of orphaned) {
+    const decision = decideOrphanedLineSettlement({
+      message, members, consentingCustomerIds: consenting,
+      speakerCustomerId: attribution.get(message.id).speakerCustomerId,
+    })
+    if (decision === 'DEFERRED') deferredMessages += 1
+    else blankedMessages += 1
+  }
+  return { deferredMessages, blankedMessages }
 }
 
 /**
@@ -823,24 +944,28 @@ async function blankWithoutArchive(tx, messageIds) {
  * @param {object} db - a Prisma client (or transaction proxy) whose
  *   `$transaction` method this function calls directly.
  * @param {{tenantId: string, candidates: object[], now: Date, env?: object,
- *   baseDir?: string, runId?: string}} input - `candidates` are `Message` rows
+ *   baseDir?: string, runId?: string, dryRun?: boolean}} input - `candidates` are `Message` rows
  *   selected with `conversation: { id, customerId, businessId }` and
  *   `attachments` included, exactly the shape `retention-sweep-service.js`'s
  *   candidate query produces. `runId` defaults to a fresh random id per call
  *   (production never passes one); accepting an override exists so a test can
  *   deterministically exercise the "never overwrite an existing file" guard.
+ * @returns {Promise<{archived: boolean, dryRun?: boolean, manifest: object|null, redactedMessages: number, redactedAttachments: number, deferredMessages?: number, blankedMessages?: number, settleFailed?: boolean, settleFailureReason?: string, messageIds?: string[]}>}
  */
-export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env = process.env, baseDir, runId: runIdOverride }) {
+export async function archiveAndTombstoneTenantMessages(db, {
+  tenantId, candidates, now, env = process.env, baseDir, runId: runIdOverride, dryRun = false,
+}) {
   if (!candidates || candidates.length === 0) {
-    return { archived: false, manifest: null, redactedMessages: 0, redactedAttachments: 0 }
+    return { archived: false, ...(dryRun ? { dryRun: true } : {}), manifest: null, redactedMessages: 0, redactedAttachments: 0 }
   }
   const resolvedBaseDir = baseDir ?? resolveArchiveBaseDir(env)
   await assertArchiveStorageReady(resolvedBaseDir, env)
-  const runId = runIdOverride ?? buildRunId(now)
-  const conversationIds = [...new Set(candidates.map((message) => message.conversation.id))]
-  const replySourceByMessageId = await resolveReplySources(db, conversationIds)
+  const runId = dryRun ? null : runIdOverride ?? buildRunId(now)
+  const replySourceByMessageId = dryRun ? new Map() : await resolveReplySources(db, [...new Set(candidates.map((message) => message.conversation.id))])
   // @req FR-022 — one segment per SPEAKER's Customer, not per thread owner (v2).
-  const attribution = await resolveArchiveKeyAttribution(db, { tenantId, messages: candidates, attribute: true })
+  const { keys: attribution, attributedAuthors } = await resolveArchiveKeyAttributionDetailed(db, {
+    tenantId, messages: candidates, attribute: true, dryRun,
+  })
   const keyCustomerByMessageId = new Map([...attribution].map(([id, row]) => [id, row.keyCustomerId]))
 
   // @req FR-022, SEC-034 — a line whose key Customer is erased and has no key is
@@ -867,9 +992,30 @@ export async function archiveAndTombstoneTenantMessages(db, { tenantId, candidat
   // failure: it must not hide (or be mistaken for) an archive that committed.
   const settle = async () => {
     try {
-      return await settleOrphanedLines(db, { tenantId, orphaned, attribution })
+      return await (dryRun ? previewOrphanedLines(db, { tenantId, orphaned, attribution, authorOverrides: attributedAuthors })
+        : settleOrphanedLines(db, { tenantId, orphaned, attribution }))
     } catch (error) {
       return { deferredMessages: 0, blankedMessages: 0, settleFailed: true, settleFailureReason: error?.code || error?.message || 'SETTLE_FAILED' }
+    }
+  }
+  if (dryRun) {
+    if (sealable.length > 0) {
+      await assertArchiveStorageWritable([archiveTenantYearDirectory({ baseDir: resolvedBaseDir, tenantId, now })])
+      resolveArchiveKeyring(env)
+      if (!(await verifyManifestChain(db, tenantId)).valid) {
+        throw new ChatEvidenceArchiveTransactionError('ARCHIVE_CHAIN_INVALID')
+      }
+    }
+    const settled = await settle()
+    const redactedAttachments = sealable.reduce((total, message) => total
+      + (message.attachments ?? []).filter((attachment) => attachment.fetchState !== 'ERASED').length, 0)
+    return {
+      archived: false,
+      dryRun: true,
+      manifest: null,
+      redactedMessages: sealable.length,
+      redactedAttachments,
+      ...settled,
     }
   }
   if (sealable.length === 0) {

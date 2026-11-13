@@ -17,12 +17,21 @@ import { POST } from '@/app/api/crm/archive-expiry/route'
 
 const token = 'e'.repeat(40)
 const fixedNow = new Date('2036-05-04T12:30:00.000Z')
-const request = (authorization) => new Request('http://local/api/crm/archive-expiry', {
+const DAY_MS = 24 * 60 * 60 * 1000
+const request = (authorization, query = '') => new Request(`http://local/api/crm/archive-expiry${query}`, {
   method: 'POST', headers: authorization ? { authorization } : {},
 })
 const day = (date = new Date()) => date.toISOString().slice(0, 10)
 const claimId = (date = new Date()) => `archive-expiry-claim:${day(date)}`
 const completedId = (date = new Date()) => `archive-expiry-test-completed:${day(date)}`
+const auditEventWhereForDay = (date = fixedNow) => {
+  const start = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+  return {
+    entityType: 'ARCHIVE_EXPIRY_RUN',
+    occurredAt: { gte: start, lt: new Date(start.getTime() + DAY_MS) },
+  }
+}
+const countRunAuditsForDay = (date = fixedNow) => prisma.auditEvent.count({ where: auditEventWhereForDay(date) })
 const counts = {
   tenantsVisited: 3,
   tenantsDeferred: 0,
@@ -88,6 +97,91 @@ describe('deployment-authenticated CRM archive expiry route', () => {
     expect(mocks.assertReady).not.toHaveBeenCalled()
     expect(mocks.run).not.toHaveBeenCalled()
     expect(await prisma.auditEvent.findUnique({ where: { id: claimId(fixedNow) } })).toBeNull()
+  })
+
+  it('rejects invalid dry_run queries after bearer authentication and before work', async () => {
+    for (const query of ['?dry_run=1', '?dry_run=TRUE', '?dry_run=', '?dry_run=true&dry_run=false', '?unknown=true']) {
+      const response = await POST(request(`Bearer ${token}`, query))
+      expect(response.status).toBe(400)
+      expect(await response.json()).toEqual({ error: 'RETENTION_SWEEP_REQUEST_INVALID' })
+    }
+    const unauthorized = await POST(request(undefined, '?unknown=true'))
+    expect(unauthorized.status).toBe(401)
+    expect(mocks.run).not.toHaveBeenCalled()
+    expect(mocks.assertReady).not.toHaveBeenCalled()
+  })
+
+  it('dry-runs past existing claim and completion rows and leaves them unchanged', async () => {
+    await seedAudit({ id: claimId(fixedNow), action: 'ARCHIVE_EXPIRY_RUN_CLAIMED', occurredAt: fixedNow })
+    await seedAudit({ id: completedId(fixedNow), action: 'ARCHIVE_EXPIRY_RUN_COMPLETED', occurredAt: fixedNow, payload: { counts } })
+    const auditCountBefore = await countRunAuditsForDay()
+    const existingRowsBefore = await prisma.auditEvent.findMany({
+      where: { ...auditEventWhereForDay(), id: { in: [claimId(fixedNow), completedId(fixedNow)] } },
+      orderBy: { id: 'asc' },
+    })
+    const dryTenants = [{ tenantId: 'tenant-1', keysDestroyed: 1, holdKeysDestroyed: 0,
+      manifestsRetired: 1, filesDeleted: 1, retiredFilesAlreadyAbsent: 0,
+      retiredFilesStillPresent: 0, skippedReason: null, failureCode: null }]
+    mocks.run.mockResolvedValueOnce({ dryRun: true, counts, tenants: dryTenants })
+
+    const response = await POST(request(`Bearer ${token}`, '?dry_run=true'))
+
+    expect(response.status).toBe(200)
+    expect(await response.json()).toEqual({ dryRun: true, counts, tenants: dryTenants })
+    expect(mocks.run).toHaveBeenCalledTimes(1)
+    expect(mocks.run.mock.calls[0][1]).toMatchObject({ dryRun: true, now: expect.any(Date) })
+    expect(await countRunAuditsForDay()).toBe(auditCountBefore)
+    expect(await prisma.auditEvent.findMany({
+      where: { ...auditEventWhereForDay(), id: { in: [claimId(fixedNow), completedId(fixedNow)] } },
+      orderBy: { id: 'asc' },
+    })).toEqual(existingRowsBefore)
+  })
+
+  it('accepts dry_run=false and follows the real claim path', async () => {
+    const response = await POST(request(`Bearer ${token}`, '?dry_run=false'))
+    expect(response.status).toBe(200)
+    expect(mocks.run).toHaveBeenCalledTimes(1)
+    expect(mocks.run.mock.calls[0][1]).not.toHaveProperty('dryRun')
+    expect(await prisma.auditEvent.findUnique({ where: { id: claimId(fixedNow) } })).toMatchObject({
+      action: 'ARCHIVE_EXPIRY_RUN_CLAIMED',
+    })
+  })
+
+  it('runs the production storage precheck for a dry run before invoking the read-only service', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    const auditCountBefore = await countRunAuditsForDay()
+    expect(auditCountBefore).toBe(0)
+    mocks.run.mockResolvedValueOnce({ dryRun: true, counts, tenants: [] })
+
+    const response = await POST(request(`Bearer ${token}`, '?dry_run=true'))
+
+    expect(response.status).toBe(200)
+    expect(mocks.resolveDir).toHaveBeenCalledWith(process.env)
+    expect(mocks.assertReady).toHaveBeenCalledWith('/tmp/archive-expiry-route-test', process.env)
+    expect(mocks.run.mock.calls[0][1]).toMatchObject({
+      dryRun: true, baseDir: '/tmp/archive-expiry-route-test', storagePrechecked: true,
+    })
+    expect(await countRunAuditsForDay()).toBe(auditCountBefore)
+    expect(await prisma.auditEvent.count({
+      where: { ...auditEventWhereForDay(), id: { in: [claimId(fixedNow), completedId(fixedNow)] } },
+    })).toBe(0)
+  })
+
+  it('returns unavailable when dry-run storage preflight fails without creating a claim or audit', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    mocks.assertReady.mockRejectedValue(Object.assign(new Error('private storage detail'), { code: 'ARCHIVE_STORAGE_REQUIRED' }))
+    const auditCountBefore = await countRunAuditsForDay()
+    expect(auditCountBefore).toBe(0)
+
+    const response = await POST(request(`Bearer ${token}`, '?dry_run=true'))
+
+    expect(response.status).toBe(503)
+    expect(await response.json()).toEqual({ error: 'ARCHIVE_EXPIRY_UNAVAILABLE' })
+    expect(mocks.run).not.toHaveBeenCalled()
+    expect(await countRunAuditsForDay()).toBe(auditCountBefore)
+    expect(await prisma.auditEvent.count({
+      where: { ...auditEventWhereForDay(), id: claimId(fixedNow) },
+    })).toBe(0)
   })
 
   it('claims the UTC day once and returns only aggregate counts', async () => {

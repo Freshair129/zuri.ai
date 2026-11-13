@@ -1,7 +1,7 @@
 ---
 version: "0.17.0b"
 status: active
-last_update: "2026-11-13T00:00:00+07:00,Codex"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -235,13 +235,15 @@ turn flows through before any agent work happens.
   `raw-line-retention-sweep-service.js` and Agent's
   `trace-retention-sweep-service.js` sweep their own models with distinct audit
   identities and are invoked by the shared worker after CRM. CRM does not write
-  either model; MSP session content remains in a separate repository. CRM and
-  archive expiry have no dry-run path; the worker reports `NO_DRY_RUN` for both.
-  Before the first scheduled run, an operator must run
-  `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
-  container and compare the Integration/Agent counts; because the worker skips
-  CRM and archive expiry, this does not preview CRM's backlog, whose first actual
-  run redacts its full eligible backlog irreversibly.
+  either model; MSP session content remains in a separate repository. All four
+  retention routes now support strict count-only `dry_run=true|false`; the
+  worker's `--dry-run` calls each route. Before enabling a scheduled run, an
+  operator must run `node scripts/server-retention-sweep-worker.mjs --dry-run`
+  inside the `web` container and compare the per-Tenant counts. The first real
+  CRM sweep tombstones every eligible CRM message past the Tenant's effective
+  window (24 months by default, shorter with an override) that is not skipped by
+  the non-terminal-job, tombstone, archive-failure or deferral rules; archive expiry
+  irreversibly destroys expired archive keys and deletes expired archive files.
 - `getConversationInbox` (extended, FR-233) — each row now carries
   `lastMessageAt`, `lastMessagePreview`, `retentionClass` (denormalised columns
   kept current by `conversation-preview-service.js` on every Message write —
@@ -496,6 +498,7 @@ See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[Z
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.18.0b | 2026-11-13 | FR-230 / FR-245 / SEC-034: count-only dry runs now cover CRM message retention and archive expiry; the shared worker previews all four retention routes | Codex |
 | 0.17.0b | 2026-11-13 | FR-245: serialize all three per-Tenant chain appenders with a Tenant row lock and unique tail; add the atomic daily expiry claim, nine-minute Tenant-start deadline and deferred count; document crash-resumable retirement and already-absent retired files | Codex |
 | 0.16.0b | 2026-11-13 | FR-230: shared resolver rejects unsafe override floors at read time, snapshot restore validates retention windows, and Integration/Agent expose a count-only dry run; CRM and archive expiry remain skipped by worker dry-run | Codex |
 | 0.15.0b | 2026-11-13 | FR-245 / SEC-034 / ADR-093 D5 1.3.0: expiry now appends format-4 retirement files and manifest rows before deleting expired files; retrieval and hold re-seal skip retired rows; `POST /api/crm/archive-expiry` and its serialized daily worker trigger are wired. Production mount qualification remains separate | Codex |

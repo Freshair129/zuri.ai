@@ -1,3 +1,6 @@
+// @req FR-155, FR-165 — stock-lot expiry uses a versioned compare-and-swap inside the caller's unit of work.
+// @spec ADR-074 D3 — lot facts remain owned by Inventory and are auditable.
+// @tested test/component/goods-receipt.test.js
 import { randomUUID } from 'node:crypto'
 import { INT32_MAX } from '../../../kernel/inventory/inventory-stocktake.js'
 
@@ -75,8 +78,8 @@ export function maintainLot(sql, lotId, maintainedAt, now) {
   return lotById(sql, lotId)
 }
 
-export function setLotExpiryIfUnset(sql, lotId, expiresAt, now) {
-  return Number(sql.run('UPDATE ProductLot SET expiresAt = ?, updatedAt = ?, version = version + 1 WHERE id = ? AND expiresAt IS NULL', expiresAt, now, lotId).changes)
+export function setLotExpiryIfUnset(sql, lotId, expiresAt, expectedVersion, now) {
+  return Number(sql.run('UPDATE ProductLot SET expiresAt = ?, updatedAt = ?, version = version + 1 WHERE id = ? AND version = ? AND expiresAt IS NULL', expiresAt, now, lotId, expectedVersion).changes)
 }
 
 export const serialByNo = (sql, productId, serialNo) => sql.get(`SELECT ${SERIAL_COLUMNS} FROM SerialUnit WHERE productId = ? AND serialNo = ?`, productId, serialNo) ?? null

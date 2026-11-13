@@ -1,10 +1,10 @@
 ---
 id: ZAI:IDENTIFIER-AND-CODE-SYSTEM
 title: Identifier and code system
-version: "0.1.0"
+version: "0.1.1"
 status: candidate
 created_at: "2026-11-12"
-last_update: "2026-11-12"
+last_update: "2026-11-13"
 author: Claude Fable 5.2 (as-built description from a static review at 49b10eb3)
 superseded_by: null
 source_of_truth: false
@@ -64,7 +64,7 @@ says "all" and the schema says otherwise:
 |---|---|---|---|
 | `ProjectGoal` | Composite `(projectId, goalId)` | A join row | Yes — both parts are internal ids |
 | `MarketingReportPolicy` | `businessId` | One policy row per Business | Yes — an internal id used as a shared key |
-| `PlanImportReceipt` | `idempotencyKey` | The replay key is the identity of a receipt | Caller-supplied key. `docs/appendices/B-db-schema.md` and the ERD describe it; nothing records it as an approved exception to BR-002 |
+| `PlanImportReceipt` | `idempotencyKey` | The replay key is the identity of a receipt | Caller-supplied for full plans at schemaVersion 1.2 and deltas; derived as `zai-legacy-plan:v1:<sha256>` for full plans at 1.0/1.1. `docs/appendices/B-db-schema.md` and the ERD describe it; this is still not recorded as an approved exception to BR-002 |
 | `NotionWebhookReceipt` | `eventId` | Duplicate deliveries collapse on insert | **No.** The key is Notion's event id |
 | `KnowledgeRawArtifact`, `KnowledgeParsedArtifact`, `GenesisRag17IngestionIntent`, `GenesisRag17SourceMention`, `GenesisRag17EvidenceCursor`, `GenesisRag17Batch`, `GenesisRag17StageEvidence`, `GenesisRag17PublicationReceipt` | Deterministic `<prefix>_<hex of a hash>` (`kra_`, `kpa_`, `gii_`, `gsm_`, `grb_`; `gre_` for stage evidence; `gpr_` for the publication receipt; `gcur_` for the evidence cursor), built in `apps/server/src/platform/integrations/core/` by `genesisrag17-executor.js`, `genesisrag17-importer.js` and `genesisrag17-publication.js` | Each id is a function of its own input tuple, so the same tuple lands on the same row. Several evidence ids include the run or attempt, so a new attempt makes a new row | Internal, but not random. Not recorded as an approved exception |
 | `KnowledgeChunk` | `documentId#ordinal` (`apps/server/src/modules/knowledge/chunking.js`) | A chunk is addressed by its position | Internal, derived |
@@ -162,13 +162,67 @@ Two consequences worth knowing before adding a model:
 ### 3.6 Concurrency
 
 The name-derived and day-sequence generators read, decide, then insert. Two
-creators in separate transactions can pick the same free code; the unique index
-refuses the second insert, and most callers do not retry. One that does:
-`ingestLineMessage` (`apps/server/src/modules/crm/line-ingest-service.js`)
-retries its whole transaction on a unique or serialization conflict. The `uniqueHumanCode` fallback comment says a
-UUID fragment "guarantees uniqueness" — eight hex characters make a collision
-unlikely, not impossible. Until allocation is atomic or retried, a duplicate-code
-failure under concurrent creates is expected behaviour, not corruption.
+creators in separate transactions can pick the same free code, so generated-code
+creates use `retryOnCodeConflict` in `apps/server/src/lib/ids.js`. It makes at
+most five attempts by default and reruns the whole allocation read and insert on
+each attempt. It retries only Prisma `P2002` errors whose target names the
+`code` or `assetCode` column (`/(^|_)(asset)?code(_|$)/i`); a missing target is
+not identifiable as a code conflict and surfaces unchanged. Every retry
+re-reads the sequence or existing-code set, so it does not reuse a conflicting
+persisted code. Other errors and unique violations on other columns are rethrown
+unchanged. Service wrappers turn exhaustion into their 409
+`<ENTITY>_CODE_EXHAUSTED` error.
+
+The retry boundary is the whole read-and-insert unit, including its
+`$transaction`. After a unique violation a PostgreSQL transaction is unusable,
+so retrying only the insert, or carrying on inside the same transaction, cannot
+work. A service that is handed a caller-owned transaction client instead of a
+client with `$transaction` cannot retry inside it; it runs the unit once and the
+transaction owner must rerun the whole unit. `insertPortfolio` and
+`business-provisioning-service` are such helpers: the Business-creation
+transaction that calls them carries the retry.
+
+The Agent action gate is also a transaction owner: both its approved and direct
+paths retry the entire `$transaction` on code conflicts. This includes approval
+and step-up consumption, `action.execute`, and the `EXECUTED` audit, so the
+failed attempt rolls all of them back before the next attempt. The registered
+agent and SmartGift executors write through the supplied `tx`; review found no
+external HTTP, file write, or out-of-transaction outbox effect in those action
+implementations. Exhaustion returns `ACTION_CODE_EXHAUSTED` with status 409; the
+approved path records one `DENIED` audit after its transaction has rolled back.
+
+Covered day-sequence creates are purchase orders (`PO`), goods receipts
+(`GRN`), sales orders (`ORD`), payments (`PAY`), sales tasks (`TSK`),
+customization work orders (`CWO`), kitting work orders (`KWO`) and stock
+reservations (`RSV`); the POS cashier service has its own `ORD` and `PAY`
+allocators and is wrapped the same way. Asset registration retries generated `assetCode` values. Of the
+`uniqueHumanCode` creates, `retryOnCodeConflict` covers Portfolio, Tenant,
+LegalEntity, Business, Branch, Workspace, Project, Workstream, WorkContainer,
+WorkItem, Team, Repository, Milestone, Gate, ProjectFile, FileAsset,
+BusinessRoadmap, BusinessGoal, BusinessKeyResult, the Person records created by
+signup, operator bootstrap and first LINE contact, and the onboarding Portfolio.
+Codes that are not allocated by reading state (hash-, id- or idempotency-derived
+`CIT`, `SCS`, `AIT`, `PCAT`, `MKT-CAM`, `MKT-CRE` and `BRD` codes, the
+random-suffix `S-` session code, and the in-memory `usedCodes` set of a plan
+envelope) have no check-then-insert step and are not wrapped.
+
+A caller-supplied code is not an allocation. Its duplicate error is rethrown
+unchanged, as it was before. In `createBusiness` and `createBusinessInGroup`
+the Tenant and Workspace codes are still generated when the Business code is
+explicit, so those creates retry; a conflict raised by `Business.create` on the
+explicit code keeps the original Prisma error. `ingestLineMessage`
+(`apps/server/src/modules/crm/line-ingest-service.js`) keeps its own whole-
+transaction retry on a unique or serialization conflict, and
+`resolveLineIdentity` still recovers a concurrent identity link after a
+rollback by reading the winner's row.
+
+The old comment on `uniqueHumanCode` said a UUID fragment "guarantees
+uniqueness"; eight hex characters make a collision unlikely, not impossible, and
+the comment now says so. The unique index plus `retryOnCodeConflict` is the
+guarantee. SQLite stale-read injection tests verify reallocation against the
+real unique indexes. SQLite serializes writers, so a real `Promise.all`
+allocation race is only reproducible on PostgreSQL and is not covered by an
+automated test here.
 
 ## 4. External identifiers
 
@@ -254,7 +308,7 @@ not enforce that pair on every table — the owning service does.
 |---|---|---|
 | 1 | `NotionWebhookReceipt.eventId` is a provider id used as a primary key | Code; contradicts BR-002 |
 | 2 | Deterministic and derived primary keys (§2) are not recorded as approved exceptions anywhere else | Owner decision |
-| 3 | Code allocation is check-then-insert, and most callers do not retry on a conflict (§3.6) | Code |
+| 3 | Code allocation is check-then-insert, and most callers do not retry on a conflict (§3.6); **Closed in code on 2026-11-13, see §3.6** | Code |
 | 4 | No rule says when a code is installation-wide and when it is Tenant-scoped (§3.5) | Owner decision |
 | 5 | No rule says which external namespaces may live in installation-wide `ExternalRef` (§4) | Owner decision |
 | 6 | The thread-id grammar in ADR-044 is ambiguous (§7) | Document |
@@ -273,6 +327,12 @@ not enforce that pair on every table — the owning service does.
 5. Ship the Supabase migration with the model (CLAUDE.md, schema-migration-drift).
 
 ## Version diff
+
+0.1.0 → 0.1.1 (2026-11-13): records bounded retries for generated human-code
+conflicts, the Agent action-gate transaction retry, the explicit-code exception,
+the owning-transaction boundary, targetless-P2002 behavior and the
+SQLite/PostgreSQL verification limits. Closes known gap 3 in code; no new code
+format or BR-002 exception is introduced.
 
 0.0 → 0.1.0 (2026-11-12): first consolidated description of primary keys, code
 generation and scope, external mappings and URL identity, with the exceptions

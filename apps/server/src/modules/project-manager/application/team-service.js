@@ -1,6 +1,6 @@
 import prisma from '@/lib/db'
 import { z } from 'zod'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { ownsBusiness, seesBusiness } from '@/modules/identity/viewer-authority'
 import { requireViewer, assertProjectWritable } from './project-authorization'
 import { recordAudit } from './audit'
@@ -164,23 +164,31 @@ export async function createTeam(input, { db = prisma, viewer } = {}) {
   // is not this endpoint's job.
   if (!ownsBusiness(viewer, data.businessId)) throw refusal(404, BUSINESS_NOT_FOUND)
 
-  const codeExists = async (code) => Boolean(await db.team.findUnique({ where: { code } }))
-  const code = data.code || (await uniqueHumanCode('TEAM', data.name, codeExists))
-  const team = await db.team.create({
-    data: {
-      code,
-      businessId: data.businessId,
-      name: data.name,
-      description: data.description ?? null,
-    },
-  })
-  await recordAudit(db, {
-    entityType: 'TEAM',
-    entityId: team.id,
-    action: 'CREATED',
-    payload: { code, businessId: data.businessId, name: data.name },
-  })
-  return team
+  const create = async () => {
+    const codeExists = async (code) => Boolean(await db.team.findUnique({ where: { code } }))
+    const code = data.code || (await uniqueHumanCode('TEAM', data.name, codeExists))
+    const team = await db.team.create({
+      data: {
+        code,
+        businessId: data.businessId,
+        name: data.name,
+        description: data.description ?? null,
+      },
+    })
+    await recordAudit(db, {
+      entityType: 'TEAM',
+      entityId: team.id,
+      action: 'CREATED',
+      payload: { code, businessId: data.businessId, name: data.name },
+    })
+    return team
+  }
+  if (data.code) return create()
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return create()
+  }
+  return retryOnCodeConflict(create, { exhausted: () => refusal(409, 'TEAM_CODE_EXHAUSTED') })
 }
 
 /**

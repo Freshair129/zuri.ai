@@ -116,6 +116,28 @@ describe('Project Manager MCP transport', () => {
     expect(dryRunPlan).toHaveBeenCalledWith(plan, { workspaceId: 'workspace-mcp-test', viewer })
   })
 
+  it('rejects reserved legacy receipt keys before either intake service executes', async () => {
+    const { transport, dryRunPlan, commitPlan } = makeTransport()
+    const sessionId = await initialized(transport)
+    const reservedPlan = {
+      ...plan,
+      schemaVersion: '1.2',
+      trace: { correlationId: 'correlation-mcp-reserved', idempotencyKey: `zai-legacy-plan:v1:${'a'.repeat(64)}` },
+    }
+
+    for (const name of ['project_manager.plan_dry_run', 'project_manager.plan_commit']) {
+      const response = await transport.handle({
+        jsonrpc: '2.0', id: name.endsWith('dry_run') ? 20 : 21, method: 'tools/call',
+        params: { name, arguments: { plan: reservedPlan } },
+      }, { viewer, sessionId })
+      expect(response.body.error.code).toBe(-32602)
+      expect(response.body.error.message).toContain('trace.idempotencyKey uses the reserved prefix zai-legacy-plan:')
+    }
+
+    expect(dryRunPlan).not.toHaveBeenCalled()
+    expect(commitPlan).not.toHaveBeenCalled()
+  })
+
   it('reads scoped work through the authenticated viewer boundary', async () => {
     const { transport, readWork } = makeTransport()
     const sessionId = await initialized(transport)

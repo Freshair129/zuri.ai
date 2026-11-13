@@ -1,3 +1,6 @@
+// @req FR-165, FR-175 — the SCM port refuses FX and landed-cost inputs until it persists the full receipt provenance.
+// @spec ADR-074 D3 — shared receipt inputs must not be silently ignored by this separate port.
+// @tested test/component/goods-receipt.test.js
 import { GOODS_RECEIPT_ENTITY, PURCHASE_ORDER_ENTITY, goodsReceiptCode, planReceipt, receiptReference, zPostReceipt } from '../kernel/procurement/procurement.js'
 import { amortiseSatang } from '../kernel/inventory/inventory-costing.js'
 import { recordAudit, enqueueOutbox } from '../infrastructure/evidence.js'
@@ -28,7 +31,10 @@ const isCounted = (orderLine, product) => Boolean(orderLine.productId) && produc
 
 export function postGoodsReceipt(sql, scope, orderId, input, { now, requestId, faults = {} }) {
   const data = zPostReceipt.parse(input)
+  // This port does not persist the confirmed FX sheet or landed-cost component trail yet.
+  if (data.landedCosts?.length || data.fxCostSheetId) throw failure(422, 'PROCUREMENT_RECEIPT_COST_INPUTS_NOT_SUPPORTED')
   const order = loadOrderInScope(sql, scope, orderId, 'receipt')
+  const currency = (order.currency ?? 'THB').trim().toUpperCase()
   const business = { id: order.businessId, tenantId: order.tenantId }
   if (order.status !== 'SENT') throw failure(409, 'PURCHASE_ORDER_NOT_RECEIVABLE')
   // FR-196 — the receiver may not be the order's author unless explicitly attested.
@@ -48,6 +54,7 @@ export function postGoodsReceipt(sql, scope, orderId, input, { now, requestId, f
   const stocked = data.lines.filter((line) => { const ol = byId.get(line.purchaseOrderLineId); return isCounted(ol, products.get(ol.productId)) })
   // Two-ladder rule (ADR-066 D4): a buyer's receipt permission never widens the ledger.
   if (stocked.length && !inventory.inventoryAuthority.mayManage(scope, business.id)) throw failure(403, 'PROCUREMENT_RECEIPT_REQUIRES_INVENTORY_AUTHORITY')
+  if (stocked.length && currency !== 'THB') throw failure(422, 'PROCUREMENT_RECEIPT_FX_RATE_REQUIRED', { currency })
 
   const code = nextGoodsReceiptCode(sql, business, new Date(now), goodsReceiptCode)
   const receivedAt = data.receivedAt ? data.receivedAt.toISOString() : now
@@ -69,7 +76,9 @@ export function postGoodsReceipt(sql, scope, orderId, input, { now, requestId, f
       ...(line.lotCode ? { lotCode: line.lotCode } : {}), ...(line.serialNos?.length ? { serialNos: line.serialNos } : {}),
       reason: 'GOODS_RECEIPT', reference, occurredAt: receivedAt, requestId,
     }, { now })
-    if (movement.lotId && line.expiresAt) inventory.setLotExpiryIfUnset(sql, scope, { businessId: business.id, lotId: movement.lotId, expiresAt: line.expiresAt.toISOString() }, { now })
+    if (movement.lotId && line.expiresAt) inventory.setLotExpiryIfUnset(sql, scope, {
+      businessId: business.id, lotId: movement.lotId, expiresAt: line.expiresAt.toISOString(),
+    }, { now, requestId })
     posted.push({ purchaseOrderLineId: orderLine.id, productId: orderLine.productId, code: products.get(orderLine.productId).code, quantity: line.qty, lotId: movement.lotId, onHandAfter: movement.onHandAfter, costSatang: movement.costSatang ?? costBasis ?? null, movementIds: movement.movements.map((m) => m.id) })
     if (index === 0) faults.afterFirstMovement?.()
   }

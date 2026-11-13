@@ -4,7 +4,7 @@ import { assertWorkItemRelease, getWorkItemReleaseStates } from './work-release-
 import { withPipelineTransaction, isPipelineTransaction, pipelineError } from './pipeline-transaction'
 import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { zWorkContainerInput, zWorkItemInput, zWorkItemUpdate } from '@/lib/validation/entities'
 import { recordAudit, safeParse } from './audit'
 import { activeWorkstream } from './active-filters'
@@ -37,8 +37,14 @@ export function hydrateContainer(container) {
 // ---- Containers ------------------------------------------------------------
 
 export async function createContainer(input, { viewer, db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createContainer(input, { viewer, db: tx }))
   const data = zWorkContainerInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createContainer(input, { viewer, db: tx }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => pipelineError('WORK_CONTAINER_CODE_EXHAUSTED', 409),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const ws = await db.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
   await assertWorkstreamWritable(viewer, data.workstreamId, { db })
@@ -90,8 +96,14 @@ export async function updateContainer(id, patch, { viewer, db = prisma } = {}) {
 // ---- Items -----------------------------------------------------------------
 
 export async function createItem(input, { viewer, db = prisma, expectedVersion } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createItem(input, { viewer, db: tx, expectedVersion }))
   const data = zWorkItemInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createItem(input, { viewer, db: tx, expectedVersion }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => pipelineError('WORK_ITEM_CODE_EXHAUSTED', 409),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const ws = await db.workstream.findUnique({ where: { id: data.workstreamId } })
   if (!ws || ws.deletedAt) throw new Error('Workstream not found')
   await assertWorkstreamWritable(viewer, data.workstreamId, { db })

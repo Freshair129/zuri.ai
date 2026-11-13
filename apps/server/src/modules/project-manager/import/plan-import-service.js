@@ -8,6 +8,7 @@ import { dryRunPlanDelta, commitPlanDelta, readPipelineEvidence, pipelineReadabl
 import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { normalizePlanEnvelope, zFullPlanEnvelope, validatePlanSemantics } from './plan-schema'
+import { LEGACY_PLAN_REPLAY_KEY_PREFIX } from './reserved-keys'
 import { resolveEntityIdentity, syncExternalRefs } from './external-ref'
 import { authorizeImportTarget } from './import-authorization'
 import { recordAudit } from '../application/audit'
@@ -76,6 +77,29 @@ function canonicalize(value) {
 
 function normalizedPayloadHash(plan) {
   return createHash('sha256').update(JSON.stringify(canonicalize(plan))).digest('hex')
+}
+
+// @req FR-069 — legacy full plans receive a stable receipt identity.
+// @spec ADR-102, BR-009, SDD-009 — replay stays in the shared import pipeline.
+// @tested tests/integration/plan-import-legacy-replay.test.js
+// Receives dryRunPlan's normalized value: its defaults are fixed, while trace
+// execution IDs and timestamps are created later and are not part of this hash.
+export function deriveLegacyPlanReplayIdentity({ plan, workspaceId, actor }) {
+  const replayPlan = { ...plan }
+  if (plan.trace && typeof plan.trace === 'object' && !Array.isArray(plan.trace)) {
+    replayPlan.trace = { ...plan.trace }
+    delete replayPlan.trace.correlationId
+    delete replayPlan.trace.idempotencyKey
+    if (Object.keys(replayPlan.trace).length === 0) delete replayPlan.trace
+  }
+
+  const payloadHash = createHash('sha256')
+    .update(JSON.stringify(canonicalize({ v: 1, workspaceId, actor, plan: replayPlan })))
+    .digest('hex')
+  return {
+    idempotencyKey: `${LEGACY_PLAN_REPLAY_KEY_PREFIX}v1:${payloadHash}`,
+    payloadHash,
+  }
 }
 
 function readAuditPayload(payloadJson) {
@@ -458,6 +482,8 @@ export async function commitPlan(rawPlan, {
   replayOfExecutionStepIds = null,
   traceStepKeys = PLAN_EXECUTION_STEP_KEYS,
   allocatedEntityIds = null,
+  legacyReplayKey = true,
+  _legacyReplayIdentityRef = null,
   onTransactionFailure = null,
   receiptOnly = false,
   requestBodyBytes = null,
@@ -465,15 +491,16 @@ export async function commitPlan(rawPlan, {
   if (rawPlan?.schemaVersion === '1.3') return commitPlanDelta(rawPlan, { workspaceId, viewer, db,requestBodyBytes })
   if (!isPipelineTransaction(db)) {
     let failure = null
+    const legacyReplayIdentityRef = _legacyReplayIdentityRef || { value: null }
     try { return await withPipelineTransaction(db, async (tx, settings) => {
       const target = await resolveAuthorizedTarget(rawPlan, { workspaceId, viewer, db:tx })
       if (target.error) return { committed:false,errors:[target.error],preview:null }
       const currentViewer = await resolvePipelineImportViewer(tx, target.workspace, viewer, { ...settings, write:true })
-      const result = await commitPlan(rawPlan, { workspaceId, viewer:currentViewer, db: pipelineTransactionFacade(tx), traceSourceKind, replayOfExecutionStepIds, traceStepKeys, allocatedEntityIds, receiptOnly, onTransactionFailure: (context, error) => { failure = { context, error } } })
+      const result = await commitPlan(rawPlan, { workspaceId, viewer:currentViewer, db: pipelineTransactionFacade(tx), traceSourceKind, replayOfExecutionStepIds, traceStepKeys, allocatedEntityIds, legacyReplayKey, _legacyReplayIdentityRef: legacyReplayIdentityRef, receiptOnly, onTransactionFailure: (context, error) => { failure = { context, error } } })
       if (!result.committed) throw Object.assign(new Error('IMPORT_REFUSED'), { pipelineResult: result })
       return result
     }) } catch (error) {
-      if(!receiptOnly && isPipelineReceiptConflict(error)) return commitPlan(rawPlan,{workspaceId,viewer,db,traceSourceKind,replayOfExecutionStepIds,traceStepKeys,allocatedEntityIds,receiptOnly:true})
+      if(!receiptOnly && isPipelineReceiptConflict(error)) return commitPlan(rawPlan,{workspaceId,viewer,db,traceSourceKind,replayOfExecutionStepIds,traceStepKeys,allocatedEntityIds,legacyReplayKey,_legacyReplayIdentityRef:legacyReplayIdentityRef,receiptOnly:true})
       // The common outer transaction has rolled back before legacy evidence is written.
       if (failure && db === prisma && db.projectExecutionRun) {
         try { await recordFailedExecutionTrace(db, failure.context, failure.error) } catch { /* keep original failure */ }
@@ -487,7 +514,16 @@ export async function commitPlan(rawPlan, {
     return { committed: false, errors: dry.errors, preview: dry.preview }
   }
   const { plan, workspace, resolution } = dry
-  const idempotencyKey = plan.schemaVersion === '1.2' ? plan.trace?.idempotencyKey : null
+  const shouldDeriveLegacyReplayKey = legacyReplayKey && ['1.0', '1.1'].includes(plan.schemaVersion)
+  const legacyReplayIdentity = shouldDeriveLegacyReplayKey
+    ? (_legacyReplayIdentityRef?.value || deriveLegacyPlanReplayIdentity({ plan, workspaceId: workspace.id, actor: pipelineReceiptActor(viewer) }))
+    : null
+  if (legacyReplayIdentity && _legacyReplayIdentityRef && !_legacyReplayIdentityRef.value) {
+    _legacyReplayIdentityRef.value = legacyReplayIdentity
+  }
+  const idempotencyKey = plan.schemaVersion === '1.2'
+    ? plan.trace?.idempotencyKey
+    : legacyReplayIdentity?.idempotencyKey ?? null
   const traceContext = createExecutionTraceContext({
     plan,
     workspace,
@@ -508,7 +544,7 @@ export async function commitPlan(rawPlan, {
   // Existing PlanImportReceipt consumers receive this compatibility label;
   // the PM trace row itself uses the stable `plan.commit` key.
   const receiptStepKey = 'plan.import.commit'
-  const payloadHash = idempotencyKey ? traceContext.requestHash : null
+  const payloadHash = legacyReplayIdentity?.payloadHash ?? (idempotencyKey ? traceContext.requestHash : null)
   const replayOfExecutionRunId = plan.trace?.replayOfExecutionRunId || null
   const replayOfExecutionStepId = plan.trace?.replayOfExecutionStepId || null
 

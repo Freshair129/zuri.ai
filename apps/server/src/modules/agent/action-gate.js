@@ -3,6 +3,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { resolveLinePrincipal } from '@/modules/identity/gate'
 import { authorizeScope, resolveAuthorizationContext } from '@/modules/identity/authorization-context'
 import { zExecuteAgentActionInput } from '@/lib/validation/entities'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { consumeStepUp } from './step-up'
 import { defaultWriteTools } from './write-tools'
 import { createAgentApprovalRequest, consumeAgentApprovalRequest, resolveActionTarget } from './approval-gateway'
@@ -154,7 +155,7 @@ export async function executeAgentAction(input, { registry } = {}) {
       }
     }
     try {
-      const result = await prisma.$transaction(async (tx) => {
+      const result = await retryOnCodeConflict(() => prisma.$transaction(async (tx) => {
         const approval = await consumeAgentApprovalRequest(tx, {
           requestId: approvalRequestId, tenantId, requesterPersonId: principal.personId,
           action, target, payload, principal,
@@ -184,6 +185,8 @@ export async function executeAgentAction(input, { registry } = {}) {
           },
         })
         return { out }
+      }), {
+        exhausted: () => agentActionError('ACTION_CODE_EXHAUSTED', 409),
       })
       if (result.pending) {
         return {
@@ -210,7 +213,7 @@ export async function executeAgentAction(input, { registry } = {}) {
       }
     } catch (error) {
       const reason = /^[A-Z][A-Z0-9_]+/.exec(error?.message || '')?.[0]
-      const safeReason = reason && (reason.startsWith('AGENT_') || reason.startsWith('STEP_UP_'))
+      const safeReason = reason && (reason.startsWith('AGENT_') || reason.startsWith('STEP_UP_') || reason === 'ACTION_CODE_EXHAUSTED')
         ? reason
         : 'AGENT_APPROVAL_EXECUTION_REFUSED'
       await recordAudit(prisma, {
@@ -222,7 +225,7 @@ export async function executeAgentAction(input, { registry } = {}) {
     }
   }
 
-  const result = await prisma.$transaction(async (tx) => {
+  const result = await retryOnCodeConflict(() => prisma.$transaction(async (tx) => {
     if (decision.requiresStepUp) {
       // Atomic with the write: a failed action rolls the step-up consumption back.
       await consumeStepUp(tx, { tenantId, personId: principal.personId, token: stepUpToken })
@@ -243,6 +246,8 @@ export async function executeAgentAction(input, { registry } = {}) {
       },
     })
     return out
+  }), {
+    exhausted: () => agentActionError('ACTION_CODE_EXHAUSTED', 409),
   })
 
   return {
