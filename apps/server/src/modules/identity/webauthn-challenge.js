@@ -1,16 +1,23 @@
 // @req FR-094, FR-095 — Single-use challenge store for WebAuthn ceremonies
-// @spec ADR-045 D2, D5, SDD-052, SEC-018
+// @spec ADR-045 D2, D5, SDD-052, SEC-018, SEC-026
 // @tested tests/unit/identity/webauthn.test.js
 
 import { randomBytes } from 'node:crypto'
 
 /**
- * Transient in-memory challenge store.
+ * Per-process transient challenge store. A restart loses in-flight challenges,
+ * and a second replica never sees them; the user retries the ceremony. The
+ * store is bounded at 10,000 entries and evicts the oldest insertion when full
+ * without refusing new challenges. Passkey login rate limits in rate-limit.js
+ * control how quickly anonymous callers can fill it. Horizontal scaling must
+ * move challenges to a shared store first.
+ *
  * Maps challenge (base64url) -> { challenge, personId, type, expiresAt }
  */
 const challengeCache = new Map()
 
 const DEFAULT_TTL_MS = 5 * 60 * 1000 // 5 minutes
+export const WEBAUTHN_CHALLENGE_MAX_ENTRIES = 10_000
 
 /**
  * Prune expired challenges to avoid memory accumulation.
@@ -31,10 +38,20 @@ function pruneExpired() {
  * @param {string} [params.personId]
  * @param {'registration'|'authentication'|'step-up'} params.type
  * @param {number} [params.ttlMs]
+ * @param {number} [params.maxEntries] Test seam for the bounded-store behavior.
  * @returns {string} Base64URL-encoded challenge
  */
-export function createChallenge({ personId, type, ttlMs = DEFAULT_TTL_MS }) {
+export function createChallenge({ personId, type, ttlMs = DEFAULT_TTL_MS, maxEntries = WEBAUTHN_CHALLENGE_MAX_ENTRIES }) {
   pruneExpired()
+  const capacity = Number.isSafeInteger(maxEntries) && maxEntries > 0
+    ? Math.min(maxEntries, WEBAUTHN_CHALLENGE_MAX_ENTRIES)
+    : WEBAUTHN_CHALLENGE_MAX_ENTRIES
+  while (challengeCache.size >= capacity) {
+    const oldestChallenge = challengeCache.keys().next().value
+    if (oldestChallenge === undefined) break
+    challengeCache.delete(oldestChallenge)
+  }
+
   const raw = randomBytes(32)
   const challenge = raw.toString('base64url')
 

@@ -7,7 +7,12 @@ import {
   verifyAuthenticationResponse,
   toBase64Url,
 } from '@/modules/identity/webauthn'
-import { createChallenge, consumeChallenge } from '@/modules/identity/webauthn-challenge'
+import { clearAllChallenges, createChallenge, consumeChallenge } from '@/modules/identity/webauthn-challenge'
+
+// @req FR-094, FR-095 — single-use WebAuthn challenges remain type/person bound,
+//   expire after five minutes, and stay bounded per process.
+// @spec ADR-045, SEC-018, SEC-026
+// @tested tests/unit/identity/webauthn.test.js
 
 function sha256(buf) {
   return createHash('sha256').update(buf).digest()
@@ -35,7 +40,30 @@ describe('WebAuthn engine & challenge lifecycle', () => {
 
     const challenge2 = createChallenge({ personId: 'p-123', type: 'registration' })
     // Wrong personId
-    expect(consumeChallenge({ challenge2, type: 'registration', personId: 'p-other' })).toBe(false)
+    expect(consumeChallenge({ challenge: challenge2, type: 'registration', personId: 'p-other' })).toBe(false)
+  })
+
+  it('evicts the oldest challenge at the configured cap while retaining newer ones', () => {
+    clearAllChallenges()
+    const oldest = createChallenge({ personId: 'p-123', type: 'registration', maxEntries: 2 })
+    const newer = createChallenge({ personId: 'p-123', type: 'registration', maxEntries: 2 })
+    const newest = createChallenge({ personId: 'p-123', type: 'registration', maxEntries: 2 })
+
+    expect(consumeChallenge({ challenge: oldest, type: 'registration', personId: 'p-123' })).toBe(false)
+    expect(consumeChallenge({ challenge: newer, type: 'registration', personId: 'p-123' })).toBe(true)
+    expect(consumeChallenge({ challenge: newest, type: 'registration', personId: 'p-123' })).toBe(true)
+  })
+
+  it('rejects and prunes an expired challenge without evicting a live one', () => {
+    clearAllChallenges()
+    const live = createChallenge({ personId: 'p-123', type: 'registration', maxEntries: 2 })
+    const expired = createChallenge({ personId: 'p-123', type: 'registration', ttlMs: -1, maxEntries: 2 })
+
+    expect(consumeChallenge({ challenge: expired, type: 'registration', personId: 'p-123' })).toBe(false)
+    const next = createChallenge({ personId: 'p-123', type: 'registration', maxEntries: 2 })
+
+    expect(consumeChallenge({ challenge: live, type: 'registration', personId: 'p-123' })).toBe(true)
+    expect(consumeChallenge({ challenge: next, type: 'registration', personId: 'p-123' })).toBe(true)
   })
 
   it('generates compliant registration and authentication options', () => {
