@@ -3528,16 +3528,16 @@
           "title": "Canonical IAM principal",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 23,
-          "testCount": 31
+          "codeCount": 24,
+          "testCount": 34
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 26,
-          "testCount": 52
+          "codeCount": 27,
+          "testCount": 55
         },
         {
           "id": "FR-096",
@@ -3804,7 +3804,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-232",
@@ -3836,8 +3836,8 @@
           "title": "Project Feature authority",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 51
+          "codeCount": 6,
+          "testCount": 54
         },
         {
           "id": "FR-293",
@@ -4499,7 +4499,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 16,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -4507,7 +4507,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -6031,7 +6031,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -6039,7 +6039,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -6962,7 +6962,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-105",
@@ -8169,7 +8169,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 31
+          "testCount": 34
         },
         {
           "id": "FR-095",
@@ -8177,7 +8177,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 52
+          "testCount": 55
         },
         {
           "id": "FR-097",
@@ -8753,7 +8753,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -8761,7 +8761,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-226",
@@ -8897,7 +8897,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 23,
-          "testCount": 51
+          "testCount": 54
         },
         {
           "id": "FR-253",
@@ -11445,16 +11445,16 @@
           "title": "Canonical IAM principal",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
-          "testCount": 31
+          "codeCount": 26,
+          "testCount": 34
         },
         {
           "id": "FR-095",
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 31,
-          "testCount": 52
+          "codeCount": 32,
+          "testCount": 55
         },
         {
           "id": "FR-096",
@@ -11521,6 +11521,7 @@
         "apps/server/src/modules/identity/mfa-secret-seal.js",
         "apps/server/src/modules/identity/mfa-service.js",
         "apps/server/src/modules/identity/passkey-service.js",
+        "apps/server/src/modules/identity/rate-limit.js",
         "apps/server/src/modules/identity/resolve-line-identity.js",
         "apps/server/src/modules/identity/session-assurance.js",
         "apps/server/src/modules/identity/session-port.js",
@@ -11543,6 +11544,7 @@
         "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/channel-identity.test.js",
+        "apps/server/tests/integration/credential-rate-limit.test.js",
         "apps/server/tests/integration/crm-archive-legal-hold.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/crm-customer-erasure.test.js",
@@ -11570,6 +11572,7 @@
         "apps/server/tests/integration/mfa-totp-lifecycle.test.js",
         "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/passkey-lifecycle.test.js",
+        "apps/server/tests/integration/passkey-login-rate-limit.test.js",
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
@@ -11588,6 +11591,7 @@
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
         "apps/server/tests/unit/identity/mfa-secret-seal.test.js",
+        "apps/server/tests/unit/identity/passkey-login-rate-limit.test.js",
         "apps/server/tests/unit/identity/seal-mfa-factor-secrets-cli.test.js",
         "apps/server/tests/unit/identity/session-assurance.test.js",
         "apps/server/tests/unit/identity/totp.test.js",
@@ -14667,7 +14671,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-224",
@@ -14675,7 +14679,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 12,
-          "testCount": 15
+          "testCount": 16
         },
         {
           "id": "FR-225",
@@ -14793,6 +14797,7 @@
         "apps/server/tests/unit/fr080-integration-management.test.js",
         "apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js",
         "apps/server/tests/unit/integration/channel-account-claim-migration.test.js",
+        "apps/server/tests/unit/integration/credential-route-body-cap.test.js",
         "apps/server/tests/unit/integration/credential-vault-migrations.test.js",
         "apps/server/tests/unit/integration/credential-vault-schema-contract.test.js",
         "apps/server/tests/unit/integration/dispatching-secret-manager.test.js",
@@ -21542,8 +21547,8 @@
           "title": "Project Feature authority",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 28,
-          "testCount": 51
+          "codeCount": 30,
+          "testCount": 54
         }
       ],
       "evidence": [
@@ -21558,9 +21563,11 @@
         "apps/server/src/app/api/projects/[id]/features/[featureId]/work-links/route.js",
         "apps/server/src/app/api/projects/[id]/features/route.js",
         "apps/server/src/app/api/projects/[id]/governance-snapshots/route.js",
+        "apps/server/src/middleware.js",
         "apps/server/src/modules/identity/api-write-csrf.js",
         "apps/server/src/modules/identity/erase-customer-principal.js",
         "apps/server/src/modules/identity/erase-principal.js",
+        "apps/server/src/modules/identity/same-origin-write.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -21616,6 +21623,9 @@
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/api-write-csrf-route.test.js",
         "apps/server/tests/unit/identity/api-write-csrf.test.js",
+        "apps/server/tests/unit/identity/same-origin-write.test.js",
+        "apps/server/tests/unit/identity/write-client-origin-contract.test.js",
+        "apps/server/tests/unit/identity/write-route-coverage.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/phase-b-backup.test.js",
         "apps/server/tests/unit/phase-b-feature-migration.test.js",
