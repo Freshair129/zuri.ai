@@ -1,0 +1,20 @@
+{
+  "producerRepository": "Freshair129/visual-office",
+  "producerRevision": "1dff013dd45691bf1a0eced3e7d3ac988ac1e379",
+  "pinnedRevision": "b4e2d8edec9d8dbad32573d860cff3a6a27efbbd",
+  "changedInputs": [
+    "web/office-characters.js",
+    "web/tycoon-models.js",
+    "web/tycoon-state.js"
+  ],
+  "unchangedInputCount": 28,
+  "stock": {
+    "archiveSha256": "9c21ab58ae3ca1e0c27f65f2437858443f6ac96ea7dcf05943dc077b8b227933",
+    "contentHash": "97599a01b51a93dd88be3a3dd6445ec5be9114bbc9d34e7ee5ce9a7192f343e9"
+  },
+  "custom": {
+    "archiveSha256": "8394bbab91cb051a6555cd542f75793ea0a550e1879ee33f7221f9d1b7c0be24",
+    "contentHash": "e1d79aae2a862fc83b38e36850d98136dcfb5f42f5bb5cc39d11c66dbf189850"
+  },
+  "note": "On 2026-11-13, equality with the pinned fixtures was observed by generating in memory without writing to the producer checkout."
+}
