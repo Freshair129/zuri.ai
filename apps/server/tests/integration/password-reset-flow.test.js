@@ -138,6 +138,19 @@ describe('password reset flow (FR-104)', () => {
       let prechecksReached = 0
       const allPrechecksReady = new Promise((resolve) => { releasePrechecks = resolve })
       let sessionRevocationCalls = 0
+      // Eight real SQLite writers contending for one file lock time out on a slow
+      // runner (Prisma's 5 s socket and interactive-transaction limits), which is
+      // lock-manager behaviour and not what this test proves. The stale-read gate
+      // above is what recreates the race: all eight calls hold a stale "unused"
+      // view, so only the database-evaluated conditional claim can pick one
+      // winner. Queue the writes so SQLite sees them one at a time, exactly as it
+      // would serialize them, without changing which statements run.
+      let writeQueue = Promise.resolve()
+      const serialized = (operation) => {
+        const run = writeQueue.then(operation)
+        writeQueue = run.catch(() => {})
+        return run
+      }
       const db = {
         passwordResetToken: {
           findUnique: async (args) => {
@@ -151,13 +164,13 @@ describe('password reset flow (FR-104)', () => {
             }
             return record
           },
-          updateMany: (args) => prisma.passwordResetToken.updateMany(args),
+          updateMany: (args) => serialized(() => prisma.passwordResetToken.updateMany(args)),
         },
-        $transaction: (callback) => prisma.$transaction(callback),
+        $transaction: (callback) => serialized(() => prisma.$transaction(callback)),
         session: {
           updateMany: (args) => {
             sessionRevocationCalls += 1
-            return prisma.session.updateMany(args)
+            return serialized(() => prisma.session.updateMany(args))
           },
         },
       }
