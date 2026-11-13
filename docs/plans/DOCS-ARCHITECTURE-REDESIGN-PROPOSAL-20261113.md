@@ -66,6 +66,13 @@ The cause is five narrower gaps:
 5. **Documents live outside `docs/` and outside every check.** Root files,
    `reports/`, `.brain/`, `.agent/`, `agent/`, `reference/`, `apps/edge/docs/`.
 
+**Owner direction, recorded 2026-11-13 via the lead session:** rearrange and index the
+existing documents; do not regenerate or rewrite them from code. Rationale and decisions
+cannot be recovered from code, and rewriting costs tokens for no gain. The existing doc
+graph, preflight and id ledger stay; the new index goes on top of them. `@spec`/`@req`
+comments are inert at runtime and matter only to the checkers, but the runtime readers in
+§3.1 are not inert and are on the never-move list.
+
 The recommendation is therefore **add discoverability and a placement guard first,
 move files last, and move very little.** Concretely: a classification of knowledge
 kinds with exactly one write home each (§4); a short "where does X go" table in the
@@ -281,6 +288,40 @@ guarantees.
 | `scripts/ci-code-changes.mjs`, `ci-change-scope.mjs` | PR is "documentation only" when every path is under `docs/`, `.brain/`, or is `AGENTS.md`/`CLAUDE.md`/`README.md` | `reports/`, `llms.txt`, `registry/`, `.agents/`, root loose files **count as code** and trigger the full Server path |
 | `DOCUMENTATION-REQUIREMENTS-SPEC.md` (proposed v0.1.2) | profiles, single-source boundaries, "do not add new standalone documents at `docs/` root" | status `proposed`; profiles are not machine-checked except domain SRS |
 | `AGENTS.md` §19, §21 | domain-first layout; enumerate before claiming existence | manual |
+
+### 3.1 Runtime and verifier readers of documentation paths (measured)
+
+Production images do not `COPY` documentation (`apps/server/Dockerfile` has no `COPY docs`),
+but documentation paths are still read **at runtime** through other routes. These are the
+readers found by `git grep` at `d694d0c7`; any move must keep each working:
+
+| Reader | What it reads | Consequence |
+|---|---|---|
+| `apps/server/src/modules/platform-control/knowledge-studio/knowledge-studio-data.js` (Knowledge Studio) | `<root>/docs/.doc-graph.json`, `<root>/registry/document-registry/index.json`, then every graph node path that exists **under `<root>/docs`** (realpath-contained); special-cases paths containing `/features/` and ending `/SERVICE.md`; serves single documents by node id | the top-level folder name `docs`, the graph's node paths, `docs/features/**` and `docs/services/**/SERVICE.md` are API; **the doc graph is read at runtime, so it is not "just a checker"** |
+| `apps/server/docker-compose.yml` lines 94–95 | bind-mounts `../../docs` read-only to `/app/knowledge-studio-data/docs` and the registry index to `/app/knowledge-studio-data/registry/document-registry/index.json`; `ZURI_KNOWLEDGE_STUDIO_ROOT=/app/knowledge-studio-data` | deployment contract for the paths above; the Dockerfile pre-creates that mount tree |
+| `apps/server/src/modules/platform-control/program-roadmap-containers.js` (`/control/roadmap`, `/roadmap`) | static data embedding **66 distinct `docs/...` paths** (ROADMAP.md, PRD-SDD, FEATURE-MAP.md, ADRs, CR files, appendices, domain feature notes) as rendered `doc` links | a moved file leaves a dead link on a production page; no checker fails |
+| `apps/server/src/modules/platform-control/roadmap-sot.js` | embedded `authority` paths (ingestion spec/flow, ADR-073/075) | same |
+| `apps/server/src/modules/project-manager/application/governance-source-verifier.js` | `git show`-style verification of pinned bytes at `registry/document-registry/index.json`, `docs/PRD-SDD-v1.0.md`, `docs/FEATURES.md`, `docs/.id-ledger.json` (constants at lines 22–26, 579), plus an absolute registry path from `ZURI_PM_CHECKOUT_REGISTRY_PATH` | PM governance snapshots verify against those exact paths and commits |
+| `apps/server/src/lib/validation/enums.js`, `apps/server/src/config/domains.js` | comments/config citing doc-graph and `docs/SITEMAP-DOMAIN-NAV.md` as the accepted grouping source (structural checks read it) | keep the path |
+| `apps/server/runtime/domain-state.json`, `data-pipeline-map.json` | tracked generated runtime JSON read by `modules/knowledge/pipeline-map/*` | not under `docs/`; produced by the doc generators, so generator output paths are API |
+| `services/*/src`, `apps/edge/src` | no documentation-path reads found | none |
+
+Measured coupling to documentation paths (commands in Appendix A; "docs/" means the
+string `docs/` in the file):
+
+| Measure | Count |
+|---|---:|
+| code, script, test and config files (`*.js *.mjs *.ts *.tsx *.json *.yml *.yaml *.ps1 *.sh`, excluding `docs/`, `registry/`, `.brain/`, `reports/`) mentioning `docs/` | 523 |
+| `@spec`/`@req`/`@tested`/`@see` comment lines naming a `docs/` path (inert at runtime, read by the graph and preflight) | 243 lines in 206 files |
+| test files (`apps/server/tests`, `tools/tests`, `apps/edge/tests`, `services/*/test`) mentioning `docs/` | 149 (10 of them call a filesystem read on the same line; the other 139 assert on path strings, fixtures or annotations) |
+| scripts in the govern/preflight chain (`apps/server/scripts/doc-*`, `id-*`, `roadmap-*`, `domain-*`, `canonical-*`, `document-*`, `untracked-docs`, `trace-annotations`, `table-integrity`; `tools/*`; `scripts/*`) hardcoding `docs` | 30 (58 including every other script that names a docs path) |
+| GitHub workflow path expressions naming `docs/` or `.brain` | 6 lines in `governance.yml`, `compact-postgres.yml`, `docker-image.yml` (path filters plus the `SERVICE-MAP.md` artifact path), and the `docs/`/`.brain/` regexes in `scripts/ci-code-changes.mjs` and `ci-change-scope.mjs` |
+| Markdown files containing `docs/` links | 1,085, with 5,256 relative `.md` link targets |
+
+The lead session's independent counts (about 487 files, 103 `@spec` lines with docs
+paths, 87 tests, 23 scripts) differ from these because the patterns differ (path
+strings versus fs-read calls, annotation kinds, file-type lists). Both sets say the same
+thing: moving a document is a code-and-config change, not a tidy-up.
 
 **Consequence for design:** the proposal extends the doc graph's *vocabulary* (a kind
 assignment) and preflight's *scope* (added files, outside-`docs/` homes), adds one
@@ -585,7 +626,10 @@ machine; the added-file rule adds one `git diff`.
 
 Order follows AGENTS §18: steps that change *meaning or identity* before steps that only
 move files, and moves last. Every stage is a separate pull request, reviewable alone,
-and reversible by revert. Stages 1–4 move **no** document.
+and reversible by revert. Stages 1–4 move **no** document. Stage 5 moves only files with **no inbound
+reference from code, tests, workflows, runtime readers or pinned manifests**, and leaves a
+stub at the old path; anything else stays where it is and is *indexed* instead. This
+follows the owner direction to rearrange by indexing and light relocation, not rewrite.
 
 For every stage: required exact-head hosted CI (`changes`, `verify`, `edge-verify`), `npm run
 govern`, and independent review. Stages that edit `llms.txt`, `registry/`, `reports/`,
@@ -644,6 +688,11 @@ first.
 
 Only after Stages 1–4. Candidates and exact breakage, from `git grep` at `d694d0c7`:
 
+By the Stage 5 rule (no live inbound reference, stub left behind) only `todo.md` and
+`hardware-performance-audit.md` currently qualify: nothing but revision-pinned manifests
+names them. `docs/superpowers/specs/*` has one live reader (a change request link) and a
+register row; the other rows below fail the rule and are listed to show why they stay.
+
 | Move | Readers that break | Needed in the same PR |
 |---|---|---|
 | `todo.md` → `docs/archive/` (or delete after owner decision O6) | only `docs/migrations/monorepo/source-manifest.json` and `registry/document-reintegration/documents.json` (pinned by revision, so they stay valid by commit) | none beyond register/README mentions; add `docs:inventory` expectations if archive is checked |
@@ -665,6 +714,10 @@ rewrite of hundreds of `status` values is explicitly **not** proposed.
 
 | Never | Why / enforced by |
 |---|---|
+| the top-level directory name `docs/`, `docs/.doc-graph.json` as a generated file at that path, `registry/document-registry/index.json`, and the node paths of the graph | read at runtime by Knowledge Studio and bind-mounted by `docker-compose.yml` (§3.1) |
+| every path embedded in `program-roadmap-containers.js` (66 paths) and `roadmap-sot.js` | rendered as links on the production `/control/roadmap` and `/roadmap` pages; no check fails on a dead one, so each must be updated by hand in the same change if it ever moves |
+| `docs/PRD-SDD-v1.0.md`, `docs/FEATURES.md`, `docs/.id-ledger.json` at their paths | `governance-source-verifier.js` verifies pinned bytes at these exact paths |
+| `docs/features/**` and `docs/services/**/SERVICE.md` path shapes | Knowledge Studio special-cases them |
 | any requirement or feature id, subject or declared number | ADR-039; Check 12; `docs/.id-ledger.json` |
 | ADR numbers and `docs/decisions/ADR-nnn-*` paths | cited by number across 80 Markdown files, 29 code/config files; AGENTS §17–19 |
 | canonical record paths `docs/features/FEAT-nnn/…`, `docs/requirements/<ID>.md` | the registry index and 559 `recordSha256` values; CANONICAL-FORMAT |
@@ -715,6 +768,9 @@ rewrite of hundreds of `status` values is explicitly **not** proposed.
 
 ### 10.2 Recommended NOT to do
 
+0. **Do not regenerate or rewrite existing documents from code.** Rationale, alternatives
+   and decisions are not recoverable from code (owner direction, 2026-11-13); the work is
+   classification, indexing and guards.
 1. **Do not mass-relocate** `docs/roadmap/PLAN-*` (32 files), `docs/change-requests/`
    (234 files), `docs/domains/project-manager/` (84), `docs/architecture/project-manager-system/`
    (59) or `docs/decisions/`. Each is cited by number or path from 74–1,085 other files and
@@ -757,6 +813,18 @@ git ls-files docs/decisions | grep -o 'ADR-[0-9]*' | sort -u | wc -l
 node -e "const i=require('./registry/document-registry/index.json'); console.log(i.records.length)"
 git grep -lE "docs/plans" -- '*.mjs' '*.js' '*.json' '*.yml' ':!docs' ':!registry' ':!.brain' ':!reports'
 git grep -hE '@(spec|req|tested|see)[^\n]*docs/' -- apps services tools scripts | wc -l
+```
+
+Runtime and coupling measurements (§3.1):
+
+```bash
+git grep -nE "docs|\.doc-graph|registry/document" -- apps/server/src services/*/src apps/edge/src
+git grep -nE "docs|knowledge-studio-data" apps/server/docker-compose.yml apps/server/Dockerfile
+git grep -lE 'docs/' -- '*.js' '*.mjs' '*.ts' '*.tsx' '*.json' '*.yml' '*.yaml' '*.ps1' '*.sh'   ':!docs' ':!registry' ':!.brain' ':!reports' | wc -l
+git grep -hE '@(spec|req|tested|see)[^
+]*docs/' -- apps services tools scripts | wc -l
+git grep -lE 'docs/' -- apps/server/tests tools/tests apps/edge/tests 'services/*/test' | wc -l
+grep -oE 'docs/[A-Za-z0-9_./-]+\.(md|html|json)'   apps/server/src/modules/platform-control/program-roadmap-containers.js | sort -u | wc -l
 ```
 
 Frontmatter and duplicate-title scan (Node, read-only):
