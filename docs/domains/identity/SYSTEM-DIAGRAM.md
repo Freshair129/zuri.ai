@@ -410,7 +410,7 @@ decision is made on purpose.
 | TOTP verify and step-up | 5 per Person per 15 min, one shared bucket | `RateLimitBucket` | |
 | Credential writes | 5 per Person + Business per 15 min; actions that call LINE also consume an installation-wide 60 per 60 s | `RateLimitBucket` | ADR-089 D4 |
 | Signup | 20 per source key per 15 min | **Memory of one process** | Multiplies by replica count and resets on restart; `signup-rate-limit.js` says so itself |
-| Passkey sign-in options and verify | 60 per client address and 20 per identifier (options: the requested email; verify: the credential id), each per 15 min, one budget shared by both calls | `RateLimitBucket`, compare-and-set | Same address rules as password sign-in. With no usable address only the identifier bucket is consumed; with neither, nothing is. Keys are hashed. The refusal is `429 PASSKEY_LOGIN_RATE_LIMITED` with `Retry-After` |
+| Passkey sign-in options and verify | 60 per client address (one bucket shared by both calls) and 20 per identifier (options: the requested email; verify: the credential id; hashed into one key space, so a value used as both counts in one bucket), each per 15 min | `RateLimitBucket`, compare-and-set | Same address rules as password sign-in. With no usable address only the identifier bucket is consumed; with neither, nothing is. Keys are hashed. The refusal is `429 PASSKEY_LOGIN_RATE_LIMITED` with `Retry-After` |
 | Reset-password consume | **No request limit** | — | The token is 256 random bits, expires in an hour and is spent atomically (§5.3), so a guess cannot succeed and a replay cannot double-spend. There is still no cap on how many guesses a caller may send |
 
 ## 9. Application authorization and database isolation
