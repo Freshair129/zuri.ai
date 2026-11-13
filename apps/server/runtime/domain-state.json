@@ -1582,6 +1582,7 @@
           "apps/server/tests/unit/agent-mission-recovery.test.js",
           "apps/server/tests/unit/fr045-backup-contract.test.js",
           "apps/server/tests/unit/office-design-backup.test.js",
+          "apps/server/tests/unit/office-design-current-producer.test.js",
           "apps/server/tests/unit/office-design-http.test.js",
           "apps/server/tests/unit/office-design-package.test.js",
           "apps/server/tests/unit/office-design-provenance.test.js",
@@ -9401,7 +9402,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 8,
-          "testCount": 21,
+          "testCount": 22,
           "evidence": [
             "apps/server/src/app/api/businesses/[id]/office-designs/assets/[sha256]/route.js",
             "apps/server/src/app/api/businesses/[id]/office-designs/route.js",
@@ -9428,6 +9429,7 @@
             "apps/server/tests/unit/agent-mission-recovery.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/office-design-backup.test.js",
+            "apps/server/tests/unit/office-design-current-producer.test.js",
             "apps/server/tests/unit/office-design-http.test.js",
             "apps/server/tests/unit/office-design-package.test.js",
             "apps/server/tests/unit/office-design-provenance.test.js",
@@ -10224,6 +10226,7 @@
             "apps/server/tests/unit/agent-mission-recovery.test.js",
             "apps/server/tests/unit/fr045-backup-contract.test.js",
             "apps/server/tests/unit/office-design-backup.test.js",
+            "apps/server/tests/unit/office-design-current-producer.test.js",
             "apps/server/tests/unit/office-design-http.test.js",
             "apps/server/tests/unit/office-design-package.test.js",
             "apps/server/tests/unit/office-design-provenance.test.js",
@@ -22681,7 +22684,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 8,
-          "testCount": 21
+          "testCount": 22
         }
       ],
       "evidence": [
@@ -22710,6 +22713,7 @@
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/office-design-backup.test.js",
+        "apps/server/tests/unit/office-design-current-producer.test.js",
         "apps/server/tests/unit/office-design-http.test.js",
         "apps/server/tests/unit/office-design-package.test.js",
         "apps/server/tests/unit/office-design-provenance.test.js",
