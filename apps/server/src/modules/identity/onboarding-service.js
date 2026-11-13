@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { listJoinedWorkspaces } from './workspace-membership-service'
 
@@ -209,11 +209,10 @@ export async function createOnboardingWorkspace({ personId, name, db = prisma } 
   if (!person) throw failure(401, 'AUTH_REQUIRED')
   if (!person.profileCompletedAt) throw failure(403, 'PROFILE_REQUIRED')
 
-  const code = await uniqueHumanCode('PF', workspaceName, async (candidate) =>
-    Boolean(await db.portfolio.findUnique({ where: { code: candidate } })),
-  )
-
-  return db.$transaction(async (tx) => {
+  const create = async (tx) => {
+    const code = await uniqueHumanCode('PF', workspaceName, async (candidate) =>
+      Boolean(await tx.portfolio.findUnique({ where: { code: candidate } })),
+    )
     const portfolio = await tx.portfolio.create({ data: { code, name: workspaceName } })
     const membership = await tx.workspaceMembership.create({
       data: { portfolioId: portfolio.id, personId, role: 'OWNER', status: 'ACTIVE' },
@@ -238,5 +237,12 @@ export async function createOnboardingWorkspace({ personId, name, db = prisma } 
       name: portfolio.name,
       role: 'OWNER',
     }
-  })
+  }
+  if (typeof db?.$transaction === 'function') {
+    return retryOnCodeConflict(() => db.$transaction(create), {
+      exhausted: () => failure(409, 'PORTFOLIO_CODE_EXHAUSTED'),
+    })
+  }
+  // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+  return create(db)
 }

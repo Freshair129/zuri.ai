@@ -898,6 +898,7 @@ const zDryRunResponse = z.object({
 
 const zCommitResponse = z.object({
   committed: z.boolean(),
+  replay: z.boolean().optional().describe('true when the same plan was already committed and nothing was re-applied'),
   projectId: z.string().optional(),
   projectCode: z.string().optional(),
   errors: z.array(z.string()).optional(),
@@ -1287,7 +1288,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     summary: 'Commit a plan envelope in a single transaction',
     description:
       'Re-runs the dry run and refuses on any conflict. Entities matched by external id are updated in place — ' +
-      'their existing code is never overwritten. Every commit appends a PLAN_IMPORTED audit event.',
+      'their existing code is never overwritten. A newly applied plan appends one PLAN_IMPORTED audit event; identical authorized plans replay the original result without another event. ' +
+      'Full plans at schemaVersion 1.0 and 1.1 derive replay identity from normalized content, actor and Workspace; 1.2 uses trace.idempotencyKey.',
     tags: ['Intake'],
     request: { body: { content: { 'application/json': { schema: zImportRequest } } } },
     responses: {

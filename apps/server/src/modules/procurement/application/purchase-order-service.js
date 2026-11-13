@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
   PURCHASE_ORDER_ENTITY,
@@ -147,7 +148,8 @@ async function nextCode(tx, business, now) {
 
 export async function createPurchaseOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zCreatePurchaseOrder.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await retryOnCodeConflict(
+    () => db.$transaction(async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { capability: 'po' })
     const supplier = await requireSupplier(tx, business, data.supplierId)
     const lines = await resolveLines(tx, business, data.lines)
@@ -163,7 +165,9 @@ export async function createPurchaseOrder(input, { viewer, db = prisma, now = ne
     const dto = purchaseOrderDto(created)
     await recordAudit(tx, { entityType: PURCHASE_ORDER_ENTITY, entityId: created.id, action: 'PURCHASE_ORDER_CREATED', actorId: actor(viewer), payload: { businessId: business.id, code: created.code, supplierId: supplier.id, lines: lines.length, total: dto.total } })
     return created
-  })
+    }),
+    { exhausted: () => failure(409, 'PURCHASE_ORDER_CODE_EXHAUSTED') },
+  )
   return purchaseOrderDto(row)
 }
 

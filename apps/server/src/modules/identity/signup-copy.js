@@ -19,6 +19,7 @@ export const SIGNUP_ERROR_NAME_REQUIRED = 'กรุณากรอกชื่�
 export const SIGNUP_ERROR_PASSWORD = `รหัสผ่านต้องมีอย่างน้อย ${PASSWORD_MIN_LENGTH} ตัวอักษร`
 export const SIGNUP_ERROR_MISMATCH = 'รหัสผ่านทั้งสองช่องไม่ตรงกัน'
 export const SIGNUP_ERROR_RATE_LIMITED = 'มีการสมัครจากที่นี่บ่อยเกินไป กรุณารอสักครู่แล้วลองใหม่'
+export const SIGNUP_ERROR_CODE_BUSY = 'ขณะนี้มีการสมัครสมาชิกหลายบัญชีพร้อมกัน กรุณาลองสมัครอีกครั้ง'
 export const SIGNUP_ERROR_UNAVAILABLE = 'ไม่สามารถสมัครสมาชิกได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง'
 
 /**
@@ -51,6 +52,8 @@ export function signupErrorMessage(result) {
       return SIGNUP_ERROR_PASSWORD
     case 'RATE_LIMITED':
       return SIGNUP_ERROR_RATE_LIMITED
+    case 'PERSON_CODE_EXHAUSTED':
+      return SIGNUP_ERROR_CODE_BUSY
     default:
       return SIGNUP_ERROR_UNAVAILABLE
   }
