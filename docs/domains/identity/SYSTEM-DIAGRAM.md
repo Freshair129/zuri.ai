@@ -1,5 +1,5 @@
 ---
-version: "1.1.0b"
+version: "1.1.1b"
 status: declared
 domain: identity
 ---
@@ -120,7 +120,7 @@ Per **ADR-047 D2**, credentials cannot be reused across mismatched security boun
 | **SoT Data Plane Key** | `Bearer sdpk_...` | **Tenant-bound** | `{ isSotDataPlane: true, tenantId, serviceAccountId }` — no Person; routes test it with `isSotDataPlaneFor(tenantId)` | SoT decision submit and export; the knowledge pipeline reporter routes under `/api/pipelines/knowledge/[executionRunId]` (ADR-067) |
 | **Plugin Session** | An opaque Bearer token (32 random bytes, base64url; 15-min TTL), stored as a hash | **Person-Delegated** via PKCE + Consent | `Viewer` without platform authority | IDE Tools, Codex MCP calls |
 | **API write CSRF token** | Header token from `GET /api/auth/csrf`, bound to the live session; lives at most 15 minutes and never past the session's expiry | **One session** | None. The write guard checks `Origin` separately; the token proves the caller holds that session | The session-cookie writes listed in §7 |
-| **Password reset token** | Token meant for one use (rejected once used; see §8 on concurrent use), 1-hour TTL, stored as a SHA-256 digest | **One Person** | None — it authorizes one credential change | `POST /api/auth/reset-password` |
+| **Password reset token** | Single-use (claimed atomically, so concurrent requests cannot both spend it; §5.3), 1-hour TTL, stored as a SHA-256 digest | **One Person** | None — it authorizes one credential change | `POST /api/auth/reset-password` |
 | **Internal service bearer** | Deployment bearer token, one per contract | **One service contract** | Service identity only; Core re-resolves scope per call | `/api/internal/conversation-runtime/*`, `/api/internal/market-intelligence/*`, `/api/internal/scm/*`, `/api/line-oa/worker` and `/api/line-oa/rich-menu-worker` (the two LINE workers share one token) |
 | **Provider webhook signature** | HMAC-SHA256 over the raw body (`X-Line-Signature`, `X-Notion-Signature`). Notion's first-time setup challenge is checked against a pinned verification token instead | **One provider account** | Verified origin of one event | LINE and Notion webhook routes |
 | ~~Edge Device Credential~~ | `Bearer edgk_...` | Retired by ADR-110 | — | No route. Schema rows are historical |
@@ -285,8 +285,17 @@ sequenceDiagram
   production a missing key makes those operations fail closed. Listing and
   revoking factors do not need it.
 - The passkey challenge lives in a `Map` inside one Node process
-  (`webauthn-challenge.js`). With more than one web process, the verify call
-  must reach the process that issued the challenge.
+  (`webauthn-challenge.js`) for five minutes and is single-use. The store holds
+  at most 10 000 challenges; at the cap the oldest is evicted, never the new
+  one refused. Production runs one `web` container (root `CLAUDE.md`, ADR-058,
+  ADR-114; `docker-compose.yml` sets no replicas), so the process that issued a
+  challenge is the one that verifies it, and a restart only costs the user one
+  retry of the ceremony. **Limit:** a second web process would not see the
+  first one's challenges, so scaling `web` out needs a shared challenge store
+  first. This is a deliberate single-instance choice, not a durable store.
+- Passkey sign-in options and verify are rate limited per client address and
+  per identifier (§8). The limit is what bounds how fast an anonymous caller can
+  fill the challenge map.
 
 ### 5.3 Password reset
 
@@ -296,7 +305,14 @@ token for that person (`POST /api/platform/users/password-resets`); being an
 owner somewhere else is not enough. The token is
 shown once, stored as a SHA-256 digest and expires after one hour. The person
 spends it at `POST /api/auth/reset-password`, which changes the credential and
-revokes **every** active session of that person.
+revokes **every** active session of that person. Spending is atomic: a single
+conditional update claims the token (`usedAt` still null and not expired) before
+the credential is touched, so of any number of concurrent requests with the
+same token exactly one succeeds; the others open no transaction and get the
+same generic `INVALID_OR_EXPIRED_TOKEN`. Only the winner runs the short
+credential-and-audit transaction. If that transaction fails, the claim is
+released best-effort so the token is not burned; a process crash between claim
+and commit does burn it, and the operator mints a new one.
 
 ### 5.4 Sign-out
 
@@ -397,8 +413,8 @@ decision is made on purpose.
 | TOTP verify and step-up | 5 per Person per 15 min, one shared bucket | `RateLimitBucket` | |
 | Credential writes | 5 per Person + Business per 15 min; actions that call LINE also consume an installation-wide 60 per 60 s | `RateLimitBucket` | ADR-089 D4 |
 | Signup | 20 per source key per 15 min | **Memory of one process** | Multiplies by replica count and resets on restart; `signup-rate-limit.js` says so itself |
-| Passkey sign-in options and verify | **None** | — | Each options call also adds a challenge to the in-process map |
-| Reset-password consume | **None found** | — | The token expires in an hour and is rejected once used. Consumption does not condition the update on `usedAt` being null, so two concurrent requests with the same token can both succeed |
+| Passkey sign-in options and verify | 60 per client address (one bucket shared by both calls) and 20 per identifier (options: the requested email; verify: the credential id; hashed into one key space, so a value used as both counts in one bucket), each per 15 min | `RateLimitBucket`, compare-and-set | Same address rules as password sign-in. With no usable address only the identifier bucket is consumed; with neither, nothing is. Keys are hashed. The refusal is `429 PASSKEY_LOGIN_RATE_LIMITED` with `Retry-After` |
+| Reset-password consume | **No request limit** | — | The token is 256 random bits, expires in an hour and is spent atomically (§5.3), so a guess cannot succeed and a replay cannot double-spend. There is still no cap on how many guesses a caller may send |
 
 ## 9. Application authorization and database isolation
 
@@ -424,6 +440,14 @@ deployed application actually connects as. A migration file proves neither
 that the migration was applied nor which role the running application uses.
 
 ## Version diff
+
+1.1.0b → 1.1.1b (2026-11-13): records two identity code changes and their
+remaining limits. Password-reset consumption claims the token with one
+conditional update (§5.3, §8), closing the concurrent double-spend. Passkey
+sign-in options and verify are rate limited (§8), and the in-process passkey
+challenge store is bounded with the single-instance limit stated (§5.2).
+Documents code changed in the same pull request; no route, model, migration or
+requirement id is introduced.
 
 1.0.0b → 1.1.0b (2026-11-12): removes the retired Edge Device nodes and
 sequence diagram and strikes through its matrix row (ADR-110); corrects Flow A
