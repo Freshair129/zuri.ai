@@ -1,3 +1,6 @@
+// @req FR-155, FR-165 — the public movement command reserves GOODS_RECEIPT for Procurement's receipt writer.
+// @spec ADR-074 D3 — callers cannot bypass recorded receipt cost provenance through Inventory.
+// @tested test/component/inventory-stock.test.js
 import { PRODUCT_LOT_ENTITY, allocateFefo, movementDelta, movementRule, serialStatusAfter, stockSummaryRow, zCreateLot, zRecordMovement } from '../../../kernel/inventory/inventory.js'
 import { dedicationRule, shelfLifeIssueRule } from '../../../kernel/inventory/inventory-wip.js'
 import { toBaseQuantity } from '../../../kernel/inventory/inventory-governance.js'
@@ -141,12 +144,26 @@ export function requireIssuableLocation(sql, business, locationId) {
   return { id: location.id, code: location.code, name: location.name }
 }
 
-/** Inventory-owned lot fact update, offered to Procurement instead of a direct table write. */
-export function setLotExpiryIfUnset(sql, scope, { businessId, lotId, expiresAt }, { now }) {
-  inventoryAuthority.require(scope, businessId, { write: true })
+/** Inventory-owned one-time expiry write with a version CAS and audit, offered to Procurement. */
+export function setLotExpiryIfUnset(sql, scope, { businessId, lotId, expiresAt, expectedVersion }, { now, requestId }) {
+  const business = inventoryAuthority.require(scope, businessId, { write: true })
   const lot = repo.lotById(sql, lotId)
-  if (!lot || lot.businessId !== businessId) throw failure(422, 'PRODUCT_LOT_NOT_FOUND')
-  return repo.setLotExpiryIfUnset(sql, lotId, expiresAt, now) === 1
+  if (!lot || lot.businessId !== business.id) throw failure(422, 'PRODUCT_LOT_NOT_FOUND')
+  if (lot.expiresAt) return { applied: false, reason: 'ALREADY_SET', version: Number(lot.version) }
+  if (lot.manufacturedAt && Date.parse(expiresAt) <= Date.parse(lot.manufacturedAt)) throw failure(422, 'PRODUCT_LOT_EXPIRY_BEFORE_MANUFACTURE')
+  if (expectedVersion != null && expectedVersion !== Number(lot.version)) throw failure(409, 'PRODUCT_LOT_VERSION_CONFLICT')
+
+  const versionBefore = Number(lot.version)
+  const written = repo.setLotExpiryIfUnset(sql, lotId, expiresAt, versionBefore, now)
+  if (written !== 1) throw failure(409, 'PRODUCT_LOT_VERSION_CONFLICT')
+
+  const version = versionBefore + 1
+  recordAudit(sql, {
+    entityType: PRODUCT_LOT_ENTITY, entityId: lot.id, action: 'PRODUCT_LOT_EXPIRY_SET', actorId: scope.actorId,
+    tenantId: business.tenantId, businessId: business.id, requestId, now,
+    payload: { businessId: business.id, lotCode: lot.code, productId: lot.productId, expiresAt, previous: null, version },
+  })
+  return { applied: true, version }
 }
 
 /** Every product of the Business with on-hand recomputed from the ledger; uncounted → null, never 0. */
@@ -178,6 +195,7 @@ export const lotWriterOf = (scope, body) => inventoryAuthority.require(scope, zC
 /** Append one movement in its own unit of work (legacy recordMovement). */
 export function recordMovement(sql, scope, input, ctx) {
   const data = zRecordMovement.parse(input)
+  if (data.reason === 'GOODS_RECEIPT') throw failure(422, 'INVENTORY_RECEIPT_REASON_RESERVED')
   const result = appendMovement(sql, scope, { ...data, occurredAt: iso(data.occurredAt), requestId: ctx.requestId }, { now: ctx.now })
   return { response: { movement: result }, affected: { productId: result.productId, kind: result.kind, quantity: result.quantity, movementIds: result.movements.map((m) => m.id) } }
 }

@@ -52,8 +52,8 @@
     {
       "source": "apps/server/src/modules/procurement/domain/procurement.js",
       "kernel": "src/kernel/procurement/procurement.js",
-      "sourceSha256": "c3947a428af24f236b8a71c12cf9ff7f02b886e9d99d3866df07782584174b20",
-      "kernelSha256": "09aa5761da5aa9154ccc14b43a981fcdf7b89d440da1121c2b7aa327c5a9eaad"
+      "sourceSha256": "81dc6e26c16a774faf30de20aab16f372768d6392d0328fe999e87968b61bca1",
+      "kernelSha256": "f63c4b1318a39792ebb215622168794d7a0f1b079b53796090eac63d24ef0b81"
     },
     {
       "source": "apps/server/src/modules/inventory/domain/inventory.js",

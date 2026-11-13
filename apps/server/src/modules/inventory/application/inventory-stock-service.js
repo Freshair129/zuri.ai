@@ -131,6 +131,32 @@ export async function createLot(input, { viewer, db = prisma } = {}) {
   })
 }
 
+/** Set a lot's first expiry inside the caller's transaction, with a version CAS. */
+export async function setLotExpiryIfUnset(tx, { businessId, lotId, expiresAt, expectedVersion } = {}, { viewer } = {}) {
+  const business = await loadBusiness(tx, viewer, businessId, { write: true })
+  const lot = await tx.productLot.findUnique({
+    where: { id: lotId },
+    select: { id: true, code: true, businessId: true, productId: true, manufacturedAt: true, expiresAt: true, version: true },
+  })
+  if (!lot || lot.businessId !== business.id) throw failure(422, 'PRODUCT_LOT_NOT_FOUND')
+  if (lot.expiresAt) return { applied: false, reason: 'ALREADY_SET', version: lot.version }
+  if (lot.manufacturedAt && expiresAt <= lot.manufacturedAt) throw failure(422, 'PRODUCT_LOT_EXPIRY_BEFORE_MANUFACTURE')
+  if (expectedVersion != null && expectedVersion !== lot.version) throw failure(409, 'PRODUCT_LOT_VERSION_CONFLICT')
+
+  const written = await tx.productLot.updateMany({
+    where: { id: lot.id, version: lot.version, expiresAt: null },
+    data: { expiresAt, version: { increment: 1 } },
+  })
+  if (written.count !== 1) throw failure(409, 'PRODUCT_LOT_VERSION_CONFLICT')
+
+  const version = lot.version + 1
+  await recordAudit(tx, {
+    entityType: PRODUCT_LOT_ENTITY, entityId: lot.id, action: 'PRODUCT_LOT_EXPIRY_SET', actorId: actor(viewer),
+    payload: { businessId: business.id, lotCode: lot.code, productId: lot.productId, expiresAt, previous: null, version },
+  })
+  return { applied: true, version }
+}
+
 export async function listLots({ businessId, productId, viewer, db = prisma } = {}) {
   const business = await loadBusiness(db, viewer, businessId)
   const lots = await db.productLot.findMany({ where: { businessId: business.id, ...(productId ? { productId } : {}) }, orderBy: [{ createdAt: 'asc' }], select: LOT_SELECT })
@@ -320,6 +346,7 @@ export async function appendMovement(tx, input, { viewer } = {}) {
 /** Append one movement in its own transaction. */
 export async function recordMovement(input, { viewer, db = prisma } = {}) {
   const data = zRecordMovement.parse(input)
+  if (data.reason === 'GOODS_RECEIPT') throw failure(422, 'INVENTORY_RECEIPT_REASON_RESERVED')
   return db.$transaction((tx) => appendMovement(tx, data, { viewer }))
 }
 

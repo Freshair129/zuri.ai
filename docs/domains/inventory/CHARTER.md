@@ -34,9 +34,9 @@ owns_code:
   - src/modules/inventory/**
 technical_owner: TD-INVENTORY
 status: active-foundation
-version: "1.7.0"
+version: "1.8.0"
 created_at: "2026-09-06T21:00:00+07:00"
-updated_at: "2026-11-12T21:00:00+07:00"
+updated_at: "2026-11-13T10:00:00+07:00"
 ---
 
 <!-- owns_routes are longest-prefix globs (ADR-025). The two claims reserve the
@@ -259,6 +259,14 @@ OWNER or the `INVENTORY_MANAGER` role binding (permission
   removes, ADJUSTMENT corrects with its own sign. An ISSUE that would take
   on-hand below zero is refused.
 - A SERIAL product writes one ledger row per unit, so a unit's history is its own rows.
+- `ProductLot` has one writer: this lane. Another lane that needs a lot changed
+  calls an exported contract; Procurement sets a lot's first expiry through
+  `setLotExpiryIfUnset`, which compare-and-swaps `version`, bumps it and audits
+  `PRODUCT_LOT_EXPIRY_SET` (`409 PRODUCT_LOT_VERSION_CONFLICT` for a stale writer).
+- The movement reason `GOODS_RECEIPT` is reserved to Procurement's receipt
+  writer, which derives the unit cost from recorded inputs (FR-165). The public
+  `recordMovement` refuses it (`422 INVENTORY_RECEIPT_REASON_RESERVED`). A direct
+  Inventory RECEIPT with another reason keeps its own cost policy, unchanged here.
 - Every write is one transaction that bumps `version` where the row has one and
   appends one `AuditEvent` (SCREAMING_SNAKE entity types: `PRODUCT`,
   `STOCK_MOVEMENT`, `SERIAL_UNIT`, …).
@@ -438,6 +446,7 @@ from an import.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.8.0 | 2026-11-13 | active-foundation | Review findings C8/C14: exports the version-checked `setLotExpiryIfUnset` contract so Procurement no longer writes `ProductLot`, and reserves the movement reason `GOODS_RECEIPT` to the receipt writer whose cost is derived from recorded inputs. Valuation semantics unchanged | working-tree | Claude Sonnet 5.5 |
 | 1.7.0 | 2026-11-12 | active-foundation | States the valuation rule and its scope in one place: the moving weighted average of the stock on hand, per product and Business-wide, replayed from the ledger (FR-175, ADR-074 D3). Every cost projection now follows it; the all-time receipt average is kept only as a separately named purchasing statistic. No model, migration or ownership change | working-tree | Claude Fable 5.2 (lead), Codex gpt-6-luna (implementation) |
 | 1.6.0 | 2026-10-23 | active-foundation | Registers FR-291 scoped customer stock disclosure policy and projection, default-OFF owner authorization and non-portable recovery boundary; Commerce and Knowledge retain price and publication authority | working-tree | Codex |
 | 1.5.0 | 2026-09-13 | active-foundation | Claimed `InventoryCatalogIntake` (FR-208) and recorded ADR-084: one catalogue intake envelope for JSON, Excel and LINE, a planner that resolves before it creates and never overwrites, a persisted preview whose plan hash an all-or-nothing commit must match, the Excel template/reader and Import tab (FR-209), and the parser and formatters behind the agent lane's `#sku` LINE command (FR-210). The catalogue writers now accept a transaction client | working-tree | Claude Opus 5 |
