@@ -24,6 +24,7 @@ export async function DELETE(request, { params }) {
       token: request.headers.get('x-csrf-token'),
       session,
     })
-    return revokeAccessInvite({ viewer, inviteId: params?.id })
+    const { id } = (await params) ?? {}
+    return revokeAccessInvite({ viewer, inviteId: id })
   })
 }

@@ -72,7 +72,7 @@ async function callDecline(viewer, token) {
 
 async function callRevoke(viewer, inviteId) {
   return revokeRoute(await requestWithCsrf(`${APP_ORIGIN}/api/access-invites/${inviteId}`, viewer, { method: 'DELETE' }), {
-    params: { id: inviteId },
+    params: Promise.resolve({ id: inviteId }),
   })
 }
 

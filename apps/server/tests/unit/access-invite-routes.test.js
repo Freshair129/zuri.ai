@@ -229,4 +229,22 @@ describe('FR-195 AccessInvite HTTP route contract', () => {
     expect(await json(response)).toMatchObject({ error: 'INVITE_NOT_PENDING' })
     expect(mocks.revokeAccessInvite).toHaveBeenCalledWith({ viewer, inviteId: 'invite-123' })
   })
+
+  it('resolves Next 15 Promise params before revoking an invite', async () => {
+    const response = await revokeRoute(requestFor(`${origin}/api/access-invites/inv-1`, { method: 'DELETE' }), {
+      params: Promise.resolve({ id: 'inv-1' }),
+    })
+
+    expect(response.status).toBe(200)
+    expect(mocks.revokeAccessInvite).toHaveBeenCalledWith({ viewer, inviteId: 'inv-1' })
+  })
+
+  it('passes an absent id from resolved params to the service without throwing', async () => {
+    const response = await revokeRoute(requestFor(`${origin}/api/access-invites/without-id`, { method: 'DELETE' }), {
+      params: Promise.resolve({}),
+    })
+
+    expect(response.status).toBe(200)
+    expect(mocks.revokeAccessInvite).toHaveBeenCalledWith({ viewer, inviteId: undefined })
+  })
 })
