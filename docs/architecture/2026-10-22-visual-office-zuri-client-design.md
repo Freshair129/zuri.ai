@@ -1,10 +1,10 @@
 ---
 id: ZAI:VISUAL-OFFICE-CLIENT-DESIGN
 title: Visual Office as an optional Zuri platform client
-version: "0.5.0"
+version: "0.6.0"
 status: candidate
 created_at: "2026-10-22"
-last_update: "2026-11-13"
+last_update: "2026-11-14"
 author: Freshair129 (2026-10-22 draft); Claude Opus 5.5 (2026-11-06 reconciliation)
 superseded_by: null
 source_of_truth: false
@@ -275,7 +275,9 @@ no CORS configuration exists or is needed.
    blobs not already held, writes the revision and an `OFFICE_DESIGN` /
    `REGISTER_DESIGN_REVISION` audit event scoped to the Tenant and Business,
    then writes the receipt. A same-key request with different content is a
-   `409`. `?dryRun=1` validates and reports counts without writing.
+   `409`. `?dryRun=1` validates and reports counts without writing. A new
+   receipt and the dry run also carry `omittedIdentityCount` and a `warnings`
+   list (§12.6).
 5. **Refusals are 404-shaped** for anything about the target the caller may not
    see.
 
@@ -387,16 +389,25 @@ the owner's approval before the pin file changes. In order:
 
 | Gap | State |
 |---|---|
-| Portable recovery | Generic JSON backup and restore refuse while any Office Design registry exists (`backup-boundary.js`, `OFFICE_DESIGN_RECOVERY_UNAVAILABLE`). Whole-database recovery is the only path. §13 is a candidate proposal |
+| Portable recovery | Generic JSON backup and restore refuse while any Office Design registry exists (`backup-boundary.js`, `OFFICE_DESIGN_RECOVERY_UNAVAILABLE`). Whole-database recovery is the only path. §13 records the selected direction (contract, export and offline verifier only; nothing built) |
 | Same-origin `/office/` serving | Accepted in ADR-116 decision 4 with its CSP and artifact-hash conditions; not implemented |
 | Separately hosted client enrollment | The fallback if same-origin serving cannot meet its conditions; no registration or token contract exists |
-| Identities dropped from a later design | A later revision adds missing identities and never retires one. Whether an omitted entity stays as history, is retired or may be deleted is undecided |
+| Retiring or deleting an identity | Not built and not defined. A later revision that omits an identity keeps and flags it (§12.6); no command retires or deletes one |
 | Process-level containment of the verifier | The worker has heap limits and a timeout; total process memory is not bounded by them |
 | Snapshot, roster, command and event contracts | Named by ADR-116 for separate requirements; none issued |
 
-## 13. Portable recovery of Office design custody — candidate proposal
+### 12.6 Identities omitted by a later revision
 
-**Status: candidate proposal. Not approved, not scheduled.** It adds no requirement, route, contract or permission and does not change FR-294. Approving any option below is the owner's decision and needs its own change request.
+Decision D-C, a delegated product-owner decision (Astra, gpt-6-astra) under owner instruction 2026-11-08, decided 2026-11-14; not human approval. Omission is not a retire command.
+
+- When a later revision omits an identity that an earlier revision had, the receiver **keeps the identity** with the same server `id` and `code`. Earlier revisions and receipts may still refer to them. There is no active or retired state in the schema.
+- The revision's `mapping` lists only the entities of that revision's manifest, so an omitted identity is not current membership of it. If a later revision brings the entity back, it receives the same `id` and `code`.
+- The dry run and every **new** receipt report `omittedIdentityCount`, the number of existing identities of the registry that are absent from the revision's manifest, and a `warnings` entry with code `OFFICE_IDENTITY_OMITTED` when it is greater than zero. The count is computed in the same transaction as the commit, stored in the receipt and recorded in the `REGISTER_DESIGN_REVISION` audit payload, so replay returns it unchanged. The dry run reads the count outside a transaction, so it is advisory; the commit is still fenced by the expected version. Receipts committed before this rule do not carry the fields and are never rewritten; a reader treats a missing field as "not recorded".
+- The rule grants no permission, creates no Agent runtime and removes no blob. Retiring or deleting an identity would need its own command and decision.
+
+## 13. Portable recovery of Office design custody — option C selected for contract, export and offline verifier only
+
+**Status: the owner's delegate selected option C (decision D-D5, a delegated product-owner decision by Astra, gpt-6-astra, under owner instruction 2026-11-08, decided 2026-11-14; not human approval), for the contract, protected export and offline verifier only.** Clean-target restore and production recovery are deferred until identity continuity, audit linkage, completeness and scope are proven on isolated SQLite and PostgreSQL. Nothing in this section is built; it adds no requirement, route, permission or code, and does not change FR-294. The text below keeps the options for the record.
 
 ### 13.1 The gap
 
@@ -435,17 +446,19 @@ Hash and chain integrity as it exists today: the Office tables carry no row-leve
 - **Audit linkage.** Restoring Office rows without their audit events leaves dangling `auditEventId` values; restoring audit events needs the generic audit recovery to agree. Fabricating audit events at restore would be false custody.
 - **Hash verification limits.** `archiveSha256` cannot be re-derived, and a later verifier bump (§12.4) must not re-verify or rewrite restored historical revisions, which stay labelled with the `producerRevision` they were accepted under.
 - **Scope and disclosure.** An export contains design data and GLB bytes for a Business; it must be produced only under operator authority and keep per-scope boundaries, as the existing protected exports do.
-- **Retention.** Whether an identity omitted by a later design is history, retired or deletable is undecided (§12.5); recovery completeness is defined against that rule.
+- **Retention.** An identity omitted by a later revision is kept and flagged (§12.6), so a complete export includes identities that no current revision lists; retiring or deleting one is not defined.
 
 ### 13.5 Recommended minimal first step
 
 Option C, in two slices, with the first one not restoring anything:
 
-1. **Owner decisions first:** the supported interim position (option A is already true in practice and should be stated and rehearsed), whether recovery must be per Business or may be installation-wide, and how audit events are carried.
+1. **Decided (D-D5):** the export is per Business and covers every registry, revision, identity (including identities omitted by a later revision), blob and receipt, with the related audit. How audit events are carried in the package is part of the contract still to be specified. Not part of the decision, and a recommendation of this proposal only: until the export exists, option A (whole-database recovery) is the available path and should be rehearsed.
 2. **Slice 1, export and offline verifier only.** A protected offline export of every registry and its identities, revisions, blobs and receipts, with a manifest of counts and digests, and a command that verifies a package (recomputes `contentHash` and blob `sha256`, checks revision continuity and receipt linkage) without touching a database. It cannot lose data, gives backup evidence, and settles the format before any restore code exists.
-3. **Slice 2, clean-target restore** after the format is qualified: refuse any target that already holds a registry for the scope or lacks a referenced Tenant, Business or Workspace, preserve every id and code, and write no synthesized receipts or audit rows.
+3. **Slice 2, clean-target restore (deferred; not approved)**, only after the format is qualified and identity continuity, audit linkage, completeness and scope are proven on isolated SQLite and PostgreSQL: refuse any target that already holds a registry for the scope or lacks a referenced Tenant, Business or Workspace, preserve every id and code, and write no synthesized receipts or audit rows.
 
 Until slice 1 exists the refusal in `backup-boundary.js` stays unchanged.
+
+**Version diff 0.5.0 → 0.6.0 (2026-11-14):** Adds §12.6, the rule that a later revision which omits an identity keeps and flags it (decision D-C), and records in §13 that the owner's delegate selected recovery option C for the contract, export and offline verifier only (decision D-D5). No route, request contract, permission, schema or pin changes; clean-target restore and production recovery remain deferred.
 
 **Version diff 0.4.0 → 0.5.0 (2026-11-13):** Expands §12.4 with the observed comparison of the current producer against the pinned verifier, how to re-obtain the pinned revision and how a verifier bump is reviewed; points §12.5 at the new candidate §13 on portable recovery. No contract, route, permission or approval is added, and the pin is unchanged.
 

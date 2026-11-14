@@ -1485,11 +1485,14 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
 }
 
-// ---- Check 22: documents added against the merge base (report-only) ---------
-// ADR-118 amendment 1; redesign proposal section 7.2, checks D1 to D3. Every finding
-// is a WARNING (or an info when the guard cannot run): this block can never make
-// --strict or CI fail, and it has no baseline — only added/renamed files are examined,
-// so existing files are never reported. See scripts/doc-added-files.mjs.
+// ---- Check 22: documents added against the merge base ------------------------
+// ADR-118 amendments 1 to 3; redesign proposal section 7.2, checks D1 to D3. Findings are
+// WARNING, except a doc-placement finding for a file added or renamed into a legacy home
+// whose policy rule says enforce:"critical" (.agent/, agent/, .rwang-tasks/, .brain/plans/,
+// docs/superpowers/, docs/roadmap/PLAN-*.md), which is CRITICAL. There is no baseline: only
+// added/renamed files are examined, so existing files are never reported. A guard that
+// cannot run is reported as NOT EVALUATED (warning under CI, info locally), never as a pass.
+// See scripts/doc-added-files.mjs.
 {
   const repoRoot = workspaceRoot(ROOT)
   const runGitAdded = (args) => {
@@ -1504,13 +1507,14 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
     const { loadPolicy } = await import('../../../tools/document-catalog.mjs')
     const guards = evaluateAddedDocumentGuards({
       git: runGitAdded,
+      baseRef: process.env.GITHUB_BASE_REF || '',
       policy: loadPolicy(repoRoot),
       read: (file) => { try { return readFileSync(path.join(repoRoot, file), 'utf8') } catch { return null } },
       exists: (file) => existsSync(path.join(repoRoot, file)),
     })
     for (const f of guards) add(f.severity, f.check, f.title, f.details, f.files, f.action)
   } catch (error) {
-    add('info', 'doc-added-files', 'Added-document guards skipped', `The guard or the kinds policy could not be loaded: ${error.message}`, ['docs/governance/DOCUMENT-KINDS.json'], '')
+    add(process.env.CI ? 'warning' : 'info', 'doc-added-files', 'Added-document guards NOT EVALUATED (neither a pass nor a failure)', `The guard or the kinds policy could not be loaded: ${error.message}. The legacy-home CRITICAL guard did not run for this change.`, ['docs/governance/DOCUMENT-KINDS.json'], 'Restore tools/document-catalog.mjs and the kinds policy, then rerun npm run govern')
   }
 }
 

@@ -61,7 +61,7 @@ test('policy rejects an unknown kind, an unknown home and an ambiguous rule', ()
 })
 
 test('classification is first-match and never guesses', () => {
-  assert.deepEqual(classifyPath(POLICY, 'docs/plans/X.md'), { kind: 'K9', home: 'write', note: null, addAllowed: false, priorArt: true })
+  assert.deepEqual(classifyPath(POLICY, 'docs/plans/X.md'), { kind: 'K9', home: 'write', note: null, addAllowed: false, priorArt: true, enforce: null, rule: 1 })
   assert.equal(classifyPath(POLICY, 'docs/roadmap/PLAN-OLD.md').home, 'legacy')
   assert.equal(classifyPath(POLICY, 'reports/a.md').kind, 'K12')
   assert.equal(classifyPath(POLICY, 'reports/sub/a.md').kind, 'UNCLASSIFIED')

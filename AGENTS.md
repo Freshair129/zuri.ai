@@ -703,12 +703,13 @@ refresh the filesystem enumeration before relying on them for a later change.
 put a new document in the write home of its kind (table in [docs/README.md](docs/README.md);
 machine form [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json)) and run
 `npm run docs:find -- "<subject words>"` first. A miss is not proof of absence (§21).
-This is guidance: the only checks are report-only warnings that never fail `govern`. ADR-118 D5 lists everything that stays unapproved;
+This is guidance with one hard edge: adding a document to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`,
+`docs/superpowers/` or `docs/roadmap/PLAN-*.md` is CRITICAL in preflight (ADR-118 amendment 3, a delegated
+product-owner decision); every other added-document finding is a warning. ADR-118 D5 lists everything that stays unapproved (amendment 3 separately approves archiving two named root files);
 in short: any file move, rename, deletion or archiving, redirect stubs, CI-classification and preflight
 changes, rewriting existing frontmatter, and anything under `apps/edge/docs/`.
-Brainstorming and plan skills write to `docs/plans/`, not `docs/superpowers/`. Report-only
-warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`, ADR-118 amendment 1) flag documents
-you add in the wrong place or without metadata; they never fail `govern`.
+Brainstorming and plan skills write to `docs/plans/`, not `docs/superpowers/`. Added-document checks (`doc-placement`, `doc-metadata`, `doc-prior-art`, ADR-118 amendments 1 to 3) flag
+documents you add in the wrong place or without metadata; they are warnings except the CRITICAL legacy homes above.
 
 When adding a document, identify its authority and audience first. If the document
 would establish a new source of requirement, membership or ownership authority,
@@ -902,3 +903,5 @@ Version diff (2026-11-12): §19 states ADR-116 as accepted (2026-11-07) instead 
 Version diff (2026-11-14): §19 adds a pointer to ADR-118 and `npm run docs:find`; guidance only, no rule rewritten, no check enabled, nothing moved.
 
 Version diff (2026-11-14, Stage 3): §19 states that plan skills write to `docs/plans/` and notes the report-only added-document warnings of ADR-118 amendment 1; no check can fail and nothing is moved.
+
+Version diff (2026-11-14, Stage 4a): §19 states that adding a document to the named legacy homes is CRITICAL in preflight (ADR-118 amendment 3, delegated product-owner decision); all other added-document findings stay warnings; nothing moved.
