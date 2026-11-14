@@ -699,6 +699,14 @@ inventories of tracked direct children of `docs/` at their recorded revision.
 They are not approval lists and do not include ignored or untracked files;
 refresh the filesystem enumeration before relying on them for a later change.
 
+**Search before you write a document** ([ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md)):
+put a new document in the write home of its kind (table in [docs/README.md](docs/README.md);
+machine form [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json)) and run
+`npm run docs:find -- "<subject words>"` first. A miss is not proof of absence (§21).
+This is guidance only: no check enforces it yet. ADR-118 D5 lists everything that stays unapproved;
+in short: any file move, rename, deletion or archiving, redirect stubs, CI-classification and preflight
+changes, rewriting existing frontmatter, and anything under `apps/edge/docs/`.
+
 When adding a document, identify its authority and audience first. If the document
 would establish a new source of requirement, membership or ownership authority,
 update the applicable canonical contract through its reviewed workflow instead of
@@ -887,3 +895,5 @@ or design-system rule changes.
 Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.
 
 Version diff (2026-11-12): §19 states ADR-116 as accepted (2026-11-07) instead of candidate and points to the as-built handoff section of the Visual Office client design; no rule changes.
+
+Version diff (2026-11-14): §19 adds a pointer to ADR-118 and `npm run docs:find`; guidance only, no rule rewritten, no check enabled, nothing moved.

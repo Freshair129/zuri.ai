@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.6"
+version: "0.3.7"
 checked_at: "2026-11-02"
 checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
 ---
@@ -36,6 +36,7 @@ This register records all 20 tracked directories directly under `docs/` at the r
 
 ## Findings
 
+- Current enumeration (2026-11-14, main `57611a61`): 21 tracked direct directories, all registered by name, and 11 with a direct README (`architecture`, `change-requests`, `domains`, `governance`, `operations`, `plans`, `product`, `prompts`, `roadmap`, `services`, `templates`). `plans/` holds 22 tracked files including its README; `roadmap/` holds 55 files of all types, and it is being edited by another session, so recount before relying on that. The reviewed-base counts in the table stay historical.
 - At the reviewed base, six of the 20 directories had a direct README. This change adds five local indexes; 11 now have a direct README. The remaining nine have a named canonical or generated entrypoint in the table.
 - `features/` and `requirements/` are indexed by the canonical registry. `decisions/`, `changes/`, `migrations/`, `deployment/`, `runbooks/`, and `appendices/` are covered by generated navigation. A duplicate local file list would create another copy to drift.
 - `archive/00-START-HERE.md` is the existing archive entrypoint. `prompts/README.md` is the only new local index needed for its single historical prompt.
@@ -45,6 +46,8 @@ This register records all 20 tracked directories directly under `docs/` at the r
 - Do not add directories or files solely to make this inventory symmetrical. A missing local README is acceptable when an exact canonical index already covers the contents.
 
 ## Version diff
+
+0.3.6 → 0.3.7 (2026-11-14): adds a current-enumeration finding against main `57611a61`; the reviewed-base table and every placement decision are unchanged and nothing was moved.
 
 0.2.0 → 0.3.0 (2026-10-23): record four explicitly requested proposed PM plans
 after SRS approval; fourteen current direct plan-folder files. The historical

@@ -1,5 +1,5 @@
 ---
-version: "0.7.20"
+version: "0.7.21"
 status: active
 superseded_by: null
 ---
@@ -9,6 +9,38 @@ superseded_by: null
 This index links to the current ZAI source records, their compatibility exports,
 and generated navigation views. It is hand-authored so the generated category
 indexes do not index themselves.
+
+## Before you write a document
+
+[ADR-118](decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md) adopts one write home
+and one source-of-truth owner per kind of knowledge; the
+[redesign proposal](plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) holds the
+measurements and the staged design (a candidate, not a source of truth) and
+[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. No check
+enforces placement yet, and no existing file has been approved to move. The table is a
+quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
+no single source of truth such as session memory and generated views) is in ADR-118 and
+the proposal.
+
+| Kind | Write new documents here | Source of truth |
+|---|---|---|
+| Requirement / feature | `docs/features/FEAT-nnn/`, `docs/requirements/` via the reviewed record workflow (never by hand) | canonical per-ID records |
+| Decision | `docs/decisions/ADR-nnn-*` (next free number) | the ADR |
+| Change request | `docs/change-requests/<area>/`; issued ZV2-CR in `docs/changes/` | the change record |
+| Domain boundary | `docs/domains/<d>/CHARTER.md` (optional `SRS.md` beside it) | the charter |
+| Architecture / design | `docs/architecture/` | accepted ADRs, then `ARCHITECTURE.md`; code for implementation |
+| Service execution | `docs/services/<svc>/` | package scripts and wire schemas |
+| Plan | `docs/plans/` | the plan for its bounded scope; delivery state is only `docs/roadmap/ROADMAP.md` |
+| Runbook / deployment | `docs/runbooks/`, `docs/deployment/` | the runbook |
+| Dated evidence / assessment | `reports/` | that dated scope only |
+| Root-cause analysis | `.brain/rca/` | the RCA |
+| Agent and team instructions | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` | `AGENTS.md` |
+
+Search first: `npm run docs:find -- "<subject words>"` (also `--id FR-292`, `--kind plan`,
+`--domain agent`, `--path docs/plans`). A hit shows a document exists; a miss is not proof
+it does not, so enumerate the intended home with `git ls-files <home>` (AGENTS.md section
+21). If one exists, extend or supersede it instead of writing a parallel copy, and record
+`prior_art` in the new document's frontmatter (a convention; nothing checks it yet).
 
 ## Rebuild blueprint
 
@@ -162,6 +194,10 @@ kit outside this execution repository.
 - [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [UI page drawing atlas (visual companion)](UI-PAGE-DIMENSIONAL-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+
+Version diff 0.7.20 → 0.7.21 (2026-11-14): adds the "Before you write a document"
+section (ADR-118 kind table, search-before-write protocol, `docs:find`). Hand edit only;
+no file moved, no check enabled, and the dated narrative below is unchanged.
 
 Version diff 0.3.0 → 0.4.0: adds the reconciled rebuild blueprint entrypoint;
 preserves canonical records and generated feature views.
