@@ -17,7 +17,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 
 ## Before you write a document
 
-Policy: [ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md). Full design and measurements: [redesign proposal](docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) (a candidate, not a source of truth). The machine form of the matrix is [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json). Only report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail `govern` or CI) flag newly added documents, and no existing file has been moved or approved to move. The table is a quick reference of the main kinds; the full matrix (K1-K18, with legacy homes and the kinds that have no single source of truth, such as session memory and generated views) is in ADR-118 and the proposal.
+Policy: [ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md). Full design and measurements: [redesign proposal](docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) (a candidate, not a source of truth). The machine form of the matrix is [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json). Only report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail `govern` or CI) flag documents added or renamed into a path, and no existing file has been moved or approved to move. The table is a quick reference of the main kinds; the full matrix (K1-K18, with legacy homes and the kinds that have no single source of truth, such as session memory and generated views) is in ADR-118 and the proposal.
 
 | Kind | Write new documents here | Source of truth |
 |---|---|---|

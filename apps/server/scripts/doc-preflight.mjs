@@ -1495,7 +1495,7 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
 {
   const repoRoot = workspaceRoot(ROOT)
   const runGitAdded = (args) => {
-    const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true })
+    const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true, maxBuffer: 256 * 1024 * 1024 })
     return r.error || r.status !== 0 ? { ok: false, stdout: '' } : { ok: true, stdout: r.stdout }
   }
   let policy = null

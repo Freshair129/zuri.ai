@@ -87,8 +87,8 @@ no baseline; existing files never fail them. The duplicate-subject check
 states. The source-of-truth uniqueness check (proposal D5) waits for the audit
 of the 17 existing `source_of_truth` declarations (O12) before it applies to
 anything but added files. Canonical requirement and feature records (K2) keep
-their own format and validators and are excepted. Nothing in this ADR turns a
-check on.
+their own format and validators and are excepted. Apart from the report-only
+warnings of amendment 1, nothing in this ADR turns a check on.
 
 ### D4 — Owner decisions O1 to O12 are recorded as follows
 
@@ -100,7 +100,7 @@ anything is executed by this record.
 | # | Decision | Recorded outcome | Executed here |
 |---|---|---|---|
 | O1 | Adopt the kind matrix and write-home policy as an ADR | adopted (this record) | yes, as policy text only |
-| O2 | Enforcement style for placement, metadata and prior-art checks (proposal D1 to D3) | added-file rule, no baseline; D4 keeps its shrink-only list and D5 follows O12 | no, later stage |
+| O2 | Enforcement style for placement, metadata and prior-art checks (proposal D1 to D3) | added-file rule, no baseline; D4 keeps its shrink-only list and D5 follows O12 | D1 to D3 report-only only, per amendment 1; the rest later |
 | O3 | Where dated assessments live | keep `reports/` outside `docs/` | n/a, no change |
 | O4 | Count `reports/*.md` and similar as documentation for CI classification | decided in principle | **no**: needs its own reviewed CI change with tests |
 | O5 | One closed `status` vocabulary | on added files only; existing files are not rewritten | no, later stage |
@@ -153,6 +153,7 @@ about turning on a new preflight check, and only as follows.
   D3). Their severity is **WARNING**, or INFO when the guard cannot run. No
   CRITICAL is enabled, so neither `--strict`, `govern` nor CI can fail because of
   them; `--strict` still fails only on CRITICAL.
+- Deliberate scope choices: generated homes are not reported (a new feature's generated design page is expected), metadata is asked only of the decision, change, domain, architecture, service, plan, roadmap, runbook, evidence and RCA kinds (instructions, templates, archive, records and generated views keep their own formats), and sealed `*.approval.md` copies under `record-migrations/` may be added.
 - They examine **only files added or renamed** against the merge base (plus
   untracked, non-ignored files). There is no baseline file, and existing files
   are never reported.

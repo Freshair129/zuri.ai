@@ -82,9 +82,10 @@ export function parseFrontmatter(text) {
   if (!body.startsWith('---\n')) return null
   const end = body.indexOf('\n---', 4)
   if (end < 0) return null
-  const fields = {}
+  // Prototype-free: a frontmatter key such as `constructor:` must not reach Object.prototype.
+  const fields = Object.create(null)
   const relations = []
-  const lists = {}
+  const lists = Object.create(null)
   let section = null
   let pendingType = null
   for (const line of body.slice(4, end).split('\n')) {

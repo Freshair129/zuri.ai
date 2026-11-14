@@ -18,7 +18,7 @@ and one source-of-truth owner per kind of knowledge; the
 measurements and the staged design (a candidate, not a source of truth) and
 [DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Only
 report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail
-`govern` or CI) flag newly added documents, and no existing file has been approved to move. The table is a
+`govern` or CI) flag documents added or renamed into a path, and no existing file has been approved to move. The table is a
 quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
 no single source of truth such as session memory and generated views) is in ADR-118 and
 the proposal.

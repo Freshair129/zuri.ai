@@ -106,6 +106,34 @@ describe('report-only added-document guards', () => {
     expect(calls.some((c) => c.startsWith('diff --name-status -z --find-renames --diff-filter=AR abc123'))).toBe(true)
   })
 
+  it('a hostile frontmatter key cannot throw, and an unreadable file is info', () => {
+    const hostile = '---\nconstructor:\n  - x\n__proto__:\n  - y\ntitle: T\n---\n'
+    const findings = run(['docs/plans/H.md', 'docs/plans/U.md'], { 'docs/plans/H.md': hostile })
+    expect(findings.every((f) => ['warning', 'info'].includes(f.severity))).toBe(true)
+    expect(findings.some((f) => f.severity === 'info' && f.files[0] === 'docs/plans/U.md')).toBe(true)
+    const wrapped = evaluateAddedDocumentGuards({
+      git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : args[0] === 'diff' ? { ok: true, stdout: 'A\0docs/plans/H.md\0' } : { ok: true, stdout: '' }),
+      policy, read: () => { throw new Error('boom') }, exists: () => false,
+    })
+    expect(wrapped).toHaveLength(1)
+    expect(wrapped[0].severity).toBe('info')
+  })
+
+  it('none-found needs a query, and prior_art paths may contain spaces', () => {
+    const noQuery = GOOD.replace('none-found (query "x")', 'none-found')
+    expect(run(['docs/plans/N.md'], { 'docs/plans/N.md': noQuery })[0].title).toMatch(/names no query/)
+    const spaced = GOOD.replace('prior_art: none-found (query "x")', 'prior_art:\n  - docs/STD-Multi agent workflow S-01.md')
+    expect(run(['docs/plans/S.md'], { 'docs/plans/S.md': spaced }, ['docs/STD-Multi agent workflow S-01.md'])).toEqual([])
+  })
+
+  it('generated homes are not reported and only approval copies may be added to record-migrations', () => {
+    const real = loadPolicy(REPO_ROOT)
+    const check = (p) => evaluateAddedDocuments({ added: [{ status: 'A', path: p, from: null }], policy: real, read: () => null, exists: () => false })
+    expect(check('docs/PRD-SDD-v1.0.md')).toEqual([])
+    expect(check('docs/migrations/document-reintegration/record-migrations/x-20261114.approval.md')).toEqual([])
+    expect(check('docs/migrations/document-reintegration/record-migrations/notes.md').map((f) => f.check)).toEqual(['doc-placement'])
+  })
+
   it('a missing merge base or failed git call is info, never clean and never critical', () => {
     const none = evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy, read: () => null, exists: () => false })
     expect(none).toHaveLength(1)

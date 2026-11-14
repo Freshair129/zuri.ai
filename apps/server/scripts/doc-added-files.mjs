@@ -15,6 +15,10 @@
 // There is no baseline. Only files added/renamed against the merge base (plus
 // untracked, non-ignored files) are examined, so existing files are never reported.
 //
+// Deliberate scope choices (ADR-118 amendment 1): generated homes are not reported (a new
+// feature's generated design page is expected); metadata is asked only of METADATA_KINDS
+// (instructions, templates, archive, records and generated views keep their own formats).
+//
 // What these checks cannot do, and say so in the finding text:
 //   - prior_art is a declaration; the check verifies that named paths exist, not that a
 //     search was run or that the hits were read;
@@ -74,9 +78,13 @@ export function listAddedDocuments({ git }) {
   return { ok: true, base: base.stdout.trim(), added }
 }
 
-function priorArtPaths(parsed) {
+// A prior_art entry is a repo path, optionally followed by a comment; paths may contain spaces.
+function priorArtCandidates(parsed) {
   const raw = parsed?.lists?.prior_art || (parsed?.fields?.prior_art ? [parsed.fields.prior_art] : [])
-  return raw.map((entry) => String(entry).replace(/[`'"]/g, '').trim().split(/\s+/)[0]).filter(Boolean)
+  return raw.map((entry) => {
+    const whole = String(entry).replace(/[`'"]/g, '').replace(/\s+(#|—|--).*$/, '').trim()
+    return { whole, first: whole.split(/\s+/)[0] }
+  }).filter((c) => c.whole)
 }
 
 /**
@@ -109,7 +117,10 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     }
     if (here.home !== 'write') continue
     const text = read(file)
-    if (typeof text !== 'string') continue
+    if (typeof text !== 'string') {
+      findings.push({ severity: 'info', check: 'doc-added-files', title: `Added document could not be read: ${file}`, details: `The guards skipped it. ${LIMITATION}`, files: [file], action: '' })
+      continue
+    }
     const parsed = parseFrontmatter(text)
     const fields = parsed?.fields || {}
     if (METADATA_KINDS.has(here.kind)) {
@@ -132,8 +143,14 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
         add('doc-prior-art', `Added document declares no prior_art: ${file}`,
           'The search-before-write protocol asks a new document to name what it found (npm run docs:find), or to state none-found with the query used. This check verifies the declaration, not that a search happened.',
           file, 'Run npm run docs:find, then add prior_art to the frontmatter')
-      } else if (!/^none-found\b/i.test(String(fields.prior_art || ''))) {
-        const missing = priorArtPaths(parsed).filter((p) => /[/.]/.test(p) && !exists(p))
+      } else if (/^none-found\b/i.test(String(fields.prior_art || ''))) {
+        if (!/^none-found\b\W*\w/i.test(String(fields.prior_art))) {
+          add('doc-prior-art', `prior_art none-found names no query: ${file}`,
+            'none-found should be followed by the query that was run (for example: none-found (query "office design receiver")). The check verifies the declaration, not that the search happened.', file,
+            'Add the query used with npm run docs:find')
+        }
+      } else {
+        const missing = priorArtCandidates(parsed).filter((c) => !exists(c.whole) && !exists(c.first)).map((c) => c.whole)
         if (missing.length) {
           add('doc-prior-art', `prior_art names paths that do not exist: ${file}`,
             `Missing: ${missing.join(', ')}. The check verifies that named paths exist, not that they were read.`, file,
@@ -147,11 +164,15 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
 
 /** The wiring doc-preflight calls: examine the added set and return findings. */
 export function evaluateAddedDocumentGuards({ git, policy, read, exists }) {
-  const listed = listAddedDocuments({ git })
-  if (!listed.ok) {
-    return [{ severity: 'info', check: 'doc-added-files', title: 'Added-document guards skipped', details: `${listed.reason}. ${LIMITATION}`, files: [], action: '' }]
+  const skipped = (reason) => [{ severity: 'info', check: 'doc-added-files', title: 'Added-document guards skipped', details: `${reason}. ${LIMITATION}`, files: [], action: '' }]
+  // Nothing in here may throw into doc-preflight: a guard that cannot run is info, never an error exit.
+  try {
+    const listed = listAddedDocuments({ git })
+    if (!listed.ok) return skipped(listed.reason)
+    return evaluateAddedDocuments({ added: listed.added, policy, read, exists })
+  } catch (error) {
+    return skipped(`unexpected error: ${error?.message || error}`)
   }
-  return evaluateAddedDocuments({ added: listed.added, policy, read, exists })
 }
 
 export { compilePolicy }
