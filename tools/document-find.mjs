@@ -13,7 +13,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url'
 import { buildRepositoryCatalog } from './document-catalog.mjs'
 
 const TOOL_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const HOME_WEIGHT = { write: 1, legacy: 0.8, external: 0.8, frozen: 0.5, generated: 0.5, local: 0.3, unclassified: 0.7 }
+const HOME_WEIGHT = { write: 1, tolerated: 0.9, legacy: 0.8, external: 0.8, frozen: 0.5, generated: 0.5, local: 0.3, unclassified: 0.7 }
 
 export function parseFindArguments(argv) {
   const options = { terms: [], id: null, kind: null, domain: null, pathPrefix: null, limit: 15, json: false }

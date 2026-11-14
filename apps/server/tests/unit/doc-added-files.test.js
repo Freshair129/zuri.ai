@@ -24,6 +24,8 @@ const policy = compilePolicy({
   },
   docTypes: ['implementation-plan', 'decision'],
   statuses: ['candidate', 'accepted'],
+  requiredFields: { K9: ['id', 'title', 'doc_type', 'status', 'version', 'last_update', 'source_of_truth'], K3: ['status'], K12: ['status'] },
+  priorArtKinds: ['K3', 'K9', 'K12'],
   rules: [
     { prefix: 'apps/edge/', kind: 'EDGE', home: 'external' },
     { prefix: 'docs/archive/', kind: 'K16', home: 'frozen' },
@@ -162,5 +164,98 @@ describe('report-only added-document guards', () => {
       policy: real, read: () => null, exists: () => false,
     })
     expect(findings.map((f) => f.check)).toEqual(['doc-placement', 'doc-placement', 'doc-placement'])
+  })
+})
+
+describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', () => {
+  const real = loadPolicy(REPO_ROOT)
+  const check = (file, text = null, existing = []) => evaluateAddedDocuments({
+    added: [{ status: 'A', path: file, from: null }], policy: real, read: () => text, exists: (f) => existing.includes(f),
+  }).filter((f) => f.severity === 'warning').map((f) => f.check)
+  const fm = (lines) => `---\n${lines.join('\n')}\n---\n# T\n`
+
+  it('K13 RCA: status and version are what is asked; its own doc_type and vocabulary are fine', () => {
+    expect(check('.brain/rca/2026-11-14-x.md', fm(['status: resolved', 'version: "1"', 'doc_type: root-cause-analysis']))).toEqual([])
+    expect(check('.brain/rca/2026-11-14-x.md', '# no frontmatter\n')).toEqual(['doc-metadata'])
+    expect(check('.brain/rca/2026-11-14-x.md', fm(['status: whatever-this-is', 'version: "1"']))).toEqual(['doc-metadata'])
+  })
+
+  it('K5 domain note: no prior_art asked (it cites canonical ids), but status and version are', () => {
+    expect(check('docs/domains/crm/features/FR-9-x.md', fm(['status: beta', 'version: "1"']))).toEqual([])
+    expect(check('docs/domains/crm/features/FR-9-x.md', fm(['title: only a title']))).toEqual(['doc-metadata'])
+  })
+
+  it('K4 change request: doc_type not required; relations count as prior art; bundles are exempt', () => {
+    const base = ['status: approved', 'version: "1"']
+    expect(check('docs/change-requests/identity/x-20261114.md', fm([...base, 'relations:', '  - type: references', '    target: ZAI:FR-1']))).toEqual([])
+    expect(check('docs/change-requests/identity/x-20261114.md', fm(base))).toEqual(['doc-prior-art'])
+    expect(check('docs/change-requests/marketing/flow/part-2.md', fm(base))).toEqual([])
+  })
+
+  it('K6 architecture: numbered chapters of one specification need no prior_art; a new design does', () => {
+    const base = ['doc_type: architecture-specification', 'status: candidate', 'version: "1"']
+    expect(check('docs/architecture/project-manager-system/30-NEW-CHAPTER.md', fm(base))).toEqual([])
+    expect(check('docs/architecture/2026-11-14-new-design.md', fm(base))).toEqual(['doc-prior-art'])
+    expect(check('docs/architecture/2026-11-14-new-design.md', fm(base.slice(1)))).toEqual(['doc-metadata', 'doc-prior-art'])
+  })
+
+  it('K12 evidence: a document inside a dated assessment folder belongs to it; a top-level report declares prior art', () => {
+    const base = ['doc_type: implementation-evidence', 'status: reviewed', 'version: "1"']
+    expect(check('reports/compact-2026-11-14/task9.md', fm(base))).toEqual([])
+    expect(check('reports/new-report-20261114.md', fm(base))).toEqual(['doc-prior-art'])
+  })
+
+  it('tolerated homes are not flagged for placement, legacy and frozen homes still are', () => {
+    for (const file of ['.brain/reports/x.md', '.brain/reviews/x.md', 'docs/migrations/lane/x.md', 'apps/server/deploy/NOTES.md', 'services/runtime/NOTES.md', 'docs/governance/NEW-POLICY.md', 'skills/zuri-x/NOTES.md']) {
+      expect(check(file, fm(['status: active', 'version: "1"']))).not.toContain('doc-placement')
+    }
+    for (const file of ['.agent/reports/x.md', 'docs/archive/x.md', 'docs/roadmap/PLAN-NEW.md', 'reference/GoVibe/x.md', 'docs/superpowers/specs/x.md']) {
+      expect(check(file)).toContain('doc-placement')
+    }
+  })
+
+  it('evidence may be added under an RCA, and README files are never new subjects', () => {
+    expect(check('.brain/rca/evidence/2026-11-14-x/source/a.md', '# copy\n')).toEqual([])
+    expect(check('.brain/rca/other-frozen-name.md', '# x\n').length).toBeGreaterThan(0)
+    expect(check('docs/plans/README.md')).toEqual([])
+    expect(check('docs/plans/index.md')).toEqual([])
+    expect(check('docs/roadmap/README.md')).toEqual(['doc-placement'])
+  })
+
+  it('every kind that is asked for metadata has a pass and a fail from the real policy', () => {
+    const samples = {
+      K1: 'docs/PRODUCT.md', K3: 'docs/decisions/ADR-999-X.md', K4: 'docs/change-requests/identity/x-20261114.md',
+      K5: 'docs/domains/crm/CHARTER.md', K6: 'docs/architecture/x.md', K7: 'docs/services/x/SERVICE.md',
+      K9: 'docs/plans/X-20261114.md', K10: 'docs/roadmap/ROADMAP.md', K11: 'docs/runbooks/X.md',
+      K12: 'reports/x-20261114.md', K13: '.brain/rca/2026-11-14-x.md',
+    }
+    for (const [kind, required] of real.requiredFields) {
+      const file = samples[kind]
+      expect(file, `a sample path for ${kind}`).toBeTruthy()
+      const lines = required.map((key) => {
+        if (key === 'status') return 'status: active'
+        if (key === 'doc_type') return `doc_type: ${[...(real.vocabulary.get(kind)?.docTypes || ['implementation-plan'])][0]}`
+        if (key === 'version') return 'version: "1"'
+        return `${key}: x`
+      })
+      const withPriorArt = [...lines, 'relations:', '  - type: references', '    target: ZAI:FR-1']
+      expect(check(file, fm(withPriorArt)), `${kind} compliant`).toEqual([])
+      expect(check(file, '# no frontmatter\n'), `${kind} without frontmatter`).toContain('doc-metadata')
+    }
+  })
+
+  it('empty required values count as missing; README is exempt from metadata only', () => {
+    const empty = fm(['id: ""', 'doc_type: implementation-plan', 'status: candidate', 'version: ""', 'prior_art: none-found (query "x")'])
+    expect(check('docs/plans/E-20261114.md', empty)).toEqual(['doc-metadata'])
+    expect(check('docs/plans/README.md', '# index\n')).toEqual([])
+  })
+
+  it('exemptions are narrow: only NN- chapters, dated report folders, and real bundles', () => {
+    const base = ['doc_type: architecture-specification', 'status: candidate', 'version: "1"']
+    expect(check('docs/architecture/project-manager-system/NEW-DESIGN.md', fm(base))).toEqual(['doc-prior-art'])
+    expect(check('docs/architecture/blueprint/NEW.md', fm(base))).toEqual(['doc-prior-art'])
+    const ev = ['doc_type: assessment', 'status: reviewed', 'version: "1"']
+    expect(check('reports/random-folder/new.md', fm(ev))).toEqual(['doc-prior-art'])
+    expect(check('reports/study-2026-11-14/new.md', fm(ev))).toEqual([])
   })
 })

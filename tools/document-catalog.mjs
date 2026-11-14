@@ -45,7 +45,18 @@ export function compilePolicy(policy) {
     if (selectors.length !== 1) throw new CatalogError(`Rule ${index} needs exactly one of path, prefix, pattern`)
     return { ...rule, regex: rule.pattern ? new RegExp(rule.pattern) : null }
   })
-  return { kinds, rules, aliases, docTypes: new Set(policy.docTypes || []), statuses: new Set(policy.statuses || []) }
+  const lower = (list) => new Set((list || []).map((v) => String(v).toLowerCase()))
+  const vocabulary = new Map(Object.entries(policy.vocabulary || {}).map(([kind, v]) => [kind, { statuses: lower(v.statuses), docTypes: lower(v.docTypes) }]))
+  const requiredFields = new Map(Object.entries(policy.requiredFields || {}).map(([kind, fields]) => [kind, [...fields]]))
+  for (const kind of [...vocabulary.keys(), ...requiredFields.keys(), ...(policy.priorArtKinds || [])]) {
+    if (!kinds[kind]) throw new CatalogError(`Policy names unknown kind ${kind}`)
+  }
+  return {
+    kinds, rules, aliases, vocabulary, requiredFields,
+    priorArtKinds: new Set(policy.priorArtKinds || []),
+    docTypes: lower(policy.docTypes),
+    statuses: lower(policy.statuses),
+  }
 }
 
 export function loadPolicy(root = TOOL_ROOT) {
@@ -65,7 +76,7 @@ export function classifyPath(compiled, filePath) {
     const hit = rule.path !== undefined ? filePath === rule.path
       : rule.prefix !== undefined ? filePath.startsWith(rule.prefix)
         : rule.regex.test(filePath)
-    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null, addAllowed: rule.addAllowed === true }
+    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null, addAllowed: rule.addAllowed === true, priorArt: rule.priorArt !== false }
   }
   return { kind: 'UNCLASSIFIED', home: 'unclassified', note: null }
 }
