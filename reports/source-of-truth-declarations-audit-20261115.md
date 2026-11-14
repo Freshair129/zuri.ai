@@ -31,9 +31,11 @@ enables no check and approves no re-labelling: `doc-sot-claim` and
 - Rule applied for the "would flag" column is the proposal's D5 wording:
   `true` is allowed only on a kind's source-of-truth owner (PRODUCT, an accepted
   ADR, a charter, a runbook for its procedure, `docs/roadmap/ROADMAP.md` for
-  delivery state); a plan carries `false`. Only ROADMAP.md declares an `id`
-  subject, so duplicate-subject overlap cannot be computed for the other files
-  and is not asserted.
+  delivery state); a plan carries `false`. Among the eight `true` claimants only
+  `docs/roadmap/ROADMAP.md` (`ZAI:ROADMAP`) and the GoVibe roadmap
+  (`RM-govibe-mcp-runtime`) declare an `id`, and the two differ; the other six
+  declare no subject, so duplicate-subject overlap cannot be computed for them and
+  is not asserted.
 - `github` is not a boolean. It appears to name where the facts live, not whether
   the file is authoritative.
 
