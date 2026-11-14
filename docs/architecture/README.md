@@ -187,3 +187,4 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-115 — Compact single-host deployment profile and qualification boundaries](../decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md)
 - [ADR-116 — Visual Office repository, data-access and serving boundary](../decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md)
 - [ADR-117 — Cancel the 24-week programme as the delivery plan](../decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md)
+- [ADR-118 — Document kinds and write homes](../decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md)
