@@ -705,7 +705,7 @@ machine form [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json)) and run
 `npm run docs:find -- "<subject words>"` first. A miss is not proof of absence (§21).
 This is guidance with one hard edge: adding a document to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`,
 `docs/superpowers/` or `docs/roadmap/PLAN-*.md` is CRITICAL in preflight (ADR-118 amendment 3, a delegated
-product-owner decision); every other added-document finding is a warning. ADR-118 D5 lists everything that stays unapproved;
+product-owner decision); every other added-document finding is a warning. ADR-118 D5 lists everything that stays unapproved (amendment 3 separately approves archiving two named root files);
 in short: any file move, rename, deletion or archiving, redirect stubs, CI-classification and preflight
 changes, rewriting existing frontmatter, and anything under `apps/edge/docs/`.
 Brainstorming and plan skills write to `docs/plans/`, not `docs/superpowers/`. Added-document checks (`doc-placement`, `doc-metadata`, `doc-prior-art`, ADR-118 amendments 1 to 3) flag

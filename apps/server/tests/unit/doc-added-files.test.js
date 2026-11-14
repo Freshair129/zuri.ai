@@ -344,6 +344,40 @@ describe('CRITICAL only for added or renamed-into files in the named legacy home
     expect(failedDiff[0].title).toMatch(/NOT EVALUATED/)
   })
 
+  it('the exact set of enforce:critical rules is pinned', () => {
+    const raw = JSON.parse(readFileSync(path.join(REPO_ROOT, 'docs/governance/DOCUMENT-KINDS.json'), 'utf8'))
+    const enforced = raw.rules.filter((r) => r.enforce === 'critical').map((r) => r.prefix || r.pattern || r.path).sort()
+    expect(enforced).toEqual([
+      '.agent/', '.brain/plans/', '.rwang-tasks/', '^docs/roadmap/PLAN-[^/]+\\.md$', 'agent/', 'docs/superpowers/', 'docs/superpowers/plans/', 'docs/superpowers/specs/',
+    ].sort())
+    expect(raw.rules.filter((r) => r.enforce === 'critical').every((r) => r.home === 'legacy')).toBe(true)
+  })
+
+  it('a PR is compared with the branch it targets; unreadable and thrown cases are NOT EVALUATED', () => {
+    const calls = []
+    const git = (args) => {
+      calls.push(args.join(' '))
+      if (args[0] === 'merge-base') return args[2] === 'origin/release-1' ? { ok: true, stdout: 'base1\n' } : { ok: false, stdout: '' }
+      if (args[0] === 'diff') return { ok: true, stdout: '' }
+      return { ok: true, stdout: '' }
+    }
+    listAddedDocuments({ git, baseRef: 'release-1' })
+    expect(calls[0]).toBe('merge-base HEAD origin/release-1')
+    expect(calls.some((c) => c.includes('base1'))).toBe(true)
+    const saved = process.env.CI
+    try {
+      process.env.CI = 'true'
+      const unreadable = evaluateAddedDocuments({ added: [{ status: 'A', path: 'docs/plans/U.md', from: null }], policy: real, read: () => null, exists: () => true })
+      expect(unreadable.find((f) => f.title.startsWith('NOT EVALUATED'))?.severity).toBe('warning')
+      const thrown = evaluateAddedDocumentGuards({ git: () => { throw new Error('spawn failed') }, policy: real, read: () => null, exists: () => false })
+      expect(thrown[0].title).toMatch(/NOT EVALUATED/)
+      expect(thrown[0].severity).toBe('warning')
+    } finally {
+      if (saved === undefined) delete process.env.CI
+      else process.env.CI = saved
+    }
+  })
+
   it('a critical finding reaches doc-preflight unchanged and can make --strict exit non-zero', () => {
     const source = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-preflight.mjs'), 'utf8')
     expect(source).toMatch(/for \(const f of guards\) add\(f\.severity, f\.check, f\.title, f\.details, f\.files, f\.action\)/)

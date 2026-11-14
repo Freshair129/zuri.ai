@@ -230,6 +230,13 @@ an existing document.
 | D-D1 | approved | `docs/governance/` is a K14 write home and `docs/migrations/` procedures are K11, with the more specific frozen rules winning; new reports and reviews go in `reports/` (existing `.brain/reports/` and `.brain/reviews/` files stay; those folders are legacy, WARNING only); documents beside code under `apps/`, `services/` and `skills/` stay `tolerated` for local module explanations only |
 | D-D2, D-D3, D-D4 | approved, separate changes | `reports/**/*.md` as documentation in CI classification; fold the Compact narrative of `docs/README.md` into the report index; audit the `source_of_truth` declarations (no duplicate-subject or source-of-truth check is enabled) |
 
+**Supersession.** Where amendments 1 and 2 and decision D5 say that no CRITICAL severity is
+enabled, that archiving or moving any file is unapproved, or that nothing is moved, those
+statements are superseded by this amendment **only** for (a) CRITICAL on the legacy homes named
+below and (b) the separate archiving of the two root files in D-B1/D-B2 (a different change,
+with its own checks). Everything else in D5 still applies. Nothing in the amendment-3
+change itself moves or edits an existing file.
+
 **CRITICAL homes (per-finding severity, no shared flag).** Added or renamed-into
 files under: K9 `docs/superpowers/**`, `.brain/plans/**`, `docs/roadmap/PLAN-*.md`;
 K12 `.agent/**`, `agent/**`, `.rwang-tasks/**`. A rename within the same policy

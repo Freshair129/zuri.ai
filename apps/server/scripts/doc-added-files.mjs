@@ -51,7 +51,7 @@ function allowed(policy, kind, field, value) {
 
 export const CRITICAL_NOTE =
   'CRITICAL (ADR-118 amendment 3, delegated product-owner decision): this legacy home takes no new documents. ' +
-  'Only files added or renamed into the home against the merge base are examined; existing files are never reported.'
+  'Only files added or renamed into the home against the merge base (and untracked, non-ignored files) are examined; existing files are never reported.'
 
 export const LIMITATION =
   'Report-only (ADR-118 amendment 1): this warning never fails govern or CI, and only files added or ' +
@@ -75,10 +75,16 @@ export function parseNameStatus(stdout) {
  * non-ignored files. `git(args)` returns { ok, stdout } and is injected so the rule is
  * testable without a repository. A failure is reported as info, never as clean.
  */
-export function listAddedDocuments({ git }) {
-  let base = git(['merge-base', 'HEAD', 'origin/main'])
-  if (!base.ok || !base.stdout.trim()) base = git(['merge-base', 'HEAD', 'main'])
-  if (!base.ok || !base.stdout.trim()) return { ok: false, reason: 'no merge base with origin/main or main (shallow clone or no remote)', added: [] }
+export function listAddedDocuments({ git, baseRef = '' }) {
+  // A pull request is compared with the branch it targets (GITHUB_BASE_REF), so a PR into a
+  // feature branch does not see that branch's own files as additions; otherwise origin/main, then main.
+  const candidates = [...(baseRef ? [`origin/${baseRef}`] : []), 'origin/main', 'main']
+  let base = { ok: false, stdout: '' }
+  for (const ref of candidates) {
+    base = git(['merge-base', 'HEAD', ref])
+    if (base.ok && base.stdout.trim()) break
+  }
+  if (!base.ok || !base.stdout.trim()) return { ok: false, reason: `no merge base with ${candidates.join(', ')} (shallow clone or no remote)`, added: [] }
   const diff = git(['diff', '--name-status', '-z', '--find-renames', '--diff-filter=AR', base.stdout.trim(), '--'])
   if (!diff.ok) return { ok: false, reason: 'git diff failed', added: [] }
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z', '--'])
@@ -139,7 +145,7 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     if (here.home !== 'write') continue
     const text = read(file)
     if (typeof text !== 'string') {
-      findings.push({ severity: 'info', check: 'doc-added-files', title: `Added document could not be read: ${file}`, details: `The guards skipped it. ${LIMITATION}`, files: [file], action: '' })
+      findings.push({ severity: process.env.CI ? 'warning' : 'info', check: 'doc-added-files', title: `NOT EVALUATED: added document could not be read: ${file}`, details: `The guards skipped it; this is neither a pass nor a failure. ${LIMITATION}`, files: [file], action: 'Check the file is readable and rerun npm run govern' })
       continue
     }
     const parsed = parseFrontmatter(text)
@@ -191,7 +197,7 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
 }
 
 /** The wiring doc-preflight calls: examine the added set and return findings. */
-export function evaluateAddedDocumentGuards({ git, policy, read, exists }) {
+export function evaluateAddedDocumentGuards({ git, policy, read, exists, baseRef = '' }) {
   // A guard that could not evaluate the diff must never read as a pass. Under CI it is a visible
   // WARNING (a CI checkout has full history, so this means something is wrong); locally it is INFO.
   const skipped = (reason) => [{
@@ -201,7 +207,7 @@ export function evaluateAddedDocumentGuards({ git, policy, read, exists }) {
   }]
   // Nothing in here may throw into doc-preflight: a guard that cannot run is reported, never an error exit.
   try {
-    const listed = listAddedDocuments({ git })
+    const listed = listAddedDocuments({ git, baseRef })
     if (!listed.ok) return skipped(listed.reason)
     return evaluateAddedDocuments({ added: listed.added, policy, read, exists })
   } catch (error) {

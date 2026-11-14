@@ -19,7 +19,7 @@ measurements and the staged design (a candidate, not a source of truth) and
 [DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Added-document
 checks (`doc-placement`, `doc-metadata`, `doc-prior-art`) flag documents added or renamed into a path; they are warnings,
 except that adding to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`, `docs/superpowers/` or
-`docs/roadmap/PLAN-*.md` is CRITICAL (ADR-118 amendment 3), and no existing file has been approved to move. The table is a
+`docs/roadmap/PLAN-*.md` is CRITICAL (ADR-118 amendment 3), and this policy moves no file (amendment 3 separately approves archiving two named root files, as its own change). The table is a
 quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
 no single source of truth such as session memory and generated views) is in ADR-118 and
 the proposal.
