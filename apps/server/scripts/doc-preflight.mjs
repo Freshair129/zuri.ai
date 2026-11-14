@@ -109,6 +109,7 @@ const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
       '.data-pipeline-map.json',
       '.doc-graph-drift-report.json',
       '.doc-graph.json',
+      '.doc-catalog.json',
       '.domain-state.json',
       '.preflight-report.json',
       'DOCUMENT-LINKS.md',
