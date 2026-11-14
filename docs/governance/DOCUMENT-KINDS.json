@@ -62,8 +62,7 @@
     { "prefix": "docs/change-requests/zuri_inference_pool_v0.1.1b_approved/", "kind": "K4", "home": "write", "priorArt": false, "note": "approved bundle; its parts share one subject" },
     { "prefix": "docs/change-requests/", "kind": "K4", "home": "write" },
     { "prefix": "docs/domains/", "kind": "K5", "home": "write", "priorArt": false, "note": "domain notes explain canonical records and cite them by id (AGENTS.md section 19) rather than starting a new subject" },
-    { "prefix": "docs/architecture/project-manager-system/", "kind": "K6", "home": "write", "priorArt": false, "note": "numbered chapters of one specification" },
-    { "prefix": "docs/architecture/blueprint/", "kind": "K6", "home": "write", "priorArt": false, "note": "chapters of one blueprint" },
+    { "pattern": "^docs/architecture/project-manager-system/\\d{2}-[^/]+\\.md$", "kind": "K6", "home": "write", "priorArt": false, "note": "numbered chapters of one specification" },
     { "prefix": "docs/architecture/", "kind": "K6", "home": "write" },
     { "prefix": "docs/services/", "kind": "K7", "home": "write" },
     { "prefix": "docs/appendices/", "kind": "K8", "home": "legacy" },
@@ -87,7 +86,7 @@
     { "pattern": "^docs/GOVERNANCE-[^/]+\\.md$", "kind": "K14", "home": "legacy" },
     { "pattern": "^docs/[^/]+\\.md$", "kind": "K6", "home": "legacy", "note": "direct children of docs/ are registered legacy entrypoints (ROOT-FILE-REGISTER.md)" },
 
-    { "pattern": "^reports/[^/]+/.+", "kind": "K12", "home": "write", "priorArt": false, "note": "documents inside a dated assessment folder belong to that assessment" },
+    { "pattern": "^reports/[^/]+-\\d{4}-\\d{2}-\\d{2}/.+", "kind": "K12", "home": "write", "priorArt": false, "note": "documents inside a dated assessment folder (name ending -YYYY-MM-DD) belong to that assessment" },
     { "prefix": "reports/", "kind": "K12", "home": "write" },
     { "prefix": ".agent/", "kind": "K12", "home": "legacy" },
     { "prefix": "agent/", "kind": "K12", "home": "legacy" },
@@ -124,7 +123,7 @@
   "vocabulary": {
     "K3": { "statuses": ["approved", "beta"], "docTypes": ["architecture-decision"] },
     "K4": { "statuses": ["approved", "beta"], "docTypes": ["change-request", "intake-note", "interface-contract", "contract", "feature-contract-proposal", "domain-design-proposal", "capability-proposal"] },
-    "K5": { "statuses": ["beta", "approved", "building", "implemented", "declared", "partial"], "docTypes": ["supporting-document", "feature-specification", "feature-note", "context-map", "design-contract"] },
+    "K5": { "statuses": ["beta", "approved", "building", "implemented", "declared", "partial", "active-foundation", "phase-1-building"], "docTypes": ["supporting-document", "feature-specification", "feature-note", "context-map", "design-contract", "implementation-spec-proposal"] },
     "K6": { "statuses": ["approved", "beta"], "docTypes": ["architecture-specification", "architecture-spec", "implementation-baseline", "implementation-packet", "requirements-specification", "data-design", "execution-specification"] },
     "K9": { "statuses": ["approved", "beta"], "docTypes": ["design", "deployment-design"] },
     "K11": { "statuses": ["beta", "current", "approved"], "docTypes": ["runbook", "deployment-guide"] },

@@ -185,18 +185,23 @@ added or renamed files are examined.
   (`vocabulary`), on top of the global lifecycle lists; values used by no kind
   (one-off words) are still reported.
 - `prior_art` is asked only of the kinds that start a new subject (decision,
-  change request, architecture, plan, evidence). It is not asked of domain notes
-  (they cite canonical ids), numbered chapters of one specification, dated
-  assessment folders or the marketing and inference-pool change bundles, and typed
-  `relations` to existing documents count as the declaration.
+  change request, architecture, plan, evidence). It is not asked of domain
+  documents (notes, charters and SRS views are governed by the charter and SRS
+  profile and cite canonical ids), numbered `NN-` chapters of the Project Manager
+  specification, documents inside a dated assessment folder (`reports/<name>-YYYY-MM-DD/`)
+  or the marketing and inference-pool change bundles, and typed `relations` to
+  existing documents count as the declaration.
 - A new home value, `tolerated`, marks active practice that has no write home in the
   matrix yet (`.brain/reports/`, `.brain/reviews/`, `docs/migrations/`,
   `docs/governance/`, READMEs and notes beside code under `apps/` and `services/`,
-  `skills/`). Documents added there are not flagged for placement or metadata until
-  the owner adopts or retires the home. This records a gap in the matrix; it does
+  `skills/`). Documents added there are not flagged by any of the three checks
+  until the owner adopts or retires the home (the apps/services/skills homes cover
+  only documents beside code). This records a gap in the matrix; it does
   not make those homes write homes.
-- Evidence copies may be added under `.brain/rca/evidence/` with their RCA, and a
-  README or index file is never treated as a new subject.
+- Evidence copies may be added under `.brain/rca/evidence/` (the check does not
+  verify the pairing with an RCA), and a `README.md` or `index.md` file is exempt
+  from the metadata and prior-art checks, though not from placement. A required
+  field with an empty or null value counts as missing.
 - Still reported: new documents in archive, reference, `.agent/`, `agent/`,
   `docs/roadmap/PLAN-*`, `docs/superpowers/` and other legacy or frozen homes;
   new documents without the required frontmatter or with an unused status or

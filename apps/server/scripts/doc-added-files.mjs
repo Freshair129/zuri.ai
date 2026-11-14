@@ -39,7 +39,7 @@ const DOCUMENT = /\.md$/i
 // priorArt:false for multi-document bundles. 'tolerated' homes (active practice with no matrix
 // write home yet) are neither flagged for placement nor asked for metadata.
 const NON_WRITE_HOMES = new Set(['legacy', 'frozen', 'local', 'unclassified'])
-const INDEX_FILE = /(^|\/)README\.md$/i
+const INDEX_FILE = /(^|\/)(README|index)\.md$/i
 
 function allowed(policy, kind, field, value) {
   const set = field === 'status' ? 'statuses' : 'docTypes'
@@ -111,8 +111,6 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     if (!DOCUMENT.test(file)) continue
     const here = classifyPath(policy, file)
     if (here.kind === 'EDGE') continue
-    // A README or index file describes its folder; it is not a new subject, whatever the home.
-    if (INDEX_FILE.test(file)) continue
     // A rename inside one home is the same document under another name, not a new one.
     if (entry.status === 'R' && entry.from) {
       const was = classifyPath(policy, entry.from)
@@ -132,12 +130,16 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     }
     const parsed = parseFrontmatter(text)
     const fields = parsed?.fields || {}
+    // A README or index file describes its folder; it is not a new subject, so it is exempt from
+    // metadata and prior-art (placement above still applies to it).
+    const index = INDEX_FILE.test(file)
     const required = policy.requiredFields.get(here.kind)
-    if (required) {
+    if (required && !index) {
       const issues = []
       if (!parsed) issues.push('no frontmatter')
       else {
-        const missing = required.filter((key) => !(key in fields))
+        // A key with an empty or null value counts as missing.
+        const missing = required.filter((key) => !(key in fields) || ['', 'null', '~'].includes(String(fields[key]).trim()))
         if (missing.length) issues.push(`missing ${missing.join(', ')}`)
         if (fields.doc_type && !allowed(policy, here.kind, 'doc_type', fields.doc_type)) issues.push(`doc_type "${fields.doc_type}" is not one this kind uses`)
         if (fields.status && !allowed(policy, here.kind, 'status', fields.status)) issues.push(`status "${fields.status}" is not one this kind uses`)
@@ -147,7 +149,7 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
           'Add the required frontmatter (docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md section 5.3)')
       }
     }
-    if (policy.priorArtKinds.has(here.kind) && here.priorArt) {
+    if (policy.priorArtKinds.has(here.kind) && here.priorArt && !index) {
       const declared = fields.prior_art || parsed?.lists?.prior_art
       // Typed relations to existing documents are themselves a declaration of what the author found.
       if (!declared && (parsed?.relations?.length || 0) > 0) continue

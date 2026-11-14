@@ -217,8 +217,45 @@ describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', ()
   it('evidence may be added under an RCA, and README files are never new subjects', () => {
     expect(check('.brain/rca/evidence/2026-11-14-x/source/a.md', '# copy\n')).toEqual([])
     expect(check('.brain/rca/other-frozen-name.md', '# x\n').length).toBeGreaterThan(0)
-    expect(check('docs/roadmap/README.md')).toEqual([])
     expect(check('docs/plans/README.md')).toEqual([])
-    expect(check('.brain/session-memory/README.md')).toEqual([])
+    expect(check('docs/plans/index.md')).toEqual([])
+    expect(check('docs/roadmap/README.md')).toEqual(['doc-placement'])
+  })
+
+  it('every kind that is asked for metadata has a pass and a fail from the real policy', () => {
+    const samples = {
+      K1: 'docs/PRODUCT.md', K3: 'docs/decisions/ADR-999-X.md', K4: 'docs/change-requests/identity/x-20261114.md',
+      K5: 'docs/domains/crm/CHARTER.md', K6: 'docs/architecture/x.md', K7: 'docs/services/x/SERVICE.md',
+      K9: 'docs/plans/X-20261114.md', K10: 'docs/roadmap/ROADMAP.md', K11: 'docs/runbooks/X.md',
+      K12: 'reports/x-20261114.md', K13: '.brain/rca/2026-11-14-x.md',
+    }
+    for (const [kind, required] of real.requiredFields) {
+      const file = samples[kind]
+      expect(file, `a sample path for ${kind}`).toBeTruthy()
+      const lines = required.map((key) => {
+        if (key === 'status') return 'status: active'
+        if (key === 'doc_type') return `doc_type: ${[...(real.vocabulary.get(kind)?.docTypes || ['implementation-plan'])][0]}`
+        if (key === 'version') return 'version: "1"'
+        return `${key}: x`
+      })
+      const withPriorArt = [...lines, 'relations:', '  - type: references', '    target: ZAI:FR-1']
+      expect(check(file, fm(withPriorArt)), `${kind} compliant`).toEqual([])
+      expect(check(file, '# no frontmatter\n'), `${kind} without frontmatter`).toContain('doc-metadata')
+    }
+  })
+
+  it('empty required values count as missing; README is exempt from metadata only', () => {
+    const empty = fm(['id: ""', 'doc_type: implementation-plan', 'status: candidate', 'version: ""', 'prior_art: none-found (query "x")'])
+    expect(check('docs/plans/E-20261114.md', empty)).toEqual(['doc-metadata'])
+    expect(check('docs/plans/README.md', '# index\n')).toEqual([])
+  })
+
+  it('exemptions are narrow: only NN- chapters, dated report folders, and real bundles', () => {
+    const base = ['doc_type: architecture-specification', 'status: candidate', 'version: "1"']
+    expect(check('docs/architecture/project-manager-system/NEW-DESIGN.md', fm(base))).toEqual(['doc-prior-art'])
+    expect(check('docs/architecture/blueprint/NEW.md', fm(base))).toEqual(['doc-prior-art'])
+    const ev = ['doc_type: assessment', 'status: reviewed', 'version: "1"']
+    expect(check('reports/random-folder/new.md', fm(ev))).toEqual(['doc-prior-art'])
+    expect(check('reports/study-2026-11-14/new.md', fm(ev))).toEqual([])
   })
 })
