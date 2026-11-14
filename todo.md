@@ -7,7 +7,8 @@ The archived copy is byte-identical to the file that stood here (SHA-256
 It was a working checklist that declared itself non-authoritative (see its own
 header). Requirements live in the canonical FEAT/FR records under `docs/features/` and
 `docs/requirements/` (PRD/SDD is a generated export of them); route code and tests are
-implementation evidence. Nothing here is a requirement or a plan.
+implementation evidence. The archived checklist is historical working notes: its open items and
+closure gates are not requirements or approved plans.
 
 Authority: ADR-118 amendment 3, decision D-B1 — a delegated product-owner
 decision (Astra, gpt-6-astra) under owner instruction 2026-11-08, relayed by the
