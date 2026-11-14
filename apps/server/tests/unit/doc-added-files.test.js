@@ -1,6 +1,6 @@
 // @spec ADR-118, docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md
 // @tested apps/server/tests/unit/doc-added-files.test.js
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -15,6 +15,13 @@ import {
 import { compilePolicy, loadPolicy } from '../../../../tools/document-catalog.mjs'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..')
+
+// The guard reports an unevaluable diff as WARNING under CI and INFO locally, so these tests must not
+// depend on the environment they run in: each starts with CI unset and sets it explicitly when it needs it.
+const SAVED_CI = process.env.CI
+beforeEach(() => { delete process.env.CI })
+afterEach(() => { if (SAVED_CI === undefined) delete process.env.CI; else process.env.CI = SAVED_CI })
+const withCI = (value, fn) => { if (value === undefined) delete process.env.CI; else process.env.CI = value; return fn() }
 
 const policy = compilePolicy({
   schema: 'zuri-document-kinds/1',
@@ -112,13 +119,19 @@ describe('report-only added-document guards', () => {
     const hostile = '---\nconstructor:\n  - x\n__proto__:\n  - y\ntitle: T\n---\n'
     const findings = run(['docs/plans/H.md', 'docs/plans/U.md'], { 'docs/plans/H.md': hostile })
     expect(findings.every((f) => ['warning', 'info'].includes(f.severity))).toBe(true)
-    expect(findings.some((f) => f.severity === 'info' && f.files[0] === 'docs/plans/U.md')).toBe(true)
-    const wrapped = evaluateAddedDocumentGuards({
+    const notEvaluated = (list) => list.find((f) => f.check === 'doc-added-files' && f.files[0] === 'docs/plans/U.md')
+    expect(notEvaluated(findings).severity).toBe('info') // CI unset
+    expect(withCI('true', () => notEvaluated(run(['docs/plans/U.md']))).severity).toBe('warning') // hosted CI
+    const wrap = () => evaluateAddedDocumentGuards({
       git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : args[0] === 'diff' ? { ok: true, stdout: 'A\0docs/plans/H.md\0' } : { ok: true, stdout: '' }),
       policy, read: () => { throw new Error('boom') }, exists: () => false,
     })
-    expect(wrapped).toHaveLength(1)
-    expect(wrapped[0].severity).toBe('info')
+    for (const [ci, severity] of [[undefined, 'info'], ['true', 'warning']]) {
+      const wrapped = withCI(ci, wrap)
+      expect(wrapped).toHaveLength(1)
+      expect(wrapped[0].severity).toBe(severity)
+      expect(wrapped[0].title).toMatch(/NOT EVALUATED/)
+    }
   })
 
   it('none-found needs a query, and prior_art paths may contain spaces', () => {
@@ -137,14 +150,20 @@ describe('report-only added-document guards', () => {
   })
 
   it('a missing merge base or failed git call is info, never clean and never critical', () => {
-    const none = evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy, read: () => null, exists: () => false })
-    expect(none).toHaveLength(1)
-    expect(none[0].severity).toBe('info')
-    const failedDiff = evaluateAddedDocumentGuards({
+    const noBase = () => evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy, read: () => null, exists: () => false })
+    const failedDiff = () => evaluateAddedDocumentGuards({
       git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : { ok: false, stdout: '' }),
       policy, read: () => null, exists: () => false,
     })
-    expect(failedDiff[0].severity).toBe('info')
+    for (const [ci, severity] of [[undefined, 'info'], ['true', 'warning']]) {
+      for (const evaluate of [noBase, failedDiff]) {
+        const out = withCI(ci, evaluate)
+        expect(out).toHaveLength(1) // never an empty (clean) result
+        expect(out[0].severity).toBe(severity)
+        expect(out[0].severity).not.toBe('critical')
+        expect(out[0].title).toMatch(/NOT EVALUATED/)
+      }
+    }
   })
 
   it('doc-preflight still fails --strict only on CRITICAL and wires the guards without a baseline', () => {
@@ -169,9 +188,11 @@ describe('report-only added-document guards', () => {
 
 describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', () => {
   const real = loadPolicy(REPO_ROOT)
-  const check = (file, text = null, existing = []) => evaluateAddedDocuments({
+  // A file the check cannot read is NOT EVALUATED (its own finding); these probes supply text so only
+  // the rule under test speaks, and never depend on the CI environment variable.
+  const check = (file, text = '# probe\n', existing = []) => evaluateAddedDocuments({
     added: [{ status: 'A', path: file, from: null }], policy: real, read: () => text, exists: (f) => existing.includes(f),
-  }).filter((f) => f.severity === 'warning').map((f) => f.check)
+  }).filter((f) => f.severity === 'warning' && f.check !== 'doc-added-files').map((f) => f.check)
   const fm = (lines) => `---\n${lines.join('\n')}\n---\n# T\n`
 
   it('K13 RCA: status and version are what is asked; its own doc_type and vocabulary are fine', () => {
