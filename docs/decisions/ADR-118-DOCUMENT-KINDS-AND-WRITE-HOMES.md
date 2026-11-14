@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-118
 title: Document kinds and write homes
-version: "1.2.0"
+version: "1.3.0"
 status: accepted
 created_at: "2026-11-14"
 last_update: "2026-11-14"
@@ -210,6 +210,57 @@ added or renamed files are examined.
 - Still **not** approved: any CRITICAL severity or a baseline (Stage 4), the
   duplicate-subject and source-of-truth checks (D4, D5), and everything in D5.
 
+## Amendment 3 — delegated decisions: CRITICAL for named legacy homes, home mapping (2026-11-14)
+
+**Source:** delegated product-owner decisions (Astra, gpt-6-astra) under owner
+instruction 2026-11-08, decided 2026-11-14 on a read-only review of
+`main@7b391cad`, relayed by the lead Claude session. These are **not** human
+approval and not production acceptance; each approval is limited to the actions
+and conditions below. Nothing in this amendment edits, moves, renames or deletes
+an existing document.
+
+| Decision | Verdict | Effect here |
+|---|---|---|
+| D-A1 | approved | `doc-placement` is **CRITICAL** for a file **added or renamed into** the legacy homes below, and only there |
+| D-A2 | deferred | metadata, prior-art and the remaining placement findings stay WARNING; re-evaluate on **2026-11-28** (criteria below) |
+| D-B4, D-B5, D-B6, D-B8 | approved | `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/` are legacy homes (no new documents); every existing file and path stays |
+| D-B1, D-B2 | approved | archive `todo.md` and `hardware-performance-audit.md` with a stub, as a separate change |
+| D-B3, D-B7 | deferred | `MASTER-PROMPT.md` and the two `docs/superpowers/` FR-293 files stay; new specs and plans go in `docs/plans/` |
+| D-B9 to D-B12 | rejected | both `.rwang-progress.md`, the retired S-01 document, `zuri_workspace_system.md` and `schema.local.prisma` are not moved, merged or replaced |
+| D-D1 | approved | `docs/governance/` is a K14 write home and `docs/migrations/` procedures are K11, with the more specific frozen rules winning; new reports and reviews go in `reports/` (existing `.brain/reports/` and `.brain/reviews/` files stay; those folders are legacy, WARNING only); documents beside code under `apps/`, `services/` and `skills/` stay `tolerated` for local module explanations only |
+| D-D2, D-D3, D-D4 | approved, separate changes | `reports/**/*.md` as documentation in CI classification; fold the Compact narrative of `docs/README.md` into the report index; audit the `source_of_truth` declarations (no duplicate-subject or source-of-truth check is enabled) |
+
+**Supersession.** Where amendments 1 and 2 and decision D5 say that no CRITICAL severity is
+enabled, that archiving or moving any file is unapproved, or that nothing is moved, those
+statements are superseded by this amendment **only** for (a) CRITICAL on the legacy homes named
+below and (b) the separate archiving of the two root files in D-B1/D-B2 (a different change,
+with its own checks). Everything else in D5 still applies. Nothing in the amendment-3
+change itself moves or edits an existing file.
+
+**CRITICAL homes (per-finding severity, no shared flag).** Added or renamed-into
+files under: K9 `docs/superpowers/**`, `.brain/plans/**`, `docs/roadmap/PLAN-*.md`;
+K12 `.agent/**`, `agent/**`, `.rwang-tasks/**`. A rename within the same policy
+rule (the same home) is not a new document; a rename between different homes
+(for example `.agent/` to `agent/`, or `docs/plans/` into `docs/superpowers/specs/`)
+is examined. Exempt, unchanged: canonical K2 records, generated views, Edge,
+frozen evidence under `.brain/rca/evidence/`, sealed `*.approval.md` copies, and
+every other frozen or legacy home (still WARNING).
+
+**Not evaluated is not a pass.** If the diff cannot be evaluated (no merge base,
+a failed git call, an unexpected error) the guard reports "NOT EVALUATED" as a
+WARNING under CI and INFO locally; it never reports the check as passed.
+
+**Re-evaluation on 2026-11-28 (D-A2).** The integrator and a reviewer reconsider
+promoting any further rule when all 120 recently warned documents are classified,
+at least two weeks of real use with at least 30 added or renamed documents exist,
+and no unresolved false positive remains for the rule being promoted; no further
+owner decision is needed once those criteria are met. The 120/1,109 figure is a
+warned rate, not a false-positive rate.
+
+**Still not approved:** CRITICAL for anything else, a baseline, the duplicate-subject
+and source-of-truth checks, any other relocation (including `docs/roadmap/PLAN-*`,
+change requests, PM folders and ADRs), mass moves, and irreversible deletion.
+
 ## Alternatives and consequences
 
 Alternatives not taken: a mass relocation to a flatter or date-based layout
@@ -233,6 +284,7 @@ No hosted CI, deployment or production result is claimed by this record.
 ## CHANGELOG
 
 - 1.0.0 (2026-11-14): initial record.
+- 1.3.0 (2026-11-14): amendment 3, delegated product-owner decisions (Astra, gpt-6-astra, under owner instruction 2026-11-08, relayed by the lead session): CRITICAL for named legacy homes, legacy declarations, home mapping.
 - 1.2.0 (2026-11-14): amendment 2, rules tuned to the shapes that exist (owner instruction in chat, relayed by the lead session); rules and kinds file only.
 - 1.1.0 (2026-11-14): amendment 1, report-only added-document guards (owner instruction in chat, relayed by the lead session); D5 bullet on new checks narrowed accordingly.
 

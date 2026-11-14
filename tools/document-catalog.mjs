@@ -43,7 +43,10 @@ export function compilePolicy(policy) {
     if (!homes.has(rule.home)) throw new CatalogError(`Rule ${index} names unknown home ${rule.home}`)
     const selectors = ['path', 'prefix', 'pattern'].filter((key) => rule[key] !== undefined)
     if (selectors.length !== 1) throw new CatalogError(`Rule ${index} needs exactly one of path, prefix, pattern`)
-    return { ...rule, regex: rule.pattern ? new RegExp(rule.pattern) : null }
+    if (rule.enforce !== undefined && (rule.enforce !== 'critical' || rule.home !== 'legacy')) {
+      throw new CatalogError(`Rule ${index}: enforce may only be "critical" on a legacy home`)
+    }
+    return { ...rule, regex: rule.pattern ? new RegExp(rule.pattern) : null, index }
   })
   const lower = (list) => new Set((list || []).map((v) => String(v).toLowerCase()))
   const vocabulary = new Map(Object.entries(policy.vocabulary || {}).map(([kind, v]) => [kind, { statuses: lower(v.statuses), docTypes: lower(v.docTypes) }]))
@@ -76,9 +79,9 @@ export function classifyPath(compiled, filePath) {
     const hit = rule.path !== undefined ? filePath === rule.path
       : rule.prefix !== undefined ? filePath.startsWith(rule.prefix)
         : rule.regex.test(filePath)
-    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null, addAllowed: rule.addAllowed === true, priorArt: rule.priorArt !== false }
+    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null, addAllowed: rule.addAllowed === true, priorArt: rule.priorArt !== false, enforce: rule.enforce || null, rule: rule.index }
   }
-  return { kind: 'UNCLASSIFIED', home: 'unclassified', note: null }
+  return { kind: 'UNCLASSIFIED', home: 'unclassified', note: null, addAllowed: false, priorArt: true, enforce: null, rule: -1 }
 }
 
 function unquote(value) {

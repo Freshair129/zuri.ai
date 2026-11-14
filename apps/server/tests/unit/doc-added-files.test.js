@@ -1,6 +1,6 @@
 // @spec ADR-118, docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md
 // @tested apps/server/tests/unit/doc-added-files.test.js
-import { describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -15,6 +15,13 @@ import {
 import { compilePolicy, loadPolicy } from '../../../../tools/document-catalog.mjs'
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../../..')
+
+// The guard reports an unevaluable diff as WARNING under CI and INFO locally, so these tests must not
+// depend on the environment they run in: each starts with CI unset and sets it explicitly when it needs it.
+const SAVED_CI = process.env.CI
+beforeEach(() => { delete process.env.CI })
+afterEach(() => { if (SAVED_CI === undefined) delete process.env.CI; else process.env.CI = SAVED_CI })
+const withCI = (value, fn) => { if (value === undefined) delete process.env.CI; else process.env.CI = value; return fn() }
 
 const policy = compilePolicy({
   schema: 'zuri-document-kinds/1',
@@ -112,13 +119,19 @@ describe('report-only added-document guards', () => {
     const hostile = '---\nconstructor:\n  - x\n__proto__:\n  - y\ntitle: T\n---\n'
     const findings = run(['docs/plans/H.md', 'docs/plans/U.md'], { 'docs/plans/H.md': hostile })
     expect(findings.every((f) => ['warning', 'info'].includes(f.severity))).toBe(true)
-    expect(findings.some((f) => f.severity === 'info' && f.files[0] === 'docs/plans/U.md')).toBe(true)
-    const wrapped = evaluateAddedDocumentGuards({
+    const notEvaluated = (list) => list.find((f) => f.check === 'doc-added-files' && f.files[0] === 'docs/plans/U.md')
+    expect(notEvaluated(findings).severity).toBe('info') // CI unset
+    expect(withCI('true', () => notEvaluated(run(['docs/plans/U.md']))).severity).toBe('warning') // hosted CI
+    const wrap = () => evaluateAddedDocumentGuards({
       git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : args[0] === 'diff' ? { ok: true, stdout: 'A\0docs/plans/H.md\0' } : { ok: true, stdout: '' }),
       policy, read: () => { throw new Error('boom') }, exists: () => false,
     })
-    expect(wrapped).toHaveLength(1)
-    expect(wrapped[0].severity).toBe('info')
+    for (const [ci, severity] of [[undefined, 'info'], ['true', 'warning']]) {
+      const wrapped = withCI(ci, wrap)
+      expect(wrapped).toHaveLength(1)
+      expect(wrapped[0].severity).toBe(severity)
+      expect(wrapped[0].title).toMatch(/NOT EVALUATED/)
+    }
   })
 
   it('none-found needs a query, and prior_art paths may contain spaces', () => {
@@ -137,14 +150,20 @@ describe('report-only added-document guards', () => {
   })
 
   it('a missing merge base or failed git call is info, never clean and never critical', () => {
-    const none = evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy, read: () => null, exists: () => false })
-    expect(none).toHaveLength(1)
-    expect(none[0].severity).toBe('info')
-    const failedDiff = evaluateAddedDocumentGuards({
+    const noBase = () => evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy, read: () => null, exists: () => false })
+    const failedDiff = () => evaluateAddedDocumentGuards({
       git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : { ok: false, stdout: '' }),
       policy, read: () => null, exists: () => false,
     })
-    expect(failedDiff[0].severity).toBe('info')
+    for (const [ci, severity] of [[undefined, 'info'], ['true', 'warning']]) {
+      for (const evaluate of [noBase, failedDiff]) {
+        const out = withCI(ci, evaluate)
+        expect(out).toHaveLength(1) // never an empty (clean) result
+        expect(out[0].severity).toBe(severity)
+        expect(out[0].severity).not.toBe('critical')
+        expect(out[0].title).toMatch(/NOT EVALUATED/)
+      }
+    }
   })
 
   it('doc-preflight still fails --strict only on CRITICAL and wires the guards without a baseline', () => {
@@ -153,7 +172,7 @@ describe('report-only added-document guards', () => {
     expect(source).toMatch(/await import\('\.\/doc-added-files\.mjs'\)/)
     expect(source).not.toMatch(/^import .*doc-added-files/m)
     const module = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-added-files.mjs'), 'utf8')
-    expect(module).not.toMatch(/'critical'/)
+    expect(module).toMatch(/export const SEVERITY = 'warning'/)
     expect(module).not.toMatch(/baseline\.json/)
   })
 
@@ -169,9 +188,11 @@ describe('report-only added-document guards', () => {
 
 describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', () => {
   const real = loadPolicy(REPO_ROOT)
-  const check = (file, text = null, existing = []) => evaluateAddedDocuments({
+  // A file the check cannot read is NOT EVALUATED (its own finding); these probes supply text so only
+  // the rule under test speaks, and never depend on the CI environment variable.
+  const check = (file, text = '# probe\n', existing = []) => evaluateAddedDocuments({
     added: [{ status: 'A', path: file, from: null }], policy: real, read: () => text, exists: (f) => existing.includes(f),
-  }).filter((f) => f.severity === 'warning').map((f) => f.check)
+  }).filter((f) => f.severity === 'warning' && f.check !== 'doc-added-files').map((f) => f.check)
   const fm = (lines) => `---\n${lines.join('\n')}\n---\n# T\n`
 
   it('K13 RCA: status and version are what is asked; its own doc_type and vocabulary are fine', () => {
@@ -206,10 +227,15 @@ describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', ()
   })
 
   it('tolerated homes are not flagged for placement, legacy and frozen homes still are', () => {
-    for (const file of ['.brain/reports/x.md', '.brain/reviews/x.md', 'docs/migrations/lane/x.md', 'apps/server/deploy/NOTES.md', 'services/runtime/NOTES.md', 'docs/governance/NEW-POLICY.md', 'skills/zuri-x/NOTES.md']) {
+    for (const file of ['apps/server/deploy/NOTES.md', 'services/runtime/NOTES.md', 'skills/zuri-x/NOTES.md']) {
       expect(check(file, fm(['status: active', 'version: "1"']))).not.toContain('doc-placement')
     }
-    for (const file of ['.agent/reports/x.md', 'docs/archive/x.md', 'docs/roadmap/PLAN-NEW.md', 'reference/GoVibe/x.md', 'docs/superpowers/specs/x.md']) {
+    // ADR-118 amendment 3: governance is a K14 write home and migration procedures are K11; reports and reviews moved to reports/.
+    for (const file of ['docs/governance/NEW-POLICY.md', 'docs/migrations/lane/x.md']) {
+      expect(check(file, fm(['status: active', 'version: "1"']))).not.toContain('doc-placement')
+    }
+    for (const file of ['.brain/reports/x.md', '.brain/reviews/x.md']) expect(check(file)).toContain('doc-placement')
+    for (const file of ['docs/archive/x.md', 'reference/GoVibe/x.md', 'docs/roadmap/NEW-NOTES.md']) {
       expect(check(file)).toContain('doc-placement')
     }
   })
@@ -257,5 +283,125 @@ describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', ()
     const ev = ['doc_type: assessment', 'status: reviewed', 'version: "1"']
     expect(check('reports/random-folder/new.md', fm(ev))).toEqual(['doc-prior-art'])
     expect(check('reports/study-2026-11-14/new.md', fm(ev))).toEqual([])
+  })
+})
+
+describe('CRITICAL only for added or renamed-into files in the named legacy homes (ADR-118 amendment 3)', () => {
+  const real = loadPolicy(REPO_ROOT)
+  const run = (entries, read = () => '# x\n') => evaluateAddedDocuments({
+    added: entries.map((e) => (typeof e === 'string' ? { status: 'A', path: e, from: null } : e)), policy: real, read, exists: () => true,
+  })
+  const placement = (entries) => run(entries).filter((f) => f.check === 'doc-placement')
+  const CRITICAL_HOMES = ['docs/superpowers/specs/x.md', 'docs/superpowers/plans/x.md', '.brain/plans/x.md', 'docs/roadmap/PLAN-NEW-20261114.md', '.agent/reports/x.md', 'agent/phases/x.md', '.rwang-tasks/x.md']
+
+  it('an addition to each named legacy home is CRITICAL, and the shared SEVERITY is still warning', () => {
+    for (const file of CRITICAL_HOMES) {
+      const [finding] = placement([file])
+      expect(finding.severity, file).toBe('critical')
+      expect(finding.details).toMatch(/delegated product-owner decision/)
+    }
+    expect(SEVERITY).toBe('warning')
+  })
+
+  it('every other legacy, frozen or unclassified home stays WARNING', () => {
+    for (const file of ['docs/archive/x.md', 'reference/GoVibe/x.md', 'docs/roadmap/NEW-NOTES.md', '.brain/reports/x.md', '.brain/reviews/x.md', '.brain/waves/x.md', 'docs/DB-NEW.md', 'docs/prompts/x.md']) {
+      const [finding] = placement([file])
+      expect(finding.severity, file).toBe('warning')
+    }
+  })
+
+  it('a same-directory rename is the same document; a cross-home rename is a move into another home', () => {
+    expect(placement([{ status: 'R', from: '.agent/reports/a.md', path: '.agent/reports/b.md' }])).toEqual([])
+    expect(placement([{ status: 'R', from: 'docs/superpowers/specs/a.md', path: 'docs/superpowers/specs/b.md' }])).toEqual([])
+    for (const [from, to] of [
+      ['.agent/reports/a.md', 'agent/phases/a.md'],
+      ['docs/superpowers/specs/a.md', 'docs/superpowers/plans/a.md'],
+      ['docs/plans/a.md', 'docs/superpowers/specs/a.md'],
+      ['reports/a.md', '.rwang-tasks/a.md'],
+    ]) {
+      const [finding] = placement([{ status: 'R', from, path: to }])
+      expect(finding?.severity, `${from} -> ${to}`).toBe('critical')
+    }
+    expect(placement([{ status: 'R', from: '.agent/reports/a.md', path: 'docs/plans/a.md' }])).toEqual([])
+  })
+
+  it('K2 records, generated views, Edge, frozen evidence and sealed approval copies are not flagged', () => {
+    for (const file of [
+      'docs/features/FEAT-999/feature.md', 'docs/requirements/FR-999.md', 'docs/PRD-SDD-v1.0.md', 'docs/product/README.md',
+      'apps/edge/docs/new.md', '.brain/rca/evidence/2026-11-14-x/source/a.md',
+      'docs/migrations/document-reintegration/record-migrations/x-20261114.approval.md',
+    ]) expect(placement([file]), file).toEqual([])
+  })
+
+  it('only the enumerated homes can ever produce a CRITICAL finding', () => {
+    const sample = [
+      ...CRITICAL_HOMES, 'docs/plans/x.md', 'docs/decisions/ADR-1-x.md', 'docs/archive/x.md', 'reports/x.md', '.brain/rca/x.md', 'docs/architecture/x.md',
+      'docs/domains/crm/x.md', 'docs/runbooks/x.md', 'docs/governance/x.md', 'docs/migrations/x.md', 'AGENTS.md', 'apps/server/x.md', 'docs/DB-NEW.md',
+      '.brain/reports/x.md', 'reference/x.md', 'experiments/x.md', 'docs/roadmap/NEW.md',
+    ]
+    const critical = run(sample).filter((f) => f.severity === 'critical').map((f) => f.files[0]).sort()
+    expect(critical).toEqual([...CRITICAL_HOMES].sort())
+  })
+
+  it('a diff that cannot be evaluated is reported as NOT EVALUATED, never as a pass', () => {
+    const noBase = () => evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy: real, read: () => null, exists: () => false })
+    const saved = process.env.CI
+    try {
+      delete process.env.CI
+      const local = noBase()
+      expect(local).toHaveLength(1)
+      expect(local[0].title).toMatch(/NOT EVALUATED/)
+      expect(local[0].severity).toBe('info')
+      process.env.CI = 'true'
+      expect(noBase()[0].severity).toBe('warning')
+    } finally {
+      if (saved === undefined) delete process.env.CI
+      else process.env.CI = saved
+    }
+    const failedDiff = evaluateAddedDocumentGuards({
+      git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : { ok: false, stdout: '' }),
+      policy: real, read: () => null, exists: () => false,
+    })
+    expect(failedDiff[0].title).toMatch(/NOT EVALUATED/)
+  })
+
+  it('the exact set of enforce:critical rules is pinned', () => {
+    const raw = JSON.parse(readFileSync(path.join(REPO_ROOT, 'docs/governance/DOCUMENT-KINDS.json'), 'utf8'))
+    const enforced = raw.rules.filter((r) => r.enforce === 'critical').map((r) => r.prefix || r.pattern || r.path).sort()
+    expect(enforced).toEqual([
+      '.agent/', '.brain/plans/', '.rwang-tasks/', '^docs/roadmap/PLAN-[^/]+\\.md$', 'agent/', 'docs/superpowers/', 'docs/superpowers/plans/', 'docs/superpowers/specs/',
+    ].sort())
+    expect(raw.rules.filter((r) => r.enforce === 'critical').every((r) => r.home === 'legacy')).toBe(true)
+  })
+
+  it('a PR is compared with the branch it targets; unreadable and thrown cases are NOT EVALUATED', () => {
+    const calls = []
+    const git = (args) => {
+      calls.push(args.join(' '))
+      if (args[0] === 'merge-base') return args[2] === 'origin/release-1' ? { ok: true, stdout: 'base1\n' } : { ok: false, stdout: '' }
+      if (args[0] === 'diff') return { ok: true, stdout: '' }
+      return { ok: true, stdout: '' }
+    }
+    listAddedDocuments({ git, baseRef: 'release-1' })
+    expect(calls[0]).toBe('merge-base HEAD origin/release-1')
+    expect(calls.some((c) => c.includes('base1'))).toBe(true)
+    const saved = process.env.CI
+    try {
+      process.env.CI = 'true'
+      const unreadable = evaluateAddedDocuments({ added: [{ status: 'A', path: 'docs/plans/U.md', from: null }], policy: real, read: () => null, exists: () => true })
+      expect(unreadable.find((f) => f.title.startsWith('NOT EVALUATED'))?.severity).toBe('warning')
+      const thrown = evaluateAddedDocumentGuards({ git: () => { throw new Error('spawn failed') }, policy: real, read: () => null, exists: () => false })
+      expect(thrown[0].title).toMatch(/NOT EVALUATED/)
+      expect(thrown[0].severity).toBe('warning')
+    } finally {
+      if (saved === undefined) delete process.env.CI
+      else process.env.CI = saved
+    }
+  })
+
+  it('a critical finding reaches doc-preflight unchanged and can make --strict exit non-zero', () => {
+    const source = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-preflight.mjs'), 'utf8')
+    expect(source).toMatch(/for \(const f of guards\) add\(f\.severity, f\.check, f\.title, f\.details, f\.files, f\.action\)/)
+    expect(source).toMatch(/--strict'\) && report\.summary\.critical > 0\) process\.exit\(1\)/)
   })
 })
