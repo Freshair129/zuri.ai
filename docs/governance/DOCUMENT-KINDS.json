@@ -78,6 +78,8 @@
     { "prefix": "docs/migrations/document-reintegration/record-migrations/", "kind": "K16", "home": "frozen" },
     { "prefix": "docs/migrations/", "kind": "K11", "home": "tolerated", "note": "migration lanes are active (39 documents added in the last 60 days) and the matrix names no home for them; pending an owner decision" },
     { "prefix": "docs/templates/", "kind": "K15", "home": "write" },
+    { "path": "docs/archive/todo.md", "kind": "K16", "home": "frozen", "addAllowed": true, "note": "archived from the repository root (ADR-118 amendment 3, D-B1); bound to this exact path" },
+    { "path": "docs/archive/hardware-performance-audit.md", "kind": "K16", "home": "frozen", "addAllowed": true, "note": "archived from the repository root (ADR-118 amendment 3, D-B2); bound to this exact path" },
     { "prefix": "docs/archive/", "kind": "K16", "home": "frozen" },
     { "prefix": "docs/prompts/", "kind": "K16", "home": "legacy" },
     { "prefix": "docs/governance/", "kind": "K14", "home": "tolerated", "note": "governance policies and registers are actively edited here (5 documents added in the last 60 days); the matrix does not list this folder as a K14 write home" },
