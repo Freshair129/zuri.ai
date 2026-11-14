@@ -79,6 +79,8 @@
     { "prefix": "docs/migrations/document-reintegration/record-migrations/", "kind": "K16", "home": "frozen" },
     { "prefix": "docs/migrations/", "kind": "K11", "home": "write", "note": "migration procedures are K11 (ADR-118 amendment 3, delegated decision D-D1); the more specific frozen record-migrations rules above win" },
     { "prefix": "docs/templates/", "kind": "K15", "home": "write" },
+    { "path": "docs/archive/todo.md", "kind": "K16", "home": "frozen", "addAllowed": true, "note": "archived from the repository root (ADR-118 amendment 3, D-B1); bound to this exact path" },
+    { "path": "docs/archive/hardware-performance-audit.md", "kind": "K16", "home": "frozen", "addAllowed": true, "note": "archived from the repository root (ADR-118 amendment 3, D-B2); bound to this exact path" },
     { "prefix": "docs/archive/", "kind": "K16", "home": "frozen" },
     { "prefix": "docs/prompts/", "kind": "K16", "home": "legacy" },
     { "prefix": "docs/governance/", "kind": "K14", "home": "write", "note": "governance policies and registers (ADR-118 amendment 3, delegated decision D-D1)" },
