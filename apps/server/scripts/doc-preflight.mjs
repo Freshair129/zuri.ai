@@ -7,7 +7,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 // Usage: node scripts/doc-preflight.mjs [--strict]
 //   --strict  exit 1 on any CRITICAL finding
 
-import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { writeFileSync, readdirSync, statSync, existsSync, readFileSync } from 'fs'
 import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -1482,6 +1482,35 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
   for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 22: documents added against the merge base (report-only) ---------
+// ADR-118 amendment 1; redesign proposal section 7.2, checks D1 to D3. Every finding
+// is a WARNING (or an info when the guard cannot run): this block can never make
+// --strict or CI fail, and it has no baseline — only added/renamed files are examined,
+// so existing files are never reported. See scripts/doc-added-files.mjs.
+{
+  const repoRoot = workspaceRoot(ROOT)
+  const runGitAdded = (args) => {
+    const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true, maxBuffer: 256 * 1024 * 1024 })
+    return r.error || r.status !== 0 ? { ok: false, stdout: '' } : { ok: true, stdout: r.stdout }
+  }
+  // Imported lazily: the guard reads tools/document-catalog.mjs and the kinds policy, which a
+  // relocated or partial copy of scripts/ (the doc-links CLI test fixture) does not carry.
+  // A guard that cannot load is info, never an error exit.
+  try {
+    const { evaluateAddedDocumentGuards } = await import('./doc-added-files.mjs')
+    const { loadPolicy } = await import('../../../tools/document-catalog.mjs')
+    const guards = evaluateAddedDocumentGuards({
+      git: runGitAdded,
+      policy: loadPolicy(repoRoot),
+      read: (file) => { try { return readFileSync(path.join(repoRoot, file), 'utf8') } catch { return null } },
+      exists: (file) => existsSync(path.join(repoRoot, file)),
+    })
+    for (const f of guards) add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  } catch (error) {
+    add('info', 'doc-added-files', 'Added-document guards skipped', `The guard or the kinds policy could not be loaded: ${error.message}`, ['docs/governance/DOCUMENT-KINDS.json'], '')
   }
 }
 

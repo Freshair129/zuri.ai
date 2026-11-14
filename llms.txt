@@ -17,7 +17,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 
 ## Before you write a document
 
-Policy: [ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md). Full design and measurements: [redesign proposal](docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) (a candidate, not a source of truth). The machine form of the matrix is [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json). Nothing is enforced by a check yet, and no existing file has been moved or approved to move. The table is a quick reference of the main kinds; the full matrix (K1-K18, with legacy homes and the kinds that have no single source of truth, such as session memory and generated views) is in ADR-118 and the proposal.
+Policy: [ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md). Full design and measurements: [redesign proposal](docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) (a candidate, not a source of truth). The machine form of the matrix is [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json). Only report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail `govern` or CI) flag documents added or renamed into a path, and no existing file has been moved or approved to move. The table is a quick reference of the main kinds; the full matrix (K1-K18, with legacy homes and the kinds that have no single source of truth, such as session memory and generated views) is in ADR-118 and the proposal.
 
 | Kind | Write new documents here | Source of truth |
 |---|---|---|
@@ -33,7 +33,7 @@ Policy: [ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md). Ful
 | Root-cause analysis | `.brain/rca/` | the RCA |
 | Agent and team instructions | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` | `AGENTS.md` |
 
-Before you write a document, search: `npm run docs:find -- "<subject words>"` (also `--id FR-292`, `--kind plan`, `--domain agent`, `--path docs/plans`). It reads tracked files and needs no prior `govern`. A hit is evidence a document exists; a miss is not proof it does not, so enumerate the intended home with `git ls-files <home>` before you conclude (AGENTS.md section 21). If one exists, extend or supersede it; do not write a parallel copy. New documents declare `prior_art` in frontmatter as a convention (nothing checks it yet).
+Before you write a document, search: `npm run docs:find -- "<subject words>"` (also `--id FR-292`, `--kind plan`, `--domain agent`, `--path docs/plans`). It reads tracked files and needs no prior `govern`. A hit is evidence a document exists; a miss is not proof it does not, so enumerate the intended home with `git ls-files <home>` before you conclude (AGENTS.md section 21). If one exists, extend or supersede it; do not write a parallel copy. New documents declare `prior_art` in frontmatter; a report-only warning checks the declaration, not that a search happened.
 
 ## Requirements and identity
 

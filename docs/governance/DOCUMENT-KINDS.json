@@ -1,6 +1,6 @@
 {
   "schema": "zuri-document-kinds/1",
-  "authority": "ADR-118 adopts the kind matrix; this file is its machine form. It classifies paths for the generated catalog and docs:find only. It moves nothing, grants no ownership, and is not an approval list.",
+  "authority": "ADR-118 adopts the kind matrix; this file is its machine form. It classifies paths for the generated catalog, docs:find and the report-only added-document warnings (ADR-118 amendment 1). It moves nothing, grants no ownership, and is not an approval list.",
   "ownerRole": "governance integrator (AGENTS.md section 19)",
   "homes": {
     "write": "new documents of this kind go here",
@@ -47,7 +47,7 @@
     { "prefix": ".brain/session-memory/", "kind": "K17", "home": "local" },
     { "prefix": ".brain/rca/evidence/", "kind": "K16", "home": "frozen" },
     { "prefix": ".brain/rca/", "kind": "K13", "home": "write" },
-    { "prefix": ".brain/plans/", "kind": "K9", "home": "legacy" },
+    { "prefix": ".brain/plans/", "kind": "K9", "home": "legacy", "note": "no new documents; new plans go in docs/plans/ (ADR-118 amendment 1)" },
     { "prefix": ".brain/", "kind": "K12", "home": "legacy" },
 
     { "prefix": "docs/requirements/", "kind": "K2", "home": "write" },
@@ -63,10 +63,13 @@
     { "path": "docs/roadmap/ROADMAP.md", "kind": "K10", "home": "write" },
     { "prefix": "docs/roadmap/", "kind": "K9", "home": "legacy" },
     { "prefix": "docs/plans/", "kind": "K9", "home": "write" },
+    { "prefix": "docs/superpowers/specs/", "kind": "K9", "home": "legacy", "note": "no new documents; brainstorming specs and plans go in docs/plans/ (ADR-118 amendment 1)" },
+    { "prefix": "docs/superpowers/plans/", "kind": "K9", "home": "legacy", "note": "no new documents; the skill default path is not a write home (ADR-118 amendment 1)" },
     { "prefix": "docs/superpowers/", "kind": "K9", "home": "legacy" },
     { "prefix": "docs/runbooks/", "kind": "K11", "home": "write" },
     { "prefix": "docs/deployment/", "kind": "K11", "home": "write" },
-    { "prefix": "docs/migrations/document-reintegration/record-migrations/", "kind": "K16", "home": "frozen", "note": "sealed approval copies kept as provenance" },
+    { "pattern": "^docs/migrations/document-reintegration/record-migrations/[^/]+\\.approval\\.md$", "kind": "K16", "home": "frozen", "addAllowed": true, "note": "sealed approval copies are created by the reviewed record workflow" },
+    { "prefix": "docs/migrations/document-reintegration/record-migrations/", "kind": "K16", "home": "frozen" },
     { "prefix": "docs/migrations/", "kind": "K11", "home": "legacy", "note": "the kind matrix names no write home for migrations; legacy (no new documents) pending an owner decision" },
     { "prefix": "docs/templates/", "kind": "K15", "home": "write" },
     { "prefix": "docs/archive/", "kind": "K16", "home": "frozen" },

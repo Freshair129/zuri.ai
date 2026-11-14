@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-118
 title: Document kinds and write homes
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-11-14"
 last_update: "2026-11-14"
@@ -87,8 +87,8 @@ no baseline; existing files never fail them. The duplicate-subject check
 states. The source-of-truth uniqueness check (proposal D5) waits for the audit
 of the 17 existing `source_of_truth` declarations (O12) before it applies to
 anything but added files. Canonical requirement and feature records (K2) keep
-their own format and validators and are excepted. Nothing in this ADR turns a
-check on.
+their own format and validators and are excepted. Apart from the report-only
+warnings of amendment 1, nothing in this ADR turns a check on.
 
 ### D4 — Owner decisions O1 to O12 are recorded as follows
 
@@ -100,7 +100,7 @@ anything is executed by this record.
 | # | Decision | Recorded outcome | Executed here |
 |---|---|---|---|
 | O1 | Adopt the kind matrix and write-home policy as an ADR | adopted (this record) | yes, as policy text only |
-| O2 | Enforcement style for placement, metadata and prior-art checks (proposal D1 to D3) | added-file rule, no baseline; D4 keeps its shrink-only list and D5 follows O12 | no, later stage |
+| O2 | Enforcement style for placement, metadata and prior-art checks (proposal D1 to D3) | added-file rule, no baseline; D4 keeps its shrink-only list and D5 follows O12 | D1 to D3 report-only only, per amendment 1; the rest later |
 | O3 | Where dated assessments live | keep `reports/` outside `docs/` | n/a, no change |
 | O4 | Count `reports/*.md` and similar as documentation for CI classification | decided in principle | **no**: needs its own reviewed CI change with tests |
 | O5 | One closed `status` vocabulary | on added files only; existing files are not rewritten | no, later stage |
@@ -122,7 +122,7 @@ this record:
   `agent/`, `.rwang-tasks/` and `docs/superpowers/`;
 - any redirect stub that replaces a file;
 - changing `scripts/ci-code-changes.mjs` or the workflow path filters;
-- turning on any new preflight check;
+- turning on any new preflight check, except the report-only guards of amendment 1 (warnings only, never CRITICAL);
 - rewriting statuses or frontmatter of existing documents;
 - touching `apps/edge/docs/`, which keeps its own namespace and preflight.
 
@@ -140,6 +140,31 @@ output naturally includes this ADR), the ADR-025 domain spine, and every frozen 
 pinned family stay exactly as they are. Paths read at runtime by Knowledge
 Studio, the roadmap board and the governance source verifier stay where they
 are.
+
+## Amendment 1 — report-only added-document guards (2026-11-14)
+
+**Source:** an owner instruction given in chat on 2026-11-14 ("approve", in answer
+to the lead session's question whether to start Stage 3), relayed by the lead
+Claude session. No other approval is claimed. It narrowly reverses D5's bullet
+about turning on a new preflight check, and only as follows.
+
+- Three **report-only** checks may run in `npm run docs:preflight` (and therefore
+  `govern`): `doc-placement`, `doc-metadata` and `doc-prior-art` (proposal D1 to
+  D3). Their severity is **WARNING**, or INFO when the guard cannot run. No
+  CRITICAL is enabled, so neither `--strict`, `govern` nor CI can fail because of
+  them; `--strict` still fails only on CRITICAL.
+- Deliberate scope choices: generated homes are not reported (a new feature's generated design page is expected), metadata is asked only of the decision, change, domain, architecture, service, plan, roadmap, runbook, evidence and RCA kinds (instructions, templates, archive, records and generated views keep their own formats), and sealed `*.approval.md` copies under `record-migrations/` may be added.
+- They examine **only files added or renamed** against the merge base (plus
+  untracked, non-ignored files). There is no baseline file, and existing files
+  are never reported.
+- `docs/superpowers/specs/`, `docs/superpowers/plans/` and `.brain/plans/` are
+  recorded as legacy homes that take no new documents (`DOCUMENT-KINDS.json`).
+  Brainstorming and plan skills write to `docs/plans/` instead (AGENTS.md
+  section 19). Nothing existing in those folders is moved or removed.
+- Still **not** approved: any CRITICAL severity or a baseline (Stage 4), the
+  duplicate-subject check (D4), the source-of-truth uniqueness check (D5, which
+  waits for the O12 audit), and everything in D5 above (file moves, retirements,
+  stubs, CI-classification changes, rewriting existing frontmatter, `apps/edge/docs/`).
 
 ## Alternatives and consequences
 
@@ -164,6 +189,7 @@ No hosted CI, deployment or production result is claimed by this record.
 ## CHANGELOG
 
 - 1.0.0 (2026-11-14): initial record.
+- 1.1.0 (2026-11-14): amendment 1, report-only added-document guards (owner instruction in chat, relayed by the lead session); D5 bullet on new checks narrowed accordingly.
 
 ## Authority
 

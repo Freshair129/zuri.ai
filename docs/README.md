@@ -1,5 +1,5 @@
 ---
-version: "0.7.21"
+version: "0.7.22"
 status: active
 superseded_by: null
 ---
@@ -16,8 +16,9 @@ indexes do not index themselves.
 and one source-of-truth owner per kind of knowledge; the
 [redesign proposal](plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) holds the
 measurements and the staged design (a candidate, not a source of truth) and
-[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. No check
-enforces placement yet, and no existing file has been approved to move. The table is a
+[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Only
+report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail
+`govern` or CI) flag documents added or renamed into a path, and no existing file has been approved to move. The table is a
 quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
 no single source of truth such as session memory and generated views) is in ADR-118 and
 the proposal.
@@ -40,7 +41,7 @@ Search first: `npm run docs:find -- "<subject words>"` (also `--id FR-292`, `--k
 `--domain agent`, `--path docs/plans`). A hit shows a document exists; a miss is not proof
 it does not, so enumerate the intended home with `git ls-files <home>` (AGENTS.md section
 21). If one exists, extend or supersede it instead of writing a parallel copy, and record
-`prior_art` in the new document's frontmatter (a convention; nothing checks it yet).
+`prior_art` in the new document's frontmatter (a report-only warning checks the declaration, not that a search happened).
 
 ## Rebuild blueprint
 
@@ -194,6 +195,9 @@ kit outside this execution repository.
 - [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [UI page drawing atlas (visual companion)](UI-PAGE-DIMENSIONAL-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+
+Version diff 0.7.21 → 0.7.22 (2026-11-14, Stage 3): the "Before you write a document" section now says the
+only checks are report-only warnings (ADR-118 amendment 1). Hand edit; nothing moved.
 
 Version diff 0.7.20 → 0.7.21 (2026-11-14): adds the "Before you write a document"
 section (ADR-118 kind table, search-before-write protocol, `docs:find`). Hand edit only;

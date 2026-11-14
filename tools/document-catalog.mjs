@@ -65,7 +65,7 @@ export function classifyPath(compiled, filePath) {
     const hit = rule.path !== undefined ? filePath === rule.path
       : rule.prefix !== undefined ? filePath.startsWith(rule.prefix)
         : rule.regex.test(filePath)
-    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null }
+    if (hit) return { kind: rule.kind, home: rule.home, note: rule.note || null, addAllowed: rule.addAllowed === true }
   }
   return { kind: 'UNCLASSIFIED', home: 'unclassified', note: null }
 }
@@ -82,8 +82,10 @@ export function parseFrontmatter(text) {
   if (!body.startsWith('---\n')) return null
   const end = body.indexOf('\n---', 4)
   if (end < 0) return null
-  const fields = {}
+  // Prototype-free: a frontmatter key such as `constructor:` must not reach Object.prototype.
+  const fields = Object.create(null)
   const relations = []
+  const lists = Object.create(null)
   let section = null
   let pendingType = null
   for (const line of body.slice(4, end).split('\n')) {
@@ -100,6 +102,8 @@ export function parseFrontmatter(text) {
       if (!(nested[1] in fields)) fields[nested[1]] = unquote(nested[2])
       continue
     }
+    const item = /^\s*-\s+(?!type:)(.+)$/.exec(line)
+    if (item && section && section !== 'relations') { (lists[section] ||= []).push(unquote(item[1])); continue }
     const relType = /^\s*-\s*type:\s*(.+)$/.exec(line)
     if (relType && section === 'relations') { pendingType = unquote(relType[1]); continue }
     const relTarget = /^\s*target:\s*(.+)$/.exec(line)
@@ -108,7 +112,7 @@ export function parseFrontmatter(text) {
       pendingType = null
     }
   }
-  return { fields, relations }
+  return { fields, relations, lists }
 }
 
 function normalizeSubject(value) {
