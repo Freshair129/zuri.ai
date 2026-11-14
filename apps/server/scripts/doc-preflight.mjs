@@ -18,8 +18,6 @@ import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
-import { evaluateAddedDocumentGuards } from './doc-added-files.mjs'
-import { loadPolicy } from '../../../tools/document-catalog.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
 import { classifyRequirements, assertCapabilityTerminology } from './capability-registry.mjs'
@@ -1498,18 +1496,21 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
     const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true, maxBuffer: 256 * 1024 * 1024 })
     return r.error || r.status !== 0 ? { ok: false, stdout: '' } : { ok: true, stdout: r.stdout }
   }
-  let policy = null
-  try { policy = loadPolicy(repoRoot) } catch (error) {
-    add('info', 'doc-added-files', 'Added-document guards skipped', `The kinds policy could not be loaded: ${error.message}`, ['docs/governance/DOCUMENT-KINDS.json'], '')
-  }
-  if (policy) {
+  // Imported lazily: the guard reads tools/document-catalog.mjs and the kinds policy, which a
+  // relocated or partial copy of scripts/ (the doc-links CLI test fixture) does not carry.
+  // A guard that cannot load is info, never an error exit.
+  try {
+    const { evaluateAddedDocumentGuards } = await import('./doc-added-files.mjs')
+    const { loadPolicy } = await import('../../../tools/document-catalog.mjs')
     const guards = evaluateAddedDocumentGuards({
       git: runGitAdded,
-      policy,
+      policy: loadPolicy(repoRoot),
       read: (file) => { try { return readFileSync(path.join(repoRoot, file), 'utf8') } catch { return null } },
       exists: (file) => existsSync(path.join(repoRoot, file)),
     })
     for (const f of guards) add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  } catch (error) {
+    add('info', 'doc-added-files', 'Added-document guards skipped', `The guard or the kinds policy could not be loaded: ${error.message}`, ['docs/governance/DOCUMENT-KINDS.json'], '')
   }
 }
 

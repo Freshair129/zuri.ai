@@ -148,7 +148,8 @@ describe('report-only added-document guards', () => {
   it('doc-preflight still fails --strict only on CRITICAL and wires the guards without a baseline', () => {
     const source = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-preflight.mjs'), 'utf8')
     expect(source).toMatch(/--strict'\) && report\.summary\.critical > 0\) process\.exit\(1\)/)
-    expect(source).toMatch(/evaluateAddedDocumentGuards/)
+    expect(source).toMatch(/await import\('\.\/doc-added-files\.mjs'\)/)
+    expect(source).not.toMatch(/^import .*doc-added-files/m)
     const module = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-added-files.mjs'), 'utf8')
     expect(module).not.toMatch(/'critical'/)
     expect(module).not.toMatch(/baseline\.json/)
