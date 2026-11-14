@@ -39,6 +39,7 @@ const FILES = {
   'docs/archive/office-old.md': '# Office old\n\nHistoric note.\n',
   'docs/roadmap/PLAN-OLD.md': '# Old plan\n',
   'docs/unlisted/stray.md': '# Stray\n',
+  'docs/plans/GEN-VIEW.md': '---\ndoc_type: generated-view\n---\n# Generated view\n',
   'not-a-document.json': '{}',
 }
 
@@ -84,10 +85,10 @@ test('catalog is deterministic, skips non-documents and joins registry ids', () 
   const first = build(registry)
   const second = build(registry)
   assert.deepEqual(first, second)
-  assert.equal(first.count, 5)
+  assert.equal(first.count, 6)
   assert.ok(!first.documents.some((d) => d.path === 'not-a-document.json'))
   assert.deepEqual(first.documents.map((d) => d.path), [...first.documents.map((d) => d.path)].sort())
-  const plan = first.documents.find((d) => d.path.startsWith('docs/plans/'))
+  const plan = first.documents.find((d) => d.path === 'docs/plans/OFFICE-RECEIVER-20261031.md')
   assert.equal(plan.registryId, 'ZAI:FR-999')
   assert.equal(plan.sourceOfTruth, false)
   assert.deepEqual(plan.supersedes, ['ZAI:OLD'])
@@ -139,4 +140,27 @@ test('docs:find finds the three Office design receiver plan-family files', () =>
     'docs/change-requests/project-manager/office-design-receiver-20261031.md',
     'reports/office-design-receiver-20261031.md',
   ]) assert.ok(top.includes(expected), `${expected} missing from ${top.join(', ')}`)
+})
+
+test('a generated-view marker beats the path, and id filtering is strict', () => {
+  const catalog = build()
+  const view = catalog.documents.find((d) => d.path === 'docs/plans/GEN-VIEW.md')
+  assert.deepEqual([view.kind, view.home], ['K18', 'generated'])
+  const strict = findDocuments(catalog, POLICY, parseFindArguments(['--id', 'ZAI:OFFICE-RECEIVER-PLAN', 'unrelatedword']))
+  assert.deepEqual(strict.results.map((r) => r.doc.path), ['docs/plans/OFFICE-RECEIVER-20261031.md'])
+  const none = findDocuments(catalog, POLICY, parseFindArguments(['--id', 'ZAI:NOPE']))
+  assert.deepEqual(none.results, [])
+})
+
+test('short and non-Latin terms are searchable; options are validated', () => {
+  const catalog = buildCatalog({
+    files: ['docs/plans/AI-PLAN.md', 'docs/plans/THAI.md'],
+    read: (f) => (f.endsWith('THAI.md') ? '# แผนงานระบบ\n\nรายละเอียด\n' : '# AI plan\n'),
+    policy: POLICY,
+  })
+  assert.equal(findDocuments(catalog, POLICY, parseFindArguments(['AI'])).results[0].doc.path, 'docs/plans/AI-PLAN.md')
+  assert.equal(findDocuments(catalog, POLICY, parseFindArguments(['แผนงาน'])).results[0].doc.path, 'docs/plans/THAI.md')
+  assert.throws(() => parseFindArguments(['--limit', '2junk']), /positive integer/)
+  assert.throws(() => parseFindArguments(['--limit', '--json']), /needs a value/)
+  assert.equal(parseFindArguments(['--limit', '3']).limit, 3)
 })

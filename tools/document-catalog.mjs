@@ -7,6 +7,7 @@
 // frontmatter. The output is deterministic (no timestamps) and is written only to
 // the ignored build file docs/.doc-catalog.json (ADR-081: built, not committed).
 //
+// Deferred to a later change (proposal 6.2): graph node ids and inbound-reference counts.
 // @spec ADR-118, ADR-081, docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md
 // @tested tools/tests/document-catalog.test.mjs
 
@@ -150,6 +151,8 @@ export function buildCatalog({ files, read, policy, registryByPath = new Map() }
     const parsed = parseFrontmatter(text)
     const fields = parsed?.fields || {}
     const classified = classifyPath(policy, filePath)
+    // A generator's own marker beats the path: feature design/verification pages live under docs/features/ but are K18.
+    if (fields.doc_type === 'generated-view') Object.assign(classified, { kind: 'K18', home: 'generated' })
     const title = fields.title || headings(text)[0] || path.basename(filePath)
     const relations = parsed?.relations || []
     documents.push({

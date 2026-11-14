@@ -20,7 +20,7 @@ export function parseFindArguments(argv) {
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]
     const next = () => {
-      if (i + 1 >= argv.length) throw new Error(`${arg} needs a value`)
+      if (i + 1 >= argv.length || argv[i + 1].startsWith('--')) throw new Error(`${arg} needs a value`)
       i += 1
       return argv[i]
     }
@@ -28,7 +28,11 @@ export function parseFindArguments(argv) {
     else if (arg === '--kind') options.kind = next()
     else if (arg === '--domain') options.domain = next()
     else if (arg === '--path') options.pathPrefix = next().replace(/\\/g, '/')
-    else if (arg === '--limit') options.limit = Math.max(1, Number.parseInt(next(), 10) || 15)
+    else if (arg === '--limit') {
+      const raw = next()
+      if (!/^[1-9]\d*$/.test(raw)) throw new Error('--limit needs a positive integer')
+      options.limit = Number(raw)
+    }
     else if (arg === '--json') options.json = true
     else if (arg.startsWith('--')) throw new Error(`Unknown option ${arg}`)
     else options.terms.push(arg)
@@ -37,7 +41,7 @@ export function parseFindArguments(argv) {
 }
 
 function tokens(terms) {
-  return [...new Set(terms.join(' ').toLowerCase().split(/[^a-z0-9]+/).filter((t) => t.length > 2))]
+  return [...new Set(terms.join(' ').toLowerCase().split(/[^\p{L}\p{N}]+/u).filter((t) => t.length > 1))]
 }
 
 function resolveKind(policy, value) {
@@ -64,7 +68,7 @@ export function findDocuments(catalog, policy, options) {
       const base = path.basename(doc.path).toLowerCase()
       if (ids.includes(idQuery)) { score += 100; reasons.push('id') }
       else if (base.startsWith(idQuery)) { score += 40; reasons.push('filename id') }
-      else if (!words.length) continue
+      else continue
     }
     let matched = 0
     if (words.length) {
@@ -72,6 +76,7 @@ export function findDocuments(catalog, policy, options) {
       const title = (doc.title || '').toLowerCase()
       const subject = doc.subject || ''
       const heads = doc.headings.join(' ').toLowerCase()
+      const idText = [doc.id, doc.registryId, ...doc.relations].filter(Boolean).join(' ').toLowerCase()
       const sum = (doc.summary || '').toLowerCase()
       for (const word of words) {
         let hit = false
@@ -80,9 +85,10 @@ export function findDocuments(catalog, policy, options) {
         if (subject.includes(word)) { score += 6; hit = true }
         if (heads.includes(word)) { score += 4; hit = true; reasons.push(`heading:${word}`) }
         if (sum.includes(word)) { score += 2; hit = true }
+        if (idText.includes(word)) { score += 5; hit = true; reasons.push(`id/relation:${word}`) }
         if (hit) matched += 1
       }
-      if (matched === 0) continue
+      if (matched === 0 && !idQuery) continue
       score += matched * 20
     }
     if (!words.length && !idQuery && !options.pathPrefix && !kind && !options.domain) continue
@@ -121,6 +127,10 @@ if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === imp
     const options = parseFindArguments(process.argv.slice(2))
     if (!options.terms.length && !options.id && !options.kind && !options.domain && !options.pathPrefix) {
       console.error('usage: npm run docs:find -- "<subject words>" [--id FR-292] [--kind plan] [--domain agent] [--path docs/plans] [--limit N] [--json]')
+      process.exit(2)
+    }
+    if (options.terms.length && !tokens(options.terms).length && !options.id && !options.pathPrefix && !options.kind && !options.domain) {
+      console.error('No searchable words left in the query (single characters are ignored). Use longer words, --id, --kind, --domain or --path.')
       process.exit(2)
     }
     const { policy, catalog } = buildRepositoryCatalog(TOOL_ROOT)
