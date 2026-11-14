@@ -32,13 +32,20 @@ import { classifyPath, compilePolicy, parseFrontmatter } from '../../../tools/do
 export const SEVERITY = 'warning'
 
 const DOCUMENT = /\.md$/i
-const REQUIRED_FIELDS = ['id', 'title', 'doc_type', 'status', 'version', 'last_update', 'source_of_truth']
-// Kinds whose write-home documents need the full frontmatter. Canonical records (K2),
-// instructions (K14), templates, archive, session memory, generated views and Edge keep
-// their own formats and are not asked for it here.
-const METADATA_KINDS = new Set(['K1', 'K3', 'K4', 'K5', 'K6', 'K7', 'K9', 'K10', 'K11', 'K12', 'K13'])
-const PRIOR_ART_KINDS = new Set(['K3', 'K4', 'K5', 'K6', 'K9', 'K12'])
+// What is asked of a document comes from docs/governance/DOCUMENT-KINDS.json, tuned to the
+// shapes that really exist (ADR-118 amendment 2): required fields per kind (policy.requiredFields),
+// the status/doc_type values each kind really uses (policy.vocabulary, on top of the global
+// lifecycle lists), the kinds that start a new subject (policy.priorArtKinds) and rules marked
+// priorArt:false for multi-document bundles. 'tolerated' homes (active practice with no matrix
+// write home yet) are neither flagged for placement nor asked for metadata.
 const NON_WRITE_HOMES = new Set(['legacy', 'frozen', 'local', 'unclassified'])
+const INDEX_FILE = /(^|\/)README\.md$/i
+
+function allowed(policy, kind, field, value) {
+  const set = field === 'status' ? 'statuses' : 'docTypes'
+  const v = String(value).toLowerCase()
+  return policy[set].has(v) || Boolean(policy.vocabulary.get(kind)?.[set]?.has(v))
+}
 
 export const LIMITATION =
   'Report-only (ADR-118 amendment 1): this warning never fails govern or CI, and only files added or ' +
@@ -104,6 +111,8 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     if (!DOCUMENT.test(file)) continue
     const here = classifyPath(policy, file)
     if (here.kind === 'EDGE') continue
+    // A README or index file describes its folder; it is not a new subject, whatever the home.
+    if (INDEX_FILE.test(file)) continue
     // A rename inside one home is the same document under another name, not a new one.
     if (entry.status === 'R' && entry.from) {
       const was = classifyPath(policy, entry.from)
@@ -123,26 +132,29 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     }
     const parsed = parseFrontmatter(text)
     const fields = parsed?.fields || {}
-    if (METADATA_KINDS.has(here.kind)) {
+    const required = policy.requiredFields.get(here.kind)
+    if (required) {
       const issues = []
       if (!parsed) issues.push('no frontmatter')
       else {
-        const missing = REQUIRED_FIELDS.filter((key) => !(key in fields))
+        const missing = required.filter((key) => !(key in fields))
         if (missing.length) issues.push(`missing ${missing.join(', ')}`)
-        if (fields.doc_type && !policy.docTypes.has(fields.doc_type)) issues.push(`doc_type "${fields.doc_type}" is outside the closed list`)
-        if (fields.status && !policy.statuses.has(fields.status)) issues.push(`status "${fields.status}" is outside the closed list`)
+        if (fields.doc_type && !allowed(policy, here.kind, 'doc_type', fields.doc_type)) issues.push(`doc_type "${fields.doc_type}" is not one this kind uses`)
+        if (fields.status && !allowed(policy, here.kind, 'status', fields.status)) issues.push(`status "${fields.status}" is not one this kind uses`)
       }
       if (issues.length) {
         add('doc-metadata', `Added document frontmatter: ${file}`, `Kind ${here.kind}: ${issues.join('; ')}.`, file,
           'Add the required frontmatter (docs/plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md section 5.3)')
       }
     }
-    if (PRIOR_ART_KINDS.has(here.kind)) {
+    if (policy.priorArtKinds.has(here.kind) && here.priorArt) {
       const declared = fields.prior_art || parsed?.lists?.prior_art
+      // Typed relations to existing documents are themselves a declaration of what the author found.
+      if (!declared && (parsed?.relations?.length || 0) > 0) continue
       if (!declared) {
         add('doc-prior-art', `Added document declares no prior_art: ${file}`,
-          'The search-before-write protocol asks a new document to name what it found (npm run docs:find), or to state none-found with the query used. This check verifies the declaration, not that a search happened.',
-          file, 'Run npm run docs:find, then add prior_art to the frontmatter')
+          'The search-before-write protocol asks a new document to name what it found: typed relations to existing documents, a prior_art list, or none-found with the query used (npm run docs:find). This check verifies the declaration, not that a search happened.',
+          file, 'Run npm run docs:find, then add relations or prior_art to the frontmatter')
       } else if (/^none-found\b/i.test(String(fields.prior_art || ''))) {
         if (!/^none-found\b\W*\w/i.test(String(fields.prior_art))) {
           add('doc-prior-art', `prior_art none-found names no query: ${file}`,

@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-118
 title: Document kinds and write homes
-version: "1.1.0"
+version: "1.2.0"
 status: accepted
 created_at: "2026-11-14"
 last_update: "2026-11-14"
@@ -166,6 +166,45 @@ about turning on a new preflight check, and only as follows.
   waits for the O12 audit), and everything in D5 above (file moves, retirements,
   stubs, CI-classification changes, rewriting existing frontmatter, `apps/edge/docs/`).
 
+## Amendment 2 — rules tuned to the shapes that exist (2026-11-14)
+
+**Source:** an owner instruction given in chat on 2026-11-14 ("fix it all"; asked
+to choose the scope, the owner picked "tune the rules to match reality, not
+rewrite existing documents"), relayed by the lead Claude session. No other
+approval is claimed. It changes **rules and the kinds file only**: no existing
+document is edited, moved, renamed or deleted, and D5 still applies in full.
+Severity stays WARNING/INFO, there is still no CRITICAL and no baseline, and only
+added or renamed files are examined.
+
+- Required frontmatter is per kind, set from what recent documents really carry
+  (`requiredFields` in `DOCUMENT-KINDS.json`: `status` and `version` almost
+  everywhere; decisions also `doc_type` and `last_update`; plans also `id` and
+  `doc_type`; and so on) instead of one list for all kinds. `source_of_truth`,
+  `title` and `id` are no longer demanded of every kind.
+- The `status` and `doc_type` values each kind actually uses are accepted per kind
+  (`vocabulary`), on top of the global lifecycle lists; values used by no kind
+  (one-off words) are still reported.
+- `prior_art` is asked only of the kinds that start a new subject (decision,
+  change request, architecture, plan, evidence). It is not asked of domain notes
+  (they cite canonical ids), numbered chapters of one specification, dated
+  assessment folders or the marketing and inference-pool change bundles, and typed
+  `relations` to existing documents count as the declaration.
+- A new home value, `tolerated`, marks active practice that has no write home in the
+  matrix yet (`.brain/reports/`, `.brain/reviews/`, `docs/migrations/`,
+  `docs/governance/`, READMEs and notes beside code under `apps/` and `services/`,
+  `skills/`). Documents added there are not flagged for placement or metadata until
+  the owner adopts or retires the home. This records a gap in the matrix; it does
+  not make those homes write homes.
+- Evidence copies may be added under `.brain/rca/evidence/` with their RCA, and a
+  README or index file is never treated as a new subject.
+- Still reported: new documents in archive, reference, `.agent/`, `agent/`,
+  `docs/roadmap/PLAN-*`, `docs/superpowers/` and other legacy or frozen homes;
+  new documents without the required frontmatter or with an unused status or
+  doc_type; and new decision, change, architecture, plan and evidence documents
+  with no prior-art declaration.
+- Still **not** approved: any CRITICAL severity or a baseline (Stage 4), the
+  duplicate-subject and source-of-truth checks (D4, D5), and everything in D5.
+
 ## Alternatives and consequences
 
 Alternatives not taken: a mass relocation to a flatter or date-based layout
@@ -189,6 +228,7 @@ No hosted CI, deployment or production result is claimed by this record.
 ## CHANGELOG
 
 - 1.0.0 (2026-11-14): initial record.
+- 1.2.0 (2026-11-14): amendment 2, rules tuned to the shapes that exist (owner instruction in chat, relayed by the lead session); rules and kinds file only.
 - 1.1.0 (2026-11-14): amendment 1, report-only added-document guards (owner instruction in chat, relayed by the lead session); D5 bullet on new checks narrowed accordingly.
 
 ## Authority
