@@ -850,6 +850,7 @@
     "ADR-115",
     "ADR-116",
     "ADR-117",
+    "ADR-118",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11136,6 +11137,19 @@
         {
           "anchor": "cancel the 24 week programme as the delivery plan",
           "since": "2026-11-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-118": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md",
+      "status": "current",
+      "statement_digest": "c751c37d6007ec127eb1b670627e39fc19cb4db76c746cf978b2c151508c5b08",
+      "history": [
+        {
+          "anchor": "document kinds and write homes",
+          "since": "2026-11-14",
           "reason": "declared"
         }
       ]
