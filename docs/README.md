@@ -1,5 +1,5 @@
 ---
-version: "0.7.22"
+version: "0.7.23"
 status: active
 superseded_by: null
 ---
@@ -16,9 +16,10 @@ indexes do not index themselves.
 and one source-of-truth owner per kind of knowledge; the
 [redesign proposal](plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) holds the
 measurements and the staged design (a candidate, not a source of truth) and
-[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Only
-report-only warnings (`doc-placement`, `doc-metadata`, `doc-prior-art`; they never fail
-`govern` or CI) flag documents added or renamed into a path, and no existing file has been approved to move. The table is a
+[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Added-document
+checks (`doc-placement`, `doc-metadata`, `doc-prior-art`) flag documents added or renamed into a path; they are warnings,
+except that adding to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`, `docs/superpowers/` or
+`docs/roadmap/PLAN-*.md` is CRITICAL (ADR-118 amendment 3), and no existing file has been approved to move. The table is a
 quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
 no single source of truth such as session memory and generated views) is in ADR-118 and
 the proposal.
@@ -195,6 +196,8 @@ kit outside this execution repository.
 - [Data-flow atlas (visual companion)](DATA-FLOW-ATLAS.html) · [UI page drawing atlas (visual companion)](UI-PAGE-DIMENSIONAL-ATLAS.html) · [Canonical data-pipeline map](DATA-PIPELINE-MAP.md)
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
+
+Version diff 0.7.22 → 0.7.23 (2026-11-14, Stage 4a): the "Before you write a document" section states that adding to the named legacy homes is CRITICAL (ADR-118 amendment 3, delegated product-owner decision); other added-document findings stay warnings. Hand edit; nothing moved.
 
 Version diff 0.7.21 → 0.7.22 (2026-11-14, Stage 3): the "Before you write a document" section now says the
 only checks are report-only warnings (ADR-118 amendment 1). Hand edit; nothing moved.

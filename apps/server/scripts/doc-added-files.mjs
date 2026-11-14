@@ -10,9 +10,11 @@
 //   doc-prior-art  an added document in a decision/plan/design/evidence kind has no
 //                  prior_art declaration, or names a path that does not exist
 //
-// SEVERITY IS ALWAYS 'warning' (or 'info' when the guard cannot run). Nothing here
-// can fail `govern`, `--strict` or CI: doc-preflight exits non-zero only for CRITICAL.
-// There is no baseline. Only files added/renamed against the merge base (plus
+// SEVERITY is 'warning' (or 'info' / 'warning' when the guard cannot run), with ONE exception set by
+// ADR-118 amendment 3: doc-placement is CRITICAL, per finding, for a file added or renamed into a
+// legacy home whose policy rule says enforce:"critical" (.agent/, agent/, .rwang-tasks/,
+// .brain/plans/, docs/superpowers/, docs/roadmap/PLAN-*.md). The shared SEVERITY constant stays
+// 'warning'; doc-preflight exits non-zero only for CRITICAL. There is no baseline. Only files added/renamed against the merge base (plus
 // untracked, non-ignored files) are examined, so existing files are never reported.
 //
 // Deliberate scope choices (ADR-118 amendment 1): generated homes are not reported (a new
@@ -46,6 +48,10 @@ function allowed(policy, kind, field, value) {
   const v = String(value).toLowerCase()
   return policy[set].has(v) || Boolean(policy.vocabulary.get(kind)?.[set]?.has(v))
 }
+
+export const CRITICAL_NOTE =
+  'CRITICAL (ADR-118 amendment 3, delegated product-owner decision): this legacy home takes no new documents. ' +
+  'Only files added or renamed into the home against the merge base are examined; existing files are never reported.'
 
 export const LIMITATION =
   'Report-only (ADR-118 amendment 1): this warning never fails govern or CI, and only files added or ' +
@@ -111,15 +117,23 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
     if (!DOCUMENT.test(file)) continue
     const here = classifyPath(policy, file)
     if (here.kind === 'EDGE') continue
-    // A rename inside one home is the same document under another name, not a new one.
+    // A rename inside one home is the same document under another name, not a new one. "Same home"
+    // means the same policy rule, so a rename between different legacy directories (.agent/ to
+    // agent/, docs/superpowers/specs/ to docs/superpowers/plans/) is a move into another home and
+    // is examined.
     if (entry.status === 'R' && entry.from) {
       const was = classifyPath(policy, entry.from)
-      if (was.kind === here.kind && was.home === here.home) continue
+      if (was.rule === here.rule && was.rule !== -1) continue
     }
     if (NON_WRITE_HOMES.has(here.home) && !here.addAllowed) {
-      add('doc-placement', `New document in a ${here.home} home: ${file}`,
-        `Kind ${here.kind} (${here.home}) takes no new documents${here.note ? `: ${here.note}` : ''}.`, file,
-        'Write it in the write home of its kind (ADR-118; docs/governance/DOCUMENT-KINDS.json), or ask the owner to amend the matrix')
+      // Per-finding severity (ADR-118 amendment 3): only an added or renamed-into file in a legacy
+      // home that its rule marks enforce:"critical" is CRITICAL; every other finding stays WARNING.
+      const severity = here.enforce === 'critical' && here.home === 'legacy' ? 'critical' : SEVERITY
+      findings.push({
+        severity, check: 'doc-placement', title: `New document in a ${here.home} home: ${file}`,
+        details: `Kind ${here.kind} (${here.home}) takes no new documents${here.note ? `: ${here.note}` : ''}. ${severity === 'critical' ? CRITICAL_NOTE : LIMITATION}`,
+        files: [file], action: 'Write it in the write home of its kind (ADR-118; docs/governance/DOCUMENT-KINDS.json), or ask the owner to amend the matrix',
+      })
       continue
     }
     if (here.home !== 'write') continue
@@ -178,8 +192,14 @@ export function evaluateAddedDocuments({ added, policy, read, exists }) {
 
 /** The wiring doc-preflight calls: examine the added set and return findings. */
 export function evaluateAddedDocumentGuards({ git, policy, read, exists }) {
-  const skipped = (reason) => [{ severity: 'info', check: 'doc-added-files', title: 'Added-document guards skipped', details: `${reason}. ${LIMITATION}`, files: [], action: '' }]
-  // Nothing in here may throw into doc-preflight: a guard that cannot run is info, never an error exit.
+  // A guard that could not evaluate the diff must never read as a pass. Under CI it is a visible
+  // WARNING (a CI checkout has full history, so this means something is wrong); locally it is INFO.
+  const skipped = (reason) => [{
+    severity: process.env.CI ? 'warning' : 'info', check: 'doc-added-files',
+    title: 'Added-document guards NOT EVALUATED (neither a pass nor a failure)',
+    details: `${reason}. The legacy-home CRITICAL guard did not run for this change. ${LIMITATION}`, files: [], action: 'Fetch origin/main (full history) and rerun npm run govern',
+  }]
+  // Nothing in here may throw into doc-preflight: a guard that cannot run is reported, never an error exit.
   try {
     const listed = listAddedDocuments({ git })
     if (!listed.ok) return skipped(listed.reason)

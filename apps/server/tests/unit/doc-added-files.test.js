@@ -153,7 +153,7 @@ describe('report-only added-document guards', () => {
     expect(source).toMatch(/await import\('\.\/doc-added-files\.mjs'\)/)
     expect(source).not.toMatch(/^import .*doc-added-files/m)
     const module = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-added-files.mjs'), 'utf8')
-    expect(module).not.toMatch(/'critical'/)
+    expect(module).toMatch(/export const SEVERITY = 'warning'/)
     expect(module).not.toMatch(/baseline\.json/)
   })
 
@@ -206,10 +206,15 @@ describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', ()
   })
 
   it('tolerated homes are not flagged for placement, legacy and frozen homes still are', () => {
-    for (const file of ['.brain/reports/x.md', '.brain/reviews/x.md', 'docs/migrations/lane/x.md', 'apps/server/deploy/NOTES.md', 'services/runtime/NOTES.md', 'docs/governance/NEW-POLICY.md', 'skills/zuri-x/NOTES.md']) {
+    for (const file of ['apps/server/deploy/NOTES.md', 'services/runtime/NOTES.md', 'skills/zuri-x/NOTES.md']) {
       expect(check(file, fm(['status: active', 'version: "1"']))).not.toContain('doc-placement')
     }
-    for (const file of ['.agent/reports/x.md', 'docs/archive/x.md', 'docs/roadmap/PLAN-NEW.md', 'reference/GoVibe/x.md', 'docs/superpowers/specs/x.md']) {
+    // ADR-118 amendment 3: governance is a K14 write home and migration procedures are K11; reports and reviews moved to reports/.
+    for (const file of ['docs/governance/NEW-POLICY.md', 'docs/migrations/lane/x.md']) {
+      expect(check(file, fm(['status: active', 'version: "1"']))).not.toContain('doc-placement')
+    }
+    for (const file of ['.brain/reports/x.md', '.brain/reviews/x.md']) expect(check(file)).toContain('doc-placement')
+    for (const file of ['docs/archive/x.md', 'reference/GoVibe/x.md', 'docs/roadmap/NEW-NOTES.md']) {
       expect(check(file)).toContain('doc-placement')
     }
   })
@@ -257,5 +262,91 @@ describe('rules tuned to the shapes that really exist (ADR-118 amendment 2)', ()
     const ev = ['doc_type: assessment', 'status: reviewed', 'version: "1"']
     expect(check('reports/random-folder/new.md', fm(ev))).toEqual(['doc-prior-art'])
     expect(check('reports/study-2026-11-14/new.md', fm(ev))).toEqual([])
+  })
+})
+
+describe('CRITICAL only for added or renamed-into files in the named legacy homes (ADR-118 amendment 3)', () => {
+  const real = loadPolicy(REPO_ROOT)
+  const run = (entries, read = () => '# x\n') => evaluateAddedDocuments({
+    added: entries.map((e) => (typeof e === 'string' ? { status: 'A', path: e, from: null } : e)), policy: real, read, exists: () => true,
+  })
+  const placement = (entries) => run(entries).filter((f) => f.check === 'doc-placement')
+  const CRITICAL_HOMES = ['docs/superpowers/specs/x.md', 'docs/superpowers/plans/x.md', '.brain/plans/x.md', 'docs/roadmap/PLAN-NEW-20261114.md', '.agent/reports/x.md', 'agent/phases/x.md', '.rwang-tasks/x.md']
+
+  it('an addition to each named legacy home is CRITICAL, and the shared SEVERITY is still warning', () => {
+    for (const file of CRITICAL_HOMES) {
+      const [finding] = placement([file])
+      expect(finding.severity, file).toBe('critical')
+      expect(finding.details).toMatch(/delegated product-owner decision/)
+    }
+    expect(SEVERITY).toBe('warning')
+  })
+
+  it('every other legacy, frozen or unclassified home stays WARNING', () => {
+    for (const file of ['docs/archive/x.md', 'reference/GoVibe/x.md', 'docs/roadmap/NEW-NOTES.md', '.brain/reports/x.md', '.brain/reviews/x.md', '.brain/waves/x.md', 'docs/DB-NEW.md', 'docs/prompts/x.md']) {
+      const [finding] = placement([file])
+      expect(finding.severity, file).toBe('warning')
+    }
+  })
+
+  it('a same-directory rename is the same document; a cross-home rename is a move into another home', () => {
+    expect(placement([{ status: 'R', from: '.agent/reports/a.md', path: '.agent/reports/b.md' }])).toEqual([])
+    expect(placement([{ status: 'R', from: 'docs/superpowers/specs/a.md', path: 'docs/superpowers/specs/b.md' }])).toEqual([])
+    for (const [from, to] of [
+      ['.agent/reports/a.md', 'agent/phases/a.md'],
+      ['docs/superpowers/specs/a.md', 'docs/superpowers/plans/a.md'],
+      ['docs/plans/a.md', 'docs/superpowers/specs/a.md'],
+      ['reports/a.md', '.rwang-tasks/a.md'],
+    ]) {
+      const [finding] = placement([{ status: 'R', from, path: to }])
+      expect(finding?.severity, `${from} -> ${to}`).toBe('critical')
+    }
+    expect(placement([{ status: 'R', from: '.agent/reports/a.md', path: 'docs/plans/a.md' }])).toEqual([])
+  })
+
+  it('K2 records, generated views, Edge, frozen evidence and sealed approval copies are not flagged', () => {
+    for (const file of [
+      'docs/features/FEAT-999/feature.md', 'docs/requirements/FR-999.md', 'docs/PRD-SDD-v1.0.md', 'docs/product/README.md',
+      'apps/edge/docs/new.md', '.brain/rca/evidence/2026-11-14-x/source/a.md',
+      'docs/migrations/document-reintegration/record-migrations/x-20261114.approval.md',
+    ]) expect(placement([file]), file).toEqual([])
+  })
+
+  it('only the enumerated homes can ever produce a CRITICAL finding', () => {
+    const sample = [
+      ...CRITICAL_HOMES, 'docs/plans/x.md', 'docs/decisions/ADR-1-x.md', 'docs/archive/x.md', 'reports/x.md', '.brain/rca/x.md', 'docs/architecture/x.md',
+      'docs/domains/crm/x.md', 'docs/runbooks/x.md', 'docs/governance/x.md', 'docs/migrations/x.md', 'AGENTS.md', 'apps/server/x.md', 'docs/DB-NEW.md',
+      '.brain/reports/x.md', 'reference/x.md', 'experiments/x.md', 'docs/roadmap/NEW.md',
+    ]
+    const critical = run(sample).filter((f) => f.severity === 'critical').map((f) => f.files[0]).sort()
+    expect(critical).toEqual([...CRITICAL_HOMES].sort())
+  })
+
+  it('a diff that cannot be evaluated is reported as NOT EVALUATED, never as a pass', () => {
+    const noBase = () => evaluateAddedDocumentGuards({ git: () => ({ ok: false, stdout: '' }), policy: real, read: () => null, exists: () => false })
+    const saved = process.env.CI
+    try {
+      delete process.env.CI
+      const local = noBase()
+      expect(local).toHaveLength(1)
+      expect(local[0].title).toMatch(/NOT EVALUATED/)
+      expect(local[0].severity).toBe('info')
+      process.env.CI = 'true'
+      expect(noBase()[0].severity).toBe('warning')
+    } finally {
+      if (saved === undefined) delete process.env.CI
+      else process.env.CI = saved
+    }
+    const failedDiff = evaluateAddedDocumentGuards({
+      git: (args) => (args[0] === 'merge-base' ? { ok: true, stdout: 'abc\n' } : { ok: false, stdout: '' }),
+      policy: real, read: () => null, exists: () => false,
+    })
+    expect(failedDiff[0].title).toMatch(/NOT EVALUATED/)
+  })
+
+  it('a critical finding reaches doc-preflight unchanged and can make --strict exit non-zero', () => {
+    const source = readFileSync(path.join(REPO_ROOT, 'apps/server/scripts/doc-preflight.mjs'), 'utf8')
+    expect(source).toMatch(/for \(const f of guards\) add\(f\.severity, f\.check, f\.title, f\.details, f\.files, f\.action\)/)
+    expect(source).toMatch(/--strict'\) && report\.summary\.critical > 0\) process\.exit\(1\)/)
   })
 })
