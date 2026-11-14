@@ -1,7 +1,7 @@
 ---
 id: ZAI:ADR-118
 title: Document kinds and write homes
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-11-14"
 last_update: "2026-11-14"
@@ -122,7 +122,7 @@ this record:
   `agent/`, `.rwang-tasks/` and `docs/superpowers/`;
 - any redirect stub that replaces a file;
 - changing `scripts/ci-code-changes.mjs` or the workflow path filters;
-- turning on any new preflight check;
+- turning on any new preflight check, except the report-only guards of amendment 1 (warnings only, never CRITICAL);
 - rewriting statuses or frontmatter of existing documents;
 - touching `apps/edge/docs/`, which keeps its own namespace and preflight.
 
@@ -140,6 +140,30 @@ output naturally includes this ADR), the ADR-025 domain spine, and every frozen 
 pinned family stay exactly as they are. Paths read at runtime by Knowledge
 Studio, the roadmap board and the governance source verifier stay where they
 are.
+
+## Amendment 1 — report-only added-document guards (2026-11-14)
+
+**Source:** an owner instruction given in chat on 2026-11-14 ("approve", in answer
+to the lead session's question whether to start Stage 3), relayed by the lead
+Claude session. No other approval is claimed. It narrowly reverses D5's bullet
+about turning on a new preflight check, and only as follows.
+
+- Three **report-only** checks may run in `npm run docs:preflight` (and therefore
+  `govern`): `doc-placement`, `doc-metadata` and `doc-prior-art` (proposal D1 to
+  D3). Their severity is **WARNING**, or INFO when the guard cannot run. No
+  CRITICAL is enabled, so neither `--strict`, `govern` nor CI can fail because of
+  them; `--strict` still fails only on CRITICAL.
+- They examine **only files added or renamed** against the merge base (plus
+  untracked, non-ignored files). There is no baseline file, and existing files
+  are never reported.
+- `docs/superpowers/specs/`, `docs/superpowers/plans/` and `.brain/plans/` are
+  recorded as legacy homes that take no new documents (`DOCUMENT-KINDS.json`).
+  Brainstorming and plan skills write to `docs/plans/` instead (AGENTS.md
+  section 19). Nothing existing in those folders is moved or removed.
+- Still **not** approved: any CRITICAL severity or a baseline (Stage 4), the
+  duplicate-subject check (D4), the source-of-truth uniqueness check (D5, which
+  waits for the O12 audit), and everything in D5 above (file moves, retirements,
+  stubs, CI-classification changes, rewriting existing frontmatter, `apps/edge/docs/`).
 
 ## Alternatives and consequences
 
@@ -164,6 +188,7 @@ No hosted CI, deployment or production result is claimed by this record.
 ## CHANGELOG
 
 - 1.0.0 (2026-11-14): initial record.
+- 1.1.0 (2026-11-14): amendment 1, report-only added-document guards (owner instruction in chat, relayed by the lead session); D5 bullet on new checks narrowed accordingly.
 
 ## Authority
 

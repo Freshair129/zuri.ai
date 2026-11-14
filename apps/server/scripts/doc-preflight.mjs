@@ -7,7 +7,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 // Usage: node scripts/doc-preflight.mjs [--strict]
 //   --strict  exit 1 on any CRITICAL finding
 
-import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { writeFileSync, readdirSync, statSync, existsSync, readFileSync } from 'fs'
 import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -18,6 +18,8 @@ import { evaluateIdStability } from './id-stability.mjs'
 import { findBrokenEvidence } from './roadmap-evidence.mjs'
 import { findUncoveredRequirements } from './roadmap-coverage.mjs'
 import { GIT_ARGS, evaluateUntrackedDocs } from './untracked-docs.mjs'
+import { evaluateAddedDocumentGuards } from './doc-added-files.mjs'
+import { loadPolicy } from '../../../tools/document-catalog.mjs'
 import { evaluateTableIntegrity, scopeFromLedger } from './table-integrity.mjs'
 import { evaluateSchemaMigrationDrift } from './schema-migration-drift.mjs'
 import { classifyRequirements, assertCapabilityTerminology } from './capability-registry.mjs'
@@ -1482,6 +1484,32 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
   for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 22: documents added against the merge base (report-only) ---------
+// ADR-118 amendment 1; redesign proposal section 7.2, checks D1 to D3. Every finding
+// is a WARNING (or an info when the guard cannot run): this block can never make
+// --strict or CI fail, and it has no baseline — only added/renamed files are examined,
+// so existing files are never reported. See scripts/doc-added-files.mjs.
+{
+  const repoRoot = workspaceRoot(ROOT)
+  const runGitAdded = (args) => {
+    const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true })
+    return r.error || r.status !== 0 ? { ok: false, stdout: '' } : { ok: true, stdout: r.stdout }
+  }
+  let policy = null
+  try { policy = loadPolicy(repoRoot) } catch (error) {
+    add('info', 'doc-added-files', 'Added-document guards skipped', `The kinds policy could not be loaded: ${error.message}`, ['docs/governance/DOCUMENT-KINDS.json'], '')
+  }
+  if (policy) {
+    const guards = evaluateAddedDocumentGuards({
+      git: runGitAdded,
+      policy,
+      read: (file) => { try { return readFileSync(path.join(repoRoot, file), 'utf8') } catch { return null } },
+      exists: (file) => existsSync(path.join(repoRoot, file)),
+    })
+    for (const f of guards) add(f.severity, f.check, f.title, f.details, f.files, f.action)
   }
 }
 
