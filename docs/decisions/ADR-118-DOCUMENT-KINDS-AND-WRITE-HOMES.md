@@ -56,9 +56,10 @@ rationale and decisions cannot be recovered from code.
 
 ### D1 — The kind matrix and write homes are adopted
 
-Section 4 of the proposal (kinds K1 to K18, each with one write home, one
-source-of-truth owner, legacy homes that take no new documents, and generated
-views) is adopted as repository documentation policy. A new tracked document
+Section 4 of the proposal (kinds K1 to K18, each with one write home, a
+source-of-truth owner (K17 session memory has none, and K18 generated views are
+owned by their generator and sources), and legacy homes that take no new
+documents) is adopted as repository documentation policy. A new tracked document
 goes only in the write home of its kind; if no kind fits, the matrix is
 amended through an ADR or a profile amendment, and no folder is added by
 choice. Existing paths keep their identities and are re-labelled, not moved.
@@ -71,7 +72,7 @@ proposal differ, this ADR governs.
 
 Before creating a document, an agent searches for the subject (the exact id,
 the subject words, the intended home), reads the source-of-truth owner for the
-kind, and then extends or supersedes an existing document rather than writing
+kind (where the kind has none, the generator or the absence is stated), and then extends or supersedes an existing document rather than writing
 a parallel copy. A search miss is never proof of absence (AGENTS.md section
 21); the agent enumerates the intended home. New documents declare `prior_art`
 in frontmatter. The command that implements the search is delivered by a
@@ -79,11 +80,15 @@ separate change; this decision does not claim it exists yet.
 
 ### D3 — Enforcement is staged and applies to added files only
 
-Placement, metadata, prior-art and source-of-truth checks (proposal D1 to D5)
-apply to files added or renamed into a path, are introduced report-only first,
-and use no baseline. Existing files never fail them. Canonical requirement and
-feature records (K2) keep their own format and validators and are excepted.
-Nothing in this ADR turns a check on.
+The placement, metadata and prior-art checks (proposal D1 to D3) apply to
+files added or renamed into a path, are introduced report-only first, and use
+no baseline; existing files never fail them. The duplicate-subject check
+(proposal D4) keeps a shrink-only list of the existing pairs, as the proposal
+states. The source-of-truth uniqueness check (proposal D5) waits for the audit
+of the 17 existing `source_of_truth` declarations (O12) before it applies to
+anything but added files. Canonical requirement and feature records (K2) keep
+their own format and validators and are excepted. Nothing in this ADR turns a
+check on.
 
 ### D4 — Owner decisions O1 to O12 are recorded as follows
 
@@ -95,7 +100,7 @@ anything is executed by this record.
 | # | Decision | Recorded outcome | Executed here |
 |---|---|---|---|
 | O1 | Adopt the kind matrix and write-home policy as an ADR | adopted (this record) | yes, as policy text only |
-| O2 | Enforcement style for placement, metadata and prior-art checks | added-file rule, no baseline | no, later stage |
+| O2 | Enforcement style for placement, metadata and prior-art checks (proposal D1 to D3) | added-file rule, no baseline; D4 keeps its shrink-only list and D5 follows O12 | no, later stage |
 | O3 | Where dated assessments live | keep `reports/` outside `docs/` | n/a, no change |
 | O4 | Count `reports/*.md` and similar as documentation for CI classification | decided in principle | **no**: needs its own reviewed CI change with tests |
 | O5 | One closed `status` vocabulary | on added files only; existing files are not rewritten | no, later stage |
@@ -130,7 +135,8 @@ the runtime and verifier readers listed in the proposal (section 3.1).
 Requirement, feature, ADR and change-request identities and subject anchors
 (AGENTS.md section 18, ADR-039), canonical record paths, the registry index,
 the generated compatibility exports, the id ledger and the baselines, the
-document graph and preflight, the ADR-025 domain spine, and every frozen or
+rules and generators of the document graph and preflight (their regenerated
+output naturally includes this ADR), the ADR-025 domain spine, and every frozen or
 pinned family stay exactly as they are. Paths read at runtime by Knowledge
 Studio, the roadmap board and the governance source verifier stay where they
 are.
