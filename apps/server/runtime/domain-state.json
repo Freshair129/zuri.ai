@@ -1880,22 +1880,6 @@
           "testCount": 39
         },
         {
-          "id": "FR-175",
-          "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 15
-        },
-        {
-          "id": "FR-181",
-          "title": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 2
-        },
-        {
           "id": "FR-210",
           "title": "A verified staff sender adds or matches SKUs from LINE with a deterministic #sku command that previews before it writes",
           "declared": "n/a",
@@ -1950,14 +1934,6 @@
           "status": "verified",
           "codeCount": 9,
           "testCount": 73
-        },
-        {
-          "id": "FR-253",
-          "title": "Business-scoped versioned pricing rules and formula console",
-          "declared": "n/a",
-          "status": "verified",
-          "codeCount": 1,
-          "testCount": 49
         },
         {
           "id": "FR-256",
@@ -2069,7 +2045,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -2664,7 +2640,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-181",
@@ -2672,7 +2648,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 2
+          "testCount": 1
         },
         {
           "id": "FR-183",
@@ -2712,7 +2688,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 49
+          "testCount": 48
         },
         {
           "id": "FR-291",
@@ -2780,7 +2756,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -3967,7 +3943,7 @@
           "details": {
             "routes": 32,
             "inventoried": 30,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 1
           }
         },
@@ -4483,7 +4459,7 @@
           "declared": "n/a",
           "status": "not_applicable",
           "codeCount": 1,
-          "testCount": 30,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
             "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
@@ -4497,7 +4473,7 @@
             "apps/server/tests/integration/knowledge-replay.integration.test.js",
             "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/integration/structured-catalog-admission.test.js",
             "apps/server/tests/unit/genesisrag17-parser-2.test.js",
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
@@ -4514,8 +4490,7 @@
             "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
             "apps/server/tests/unit/pipeline-mcp-transport.test.js",
             "apps/server/tests/unit/project-manager-mcp.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
-            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+            "apps/server/tests/unit/structured-catalog-adapter.test.js"
           ]
         },
         {
@@ -4662,7 +4637,7 @@
           "details": {
             "routes": 19,
             "inventoried": 19,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -4904,7 +4879,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-176",
@@ -5127,7 +5102,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -5304,7 +5279,7 @@
           "title": "Knowledge projection (ADR-007 P5)",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 7,
+          "codeCount": 6,
           "testCount": 5
         },
         {
@@ -5464,13 +5439,12 @@
           "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "not_applicable",
-          "codeCount": 5,
-          "testCount": 30,
+          "codeCount": 4,
+          "testCount": 29,
           "evidence": [
             "apps/server/src/modules/knowledge/knowledge-admission-service.js",
             "apps/server/src/modules/knowledge/knowledge-runtime.js",
-            "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-            "apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js",
+            "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
             "apps/server/src/modules/knowledge/structured-record-policy.js",
             "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
             "apps/server/tests/acceptance/knowledge-admission-native.test.js",
@@ -5483,7 +5457,7 @@
             "apps/server/tests/integration/knowledge-replay.integration.test.js",
             "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/integration/structured-catalog-admission.test.js",
             "apps/server/tests/unit/genesisrag17-parser-2.test.js",
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
@@ -5500,8 +5474,7 @@
             "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
             "apps/server/tests/unit/pipeline-mcp-transport.test.js",
             "apps/server/tests/unit/project-manager-mcp.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
-            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+            "apps/server/tests/unit/structured-catalog-adapter.test.js"
           ]
         },
         {
@@ -5627,7 +5600,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 49
+          "testCount": 48
         },
         {
           "id": "FR-254",
@@ -6310,7 +6283,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6551,7 +6524,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -6803,7 +6776,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7211,7 +7184,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -7402,7 +7375,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-196",
@@ -7436,7 +7409,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 377,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -8678,10 +8651,9 @@
           "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
           "status": "not_applicable",
-          "codeCount": 3,
-          "testCount": 30,
+          "codeCount": 2,
+          "testCount": 29,
           "evidence": [
-            "apps/server/src/app/api/knowledge/catalog-files/route.js",
             "apps/server/src/app/api/knowledge/ingestions/route.js",
             "apps/server/src/modules/project-manager/mcp/transport.js",
             "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
@@ -8695,7 +8667,7 @@
             "apps/server/tests/integration/knowledge-replay.integration.test.js",
             "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
             "apps/server/tests/integration/openapi-docs.test.js",
-            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/integration/structured-catalog-admission.test.js",
             "apps/server/tests/unit/genesisrag17-parser-2.test.js",
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
@@ -8712,8 +8684,7 @@
             "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
             "apps/server/tests/unit/pipeline-mcp-transport.test.js",
             "apps/server/tests/unit/project-manager-mcp.test.js",
-            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
-            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+            "apps/server/tests/unit/structured-catalog-adapter.test.js"
           ]
         },
         {
@@ -9010,7 +8981,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 49
+          "testCount": 48
         },
         {
           "id": "FR-254",
@@ -9592,9 +9563,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 199,
-            "inventoried": 199,
-            "openApiPaths": 377,
+            "routes": 198,
+            "inventoried": 198,
+            "openApiPaths": 376,
             "missingFromOpenApi": 0
           }
         },
@@ -9659,8 +9630,8 @@
             }
           ],
           "details": {
-            "mutations": 151,
-            "guardedMutations": 150,
+            "mutations": 150,
+            "guardedMutations": 149,
             "reads": 92,
             "unguardedReads": 12
           }
@@ -10357,8 +10328,8 @@
         }
       ],
       "details": {
-        "routes": 246,
-        "apiRoutes": 199,
+        "routes": 245,
+        "apiRoutes": 198,
         "pageRoutes": 47,
         "ownedModels": 53,
         "featureNotes": 45
@@ -12012,7 +11983,7 @@
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
         "apps/server/tests/integration/platform/integration-persistence.test.js",
-        "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/integration/structured-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/storage/compact-business-objects.test.js",
         "apps/server/tests/storage/knowledge-object-restore.test.js",
@@ -12086,7 +12057,7 @@
         "apps/server/tests/unit/procurement-routes.test.js",
         "apps/server/tests/unit/project-manager-mcp.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        "apps/server/tests/unit/structured-catalog-adapter.test.js"
       ]
     },
     {
@@ -13566,7 +13537,6 @@
       ],
       "primaryDomain": "inventory",
       "contributorDomains": [
-        "agent",
         "commerce",
         "inventory",
         "procurement",
@@ -13593,8 +13563,8 @@
           "title": "Inventory valuation is landed cost in integer satang, and domestic single-drop freight is absorbed into it rather than quoted",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 14,
-          "testCount": 15
+          "codeCount": 13,
+          "testCount": 14
         },
         {
           "id": "FR-176",
@@ -13641,8 +13611,8 @@
           "title": "The agent reaches the supply chain through six tools on the gates it already has, and through no other path",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 2,
-          "testCount": 2
+          "codeCount": 1,
+          "testCount": 1
         },
         {
           "id": "FR-182",
@@ -13686,7 +13656,6 @@
         "apps/server/src/app/api/inventory/transfers/route.js",
         "apps/server/src/config/domains.js",
         "apps/server/src/lib/module-tabs.js",
-        "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
         "apps/server/src/modules/commerce/application/pricing-catalog-service.js",
         "apps/server/src/modules/commerce/application/pricing-inventory-service.js",
         "apps/server/src/modules/inventory/application/customization-work-order-service.js",
@@ -13726,7 +13695,6 @@
         "apps/server/tests/integration/fr178-de-kitting.test.js",
         "apps/server/tests/integration/fr179-shelf-life-guard.test.js",
         "apps/server/tests/integration/fr180-atp-reservations.test.js",
-        "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
         "apps/server/tests/integration/fr182-scm-console-actions.test.js",
         "apps/server/tests/integration/fr184-inventory-stocktake-backup.test.js",
         "apps/server/tests/integration/fr184-inventory-stocktake.test.js",
@@ -13800,19 +13768,19 @@
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-        "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+        "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
-        "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/integration/structured-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/knowledge-delivery-fence.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
+        "apps/server/tests/unit/structured-catalog-adapter.test.js"
       ]
     },
     {
@@ -15242,7 +15210,7 @@
         "apps/server/tests/integration/pipeline-endpoint-matrix.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
         "apps/server/tests/integration/server-line-trace.test.js",
-        "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+        "apps/server/tests/integration/structured-catalog-admission.test.js",
         "apps/server/tests/integration/xlsx-intake.test.js",
         "apps/server/tests/postgres/knowledge-line-withdrawal-races.test.js",
         "apps/server/tests/unit/activation-readiness-integration.test.js",
@@ -15298,7 +15266,7 @@
         "apps/server/tests/unit/runtime-isolation-probe.test.js",
         "apps/server/tests/unit/scm-group-navigation.test.js",
         "apps/server/tests/unit/server-line-answer.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+        "apps/server/tests/unit/structured-catalog-adapter.test.js",
         "services/conversation-runtime/src/context.js",
         "services/conversation-runtime/src/line-answer-policy.js",
         "services/conversation-runtime/src/turn-runtime.js",
@@ -17063,7 +17031,7 @@
           "title": "Knowledge projection (ADR-007 P5)",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 7,
+          "codeCount": 6,
           "testCount": 5
         }
       ],
@@ -17074,7 +17042,6 @@
         "apps/server/src/modules/knowledge/project-graph.js",
         "apps/server/src/modules/knowledge/query.js",
         "apps/server/src/modules/knowledge/sink.js",
-        "apps/server/src/modules/knowledge/smartgift-knowledge-catalog.js",
         "apps/server/tests/integration/agent-runtime.test.js",
         "apps/server/tests/integration/knowledge-project.test.js",
         "apps/server/tests/integration/knowledge-query.test.js",
@@ -21708,7 +21675,6 @@
       ],
       "primaryDomain": "commerce",
       "contributorDomains": [
-        "agent",
         "commerce",
         "knowledge",
         "project-manager"
@@ -21724,8 +21690,8 @@
           "title": "Business-scoped versioned pricing rules and formula console",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 24,
-          "testCount": 49
+          "codeCount": 23,
+          "testCount": 48
         }
       ],
       "evidence": [
@@ -21737,7 +21703,6 @@
         "apps/server/src/app/api/commerce/pricing-rules/preview/route.js",
         "apps/server/src/app/api/commerce/pricing-rules/route.js",
         "apps/server/src/config/domains.js",
-        "apps/server/src/modules/agent/tools/smartgift-inventory-tools.js",
         "apps/server/src/modules/commerce/application/pricing-catalog-service.js",
         "apps/server/src/modules/commerce/application/pricing-inventory-service.js",
         "apps/server/src/modules/commerce/application/pricing-rules-service.js",
@@ -21761,7 +21726,6 @@
         "apps/server/tests/integration/conversation-runtime-product-facts-vertical.test.js",
         "apps/server/tests/integration/crm-conversation-analysis.test.js",
         "apps/server/tests/integration/fr075-restore-authorization.test.js",
-        "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js",
         "apps/server/tests/integration/fr253-pricing-catalog.test.js",
         "apps/server/tests/integration/fr253-pricing-rules.test.js",
         "apps/server/tests/integration/governance-snapshot-capture.test.js",

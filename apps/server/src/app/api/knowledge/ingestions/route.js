@@ -10,7 +10,7 @@ import {
 // @req FR-187 — the same POST admits a SmartGift structured-record projection
 // when the FILE source names `format`; no second route is opened for it.
 // @spec ADR-072, ADR-075, SEC-001, SEC-006, SEC-008
-// @tested tests/unit/knowledge-admission-routes.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @tested tests/unit/knowledge-admission-routes.test.js, tests/integration/structured-catalog-admission.test.js
 
 export const dynamic = 'force-dynamic'
 

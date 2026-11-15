@@ -58,7 +58,6 @@ status: generated
 ### Code paths — graph bindings
 
 - [apps/server/src/app/(pm)/inventory/products/\[productId\]/page.jsx](../../../apps/server/src/app/%28pm%29/inventory/products/%5BproductId%5D/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/modules/agent/tools/smartgift-inventory-tools.js](../../../apps/server/src/modules/agent/tools/smartgift-inventory-tools.js) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/application/pricing-catalog-service.js](../../../apps/server/src/modules/commerce/application/pricing-catalog-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/customization-work-order-service.js](../../../apps/server/src/modules/inventory/application/customization-work-order-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/inventory/application/de-kitting-service.js](../../../apps/server/src/modules/inventory/application/de-kitting-service.js) — `implements` (`annotation`)
@@ -80,7 +79,6 @@ status: generated
 - [apps/server/tests/integration/fr176-customization-work-order.test.js](../../../apps/server/tests/integration/fr176-customization-work-order.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr177-kitting-work-order.test.js](../../../apps/server/tests/integration/fr177-kitting-work-order.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr178-de-kitting.test.js](../../../apps/server/tests/integration/fr178-de-kitting.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/integration/fr181-smartgift-agent-tools.test.js](../../../apps/server/tests/integration/fr181-smartgift-agent-tools.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr184-inventory-stocktake.test.js](../../../apps/server/tests/integration/fr184-inventory-stocktake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr253-pricing-catalog.test.js](../../../apps/server/tests/integration/fr253-pricing-catalog.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr253-pricing-catalog-storage.test.js](../../../apps/server/tests/unit/fr253-pricing-catalog-storage.test.js) — `verifies` (`test-reference`)
@@ -241,12 +239,10 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/modules/agent/tools/smartgift-inventory-tools.js](../../../apps/server/src/modules/agent/tools/smartgift-inventory-tools.js) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/application/pricing-inventory-service.js](../../../apps/server/src/modules/commerce/application/pricing-inventory-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/integration/fr181-smartgift-agent-tools.test.js](../../../apps/server/tests/integration/fr181-smartgift-agent-tools.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr253-pricing-catalog.test.js](../../../apps/server/tests/integration/fr253-pricing-catalog.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-182](requirements/FR-182.md)

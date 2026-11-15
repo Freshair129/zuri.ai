@@ -12,7 +12,7 @@ const mocks = vi.hoisted(() => ({
   assertKnowledgeBusinessWritable: vi.fn(),
   resolveKnowledgeRuntimeBinding: vi.fn(),
   admitKnowledge: vi.fn(),
-  parseSmartGiftCatalogFile: vi.fn((text) => JSON.parse(text)),
+  parseStructuredCatalogFile: vi.fn((text) => JSON.parse(text)),
   normalizePricingInput: vi.fn((value) => value),
   pricingHash: vi.fn(() => 'a'.repeat(64)),
   buildPricingCatalogProjection: vi.fn((product, quantity, unitPriceSatang) => ({
@@ -40,8 +40,8 @@ vi.mock('@/modules/project-manager/application/audit', () => ({ recordAudit: (..
 vi.mock('@/modules/knowledge/knowledge-authorization', () => ({ assertKnowledgeBusinessWritable: (...args) => mocks.assertKnowledgeBusinessWritable(...args) }))
 vi.mock('@/modules/knowledge/knowledge-runtime', () => ({ resolveKnowledgeRuntimeBinding: (...args) => mocks.resolveKnowledgeRuntimeBinding(...args) }))
 vi.mock('@/modules/knowledge/knowledge-admission-service', () => ({ admitKnowledge: (...args) => mocks.admitKnowledge(...args) }))
-vi.mock('@/modules/knowledge/smartgift-catalog-adapter', () => ({
-  parseSmartGiftCatalogFile: (...args) => mocks.parseSmartGiftCatalogFile(...args),
+vi.mock('@/modules/knowledge/structured-catalog-adapter', () => ({
+  parseStructuredCatalogFile: (...args) => mocks.parseStructuredCatalogFile(...args),
   STRUCTURED_CATALOG_FORMAT: 'SMARTGIFT_CATALOG_V1',
 }))
 vi.mock('@/modules/commerce/domain/pricing-engine', () => ({

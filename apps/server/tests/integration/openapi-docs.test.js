@@ -422,7 +422,7 @@ describe('OpenAPI document', () => {
       // The branch's FR-215 pipeline-health route remains in the composition.
       // FR-094/FR-095 adds WebAuthn Passkeys: six paths, seven operations.
       // TASK-ZAI-053 adds six supplier cost-sheet paths and six operations.
-      // FR-187 adds the SmartGift catalog upload: one path, POST only.
+      // FR-187 added the catalog upload path; ADR-119 removed it again (one path, POST only).
       // FR-069 adds the optional meeting intake boundary: one identity
       // binding path and two PlanEnvelope convergence paths. FR-069/FR-070
       // add the PM-owned execution trace resource and replay command.
@@ -472,11 +472,11 @@ describe('OpenAPI document', () => {
       // FR-230 adds the Integration raw-record and Agent trace retention sweeps;
       // FR-245 adds the CRM archive-expiry trigger: three paths and operations.
       // FR-195 adds four AccessInvite paths and operations: 376 + 4 = 380.
-      pathCount: 377,
+      pathCount: 376,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
       // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
       // Register page's ready-intake list): one operation, no new path.
-      operationCount: 493,
+      operationCount: 492,
     })
     const archiveExpiry = doc.paths['/api/crm/archive-expiry'].post
     expect(archiveExpiry.security).toEqual([{ RetentionSweepOperator: [] }])

@@ -169,7 +169,7 @@ status: generated
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/structured-catalog-admission.test.js](../../../apps/server/tests/integration/structured-catalog-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-management-navigation.test.js](../../../apps/server/tests/unit/asset-management-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
@@ -190,7 +190,7 @@ status: generated
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/scm-group-navigation.test.js](../../../apps/server/tests/unit/scm-group-navigation.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/structured-catalog-adapter.test.js](../../../apps/server/tests/unit/structured-catalog-adapter.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-237](requirements/FR-237.md)
 
@@ -233,12 +233,12 @@ status: generated
 - [apps/server/tests/integration/fr238-line-studio-description-admission.test.js](../../../apps/server/tests/integration/fr238-line-studio-description-admission.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/knowledge-admission.integration.test.js](../../../apps/server/tests/integration/knowledge-admission.integration.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-corpus.test.js](../../../apps/server/tests/integration/knowledge-corpus.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/structured-catalog-admission.test.js](../../../apps/server/tests/integration/structured-catalog-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-admission-service.test.js](../../../apps/server/tests/unit/knowledge-admission-service.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-delivery-fence.test.js](../../../apps/server/tests/unit/knowledge-delivery-fence.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-runtime.test.js](../../../apps/server/tests/unit/knowledge-runtime.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-studio-description-admission.test.js](../../../apps/server/tests/unit/line-oa-studio-description-admission.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/structured-catalog-adapter.test.js](../../../apps/server/tests/unit/structured-catalog-adapter.test.js) — `verifies` (`transitive`)
 
 ## Limits
 

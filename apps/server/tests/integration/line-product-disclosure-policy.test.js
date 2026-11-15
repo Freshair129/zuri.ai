@@ -15,8 +15,8 @@ import {
   STRUCTURED_CATALOG_CONTENT_TYPE,
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+  structuredCatalogSourceKey,
+} from '@/modules/knowledge/structured-catalog-adapter'
 import {
   listLineProductDisclosure,
   previewLineProductDisclosure,
@@ -514,7 +514,7 @@ describe('LINE customer product disclosure policy', () => {
         size: 4096, sha256: sha, status: 'ACTIVE', version: 1, deletedAt: null,
       }
       const source = {
-        id: sourceId, corpusId, sourceKey: smartGiftSourceKey({ fileName: asset.name, recordCode: externalId }),
+        id: sourceId, corpusId, sourceKey: structuredCatalogSourceKey({ fileName: asset.name, recordCode: externalId }),
         kind: 'FILE', title, fileAssetId: assetId, desiredRevision: 1, activeIngestionId: ingestionId, version: 1,
         revokedAt: null, deletedAt: null,
       }

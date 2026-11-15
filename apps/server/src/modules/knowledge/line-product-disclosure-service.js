@@ -11,8 +11,8 @@ import {
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_MAX_FILE_BYTES,
   STRUCTURED_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-} from './smartgift-catalog-adapter'
+  structuredCatalogSourceKey,
+} from './structured-catalog-adapter'
 import {
   DISCLOSURE_FIELDS,
   disclosureLookupHash,
@@ -302,7 +302,7 @@ function isCurrentProductMasterCandidate({ source, ingestion, asset, entry, corp
     && Number.isSafeInteger(descriptor.recordIndex) && descriptor.recordIndex >= 0
     && Number.isSafeInteger(descriptor.recordCount) && descriptor.recordCount > descriptor.recordIndex
     && descriptor.fileSha256 === asset.sha256
-    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
+    && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
     && source.title === `ProductMaster ${descriptor.externalId}`
     && ingestion.sourceVersion === asset.sha256
 }
