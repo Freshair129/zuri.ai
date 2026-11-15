@@ -62,7 +62,7 @@ affected filesystem again before any later move or deletion.
 
 ## Findings and limits
 
-- Current enumeration (2026-11-14, main `57611a61`): 43 tracked direct files under `docs/`, matching this register by name. The reviewed-base figures below are historical and unchanged.
+- Current enumeration (2026-11-15): 41 tracked direct files under `docs/`, matching this register by name. ADR-119 removed `GAP-ANALYSIS-ZURI-GOVIBE.md` and `GOVIBE-INTEGRATION.md` (43 before); their rows are removed. The reviewed-base figures below are historical and unchanged.
 - Git enumeration at the reviewed base found 42 tracked direct files. This
   change adds one visual companion, yielding 43 tracked direct files. Ignored
   generated files are outside this tracked-file count. The register covers 20
