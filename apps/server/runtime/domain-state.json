@@ -39,8 +39,8 @@
     "domainCount": 15,
     "featureCount": 177,
     "readyFeatureCount": 121,
-    "requirementCount": 283,
-    "verifiedRequirementCount": 247,
+    "requirementCount": 282,
+    "verifiedRequirementCount": 246,
     "progressPercent": 93.6,
     "gapCount": 83,
     "gaps": [
@@ -2962,7 +2962,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-080",
@@ -3521,7 +3521,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-094",
@@ -4479,11 +4479,44 @@
         },
         {
           "id": "FR-187",
-          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
+          "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
-          "status": "verified",
+          "status": "not_applicable",
           "codeCount": 1,
-          "testCount": 30
+          "testCount": 30,
+          "evidence": [
+            "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
+            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
+            "apps/server/tests/integration/genesisrag17-tier1.test.js",
+            "apps/server/tests/integration/knowledge-admission.integration.test.js",
+            "apps/server/tests/integration/knowledge-replay.integration.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+            "apps/server/tests/unit/ki17-build-stage.test.js",
+            "apps/server/tests/unit/ki17-msp-only-release.test.js",
+            "apps/server/tests/unit/ki17-overlay-release.test.js",
+            "apps/server/tests/unit/ki17-real-corpus.test.js",
+            "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+            "apps/server/tests/unit/knowledge-admission-routes.test.js",
+            "apps/server/tests/unit/knowledge-admission-service.test.js",
+            "apps/server/tests/unit/knowledge-admission-transaction.test.js",
+            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
+            "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-runtime.test.js",
+            "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+            "apps/server/tests/unit/pipeline-mcp-transport.test.js",
+            "apps/server/tests/unit/project-manager-mcp.test.js",
+            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+          ]
         },
         {
           "id": "FR-188",
@@ -5428,11 +5461,48 @@
         },
         {
           "id": "FR-187",
-          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
+          "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
-          "status": "verified",
+          "status": "not_applicable",
           "codeCount": 5,
-          "testCount": 30
+          "testCount": 30,
+          "evidence": [
+            "apps/server/src/modules/knowledge/knowledge-admission-service.js",
+            "apps/server/src/modules/knowledge/knowledge-runtime.js",
+            "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+            "apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js",
+            "apps/server/src/modules/knowledge/structured-record-policy.js",
+            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
+            "apps/server/tests/integration/genesisrag17-tier1.test.js",
+            "apps/server/tests/integration/knowledge-admission.integration.test.js",
+            "apps/server/tests/integration/knowledge-replay.integration.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+            "apps/server/tests/unit/ki17-build-stage.test.js",
+            "apps/server/tests/unit/ki17-msp-only-release.test.js",
+            "apps/server/tests/unit/ki17-overlay-release.test.js",
+            "apps/server/tests/unit/ki17-real-corpus.test.js",
+            "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+            "apps/server/tests/unit/knowledge-admission-routes.test.js",
+            "apps/server/tests/unit/knowledge-admission-service.test.js",
+            "apps/server/tests/unit/knowledge-admission-transaction.test.js",
+            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
+            "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-runtime.test.js",
+            "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+            "apps/server/tests/unit/pipeline-mcp-transport.test.js",
+            "apps/server/tests/unit/project-manager-mcp.test.js",
+            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+          ]
         },
         {
           "id": "FR-188",
@@ -5876,7 +5946,7 @@
       ],
       "featureCount": 18,
       "readyFeatureCount": 11,
-      "progressPercent": 95.2
+      "progressPercent": 95
     },
     "line-oa-studio": {
       "status": "partial",
@@ -7920,7 +7990,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-079",
@@ -8605,11 +8675,46 @@
         },
         {
           "id": "FR-187",
-          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
+          "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
           "declared": "n/a",
-          "status": "verified",
+          "status": "not_applicable",
           "codeCount": 3,
-          "testCount": 30
+          "testCount": 30,
+          "evidence": [
+            "apps/server/src/app/api/knowledge/catalog-files/route.js",
+            "apps/server/src/app/api/knowledge/ingestions/route.js",
+            "apps/server/src/modules/project-manager/mcp/transport.js",
+            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
+            "apps/server/tests/acceptance/knowledge-admission-native.test.js",
+            "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
+            "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
+            "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
+            "apps/server/tests/integration/genesisrag17-parser-2.test.js",
+            "apps/server/tests/integration/genesisrag17-tier1.test.js",
+            "apps/server/tests/integration/knowledge-admission.integration.test.js",
+            "apps/server/tests/integration/knowledge-replay.integration.test.js",
+            "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
+            "apps/server/tests/integration/openapi-docs.test.js",
+            "apps/server/tests/integration/smartgift-catalog-admission.test.js",
+            "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+            "apps/server/tests/unit/ki17-build-stage.test.js",
+            "apps/server/tests/unit/ki17-msp-only-release.test.js",
+            "apps/server/tests/unit/ki17-overlay-release.test.js",
+            "apps/server/tests/unit/ki17-real-corpus.test.js",
+            "apps/server/tests/unit/knowledge-admission-mcp.test.js",
+            "apps/server/tests/unit/knowledge-admission-routes.test.js",
+            "apps/server/tests/unit/knowledge-admission-service.test.js",
+            "apps/server/tests/unit/knowledge-admission-transaction.test.js",
+            "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
+            "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
+            "apps/server/tests/unit/knowledge-runtime.test.js",
+            "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
+            "apps/server/tests/unit/pipeline-mcp-transport.test.js",
+            "apps/server/tests/unit/project-manager-mcp.test.js",
+            "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
+            "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+          ]
         },
         {
           "id": "FR-191",
@@ -10972,7 +11077,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 31
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -10998,16 +11103,12 @@
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/application-identity-bootstrap-migration.test.js",
         "apps/server/tests/unit/application-schema-migration.test.js",
-        "apps/server/tests/unit/customer-data-contract.test.js",
         "apps/server/tests/unit/customer-import-review-api.test.js",
-        "apps/server/tests/unit/customer-import-review-contract.test.js",
-        "apps/server/tests/unit/customer-import-review-queue-script.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/customer-import-review-store-contract.test.js",
         "apps/server/tests/unit/customer-import-review-ui.test.js",
         "apps/server/tests/unit/customer-profile-backfill-migration.test.js",
         "apps/server/tests/unit/customer-profile-contract-receipt.test.js",
-        "apps/server/tests/unit/customer-profile-target-verification.test.js",
         "apps/server/tests/unit/customer-review-runtime-login-migration.test.js",
         "apps/server/tests/unit/customer-review-runtime-login.test.js",
         "apps/server/tests/unit/db-runtime-config.test.js",
@@ -13686,14 +13787,12 @@
       "kind": "bundle",
       "registryStatus": "approved",
       "requirementIds": [
-        "FR-187",
         "FR-188"
       ],
       "primaryDomain": "knowledge",
       "contributorDomains": [
         "integration",
-        "knowledge",
-        "project-manager"
+        "knowledge"
       ],
       "useCase": "Approved 2026-09-11 (ADR-075); Phase 1 (FR-187) implemented in PR #324; Phase 2 gate open with contract revision 2: SmartGift's catalog data would enter the governed 17-stage pipeline through one adapter instead of three separate writers, so an agent's product answer can finally name the published generation and citation it came from",
       "progressPercent": 100,
@@ -13703,14 +13802,6 @@
         "FEAT-026 registry status is approved"
       ],
       "requirements": [
-        {
-          "id": "FR-187",
-          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…",
-          "status": "verified",
-          "progressPercent": 100,
-          "codeCount": 9,
-          "testCount": 30
-        },
         {
           "id": "FR-188",
           "title": "A structured parser profile, typed product mentions and an ontology_v2 contract extend GenesisRAG17 for catalog data (ADR-075 D6, proposed)",
@@ -13722,53 +13813,22 @@
       ],
       "evidence": [
         "apps/edge/tests/unit/genesisrag17-edge.test.ts",
-        "apps/server/src/app/api/knowledge/catalog-files/route.js",
-        "apps/server/src/app/api/knowledge/ingestions/route.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/genesisrag17-structured-record.js",
-        "apps/server/src/modules/knowledge/knowledge-admission-service.js",
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
-        "apps/server/src/modules/knowledge/knowledge-runtime.js",
         "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
-        "apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js",
-        "apps/server/src/modules/knowledge/structured-record-policy.js",
-        "apps/server/src/modules/project-manager/mcp/transport.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js",
         "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
-        "apps/server/tests/acceptance/knowledge-admission-native.test.js",
-        "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
-        "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
-        "apps/server/tests/integration/fr238-line-studio-description-admission.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
-        "apps/server/tests/integration/knowledge-admission.integration.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
-        "apps/server/tests/integration/knowledge-replay.integration.test.js",
-        "apps/server/tests/integration/managed-blob-recovery-consumers.test.js",
-        "apps/server/tests/integration/openapi-docs.test.js",
         "apps/server/tests/integration/smartgift-catalog-admission.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
-        "apps/server/tests/unit/ki17-build-stage.test.js",
-        "apps/server/tests/unit/ki17-msp-only-release.test.js",
-        "apps/server/tests/unit/ki17-overlay-release.test.js",
-        "apps/server/tests/unit/ki17-real-corpus.test.js",
-        "apps/server/tests/unit/knowledge-admission-mcp.test.js",
-        "apps/server/tests/unit/knowledge-admission-routes.test.js",
-        "apps/server/tests/unit/knowledge-admission-service.test.js",
-        "apps/server/tests/unit/knowledge-admission-transaction.test.js",
-        "apps/server/tests/unit/knowledge-candidate-zero-pii.test.js",
-        "apps/server/tests/unit/knowledge-catalog-storage-contract.test.js",
         "apps/server/tests/unit/knowledge-delivery-fence.test.js",
-        "apps/server/tests/unit/knowledge-document-zero-pii.test.js",
-        "apps/server/tests/unit/knowledge-runtime.test.js",
-        "apps/server/tests/unit/knowledge-zero-pii-policy.test.js",
-        "apps/server/tests/unit/pipeline-mcp-transport.test.js",
-        "apps/server/tests/unit/project-manager-mcp.test.js",
-        "apps/server/tests/unit/smartgift-catalog-adapter.test.js",
-        "apps/server/tests/unit/smartgift-catalog-upload-service.test.js"
+        "apps/server/tests/unit/smartgift-catalog-adapter.test.js"
       ]
     },
     {

@@ -202,7 +202,7 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/knowledge/queries" }, { "type": "MCP", "ref": "knowledge.query" }, { "type": "MCP", "ref": "knowledge.citation" }] },
     { "id": "in.knowledge-import", "kind": "ENTRY", "system": "zuri-ai", "domain": "knowledge", "label": "Business knowledge import", "detail": "governed export ของ SmartGift → business_knowledge",
       "requirements": ["FR-047"],
-      "surfaces": [{ "type": "WORKER", "ref": "apps/server/scripts/export_smartgift_business_knowledge.py" }, { "type": "WORKER", "ref": "apps/server/scripts/build_business_knowledge_import.py" }],
+      "surfaces": [{ "type": "WORKER", "ref": "apps/server/scripts/build_business_knowledge_import.py" }],
       "production": { "evidence": "FR-047 status: Phase 1 active - owner-approved 2026-08-14" } },
     { "id": "in.pipeline-bridge", "kind": "ENTRY", "system": "zuri-ai", "domain": "knowledge", "label": "SmartGift pipeline bridge (data_pipeline.*)", "detail": "EVIDENCE_ONLY ผ่าน Codex worker",
       "requirements": ["FR-071"], "decisions": ["ADR-030", "ADR-040"],
@@ -224,7 +224,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "in.customer-backfill", "kind": "ENTRY", "system": "zuri-ai", "domain": "crm", "label": "Customer backfill และ review queue",
       "requirements": ["FR-078"],
       "surfaces": [
-        { "type": "WORKER", "ref": "apps/server/scripts/build_smartgift_customer_backfill.py" }, { "type": "WORKER", "ref": "apps/server/scripts/apply_smartgift_customer_backfill.py" },
         { "type": "ENDPOINT", "ref": "/api/platform/customer-import-reviews" }, { "type": "UI", "ref": "/platform/customer-import-reviews" }],
       "production": { "evidence": "FR-078 status: production queue, application schema/identity projection and CUSTOMER_DATA_REVIEWER binding verified" } },
     { "id": "in.sot-submit", "kind": "ENTRY", "system": "zuri-ai", "domain": "integration", "label": "SoT plan และ decision submit", "detail": "SotDataPlaneKey",
