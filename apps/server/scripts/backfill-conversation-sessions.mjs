@@ -1,6 +1,6 @@
 // Run with: npx vite-node --config vitest.config.js scripts/backfill-conversation-sessions.mjs [-- --apply] [-- --tenant <tenantId>]
 // (omit --apply for a dry run). The Vite runtime supplies the repository's @/*
-// alias for server modules, the same way scripts/enable-smartgift-knowledge-candidates.mjs does.
+// alias for server modules, the same way scripts/verify-production-customer-review-runtime.mjs does.
 //
 // @req FR-243 — assigns every existing Message and ConversationEvent to its
 //   conversation session by the application's own rule (ADR-094 D2), after

@@ -735,10 +735,6 @@
       "surfaces": [
         {
           "type": "WORKER",
-          "ref": "apps/server/scripts/export_smartgift_business_knowledge.py"
-        },
-        {
-          "type": "WORKER",
           "ref": "apps/server/scripts/build_business_knowledge_import.py"
         }
       ],
@@ -946,14 +942,6 @@
       ],
       "decisions": [],
       "surfaces": [
-        {
-          "type": "WORKER",
-          "ref": "apps/server/scripts/build_smartgift_customer_backfill.py"
-        },
-        {
-          "type": "WORKER",
-          "ref": "apps/server/scripts/apply_smartgift_customer_backfill.py"
-        },
         {
           "type": "ENDPOINT",
           "ref": "/api/platform/customer-import-reviews"
