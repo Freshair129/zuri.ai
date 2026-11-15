@@ -28,7 +28,6 @@ status: generated
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/acceptance/genesisrag17-smartgift.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/acceptance/knowledge-admission-native.test.js](../../../apps/server/tests/acceptance/knowledge-admission-native.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr236-knowledge-candidate.test.js](../../../apps/server/tests/integration/fr236-knowledge-candidate.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js](../../../apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js) — `verifies` (`test-reference`)
@@ -44,7 +43,6 @@ status: generated
 - [apps/server/tests/unit/ki17-build-stage.test.js](../../../apps/server/tests/unit/ki17-build-stage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-msp-only-release.test.js](../../../apps/server/tests/unit/ki17-msp-only-release.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-overlay-release.test.js](../../../apps/server/tests/unit/ki17-overlay-release.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/ki17-real-corpus.test.js](../../../apps/server/tests/unit/ki17-real-corpus.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-admission-mcp.test.js](../../../apps/server/tests/unit/knowledge-admission-mcp.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-admission-routes.test.js](../../../apps/server/tests/unit/knowledge-admission-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-admission-service.test.js](../../../apps/server/tests/unit/knowledge-admission-service.test.js) — `verifies` (`transitive`)
@@ -71,8 +69,6 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/edge/tests/unit/genesisrag17-edge.test.ts](../../../apps/edge/tests/unit/genesisrag17-edge.test.ts) — `verifies` (`test-reference`)
-- [apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/acceptance/genesisrag17-smartgift.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/genesisrag17-parser-2.test.js](../../../apps/server/tests/integration/genesisrag17-parser-2.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/genesisrag17-tier1.test.js](../../../apps/server/tests/integration/genesisrag17-tier1.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-corpus.test.js](../../../apps/server/tests/integration/knowledge-corpus.test.js) — `verifies` (`test-reference`)

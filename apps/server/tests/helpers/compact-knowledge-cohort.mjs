@@ -16,7 +16,7 @@ export function compactKnowledgeCohortConfiguration({ target, root, webPort }) {
   const knowledge = env({
     GENESIS_WORKER_DB_PATH: '/var/lib/zuri-ki17/genesis', GENESIS_WORKER_MODEL_DIR: '/opt/ki17/model', GENESIS_WORKER_SCOPE: JSON.stringify(scope),
     GENESIS_WORKER_CREDENTIAL: worker, GENESIS_WORKER_QUERY_TOKEN: token,
-    GENESIS_WORKER_BENCHMARK_FIXTURE: '/opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json', GENESIS_WORKER_PORT: '19417',
+    GENESIS_WORKER_BENCHMARK_FIXTURE: '/opt/ki17/fixtures/genesisrag17-structured-benchmark-v1.json', GENESIS_WORKER_PORT: '19417',
     GENESIS_WORKER_MSP_COMMAND: '/opt/ki17/node/bin/node', GENESIS_WORKER_MSP_ARGS: JSON.stringify(['/opt/ki17/tools/ki17-worker-msp-launcher.mjs']), GENESIS_WORKER_MSP_CWD: '/opt/ki17',
     MSP_DB_PATH: '/var/lib/zuri-ki17/state/msp.sqlite', GKS_DB_PATH: '/var/lib/zuri-ki17/state/gks.sqlite', MSP_GKS_TRANSPORT: 'stdio',
     MSP_GKS_COMMAND: '/opt/ki17/node/bin/node', MSP_GKS_ARGS: JSON.stringify(['apps/gks-server/bin/gks-server.mjs']), MSP_GKS_CWD: '/opt/ki17/gks',

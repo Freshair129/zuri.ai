@@ -21,7 +21,7 @@ import {
 
 const fixtureDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../fixtures/genesisrag17/smartgift-catalog',
+  '../fixtures/genesisrag17/structured-catalog',
 )
 const read = (name) => readFileSync(path.join(fixtureDir, name), 'utf8')
 const manifest = JSON.parse(read('manifest.json'))
@@ -102,8 +102,8 @@ describe('SmartGift catalog adapter', () => {
 
   it('carries the FlowAccount code as an attribute, never as the record key', () => {
     const product = split('products.json').records.find((record) => record.externalId === 'PM-TMB')
-    expect(product.record.flowaccountModelCode).toBe('BW00-0')
-    expect(product.sourceKey).not.toContain('BW00-0')
+    expect(product.record.flowaccountModelCode).toBe('FX-TUMBLER')
+    expect(product.sourceKey).not.toContain('FX-TUMBLER')
     expect(product.externalId).toBe('PM-TMB')
   })
 

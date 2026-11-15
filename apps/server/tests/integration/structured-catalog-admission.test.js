@@ -26,7 +26,7 @@ import {
 
 const fixtureDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
-  '../fixtures/genesisrag17/smartgift-catalog',
+  '../fixtures/genesisrag17/structured-catalog',
 )
 const productsText = readFileSync(path.join(fixtureDir, 'products.json'), 'utf8')
 const sha256 = (text) => createHash('sha256').update(Buffer.from(text, 'utf8')).digest('hex')
@@ -187,7 +187,7 @@ describe('SmartGift structured-record admission (FR-187)', () => {
     expect(versions).toHaveLength(2)
     expect(versions[0].contentHash).not.toBe(versions[1].contentHash)
     expect(versions.map((row) => row.sourceVersion)).toEqual([sha256(productsText), sha256(changedText)])
-    expect(JSON.parse(versions[0].content).srpPriceThbQty1).toBe(750)
+    expect(JSON.parse(versions[0].content).srpPriceThbQty1).toBe(300)
     expect(JSON.parse(versions[1].content).srpPriceThbQty1).toBe(999)
 
     // ADR-075 D3 keys the version to the whole file, so an untouched record

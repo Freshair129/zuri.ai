@@ -2688,7 +2688,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 18,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-291",
@@ -4459,10 +4459,9 @@
           "declared": "n/a",
           "status": "not_applicable",
           "codeCount": 1,
-          "testCount": 29,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
             "apps/server/tests/acceptance/knowledge-admission-native.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
@@ -4478,7 +4477,6 @@
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
             "apps/server/tests/unit/ki17-overlay-release.test.js",
-            "apps/server/tests/unit/ki17-real-corpus.test.js",
             "apps/server/tests/unit/knowledge-admission-mcp.test.js",
             "apps/server/tests/unit/knowledge-admission-routes.test.js",
             "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -4499,7 +4497,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 12
+          "testCount": 10
         },
         {
           "id": "FR-223",
@@ -5440,13 +5438,12 @@
           "declared": "n/a",
           "status": "not_applicable",
           "codeCount": 4,
-          "testCount": 29,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/modules/knowledge/knowledge-admission-service.js",
             "apps/server/src/modules/knowledge/knowledge-runtime.js",
             "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
             "apps/server/src/modules/knowledge/structured-record-policy.js",
-            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
             "apps/server/tests/acceptance/knowledge-admission-native.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
@@ -5462,7 +5459,6 @@
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
             "apps/server/tests/unit/ki17-overlay-release.test.js",
-            "apps/server/tests/unit/ki17-real-corpus.test.js",
             "apps/server/tests/unit/knowledge-admission-mcp.test.js",
             "apps/server/tests/unit/knowledge-admission-routes.test.js",
             "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -5483,7 +5479,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 12
+          "testCount": 10
         },
         {
           "id": "FR-189",
@@ -5600,7 +5596,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-254",
@@ -8652,11 +8648,10 @@
           "declared": "n/a",
           "status": "not_applicable",
           "codeCount": 2,
-          "testCount": 29,
+          "testCount": 27,
           "evidence": [
             "apps/server/src/app/api/knowledge/ingestions/route.js",
             "apps/server/src/modules/project-manager/mcp/transport.js",
-            "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
             "apps/server/tests/acceptance/knowledge-admission-native.test.js",
             "apps/server/tests/integration/fr236-knowledge-candidate.test.js",
             "apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js",
@@ -8672,7 +8667,6 @@
             "apps/server/tests/unit/ki17-build-stage.test.js",
             "apps/server/tests/unit/ki17-msp-only-release.test.js",
             "apps/server/tests/unit/ki17-overlay-release.test.js",
-            "apps/server/tests/unit/ki17-real-corpus.test.js",
             "apps/server/tests/unit/knowledge-admission-mcp.test.js",
             "apps/server/tests/unit/knowledge-admission-routes.test.js",
             "apps/server/tests/unit/knowledge-admission-service.test.js",
@@ -8981,7 +8975,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-254",
@@ -13760,7 +13754,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 12
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -13770,8 +13764,6 @@
         "apps/server/src/modules/knowledge/knowledge-corpus-service.js",
         "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
         "apps/server/src/platform/integrations/core/genesisrag17-executor.js",
-        "apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js",
-        "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",
         "apps/server/tests/integration/knowledge-corpus.test.js",
@@ -21691,7 +21683,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 23,
-          "testCount": 48
+          "testCount": 47
         }
       ],
       "evidence": [
@@ -21718,7 +21710,6 @@
         "apps/server/src/modules/project-manager/api-docs/openapi.js",
         "apps/server/src/modules/project-manager/application/backup-service.js",
         "apps/server/src/platform/storage/private-business-object-storage.js",
-        "apps/server/tests/acceptance/genesisrag17-smartgift.test.js",
         "apps/server/tests/e2e/fr041-business-first.spec.js",
         "apps/server/tests/e2e/fr253-pricing-rules.spec.js",
         "apps/server/tests/e2e/fr254-knowledge-console.spec.js",
