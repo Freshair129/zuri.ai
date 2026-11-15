@@ -10,7 +10,7 @@ import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
 import { createKnowledgeAdmissionRuntime } from '@/modules/knowledge/knowledge-runtime'
 import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17-executor'
 import { GENESIS_RAG17_PARSER_VERSION_2 } from '@/modules/knowledge/genesisrag17-structured-record'
-import { SMARTGIFT_CATALOG_CONTENT_TYPE, SMARTGIFT_CATALOG_FORMAT } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { STRUCTURED_CATALOG_CONTENT_TYPE, STRUCTURED_CATALOG_FORMAT } from '@/modules/knowledge/smartgift-catalog-adapter'
 import { isolatedEnvironment, ki17NodeExecutable, mspTransport, startWorkerProcess, temporaryPipeline } from './harness'
 import { deriveRealCorpus, checkCoverage } from '../../deploy/ki17/build-smartgift-real-corpus.mjs'
 import { deriveSmartgiftBenchmark } from '../../deploy/ki17/build-smartgift-benchmark.mjs'
@@ -118,12 +118,12 @@ describe('B4 — a new record publishes against a --base-merged, multi-record pr
       code: `FA-KI17B4M-${randomUUID().replaceAll('-', '').slice(0, 12)}`,
       tenantId: scope.tenantId, businessId: scope.businessId, projectId: null,
       storageKind: 'MANAGED_BLOB', blobRef: `memory://${randomUUID()}`,
-      name: 'new-record.json', mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      name: 'new-record.json', mime: STRUCTURED_CATALOG_CONTENT_TYPE,
       size: Buffer.byteLength(text, 'utf8'), sha256: sha256(text), status: 'ACTIVE',
     } })
     const result = await admitKnowledge({
       businessId: scope.businessId, idempotencyKey: `ki17-b4-merge-${randomUUID().slice(0, 8)}`,
-      source: { kind: 'FILE', fileAssetId: corpusAsset.id, format: SMARTGIFT_CATALOG_FORMAT },
+      source: { kind: 'FILE', fileAssetId: corpusAsset.id, format: STRUCTURED_CATALOG_FORMAT },
     }, { viewer: owner, env, fileContentResolver: async () => ({ content: Buffer.from(text, 'utf8') }) })
     expect(result).toMatchObject({ recordCount: 1, admittedCount: 1, deniedCount: 0 })
     const source = await prisma.knowledgeSource.findFirst({ where: { fileAssetId: corpusAsset.id } })

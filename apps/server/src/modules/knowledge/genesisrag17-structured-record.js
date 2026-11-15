@@ -1,8 +1,8 @@
 import { z } from 'zod'
 import { canonicalGenesisRag17Json } from './genesisrag17-contract'
 import {
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
   zBundleOffer,
   zPriceListEntry,
   zProductMaster,
@@ -68,7 +68,7 @@ export function structuredItemSemanticType(code) {
 }
 
 export function isStructuredCatalogProvider(provider) {
-  return provider === SMARTGIFT_CATALOG_PROVIDER
+  return provider === STRUCTURED_CATALOG_PROVIDER
 }
 
 // Mirrors GKS Stage 10/12 exactly (GKS gks-core pipeline.mjs parseStructuredClaim
@@ -307,7 +307,7 @@ export function renderStructuredCatalogDocument(content) {
     text += piece.text
     offset += piece.text.length
   })
-  return { text, sections, recordCount: records.length, catalogVersionDate, sourceFormat: SMARTGIFT_CATALOG_FORMAT }
+  return { text, sections, recordCount: records.length, catalogVersionDate, sourceFormat: STRUCTURED_CATALOG_FORMAT }
 }
 
 function claimCodeOffset(text, key, value) {

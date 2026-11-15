@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { queryKnowledgeCorpus, readAuthorizedKnowledgeManifest } from '@/modules/knowledge/knowledge-corpus-service'
-import { splitSmartGiftCatalogRecords, smartGiftSourceKey, SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT, SMARTGIFT_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { splitSmartGiftCatalogRecords, smartGiftSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { assertMainDevLocalOllamaScope } from './main-dev-local-ollama'
 import { lineKnowledgeGroundingBudgetFromEnv } from './line-knowledge-grounding'
@@ -75,13 +75,13 @@ export async function readMainDevTestRagSnapshot({ profile, tenantId, businessId
       && ingestion.rawArtifactId === entry.rawArtifactId && ingestion.parsedArtifactId === entry.parsedArtifactId)
     insist(asset && asset.id === entry.fileAssetId && asset.tenantId === tenantId && asset.businessId === businessId
       && asset.projectId === null && asset.status === 'ACTIVE' && asset.deletedAt === null
-      && asset.storageKind === 'MANAGED_BLOB' && asset.mime === SMARTGIFT_CATALOG_CONTENT_TYPE
+      && asset.storageKind === 'MANAGED_BLOB' && asset.mime === STRUCTURED_CATALOG_CONTENT_TYPE
       && /^PCAT-[a-f0-9]{64}$/.test(asset.code) && asset.name === `commerce-price-${pin.productId}.json`
       && asset.sha256 === pin.fileSha256 && Number.isSafeInteger(asset.size) && asset.size > 0 && asset.size <= 65536)
     const meta = JSON.parse(ingestion.sourceMetaJson)
     const descriptor = meta?.structured
-    insist(descriptor?.format === SMARTGIFT_CATALOG_FORMAT && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
-      && descriptor.entityType === 'ProductMaster' && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    insist(descriptor?.format === STRUCTURED_CATALOG_FORMAT && descriptor.provider === STRUCTURED_CATALOG_PROVIDER
+      && descriptor.entityType === 'ProductMaster' && descriptor.contentType === STRUCTURED_CATALOG_CONTENT_TYPE
       && descriptor.externalId === externalId && descriptor.fileSha256 === asset.sha256
       && meta.kind === 'FILE' && meta.title === source.title && meta.sourceKey === source.sourceKey
       && meta.fileAssetId === asset.id && meta.fileAssetVersion === asset.version && meta.mime === asset.mime
