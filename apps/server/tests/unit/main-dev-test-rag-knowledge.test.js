@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import { createMainDevTestRagKnowledgeReader } from '@/modules/agent/main-dev-test-rag-knowledge'
-import { splitSmartGiftCatalogRecords, smartGiftSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE, STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { splitStructuredCatalogRecords, structuredCatalogSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE, STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/structured-catalog-adapter'
 
 // @req FR-079, FR-235 — only a pinned published TEST ONLY Product selection reaches the local model.
 // @tested tests/unit/main-dev-test-rag-knowledge.test.js
@@ -22,8 +22,8 @@ function fixture() {
     name: `commerce-price-${productId}.json`, mime: STRUCTURED_CATALOG_CONTENT_TYPE,
     size: Buffer.byteLength(content), sha256: hash(content), version: 1,
     status: 'ACTIVE', deletedAt: null, storageKind: 'MANAGED_BLOB', blobRef: 'private-blob-sentinel' }
-  const admitted = splitSmartGiftCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name }).records[0]
-  const source = { id: id(6), corpusId: id(7), sourceKey: smartGiftSourceKey({ fileName: asset.name, recordCode: record.externalId }),
+  const admitted = splitStructuredCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name }).records[0]
+  const source = { id: id(6), corpusId: id(7), sourceKey: structuredCatalogSourceKey({ fileName: asset.name, recordCode: record.externalId }),
     kind: 'FILE', title: `ProductMaster ${record.externalId}`, fileAssetId: asset.id,
     activeIngestionId: id(8), desiredRevision: 1, version: 1, revokedAt: null, deletedAt: null }
   const structured = { format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,

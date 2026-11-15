@@ -1947,7 +1947,7 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
+      "code": "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
       "doc": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
       "test": "unavailable"
     },

@@ -4,9 +4,9 @@ import {
   STRUCTURED_CATALOG_CONTENT_TYPE,
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-  splitSmartGiftCatalogRecords,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+  structuredCatalogSourceKey,
+  splitStructuredCatalogRecords,
+} from '@/modules/knowledge/structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { projectDisclosureFacts, renderDisclosureFacts } from '@/modules/knowledge/line-product-disclosure-contract'
 
@@ -47,12 +47,12 @@ function fixture({ multipleRows = false } = {}) {
     size: Buffer.byteLength(content), sha256: sha256(content), version: 2,
     status: 'ACTIVE', deletedAt: null, storageKind: 'MANAGED_BLOB', blobRef: 'private-blob-location',
   }
-  const split = splitSmartGiftCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
+  const split = splitStructuredCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
   const admitted = split.records.find((row) => row.externalId === sourceRecord.externalId)
   const sourceId = id(6)
   const ingestionId = id(7)
   const source = {
-    id: sourceId, corpusId: id(8), sourceKey: smartGiftSourceKey({ fileName: asset.name, recordCode: sourceRecord.externalId }),
+    id: sourceId, corpusId: id(8), sourceKey: structuredCatalogSourceKey({ fileName: asset.name, recordCode: sourceRecord.externalId }),
     kind: 'FILE', title: `ProductMaster ${sourceRecord.externalId}`, fileAssetId: asset.id,
     activeIngestionId: ingestionId, desiredRevision: 3, version: 4, revokedAt: null, deletedAt: null,
   }
@@ -129,11 +129,11 @@ function filFixture({ sku = 'DEMO-KB-MUG-350-001', liveSku = 'DEMO-KB-MUG-350-00
   const fileName = 'demo-kb-product-master.json'
   const content = JSON.stringify([record])
   const assetSha256 = sha256(content)
-  const split = splitSmartGiftCatalogRecords({
+  const split = splitStructuredCatalogRecords({
     content, fileAssetId: f.asset.id, fileSha256: assetSha256, fileName,
   })
   const admitted = split.records[0]
-  const sourceKey = smartGiftSourceKey({ fileName, recordCode: sku })
+  const sourceKey = structuredCatalogSourceKey({ fileName, recordCode: sku })
   const title = `ProductMaster ${sku}`
 
   Object.assign(f.asset, {

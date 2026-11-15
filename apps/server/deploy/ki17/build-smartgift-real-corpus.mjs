@@ -7,7 +7,7 @@
 // does not cover real records' chunks: checked on 2026-09-24, 20 of the 22 real
 // records have no applicable query and the other 2 share only one category claim
 // with it, so a real upload cannot be judged by it. Here every gold text is produced by the same code path
-// production uses: splitSmartGiftCatalogRecords -> renderStructuredCatalogDocument,
+// production uses: splitStructuredCatalogRecords -> renderStructuredCatalogDocument,
 // one record per source, sections joined by one blank line.
 //
 // Queries are natural phrasings (name / code / relation words), never the chunk
@@ -51,7 +51,7 @@
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import path from 'node:path'
-import { splitSmartGiftCatalogRecords } from '../../src/modules/knowledge/smartgift-catalog-adapter.js'
+import { splitStructuredCatalogRecords } from '../../src/modules/knowledge/structured-catalog-adapter.js'
 import { renderStructuredCatalogDocument } from '../../src/modules/knowledge/genesisrag17-structured-record.js'
 
 function fail(code, message) {
@@ -79,7 +79,7 @@ function readCatalogFile(file) {
   const raw = readFileSync(file)
   const sha256 = createHash('sha256').update(raw).digest('hex')
   const fileName = path.basename(file)
-  const split = splitSmartGiftCatalogRecords({ content: raw.toString('utf8'), fileAssetId: 'benchmark-derivation', fileSha256: sha256, fileName })
+  const split = splitStructuredCatalogRecords({ content: raw.toString('utf8'), fileAssetId: 'benchmark-derivation', fileSha256: sha256, fileName })
   if (split.denied.length) throw fail('KI17_CATALOG_DENIED', `${fileName}: ${split.denied.length} record(s) denied by the adapter; fix the source first`)
   return { fileName, sha256, records: split.records }
 }

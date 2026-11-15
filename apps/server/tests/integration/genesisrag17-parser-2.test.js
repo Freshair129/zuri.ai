@@ -14,7 +14,7 @@ import {
 import {
   STRUCTURED_CATALOG_CONTENT_TYPE,
   STRUCTURED_CATALOG_PROVIDER,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+} from '@/modules/knowledge/structured-catalog-adapter'
 
 // @req FR-188 — a SMARTGIFT_CATALOG raw entry runs Stages 1–8 under
 // genesisrag17-parser-2 and genesisrag17-structured-recognizer-1: the parsed

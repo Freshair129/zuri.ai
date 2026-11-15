@@ -23,7 +23,8 @@ import { createCategory, createProduct, createProductMaster } from '@/modules/in
 import { createLocation } from '@/modules/inventory/application/warehouse-location-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { createReservation } from '@/modules/inventory/application/inventory-atp-service'
-import { smartgiftWriteTools } from '@/modules/agent/tools/smartgift-inventory-tools'
+import { z } from 'zod'
+import { STAFF_WRITE_ROLES } from '@/modules/agent/write-tools'
 import { executeAgentAction, issueStepUp } from '@/modules/agent'
 import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-identity'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
@@ -498,10 +499,22 @@ describe('human-code allocation retries', () => {
       ownedBusinessIds: [business.id],
       visibleDomains: ['projects', 'platform', 'inventory'],
     })
-    const smartgiftAction = smartgiftWriteTools({ viewer: actionViewer, businessId: business.id, now: () => SAME_DAY })
-      .get('create_quote_stock_reservation')
+    // A generic LOW-sensitivity write action that reserves stock inside the gate's own transaction.
+    const reserveAction = {
+      effect: 'WRITE',
+      sensitivity: 'LOW',
+      allowRoles: STAFF_WRITE_ROLES,
+      description: 'Reserve stock for a quote inside the gate transaction.',
+      parameters: z.object({ skuCode: z.string().trim().min(1), quantity: z.number().int().positive() }).strict(),
+      execute: async ({ tx, target, payload }) => {
+        const scopeId = target?.businessId ?? business.id
+        const sku = await tx.product.findFirst({ where: { businessId: scopeId, code: payload.skuCode } })
+        const reservation = await createReservation({ businessId: scopeId, productId: sku.id, quantity: payload.quantity, purpose: 'QUOTE' }, { viewer: actionViewer, db: tx, now: SAME_DAY })
+        return { skuCode: sku.code, quantity: payload.quantity, holdsOn: 'SKU', reservations: [reservation] }
+      },
+    }
     const action = {
-      ...smartgiftAction,
+      ...reserveAction,
       name: `create_quote_stock_reservation_${suffix}`,
       sensitivity: 'HIGH',
       approvalTier: 'L1',

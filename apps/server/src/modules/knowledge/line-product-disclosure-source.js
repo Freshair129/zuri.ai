@@ -7,9 +7,9 @@ import {
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_MAX_FILE_BYTES,
   STRUCTURED_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-  splitSmartGiftCatalogRecords,
-} from './smartgift-catalog-adapter'
+  structuredCatalogSourceKey,
+  splitStructuredCatalogRecords,
+} from './structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from './genesisrag17-contract'
 import { DISCLOSURE_FIELDS } from './line-product-disclosure-contract'
 
@@ -280,7 +280,7 @@ function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset,
     && requiredText(descriptor.externalId, 500) && Number.isSafeInteger(descriptor.recordIndex)
     && descriptor.recordIndex >= 0 && Number.isSafeInteger(descriptor.recordCount)
     && descriptor.recordCount > descriptor.recordIndex && descriptor.fileSha256 === asset.sha256
-    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
+    && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
     && source.title === `ProductMaster ${descriptor.externalId}`
     && ingestion.sourceVersion === asset.sha256)
   return { sourceMeta, descriptor, producerKind }
@@ -433,7 +433,7 @@ export async function resolveLineProductDisclosureSource(input, options = {}) {
     insist(bytes.length === asset.size && createHash('sha256').update(bytes).digest('hex') === asset.sha256)
     let content
     try { content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) } catch { throw unavailable() }
-    const split = splitSmartGiftCatalogRecords({
+    const split = splitStructuredCatalogRecords({
       content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name,
     })
     insist(split.recordCount === descriptor.recordCount && descriptor.recordIndex < split.recordCount)

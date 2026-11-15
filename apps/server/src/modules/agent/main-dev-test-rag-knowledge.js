@@ -2,8 +2,8 @@ import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { queryKnowledgeCorpus, readAuthorizedKnowledgeManifest } from '@/modules/knowledge/knowledge-corpus-service'
-import { splitSmartGiftCatalogRecords, smartGiftSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE,
-  STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { splitStructuredCatalogRecords, structuredCatalogSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { assertMainDevLocalOllamaScope } from './main-dev-local-ollama'
 import { lineKnowledgeGroundingBudgetFromEnv } from './line-knowledge-grounding'
@@ -94,14 +94,14 @@ export async function readMainDevTestRagSnapshot({ profile, tenantId, businessId
     const bytes = Buffer.from(resolved.content)
     insist(bytes.length === asset.size && createHash('sha256').update(bytes).digest('hex') === asset.sha256)
     const content = new TextDecoder('utf-8', { fatal: true }).decode(bytes)
-    const split = splitSmartGiftCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
+    const split = splitStructuredCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
     const admitted = split.records.find(r => r.index === descriptor.recordIndex)
     insist(split.recordCount === descriptor.recordCount && Number.isSafeInteger(descriptor.recordIndex)
       && admitted && admitted.content === ingestion.content && admitted.contentHash === ingestion.contentHash
       && admitted.externalId === externalId && admitted.record.entityType === 'ProductMaster'
       && admitted.record.externalId === externalId && admitted.record.code === externalId
       && admitted.record.nameTh === `${pin.sku} — ${productSnapshot.name}`
-      && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: externalId }))
+      && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: externalId }))
     selected.push({ pin, entry, product: productSnapshot,
       record: { product_code: pin.sku, name: productSnapshot.name, unit: productSnapshot.unit,
         sell_price: null, currency: null, moq: null, specification: {} },

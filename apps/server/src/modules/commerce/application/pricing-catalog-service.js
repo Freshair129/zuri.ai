@@ -11,7 +11,7 @@ import { businessStorageProvider } from '@/platform/storage/private-business-obj
 import { assertKnowledgeBusinessWritable } from '@/modules/knowledge/knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from '@/modules/knowledge/knowledge-runtime'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
-import { parseSmartGiftCatalogFile, STRUCTURED_CATALOG_FORMAT } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { parseStructuredCatalogFile, STRUCTURED_CATALOG_FORMAT } from '@/modules/knowledge/structured-catalog-adapter'
 import { normalizePricingInput, pricingHash } from '../domain/pricing-engine'
 import { buildPricingCatalogProjection } from '../domain/pricing-catalog-projection'
 import { getActivePricingRuleSet } from './pricing-rules-service'
@@ -172,7 +172,7 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
     frozen = await freezeLedgerCalculations(data, { db, viewer, now, previewHash })
   }
   const projections = frozen.rows.map((row) => JSON.parse(row.resultJson).catalogProjection).sort((a, b) => a.priceRecord.qty - b.priceRecord.qty)
-  const records = parseSmartGiftCatalogFile(JSON.stringify([projections[0].productRecord, ...projections.map((item) => item.priceRecord)]))
+  const records = parseStructuredCatalogFile(JSON.stringify([projections[0].productRecord, ...projections.map((item) => item.priceRecord)]))
   const content = Buffer.from(JSON.stringify(records), 'utf8')
   const contentHash = sha256(content)
   const code = `PCAT-${frozen.requestKey}`

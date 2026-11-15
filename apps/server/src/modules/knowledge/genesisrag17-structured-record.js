@@ -6,7 +6,7 @@ import {
   zBundleOffer,
   zPriceListEntry,
   zProductMaster,
-} from './smartgift-catalog-adapter'
+} from './structured-catalog-adapter'
 
 // @req FR-188 — the Stage 2/7 structured-record profile `genesisrag17-parser-2`
 // renders each SmartGift catalog record into one DESCRIPTIVE section (exactly

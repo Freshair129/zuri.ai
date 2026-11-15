@@ -16,7 +16,7 @@ import {
   STRUCTURED_CATALOG_CONTENT_TYPE,
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_PROVIDER,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+} from '@/modules/knowledge/structured-catalog-adapter'
 import {
   GENESIS_RAG17_PARSER_VERSION_2,
   GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION,

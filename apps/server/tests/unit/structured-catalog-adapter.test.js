@@ -2,22 +2,22 @@
 // projection into N immutable records with byte-stable identity, hashes and
 // per-record deny decisions, and never synthesizes a pipeline stage result.
 // @spec ADR-075 D2, ADR-075 D3, ADR-075 D4, ADR-075 D5, BR-002
-// @tested tests/unit/smartgift-catalog-adapter.test.js
+// @tested tests/unit/structured-catalog-adapter.test.js
 import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 import { canonicalGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import {
-  parseSmartGiftCatalogFile,
-  smartGiftRecordIdempotencySeed,
-  smartGiftSourceKey,
+  parseStructuredCatalogFile,
+  structuredCatalogRecordIdempotencySeed,
+  structuredCatalogSourceKey,
   STRUCTURED_CATALOG_ENTITY_TYPES,
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_MAX_FILE_BYTES,
   STRUCTURED_CATALOG_PROVIDER,
-  splitSmartGiftCatalogRecords,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+  splitStructuredCatalogRecords,
+} from '@/modules/knowledge/structured-catalog-adapter'
 
 const fixtureDir = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
@@ -27,7 +27,7 @@ const read = (name) => readFileSync(path.join(fixtureDir, name), 'utf8')
 const manifest = JSON.parse(read('manifest.json'))
 
 function split(name, over = {}) {
-  return splitSmartGiftCatalogRecords({
+  return splitStructuredCatalogRecords({
     content: read(name),
     fileAssetId: 'file-smartgift-1',
     fileSha256: 'a'.repeat(64),
@@ -65,12 +65,12 @@ describe('SmartGift catalog adapter', () => {
     const result = split('products.json')
     const first = result.records[0]
     expect(first.sourceKey).toBe('smartgift-catalog:products.json#PM-BOTTLE-LED')
-    expect(first.sourceKey).toBe(smartGiftSourceKey({ fileName: 'products.json', recordCode: 'PM-BOTTLE-LED' }))
+    expect(first.sourceKey).toBe(structuredCatalogSourceKey({ fileName: 'products.json', recordCode: 'PM-BOTTLE-LED' }))
     // ADR-075 D3 — the file-level registry hash is every record's version.
     expect(result.records.every((record) => record.version === 'a'.repeat(64))).toBe(true)
     expect(first.content).toBe(canonicalGenesisRag17Json(first.record))
     expect(first.contentHash).toBe(hashGenesisRag17Text(first.content))
-    expect(first.idempotencySeed).toBe(smartGiftRecordIdempotencySeed({
+    expect(first.idempotencySeed).toBe(structuredCatalogRecordIdempotencySeed({
       fileAssetId: 'file-smartgift-1',
       fileSha256: 'a'.repeat(64),
       externalId: 'PM-BOTTLE-LED',
@@ -86,7 +86,7 @@ describe('SmartGift catalog adapter', () => {
 
     const rows = JSON.parse(read('products.json'))
     rows[0].srpPriceThbQty1 = 999
-    const mutated = splitSmartGiftCatalogRecords({
+    const mutated = splitStructuredCatalogRecords({
       content: JSON.stringify(rows),
       fileAssetId: 'file-smartgift-1',
       fileSha256: 'b'.repeat(64),
@@ -110,7 +110,7 @@ describe('SmartGift catalog adapter', () => {
   it('admits a bundle carrying an unboxing narrative and keeps it on the record', () => {
     const rows = JSON.parse(read('bundles.json'))
     rows[0] = { ...rows[0], unboxingExperience: 'Pastel tones, packed in a premium lift-off box' }
-    const result = splitSmartGiftCatalogRecords({
+    const result = splitStructuredCatalogRecords({
       content: JSON.stringify(rows),
       fileAssetId: 'file-smartgift-1',
       fileSha256: 'd'.repeat(64),
@@ -123,13 +123,13 @@ describe('SmartGift catalog adapter', () => {
   it('still refuses an unknown bundle field, so the new one is an explicit addition', () => {
     const rows = JSON.parse(read('bundles.json'))
     rows[0] = { ...rows[0], unboxingNarrative: 'wrong key' }
-    expect(() => parseSmartGiftCatalogFile(JSON.stringify(rows))).toThrow()
+    expect(() => parseStructuredCatalogFile(JSON.stringify(rows))).toThrow()
   })
 
   it('denies a customer-shaped record per record, leaving its siblings admissible', () => {
     const rows = JSON.parse(read('products.json'))
     rows[1] = { ...rows[1], provenance: { ...rows[1].provenance, upstreamFile: 'data-pipeline/01_raw/05_crm_customer_data/export.json' } }
-    const result = splitSmartGiftCatalogRecords({
+    const result = splitStructuredCatalogRecords({
       content: JSON.stringify(rows),
       fileAssetId: 'file-smartgift-1',
       fileSha256: 'c'.repeat(64),
@@ -144,21 +144,21 @@ describe('SmartGift catalog adapter', () => {
   })
 
   it('refuses a file that is not a JSON array of known record shapes', () => {
-    expect(() => parseSmartGiftCatalogFile('not json')).toThrow(expect.objectContaining({ status: 422, code: 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID' }))
-    expect(() => parseSmartGiftCatalogFile('{"entityType":"ProductMaster"}')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID' }))
-    expect(() => parseSmartGiftCatalogFile('[]')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
-    expect(() => parseSmartGiftCatalogFile('[{"entityType":"CustomerOrder"}]')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
+    expect(() => parseStructuredCatalogFile('not json')).toThrow(expect.objectContaining({ status: 422, code: 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID' }))
+    expect(() => parseStructuredCatalogFile('{"entityType":"ProductMaster"}')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID' }))
+    expect(() => parseStructuredCatalogFile('[]')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
+    expect(() => parseStructuredCatalogFile('[{"entityType":"CustomerOrder"}]')).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
     // Strict shapes: an unexpected upstream field must be declared before it can
     // ride along, so a stripped cost column cannot reappear unnoticed.
     const rows = JSON.parse(read('products.json'))
     rows[0].base_cost = 120
-    expect(() => parseSmartGiftCatalogFile(JSON.stringify(rows))).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
+    expect(() => parseStructuredCatalogFile(JSON.stringify(rows))).toThrow(expect.objectContaining({ code: 'KNOWLEDGE_STRUCTURED_RECORD_INVALID' }))
   })
 
   it('refuses a repeated record identity inside one file', () => {
     const rows = JSON.parse(read('products.json'))
     rows.push(rows[0])
-    expect(() => splitSmartGiftCatalogRecords({
+    expect(() => splitStructuredCatalogRecords({
       content: JSON.stringify(rows),
       fileAssetId: 'file-smartgift-1',
       fileSha256: 'd'.repeat(64),

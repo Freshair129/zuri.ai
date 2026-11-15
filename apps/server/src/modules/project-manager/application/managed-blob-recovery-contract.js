@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { parseBusinessObjectRef } from '@/platform/storage/private-business-object-storage'
 import { ASSET_EVIDENCE_MAX_BYTES } from '@/modules/asset-management/domain/evidence-policy'
-import { STRUCTURED_CATALOG_MAX_FILE_BYTES } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { STRUCTURED_CATALOG_MAX_FILE_BYTES } from '@/modules/knowledge/structured-catalog-adapter'
 
 export const RECOVERY_DESCRIPTOR_MAX_BYTES = 64 * 1024
 export const RECOVERY_CONTENT_MAX_BYTES = 32 * 1024 * 1024

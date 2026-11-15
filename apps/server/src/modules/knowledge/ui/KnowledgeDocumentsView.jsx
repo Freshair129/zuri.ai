@@ -7,7 +7,7 @@
 import { useState, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
   UploadCloud, FileText, Search, ListChecks, RefreshCw, Trash2,
-  ExternalLink, CheckCircle2, AlertCircle, Clock, FileCheck, Layers,
+  ExternalLink, CheckCircle2, AlertCircle, Clock, Layers,
   ChevronDown, ChevronUp, Copy, BookOpen
 } from 'lucide-react'
 import {
@@ -271,7 +271,7 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
 // ---------------------------------------------------------------------------
 // Tab 1: Intake Panel (Dropzone, Manual Entry, Existing FileAssets)
 // ---------------------------------------------------------------------------
-// The structured SmartGift format the admission API accepts on a FILE source (FR-187).
+// The structured catalog format the admission API accepts on a FILE source (FR-187).
 // Kept as a literal: importing the adapter would pull zod into the client bundle.
 export const STRUCTURED_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
 
@@ -289,72 +289,7 @@ export function existingAssetAdmissionBody({ businessId, asset, format = null })
 }
 
 export function catalogAdmissionMessage(admission) {
-  return `SmartGift catalog: เข้าคิว ${admission.admittedCount}/${admission.recordCount} record · ไม่เปลี่ยน ${admission.unchangedCount} · ถูกปฏิเสธ ${admission.deniedCount}`
-}
-
-export function catalogUploadMessage(result) {
-  if (result.knowledgeStatus && result.knowledgeStatus !== 'ADMITTED') {
-    const status = result.knowledgeStatus === 'UNAVAILABLE' ? 'ยังไม่พร้อม' : 'ไม่สำเร็จ'
-    const code = result.knowledgeCode ? ` (${result.knowledgeCode})` : ''
-    return `${result.fileName} · บันทึกไฟล์ต้นฉบับแล้ว · Knowledge ${status}${code}`
-  }
-  return `${result.fileName}${result.reused ? ' (ไฟล์เดิม)' : ''} · ${catalogAdmissionMessage(result.admission)}`
-}
-
-export function catalogUploadTone(result) {
-  if (!result.knowledgeStatus || result.knowledgeStatus === 'ADMITTED') return 'success'
-  return result.knowledgeStatus === 'FAILED' ? 'error' : 'info'
-}
-
-export function catalogUploadBody({ businessId, fileName, contentBase64 }) {
-  return { businessId, projectId: null, name: fileName, contentBase64 }
-}
-
-function readFileAsBase64(file) {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onerror = () => reject(new Error('อ่านไฟล์ไม่สำเร็จ'))
-    reader.onload = () => resolve(String(reader.result).split(',')[1] || '')
-    reader.readAsDataURL(file)
-  })
-}
-
-// Mode 4: upload a catalog JSON straight to the private knowledge store and
-// admit it as a structured projection (POST /api/knowledge/catalog-files).
-function CatalogUploadCard({ businessId, onSuccess, onError, onUploaded }) {
-  const [file, setFile] = useState(null)
-  const [busy, setBusy] = useState(false)
-  const submit = async (event) => {
-    event.preventDefault()
-    if (!file) return onError('กรุณาเลือกไฟล์ .json')
-    setBusy(true)
-    try {
-      const res = await api('/api/knowledge/catalog-files', {
-        method: 'POST',
-        body: catalogUploadBody({ businessId, fileName: file.name, contentBase64: await readFileAsBase64(file) }),
-      })
-      setFile(null)
-      onUploaded?.()
-      onSuccess(null, catalogUploadMessage(res), catalogUploadTone(res))
-    } catch (err) {
-      onError(err.message)
-    } finally {
-      setBusy(false)
-    }
-  }
-  return (
-    <Card className="space-y-3" data-testid="catalog-upload">
-      <SectionTitle caption="ไฟล์ JSON ของ SmartGift catalog (ProductMaster / BundleOffer / PriceListEntry) จะถูกตรวจรูปแบบ เก็บใน storage ส่วนตัว (MinIO) และแยกเข้าคลังความรู้ทีละ record">
-        อัพโหลด SmartGift catalog
-      </SectionTitle>
-      <form onSubmit={submit} className="flex flex-wrap items-center gap-3">
-        <input className="input flex-1" type="file" accept=".json,application/json" onChange={(event) => setFile(event.target.files?.[0] || null)} data-testid="catalog-upload-file" />
-        <button className="btn btn-primary text-xs flex items-center gap-1" type="submit" disabled={busy || !file}>
-          <UploadCloud size={13} /> {busy ? 'กำลังอัพโหลด…' : 'อัพโหลดและนำเข้า'}
-        </button>
-      </form>
-    </Card>
-  )
+  return `Catalog: เข้าคิว ${admission.admittedCount}/${admission.recordCount} record · ไม่เปลี่ยน ${admission.unchangedCount} · ถูกปฏิเสธ ${admission.deniedCount}`
 }
 
 export function isTextAsset(asset) {
@@ -367,7 +302,7 @@ export function isCatalogAsset(asset) {
 }
 
 function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
-  const [uploadMode, setUploadMode] = useState('file') // 'file' | 'editor' | 'asset' | 'catalog'
+  const [uploadMode, setUploadMode] = useState('file') // 'file' | 'editor' | 'asset'
   const [dragOver, setDragOver] = useState(false)
   const [selectedFile, setSelectedFile] = useState(null)
   const [fileContent, setFileContent] = useState('')
@@ -545,19 +480,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
         >
           <Layers size={14} className="mr-1 inline" /> เลือกจาก File Assets ในระบบ
         </button>
-        <button
-          type="button"
-          className={`btn text-xs ${uploadMode === 'catalog' ? 'btn-primary' : ''}`}
-          onClick={() => setUploadMode('catalog')}
-          data-testid="mode-catalog"
-        >
-          <FileCheck size={14} className="mr-1 inline" /> อัพโหลด SmartGift catalog (.json)
-        </button>
       </div>
-
-      {uploadMode === 'catalog' && (
-        <CatalogUploadCard businessId={businessId} onSuccess={onSuccess} onError={onError} onUploaded={businessFiles.reload} />
-      )}
 
       {/* Mode 1: File Dropzone & Details */}
       {uploadMode === 'file' && (
@@ -769,7 +692,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
       {/* Mode 3: Existing FileAssets Intake */}
       {uploadMode === 'asset' && (
         <Card className="space-y-3">
-          <SectionTitle caption="เลือกไฟล์ Text/Markdown หรือ SmartGift catalog (.json) ที่เคยอัพโหลดไว้ในระบบ File Manager เพื่อนำเข้าคลังความรู้">
+          <SectionTitle caption="เลือกไฟล์ Text/Markdown หรือ structured catalog (.json) ที่เคยอัพโหลดไว้ในระบบ File Manager เพื่อนำเข้าคลังความรู้">
             ไฟล์ในระบบของ Business นี้
           </SectionTitle>
 
@@ -781,7 +704,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
               {(businessFiles.data?.assets || []).filter((a) => {
                 return isTextAsset(a) || isCatalogAsset(a)
               }).length === 0 ? (
-                <p className="text-xs text-muted p-4 text-center">ไม่มีไฟล์ Text, Markdown หรือ SmartGift catalog ในระบบ File Manager ของ Business นี้</p>
+                <p className="text-xs text-muted p-4 text-center">ไม่มีไฟล์ Text, Markdown หรือ structured catalog ในระบบ File Manager ของ Business นี้</p>
               ) : (
                 (businessFiles.data?.assets || [])
                   .filter((a) => isTextAsset(a) || isCatalogAsset(a))
@@ -801,7 +724,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
                           className="btn btn-primary text-xs flex items-center gap-1 ml-3 shrink-0"
                           onClick={() => admitExistingAsset(asset, STRUCTURED_CATALOG_FORMAT)}
                         >
-                          <UploadCloud size={13} /> นำเข้าเป็น SmartGift catalog
+                          <UploadCloud size={13} /> นำเข้าเป็น structured catalog
                         </button>
                       ) : (
                         <button

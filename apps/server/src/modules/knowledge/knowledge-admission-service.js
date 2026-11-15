@@ -27,8 +27,8 @@ import {
   STRUCTURED_CATALOG_FORMAT,
   STRUCTURED_CATALOG_MAX_FILE_BYTES,
   STRUCTURED_CATALOG_PROVIDER,
-  splitSmartGiftCatalogRecords,
-} from './smartgift-catalog-adapter'
+  splitStructuredCatalogRecords,
+} from './structured-catalog-adapter'
 
 // @req FR-173 — Files, Project Files, HTTP and MCP share one authorized durable
 // admission boundary for immutable Text/Markdown source versions.
@@ -56,7 +56,7 @@ import {
 // decision keeps holding on its own terms rather than by accident of a
 // shared fallback.
 // @spec ADR-072, ADR-075, ADR-090 D6, D7, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js, tests/integration/knowledge-admission.integration.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
+// @tested tests/unit/knowledge-admission-service.test.js, tests/integration/knowledge-admission.integration.test.js, tests/unit/structured-catalog-adapter.test.js, tests/integration/structured-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -823,7 +823,7 @@ async function admitStructuredRecords({
 }) {
   const asset = source.asset
   const fileSha256 = source.contentHash
-  const split = splitSmartGiftCatalogRecords({
+  const split = splitStructuredCatalogRecords({
     content: source.content,
     fileAssetId: asset.id,
     fileSha256,

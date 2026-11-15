@@ -8,7 +8,7 @@ import { findZeroPiiViolation } from './structured-record-policy'
 // @req FR-188 — the record shapes are the ones parser-2 renders; an optional
 // catalogVersionDate is the one date a structured claim may carry (C-5).
 // @spec ADR-075 D2, ADR-075 D3, ADR-075 D4, ADR-075 D5, ADR-075 D6, BR-002
-// @tested tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/unit/genesisrag17-parser-2.test.js
+// @tested tests/unit/structured-catalog-adapter.test.js, tests/integration/structured-catalog-admission.test.js, tests/unit/genesisrag17-parser-2.test.js
 
 /**
  * The only structured format Phase 1 admits. The identifier is neutral (ADR-119);
@@ -61,7 +61,7 @@ const zProvenance = z.object({
  * record's contentHash and can never make two parses of the same raw differ.
  * It is optional: an export without one is uniformly undated.
  */
-export const zSmartGiftCatalogVersionDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
+export const zStructuredCatalogVersionDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).refine((value) => {
   const [year, month, day] = value.split('-').map(Number)
   const date = new Date(Date.UTC(year, month - 1, day))
   return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
@@ -82,7 +82,7 @@ export const zProductMaster = z.object({
   unitWeightKg: zMoney.nullish(),
   srpPriceThbQty1: zMoney.nullish(),
   priceTiersThb: z.array(zPriceTier).default([]),
-  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
+  catalogVersionDate: zStructuredCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
@@ -111,7 +111,7 @@ export const zBundleOffer = z.object({
     srpQty1Thb: zMoney,
   }).strict()).default([]),
   offerPriceTiersThb: z.array(zPriceTier).default([]),
-  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
+  catalogVersionDate: zStructuredCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
@@ -122,28 +122,28 @@ export const zPriceListEntry = z.object({
   qty: zQty,
   srpUnitPriceThb: zMoney,
   srpSource: zText.nullish(),
-  catalogVersionDate: zSmartGiftCatalogVersionDate.nullish(),
+  catalogVersionDate: zStructuredCatalogVersionDate.nullish(),
   provenance: zProvenance,
 }).strict()
 
-export const zSmartGiftCatalogRecord = z.discriminatedUnion('entityType', [
+export const zStructuredCatalogRecord = z.discriminatedUnion('entityType', [
   zProductMaster,
   zBundleOffer,
   zPriceListEntry,
 ])
 
-export const zSmartGiftCatalogFile = z.array(zSmartGiftCatalogRecord).min(1)
+export const zStructuredCatalogFile = z.array(zStructuredCatalogRecord).min(1)
 
 /**
  * The record's key inside the file. `code` and `externalId` agree for the two
  * shapes that carry both; `PriceListEntry` has only `externalId`, so
  * `externalId` is the one field that is always the record's identity.
  */
-export function smartGiftRecordCode(record) {
+export function structuredCatalogRecordCode(record) {
   return String(record?.externalId ?? '')
 }
 
-export function smartGiftSourceKey({ fileName, recordCode }) {
+export function structuredCatalogSourceKey({ fileName, recordCode }) {
   return `${STRUCTURED_CATALOG_SOURCE_PREFIX}:${fileName}#${recordCode}`
 }
 
@@ -152,24 +152,24 @@ export function smartGiftSourceKey({ fileName, recordCode }) {
  * It deliberately excludes the caller's request key, so re-admitting identical
  * bytes is `unchanged` for every record no matter which request key is used.
  */
-export function smartGiftRecordIdempotencySeed({ fileAssetId, fileSha256, externalId }) {
+export function structuredCatalogRecordIdempotencySeed({ fileAssetId, fileSha256, externalId }) {
   return hashGenesisRag17Json({ fileAssetId, fileSha256, externalId })
 }
 
 /** Parse and validate the whole projection. Never partially accepts a file. */
-export function parseSmartGiftCatalogFile(content) {
+export function parseStructuredCatalogFile(content) {
   let parsed
   try {
     parsed = JSON.parse(content)
   } catch {
-    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID', 'SmartGift catalog file is not valid JSON')
+    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID', 'Structured catalog file is not valid JSON')
   }
   if (!Array.isArray(parsed)) {
-    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID', 'SmartGift catalog file must be a JSON array of records')
+    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID', 'Structured catalog file must be a JSON array of records')
   }
-  const result = zSmartGiftCatalogFile.safeParse(parsed)
+  const result = zStructuredCatalogFile.safeParse(parsed)
   if (!result.success) {
-    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_RECORD_INVALID', 'SmartGift catalog record does not match a known shape', {
+    throw adapterError(422, 'KNOWLEDGE_STRUCTURED_RECORD_INVALID', 'Structured catalog record does not match a known shape', {
       issues: result.error.issues.slice(0, 5).map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
     })
   }
@@ -186,26 +186,26 @@ export function parseSmartGiftCatalogFile(content) {
  * row must never become a `KnowledgeSource`, but it must not stop the other
  * records in the same file either (ADR-075 D5 is a per-record deny).
  */
-export function splitSmartGiftCatalogRecords({ content, fileAssetId, fileSha256, fileName, maxRecordBytes = null }) {
+export function splitStructuredCatalogRecords({ content, fileAssetId, fileSha256, fileName, maxRecordBytes = null }) {
   if (typeof content !== 'string' || !content.length) {
-    throw adapterError(422, 'KNOWLEDGE_CONTENT_EMPTY', 'SmartGift catalog file is empty')
+    throw adapterError(422, 'KNOWLEDGE_CONTENT_EMPTY', 'Structured catalog file is empty')
   }
   if (typeof fileAssetId !== 'string' || !fileAssetId) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires a fileAssetId')
   if (typeof fileSha256 !== 'string' || !fileSha256) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires the frozen file sha256')
   if (typeof fileName !== 'string' || !fileName) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires the file name')
 
-  const records = parseSmartGiftCatalogFile(content)
+  const records = parseStructuredCatalogFile(content)
   const accepted = []
   const denied = []
   const seen = new Set()
   records.forEach((record, index) => {
-    const externalId = smartGiftRecordCode(record)
+    const externalId = structuredCatalogRecordCode(record)
     if (seen.has(externalId)) {
-      throw adapterError(422, 'KNOWLEDGE_STRUCTURED_RECORD_DUPLICATE', 'SmartGift catalog file repeats one record identity', { externalId })
+      throw adapterError(422, 'KNOWLEDGE_STRUCTURED_RECORD_DUPLICATE', 'Structured catalog file repeats one record identity', { externalId })
     }
     seen.add(externalId)
     const canonicalJson = canonicalGenesisRag17Json(record)
-    const sourceKey = smartGiftSourceKey({ fileName, recordCode: externalId })
+    const sourceKey = structuredCatalogSourceKey({ fileName, recordCode: externalId })
     const violation = findZeroPiiViolation(record, { sourceId: sourceKey, sourceUri: `${STRUCTURED_CATALOG_SOURCE_PREFIX}:${fileName}` })
     if (violation) {
       denied.push({ index, externalId, entityType: record.entityType, field: violation.field, term: violation.term })
@@ -213,7 +213,7 @@ export function splitSmartGiftCatalogRecords({ content, fileAssetId, fileSha256,
     }
     const bytes = Buffer.byteLength(canonicalJson, 'utf8')
     if (Number.isInteger(maxRecordBytes) && bytes > maxRecordBytes) {
-      throw adapterError(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', 'SmartGift catalog record exceeds the per-record limit', { externalId, bytes })
+      throw adapterError(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', 'Structured catalog record exceeds the per-record limit', { externalId, bytes })
     }
     accepted.push({
       index,
@@ -225,7 +225,7 @@ export function splitSmartGiftCatalogRecords({ content, fileAssetId, fileSha256,
       content: canonicalJson,
       contentHash: hashGenesisRag17Text(canonicalJson),
       version: fileSha256,
-      idempotencySeed: smartGiftRecordIdempotencySeed({ fileAssetId, fileSha256, externalId }),
+      idempotencySeed: structuredCatalogRecordIdempotencySeed({ fileAssetId, fileSha256, externalId }),
       bytes,
     })
   })

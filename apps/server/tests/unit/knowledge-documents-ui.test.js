@@ -106,33 +106,16 @@ describe('SmartGift catalog admission from an existing file', () => {
   })
 })
 
-describe('SmartGift catalog upload from the intake', () => {
-  it('posts the file name and bytes only, and reports the admission counts', async () => {
-    const { catalogUploadBody, catalogAdmissionMessage, catalogUploadMessage } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
-    expect(catalogUploadBody({ businessId: 'biz-test-01', fileName: 'BundleOffer.genesisrag17.json', contentBase64: 'W10=' }))
-      .toEqual({ businessId: 'biz-test-01', projectId: null, name: 'BundleOffer.genesisrag17.json', contentBase64: 'W10=' })
+describe('structured catalog admission from an existing asset', () => {
+  it('reports the admission counts', async () => {
+    const { catalogAdmissionMessage } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
     expect(catalogAdmissionMessage({ recordCount: 6, admittedCount: 6, unchangedCount: 0, deniedCount: 0 }))
-      .toBe('SmartGift catalog: เข้าคิว 6/6 record · ไม่เปลี่ยน 0 · ถูกปฏิเสธ 0')
-    expect(catalogUploadMessage({ fileName: 'products.json', knowledgeStatus: 'ADMITTED', admission: { recordCount: 1, admittedCount: 1, unchangedCount: 0, deniedCount: 0 } }))
-      .toBe('products.json · SmartGift catalog: เข้าคิว 1/1 record · ไม่เปลี่ยน 0 · ถูกปฏิเสธ 0')
-    expect(catalogUploadMessage({ fileName: 'products.json', knowledgeStatus: 'UNAVAILABLE', knowledgeCode: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' }))
-      .toBe('products.json · บันทึกไฟล์ต้นฉบับแล้ว · Knowledge ยังไม่พร้อม (KNOWLEDGE_RUNTIME_UNAVAILABLE)')
-    expect(catalogUploadMessage({ fileName: 'products.json', knowledgeStatus: 'FAILED', knowledgeCode: 'KNOWLEDGE_STRUCTURED_ALL_DENIED' }))
-      .toBe('products.json · บันทึกไฟล์ต้นฉบับแล้ว · Knowledge ไม่สำเร็จ (KNOWLEDGE_STRUCTURED_ALL_DENIED)')
+      .toBe('Catalog: เข้าคิว 6/6 record · ไม่เปลี่ยน 0 · ถูกปฏิเสธ 0')
   })
 
-  it('shows a failed admission as an error, an unavailable runtime as info, and an admission as success', async () => {
-    const { catalogUploadTone } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
-    expect(catalogUploadTone({ knowledgeStatus: 'FAILED' })).toBe('error')
-    expect(catalogUploadTone({ knowledgeStatus: 'UNAVAILABLE' })).toBe('info')
-    expect(catalogUploadTone({ knowledgeStatus: 'ADMITTED' })).toBe('success')
-    expect(catalogUploadTone({})).toBe('success')
-  })
-
-  it('offers the catalog upload as its own intake mode', () => {
+  it('no longer offers a direct catalog upload mode or calls the removed upload route', () => {
     const source = readFileSync('src/modules/knowledge/ui/KnowledgeDocumentsView.jsx', 'utf8')
-    expect(source).toContain('data-testid="mode-catalog"')
-    expect(source).toContain("'/api/knowledge/catalog-files'")
-    expect(source).toContain('accept=".json,application/json"')
+    expect(source).not.toContain('data-testid="mode-catalog"')
+    expect(source).not.toContain('/api/knowledge/catalog-files')
   })
 })

@@ -9,7 +9,7 @@ import { readFileSync, writeFileSync, mkdtempSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { deriveRealCorpus, corpusFromDeployed, checkCoverage } from '../../deploy/ki17/build-smartgift-real-corpus.mjs'
 import { deriveSmartgiftBenchmark } from '../../deploy/ki17/build-smartgift-benchmark.mjs'
-import { splitSmartGiftCatalogRecords } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { splitStructuredCatalogRecords } from '@/modules/knowledge/structured-catalog-adapter'
 import { renderStructuredCatalogDocument } from '@/modules/knowledge/genesisrag17-structured-record'
 
 const fixtureDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../fixtures/genesisrag17/smartgift-catalog')
@@ -29,7 +29,7 @@ describe('deriveRealCorpus', () => {
 
   it('uses exactly the chunks the production render path produces as gold texts', () => {
     const content = readFileSync(files[0], 'utf8')
-    const split = splitSmartGiftCatalogRecords({ content, fileAssetId: 'x', fileSha256: 'a'.repeat(64), fileName: 'products.json' })
+    const split = splitStructuredCatalogRecords({ content, fileAssetId: 'x', fileSha256: 'a'.repeat(64), fileName: 'products.json' })
     const first = split.records[0]
     const sections = renderStructuredCatalogDocument(first.content).sections.map((s) => s.text)
     const benchmark = corpus.benchmarks.find((b) => b.externalId === first.externalId)

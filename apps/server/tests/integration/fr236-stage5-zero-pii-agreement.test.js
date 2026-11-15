@@ -155,7 +155,7 @@ describe('FR-236 candidate-decision / Stage-5 Zero-PII agreement (ADR-090 D6, re
     // any pipeline plumbing: a `customerName` field is structural evidence
     // of a CRM shape and is denied exactly as it was before this change.
     // Shape mirrors the real SmartGift ProductMaster record structured
-    // parsing requires (tests/integration/smartgift-catalog-admission.test.js).
+    // parsing requires (tests/integration/structured-catalog-admission.test.js).
     const record = {
       entityType: 'ProductMaster',
       externalId: 'PM-REGRESSION',
