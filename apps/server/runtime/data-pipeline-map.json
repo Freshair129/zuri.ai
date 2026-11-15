@@ -637,13 +637,12 @@
         },
         {
           "id": "FR-187",
-          "status": "verified",
-          "title": "A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…"
+          "status": "not_applicable",
+          "title": "[historical] A structured-record source adapter enters the 17-stage knowledge ingestion pipeline before Stage 1 for SmartGift catalog data (ADR-075 D2,…"
         }
       ],
       "features": [
-        "FEAT-013",
-        "FEAT-026"
+        "FEAT-013"
       ],
       "decisions": [
         "ADR-072",
@@ -4507,7 +4506,6 @@
       ],
       "features": [
         "FEAT-013",
-        "FEAT-026",
         "FR-071"
       ]
     },
@@ -5162,7 +5160,6 @@
         "FEAT-009",
         "FEAT-013",
         "FEAT-019",
-        "FEAT-026",
         "FEAT-038",
         "FR-023",
         "FR-190"

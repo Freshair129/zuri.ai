@@ -2897,15 +2897,15 @@
       "status": "reviewed-migration",
       "path": "docs/features/FEAT-026/requirements/FR-187.md",
       "sourcePath": "docs/PRD-SDD-v1.0.md",
-      "sourceRowSha256": "ff93df06f38a33839e805f3f60b25aa65e21fb2b21595cdccc09b1f92f16d828",
-      "recordSha256": "895b58c063d6471ccf1ccdc8e79a74fc1f6783ffab4594891f82095e23b4cf8e",
+      "sourceRowSha256": "7b203de6caf4661ba7920eafee4c7e36cd2a8d58daad2c43c209770547cacf56",
+      "recordSha256": "46d5ce4014bb5fa1fbaf5d8088210004ec3f85eec07e3ae26087f8414bbf2636",
       "statementCell": 2,
       "requirementCells": [],
       "featureId": "FEAT-026",
       "exportDocument": "docs/PRD-SDD-v1.0.md",
       "exportOrder": 186,
-      "migrationBaseRevision": "98b708f11a51578333c52f828f31bec814df1e66",
-      "migrationDocument": "docs/change-requests/knowledge/ki17-status-reconciliation-20261108.md"
+      "migrationBaseRevision": "4ad3dd3db215d37484fdf976cb9c87a1e59a51b1",
+      "migrationDocument": "docs/change-requests/knowledge/smartgift-fr187-withdrawal-20261115.md"
     },
     {
       "id": "FR-188",
