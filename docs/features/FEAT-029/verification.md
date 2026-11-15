@@ -83,7 +83,6 @@ status: generated
 - [apps/server/tests/integration/scm-legacy-races.postgres.test.js](../../../apps/server/tests/integration/scm-legacy-races.postgres.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/commerce-domain.test.js](../../../apps/server/tests/unit/commerce-domain.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/commerce-routes.test.js](../../../apps/server/tests/unit/commerce-routes.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/goods-receipts-self-attestation.test.js](../../../apps/server/tests/unit/goods-receipts-self-attestation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/procurement-domain.test.js](../../../apps/server/tests/unit/procurement-domain.test.js) — `verifies` (`transitive`)

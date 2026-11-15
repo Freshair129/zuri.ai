@@ -1,6 +1,6 @@
 // @req FR-076, FR-078 — role bindings resolve through a generic role and permission registry.
 // @spec ADR-033 D3-D5 — Product Owner is a Business-scoped RBAC role, not an owner type.
-// @tested tests/unit/fr076-product-owner-business-assignment.test.js, tests/unit/customer-import-review-service.test.js
+// @tested tests/unit/fr076-product-owner-business-assignment.test.js
 
 export const ROLE_PRODUCT_OWNER = 'PRODUCT_OWNER'
 export const ROLE_CUSTOMER_DATA_REVIEWER = 'CUSTOMER_DATA_REVIEWER'

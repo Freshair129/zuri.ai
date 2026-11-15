@@ -88,7 +88,6 @@ Root Provider Layout
     ├── /platform/users
     ├── /platform/integrations *(FR-080 metadata-only local implementation)*
     ├── /platform/product-readiness
-    ├── /platform/customer-import-reviews
     ├── /platform/sot-pipeline
     ├── /profile
     ├── /settings

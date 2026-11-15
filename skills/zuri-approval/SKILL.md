@@ -1,6 +1,6 @@
 ---
 name: zuri-approval
-description: Use when something in Zuri is waiting for a decision — pass or waive a project gate, decide customer-import review cases, or produce a signed approval artifact. Records a decision an owner/manager has already made; never decides on their behalf. Triggers - "approve this in zuri", "pass the gate", "waive the gate", "approve the review queue", "who can approve", "อนุมัติใน zuri", "ผ่าน gate".
+description: Use when something in Zuri is waiting for a decision — pass or waive a project gate, or produce a signed approval artifact. Records a decision an owner/manager has already made; never decides on their behalf. Triggers - "approve this in zuri", "pass the gate", "waive the gate", "who can approve", "อนุมัติใน zuri", "ผ่าน gate".
 ---
 
 # Submit an approval decision to Zuri
@@ -10,12 +10,11 @@ single request, at the Business that governs the record. Your job: find what is 
 present it accurately, capture an explicit human decision, submit exactly that decision,
 and report the receipt.
 
-## The three approval surfaces that exist today
+## The approval surfaces that exist today
 
 | Surface | Endpoint | Who the server lets through |
 |---|---|---|
 | **Project gate** — pass / waive / block a required gate | `PATCH /api/gates/{id}` | a viewer with write authority over the governing Business (Business owner) |
-| **Customer import review** — decide duplicate cases | `POST /api/platform/customer-import-reviews/{caseId}/decisions` | a viewer holding `customer.import.review.decide` at that Business |
 | **Knowledge source approval** — a signed artifact, not an endpoint | `contracts/business-knowledge-approval.schema.json` | the named human in `approved_by`, at the time in `approved_at` |
 
 There is no generic "approval inbox" API, and no endpoint that grants authority. If the
@@ -25,8 +24,7 @@ than approximating it with a different write.
 ## About "manager or owner only"
 
 Zuri's membership roles today are **OWNER** and **MEMBER**; finer authority comes from
-Business-scoped role bindings and permissions (for example
-`customer.import.review.decide`). A "manager" tier exists only in the LINE agent's
+Business-scoped role bindings and permissions. A "manager" tier exists only in the LINE agent's
 write-tool role list, not as a membership role you can check.
 
 So do **not** decide eligibility yourself, and never gate the request on a role string you
@@ -66,10 +64,6 @@ Gate statuses: `PASSED` (evidence satisfied), `WAIVED` (deliberately skipped —
 `BLOCKED` (cannot proceed). `WAIVED` is a decision with consequences: it stops blocking
 progress exactly like `PASSED` does, so never use it as a shortcut for "we'll do it later".
 
-For the review queue, `expectedVersion` is an optimistic lock — read the case, submit
-with the version you read, and on `409` re-read and ask again. Actions are
-`CREATE_SEPARATE`, `LINK_EXISTING` (requires `targetCustomerId`), `REJECT`, `DEFER`.
-Free-text notes are refused on that queue: it is a no-raw-PII surface.
 
 **6. Report the receipt.** What was decided, by whom, on which record, and the server's
 response. Every write here records an audit event — cite that this happened, and never
