@@ -1737,7 +1737,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FEAT-025",
@@ -1947,12 +1947,12 @@ export const PROGRAMME_CONTAINERS = {
     "approver": "Owen",
     "auditor": "ATHER",
     "links": {
-      "code": "apps/server/src/modules/knowledge/structured-catalog-adapter.js",
+      "code": "apps/server/src/modules/knowledge/smartgift-catalog-adapter.js",
       "doc": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
       "test": "unavailable"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "unavailable"
     },
@@ -2050,7 +2050,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "unavailable"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "unavailable"
     },
@@ -2701,9 +2701,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FR-132"
