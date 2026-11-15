@@ -2962,7 +2962,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-080",
@@ -3521,7 +3521,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-094",
@@ -7990,7 +7990,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 31
+          "testCount": 27
         },
         {
           "id": "FR-079",
@@ -11077,7 +11077,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 10,
-          "testCount": 31
+          "testCount": 27
         }
       ],
       "evidence": [
@@ -11103,16 +11103,12 @@
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/application-identity-bootstrap-migration.test.js",
         "apps/server/tests/unit/application-schema-migration.test.js",
-        "apps/server/tests/unit/customer-data-contract.test.js",
         "apps/server/tests/unit/customer-import-review-api.test.js",
-        "apps/server/tests/unit/customer-import-review-contract.test.js",
-        "apps/server/tests/unit/customer-import-review-queue-script.test.js",
         "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/customer-import-review-store-contract.test.js",
         "apps/server/tests/unit/customer-import-review-ui.test.js",
         "apps/server/tests/unit/customer-profile-backfill-migration.test.js",
         "apps/server/tests/unit/customer-profile-contract-receipt.test.js",
-        "apps/server/tests/unit/customer-profile-target-verification.test.js",
         "apps/server/tests/unit/customer-review-runtime-login-migration.test.js",
         "apps/server/tests/unit/customer-review-runtime-login.test.js",
         "apps/server/tests/unit/db-runtime-config.test.js",
