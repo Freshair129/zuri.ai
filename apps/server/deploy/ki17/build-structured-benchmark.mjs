@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // ADR-075 Phase 3, prerequisite P-6 — derive the one benchmark fixture a
-// long-running GenesisRAG17 worker can boot with from the SmartGift acceptance
-// corpus.
+// long-running GenesisRAG17 worker can boot with from the structured-catalog
+// acceptance corpus.
 //
 // WHY THIS EXISTS — read before changing anything here.
 //
@@ -12,8 +12,8 @@
 // Each benchmark entry carries its own `fixtureVersion` and query rows. Anything
 // else fails closed at start with BENCHMARK_FIXTURE_INVALID.
 //
-// `tests/fixtures/genesisrag17-smartgift-corpus-v1.json` is the larger Phase 2
-// acceptance corpus: it carries records and harness metadata in addition to
+// `tests/fixtures/genesisrag17-structured-corpus-v1.json` is the larger
+// (synthetic) acceptance corpus: it carries records and harness metadata in addition to
 // the per-record queries under `benchmarks[].queries`. This build step projects
 // only the worker fixture fields, so one long-running container can still select
 // the applicable record without flattening those queries into a global union.
@@ -44,7 +44,7 @@ function fail(code, message) {
   return error
 }
 
-export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha256 = null } = {}) {
+export function deriveStructuredBenchmark(corpus, { sourceFile = null, sourceSha256 = null } = {}) {
   if (!corpus || typeof corpus !== 'object' || Array.isArray(corpus)) throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'corpus is not an object')
   if (typeof corpus.fixtureVersion !== 'string' || !corpus.fixtureVersion) throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'corpus has no fixtureVersion')
   if (!Array.isArray(corpus.benchmarks) || corpus.benchmarks.length === 0) throw fail('KI17_BENCHMARK_CORPUS_INVALID', 'corpus has no benchmarks[]')
@@ -81,7 +81,7 @@ export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha2
   return {
     fixtureVersion: corpus.fixtureVersion,
     derived: true,
-    derivedBy: 'apps/server/deploy/ki17/build-smartgift-benchmark.mjs',
+    derivedBy: 'apps/server/deploy/ki17/build-structured-benchmark.mjs',
     derivedFrom: {
       file: sourceFile,
       sha256: sourceSha256,
@@ -90,9 +90,7 @@ export function deriveSmartgiftBenchmark(corpus, { sourceFile = null, sourceSha2
       benchmarkCount: corpus.benchmarks.length,
       sourceQueryCount,
       shape: 'per-record benchmarks[].queries, scoped by candidate generation',
-      // Carried through so the file the worker boots with can itself be the
-      // `--base` of the next per-record merge (build-smartgift-real-corpus.mjs)
-      // and still say which catalog files it came from. A fixture derived
+      // Carried through so a derived file can say which catalog files it came from. A fixture derived
       // before this field existed (production's 2026-09-21 file) has none, so
       // its first merge starts the list with the new files only. The worker
       // reads neither field.
@@ -109,13 +107,13 @@ function main(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     if (argv[index] === '--corpus') { corpusPath = argv[index + 1]; index += 1; continue }
     if (argv[index] === '--out') { outPath = argv[index + 1]; index += 1; continue }
-    throw fail('KI17_BENCHMARK_ARGS_INVALID', `unknown argument ${argv[index]}\n  usage: node build-smartgift-benchmark.mjs --corpus <corpus.json> --out <benchmark.json>`)
+    throw fail('KI17_BENCHMARK_ARGS_INVALID', `unknown argument ${argv[index]}\n  usage: node build-structured-benchmark.mjs --corpus <corpus.json> --out <benchmark.json>`)
   }
   if (!corpusPath || !outPath) throw fail('KI17_BENCHMARK_ARGS_INVALID', 'both --corpus and --out are required')
 
   const raw = readFileSync(corpusPath)
   const sha256 = createHash('sha256').update(raw).digest('hex')
-  const fixture = deriveSmartgiftBenchmark(JSON.parse(raw.toString('utf8')), { sourceFile: path.basename(corpusPath), sourceSha256: sha256 })
+  const fixture = deriveStructuredBenchmark(JSON.parse(raw.toString('utf8')), { sourceFile: path.basename(corpusPath), sourceSha256: sha256 })
 
   mkdirSync(path.dirname(outPath), { recursive: true })
   writeFileSync(outPath, `${JSON.stringify(fixture, null, 2)}\n`)

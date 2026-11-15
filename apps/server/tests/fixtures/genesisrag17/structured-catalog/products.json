@@ -1,0 +1,277 @@
+[
+  {
+    "category": "eco-friendly",
+    "code": "PM-BOTTLE-LED",
+    "dimensionsCm": {
+      "height": 10,
+      "length": 10,
+      "width": 10
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-BOTTLE-LED",
+    "flowaccountModelCode": "FX-BOTTLE",
+    "nameEn": "Sample LED Bottle",
+    "nameTh": "ขวดตัวอย่างพร้อมไฟ LED",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 100
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 90
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 85
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 80
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 75
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 70
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 65
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 60
+      }
+    ],
+    "productFamily": "PF-DRINKWARE",
+    "provenance": {
+      "upstreamFile": "synthetic/ProductMaster.json",
+      "upstreamRecordId": "synthetic:PM-BOTTLE-LED"
+    },
+    "srpPriceThbQty1": 100,
+    "unitWeightKg": 0.5
+  },
+  {
+    "category": "executive-smart-tech",
+    "code": "PM-NB",
+    "dimensionsCm": {
+      "height": 10,
+      "length": 10,
+      "width": 10
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-NB",
+    "flowaccountModelCode": "FX-NOTEBOOK",
+    "nameEn": "Sample Notebook",
+    "nameTh": "สมุดตัวอย่าง",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 300
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 270
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 255
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 240
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 225
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 210
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 195
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 180
+      }
+    ],
+    "productFamily": "PF-SMART-OFFICE",
+    "provenance": {
+      "upstreamFile": "synthetic/ProductMaster.json",
+      "upstreamRecordId": "synthetic:PM-NB"
+    },
+    "srpPriceThbQty1": 300,
+    "unitWeightKg": 0.5
+  },
+  {
+    "category": "executive-smart-tech",
+    "code": "PM-PB10K",
+    "dimensionsCm": {
+      "height": 10,
+      "length": 10,
+      "width": 10
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-PB10K",
+    "flowaccountModelCode": "FX-POWERBANK",
+    "nameEn": "Sample Powerbank 10K",
+    "nameTh": "พาวเวอร์แบงก์ตัวอย่าง",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 200
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 180
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 170
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 160
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 150
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 140
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 130
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 120
+      }
+    ],
+    "productFamily": "PF-POWER-CHARGING",
+    "provenance": {
+      "upstreamFile": "synthetic/ProductMaster.json",
+      "upstreamRecordId": "synthetic:PM-PB10K"
+    },
+    "srpPriceThbQty1": 200,
+    "unitWeightKg": 0.5
+  },
+  {
+    "category": "classic-oriental",
+    "code": "PM-PEN",
+    "dimensionsCm": {
+      "height": 10,
+      "length": 10,
+      "width": 10
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-PEN",
+    "flowaccountModelCode": null,
+    "nameEn": "Sample Pen",
+    "nameTh": "ปากกาตัวอย่าง",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 50
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 45
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 43
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 40
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 38
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 35
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 33
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 30
+      }
+    ],
+    "productFamily": "PF-CRAFT-STATIONERY",
+    "provenance": {
+      "upstreamFile": "synthetic/ProductMaster.json",
+      "upstreamRecordId": "synthetic:PM-PEN"
+    },
+    "srpPriceThbQty1": 50,
+    "unitWeightKg": 0.5
+  },
+  {
+    "category": "eco-friendly",
+    "code": "PM-TMB",
+    "dimensionsCm": {
+      "height": 10,
+      "length": 10,
+      "width": 10
+    },
+    "entityType": "ProductMaster",
+    "externalId": "PM-TMB",
+    "flowaccountModelCode": "FX-TUMBLER",
+    "nameEn": "Sample Tumbler",
+    "nameTh": "แก้วตัวอย่าง",
+    "priceTiersThb": [
+      {
+        "minQty": 1,
+        "unitPriceThb": 150
+      },
+      {
+        "minQty": 10,
+        "unitPriceThb": 135
+      },
+      {
+        "minQty": 20,
+        "unitPriceThb": 128
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 120
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 113
+      },
+      {
+        "minQty": 300,
+        "unitPriceThb": 105
+      },
+      {
+        "minQty": 500,
+        "unitPriceThb": 98
+      },
+      {
+        "minQty": 1000,
+        "unitPriceThb": 90
+      }
+    ],
+    "productFamily": "PF-DRINKWARE",
+    "provenance": {
+      "upstreamFile": "synthetic/ProductMaster.json",
+      "upstreamRecordId": "synthetic:PM-TMB"
+    },
+    "srpPriceThbQty1": 150,
+    "unitWeightKg": 0.5
+  }
+]

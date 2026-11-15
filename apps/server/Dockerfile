@@ -23,7 +23,7 @@
 #   ki17         → /opt/ki17/{node,msp,gks} — MSP and GKS at their pins with
 #                  `npm ci` run INSIDE Linux, so better-sqlite3 gets a Linux binding
 #   ki17-venv    → /opt/ki17/venv — Python 3.12 from the worker's requirements.txt
-#   ki17-fixtures→ /opt/ki17/fixtures — the SmartGift benchmark fixture (P-6)
+#   ki17-fixtures→ /opt/ki17/fixtures — the synthetic default benchmark fixture (P-6)
 #   runner-ki17  → the web image for the knowledge deployment: `runner` plus
 #                  /opt/ki17/{node,msp,gks} and the P-5 operator smoke script
 #   gks-http     → dedicated pinned GKS HTTP service image; no MSP or Tier 1 app.
@@ -285,22 +285,23 @@ RUN set -eu; \
       || { echo "KI17_VENV_INVALID: the venv is not Python 3.12 with the pinned embedding dependencies" >&2; exit 1; }
 
 # ---------------------------------------------------------------- ki17-fixtures
-# P-6. The Phase 2 SmartGift fixture, baked rather than mounted so the image and
-# the benchmark it was accepted against cannot drift apart.
+# P-6. A SYNTHETIC default benchmark fixture, baked rather than mounted so the image
+# and the benchmark it boots with cannot drift apart. Production points the worker
+# at its own fixture on the ki17-state volume (.env.knowledge.example).
 FROM base AS ki17-fixtures
-COPY tests/fixtures/genesisrag17-smartgift-corpus-v1.json tests/fixtures/genesisrag17-corpus-v1.json /opt/ki17/fixtures/
-COPY tests/fixtures/genesisrag17/smartgift-catalog /opt/ki17/fixtures/smartgift-catalog
-COPY deploy/ki17/build-smartgift-benchmark.mjs /opt/ki17/tools/
-# The corpus keeps its queries per record (benchmarks[].queries) because the Phase 2
+COPY tests/fixtures/genesisrag17-structured-corpus-v1.json tests/fixtures/genesisrag17-corpus-v1.json /opt/ki17/fixtures/
+COPY tests/fixtures/genesisrag17/structured-catalog /opt/ki17/fixtures/structured-catalog
+COPY deploy/ki17/build-structured-benchmark.mjs /opt/ki17/tools/
+# The corpus keeps its queries per record (benchmarks[].queries) because the
 # acceptance re-boots the worker once per record; a container boots once. Read the
-# header of build-smartgift-benchmark.mjs before touching this.
-RUN node /opt/ki17/tools/build-smartgift-benchmark.mjs \
-      --corpus /opt/ki17/fixtures/genesisrag17-smartgift-corpus-v1.json \
-      --out /opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json
+# header of build-structured-benchmark.mjs before touching this.
+RUN node /opt/ki17/tools/build-structured-benchmark.mjs \
+      --corpus /opt/ki17/fixtures/genesisrag17-structured-corpus-v1.json \
+      --out /opt/ki17/fixtures/genesisrag17-structured-benchmark-v1.json
 RUN set -eu; \
-    test -s /opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json || { echo "KI17_FIXTURE_MISSING: derived SmartGift benchmark" >&2; exit 1; }; \
-    test -s /opt/ki17/fixtures/genesisrag17-smartgift-corpus-v1.json || { echo "KI17_FIXTURE_MISSING: SmartGift acceptance corpus" >&2; exit 1; }; \
-    test -s /opt/ki17/fixtures/smartgift-catalog/products.json || { echo "KI17_FIXTURE_MISSING: smartgift-catalog raw fixture" >&2; exit 1; }
+    test -s /opt/ki17/fixtures/genesisrag17-structured-benchmark-v1.json || { echo "KI17_FIXTURE_MISSING: derived structured-catalog benchmark" >&2; exit 1; }; \
+    test -s /opt/ki17/fixtures/genesisrag17-structured-corpus-v1.json || { echo "KI17_FIXTURE_MISSING: structured-catalog corpus" >&2; exit 1; }; \
+    test -s /opt/ki17/fixtures/structured-catalog/products.json || { echo "KI17_FIXTURE_MISSING: structured-catalog raw fixture" >&2; exit 1; }
 
 # ---------------------------------------------------------------- runner-ki17
 # The web image for the knowledge deployment: `runner` plus /opt/ki17/{node,msp,gks}
@@ -430,7 +431,7 @@ RUN set -eu; \
     test -f /opt/ki17/tools/ki17-worker-msp-launcher.mjs || { echo "KI17_WORKER_MSP_LAUNCHER_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/src/modules/agent/msp-child-environment.mjs || { echo "KI17_MSP_ENVIRONMENT_HELPER_MISSING" >&2; exit 1; }; \
     test -f /opt/ki17/gks/apps/gks-server/bin/gks-server.mjs || { echo "KI17_GKS_ENTRYPOINT_MISSING" >&2; exit 1; }; \
-    test -s /opt/ki17/fixtures/genesisrag17-smartgift-benchmark-v1.json || { echo "KI17_FIXTURE_MISSING: SmartGift benchmark" >&2; exit 1; }; \
+    test -s /opt/ki17/fixtures/genesisrag17-structured-benchmark-v1.json || { echo "KI17_FIXTURE_MISSING: structured-catalog benchmark" >&2; exit 1; }; \
     test -x /usr/bin/which || { echo "KI17_WHICH_MISSING: GenesisBlock's addon loader shells out to \`which ldd\`" >&2; exit 1; }
 # C6: the worker binds 127.0.0.1 only and publishes nothing. No EXPOSE, on purpose —
 # the port lives inside web's namespace and must not look publishable.
@@ -495,7 +496,6 @@ RUN set -eu; \
     case "$(node -v)" in v22.*) ;; *) echo "KI17_ACCEPTANCE_RUNNER_NODE_UNEXPECTED: $(node -v)" >&2; exit 1;; esac; \
     case "$("$KI17_NODE" -v)" in v24.18.*) ;; *) echo "KI17_ACCEPTANCE_CHILD_NODE_UNEXPECTED: $("$KI17_NODE" -v)" >&2; exit 1;; esac; \
     test -f /app/tests/acceptance/genesisrag17-e2e.test.js || { echo "KI17_ACCEPTANCE_SUITE_MISSING: pass --build-context ki17-tests=apps/server/tests" >&2; exit 1; }; \
-    test -f /app/tests/acceptance/genesisrag17-smartgift.test.js || { echo "KI17_ACCEPTANCE_SUITE_MISSING: genesisrag17-smartgift.test.js" >&2; exit 1; }; \
     test -f /app/vitest.ki17.config.js || { echo "KI17_ACCEPTANCE_CONFIG_MISSING" >&2; exit 1; }; \
     test -d /app/node_modules/vitest || { echo "KI17_ACCEPTANCE_DEVDEPS_MISSING: vitest" >&2; exit 1; }
 CMD ["npm", "run", "test:genesisrag17"]

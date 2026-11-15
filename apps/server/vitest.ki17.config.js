@@ -2,23 +2,15 @@ import base from './vitest.config'
 
 // @req FR-110 — the full pipeline acceptance gate requires explicit sibling
 // runtimes and real native embeddings; missing prerequisites fail, never skip.
-// @req FR-188 — the SmartGift structured-record profile is accepted by the same
-// gate: both suites run under this one command, serially, each over its own
-// isolated MSP/GKS/GenesisBlock processes (ADR-075 Phase 2, contract rev 2 C-8).
-// The merged-fixture suite (B4, 2026-09-25) is a third: it boots the worker
-// with a full multi-record production-shaped fixture built by the §10.1
-// --base merge, not a single isolated benchmark like the other two.
-// @spec ADR-073, ADR-075
-// @tested tests/acceptance/genesisrag17-e2e.test.js, tests/acceptance/genesisrag17-smartgift.test.js,
-//   tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js
+// ADR-119 removed the two SmartGift-corpus acceptance suites; the generic suite stays.
+// @spec ADR-073
+// @tested tests/acceptance/genesisrag17-e2e.test.js
 export default {
   ...base,
   test: {
     ...base.test,
     include: [
       'tests/acceptance/genesisrag17-e2e.test.js',
-      'tests/acceptance/genesisrag17-smartgift.test.js',
-      'tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js',
     ],
     testTimeout: 180000,
     hookTimeout: 180000,
