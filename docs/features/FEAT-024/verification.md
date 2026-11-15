@@ -78,7 +78,6 @@ status: generated
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/crm-group-navigation.test.js](../../../apps/server/tests/unit/crm-group-navigation.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/domain-navigation.test.js](../../../apps/server/tests/unit/domain-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/domain-state.test.js](../../../apps/server/tests/unit/domain-state.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)

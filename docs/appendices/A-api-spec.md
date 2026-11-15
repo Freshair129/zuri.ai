@@ -241,7 +241,7 @@ a memory turn whose appended text differs from the committed answer.
 
 The active route inventory removes `/api/agent/heartbeat`, `/api/agent/line-asset-handoff`, `/api/agent/line-delivery`, `/api/agent/line-webhook`, `/api/assets/evidence/{id}/extraction-job`, all `/api/edge/pairing/*` and `/api/edge/extraction-jobs/*` paths, `/api/platform/edge-devices/credentials*`, `/api/platform/harness-pairing/*`, `/api/platform/harness-devices*`, and `/api/platform/programme-usage-reports/whoami`. These are 20 paths and 23 operations. Any later endpoint details for these routes are historical contract records only, not current handlers. Existing device, pairing, extraction-job, harness and usage-report rows remain stored; no migration or cleanup is included. The native signed `/api/line-oa/accounts/[id]/webhook` ingress and write-only PRP model-provider key flow remain active.
 
-<!-- api-spec-counts: route_handlers=379 -->
+<!-- api-spec-counts: route_handlers=376 -->
 ### CRM legal-hold compatibility (FR-245 / ADR-093 D6)
 
 POST `/api/crm/customers/[customerId]/legal-hold` preserves the approved CRM
@@ -823,9 +823,6 @@ not publish Customers, replay LINE traffic or accept free-text PII notes.
 
 | Method | Path | Contract |
 |---|---|---|
-| GET | `/api/platform/customer-import-reviews` | list the approved SmartGift review cases and redacted items; requires `customer.import.review.read` |
-| GET | `/api/platform/customer-import-reviews/targets` | bounded, masked lookup of same-Business Customer targets for `LINK_EXISTING`; requires `customer.import.review.read` |
-| POST | `/api/platform/customer-import-reviews/[caseId]/decisions` | append one decision per held item with optimistic `expectedVersion`; actions are `CREATE_SEPARATE`, `LINK_EXISTING`, `REJECT` or `DEFER`; requires `customer.import.review.decide` |
 | GET | `/api/platform/sot/plan` | SoT pipeline plan with per-phase status derived from FR-071 run evidence + FR-100 pending counts, plus the FR-101 graph projection; viewer must see the Business (FR-099) |
 | GET | `/api/platform/sot/decisions` | list SoT decisions (default filterable to PENDING) scoped to the viewer's visible Business (FR-100) |
 | POST | `/api/platform/sot/decisions` | data-plane batch submit of pending decisions; installation-operator or an FR-102 data-plane key bound to the submitted tenantId, idempotent by canonical payload hash, changed payloads open a new decisionVersion (FR-100, FR-102) |

@@ -135,7 +135,7 @@ const ROUTES = [
   '/api/growth/content/briefs/warmup',
   '/api/growth/content/references',
   '/settings', '/platform/product-readiness', '/platform/product-readiness/crm',
-  '/platform/users', '/platform/integrations', '/platform/customer-import-reviews', '/platform/sot-pipeline', '/audit', '/backup',
+  '/platform/users', '/platform/integrations', '/platform/sot-pipeline', '/audit', '/backup',
 ]
 
 const APP_DIR = path.resolve(__dirname, '..', '..', 'src', 'app')

@@ -18,13 +18,7 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/(pm)/platform/customer-import-reviews/page.jsx](../../../apps/server/src/app/%28pm%29/platform/customer-import-reviews/page.jsx) — `implements` (`annotation`)
-- [apps/server/src/app/api/platform/customer-import-reviews/\[caseId\]/decisions/route.js](../../../apps/server/src/app/api/platform/customer-import-reviews/%5BcaseId%5D/decisions/route.js) — `implements` (`annotation`)
-- [apps/server/src/app/api/platform/customer-import-reviews/route.js](../../../apps/server/src/app/api/platform/customer-import-reviews/route.js) — `implements` (`annotation`)
-- [apps/server/src/app/api/platform/customer-import-reviews/targets/route.js](../../../apps/server/src/app/api/platform/customer-import-reviews/targets/route.js) — `implements` (`annotation`)
 - [apps/server/src/lib/db.js](../../../apps/server/src/lib/db.js) — `implements` (`annotation`)
-- [apps/server/src/modules/crm/customer-import-review-service.js](../../../apps/server/src/modules/crm/customer-import-review-service.js) — `implements` (`annotation`)
-- [apps/server/src/modules/crm/customer-import-review-store.js](../../../apps/server/src/modules/crm/customer-import-review-store.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/rbac.js](../../../apps/server/src/modules/identity/rbac.js) — `implements` (`annotation`)
 - [apps/server/src/modules/line-crm/LineCrmMembers.jsx](../../../apps/server/src/modules/line-crm/LineCrmMembers.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
@@ -43,14 +37,9 @@ status: generated
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/application-identity-bootstrap-migration.test.js](../../../apps/server/tests/unit/application-identity-bootstrap-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/application-schema-migration.test.js](../../../apps/server/tests/unit/application-schema-migration.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/customer-import-review-api.test.js](../../../apps/server/tests/unit/customer-import-review-api.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/customer-import-review-store-contract.test.js](../../../apps/server/tests/unit/customer-import-review-store-contract.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/customer-import-review-ui.test.js](../../../apps/server/tests/unit/customer-import-review-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/customer-profile-backfill-migration.test.js](../../../apps/server/tests/unit/customer-profile-backfill-migration.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/customer-profile-contract-receipt.test.js](../../../apps/server/tests/unit/customer-profile-contract-receipt.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/customer-review-runtime-login-migration.test.js](../../../apps/server/tests/unit/customer-review-runtime-login-migration.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/customer-review-runtime-login.test.js](../../../apps/server/tests/unit/customer-review-runtime-login.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/db-runtime-config.test.js](../../../apps/server/tests/unit/db-runtime-config.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)

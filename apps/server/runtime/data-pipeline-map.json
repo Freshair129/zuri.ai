@@ -26,12 +26,12 @@
     ]
   },
   "summary": {
-    "nodes": 97,
-    "edges": 143,
-    "chains": 26,
+    "nodes": 96,
+    "edges": 141,
+    "chains": 25,
     "byKind": {
       "SOURCE": 15,
-      "ENTRY": 27,
+      "ENTRY": 26,
       "PROCESS": 29,
       "STORE": 19,
       "RECIPIENT": 7
@@ -40,7 +40,7 @@
       "BLOCKED": 0,
       "DECLARED": 5,
       "PARTIAL": 3,
-      "CODE_TESTS": 16,
+      "CODE_TESTS": 15,
       "PRODUCTION": 2
     },
     "internalByStatus": {
@@ -48,14 +48,14 @@
       "DECLARED": 3,
       "PARTIAL": 3,
       "CODE_TESTS": 48,
-      "PRODUCTION": 20
+      "PRODUCTION": 19
     },
     "internalBySurface": {
       "NONE": 12,
       "WORKER": 13,
       "MCP": 0,
       "ENDPOINT": 15,
-      "UI": 35
+      "UI": 34
     }
   },
   "nodes": [
@@ -920,39 +920,6 @@
       "surfaceLevel": "UI",
       "buildStatus": "PRODUCTION",
       "evidence": "FR-092 status: production translation trigger delivered 2026-09-03 (POST /api/market/translations, owner-only)",
-      "blocked": null
-    },
-    {
-      "id": "in.customer-backfill",
-      "kind": "ENTRY",
-      "system": "zuri-ai",
-      "label": "Customer backfill และ review queue",
-      "detail": "",
-      "domain": "crm",
-      "requirements": [
-        {
-          "id": "FR-078",
-          "status": "verified",
-          "title": "Customer Profile backfill contract"
-        }
-      ],
-      "features": [
-        "FEAT-006"
-      ],
-      "decisions": [],
-      "surfaces": [
-        {
-          "type": "ENDPOINT",
-          "ref": "/api/platform/customer-import-reviews"
-        },
-        {
-          "type": "UI",
-          "ref": "/platform/customer-import-reviews"
-        }
-      ],
-      "surfaceLevel": "UI",
-      "buildStatus": "PRODUCTION",
-      "evidence": "FR-078 status: production queue, application schema/identity projection and CUSTOMER_DATA_REVIEWER binding verified",
       "blocked": null
     },
     {
@@ -3878,22 +3845,6 @@
       "status": "PRODUCTION"
     },
     {
-      "id": "e.smartgift-to-backfill",
-      "from": "src.smartgift",
-      "to": "in.customer-backfill",
-      "label": "ประวัติลูกค้า (read-only source)",
-      "wired": true,
-      "status": "PRODUCTION"
-    },
-    {
-      "id": "e.backfill-to-crm",
-      "from": "in.customer-backfill",
-      "to": "s.crm",
-      "label": "Person · Customer + review queue",
-      "wired": true,
-      "status": "PRODUCTION"
-    },
-    {
       "id": "e.crm-to-analysis",
       "from": "s.crm",
       "to": "p.conversation-analysis",
@@ -4965,43 +4916,6 @@
       ],
       "features": [
         "FEAT-021"
-      ]
-    },
-    {
-      "id": "CH-20",
-      "name": "ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา",
-      "summary": "",
-      "path": [
-        "e.smartgift-to-backfill",
-        "e.backfill-to-crm",
-        "e.crm-to-agent",
-        "e.agent-to-jobs",
-        "e.jobs-to-line"
-      ],
-      "branches": [],
-      "nodeIds": [
-        "in.customer-backfill",
-        "p.agent-turn",
-        "p.line-jobs",
-        "r.line-api",
-        "s.crm",
-        "src.smartgift"
-      ],
-      "status": "CODE_TESTS",
-      "domains": [
-        "agent",
-        "crm",
-        "line-oa-studio"
-      ],
-      "features": [
-        "FEAT-006",
-        "FEAT-009",
-        "FEAT-010",
-        "FEAT-019",
-        "FEAT-025",
-        "FR-023",
-        "FR-171",
-        "FR-190"
       ]
     },
     {

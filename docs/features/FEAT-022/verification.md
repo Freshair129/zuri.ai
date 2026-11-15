@@ -49,7 +49,6 @@ status: generated
 - [apps/server/tests/unit/asset-management-navigation.test.js](../../../apps/server/tests/unit/asset-management-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/business-capability-navigation.test.js](../../../apps/server/tests/unit/business-capability-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/crm-group-navigation.test.js](../../../apps/server/tests/unit/crm-group-navigation.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/domain-navigation.test.js](../../../apps/server/tests/unit/domain-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-api-ui-contract.test.js](../../../apps/server/tests/unit/fr045-api-ui-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)

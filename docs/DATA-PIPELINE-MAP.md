@@ -125,7 +125,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
 | CH-17 | Backup export | snapshot ของ Project system → ไฟล์ของ operator |
 | CH-18 | Conversation analysis → Daily Sales Brief | ข้อความที่มี consent → analysis → brief ไป LINE (FR-128 declared) |
 | CH-19 | Broadcast planning → LINE | broadcast intent → dispatch (ยังไม่เปิด FR-185) |
-| CH-20 | ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา | backfill → CRM → evidence ของ agent → LINE |
 | CH-21 | LINE turn — grounded ด้วย corpus ที่ publish แล้ว | คำถาม + snapshot ที่ publish (citation) → evidence packet → model → คำตอบที่ตรวจแล้ว → LINE; business_knowledge เป็น fallback ที่บันทึกใน trace (ADR-090, declared) |
 | CH-22 | FAQ candidate จาก LINE → review → 17 stage → corpus | บทสนทนาที่มี consent → Q/A แบบ locator-only → OWNER / LINE_OA_PUBLISHER อนุมัติ (audited) → Text admission → Stage 1–17 → corpus manifest (ADR-090 D6, FR-236 built) |
 | CH-23 | LINE v2 — MemoryOS → CIN → model (server) | scoped memory + pinned knowledge + current records → bounded CIN → model ที่ server เรียกด้วย API key ของธุรกิจ → execution receipt; live LINE qualification pending |
@@ -221,11 +220,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "requirements": ["FR-092"], "decisions": ["ADR-038"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/market/translations" }, { "type": "UI", "ref": "/market" }],
       "production": { "evidence": "FR-092 status: production translation trigger delivered 2026-09-03 (POST /api/market/translations, owner-only)" } },
-    { "id": "in.customer-backfill", "kind": "ENTRY", "system": "zuri-ai", "domain": "crm", "label": "Customer backfill และ review queue",
-      "requirements": ["FR-078"],
-      "surfaces": [
-        { "type": "ENDPOINT", "ref": "/api/platform/customer-import-reviews" }, { "type": "UI", "ref": "/platform/customer-import-reviews" }],
-      "production": { "evidence": "FR-078 status: production queue, application schema/identity projection and CUSTOMER_DATA_REVIEWER binding verified" } },
     { "id": "in.sot-submit", "kind": "ENTRY", "system": "zuri-ai", "domain": "integration", "label": "SoT plan และ decision submit", "detail": "SotDataPlaneKey",
       "requirements": ["FR-099", "FR-102"], "decisions": ["ADR-047"],
       "surfaces": [{ "type": "ENDPOINT", "ref": "/api/platform/sot/plan" }, { "type": "ENDPOINT", "ref": "/api/platform/sot/decisions" }, { "type": "UI", "ref": "/platform/sot-pipeline" }],
@@ -518,8 +512,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
     { "id": "e.translator-to-observations", "from": "p.market-translator", "to": "s.market-observations", "label": "MarketObservation" },
     { "id": "e.observations-to-staff", "from": "s.market-observations", "to": "r.staff", "label": "/market" },
 
-    { "id": "e.smartgift-to-backfill", "from": "src.smartgift", "to": "in.customer-backfill", "label": "ประวัติลูกค้า (read-only source)" },
-    { "id": "e.backfill-to-crm", "from": "in.customer-backfill", "to": "s.crm", "label": "Person · Customer + review queue" },
     { "id": "e.crm-to-analysis", "from": "s.crm", "to": "p.conversation-analysis", "label": "ข้อความที่มี consent" },
     { "id": "e.analysis-to-line", "from": "p.conversation-analysis", "to": "r.line-api", "label": "Daily Sales Brief (FR-128 declared)", "wired": false },
 
@@ -632,8 +624,6 @@ chain คือเส้นทางจากต้นทางภายนอ�
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-crm", "e.crm-to-analysis", "e.analysis-to-line"] },
     { "id": "CH-19", "name": "Broadcast planning → LINE",
       "path": ["e.staff-to-broadcast", "e.broadcast-to-line"] },
-    { "id": "CH-20", "name": "ประวัติลูกค้าจาก SmartGift → บริบทของรอบสนทนา",
-      "path": ["e.smartgift-to-backfill", "e.backfill-to-crm", "e.crm-to-agent", "e.agent-to-jobs", "e.jobs-to-line"] },
     { "id": "CH-21", "name": "LINE turn — grounded ด้วย corpus ที่ publish แล้ว", "summary": "ADR-090: อ่าน published corpus ก่อนเรียก model ตามโหมดของบัญชี business knowledge เป็น fallback ที่บันทึกใน trace",
       "path": ["e.line-to-webhook", "e.webhook-to-jobs", "e.jobs-to-agent", "e.agent-to-jobs", "e.jobs-to-line"],
       "branches": ["e.corpus-to-agent", "e.knowledge-to-agent", "e.agent-to-models", "e.agent-to-trace", "e.agent-to-msp-session", "e.jobs-to-crm"] },

@@ -1619,7 +1619,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-025",
@@ -2069,7 +2069,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -2648,7 +2648,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 9,
-          "testCount": 39
+          "testCount": 38
         },
         {
           "id": "FR-166",
@@ -2656,7 +2656,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 38
+          "testCount": 37
         },
         {
           "id": "FR-175",
@@ -2704,7 +2704,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-253",
@@ -2780,7 +2780,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -2938,7 +2938,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 11,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-023",
@@ -2961,8 +2961,8 @@
           "title": "Customer Profile backfill contract",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 3,
-          "testCount": 27
+          "codeCount": 1,
+          "testCount": 22
         },
         {
           "id": "FR-080",
@@ -3018,7 +3018,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-147",
@@ -3066,7 +3066,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 33
+          "testCount": 32
         },
         {
           "id": "FR-166",
@@ -3074,7 +3074,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 37
         },
         {
           "id": "FR-229",
@@ -3401,7 +3401,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-026",
@@ -3513,7 +3513,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 14
+          "testCount": 13
         },
         {
           "id": "FR-078",
@@ -3521,7 +3521,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 27
+          "testCount": 22
         },
         {
           "id": "FR-094",
@@ -3676,7 +3676,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-148",
@@ -3692,7 +3692,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 43
+          "testCount": 42
         },
         {
           "id": "FR-161",
@@ -3700,7 +3700,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 33
+          "testCount": 32
         },
         {
           "id": "FR-163",
@@ -3708,7 +3708,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 39
+          "testCount": 38
         },
         {
           "id": "FR-164",
@@ -3716,7 +3716,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-166",
@@ -3724,7 +3724,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 38
+          "testCount": 37
         },
         {
           "id": "FR-191",
@@ -3740,7 +3740,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 22
+          "testCount": 21
         },
         {
           "id": "FR-193",
@@ -3764,7 +3764,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-197",
@@ -3967,7 +3967,7 @@
           "details": {
             "routes": 32,
             "inventoried": 30,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 1
           }
         },
@@ -4283,7 +4283,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-028",
@@ -4451,7 +4451,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-149",
@@ -4662,7 +4662,7 @@
           "details": {
             "routes": 19,
             "inventoried": 19,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -4832,7 +4832,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 43
+          "testCount": 42
         },
         {
           "id": "FR-155",
@@ -4856,7 +4856,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 39
+          "testCount": 38
         },
         {
           "id": "FR-164",
@@ -4864,7 +4864,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -4880,7 +4880,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 38
+          "testCount": 37
         },
         {
           "id": "FR-168",
@@ -5127,7 +5127,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -5965,7 +5965,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-026",
@@ -6029,7 +6029,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 29,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-149",
@@ -6310,7 +6310,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -6551,7 +6551,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -6803,7 +6803,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7211,7 +7211,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7370,7 +7370,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 43
+          "testCount": 42
         },
         {
           "id": "FR-164",
@@ -7378,7 +7378,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 20,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -7410,7 +7410,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 15
+          "testCount": 14
         }
       ],
       "checks": {
@@ -7436,7 +7436,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 380,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7686,7 +7686,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 59
+          "testCount": 58
         },
         {
           "id": "FR-026",
@@ -7989,8 +7989,8 @@
           "title": "Customer Profile backfill contract",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 27
+          "codeCount": 1,
+          "testCount": 22
         },
         {
           "id": "FR-079",
@@ -8431,7 +8431,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-149",
@@ -8479,7 +8479,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 43
+          "testCount": 42
         },
         {
           "id": "FR-155",
@@ -8535,7 +8535,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 6,
-          "testCount": 33
+          "testCount": 32
         },
         {
           "id": "FR-163",
@@ -8543,7 +8543,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 39
+          "testCount": 38
         },
         {
           "id": "FR-164",
@@ -8551,7 +8551,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -8567,7 +8567,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 38
+          "testCount": 37
         },
         {
           "id": "FR-167",
@@ -9579,8 +9579,8 @@
             }
           ],
           "details": {
-            "routes": 48,
-            "inventoried": 48,
+            "routes": 47,
+            "inventoried": 47,
             "missing": 0
           }
         },
@@ -9592,9 +9592,9 @@
           ],
           "gaps": [],
           "details": {
-            "routes": 202,
-            "inventoried": 202,
-            "openApiPaths": 380,
+            "routes": 199,
+            "inventoried": 199,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -9659,9 +9659,9 @@
             }
           ],
           "details": {
-            "mutations": 152,
-            "guardedMutations": 151,
-            "reads": 94,
+            "mutations": 151,
+            "guardedMutations": 150,
+            "reads": 92,
             "unguardedReads": 12
           }
         },
@@ -10357,9 +10357,9 @@
         }
       ],
       "details": {
-        "routes": 250,
-        "apiRoutes": 202,
-        "pageRoutes": 48,
+        "routes": 246,
+        "apiRoutes": 199,
+        "pageRoutes": 47,
         "ownedModels": 53,
         "featureNotes": 45
       },
@@ -11076,18 +11076,12 @@
           "title": "Customer Profile backfill contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 10,
-          "testCount": 27
+          "codeCount": 4,
+          "testCount": 22
         }
       ],
       "evidence": [
-        "apps/server/src/app/(pm)/platform/customer-import-reviews/page.jsx",
-        "apps/server/src/app/api/platform/customer-import-reviews/[caseId]/decisions/route.js",
-        "apps/server/src/app/api/platform/customer-import-reviews/route.js",
-        "apps/server/src/app/api/platform/customer-import-reviews/targets/route.js",
         "apps/server/src/lib/db.js",
-        "apps/server/src/modules/crm/customer-import-review-service.js",
-        "apps/server/src/modules/crm/customer-import-review-store.js",
         "apps/server/src/modules/identity/rbac.js",
         "apps/server/src/modules/line-crm/LineCrmMembers.jsx",
         "apps/server/src/modules/project-manager/application/backup-service.js",
@@ -11103,14 +11097,9 @@
         "apps/server/tests/unit/agent-mission-recovery.test.js",
         "apps/server/tests/unit/application-identity-bootstrap-migration.test.js",
         "apps/server/tests/unit/application-schema-migration.test.js",
-        "apps/server/tests/unit/customer-import-review-api.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
-        "apps/server/tests/unit/customer-import-review-store-contract.test.js",
-        "apps/server/tests/unit/customer-import-review-ui.test.js",
         "apps/server/tests/unit/customer-profile-backfill-migration.test.js",
         "apps/server/tests/unit/customer-profile-contract-receipt.test.js",
         "apps/server/tests/unit/customer-review-runtime-login-migration.test.js",
-        "apps/server/tests/unit/customer-review-runtime-login.test.js",
         "apps/server/tests/unit/db-runtime-config.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -12518,7 +12507,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 37,
-          "testCount": 37
+          "testCount": 36
         },
         {
           "id": "FR-147",
@@ -12641,7 +12630,6 @@
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/conversation-session-ui.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
@@ -12914,7 +12902,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 29,
-          "testCount": 43
+          "testCount": 42
         },
         {
           "id": "FR-155",
@@ -13002,7 +12990,6 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -13280,7 +13267,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 33
+          "testCount": 32
         }
       ],
       "evidence": [
@@ -13312,7 +13299,6 @@
         "apps/server/tests/unit/asset-management-navigation.test.js",
         "apps/server/tests/unit/business-capability-navigation.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
@@ -13359,7 +13345,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 39
+          "testCount": 38
         },
         {
           "id": "FR-166",
@@ -13367,7 +13353,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 15,
-          "testCount": 38
+          "testCount": 37
         }
       ],
       "evidence": [
@@ -13418,7 +13404,6 @@
         "apps/server/tests/unit/commerce-routes.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
         "apps/server/tests/unit/crm/scm-reference-reader.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -13466,7 +13451,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 28,
-          "testCount": 48
+          "testCount": 47
         },
         {
           "id": "FR-165",
@@ -13541,7 +13526,6 @@
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
         "apps/server/tests/unit/crm-group-navigation.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/domain-navigation.test.js",
         "apps/server/tests/unit/domain-state.test.js",
         "apps/server/tests/unit/fr045-api-ui-contract.test.js",
@@ -13867,7 +13851,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 22
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -13924,7 +13908,6 @@
         "apps/server/tests/unit/business-provisioning-template.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr036-team-authorization.test.js",
         "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -14085,7 +14068,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 9,
-          "testCount": 15
+          "testCount": 14
         },
         {
           "id": "FR-197",
@@ -14169,7 +14152,6 @@
         "apps/server/tests/unit/commerce-routes.test.js",
         "apps/server/tests/unit/context-composer.test.js",
         "apps/server/tests/unit/conversation-analysis-contract.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
@@ -16920,7 +16902,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 36,
-          "testCount": 59
+          "testCount": 58
         }
       ],
       "evidence": [
@@ -17013,7 +16995,6 @@
         "apps/server/tests/unit/crm-retention-consent-routes.test.js",
         "apps/server/tests/unit/crm-retention-dry-run-helpers.test.js",
         "apps/server/tests/unit/customer-erasure-confirmation.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
         "apps/server/tests/unit/fr091-inbox-ui-contract.test.js",
@@ -19521,7 +19502,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 6,
-          "testCount": 14
+          "testCount": 13
         }
       ],
       "evidence": [
@@ -19535,7 +19516,6 @@
         "apps/server/tests/unit/application-identity-bootstrap-migration.test.js",
         "apps/server/tests/unit/application-schema-migration.test.js",
         "apps/server/tests/unit/commerce-routes.test.js",
-        "apps/server/tests/unit/customer-import-review-service.test.js",
         "apps/server/tests/unit/db-runtime-config.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr076-product-owner-business-assignment.test.js",
