@@ -51,6 +51,7 @@ Generated navigation for current source documents in the governance grouping. A 
 - [GenesisRAG17 ownership and reliability design](../change-requests/knowledge/genesisrag17-ownership-reliability-20261023.md)
 - [KI-17 status reconciliation and FR-189 retirement](../change-requests/knowledge/ki17-status-reconciliation-20261108.md)
 - [Local Zuri documentation graph studio](../change-requests/knowledge/knowledge-studio-20261019.md)
+- [SmartGift FR-187 withdrawal](../change-requests/knowledge/smartgift-fr187-withdrawal-20261115.md)
 - [ข้อเสนอ Dashboard ผู้บริหาร: จาก Ads ถึงเงินรับที่ยืนยันแล้ว](../change-requests/marketing/line-oa-sales-flow/EXECUTIVE-KPI-DASHBOARD-PROPOSAL.md)
 - [คู่มือใช้ Flow หน้าเดียว](../change-requests/marketing/line-oa-sales-flow/README-flow.md)
 - [จากงบโฆษณา สู่ยอดขายที่วัดผลได้](../change-requests/marketing/line-oa-sales-flow/README.md)
