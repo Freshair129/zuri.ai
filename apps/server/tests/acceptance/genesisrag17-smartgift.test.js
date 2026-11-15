@@ -24,7 +24,7 @@ import {
 import { isolatedEnvironment, ki17NodeExecutable, mspTransport, startWorkerProcess, temporaryPipeline } from './harness'
 import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
 
@@ -389,7 +389,7 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
 
   it('publishes Commerce ledger-computed product and price through Stage 17 with real receipts and queries', async () => {
     const pricingOwner = makeViewer({ visibleBusinessIds: [scope.businessId], ownedBusinessIds: [scope.businessId], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
-    const draft = await createPricingRuleSet({ businessId: scope.businessId, name: 'Native computed-price acceptance', rules: defaultPricingRules() }, { viewer: pricingOwner })
+    const draft = await createPricingRuleSet({ businessId: scope.businessId, name: 'Native computed-price acceptance', rules: fixtureRules() }, { viewer: pricingOwner })
     const approved = await applyPricingRuleAction(draft.id, { businessId: scope.businessId, version: draft.version, action: 'APPROVE', reason: 'Isolated native acceptance fixture' }, { viewer: pricingOwner })
     const category = await createCategory({ businessId: scope.businessId, code: 'native-price', nameTh: 'สินค้าทดสอบ', nameEn: 'Acceptance fixture' }, { viewer: pricingOwner })
     const master = await createProductMaster({ businessId: scope.businessId, code: 'PM-NATIVE-PRICE', categoryId: category.id, nameTh: 'แก้วทดสอบคำนวณราคา', nameEn: 'Computed catalog tumbler' }, { viewer: pricingOwner })

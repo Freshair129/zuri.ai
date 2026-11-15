@@ -5,7 +5,7 @@ import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { PricingVariables, PricingFormulas, PricingPreviewInputs, PricingResults, emptyPreviewInput, setAtPath, pricingDiff } from '@/modules/commerce/ui/PricingRulesEditor'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-rules'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import PricingRulesPage, { PricingTemplateAction, PricingTemplateUnavailableNotice, pricingEditorReady } from '@/app/(pm)/commerce/pricing-rules/page'
 import PricingCatalogSubmit, { CatalogPriceReview } from '@/modules/commerce/ui/PricingCatalogSubmit'
 import { ScopeProvider } from '@/context/ScopeContext'
@@ -23,7 +23,7 @@ describe('FR-253 pricing console', () => {
     const notice = render(PricingTemplateUnavailableNotice, { hasSavedRules: false })
     expect(action).toMatch(/<button[^>]*disabled=""[^>]*>ร่างใหม่จากแม่แบบ<\/button>/)
     expect(notice).toContain('ยังไม่มีแม่แบบสูตรที่กำหนดให้ Business นี้')
-    expect(notice).toContain('ระบบไม่ใช้แม่แบบ SmartGift ข้าม Business')
+    expect(notice).toContain('ระบบไม่ใช้แม่แบบข้าม Business')
     expect(pricingEditorReady({ canManage: true, rules: [], template: null }, null)).toBe(false)
   })
   it('does not allow a draft preview to become a Knowledge publication', () => {
@@ -46,7 +46,7 @@ describe('FR-253 pricing console', () => {
     expect(html).not.toContain('ชื่อชุดสูตร')
   })
   it('renders typed editable controls for every supported policy group with explicit units', () => {
-    const rules = defaultPricingRules()
+    const rules = fixtureRules()
     const html = render(PricingVariables, { rules, onChange() {} })
     for (const label of ['THB/CNY', 'THB/USD', 'THB/m³', 'THB/kg', 'กำไรขั้นต่ำตามชนิดสินค้า', 'ระยะเวลาผลิตและส่ง', 'ส่งในประเทศหนึ่งจุด', 'Ladder และกลุ่มลูกค้า']) expect(html).toContain(label)
     expect(html).toContain('type="checkbox"')
@@ -64,13 +64,13 @@ describe('FR-253 pricing console', () => {
     expect(html).toContain('อัตราคงที่')
   })
   it('edits a nested variable without changing its immutable source and computes a useful diff', () => {
-    const before = defaultPricingRules()
+    const before = fixtureRules()
     const after = setAtPath(before, ['fx', 'cnyToThb'], '6.25')
     expect(before.fx.cnyToThb).not.toBe('6.25')
     expect(pricingDiff(before, after)).toEqual([{ key: 'fx.cnyToThb', before: before.fx.cnyToThb, after: '6.25' }])
   })
   it('renders expression input and permitted variables without executing them in the browser', () => {
-    const html = render(PricingFormulas, { rules: defaultPricingRules(), onChange() {}, errors: [{ field: 'formulas.0.expression', message: 'Unknown variable' }] })
+    const html = render(PricingFormulas, { rules: fixtureRules(), onChange() {}, errors: [{ field: 'formulas.0.expression', message: 'Unknown variable' }] })
     expect(html).toContain('aria-label="นิพจน์ candidatePrice"')
     expect(html).toContain('ceilToStep')
     expect(html).toContain('Unknown variable')

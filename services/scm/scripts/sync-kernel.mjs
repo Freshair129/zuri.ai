@@ -30,7 +30,6 @@ export const KERNEL_FILES = Object.freeze({
   'lib/validation/enums.js': 'lib/enums.js',
   'modules/commerce/domain/pricing-formula.js': 'commerce/pricing-formula.js',
   'modules/commerce/domain/pricing-rules.js': 'commerce/pricing-rules.js',
-  'modules/commerce/domain/pricing-source.js': 'commerce/pricing-source.js',
   'modules/commerce/domain/pricing-engine.js': 'commerce/pricing-engine.js',
   'modules/commerce/domain/pricing-catalog-projection.js': 'commerce/pricing-catalog-projection.js',
   'modules/commerce/domain/commerce.js': 'commerce/commerce.js',

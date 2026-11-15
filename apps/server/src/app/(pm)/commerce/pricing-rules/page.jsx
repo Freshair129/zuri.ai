@@ -40,7 +40,7 @@ export function PricingTemplateAction({ hasTemplate, disabled, onClick }) {
 export function PricingTemplateUnavailableNotice({ hasSavedRules }) {
   return <Card role="status">
     <p className="font-medium">ยังไม่มีแม่แบบสูตรที่กำหนดให้ Business นี้</p>
-    <p className="mt-1 text-sm text-muted">ระบบไม่ใช้แม่แบบ SmartGift ข้าม Business เพื่อป้องกันการปะปนของข้อมูล
+    <p className="mt-1 text-sm text-muted">ระบบไม่ใช้แม่แบบข้าม Business เพื่อป้องกันการปะปนของข้อมูล
       {hasSavedRules ? ' คุณยังคัดลอกชุดสูตรที่บันทึกอยู่ใน Business นี้เพื่อสร้างรุ่นใหม่ได้' : ' โปรดรอแม่แบบที่รองรับ Business นี้ก่อนเริ่มร่างสูตร'}</p>
   </Card>
 }

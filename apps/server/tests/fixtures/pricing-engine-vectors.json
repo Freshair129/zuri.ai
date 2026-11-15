@@ -1,0 +1,419 @@
+{
+  "schema": "pricing-engine-vectors.v1",
+  "cases": [
+    {
+      "name": "volume_truck",
+      "profile": "standard",
+      "method": "none",
+      "month": 11,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 10810
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10305
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8486
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8385
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7105
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7105
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7105
+        }
+      ]
+    },
+    {
+      "name": "volume_sea",
+      "profile": "corporate",
+      "method": "none",
+      "month": 4,
+      "cbm": 0.2,
+      "kg": null,
+      "quantities": [
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 100,
+          "unitPriceSatang": 14500,
+          "unitLandedCostSatang": 8890
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 13500,
+          "unitLandedCostSatang": 7810
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 13000,
+          "unitLandedCostSatang": 7810
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 12000,
+          "unitLandedCostSatang": 7810
+        }
+      ]
+    },
+    {
+      "name": "weight",
+      "profile": "standard",
+      "method": "flat",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": 50,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 13800
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 12300
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 10680
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 10380
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 9100
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 9600
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 9600
+        }
+      ]
+    },
+    {
+      "name": "hotstamp",
+      "profile": "standard",
+      "method": "hotstamp",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 11010
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10405
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8526
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8405
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7179
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7289
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7252
+        }
+      ]
+    },
+    {
+      "name": "hotstamp_text",
+      "profile": "standard",
+      "method": "hotstamp_text",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 10910
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10355
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8506
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8395
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7109
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7207
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7206
+        }
+      ]
+    },
+    {
+      "name": "engrave",
+      "profile": "standard",
+      "method": "engrave",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 11010
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10505
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8686
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8485
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7205
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7305
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7305
+        }
+      ]
+    },
+    {
+      "name": "silk",
+      "profile": "standard",
+      "method": "silk",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 11110
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10455
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8546
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8415
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7115
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7255
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7255
+        }
+      ]
+    },
+    {
+      "name": "uv",
+      "profile": "standard",
+      "method": "uv",
+      "month": 4,
+      "cbm": 0.1,
+      "kg": null,
+      "quantities": [
+        10,
+        20,
+        50,
+        100,
+        300,
+        500,
+        1000
+      ],
+      "rows": [
+        {
+          "quantity": 10,
+          "unitPriceSatang": 26000,
+          "unitLandedCostSatang": 10910
+        },
+        {
+          "quantity": 20,
+          "unitPriceSatang": 24500,
+          "unitLandedCostSatang": 10405
+        },
+        {
+          "quantity": 50,
+          "unitPriceSatang": 23500,
+          "unitLandedCostSatang": 8586
+        },
+        {
+          "quantity": 100,
+          "unitPriceSatang": 22000,
+          "unitLandedCostSatang": 8485
+        },
+        {
+          "quantity": 300,
+          "unitPriceSatang": 20500,
+          "unitLandedCostSatang": 7205
+        },
+        {
+          "quantity": 500,
+          "unitPriceSatang": 19500,
+          "unitLandedCostSatang": 7305
+        },
+        {
+          "quantity": 1000,
+          "unitPriceSatang": 18000,
+          "unitLandedCostSatang": 7305
+        }
+      ]
+    }
+  ]
+}

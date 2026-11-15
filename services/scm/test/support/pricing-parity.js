@@ -1,3 +1,5 @@
+import { fixtureRules } from './pricing-rules-fixture.js'
+
 // Shared evaluation of one pricing parity case. Pure: takes the engine module
 // under test, so the SAME function drives the legacy engine (apps/server) and the
 // SCM kernel, and the golden file stores exactly what it returns.
@@ -11,7 +13,7 @@ export function applyOverrides(rules, overrides = []) {
 }
 
 export function evaluateCase(engine, testCase) {
-  const rules = applyOverrides(engine.defaultPricingRules(), testCase.ruleOverrides)
+  const rules = applyOverrides(fixtureRules(), testCase.ruleOverrides)
   try {
     const result = engine[testCase.fn](rules, structuredClone(testCase.input))
     return { ok: true, result: JSON.parse(JSON.stringify(result)) }

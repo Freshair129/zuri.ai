@@ -9,7 +9,7 @@ import { test, after } from 'node:test'
 import assert from 'node:assert/strict'
 import { createCommandBus } from '../../src/application/commands.js'
 import { createFixtureReferenceAuthority } from '../../src/infrastructure/reference-authority.js'
-import { defaultPricingRules } from '../../src/modules/commerce/pricing/index.js'
+import { fixtureRules } from '../support/pricing-rules-fixture.js'
 import { createHarness, rejects } from '../support/harness.js'
 import { startScmProcess } from '../support/scm-process.js'
 import { BIZ, REFERENCE_FIXTURE, delegation, idem, openRaw, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
@@ -20,7 +20,7 @@ const input = { costBasis: 'landed', landedUnitCostThb: '123.45', quantity: 100,
 test('a PricingRuleSet version change between check and update is refused and rolled back', async () => {
   const h = createHarness()
   const owner = h.as({ sub: 'per-owner', grants: OWNER })
-  const { ruleSet } = await h.run(owner, 'commerce.pricing-rule.create', { body: { businessId: BIZ, name: 'Race fixture', rules: defaultPricingRules() } })
+  const { ruleSet } = await h.run(owner, 'commerce.pricing-rule.create', { body: { businessId: BIZ, name: 'Race fixture', rules: fixtureRules() } })
   const count = (sql, t) => sql.get(`SELECT COUNT(*) AS n FROM ${t}`).n
   const before = await h.store.read((sql) => ({ audit: count(sql, 'ScmAuditEvent'), outbox: count(sql, 'ScmOutbox'), receipts: count(sql, 'ScmOperationReceipt') }))
   await h.store.close()
@@ -59,7 +59,7 @@ test('two processes: one approval wins; one calculation key yields one snapshot 
   const b = await startScmProcess({ db })
   const owner = (n) => delegation({ sub: `per-owner-${n}`, grants: OWNER })
   try {
-    const created = await a.request('POST', '/v1/commerce/pricing-rules', { token: owner(1), key: idem('draft'), body: { businessId: BIZ, name: 'Race fixture', rules: defaultPricingRules() } })
+    const created = await a.request('POST', '/v1/commerce/pricing-rules', { token: owner(1), key: idem('draft'), body: { businessId: BIZ, name: 'Race fixture', rules: fixtureRules() } })
     assert.equal(created.status, 201)
     const id = created.body.ruleSet.id
     const approvals = await Promise.all([a, b, a, b].map((p, i) => p.request('POST', `/v1/commerce/pricing-rules/${id}/actions`, { token: owner(i % 2), key: idem(`approve-${i}`), body: { businessId: BIZ, version: 1, action: 'APPROVE', reason: 'Race review' } })))

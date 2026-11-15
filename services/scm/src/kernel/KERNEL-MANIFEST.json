@@ -16,20 +16,14 @@
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-rules.js",
       "kernel": "src/kernel/commerce/pricing-rules.js",
-      "sourceSha256": "ac550ef7a7b8de2a3d385b13edd98d48f411b67a2f4a23fcb743606f8818e193",
-      "kernelSha256": "23c59f1bb7259a1180aa8a52017bfcee12f193ef4a19ec5c16c691d09c216221"
-    },
-    {
-      "source": "apps/server/src/modules/commerce/domain/pricing-source.js",
-      "kernel": "src/kernel/commerce/pricing-source.js",
-      "sourceSha256": "3dc6b53fe7ea63260f7cc1858ad48592c5f417fb8037d0f6f3e288934c8b64aa",
-      "kernelSha256": "3dc6b53fe7ea63260f7cc1858ad48592c5f417fb8037d0f6f3e288934c8b64aa"
+      "sourceSha256": "f5cbe33d4fd5747ab161576bd67047b08cfab677b88b125410719b592b739027",
+      "kernelSha256": "b9f7ca5485d6665b82f63c71c3ab5d2e86567eb6784a51bc7115a2eba2cfc6dc"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-engine.js",
       "kernel": "src/kernel/commerce/pricing-engine.js",
-      "sourceSha256": "4cc9b2e0410491644e4c56213feea367380f0d0979f0714241082e51474c3a45",
-      "kernelSha256": "0c418172c11fd1a25c479a060fe4d9847a1c8dacbd36155b8435d95f538f68fc"
+      "sourceSha256": "53d80c99640bfe41219e32ed7f6ad53db4ed1d2af87b30f2c516d789fd501705",
+      "kernelSha256": "e98de8a2a6766fa025646f52f382e43546802ad90da8961a53be6ef6167fa855"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-catalog-projection.js",

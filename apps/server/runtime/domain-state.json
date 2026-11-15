@@ -2711,7 +2711,7 @@
           "title": "Business-scoped versioned pricing rules and formula console",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 19,
+          "codeCount": 18,
           "testCount": 49
         },
         {
@@ -21724,7 +21724,7 @@
           "title": "Business-scoped versioned pricing rules and formula console",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 25,
+          "codeCount": 24,
           "testCount": 49
         }
       ],
@@ -21745,7 +21745,6 @@
         "apps/server/src/modules/commerce/domain/pricing-engine.js",
         "apps/server/src/modules/commerce/domain/pricing-formula.js",
         "apps/server/src/modules/commerce/domain/pricing-rules.js",
-        "apps/server/src/modules/commerce/domain/pricing-source.js",
         "apps/server/src/modules/commerce/index.js",
         "apps/server/src/modules/commerce/pricing-publication.js",
         "apps/server/src/modules/commerce/ui/PricingCatalogSubmit.jsx",
