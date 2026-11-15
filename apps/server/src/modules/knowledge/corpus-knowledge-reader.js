@@ -3,9 +3,9 @@ import prisma from '@/lib/db'
 import { createHash } from 'node:crypto'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
   smartGiftSourceKey,
   splitSmartGiftCatalogRecords,
 } from './smartgift-catalog-adapter'
@@ -138,10 +138,10 @@ function acceptedCatalogSource({ ingestion, source, asset, entry, descriptor, re
     && /^PCAT-[a-f0-9]{64}$/.test(asset.code || '')
     && asset.name === `commerce-price-${productId}.json`
     && SHA256.test(asset.sha256 || '')
-    && descriptor.format === SMARTGIFT_CATALOG_FORMAT
-    && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
+    && descriptor.format === STRUCTURED_CATALOG_FORMAT
+    && descriptor.provider === STRUCTURED_CATALOG_PROVIDER
     && descriptor.entityType === 'PriceListEntry'
-    && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && descriptor.contentType === STRUCTURED_CATALOG_CONTENT_TYPE
     && descriptor.externalId === externalId
     && Number.isSafeInteger(descriptor.recordIndex) && descriptor.recordIndex >= 0
     && Number.isSafeInteger(descriptor.recordCount) && descriptor.recordCount > descriptor.recordIndex
@@ -233,7 +233,7 @@ export function createCorpusKnowledgeReader({
       const assetBefore = await db.fileAsset.findUnique({ where: { id: entry.fileAssetId } })
       if (!assetBefore || assetBefore.tenantId !== tenantId || assetBefore.businessId !== businessId
         || assetBefore.projectId !== null || assetBefore.storageKind !== 'MANAGED_BLOB'
-        || assetBefore.mime !== SMARTGIFT_CATALOG_CONTENT_TYPE
+        || assetBefore.mime !== STRUCTURED_CATALOG_CONTENT_TYPE
         || !/^PCAT-[a-f0-9]{64}$/.test(assetBefore.code || '')) return null
       const { asset: resolvedAsset, content: rawContent } = await fileContentResolver(entry.fileAssetId, {
         db,

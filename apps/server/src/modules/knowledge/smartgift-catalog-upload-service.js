@@ -29,9 +29,9 @@ import { assertKnowledgeBusinessWritable } from './knowledge-authorization'
 import { admitKnowledge } from './knowledge-admission-service'
 import {
   parseSmartGiftCatalogFile,
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_MAX_FILE_BYTES,
 } from './smartgift-catalog-adapter'
 
 const uploadInput = z.object({
@@ -71,8 +71,8 @@ export async function uploadSmartGiftCatalogFile(input, {
 
   const content = Buffer.from(value.contentBase64, 'base64')
   if (!content.length) throw failure(422, 'KNOWLEDGE_STRUCTURED_FORMAT_INVALID', 'The catalog file is empty')
-  if (content.length > SMARTGIFT_CATALOG_MAX_FILE_BYTES) {
-    throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', `The catalog file exceeds the ${SMARTGIFT_CATALOG_MAX_FILE_BYTES} byte limit`)
+  if (content.length > STRUCTURED_CATALOG_MAX_FILE_BYTES) {
+    throw failure(413, 'KNOWLEDGE_CONTENT_TOO_LARGE', `The catalog file exceeds the ${STRUCTURED_CATALOG_MAX_FILE_BYTES} byte limit`)
   }
   // Refuse a file that is not a catalog before anything is stored.
   const records = parseSmartGiftCatalogFile(content.toString('utf8'))
@@ -102,14 +102,14 @@ export async function uploadSmartGiftCatalogFile(input, {
         ? `business-catalog/${business.tenantId}/${value.businessId}/${sha256}/${randomUUID()}.json`
         : catalogObjectKey({ tenantId: business.tenantId, businessId: value.businessId, sha256 }),
       content,
-      mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      mime: STRUCTURED_CATALOG_CONTENT_TYPE,
     })
     try {
       asset = await createManagedBlobFileAsset({
         businessId: value.businessId,
         projectId: value.projectId ?? null,
         name: value.name,
-        mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        mime: STRUCTURED_CATALOG_CONTENT_TYPE,
         size: content.length,
         sha256,
         blobRef: stored.ref,
@@ -129,7 +129,7 @@ export async function uploadSmartGiftCatalogFile(input, {
       businessId: value.businessId,
       projectId: value.projectId ?? null,
       idempotencyKey: `smartgift-catalog-upload:${asset.id}`,
-      source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT },
+      source: { kind: 'FILE', fileAssetId: asset.id, format: STRUCTURED_CATALOG_FORMAT },
     }, {
       viewer,
       db,

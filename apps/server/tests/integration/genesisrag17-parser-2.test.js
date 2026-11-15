@@ -12,8 +12,8 @@ import {
   hashGenesisRag17Text,
 } from '@/modules/knowledge/genesisrag17-contract'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_PROVIDER,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 
 // @req FR-188 — a SMARTGIFT_CATALOG raw entry runs Stages 1–8 under
@@ -69,9 +69,9 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
       version: sha256(content),
       content,
       connectionId: connection.id,
-      provider: SMARTGIFT_CATALOG_PROVIDER,
+      provider: STRUCTURED_CATALOG_PROVIDER,
       entityType: 'BundleOffer',
-      contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
       policy: { allowEmbedding: true, allowPublication: true },
       ...over,
     }

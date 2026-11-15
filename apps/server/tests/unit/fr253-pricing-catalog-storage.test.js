@@ -42,7 +42,7 @@ vi.mock('@/modules/knowledge/knowledge-runtime', () => ({ resolveKnowledgeRuntim
 vi.mock('@/modules/knowledge/knowledge-admission-service', () => ({ admitKnowledge: (...args) => mocks.admitKnowledge(...args) }))
 vi.mock('@/modules/knowledge/smartgift-catalog-adapter', () => ({
   parseSmartGiftCatalogFile: (...args) => mocks.parseSmartGiftCatalogFile(...args),
-  SMARTGIFT_CATALOG_FORMAT: 'SMARTGIFT_CATALOG_V1',
+  STRUCTURED_CATALOG_FORMAT: 'SMARTGIFT_CATALOG_V1',
 }))
 vi.mock('@/modules/commerce/domain/pricing-engine', () => ({
   normalizePricingInput: (...args) => mocks.normalizePricingInput(...args),

@@ -1,12 +1,15 @@
 import { z } from 'zod'
 
-// @req FR-071 — the document intake adapter accepts the SmartGift extraction
+// @req FR-071 — the document intake adapter accepts the document extraction
 // contract as a strict, evidence-bearing staging envelope before any canonical
 // Supabase write.
 // @spec docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md,
 // SEC-001, SEC-008
 // @tested tests/unit/platform/document-intake-contract.test.js
 
+// The two values below are persisted (stored envelopes and the IntegrationProvider
+// row seeded by an applied migration) and wire-visible to the local worker, so
+// they keep their historical spelling; only identifiers and prose are neutral.
 export const DOCUMENT_INTAKE_CONTRACT_VERSION = 'smartgift.document-intake.v1'
 export const DOCUMENT_INTAKE_PROVIDER_CODE = 'SMARTGIFT_DOCUMENT_INTAKE'
 export const DOCUMENT_INTAKE_PURPOSE = 'DATA_DOCUMENT_INGESTION'

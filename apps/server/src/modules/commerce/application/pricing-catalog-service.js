@@ -11,7 +11,7 @@ import { businessStorageProvider } from '@/platform/storage/private-business-obj
 import { assertKnowledgeBusinessWritable } from '@/modules/knowledge/knowledge-authorization'
 import { resolveKnowledgeRuntimeBinding } from '@/modules/knowledge/knowledge-runtime'
 import { admitKnowledge } from '@/modules/knowledge/knowledge-admission-service'
-import { parseSmartGiftCatalogFile, SMARTGIFT_CATALOG_FORMAT } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { parseSmartGiftCatalogFile, STRUCTURED_CATALOG_FORMAT } from '@/modules/knowledge/smartgift-catalog-adapter'
 import { normalizePricingInput, pricingHash } from '../domain/pricing-engine'
 import { buildPricingCatalogProjection } from '../domain/pricing-catalog-projection'
 import { getActivePricingRuleSet } from './pricing-rules-service'
@@ -195,6 +195,6 @@ export async function admitPricingCatalog(input, { viewer, db = prisma, now = ne
     }
   }
   await requireCurrentRule(data.businessId, frozen.rows, { viewer, db, now })
-  const admission = await admitKnowledge({ businessId: data.businessId, idempotencyKey: `pricing-catalog:${frozen.requestKey}`, source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT } }, { viewer, db, env, now, fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort: fileAssetReader }) })
+  const admission = await admitKnowledge({ businessId: data.businessId, idempotencyKey: `pricing-catalog:${frozen.requestKey}`, source: { kind: 'FILE', fileAssetId: asset.id, format: STRUCTURED_CATALOG_FORMAT } }, { viewer, db, env, now, fileContentResolver: (fileId, options) => resolveFileAssetContent(fileId, { ...options, db, objectStoragePort: fileAssetReader }) })
   return { fileAssetId: asset.id, contentHash, calculationIds: frozen.rows.map((row) => row.id), ruleSetId: frozen.rows[0].ruleSetId, status: 'ADMITTED', publicationStatus: 'NOT_VERIFIED', admission }
 }

@@ -5,12 +5,12 @@ import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { parseBusinessObjectRef } from '@/platform/storage/private-business-object-storage'
 import { ASSET_EVIDENCE_MAX_BYTES } from '@/modules/asset-management/domain/evidence-policy'
-import { SMARTGIFT_CATALOG_MAX_FILE_BYTES } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { STRUCTURED_CATALOG_MAX_FILE_BYTES } from '@/modules/knowledge/smartgift-catalog-adapter'
 
 export const RECOVERY_DESCRIPTOR_MAX_BYTES = 64 * 1024
 export const RECOVERY_CONTENT_MAX_BYTES = 32 * 1024 * 1024
 const limits = Object.freeze({ asset: Math.min(RECOVERY_CONTENT_MAX_BYTES, ASSET_EVIDENCE_MAX_BYTES),
-  catalog: Math.min(RECOVERY_CONTENT_MAX_BYTES, SMARTGIFT_CATALOG_MAX_FILE_BYTES) })
+  catalog: Math.min(RECOVERY_CONTENT_MAX_BYTES, STRUCTURED_CATALOG_MAX_FILE_BYTES) })
 export const recoveryContentLimit = purpose => limits[purpose]
 const uuid = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/)
 const sha256 = z.string().regex(/^[a-f0-9]{64}$/)

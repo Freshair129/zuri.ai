@@ -20,9 +20,9 @@ import {
   GENESIS_RAG17_SCHEMA_VERSION,
 } from '@/modules/knowledge/genesisrag17-contract'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 
 const fixtureDir = path.resolve(
@@ -70,7 +70,7 @@ async function createJsonAsset(text, { mime = 'application/json', name = 'produc
 
 const contentResolverFor = (text) => async () => ({ content: Buffer.from(text, 'utf8') })
 
-function admit(asset, text, { idempotencyKey, format = SMARTGIFT_CATALOG_FORMAT } = {}) {
+function admit(asset, text, { idempotencyKey, format = STRUCTURED_CATALOG_FORMAT } = {}) {
   return admitKnowledge({
     businessId: business.id,
     idempotencyKey: idempotencyKey || `smartgift-${randomUUID().slice(0, 8)}`,
@@ -111,7 +111,7 @@ describe('SmartGift structured-record admission (FR-187)', () => {
     const result = await admit(asset, productsText)
 
     expect(result).toMatchObject({
-      format: SMARTGIFT_CATALOG_FORMAT,
+      format: STRUCTURED_CATALOG_FORMAT,
       fileAssetId: asset.id,
       fileSha256: sha256(productsText),
       recordCount: 5,
@@ -147,9 +147,9 @@ describe('SmartGift structured-record admission (FR-187)', () => {
       expect(sha256(row.content)).toBe(row.contentHash)
       const meta = JSON.parse(row.sourceMetaJson)
       expect(meta.structured).toMatchObject({
-        format: SMARTGIFT_CATALOG_FORMAT,
-        provider: SMARTGIFT_CATALOG_PROVIDER,
-        contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        format: STRUCTURED_CATALOG_FORMAT,
+        provider: STRUCTURED_CATALOG_PROVIDER,
+        contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
         entityType: 'ProductMaster',
       })
       expect(meta).not.toHaveProperty('content')
@@ -268,7 +268,7 @@ describe('SmartGift structured-record admission (FR-187)', () => {
     await expect(admitKnowledge({
       businessId: business.id,
       idempotencyKey: `smartgift-${randomUUID().slice(0, 8)}`,
-      source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT, version: 'v1' },
+      source: { kind: 'FILE', fileAssetId: asset.id, format: STRUCTURED_CATALOG_FORMAT, version: 'v1' },
     }, { viewer, fileContentResolver: contentResolverFor(productsText) })).rejects.toThrow(/version/)
   })
 
@@ -308,9 +308,9 @@ describe('SmartGift structured-record admission (FR-187)', () => {
         version: sha256(content),
         content,
         connectionId: connection.id,
-        provider: SMARTGIFT_CATALOG_PROVIDER,
+        provider: STRUCTURED_CATALOG_PROVIDER,
         entityType: record.entityType,
-        contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
         policy: { allowEmbedding: true, allowPublication: true },
         ...over,
       }
@@ -321,9 +321,9 @@ describe('SmartGift structured-record admission (FR-187)', () => {
       const result = await ingestGenesisRag17Raw(rawInput(record), { db: prisma, viewer: operator, now, transport, credential: 'test-source' })
 
       const raw = await prisma.knowledgeRawArtifact.findUnique({ where: { id: result.source.rawArtifactId } })
-      expect(raw.contentType).toBe(SMARTGIFT_CATALOG_CONTENT_TYPE)
+      expect(raw.contentType).toBe(STRUCTURED_CATALOG_CONTENT_TYPE)
       const rawRecord = await prisma.rawExternalRecord.findUnique({ where: { id: raw.rawExternalRecordId } })
-      expect(rawRecord).toMatchObject({ provider: SMARTGIFT_CATALOG_PROVIDER, entityType: 'ProductMaster' })
+      expect(rawRecord).toMatchObject({ provider: STRUCTURED_CATALOG_PROVIDER, entityType: 'ProductMaster' })
 
       const evidence = await prisma.genesisRag17StageEvidence.findMany({ where: { executionRunId: result.run.executionRunId }, orderBy: { stageNumber: 'asc' } })
       expect(evidence.map((row) => row.stageNumber)).toEqual([1, 2, 3, 4, 5, 6, 7, 8])

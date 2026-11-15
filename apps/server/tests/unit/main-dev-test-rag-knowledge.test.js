@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
 import { createMainDevTestRagKnowledgeReader } from '@/modules/agent/main-dev-test-rag-knowledge'
-import { splitSmartGiftCatalogRecords, smartGiftSourceKey, SMARTGIFT_CATALOG_CONTENT_TYPE, SMARTGIFT_CATALOG_FORMAT, SMARTGIFT_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
+import { splitSmartGiftCatalogRecords, smartGiftSourceKey, STRUCTURED_CATALOG_CONTENT_TYPE, STRUCTURED_CATALOG_FORMAT, STRUCTURED_CATALOG_PROVIDER } from '@/modules/knowledge/smartgift-catalog-adapter'
 
 // @req FR-079, FR-235 — only a pinned published TEST ONLY Product selection reaches the local model.
 // @tested tests/unit/main-dev-test-rag-knowledge.test.js
@@ -19,15 +19,15 @@ function fixture() {
   // Use the real catalog adapter's schema/normalization for the published bytes.
   const content = JSON.stringify([record])
   const asset = { id: id(5), tenantId, businessId, projectId: null, code: `PCAT-${'a'.repeat(64)}`,
-    name: `commerce-price-${productId}.json`, mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+    name: `commerce-price-${productId}.json`, mime: STRUCTURED_CATALOG_CONTENT_TYPE,
     size: Buffer.byteLength(content), sha256: hash(content), version: 1,
     status: 'ACTIVE', deletedAt: null, storageKind: 'MANAGED_BLOB', blobRef: 'private-blob-sentinel' }
   const admitted = splitSmartGiftCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name }).records[0]
   const source = { id: id(6), corpusId: id(7), sourceKey: smartGiftSourceKey({ fileName: asset.name, recordCode: record.externalId }),
     kind: 'FILE', title: `ProductMaster ${record.externalId}`, fileAssetId: asset.id,
     activeIngestionId: id(8), desiredRevision: 1, version: 1, revokedAt: null, deletedAt: null }
-  const structured = { format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
-    entityType: 'ProductMaster', contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+  const structured = { format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
+    entityType: 'ProductMaster', contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
     externalId: record.externalId, recordIndex: 0, recordCount: 1, fileSha256: asset.sha256 }
   const ingestion = { id: id(8), corpusId: source.corpusId, sourceId: source.id,
     status: 'PUBLISHED', revision: 1, sourceVersion: asset.sha256, contentHash: admitted.contentHash,
