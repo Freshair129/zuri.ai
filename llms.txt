@@ -13,7 +13,7 @@ Repository: https://github.com/Freshair129/zuri.ai · Monorepo: `apps/server` (N
 - [CLAUDE.md](CLAUDE.md): the short working guide — where things are, what to run, what never to touch
 - [AGENTS.md](AGENTS.md): the full rules for anyone (human or agent) changing this repo
 - [docs/PRODUCT.md](docs/PRODUCT.md): Layer 0 — what the product is (surfaces, scope chain, rules)
-- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md): live delivery state, read directly by GoVibe Mission Control
+- [docs/roadmap/ROADMAP.md](docs/roadmap/ROADMAP.md): live delivery state, read directly by Mission Control
 
 ## Before you write a document
 

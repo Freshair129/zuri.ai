@@ -18,7 +18,7 @@ import { captureMspMemoryRead, captureMspMemoryWrite, combineMspMemoryReads } fr
 // What this file is
 // ---------------------------------------------------------------------------
 // The production stand-in for `createInMemoryMemory()`: a `{ recall, remember }`
-// port that speaks the REAL GoVibe MSP "Persistent Memory" protocol (API-009)
+// port that speaks the REAL MSP "Persistent Memory" protocol (API-009)
 // over an INJECTED transport. It does not spawn a process and does not import
 // from D:\msp — the orchestrator injects the transport that carries the wire.
 //
