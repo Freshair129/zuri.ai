@@ -7,7 +7,8 @@ import { test, describe, beforeEach, afterEach } from 'node:test'
 import assert from 'node:assert/strict'
 import { createHarness, rejects } from '../support/harness.js'
 import { BIZ, OTHER_BIZ, idem } from '../support/fixtures.js'
-import { calculatePrice, defaultPricingRules } from '../../src/modules/commerce/pricing/index.js'
+import { calculatePrice } from '../../src/modules/commerce/pricing/index.js'
+import { fixtureRules } from '../support/pricing-rules-fixture.js'
 
 const NOW = new Date('2026-09-17T00:00:00.000Z')
 const later = (minutes) => new Date(NOW.getTime() + minutes * 60000)
@@ -27,7 +28,7 @@ afterEach(() => h.close())
 const as = (who) => h.as({ sub: `per-${who}`, grants: G[who] })
 const at = async (when, fn) => { const saved = clock; clock = when; try { return await fn() } finally { clock = saved } }
 
-const draft = (over = {}, who = 'owner') => h.run(as(who), 'commerce.pricing-rule.create', { body: { businessId: BIZ, name: 'Fixture policy', rules: defaultPricingRules(), ...over } }).then((r) => r.ruleSet)
+const draft = (over = {}, who = 'owner') => h.run(as(who), 'commerce.pricing-rule.create', { body: { businessId: BIZ, name: 'Fixture policy', rules: fixtureRules(), ...over } }).then((r) => r.ruleSet)
 const approve = (row, over = {}, who = 'owner') => h.run(as(who), 'commerce.pricing-rule.action', { targetId: row.id, body: { businessId: row.businessId, version: row.version, action: 'APPROVE', reason: 'Fixture owner review', ...over } }).then((r) => r.ruleSet)
 const revoke = (row, over = {}) => h.run(as('owner'), 'commerce.pricing-rule.action', { targetId: row.id, body: { businessId: BIZ, version: row.version, action: 'REVOKE', reason: 'Withdraw fixture', ...over } }).then((r) => r.ruleSet)
 const update = (row, over = {}, who = 'owner') => h.run(as(who), 'commerce.pricing-rule.update', { targetId: row.id, body: { businessId: BIZ, version: row.version, name: 'Reviewed draft', rules: row.rules, reason: 'Rename after review', ...over } }).then((r) => r.ruleSet)
@@ -90,7 +91,7 @@ describe('[legacy] FR-253 scoped pricing lifecycle', () => {
     const key = idem('same-request')
     const { calculation: result } = await calculate(key, approved.id)
     assert.deepEqual(result.result, p.result)
-    assert.deepEqual(result.result, calculatePrice(defaultPricingRules(), input()))
+    assert.deepEqual(result.result, calculatePrice(fixtureRules(), input()))
     assert.deepEqual([p.comparison.ruleSetId, p.comparison.deltaUnitPriceSatang, p.comparison.deltaTotalPriceSatang], [approved.id, 0, 0])
     assert.deepEqual([result.ruleSetId, result.ruleVersion, result.rulesHash, result.inputProvenance, result.publishable, result.idempotencyKey], [approved.id, approved.version, approved.rulesHash, 'USER_ENTERED', false, key])
     assert.equal(result.inputHash, result.result.inputHash)
@@ -145,7 +146,7 @@ describe('[legacy] FR-253 scoped pricing lifecycle', () => {
     await rejects(active('foreignOwner', OTHER_BIZ), { status: 409, code: 'PRICING_RULE_NOT_ACTIVE' })
     const listed = await list()
     assert.equal(listed.canManage, true)
-    assert.deepEqual(listed.template, defaultPricingRules())
+    assert.equal(listed.template, null)
   })
 })
 

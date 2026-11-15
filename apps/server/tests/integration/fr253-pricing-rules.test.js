@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
 import { createBusiness, createPortfolio, createTenant } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { applyPricingRuleAction, calculatePricing, createPricingRuleSet, getActivePricingRuleSet, listPricingRules, previewPricingRules, updatePricingRuleSet } from '@/modules/commerce/application/pricing-rules-service'
 
 const NOW = new Date('2026-09-17T00:00:00.000Z')
@@ -25,7 +25,7 @@ describe('FR-253 scoped pricing lifecycle', () => {
     member = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['commerce'] })
     foreignOwner = makeViewer({ visibleBusinessIds: [other.id], ownedBusinessIds: [other.id], visibleDomains: ['commerce'] })
   })
-  const draft = (over = {}, opts = {}) => createPricingRuleSet({ businessId: business.id, name: 'Fixture policy', rules: defaultPricingRules(), ...over }, { viewer: owner, now: NOW, ...opts })
+  const draft = (over = {}, opts = {}) => createPricingRuleSet({ businessId: business.id, name: 'Fixture policy', rules: fixtureRules(), ...over }, { viewer: owner, now: NOW, ...opts })
   const approve = (row, over = {}, now = NOW) => applyPricingRuleAction(row.id, { businessId: business.id, version: row.version, action: 'APPROVE', reason: 'Fixture owner review', ...over }, { viewer: owner, now })
   const calculate = (key, ruleSetId, over = {}, opts = {}) => calculatePricing({ businessId: business.id, ruleSetId, idempotencyKey: key, input: input(), ...over }, { viewer: owner, now: NOW, ...opts })
 
@@ -119,22 +119,24 @@ describe('FR-253 scoped pricing lifecycle', () => {
     await expect(approve(row, { effectiveFrom: later(-1).toISOString() })).rejects.toMatchObject({ status: 422 })
     await expect(approve(row, { effectiveFrom: later(1).toISOString(), expiresAt: later(1).toISOString() })).rejects.toMatchObject({ status: 422 })
     await expect(getActivePricingRuleSet(other.id, { viewer: foreignOwner, now: NOW })).rejects.toMatchObject({ status: 409 })
-    const smartGift = await createBusiness({ tenantId: business.tenantId, code: 'BUS-SMARTGIFT', name: 'SmartGift' })
-    const smartGiftOwner = makeViewer({ visibleBusinessIds: [smartGift.id], ownedBusinessIds: [smartGift.id], visibleDomains: ['commerce'] })
-    const smartGiftSentinel = await createPricingRuleSet({
-      businessId: smartGift.id,
-      name: 'SmartGift-only sentinel policy',
-      rules: defaultPricingRules(),
-    }, { viewer: smartGiftOwner, now: NOW })
+    // No Business is ever offered a seed template, including one that carries
+    // the code of the former tenant the old guard keyed on (ADR-119): owner-only
+    // access is unchanged, and the removed guard widened nothing.
+    const former = await createBusiness({ tenantId: business.tenantId, code: 'BUS-SMARTGIFT', name: 'Former code' })
+    const formerOwner = makeViewer({ visibleBusinessIds: [former.id], ownedBusinessIds: [former.id], visibleDomains: ['commerce'] })
+    const formerRule = await createPricingRuleSet({ businessId: former.id, name: 'Own policy', rules: fixtureRules() }, { viewer: formerOwner, now: NOW })
 
     const listed = await listPricingRules({ businessId: other.id }, { viewer: foreignOwner, now: NOW })
     expect(listed.canManage).toBe(true)
     expect(listed.template).toBeNull()
     expect(listed.rules).toEqual([])
-    expect(listed.rules.some((row) => row.id === smartGiftSentinel.id)).toBe(false)
+    expect(listed.rules.some((row) => row.id === formerRule.id)).toBe(false)
 
-    const smartGiftListing = await listPricingRules({ businessId: smartGift.id }, { viewer: smartGiftOwner, now: NOW })
-    expect(smartGiftListing.template).toEqual(defaultPricingRules())
-    expect(smartGiftListing.rules.map((row) => row.id)).toContain(smartGiftSentinel.id)
+    const formerListing = await listPricingRules({ businessId: former.id }, { viewer: formerOwner, now: NOW })
+    expect(formerListing.template).toBeNull()
+    expect(formerListing.rules.map((row) => row.id)).toContain(formerRule.id)
+    // Another Business's owner still cannot read or use the former-code Business.
+    await expect(listPricingRules({ businessId: former.id }, { viewer: foreignOwner, now: NOW })).rejects.toMatchObject({ status: 404 })
+    await expect(calculatePricing({ businessId: former.id, ruleSetId: formerRule.id, idempotencyKey: 'cross-business', input: input() }, { viewer: foreignOwner, now: NOW })).rejects.toMatchObject({ status: 404 })
   })
 })

@@ -7,7 +7,7 @@
 // @tested tests/integration/fr181-smartgift-agent-tools.test.js
 import { beforeAll, describe, expect, it } from 'vitest'
 import prisma from '@/lib/db'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
@@ -79,7 +79,7 @@ describe('FR-181 SmartGift agent tools', () => {
     member = makeViewer({ visibleBusinessIds: [b()], ownedBusinessIds: [], visibleDomains: DOMAINS })
 
     // FR-253: the business explicitly activates its versioned policy; no runtime defaults.
-    const policy = await createPricingRuleSet({ businessId: b(), name: 'Approved test policy', rules: defaultPricingRules() }, { viewer: owner, now: NOW })
+    const policy = await createPricingRuleSet({ businessId: b(), name: 'Approved test policy', rules: fixtureRules() }, { viewer: owner, now: NOW })
     await applyPricingRuleAction(policy.id, { businessId: b(), version: policy.version, action: 'APPROVE', reason: 'Pricing integration fixture' }, { viewer: owner, now: NOW })
     const category = await createCategory({ businessId: b(), code: 'giftset', nameTh: 'ชุดของขวัญ', nameEn: 'Gift set' }, { viewer: owner })
     master = await createProductMaster({ businessId: b(), code: 'PM-TMS06', categoryId: category.id, nameTh: 'ชุด', nameEn: 'Set' }, { viewer: owner })
@@ -169,12 +169,12 @@ describe('FR-181 SmartGift agent tools', () => {
     })
 
     expect(quote.tier).toBe('500')
-    // Ledger base 410.46 already includes inbound cost; engrave .02 USD * FX34.
-    expect(quote.breakdown).toMatchObject({ base: 41046, freightPerUnit: 0, customizationPerUnit: 68 })
-    expect(quote.unitCostSatang).toBe(41114)
-    // Approved corporate ladder 411.14*1.47*.75/.73 =620.934..., rounded up to 10 baht.
-    expect(quote.unitPriceSatang).toBe(63000)
-    expect(quote.totalPriceSatang).toBe(31500000)
+    // Ledger base 410.46 already includes inbound cost; engrave .1 USD * invented FX 10.
+    expect(quote.breakdown).toMatchObject({ base: 41046, freightPerUnit: 0, customizationPerUnit: 100 })
+    expect(quote.unitCostSatang).toBe(41146)
+    // Invented corporate ladder 411.46*1.5*.8/.75 = 658.3..., rounded up to the 5 baht step.
+    expect(quote.unitPriceSatang).toBe(66000)
+    expect(quote.totalPriceSatang).toBe(33000000)
     expect(quote.ruleSetId).toEqual(expect.any(String))
     expect(quote.ruleHash).toMatch(/^[a-f0-9]{64}$/)
     // The one thing a quote must always say, and the figure that makes it auditable.

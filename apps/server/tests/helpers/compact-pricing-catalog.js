@@ -5,14 +5,14 @@ import { randomUUID } from 'node:crypto'
 import { makeViewer } from '../factories/viewer'
 import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 
 export async function compactPricingCatalogFixture({ db, business, storageEnv }) {
   const tag = randomUUID().slice(0, 8), now = new Date(Date.now() - 60000)
   const owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
   const options = { db, viewer: owner, now }
-  const draft = await createPricingRuleSet({ businessId: business.id, name: `Compact TEST ${tag}`, rules: defaultPricingRules() }, options)
+  const draft = await createPricingRuleSet({ businessId: business.id, name: `Compact TEST ${tag}`, rules: fixtureRules() }, options)
   const approved = await applyPricingRuleAction(draft.id, { businessId: business.id, version: draft.version, action: 'APPROVE', expiresAt: new Date(now.getTime() + 3600000).toISOString(), reason: 'TEST owner reviewed prices' }, options)
   const category = await createCategory({ businessId: business.id, code: `C4-CAT-${tag}`, nameTh: 'สินค้าทดสอบ', nameEn: 'Compact TEST' }, options)
   const master = await createProductMaster({ businessId: business.id, categoryId: category.id, code: `C4-PM-${tag}`, nameTh: 'สินค้าทดสอบ', nameEn: 'Compact TEST' }, options)

@@ -9,7 +9,8 @@ import { createBusiness, createPortfolio, createTenant } from '../factories/scop
 import { makeViewer } from '../factories/viewer'
 import { createCategory, createProduct, createProductMaster, getProduct } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
-import { defaultPricingRules, pricingHash } from '@/modules/commerce/domain/pricing-engine'
+import { pricingHash } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { createPricingRuleSet, applyPricingRuleAction } from '@/modules/commerce/application/pricing-rules-service'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
 import { priceLandedInventoryQuote } from '@/modules/commerce/application/pricing-inventory-service'
@@ -38,7 +39,7 @@ describe('FR-253 computed catalog admission', () => {
     business = await createBusiness({ tenantId: tenant.id, code: 'BUS-PCAT', name: 'Pricing catalog' })
     owner = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [business.id], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
     member = makeViewer({ visibleBusinessIds: [business.id], ownedBusinessIds: [], visibleDomains: ['commerce', 'inventory', 'knowledge'] })
-    const draft = await createPricingRuleSet({ businessId: business.id, name: 'Catalog fixture', rules: defaultPricingRules() }, { viewer: owner, now: NOW })
+    const draft = await createPricingRuleSet({ businessId: business.id, name: 'Catalog fixture', rules: fixtureRules() }, { viewer: owner, now: NOW })
     approved = await applyPricingRuleAction(draft.id, { businessId: business.id, version: draft.version, action: 'APPROVE', expiresAt: EXPIRES.toISOString(), reason: 'Catalog fixture review' }, { viewer: owner, now: NOW })
     const category = await createCategory({ businessId: business.id, code: 'pricing-catalog', nameTh: 'สินค้าทดสอบ', nameEn: 'Fixture' }, { viewer: owner })
     const master = await createProductMaster({ businessId: business.id, code: 'PM-PCAT', categoryId: category.id, nameTh: 'แก้วทดสอบ', nameEn: 'Fixture tumbler' }, { viewer: owner })

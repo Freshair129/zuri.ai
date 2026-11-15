@@ -5,7 +5,7 @@ import { validatePricingRules, pricingHash, plainJson, exact, decimal, integer, 
 // @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 
-export { defaultPricingRules, importPricingRulesYaml, validatePricingRules, pricingHash } from './pricing-rules'
+export { validatePricingRules, pricingHash } from './pricing-rules'
 export { PRICING_VARIABLES, validatePricingFormula, Decimal } from './pricing-formula'
 export const EVALUATOR_VERSION = 'pricing.v1'
 export const PRICE_DRIVERS = Object.freeze({ LADDER: 'LADDER', FLOOR: 'FLOOR', MANUAL: 'MANUAL' })

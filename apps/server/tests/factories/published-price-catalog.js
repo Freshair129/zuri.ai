@@ -7,7 +7,7 @@ import { publishVerifiedKnowledgeIngestion } from '@/modules/knowledge/knowledge
 import { GENESIS_RAG17_SCHEMA_VERSION, stageIdForNumber } from '@/modules/knowledge/genesisrag17-contract'
 import { createPricingRuleSet, applyPricingRuleAction, getActivePricingRuleSet } from '@/modules/commerce/application/pricing-rules-service'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
-import { defaultPricingRules } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { KNOWLEDGE_INGESTION_CONTRACT_ID, KNOWLEDGE_INGESTION_DEFINITION_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 
@@ -143,7 +143,7 @@ export async function createPublishedPriceCatalogFixture({
     currentRule = await getActivePricingRuleSet(business.id, { db, viewer, now })
   } catch (error) {
     if (error?.message !== 'PRICING_RULE_NOT_ACTIVE') throw error
-    const draft = await createPricingRuleSet({ businessId: business.id, name: `LINE published price fixture ${suffix}`, rules: defaultPricingRules() }, { viewer, db, now })
+    const draft = await createPricingRuleSet({ businessId: business.id, name: `LINE published price fixture ${suffix}`, rules: fixtureRules() }, { viewer, db, now })
     currentRule = await applyPricingRuleAction(draft.id, {
       businessId: business.id, version: draft.version, action: 'APPROVE',
       expiresAt: new Date(now.getTime() + 86_400_000).toISOString(), reason: 'LINE published price test fixture',

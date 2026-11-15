@@ -11,7 +11,7 @@ import { createDelegationVerifier } from '../../src/infrastructure/delegation.js
 import { createCommandBus } from '../../src/application/commands.js'
 import { createScmHttpServer } from '../../src/http/server.js'
 import { BIZ, PRODUCTS, ROLES, TEST_KEY, delegation, idem, openTestStore, seedDatabase, tempDbPath } from '../support/fixtures.js'
-import { defaultPricingRules } from '../../src/modules/commerce/pricing/index.js'
+import { fixtureRules } from '../support/pricing-rules-fixture.js'
 
 const contract = JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), '..', '..', 'contracts', 'v1', 'scm-api.v1.json'), 'utf8'))
 const db = tempDbPath('contract')
@@ -83,7 +83,7 @@ test('pricing rules over HTTP: draft → PATCH → approve → active → calcul
   const owner = () => delegation({ sub: 'per-pricing-owner', grants: { [BIZ]: { owner: true, domains: ['commerce'], permissions: [] } } })
   const member = () => delegation({ sub: 'per-pricing-member', grants: { [BIZ]: { owner: false, domains: ['commerce'], permissions: ['commerce.order.write'] } } })
   const input = { costBasis: 'landed', landedUnitCostThb: '123.45', quantity: 100, kind: 'set', profile: 'corporate', orderCostThb: '0', sourceRefs: [] }
-  const created = await call('POST', '/v1/commerce/pricing-rules', { token: owner(), key: idem('pr'), body: { businessId: BIZ, name: 'HTTP policy', rules: defaultPricingRules() } })
+  const created = await call('POST', '/v1/commerce/pricing-rules', { token: owner(), key: idem('pr'), body: { businessId: BIZ, name: 'HTTP policy', rules: fixtureRules() } })
   assert.equal(created.status, 201)
   const rule = created.body.ruleSet
   assert.equal((await call('POST', '/v1/commerce/pricing-rules', { token: owner(), body: { businessId: BIZ, name: 'x', rules: {} } })).body.error.code, 'SCM_IDEMPOTENCY_KEY_REQUIRED')
