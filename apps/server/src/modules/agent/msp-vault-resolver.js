@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 
-// @req FR-057 — canonical GoVibe/MSP API-010 vault resolution before API-009 memory access.
+// @req FR-057 — canonical MSP API-010 vault resolution before API-009 memory access.
 // @spec ADR-022, SDD-030, SEC-013 — MSP owns opaque vault IDs; Zuri signs only
 // server-derived AuthContext and current authorization facts.
 // @tested tests/unit/msp-vault-resolver.test.js, tests/integration/msp-vault-memory-port.test.js
@@ -196,7 +196,7 @@ function validateVaultSet(result) {
 }
 
 /**
- * Create the canonical GoVibe/MSP API-010 resolver. The resolver accepts only
+ * Create the canonical MSP API-010 resolver. The resolver accepts only
  * the immutable AuthContext produced by Zuri's policy seam; it never accepts a
  * vault ID, line user ID, model claim, or client scope value.
  */

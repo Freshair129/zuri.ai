@@ -4,7 +4,7 @@ import { evidencePath, candidatePaths, findBrokenEvidence } from '../../scripts/
 // @spec scripts/roadmap-evidence.mjs — preflight Check 13 (roadmap-evidence)
 //
 // docs/roadmap/ROADMAP.md declares itself `source_of_truth: true` and
-// `live_document: true`, and GoVibe Mission Control reads it directly. Its
+// `live_document: true`, and Mission Control reads it directly. Its
 // `Source Section` column is the only pointer a reader has from a delivery claim
 // to the artefact backing it. On 2026-08-27 a row was given a path to a feature
 // note that existed only in another branch, and the entire governance chain

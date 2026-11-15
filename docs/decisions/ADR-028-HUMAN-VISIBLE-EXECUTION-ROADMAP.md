@@ -211,7 +211,7 @@ are explicit states, not blank canvases.
 
 ## References
 
-- [GoVibe A2 Roadmap Board wireframe](../../reference/GoVibe/WIREFRAME-A2-Roadmap-Board.md) — draft reference only; `source_of_truth: false`
+- GoVibe A2 Roadmap Board wireframe — draft reference only; removed from the repository by [ADR-119](ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md)
 - [Seven Execution Modes](../EXECUTION-MODES.md)
 - [FR-040 — Project Work views](../domains/project-manager/features/FR-040-project-work-views.md)
 - [FR-063 — Project Board](../domains/project-manager/features/FR-063-project-board.md)
