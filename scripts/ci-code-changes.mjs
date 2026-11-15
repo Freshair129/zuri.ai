@@ -2,7 +2,9 @@ import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const documentation = /^(docs\/|\.brain\/|AGENTS\.md$|CLAUDE\.md$|README\.md$)/
+// Prose reports under reports/ are documentation (ADR-118 amendment 3, D-D2). Only Markdown
+// files count: JSON observations, scripts, logs and anything else under reports/ stay code.
+const documentation = /^(docs\/|\.brain\/|reports\/.+\.md$|AGENTS\.md$|CLAUDE\.md$|README\.md$)/
 
 export function hasCodeChanges(text) {
   const paths = String(text).split(/\r?\n/).filter(Boolean)
