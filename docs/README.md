@@ -1,5 +1,5 @@
 ---
-version: "0.7.23"
+version: "0.7.24"
 status: active
 superseded_by: null
 ---
@@ -81,37 +81,10 @@ plans and historical test receipts are separate from the build specification.
   links current requirements/code and retained audit findings to
   [accepted ADR-115](decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md) and its
   [approved implementation plan](plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
-  Safe Compact continuation includes isolated TEST core, private Asset/catalog and
-  explicit PostgreSQL Marketing intake work;
-  production, live credentials and release actions remain separate.
-  The [2026-10-28 Task4 requalification](../reports/compact-selfhost-2026-10-27/task4-requalification-20261028.md)
-  records the private S3 integrity correction and real pricing-catalog consumer checks.
-  The [2026-10-28 Task5 requalification](../reports/compact-selfhost-2026-10-27/task5-requalification-20261028.md)
-  records PostgreSQL provider/retry evidence and honest failed-fixture cleanup.
-  The [2026-10-28 Task6 verification](../reports/compact-selfhost-2026-10-27/task6-requalification-20261028.md)
-  separates isolated native/provider evidence from the still-unqualified AI profiles.
-  The [2026-10-29 operator restore/rebind assessment](../reports/compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md)
-  records source-bound managed-blob recovery gaps and the candidate plan;
-  operator recovery, PostgreSQL installation restore and AI remain unqualified.
-  The [OR0 contract proposal](change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
-  specifies proposed transport/custody, source writer audit and owner-selected
-  backup transfer prerequisite before canonical adoption and recovery activation.
-  The [OR0 canonical-adoption decision](change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
-  is bound by the sanctioned migration issuing [ZAI:FR-292 recovery](requirements/FR-292.md)
-  and [ZAI:FR-293 backup transfer](requirements/FR-293.md), both delivery planned.
-  The implementation plan remains candidate and no runtime qualification is granted.
-  The [2026-11-01 OR5 prerequisite assessment](../reports/compact-selfhost-2026-10-27/or5-prerequisite-assessment-20261101.md)
-  records the still-blocking supported transfer/activation dependency at `59145776`;
-  OR5 is not complete and the existing deferred minors and qualification gates remain open.
-  The [selected Knowledge package TEST](../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
-  adds relocated OCI, fresh-baseline and offline model evidence; application/cohort
-  recovery and AI qualification remain open.
-  The [actual idle Knowledge cohort TEST](../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
-  verifies manual web/native namespace rebind and retained-volume markers;
-  Business authority, active-work replay and native recovery remain separate gates.
-  The [scoped TEXT HTTP journey](../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
-  adds real TEST Business authority and durable same-run publication/query/withdrawal;
-  storage, native recovery, LINE and full AI qualification remain open.
+  The dated Compact record trail (requalifications, restore/rebind assessment, OR0/OR5
+  and TEST snapshots, with their limits) is in the
+  [Compact record trail](../reports/README.md#compact-self-host-record-trail); production,
+  live credentials, release actions and AI qualification remain separate gates.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -246,3 +219,8 @@ snapshot without promoting Business authority, active-work or recovery claims.
 
 Version diff 0.7.19 → 0.7.20 (2026-11-06): links the bounded scoped TEXT HTTP
 journey and preserves the first-run timestamp caveat and remaining AI gates.
+
+Version diff 0.7.23 → 0.7.24 (2026-11-15): the dated Compact self-host narrative moved
+unchanged in substance (dates, evidence, limits, links) to the report index
+[Compact record trail](../reports/README.md#compact-self-host-record-trail); this entry keeps a short link
+(ADR-118 amendment 3, D-D3, delegated decision).

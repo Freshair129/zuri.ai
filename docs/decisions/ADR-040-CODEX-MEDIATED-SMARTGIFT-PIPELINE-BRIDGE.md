@@ -1,6 +1,6 @@
 # ADR-040 — Codex-mediated SmartGift pipeline evidence bridge
 
-**Status:** Approved for local `EVIDENCE_ONLY` implementation — production apply remains gated  
+**Status:** Superseded by [ADR-119](ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md) on 2026-11-15; kept as history. Prior status: Approved for local `EVIDENCE_ONLY` implementation — production apply remains gated  
 **Date:** 2026-08-21  
 **Decided by:** Boss approved the bridge for local `EVIDENCE_ONLY` implementation  
 **Relates to:** [ADR-029](ADR-029-STABLE-IDENTITY-BINDINGS-FOR-EXECUTION-PLANS.md), [ADR-030](ADR-030-SUPABASE-DATA-PIPELINE-OBSERVABILITY-AND-REPLAY.md), [FR-071](../domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md)
