@@ -16,7 +16,7 @@ import {
 } from './document-intake-contract'
 
 // @req FR-071 — CloudSoTAgent is the server-side staging receiver for the
-// SmartGift document contract. Scope comes from a preconfigured IntegrationConnection,
+// document intake contract. Scope comes from a preconfigured IntegrationConnection,
 // never from tenant/business IDs in the document payload, and canonical rows are
 // not written by this slice.
 // @spec docs/domains/knowledge/features/FR-071-supabase-data-pipeline-monitor-and-replay.md,

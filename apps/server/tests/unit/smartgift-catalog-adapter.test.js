@@ -12,10 +12,10 @@ import {
   parseSmartGiftCatalogFile,
   smartGiftRecordIdempotencySeed,
   smartGiftSourceKey,
-  SMARTGIFT_CATALOG_ENTITY_TYPES,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_ENTITY_TYPES,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_MAX_FILE_BYTES,
+  STRUCTURED_CATALOG_PROVIDER,
   splitSmartGiftCatalogRecords,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 
@@ -38,12 +38,12 @@ function split(name, over = {}) {
 
 describe('SmartGift catalog adapter', () => {
   it('declares the Phase 1 surface constants', () => {
-    expect(SMARTGIFT_CATALOG_FORMAT).toBe('SMARTGIFT_CATALOG_V1')
-    expect(SMARTGIFT_CATALOG_PROVIDER).toBe('SMARTGIFT_CATALOG')
-    expect(SMARTGIFT_CATALOG_ENTITY_TYPES).toEqual(['ProductMaster', 'BundleOffer', 'PriceListEntry'])
+    expect(STRUCTURED_CATALOG_FORMAT).toBe('SMARTGIFT_CATALOG_V1')
+    expect(STRUCTURED_CATALOG_PROVIDER).toBe('SMARTGIFT_CATALOG')
+    expect(STRUCTURED_CATALOG_ENTITY_TYPES).toEqual(['ProductMaster', 'BundleOffer', 'PriceListEntry'])
     // A file-level bound distinct from the 1 MiB per-record limit; upstream's
     // real pricelist_master.json is ~6.4 MB.
-    expect(SMARTGIFT_CATALOG_MAX_FILE_BYTES).toBe(16 * 1024 * 1024)
+    expect(STRUCTURED_CATALOG_MAX_FILE_BYTES).toBe(16 * 1024 * 1024)
   })
 
   it.each([

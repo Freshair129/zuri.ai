@@ -273,7 +273,7 @@ export default function KnowledgeDocumentsView({ initialTab = 'intake' }) {
 // ---------------------------------------------------------------------------
 // The structured SmartGift format the admission API accepts on a FILE source (FR-187).
 // Kept as a literal: importing the adapter would pull zod into the client bundle.
-export const SMARTGIFT_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
+export const STRUCTURED_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
 
 export function existingAssetAdmissionBody({ businessId, asset, format = null }) {
   return {
@@ -799,7 +799,7 @@ function IntakeTabPanel({ businessId, businessFiles, onSuccess, onError }) {
                           type="button"
                           data-testid="admit-smartgift-catalog"
                           className="btn btn-primary text-xs flex items-center gap-1 ml-3 shrink-0"
-                          onClick={() => admitExistingAsset(asset, SMARTGIFT_CATALOG_FORMAT)}
+                          onClick={() => admitExistingAsset(asset, STRUCTURED_CATALOG_FORMAT)}
                         >
                           <UploadCloud size={13} /> นำเข้าเป็น SmartGift catalog
                         </button>

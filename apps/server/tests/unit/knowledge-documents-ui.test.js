@@ -78,9 +78,9 @@ describe('KnowledgeDocumentsView UI rendering', () => {
 
 describe('SmartGift catalog admission from an existing file', () => {
   it('names the structured format only for the catalog button', async () => {
-    const { existingAssetAdmissionBody, SMARTGIFT_CATALOG_FORMAT } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
+    const { existingAssetAdmissionBody, STRUCTURED_CATALOG_FORMAT } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
     const asset = { id: 'asset-1', sha256: 'f'.repeat(64), name: 'ProductMaster.genesisrag17.json', mime: 'application/json' }
-    const catalog = existingAssetAdmissionBody({ businessId: 'biz-test-01', asset, format: SMARTGIFT_CATALOG_FORMAT })
+    const catalog = existingAssetAdmissionBody({ businessId: 'biz-test-01', asset, format: STRUCTURED_CATALOG_FORMAT })
     expect(catalog.source).toEqual({ kind: 'FILE', fileAssetId: 'asset-1', format: 'SMARTGIFT_CATALOG_V1' })
     // No caller key or version: the server derives both from the frozen bytes.
     expect(catalog.source).not.toHaveProperty('sourceKey')
@@ -100,9 +100,9 @@ describe('SmartGift catalog admission from an existing file', () => {
   })
 
   it('matches the format the admission API accepts', async () => {
-    const { SMARTGIFT_CATALOG_FORMAT } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
+    const { STRUCTURED_CATALOG_FORMAT } = await import('@/modules/knowledge/ui/KnowledgeDocumentsView')
     const { KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS } = await import('@/modules/knowledge/knowledge-admission-service')
-    expect(KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS).toContain(SMARTGIFT_CATALOG_FORMAT)
+    expect(KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS).toContain(STRUCTURED_CATALOG_FORMAT)
   })
 })
 

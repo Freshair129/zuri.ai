@@ -12,9 +12,9 @@ import { createCategory, createProduct, createProductMaster } from '@/modules/in
 import { admitLineConversation } from '@/modules/line-oa-studio/application/line-conversation-jobs'
 import { disclosureLookupHash } from '@/modules/knowledge/line-product-disclosure-contract'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
   smartGiftSourceKey,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 import {
@@ -510,7 +510,7 @@ describe('LINE customer product disclosure policy', () => {
       const asset = {
         id: assetId, code: index === count - 1 ? 'FIL-DEMO-KB-MUG-350' : `PCAT-${sha}`,
         tenantId: tenant.id, businessId: business.id, projectId: null,
-        workItemId: null, storageKind: 'MANAGED_BLOB', name: `catalog-${suffix}.json`, mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        workItemId: null, storageKind: 'MANAGED_BLOB', name: `catalog-${suffix}.json`, mime: STRUCTURED_CATALOG_CONTENT_TYPE,
         size: 4096, sha256: sha, status: 'ACTIVE', version: 1, deletedAt: null,
       }
       const source = {
@@ -533,8 +533,8 @@ describe('LINE customer product disclosure policy', () => {
           kind: 'FILE', title, sourceKey: source.sourceKey, fileAssetId: assetId, fileAssetVersion: 1,
           mime: asset.mime, storageKind: asset.storageKind, size: 1024, sourceVersion: sha, contentHash,
           structured: {
-            format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
-            entityType: 'ProductMaster', contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+            format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
+            entityType: 'ProductMaster', contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
             externalId, recordIndex: 0, recordCount: 1, fileSha256: sha,
           },
         }),

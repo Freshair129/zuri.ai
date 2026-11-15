@@ -13,9 +13,9 @@ import { readKnowledgeIngestionJob } from '@/platform/integrations/core/knowledg
 import { KNOWLEDGE_INGESTION_STAGE_CATALOG } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { canonicalGenesisRag17Json } from '@/modules/knowledge/genesisrag17-contract'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
 import {
   GENESIS_RAG17_PARSER_VERSION_2,
@@ -120,7 +120,7 @@ async function createCatalogAsset(text, name) {
       storageKind: 'MANAGED_BLOB',
       blobRef: `memory://${suffix}`,
       name,
-      mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      mime: STRUCTURED_CATALOG_CONTENT_TYPE,
       size: Buffer.byteLength(text, 'utf8'),
       sha256: sha256(text),
       status: 'ACTIVE',
@@ -132,7 +132,7 @@ function admit(asset, text) {
   return admitKnowledge({
     businessId: scope.businessId,
     idempotencyKey: `ki17-smartgift-${randomUUID().slice(0, 8)}`,
-    source: { kind: 'FILE', fileAssetId: asset.id, format: SMARTGIFT_CATALOG_FORMAT },
+    source: { kind: 'FILE', fileAssetId: asset.id, format: STRUCTURED_CATALOG_FORMAT },
   }, { viewer: owner, env, fileContentResolver: async () => ({ content: Buffer.from(text, 'utf8') }) })
 }
 
@@ -151,11 +151,11 @@ async function verifyCitation(result) {
   const raw = await prisma.knowledgeRawArtifact.findUnique({ where: { id: parsed.rawArtifactId } })
   expect(raw.id).toBe(citation.rawArtifactId)
   expect(raw.sourceId).toBe(citation.sourceId)
-  expect(raw.contentType).toBe(SMARTGIFT_CATALOG_CONTENT_TYPE)
+  expect(raw.contentType).toBe(STRUCTURED_CATALOG_CONTENT_TYPE)
   const canonicalRaw = await prisma.rawExternalRecord.findUnique({ where: { id: raw.rawExternalRecordId } })
   expect(canonicalRaw.tenantId).toBe(scope.tenantId)
   expect(canonicalRaw.artifactId).toBe(raw.id)
-  expect(canonicalRaw.provider).toBe(SMARTGIFT_CATALOG_PROVIDER)
+  expect(canonicalRaw.provider).toBe(STRUCTURED_CATALOG_PROVIDER)
   expect(JSON.parse(canonicalRaw.payloadJson).content).toBe(raw.content)
   // Parser-2 renders the record, so the chunk is a substring of the parsed
   // content rather than of the raw record bytes.
@@ -202,7 +202,7 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
     corpusAsset = await createCatalogAsset(text, corpus.catalogFileName)
     const result = await admit(corpusAsset, text)
     expect(result).toMatchObject({
-      format: SMARTGIFT_CATALOG_FORMAT,
+      format: STRUCTURED_CATALOG_FORMAT,
       fileAssetId: corpusAsset.id,
       fileSha256: sha256(text),
       recordCount: corpus.records.length,
@@ -219,9 +219,9 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
     expect(ingestions.every((row) => row.status === 'QUEUED' && row.executionRunId === null)).toBe(true)
     for (const row of ingestions) {
       expect(JSON.parse(row.sourceMetaJson).structured).toMatchObject({
-        format: SMARTGIFT_CATALOG_FORMAT,
-        provider: SMARTGIFT_CATALOG_PROVIDER,
-        contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        format: STRUCTURED_CATALOG_FORMAT,
+        provider: STRUCTURED_CATALOG_PROVIDER,
+        contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
       })
     }
   })
@@ -379,9 +379,9 @@ describe('SmartGift structured-record four-process acceptance (no skips)', () =>
       version: sha256(content),
       content,
       connectionId: connection.id,
-      provider: SMARTGIFT_CATALOG_PROVIDER,
+      provider: STRUCTURED_CATALOG_PROVIDER,
       entityType: corpus.records[0].entityType,
-      contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
       parserVersion: 'genesisrag17-parser-1',
       policy: { allowEmbedding: true, allowPublication: true },
     }, { viewer: operator, transport, credential: 'ki17-test-source' })).rejects.toMatchObject({ code: 'GENESISRAG17_PARSER_CONFIG_UNSUPPORTED' })

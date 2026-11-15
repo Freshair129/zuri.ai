@@ -1,9 +1,9 @@
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
   smartGiftSourceKey,
   splitSmartGiftCatalogRecords,
 } from '@/modules/knowledge/smartgift-catalog-adapter'
@@ -43,7 +43,7 @@ function fixture({ multipleRows = false } = {}) {
   const content = JSON.stringify(multipleRows ? [first, second] : [first])
   const asset = {
     id: id(5), tenantId, businessId, projectId: null, code: `PCAT-${'a'.repeat(64)}`,
-    name: 'products.json', mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+    name: 'products.json', mime: STRUCTURED_CATALOG_CONTENT_TYPE,
     size: Buffer.byteLength(content), sha256: sha256(content), version: 2,
     status: 'ACTIVE', deletedAt: null, storageKind: 'MANAGED_BLOB', blobRef: 'private-blob-location',
   }
@@ -57,8 +57,8 @@ function fixture({ multipleRows = false } = {}) {
     activeIngestionId: ingestionId, desiredRevision: 3, version: 4, revokedAt: null, deletedAt: null,
   }
   const descriptor = {
-    format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
-    entityType: 'ProductMaster', contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+    format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
+    entityType: 'ProductMaster', contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
     externalId: sourceRecord.externalId, recordIndex: multipleRows ? 1 : 0,
     recordCount: split.recordCount, fileSha256: asset.sha256,
   }
@@ -142,7 +142,7 @@ function filFixture({ sku = 'DEMO-KB-MUG-350-001', liveSku = 'DEMO-KB-MUG-350-00
   })
   Object.assign(f.source, { sourceKey, title, fileAssetId: f.asset.id })
   const structured = {
-    format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
+    format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
     entityType: 'ProductMaster', contentType: 'application/json',
     externalId: sku, recordIndex: 0, recordCount: split.recordCount, fileSha256: assetSha256,
   }

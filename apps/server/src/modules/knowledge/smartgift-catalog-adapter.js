@@ -10,22 +10,25 @@ import { findZeroPiiViolation } from './structured-record-policy'
 // @spec ADR-075 D2, ADR-075 D3, ADR-075 D4, ADR-075 D5, ADR-075 D6, BR-002
 // @tested tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/unit/genesisrag17-parser-2.test.js
 
-/** The only structured format Phase 1 admits. */
-export const SMARTGIFT_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
-/** The provider recorded on the raw record; it is what arms the Stage 5 gate. */
-export const SMARTGIFT_CATALOG_PROVIDER = 'SMARTGIFT_CATALOG'
+/**
+ * The only structured format Phase 1 admits. The identifier is neutral (ADR-119);
+ * the value is a persisted format id on stored sources and stays unchanged.
+ */
+export const STRUCTURED_CATALOG_FORMAT = 'SMARTGIFT_CATALOG_V1'
+/** The provider recorded on the raw record; it is what arms the Stage 5 gate. Persisted value, unchanged. */
+export const STRUCTURED_CATALOG_PROVIDER = 'SMARTGIFT_CATALOG'
 /** Structured records travel as canonical JSON text, not prose. */
-export const SMARTGIFT_CATALOG_CONTENT_TYPE = 'application/json'
-/** Prefix of every derived source key, so one file's records group by name. */
-export const SMARTGIFT_CATALOG_SOURCE_PREFIX = 'smartgift-catalog'
+export const STRUCTURED_CATALOG_CONTENT_TYPE = 'application/json'
+/** Prefix of every derived source key, so one file's records group by name. Persisted in source keys, unchanged. */
+export const STRUCTURED_CATALOG_SOURCE_PREFIX = 'smartgift-catalog'
 /**
  * A file-level bound distinct from the 1 MiB per-record limit. Upstream's real
  * `pricelist_master.json` is ~6.4 MB, so the per-record limit cannot double as
  * the file limit; the record limit still applies to each split record.
  */
-export const SMARTGIFT_CATALOG_MAX_FILE_BYTES = 16 * 1024 * 1024
+export const STRUCTURED_CATALOG_MAX_FILE_BYTES = 16 * 1024 * 1024
 
-export const SMARTGIFT_CATALOG_ENTITY_TYPES = Object.freeze(['ProductMaster', 'BundleOffer', 'PriceListEntry'])
+export const STRUCTURED_CATALOG_ENTITY_TYPES = Object.freeze(['ProductMaster', 'BundleOffer', 'PriceListEntry'])
 
 function adapterError(status, code, message, details) {
   const error = new Error(message)
@@ -141,7 +144,7 @@ export function smartGiftRecordCode(record) {
 }
 
 export function smartGiftSourceKey({ fileName, recordCode }) {
-  return `${SMARTGIFT_CATALOG_SOURCE_PREFIX}:${fileName}#${recordCode}`
+  return `${STRUCTURED_CATALOG_SOURCE_PREFIX}:${fileName}#${recordCode}`
 }
 
 /**
@@ -203,7 +206,7 @@ export function splitSmartGiftCatalogRecords({ content, fileAssetId, fileSha256,
     seen.add(externalId)
     const canonicalJson = canonicalGenesisRag17Json(record)
     const sourceKey = smartGiftSourceKey({ fileName, recordCode: externalId })
-    const violation = findZeroPiiViolation(record, { sourceId: sourceKey, sourceUri: `${SMARTGIFT_CATALOG_SOURCE_PREFIX}:${fileName}` })
+    const violation = findZeroPiiViolation(record, { sourceId: sourceKey, sourceUri: `${STRUCTURED_CATALOG_SOURCE_PREFIX}:${fileName}` })
     if (violation) {
       denied.push({ index, externalId, entityType: record.entityType, field: violation.field, term: violation.term })
       return
