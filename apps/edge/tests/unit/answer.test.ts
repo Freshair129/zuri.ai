@@ -1,6 +1,5 @@
 import { describe, it } from 'node:test';
 import { buildCodexEvidence } from '../../src/answer/codex-evidence.js';
-import { HEADLESS_TOOLS_NOTE, headlessToolsNote } from '../../src/answer/respond.js';
 import { suggestsUnseenProducts, unverifiedNumbers } from '../../src/answer/llm.js';
 import assert from 'node:assert';
 
@@ -78,48 +77,20 @@ describe('Reading the question', () => {
 });
 
 describe('Answering, by role', () => {
-  it('quotes every break for a known code', () => {
-    const text = answerMessage('TJS23-2', { ...base, role: 'owner' });
-    assert.ok(text.includes('TJS23-2'));
-    assert.ok(text.includes('500 ชุด'));
-    assert.ok(text.includes('ต้นทุนรวม'), 'the owner sees the cost stack');
+  // ADR-119: the local cost-to-price calculator was removed, so the pattern reader no longer
+  // quotes or searches by budget; it says so and never prints a price.
+  it('does not compute a price for a known code, whatever the role', () => {
+    for (const role of ['owner', 'sales'] as const) {
+      const text = answerMessage('TJS23-2 100 ชุด', { ...base, role });
+      assert.match(text, /ซูริยังคำนวณราคาในโหมดนี้ไม่ได้/);
+      assert.ok(!/บาท\/ชุด|ต้นทุน|margin|ตัวคูณ/.test(text), 'no price or cost may appear');
+    }
   });
 
-  it('never shows cost or margin to sales', () => {
-    const text = answerMessage('TJS23-2 100 ชุด', { ...base, role: 'sales' });
-    assert.ok(text.includes('ราคาต่อชุด'));
-    assert.ok(!text.includes('ต้นทุนรวม'));
-    assert.ok(!text.includes('margin'));
-    assert.ok(!/ตัวคูณ/.test(text));
-  });
-
-  it('answers an off-ladder quantity with the break above it, never below', () => {
-    const text = answerMessage('TJS23-2 150 ชุด', { ...base, role: 'sales' });
-    assert.match(text, /ใช้ราคาขั้น 300 ชุด/);
-  });
-
-  it('says what is missing rather than guessing a price', () => {
-    const text = answerMessage('TSQ02-2', { ...base, role: 'owner' });
-    assert.match(text, /ยังคำนวณราคาให้ไม่ได้/);
-    assert.match(text, /ข้อมูลกล่อง/);
-    assert.ok(!/บาท\/ชุด/.test(text), 'no price may appear when the carton is unknown');
-  });
-
-  it('lists what fits a budget, dearest first', () => {
+  it('does not compute a budget search either', () => {
     const text = answerMessage('100 ชุด งบ 700', { ...base, role: 'sales' });
-    assert.match(text, /เจอ \d+ รายการ/);
-    assert.ok(text.includes('TJS2462') || text.includes('TJS23-2'));
-  });
-
-  it('suggests a way forward when nothing fits the budget', () => {
-    const text = answerMessage('100 ชุด งบ 20', { ...base, role: 'sales' });
-    assert.match(text, /ยังไม่มีสินค้าที่เข้างบ/);
-  });
-
-  it('keeps cost out of a budget search run by sales', () => {
-    const text = answerMessage('100 ชุด งบ 700', { ...base, role: 'sales' });
-    assert.ok(!text.includes('ต้นทุน'));
-    assert.ok(!text.includes('margin'));
+    assert.match(text, /ซูริยังคำนวณราคาในโหมดนี้ไม่ได้/);
+    assert.ok(!text.includes('TJS2462') && !text.includes('TJS23-2'));
   });
 
   it('finds products by name, including ones it cannot yet price', () => {
@@ -137,19 +108,8 @@ describe('Answering, by role', () => {
     assert.match(narrow, /เจอ 1 รายการ/);
   });
 
-  it('says plainly when a code is not in the catalog', () => {
-    const text = answerMessage('ZZ99-9', { ...base, role: 'owner' });
-    assert.match(text, /ไม่เจอรหัส ZZ99-9/);
-  });
-
   describe('an empty catalogue (no data loaded) is not a lookup that found nothing', () => {
     const empty = { ...base, catalog: catalogOf([]) };
-
-    it('never denies a product exists when there is no catalogue to check against', () => {
-      const text = answerMessage('TJS23-2', empty);
-      assert.ok(!/ไม่เจอรหัส/.test(text), 'must not claim a code is unknown with zero products loaded');
-      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
-    });
 
     it('gives the same cannot-answer copy for a search with no catalogue', () => {
       const text = answerMessage('umbrella', empty);
@@ -157,20 +117,10 @@ describe('Answering, by role', () => {
       assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
     });
 
-    it('gives the same cannot-answer copy for a budget search with no catalogue', () => {
-      const text = answerMessage('100 ชุด งบ 700', empty);
-      assert.ok(!/ยังไม่มีสินค้าที่เข้างบ/.test(text));
-      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
-    });
-
     it('still answers help from an empty catalogue', () => {
-      assert.match(answerMessage('ช่วย', empty), /ซูริช่วยเรื่องราคาได้/);
+      assert.match(answerMessage('ช่วย', empty), /ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้น/);
     });
 
-    it('a populated catalogue missing a code still says the code was not found (no regression)', () => {
-      const text = answerMessage('ZZ99-9', base);
-      assert.match(text, /ไม่เจอรหัส ZZ99-9/);
-    });
   });
 });
 
@@ -209,42 +159,6 @@ describe('codex evidence block (v4 prompt-carried evidence)', () => {
     const b = buildCodexEvidence(ev());
     assert.deepEqual(unverifiedNumbers('รุ่น TBS01-2 100 ชุด ชุดละ 780 บาทค่ะ', b.evidenceText, 'แก้วน้ำมีกี่สี'), []);
     assert.deepEqual(unverifiedNumbers('ชุดละ 555 บาทค่ะ', b.evidenceText, 'แก้วน้ำมีกี่สี'), [555]);
-  });
-});
-
-describe('headless tools note (claude deferred MCP)', () => {
-  it('names every smartgift tool and the exact select incantation', () => {
-    for (const t of ['search_products', 'quote_price', 'find_within_budget', 'lead_time', 'explain_policy']) {
-      assert.match(HEADLESS_TOOLS_NOTE, new RegExp(`mcp__smartgift__${t}`));
-    }
-    assert.match(HEADLESS_TOOLS_NOTE, /select:mcp__smartgift__search_products,mcp__smartgift__quote_price/);
-    assert.match(HEADLESS_TOOLS_NOTE, /ห้ามสรุปว่าไม่มีเครื่องมือ/);
-  });
-});
-
-describe('headless tools note is actually reachable by the model', () => {
-  it('names every catalog tool for both CLIs', () => {
-    for (const bin of ['claude', 'codex']) {
-      const note = headlessToolsNote(bin);
-      for (const t of ['search_products', 'quote_price', 'find_within_budget', 'lead_time', 'explain_policy']) {
-        assert.match(note, new RegExp(`mcp__smartgift__${t}`), `${bin} note is missing ${t}`);
-      }
-      assert.match(note, /ห้ามสรุปว่าไม่มีเครื่องมือ/, `${bin} note must forbid claiming the tools are absent`);
-    }
-  });
-
-  it('keeps the ToolSearch step for claude and drops it for codex', () => {
-    // claude defers MCP schemas and must load them by exact name first; codex surfaces every
-    // mcp__smartgift__* tool on turn one, so telling it to load them sends it after a tool that
-    // does not exist.
-    assert.match(headlessToolsNote('claude'), /ToolSearch/);
-    assert.doesNotMatch(headlessToolsNote('codex'), /ToolSearch/);
-    assert.doesNotMatch(headlessToolsNote('codex'), /ต้องโหลดก่อนใช้/);
-  });
-
-  it('resolves by binary name, however the path is written', () => {
-    assert.equal(headlessToolsNote('C:/tools/codex.exe'), headlessToolsNote('codex'));
-    assert.equal(headlessToolsNote('/usr/local/bin/claude'), headlessToolsNote('claude'));
   });
 });
 

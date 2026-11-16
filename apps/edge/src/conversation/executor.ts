@@ -160,10 +160,8 @@ export function createConversationExecutor(config: Partial<AgentConfig>, options
           bin: headlessBin, ...managedHome, model: config.headlessModel || 'claude-sonnet-5',
           timeoutMs: Math.min(timeoutMs, config.headlessTimeoutMs || 120000),
           maxTurns: config.headlessMaxTurns || 8,
-          mcpServerPath: fileURLToPath(new URL('../mcp/pricing-server.js', import.meta.url)),
           sandboxRoot: path.join(scratch, 'sandbox'), sessionRoot: path.join(scratch, 'sessions'),
-          sessionRetentionHours: 0, catalogRoot: config.catalogRoot || 'state/catalog',
-          exchangeRate: config.exchangeRateThbPerRmb || 5,
+          sessionRetentionHours: 0,
           webSearch: false, fileAuthoring: false, stateless: true,
         } : null,
       });

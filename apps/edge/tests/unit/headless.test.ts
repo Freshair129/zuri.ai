@@ -12,7 +12,6 @@ import {
   buildArgs,
   buildPromptInput,
   childEnv,
-  codexMcpArgs,
   harvestStream,
   loadSessionId,
   rememberedNumbers,
@@ -52,12 +51,9 @@ beforeEach(() => {
     model: 'claude-sonnet-5',
     maxTurns: 8,
     timeoutMs: 60000,
-    mcpServerPath: '/abs/pricing-server.js',
     sandboxRoot: path.join(root, 'sandbox'),
     sessionRoot: path.join(root, 'sessions'),
     sessionRetentionHours: 168,
-    catalogRoot: 'state/catalog',
-    exchangeRate: 5,
     webSearch: false,
     fileAuthoring: false,
   };
@@ -171,20 +167,8 @@ describe('What the sandboxed agent is given', () => {
    * What has to stay true is narrower and does not change — with nothing switched on, the agent
    * can reach the company's own door and nothing else.
    */
-  it('offers nothing but the MCP door until a capability is switched on', () => {
-    const tools = allowedTools(options);
-    assert.ok(tools.length > 0);
-    assert.ok(
-      tools.every((tool) => tool.startsWith('mcp__smartgift__')),
-      `default surface reaches outside MCP: ${tools.filter((t) => !t.startsWith('mcp__smartgift__'))}`
-    );
-  });
-
-  it('keeps the priced answer working, whatever else the door grows', () => {
-    const tools = allowedTools(options);
-    for (const required of ['quote_price', 'find_within_budget', 'search_products']) {
-      assert.ok(tools.includes(`mcp__smartgift__${required}`), `${required} is missing`);
-    }
+  it('offers no tool at all until a capability is switched on (the MCP door was removed, ADR-119)', () => {
+    assert.deepStrictEqual(allowedTools(options), []);
   });
 
   it('adds web search and file authoring only when each is asked for', () => {
@@ -246,21 +230,10 @@ describe('What the sandboxed agent is given', () => {
     assert.ok(!stateful.includes('--restricted'));
   });
 
-  it('pins the MCP configuration so no other server can be picked up', () => {
+  it('pins an empty MCP configuration so no server can be picked up', () => {
     const args = buildArgs('hello', 'system', 'sales', null, options);
     assert.ok(args.includes('--strict-mcp-config'));
-
-    const config = JSON.parse(args[args.indexOf('--mcp-config') + 1]);
-    assert.strictEqual(config.mcpServers.smartgift.env.ZURI_MCP_ROLE, 'sales');
-  });
-
-  it('fixes the role at spawn time, where a chat message cannot reach it', () => {
-    const owner = JSON.parse(
-      buildArgs('hello', 'system', 'owner', null, options)[
-        buildArgs('hello', 'system', 'owner', null, options).indexOf('--mcp-config') + 1
-      ]
-    );
-    assert.strictEqual(owner.mcpServers.smartgift.env.ZURI_MCP_ROLE, 'owner');
+    assert.deepStrictEqual(JSON.parse(args[args.indexOf('--mcp-config') + 1]), { mcpServers: {} });
   });
 
   it('resumes an existing conversation, and starts a new one when there is none', () => {
@@ -428,26 +401,14 @@ describe('resolveBin on Windows', () => {
 
 describe('codex MCP wiring', () => {
   const opts = {
-    bin: 'codex', model: 'gpt-5.6-luna', mcpServerPath: 'C:/srv/pricing-server.js',
-    catalogRoot: 'state/catalog', exchangeRate: 5, maxTurns: 8,
+    bin: 'codex', model: 'gpt-5.6-luna', maxTurns: 8,
     webSearch: false, fileAuthoring: false,
   } as never;
 
-  it('opens the same one door to company data the claude path gets', () => {
-    // Without this the model answers about products it cannot see, which reads as fluent and is
-    // worth nothing — observed in the wild before the wiring existed.
-    const args = buildArgs('ราคา', 'SYSTEM', 'sales', null, opts);
-    const joined = args.join(' ');
-    assert.match(joined, /mcp_servers\.smartgift\.command=/);
-    assert.match(joined, /mcp_servers\.smartgift\.args=/);
-    assert.match(joined, /pricing-server\.js/);
-  });
-
-  it('fixes the caller role in the server env rather than trusting the model to respect it', () => {
-    const sales = buildArgs('x', 'S', 'sales', null, opts).join(' ');
-    const owner = buildArgs('x', 'S', 'owner', null, opts).join(' ');
-    assert.match(sales, /ZURI_MCP_ROLE="sales"/);
-    assert.match(owner, /ZURI_MCP_ROLE="owner"/);
+  it('adds no MCP server and states an empty table', () => {
+    const joined = buildArgs('ราคา', 'SYSTEM', 'sales', null, opts).join(' ');
+    assert.doesNotMatch(joined, /mcp_servers\.smartgift/);
+    assert.match(joined, /mcp_servers=\{\}/);
   });
 
   it('passes an option-looking Codex prompt through stdin with the documented dash argument', () => {
@@ -491,7 +452,8 @@ describe('codex MCP wiring', () => {
       assert.deepStrictEqual(names(list(maliciousHome)), ['unapproved_fixture']);
       const explicitMcp = [
         '-c', 'mcp_servers={}',
-        ...codexMcpArgs({ ...opts, mcpServerPath: 'C:/approved/pricing-server.js' }, 'sales'),
+        '-c', 'mcp_servers.smartgift.command="node"',
+        '-c', 'mcp_servers.smartgift.args=["approved-server.js"]',
       ];
       assert.deepStrictEqual(
         names(list(maliciousHome, explicitMcp)),

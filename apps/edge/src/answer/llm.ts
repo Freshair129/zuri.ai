@@ -6,11 +6,7 @@ import type { ProgressDetail } from '../conversation/progress.js';
 import {
   EvidenceOptions,
   EvidenceRecord,
-  POLICY_TOPIC_KEYS,
-  PolicyTopic,
-  explainPolicy,
   findWithinBudget,
-  leadTime,
   quotePrice,
   searchProducts,
   compactSearchForModel,
@@ -84,7 +80,7 @@ export const ANSWER_RULES = `กติกาเรื่องตัวเลข
 - ถ้าลูกค้าบอกงบแต่ไม่บอกจำนวน ให้ถามกลับสั้น ๆ ว่าต้องการกี่ชุด โดยห้ามยกตัวอย่างจำนวนเป็นตัวเลขในคำถาม (ห้ามเขียนแบบ "เช่น 100 หรือ 200 ชุด") เพราะตัวเลขทุกตัวในคำตอบถูกตรวจว่ามาจากเครื่องมือ
 
 ขอบเขต
-- เรื่องราคา สินค้า งบประมาณ ระยะเวลาผลิตและขนส่ง เงื่อนไขการสั่งซื้อ ให้ใช้เครื่องมือ
+- เรื่องราคา สินค้า งบประมาณ เงื่อนไขการสั่งซื้อ ให้ใช้เครื่องมือ
 - เรื่องที่อยู่นอกขอบเขตนี้ ให้บอกว่ายังช่วยไม่ได้ และแนะนำให้ถามผู้ดูแล`;
 
 /**
@@ -242,58 +238,6 @@ function buildTools(options: EvidenceOptions, evidence: EvidenceRecord[]): ToolS
       },
     }),
 
-    ({
-      name: 'lead_time',
-      description:
-        'ระยะเวลาตั้งแต่วางมัดจำจนได้รับของ แยกตามขั้นตอน ' +
-        'ใส่ deadlineDays ถ้าลูกค้ามีกำหนดรับของ จะได้คำตอบว่าต้องส่งทางรถหรือทางเรือ',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          quantity: { type: 'integer', minimum: 1, description: 'จำนวนที่จะสั่ง (ชุด)' },
-          mode: {
-            type: 'string',
-            enum: ['truck', 'sea'],
-            description: 'วิธีขนส่งจากจีน ถ้าลูกค้าระบุมาแล้ว',
-          },
-          deadlineDays: {
-            type: 'integer',
-            minimum: 1,
-            description: 'จำนวนวันที่ลูกค้าต้องการได้ของ',
-          },
-          rush: { type: 'boolean', description: 'งานเร่ง ข้ามขั้นทำตัวอย่าง' },
-        },
-        required: ['quantity'],
-        additionalProperties: false,
-      } as const,
-      run: async ({ quantity, mode, deadlineDays, rush }) =>
-        record(
-          'lead_time',
-          { quantity, mode, deadlineDays, rush },
-          leadTime(quantity, { mode, deadlineDays, rush })
-        ),
-    }),
-
-    ({
-      name: 'explain_policy',
-      description:
-        'เงื่อนไขการค้าที่บริษัทใช้เป็นมาตรฐาน ใช้เมื่อถูกถามเรื่องค่าส่งในไทย วิธีขนส่งจากจีน ' +
-        'ค่าสกรีน ขั้นตอนสั่งซื้อ หรือหลักการของราคาขั้นบันได',
-      inputSchema: {
-        type: 'object',
-        properties: {
-          topic: {
-            type: 'string',
-            enum: POLICY_TOPIC_KEYS,
-            description: 'หัวข้อเงื่อนไขที่ต้องการ',
-          },
-        },
-        required: ['topic'],
-        additionalProperties: false,
-      } as const,
-      run: async ({ topic }) =>
-        record('explain_policy', { topic }, explainPolicy(topic as PolicyTopic)),
-    }),
   ];
 }
 

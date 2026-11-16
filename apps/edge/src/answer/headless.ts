@@ -109,11 +109,11 @@ export function requireHeadlessPolicy(
  * - **an environment built from an allow-list**, so no LINE token, Vercel token, database path or
  *   API key exists in it to be read or spent;
  * - **an explicit tool allow-list**, with no shell at all;
- * - **one door to company data** — the pricing MCP server, which is registered read-only calls and
- *   is started with the caller's role already fixed.
+ * - **no MCP servers at all** — the pricing MCP server was removed with the Edge pricing engine
+ *   (ADR-119), so the child starts with an explicitly empty MCP configuration.
  *
- * What it can do is therefore: ask the pricing engine, search the web, and write a file into its
- * own scratch directory. What it cannot do is reach the SoT, the tokens, or the repositories.
+ * What it can do is therefore: search the web (when enabled) and write a file into its own
+ * scratch directory. What it cannot do is reach the SoT, the tokens, or the repositories.
  */
 
 export interface HeadlessOptions {
@@ -132,16 +132,11 @@ export interface HeadlessOptions {
   /** Ceiling on the agent's own tool loop. */
   maxTurns: number;
   timeoutMs: number;
-  /** Absolute path to the built pricing MCP server. */
-  mcpServerPath: string;
   /** Root of the scratch directories. Kept outside every repository. */
   sandboxRoot: string;
   /** Where session ids are remembered, so a conversation continues. */
   sessionRoot: string;
   sessionRetentionHours: number;
-  catalogRoot: string;
-  exchangeRate: number;
-  shipMonth?: number;
   /** Off by default: an outward call is a decision, not a default. */
   webSearch: boolean;
   /** Off by default: writing files is only useful once there is a way to deliver them. */
@@ -366,61 +361,14 @@ function sandboxFor(key: string, options: HeadlessOptions): string {
   return dir;
 }
 
-function mcpConfig(options: HeadlessOptions, role: Role): string {
-  return JSON.stringify({
-    mcpServers: {
-      smartgift: {
-        command: process.execPath,
-        args: [options.mcpServerPath],
-        env: {
-          ZURI_MCP_ROLE: role,
-          ZURI_MCP_CATALOG_ROOT: path.resolve(options.catalogRoot),
-          ZURI_MCP_FX_THB_PER_RMB: String(options.exchangeRate),
-          ...(options.shipMonth ? { ZURI_MCP_SHIP_MONTH: String(options.shipMonth) } : {}),
-        },
-      },
-    },
-  });
-}
-
-/**
- * The same server as `mcpConfig`, expressed the way Codex takes it: repeated `-c` overrides of
- * `mcp_servers.<name>.*`, each value parsed as TOML. Kept beside `mcpConfig` deliberately — two
- * encodings of one fact, and they must not drift.
- */
-export function codexMcpArgs(options: HeadlessOptions, role: Role): string[] {
-  const toml = (v: string): string => JSON.stringify(v); // TOML and JSON agree on basic strings
-  const env: Record<string, string> = {
-    ZURI_MCP_ROLE: role,
-    ZURI_MCP_CATALOG_ROOT: path.resolve(options.catalogRoot),
-    ZURI_MCP_FX_THB_PER_RMB: String(options.exchangeRate),
-    ...(options.shipMonth ? { ZURI_MCP_SHIP_MONTH: String(options.shipMonth) } : {}),
-  };
-  return [
-    '-c',
-    `mcp_servers.smartgift.command=${toml(process.execPath)}`,
-    '-c',
-    `mcp_servers.smartgift.args=[${toml(options.mcpServerPath)}]`,
-    '-c',
-    `mcp_servers.smartgift.env={${Object.entries(env)
-      .map(([k, v]) => `${k}=${toml(v)}`)
-      .join(', ')}}`,
-  ];
-}
-
-const MCP_TOOLS = [
-  'mcp__smartgift__quote_price',
-  'mcp__smartgift__find_within_budget',
-  'mcp__smartgift__search_products',
-  'mcp__smartgift__lead_time',
-  'mcp__smartgift__explain_policy',
-];
+/** The child is given no MCP server; with `--strict-mcp-config` an empty list is the whole configuration. */
+const NO_MCP_CONFIG = JSON.stringify({ mcpServers: {} });
 
 /** Never available, whatever else is switched on. A shell would undo every other boundary. */
 const ALWAYS_DENIED = ['Bash', 'BashOutput', 'KillShell', 'Task', 'NotebookEdit'];
 
 export function allowedTools(options: HeadlessOptions): string[] {
-  const allowed = [...MCP_TOOLS];
+  const allowed: string[] = [];
   if (options.webSearch) allowed.push('WebSearch', 'WebFetch');
   if (options.fileAuthoring) allowed.push('Write', 'Read', 'Glob', 'Grep');
   return allowed;
@@ -457,17 +405,13 @@ export function buildArgs(
             '-c', 'cli_auth_credentials_store="keyring"',
             '-c', 'history.persistence="none"',
             '-c', 'web_search="disabled"',
-            '-c', 'mcp_servers={}',
             '-c', 'features.multi_agent=false',
           ]
         : []),
       '-m',
       options.model || 'gpt-5.6-luna',
-      // The same read-only pricing server the Claude path gets, and for the same reason: without
-      // it this model answers about products it cannot see, which reads as fluent and is worth
-      // nothing. Codex takes MCP servers as `-c` overrides rather than a JSON config file, so the
-      // one door to company data is opened the same way, with the caller's role already fixed.
-      ...codexMcpArgs(options, role),
+      // No MCP server: Codex takes them as `-c` overrides, so an empty table is the whole policy.
+      '-c', 'mcp_servers={}',
       '-',
     ];
   }
@@ -484,7 +428,7 @@ export function buildArgs(
     '--append-system-prompt',
     systemPrompt,
     '--mcp-config',
-    mcpConfig(options, role),
+    NO_MCP_CONFIG,
     '--strict-mcp-config',
     '--allowedTools',
     allowedTools(options).join(','),

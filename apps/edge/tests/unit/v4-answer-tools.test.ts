@@ -6,7 +6,6 @@ import { Catalog, CatalogProduct } from '../../src/catalog/store.js';
 import { EvidenceOptions, compactSearchForModel, findWithinBudget, quotePrice, searchProducts } from '../../src/answer/tools.js';
 import { GenesisLocalRag } from '../../src/rag/genesis-rag.js';
 import { RagUnavailableError } from '../../src/rag/v4/http-client.js';
-import { call } from '../../src/mcp/pricing-server.js';
 import { fakeRag, stubResult } from '../helpers/fake-rag.js';
 
 // @tested RAG-FR-004 — the retrieval door has no write path and no substring fallback.
@@ -117,11 +116,11 @@ describe('v4 answer tools: quotePrice', () => {
     assert.equal(evidence.priceAtQuantity?.unitPriceThb, 490);
   });
 
-  it('an unknown code falls through to the rmb catalog path with priceSource estimate_rmb', async () => {
+  it('an unknown code is not found with priceSource commercial_sku, never an RMB estimate (ADR-119)', async () => {
     const rag = fakeRag(); // priceForCode default: not found, not unavailable
     const evidence = await quotePrice('TJS23-2', 500, { ...baseOptions, rag });
-    assert.equal(evidence.priceSource, 'estimate_rmb');
-    assert.equal(evidence.found, true);
+    assert.equal(evidence.priceSource, 'commercial_sku');
+    assert.equal(evidence.found, false);
   });
 
   it('an unavailable price service reports found:false with a Thai message, never a fabricated price', async () => {
@@ -289,29 +288,6 @@ describe('GenesisLocalRag.health() (gate defect 9)', () => {
     assert.equal(typeof h.dbReady, 'boolean');
     assert.equal(typeof h.embedReady, 'boolean');
     assert.equal(h.staleRun, false);
-  });
-});
-
-describe('MCP pricing-server call()', () => {
-  it("call('search_products') awaits and returns the same shape as searchProducts", async () => {
-    const rag = fakeRag({
-      search: () => ({
-        results: [
-          stubResult({
-            id: 'MODEL_1',
-            code: 'TBY01',
-            name: 'เครื่องนวดคอ',
-            selectedPrice: { qtyTier: 100, unitPrice: 490, belowMoq: false, source: 'offer' },
-          }),
-        ],
-      }),
-    });
-    const options: EvidenceOptions = { ...baseOptions, rag };
-
-    const direct = await searchProducts('เครื่องนวดคอ', options);
-    const viaCall = await call('search_products', { query: 'เครื่องนวดคอ' }, options);
-
-    assert.deepEqual(viaCall, direct);
   });
 });
 

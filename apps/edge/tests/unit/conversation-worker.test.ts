@@ -83,8 +83,8 @@ test('stateless headless helper remains bounded and does not persist sessions', 
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'zuri-headless-test-'));
   try {
     const options: HeadlessOptions = { bin: 'codex', model: 'configured-model', maxTurns: 2, timeoutMs: 1000,
-      mcpServerPath: '/approved/server.js', sandboxRoot: root, sessionRoot: path.join(root, 'sessions'),
-      sessionRetentionHours: 0, catalogRoot: root, exchangeRate: 5, webSearch: false, fileAuthoring: false, stateless: true };
+      sandboxRoot: root, sessionRoot: path.join(root, 'sessions'),
+      sessionRetentionHours: 0, webSearch: false, fileAuthoring: false, stateless: true };
     const args = buildArgs('question', 'system', 'sales', null, options);
     assert.ok(args.includes('--ephemeral')); assert.ok(args.includes('read-only'));
     assert.ok(args.includes('features.shell_tool=false'));

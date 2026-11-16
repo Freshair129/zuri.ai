@@ -150,36 +150,18 @@ describe('The number check', () => {
 describe('Evidence handed to the model', () => {
   /*
    * `quotePrice` asks the catalog graph first (§5.7); none of these fixture SKUs are in it, so
-   * `emptyFakeRag()` reports "not found" (never `unavailable`) and every one of these falls
-   * through to the same rmb-catalog path exercised before `rag` existed.
+   * `emptyFakeRag()` reports "not found" (never `unavailable`). The local RMB-cost estimate that
+   * used to answer here was removed with the Edge pricing engine (ADR-119): an unknown code is
+   * reported as not found, never as an estimate.
    */
-  it('gives a salesperson the price and nothing behind it', async () => {
-    const evidence = await quotePrice('TJS23-2', 500, { ...evidenceBase, role: 'sales' });
-    assert.strictEqual(evidence.priceSource, 'estimate_rmb');
-    assert.strictEqual(evidence.quotable, true);
-    assert.strictEqual(evidence.cost, undefined);
-    assert.ok(evidence.breaks?.every((b) => b.landedUnitCostThb === undefined));
-    assert.ok(evidence.breaks?.every((b) => b.grossMarginPct === undefined));
-    /* Nothing the model could paraphrase into a cost: it is not in the packet at all. */
-    assert.ok(!JSON.stringify(evidence).includes('markup'));
-  });
-
-  it('gives the owner the cost stack', async () => {
-    const evidence = await quotePrice('TJS23-2', 500, { ...evidenceBase, role: 'owner' });
-    assert.ok(evidence.cost);
-    assert.ok(evidence.cost!.totalThb > 0);
-  });
-
-  it('answers an off-ladder quantity with the break above it', async () => {
-    const evidence = await quotePrice('TJS23-2', 120, { ...evidenceBase, role: 'sales' });
-    assert.strictEqual(evidence.priceAtQuantity?.askedQuantity, 120);
-    assert.ok(evidence.priceAtQuantity!.usesBreak >= 120);
-  });
-
-  it('says plainly when the catalog cannot support a price', async () => {
-    const evidence = await quotePrice('TSQ02-2', null, { ...evidenceBase, role: 'sales' });
-    assert.strictEqual(evidence.quotable, false);
-    assert.ok(evidence.missing?.includes('ข้อมูลกล่อง'));
+  it('reports a known catalog row with no published price as not found, never as an estimate', async () => {
+    for (const role of ['sales', 'owner'] as const) {
+      const evidence = await quotePrice('TJS23-2', 500, { ...evidenceBase, role });
+      assert.strictEqual(evidence.found, false);
+      assert.strictEqual(evidence.priceSource, 'commercial_sku');
+      assert.strictEqual(evidence.breaks, undefined);
+      assert.ok(!JSON.stringify(evidence).includes('markup'));
+    }
   });
 
   it('reports a missing code rather than guessing a near match', async () => {
@@ -296,7 +278,7 @@ describe('Answering a conversation', () => {
   });
 
   it('uses the pattern reader when no model is configured, and still answers', async () => {
-    const result = await answerConversation('TJS23-2 100 ชุด', {
+    const result = await answerConversation('umbrella', {
       ...evidenceBase,
       role: 'sales',
       conversationKey: 'k',

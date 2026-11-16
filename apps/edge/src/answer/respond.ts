@@ -1,11 +1,5 @@
-import { Catalog, CatalogProduct, findByCode, isQuotable, searchByName } from '../catalog/store.js';
+import { Catalog, searchByName } from '../catalog/store.js';
 import { Role } from '../identity/registry.js';
-import { formatQuoteForLine, scopeQuote } from '../identity/scope.js';
-import {
-  PRICING_PROFILES,
-  buildPriceQuote,
-  screenPositionsForItemCode,
-} from '../pricing/index.js';
 import { HeadlessOptions, runHeadless } from './headless.js';
 import {
   ConversationResult,
@@ -43,123 +37,13 @@ export interface AnswerOptions {
 export const CANNOT_ANSWER_NOW_TEXT = 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
 
 const HELP_TEXT = [
-  'ซูริช่วยเรื่องราคาได้ 3 แบบค่ะ',
+  'พิมพ์ชื่อสินค้าเพื่อค้นหา เช่น  ร่ม',
   '',
-  '• พิมพ์รหัสสินค้า เช่น  TJS23-2',
-  '• รหัส + จำนวน เช่น  TJS23-2 100 ชุด',
-  '• จำนวน + งบ เช่น  100 ชุด งบ 300',
-  '',
-  'หรือพิมพ์ชื่อสินค้าเพื่อค้นหา เช่น  ร่ม',
+  'ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้นค่ะ',
 ].join('\n');
 
-/** Everything a quote needs, assembled from one catalog row. */
-function quoteInputFor(p: CatalogProduct, options: AnswerOptions) {
-  const [l, w, h] = p.dims as [number, number, number];
-  return {
-    sku: p.code,
-    factoryCostRmb: p.rmb as number,
-    exchangeRate: options.exchangeRate,
-    carton: {
-      unitsPerCarton: p.upc as number,
-      cartonCbm: Math.round((l * w * h) / 1e6 * 10000) / 10000,
-      ...(p.kg ? { cartonWeightKg: p.kg } : {}),
-    },
-    freight: {
-      mode: 'auto' as const,
-      shipMonth: options.shipMonth ?? new Date().getMonth() + 1,
-      goodsClass: (p.e ? 'electronic_tisi' : 'general') as 'electronic_tisi' | 'general',
-    },
-    logo: { positions: screenPositionsForItemCode(p.code) },
-  };
-}
-
-function priceAnswer(p: CatalogProduct, quantity: number | null, options: AnswerOptions): string {
-  if (!isQuotable(p)) {
-    const missing = [
-      p.rmb === null ? 'ต้นทุนโรงงาน' : null,
-      p.upc === null || p.dims === null ? 'ข้อมูลกล่อง' : null,
-    ].filter(Boolean);
-    return (
-      `${p.code} — ${p.name}\n\n` +
-      `ยังคำนวณราคาให้ไม่ได้ค่ะ ขาด${missing.join('และ')}\n` +
-      'สินค้ารุ่นเก่าในแคตตาล็อกยังไม่มีข้อมูลกล่อง กำลังขอจากโรงงานอยู่'
-    );
-  }
-
-  const quote = buildPriceQuote(quoteInputFor(p, options));
-  const scoped = scopeQuote(quote, options.role);
-  let text = formatQuoteForLine(scoped, p.name);
-
-  /*
-   * A quantity that is not one of the published breaks is answered with the break above it: the
-   * customer pays that price, and quoting the cheaper break below would be a promise the ladder
-   * does not make.
-   */
-  if (quantity !== null) {
-    const breaks = scoped.breaks;
-    const exact = breaks.find((b) => b.quantity === quantity);
-    if (!exact) {
-      const above = breaks.find((b) => b.quantity >= quantity);
-      const chosen = above || breaks[breaks.length - 1];
-      text +=
-        `\n\nที่ ${quantity.toLocaleString('en-US')} ชุด ` +
-        (above
-          ? `ใช้ราคาขั้น ${chosen.quantity} ชุด = ${chosen.unitPriceThb.toLocaleString('en-US')} บาท`
-          : `เกินขั้นสูงสุดในตาราง ใช้ราคาขั้น ${chosen.quantity} ชุด = ${chosen.unitPriceThb.toLocaleString('en-US')} บาท และควรขอราคาพิเศษ`);
-    }
-  }
-  return text;
-}
-
-/**
- * Products whose price at the asked quantity fits the budget.
- *
- * This is the reverse of a normal quote and it is what the sales floor actually asks for: the
- * customer names a headcount and a budget, and the question is which products clear it.
- */
-function budgetAnswer(quantity: number, maxPriceThb: number, options: AnswerOptions): string {
-  const profile = PRICING_PROFILES.standard;
-  const nearest =
-    profile.quantityBreaks.find((q) => q >= quantity) ??
-    profile.quantityBreaks[profile.quantityBreaks.length - 1];
-
-  const hits: Array<{ p: CatalogProduct; price: number }> = [];
-  for (const p of options.catalog.products) {
-    if (!isQuotable(p)) continue;
-    try {
-      const quote = buildPriceQuote(quoteInputFor(p, options));
-      const brk = quote.breaks.find((b) => b.quantity === nearest);
-      if (brk && brk.unitPriceThb <= maxPriceThb) hits.push({ p, price: brk.unitPriceThb });
-    } catch {
-      // A row with impossible carton figures is skipped rather than aborting the whole search.
-    }
-  }
-
-  if (!hits.length) {
-    return (
-      `${quantity.toLocaleString('en-US')} ชุด งบ ${maxPriceThb.toLocaleString('en-US')} บาท/ชุด\n\n` +
-      'ยังไม่มีสินค้าที่เข้างบนี้ค่ะ ลองเพิ่มงบหรือเพิ่มจำนวนสั่ง เพราะสั่งมากขึ้นราคาต่อชุดจะถูกลง'
-    );
-  }
-
-  hits.sort((a, b) => b.price - a.price);
-  const shown = hits.slice(0, 10);
-  const lines = shown.map(
-    (h) => `${h.p.code}  ${h.price.toLocaleString('en-US')} บาท  ${h.p.name.slice(0, 44)}`
-  );
-
-  return [
-    `${quantity.toLocaleString('en-US')} ชุด งบไม่เกิน ${maxPriceThb.toLocaleString('en-US')} บาท/ชุด`,
-    `เจอ ${hits.length} รายการ${hits.length > shown.length ? ` แสดง ${shown.length} ที่ใกล้งบที่สุด` : ''}`,
-    '',
-    ...lines,
-    '',
-    nearest !== quantity ? `* ใช้ราคาขั้น ${nearest} ชุด ซึ่งเป็นขั้นที่ครอบจำนวนที่ถาม` : '',
-    'พิมพ์รหัสสินค้าเพื่อดูราคาทุกขั้น',
-  ]
-    .filter(Boolean)
-    .join('\n');
-}
+/** The local cost-to-price calculator was removed (ADR-119); a price is only ever read from the published catalog. */
+const PRICE_NOT_AVAILABLE_TEXT = 'ซูริยังคำนวณราคาในโหมดนี้ไม่ได้ค่ะ ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้น';
 
 function searchAnswer(query: string, options: AnswerOptions): string {
   const found = searchByName(options.catalog, query);
@@ -186,7 +70,7 @@ export function answerMessage(text: string, options: AnswerOptions): string {
    * and `unknown` already says a truthful "did not understand" rather than claiming anything about
    * the catalogue, so both keep their normal replies.
    */
-  if (options.catalog.products.length === 0 && ['price', 'search', 'budget'].includes(intent.kind)) {
+  if (options.catalog.products.length === 0 && ['search'].includes(intent.kind)) {
     return CANNOT_ANSWER_NOW_TEXT;
   }
 
@@ -194,16 +78,9 @@ export function answerMessage(text: string, options: AnswerOptions): string {
     case 'help':
       return HELP_TEXT;
 
-    case 'price': {
-      const product = findByCode(options.catalog, intent.sku);
-      if (!product) {
-        return `ไม่เจอรหัส ${intent.sku} ในแคตตาล็อกค่ะ\n\nลองพิมพ์ชื่อสินค้าเพื่อค้นหา หรือตรวจรหัสอีกครั้ง`;
-      }
-      return priceAnswer(product, intent.quantity, options);
-    }
-
+    case 'price':
     case 'budget':
-      return budgetAnswer(intent.quantity, intent.maxPriceThb, options);
+      return PRICE_NOT_AVAILABLE_TEXT;
 
     case 'search':
       return searchAnswer(intent.query, options);
@@ -243,43 +120,6 @@ const HEADLESS_NOTE = `
 ถ้าสร้างไฟล์ ให้เขียนลงโฟลเดอร์ out/ เท่านั้น แล้วบอกชื่อไฟล์ในคำตอบ`;
 
 /**
- * The claude CLI defers MCP tool schemas: they exist but must be loaded by exact name through
- * ToolSearch before the first call. A keyword search does not reliably surface them, so the exact
- * names and the load incantation are stated outright — without this the model concludes the
- * catalog tools do not exist and apologises to the customer.
- */
-export const HEADLESS_TOOLS_NOTE = `
-เครื่องมือแคตตาล็อกที่มีให้ (ต้องโหลดก่อนใช้):
-- mcp__smartgift__search_products  ค้นสินค้า (query ภาษาไทยได้)
-- mcp__smartgift__quote_price      ราคาตามขั้นจำนวนของรหัสสินค้า
-- mcp__smartgift__find_within_budget  หาสินค้าตามงบต่อชุด
-- mcp__smartgift__lead_time        ระยะเวลาผลิต-ส่ง
-- mcp__smartgift__explain_policy   นโยบายการขาย
-ขั้นแรกให้เรียก ToolSearch ด้วย query "select:mcp__smartgift__search_products,mcp__smartgift__quote_price,mcp__smartgift__find_within_budget,mcp__smartgift__lead_time,mcp__smartgift__explain_policy" หนึ่งครั้ง แล้วจึงใช้เครื่องมือเหล่านี้ตอบจากข้อมูลจริงเท่านั้น ห้ามสรุปว่าไม่มีเครื่องมือ`;
-
-/**
- * The same list without the ToolSearch step. Codex does not defer MCP schemas — every
- * `mcp__smartgift__*` tool is already visible on the first turn — so telling it to load them first
- * sends it looking for a tool that is not there.
- */
-export const HEADLESS_TOOLS_NOTE_CODEX = HEADLESS_TOOLS_NOTE.replace(
-  'เครื่องมือแคตตาล็อกที่มีให้ (ต้องโหลดก่อนใช้):',
-  'เครื่องมือแคตตาล็อกที่มีให้ (เรียกใช้ได้ทันที):',
-).replace(/ขั้นแรกให้เรียก ToolSearch[^\n]*?แล้วจึงใช้/, 'ใช้');
-
-/**
- * Picks the note for the CLI actually in use.
- *
- * This note exists because without it the model concludes the catalog tools do not exist and
- * apologises to the customer — which is exactly what happened while it was merely exported and
- * never added to the prompt. Both CLIs need the tool names; only the Claude one needs the
- * ToolSearch step.
- */
-export function headlessToolsNote(bin: string): string {
-  return bin.includes('codex') ? HEADLESS_TOOLS_NOTE_CODEX : HEADLESS_TOOLS_NOTE;
-}
-
-/**
  * One turn through the headless CLI.
  *
  * The number check runs here exactly as it does on the API path — the evidence is harvested from
@@ -309,7 +149,6 @@ async function answerViaHeadless(
       '\n' +
       (options.role === 'owner' ? OWNER_NOTE : SALES_NOTE) +
       HEADLESS_NOTE +
-      headlessToolsNote(headless.bin) +
       conversationHistoryContext,
     options.role,
     options.conversationKey,
