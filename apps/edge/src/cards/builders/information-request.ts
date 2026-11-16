@@ -22,7 +22,7 @@ export function buildInformationRequestCard(
     title: ctx?.title || 'Checklist ข้อมูลสำหรับ Forecast ยอดขาย 1Q',
     subtitle: ctx?.subtitle || 'ซูริสรุปรายการที่ต้องเติมก่อนเริ่มคาดการณ์อย่างมีหลักฐาน',
     operationalState: ctx?.operationalState || 'snapshot',
-    sourceLabel: ctx?.sourceLabel || 'SmartGift DuckDB schema audit',
+    sourceLabel: ctx?.sourceLabel || 'DuckDB schema audit',
     asOf,
     items: suppliedItems.slice(0, 5).map((row) => ({
       title: String(row.title || 'รายการข้อมูล'),

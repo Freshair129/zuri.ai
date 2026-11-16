@@ -8,7 +8,7 @@ export function buildExecutiveSummaryCard(
   const row = rows[0] || {};
   const state = ctx?.operationalState || 'live';
   const asOf = ctx?.asOf || new Date().toISOString();
-  const sourceLabel = ctx?.sourceLabel || 'SmartGift DuckDB';
+  const sourceLabel = ctx?.sourceLabel || 'DuckDB';
 
   const totalRevenue = (row.total_revenue as string) || '฿0';
   const totalOrders = row.total_orders !== undefined ? String(row.total_orders) : '0';

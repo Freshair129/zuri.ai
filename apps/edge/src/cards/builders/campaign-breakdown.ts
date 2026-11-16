@@ -7,7 +7,7 @@ export function buildCampaignBreakdownCard(
 ): CardViewModel {
   const state = ctx?.operationalState || 'live';
   const asOf = ctx?.asOf || new Date().toISOString();
-  const sourceLabel = ctx?.sourceLabel || 'SmartGift DuckDB';
+  const sourceLabel = ctx?.sourceLabel || 'DuckDB';
 
   const items = rows.map((r) => ({
     title: (r.campaign_name as string) || 'แคมเปญไม่ระบุชื่อ',

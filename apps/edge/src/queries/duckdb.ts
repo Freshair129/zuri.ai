@@ -62,7 +62,7 @@ export class DuckDBQueryExecutor {
       queryId: query.queryId,
       queryVersion: query.version,
       sensitivity: query.sensitivity,
-      source: 'SmartGift DuckDB Analytics',
+      source: 'DuckDB Analytics',
       asOf: new Date().toISOString(),
       rows: filteredRows,
       rowCount: filteredRows.length,

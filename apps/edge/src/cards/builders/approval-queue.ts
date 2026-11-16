@@ -7,7 +7,7 @@ export function buildApprovalQueueCard(
 ): CardViewModel {
   const state = ctx?.operationalState || 'live';
   const asOf = ctx?.asOf || new Date().toISOString();
-  const sourceLabel = ctx?.sourceLabel || 'SmartGift DuckDB';
+  const sourceLabel = ctx?.sourceLabel || 'DuckDB';
 
   const items = rows.map((r) => ({
     title: (r.action_type as string) || 'รายการรอนุมัติ',
