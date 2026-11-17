@@ -4,7 +4,9 @@ import { suggestsUnseenProducts, unverifiedNumbers } from '../../src/answer/llm.
 import assert from 'node:assert';
 
 import { parseMessage } from '../../src/answer/parse.js';
-import { answerMessage } from '../../src/answer/respond.js';
+import { answerMessage, answerConversation, type ConversationOptionsFull } from '../../src/answer/respond.js';
+import { allowedTools, type runHeadless } from '../../src/answer/headless.js';
+import { emptyFakeRag } from '../helpers/fake-rag.js';
 import { Catalog, CatalogProduct } from '../../src/catalog/store.js';
 
 // @tested SDD-010 — the conversational answer stack across its pattern, API and headless layers.
@@ -30,6 +32,83 @@ const NO_CARTON: Omit<CatalogProduct, 'book'> = {
 
 const catalog = catalogOf([FAN, BOTTLE, NO_CARTON]);
 const base = { catalog, exchangeRate: 5, shipMonth: 11 } as const;
+
+const headlessOptions: ConversationOptionsFull = {
+  ...base, role: 'sales', rag: emptyFakeRag(), conversationKey: 'commerce-guard',
+  memory: { root: '.', hashKey: 'fixture' }, retainHistory: false,
+  headless: { bin: 'unused-fixture', model: 'fixture', maxTurns: 1, timeoutMs: 5000,
+    sandboxRoot: '.', sessionRoot: '.', sessionRetentionHours: 1, webSearch: true, fileAuthoring: true },
+};
+const headlessReply = (text: string): typeof runHeadless => async () => ({
+  ok: true, text, evidence: text, rememberedNumbers: [780, 49, 12, 15], toolCalls: ['WebSearch'],
+});
+
+describe('headless commercial answers after local pricing removal', () => {
+  it('does not treat model, web or remembered prices as catalog authority', async () => {
+    for (const reply of ['ราคา 780 บาท/ชุดค่ะ', 'ชุดละ 49 บาทค่ะ', 'ราคา ฿๔๙ ค่ะ', '185.-/ชุดค่ะ', 'ลดให้ 5% ค่ะ']) {
+      const answer = await answerConversation('ขอดูราคาหน่อย', headlessOptions, headlessReply(reply));
+      assert.equal(answer.source, 'rules');
+      assert.equal(answer.reason, 'HEADLESS_PRICE_UNVERIFIED');
+      assert.match(answer.text, /แคตตาล็อกที่เผยแพร่/);
+      assert.notEqual(answer.text, reply);
+    }
+  });
+
+  it('hands off delivery commitments, including small day counts, without retrying price tools', async () => {
+    let apiCalls = 0;
+    const options = { ...headlessOptions, llm: { timeoutMs: 5000, maxIterations: 1,
+      port: { id: 'unused', model: 'unused', generate: async () => { apiCalls++; return { text: '' }; } } } };
+    for (const [question, reply] of [
+      ['ช่วยอธิบายหน่อย', 'ผลิตและจัดส่งภายใน 12–15 วันค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งภายใน 3 วันค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'จัดส่งวันที่ 20/11/2026 ค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งวันศุกร์ค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งภายในสิ้นเดือนค่ะ'],
+      ['ส่งของเมื่อไร', 'ประมาณ 12 วันค่ะ'],
+      ['When will it ship?', 'Delivery takes 2 weeks.'],
+    ]) {
+      const answer = await answerConversation(question, options, headlessReply(reply));
+      assert.equal(answer.source, 'rules');
+      assert.equal(answer.reason, 'HEADLESS_DELIVERY_UNVERIFIED');
+      assert.match(answer.text, /ยืนยัน/);
+      assert.notEqual(answer.text, reply);
+    }
+    assert.equal(apiCalls, 0, 'catalog tools cannot authorize lead time');
+  });
+
+  it('hands off explicit stock promises because catalog prices do not verify current inventory', async () => {
+    for (const reply of ['มีเหลือ 20 ชิ้นค่ะ', 'สินค้าพร้อมส่งค่ะ', 'There are 20 units in stock.']) {
+      const answer = await answerConversation('มีสินค้าไหม', headlessOptions, headlessReply(reply));
+      assert.equal(answer.reason, 'HEADLESS_STOCK_UNVERIFIED');
+      assert.equal(answer.source, 'rules');
+      assert.notEqual(answer.text, reply);
+    }
+  });
+
+  it('does not let an API retry return another unsupported small price', async () => {
+    let apiCalls = 0;
+    const answer = await answerConversation('ขอดูราคาหน่อย', { ...headlessOptions,
+      llm: { timeoutMs: 5000, maxIterations: 1, port: { id: 'fixture', model: 'fixture', generate: async () => {
+        apiCalls++; return { text: 'ราคา 49 บาทค่ะ' };
+      } } },
+    }, headlessReply('ราคา 780 บาทค่ะ'));
+    assert.equal(apiCalls, 1);
+    assert.equal(answer.reason, 'HEADLESS_PRICE_UNVERIFIED');
+    assert.doesNotMatch(answer.text, /49|780/);
+  });
+
+  it('keeps general numeric answers and the enabled web/file capabilities', async () => {
+    for (const reply of ['CI retries 15 times.', 'The research period was 30 days.', 'Production logs cover 30 days.', 'Wrote 500 rows to out/report.csv.']) {
+      const answer = await answerConversation('ช่วยวิเคราะห์งานนี้', headlessOptions, async (...args) => {
+        assert.match(args[1], /# Persona: Zuri/);
+        assert.deepEqual(allowedTools(args[4]), ['WebSearch', 'WebFetch', 'Write', 'Read', 'Glob', 'Grep']);
+        return headlessReply(reply)(...args);
+      });
+      assert.equal(answer.text, reply);
+      assert.equal(answer.source, 'model');
+    }
+  });
+});
 
 describe('Reading the question', () => {
   it('pulls the item code out of a sentence', () => {

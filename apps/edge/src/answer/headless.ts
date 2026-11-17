@@ -109,11 +109,12 @@ export function requireHeadlessPolicy(
  * - **an environment built from an allow-list**, so no LINE token, Vercel token, database path or
  *   API key exists in it to be read or spent;
  * - **an explicit tool allow-list**, with no shell at all;
- * - **no MCP servers at all** — the pricing MCP server was removed with the Edge pricing engine
- *   (ADR-119), so the child starts with an explicitly empty MCP configuration.
+ * - **no application-provided pricing MCP** — the local pricing server was removed in ADR-119.
+ *   Claude uses a strict empty MCP configuration. Stateful local Codex may still load the
+ *   operator's own configuration; only the validated stateless controls isolate that configuration.
  *
- * What it can do is therefore: search the web (when enabled) and write a file into its own
- * scratch directory. What it cannot do is reach the SoT, the tokens, or the repositories.
+ * Application-provided capabilities are web search and files when enabled. The local Codex
+ * operator owns any ambient CLI configuration; it is not an application catalog authority.
  */
 
 export interface HeadlessOptions {
@@ -361,7 +362,7 @@ function sandboxFor(key: string, options: HeadlessOptions): string {
   return dir;
 }
 
-/** The child is given no MCP server; with `--strict-mcp-config` an empty list is the whole configuration. */
+/** Claude's strict MCP configuration contains no application server. */
 const NO_MCP_CONFIG = JSON.stringify({ mcpServers: {} });
 
 /** Never available, whatever else is switched on. A shell would undo every other boundary. */
@@ -410,7 +411,8 @@ export function buildArgs(
         : []),
       '-m',
       options.model || 'gpt-5.6-luna',
-      // No MCP server: Codex takes them as `-c` overrides, so an empty table is the whole policy.
+      // Supply no application MCP server. This does not erase inherited stateful user config;
+      // stateless isolation additionally requires the validated controls above.
       '-c', 'mcp_servers={}',
       '-',
     ];

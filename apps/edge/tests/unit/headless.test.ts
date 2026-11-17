@@ -405,7 +405,7 @@ describe('codex MCP wiring', () => {
     webSearch: false, fileAuthoring: false,
   } as never;
 
-  it('adds no MCP server and states an empty table', () => {
+  it('adds no application pricing MCP server and supplies an empty table override', () => {
     const joined = buildArgs('ราคา', 'SYSTEM', 'sales', null, opts).join(' ');
     assert.doesNotMatch(joined, /mcp_servers\.smartgift/);
     assert.match(joined, /mcp_servers=\{\}/);

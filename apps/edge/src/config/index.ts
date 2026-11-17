@@ -218,11 +218,11 @@ export function validateConfig(env: NodeJS.ProcessEnv = process.env): ConfigChec
         duckdbCheck = { status: 'pass', path: config.duckdbPath, readable: true };
       } else {
         duckdbCheck = { status: 'fail', path: config.duckdbPath, readable: false };
-        errors.push(`SmartGift DuckDB file not found at path: ${config.duckdbPath}`);
+        errors.push(`DuckDB file not found at path: ${config.duckdbPath}`);
       }
     } catch {
       duckdbCheck = { status: 'fail', path: config.duckdbPath, readable: false };
-      errors.push(`SmartGift DuckDB file is not readable at path: ${config.duckdbPath}`);
+      errors.push(`DuckDB file is not readable at path: ${config.duckdbPath}`);
     }
   }
 

@@ -7,14 +7,12 @@ import type { PublishedProductQueryResult } from '../rag/genesisrag17/product-ra
 /**
  * The facts a model is allowed to answer from.
  *
- * Everything here is computed by the pricing engine and then cut to the caller's role *before* it
- * is returned. A sales conversation therefore never has a factory cost or a markup in the model's
- * context at all — not hidden behind an instruction, simply absent. An instruction can be argued
- * with by whatever the customer types; an absent field cannot.
+ * Product facts and commercial prices are read through the RAG adapter. The removed local
+ * cost-to-price engine is never a fallback. Published snapshots retain their provenance and
+ * unverified commercial conditions rather than becoming live quotes.
  *
- * These are also the only source of numbers in a reply. `verifyNumbers` in `llm.ts` checks the
- * finished text against what these returned, so a figure the model invented does not reach a
- * customer.
+ * `unverifiedNumbers` in `llm.ts` checks model figures against these results; published catalog
+ * evidence instead owns the deterministic final text and its limitations.
  */
 
 export interface EvidenceOptions {
@@ -74,11 +72,9 @@ export interface QuoteEvidence {
 /**
  * Real per-unit prices, straight from the catalog graph's commercial SKU ladder.
  *
- * The graph is asked first because it carries the actual quoted prices (§5.7). A code the graph
- * has no ladder for — not yet ingested, or a code from the older rmb catalog — falls through to
- * the estimate path, and the caller is told which one it got via `priceSource`. A graph that
- * cannot be reached at all is reported as unavailable rather than silently answered from the
- * estimate path, so a customer never receives a number the system could not actually confirm.
+ * A missing ladder is reported as having no confirmed price, and an unreachable service is
+ * explicitly unavailable. Neither case falls back to an RMB estimate. Published snapshots
+ * carry catalog amounts without inventing live quote totals, tax, shipping or validity.
  */
 export async function quotePrice(
   sku: string,

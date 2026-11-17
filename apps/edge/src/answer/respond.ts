@@ -6,16 +6,12 @@ import {
   LlmOptions,
   OWNER_NOTE,
   SALES_NOTE,
-  SYSTEM_PROMPT,
   answerWithModel,
-  unverifiedNumbers,
 } from './llm.js';
 import { ConversationOptions, appendTurns, loadConversation } from './memory.js';
 import { Intent, parseMessage } from './parse.js';
 import { activePersonaId, loadPersonaPrompt } from './persona.js';
 import type { AnswerRag } from '../rag/genesis-rag.js';
-import { buildCodexEvidence } from './codex-evidence.js';
-import type { SearchEvidenceV4 } from './format-cards.js';
 
 // @req SDD-010 — the conversational answer stack: pattern, API and headless layers with short-lived memory.
 
@@ -117,20 +113,51 @@ export interface ConversationOptionsFull extends AnswerOptions {
 const HEADLESS_NOTE = `
 คำตอบของคุณจะถูกส่งเข้าแชท LINE ตรง ๆ โดยไม่มีคนตรวจก่อน
 ตอบเป็นข้อความเดียวจบ ไม่ต้องเล่าว่ากำลังจะทำอะไรหรือทำอะไรไปแล้ว ให้บอกผลลัพธ์
+ช่องทางนี้ไม่มีเครื่องมือยืนยันราคาสินค้า ส่วนลด สต็อก หรือกำหนดผลิตและจัดส่ง ห้ามใช้เว็บหรือความจำยืนยันข้อมูลเหล่านี้ ให้ส่งต่อช่องทางข้อมูลสินค้าหรือทีมงาน
 ถ้าสร้างไฟล์ ให้เขียนลงโฟลเดอร์ out/ เท่านั้น แล้วบอกชื่อไฟล์ในคำตอบ`;
+
+const HEADLESS_HANDOFFS = {
+  price: { reason: 'HEADLESS_PRICE_UNVERIFIED',
+    text: 'ซูริยังยืนยันราคาหรือส่วนลดจากแคตตาล็อกที่เผยแพร่ไม่ได้ค่ะ กรุณาใช้ช่องทางที่เชื่อมข้อมูลสินค้าหรือให้ผู้ดูแลตรวจสอบก่อน' },
+  delivery: { reason: 'HEADLESS_DELIVERY_UNVERIFIED',
+    text: 'ซูริยังยืนยันกำหนดผลิตหรือจัดส่งไม่ได้ค่ะ ต้องให้ทีมงานตรวจสอบและยืนยันก่อน' },
+  stock: { reason: 'HEADLESS_STOCK_UNVERIFIED',
+    text: 'ซูริยังยืนยันสต็อกปัจจุบันไม่ได้ค่ะ ต้องให้ทีมงานตรวจสอบและยืนยันก่อน' },
+};
+
+/**
+ * A headless CLI has no application catalog tool after ADR-119. Its web results and remembered
+ * numbers cannot authorize a commercial promise. Check explicit claim shapes, including amounts
+ * below the API's general numeric threshold, without rejecting arbitrary numbers in local tasks.
+ * This lexical guard supplements the prompt; it does not interpret every possible paraphrase.
+ */
+function headlessCommerceClaim(reply: string, userText: string): keyof typeof HEADLESS_HANDOFFS | null {
+  const number = String.raw`[0-9๐-๙]+(?:[.,][0-9๐-๙]+)*(?:\s*(?:[-–—]|ถึง|to)\s*[0-9๐-๙]+(?:[.,][0-9๐-๙]+)*)?`;
+  const duration = new RegExp(`${number}\\s*(?:วัน|สัปดาห์|เดือน|ชั่วโมง|days?\\b|weeks?\\b|months?\\b|hours?\\b)`, 'iu');
+  const date = /(?:วันที่\s*[0-9๐-๙]|วัน(?:จันทร์|อังคาร|พุธ|พฤหัส|ศุกร์|เสาร์|อาทิตย์)|วันนี้|พรุ่งนี้|มะรืน|(?:ต้น|กลาง|สิ้น|ปลาย)(?:เดือน|สัปดาห์|ปี)|\b(?:today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b)/iu;
+  const delivery = /(?:ผลิต|จัดส่ง|ส่งมอบ|ส่งของ|ส่งสินค้า|ส่ง(?:\s|ภายใน|ประมาณ|ใน|ให้|ได้|ถึง|วัน|เมื่อ)|พร้อมส่ง|สกรีน|\b(?:manufacturing|production\s+(?:time|takes|starts|ends)|delivery|shipping|dispatch|ship|lead\s*time)\b)/iu;
+  if ((duration.test(reply) || date.test(reply)) && delivery.test(`${reply}\n${userText}`)) return 'delivery';
+
+  const stock = /(?:มีเหลือ|ของเหลือ|สินค้าคงเหลือ|สินค้าพร้อมส่ง|ของพร้อมส่ง|มี(?:สินค้า|ของ)พร้อม|\bin\s+stock\b|\b(?:stock|inventory)\s*(?:available|remaining|:)|สต็อก[^\n]{0,24}[0-9๐-๙])/iu;
+  if (stock.test(reply)) return 'stock';
+
+  const amount = new RegExp(`(?:${number}\\s*(?:บาท|THB\\b|USD\\b|EUR\\b|RMB\\b|CNY\\b|[฿$€£¥])|[฿$€£¥]\\s*${number}|${number}\\s*[.]?-\\s*/\\s*(?:ชุด|ชิ้น))`, 'iu');
+  const price = new RegExp(`(?:ราคา|ชุดละ|ชิ้นละ|ส่วนลด|ลดให้|\\b(?:price|cost|discount)\\b)[^\\n0-9๐-๙]{0,40}${number}`, 'iu');
+  return amount.test(reply) || price.test(reply) ? 'price' : null;
+}
 
 /**
  * One turn through the headless CLI.
  *
- * The number check runs here exactly as it does on the API path — the evidence is harvested from
- * the tool results on the event stream rather than from a closure, but the rule is the same: a
- * figure that is in neither the evidence nor the person's own words means the reply is discarded.
+ * Explicit commercial claims require the published API path or a human handoff. The headless
+ * event stream is not catalog evidence; other local assistance keeps its web/file capabilities.
  */
 async function answerViaHeadless(
   text: string,
   options: ConversationOptionsFull,
   headless: HeadlessOptions,
-  fallback: string
+  fallback: string,
+  headlessRunner: typeof runHeadless
 ): Promise<ConversationResult> {
   const personaPrompt = loadPersonaPrompt(activePersonaId());
 
@@ -143,7 +170,7 @@ async function answerViaHeadless(
       recent.map(t => `${t.role === 'user' ? 'ลูกค้า' : 'ซูริ'}: ${t.text}`).join('\n');
   }
 
-  const result = await runHeadless(
+  const result = await headlessRunner(
     text,
     personaPrompt +
       '\n' +
@@ -164,8 +191,11 @@ async function answerViaHeadless(
     };
   }
 
-  // When AI model generated a thorough response (e.g. CI design, marketing, consultation),
-  // return the model answer directly so it's not mistakenly overwritten by pricing fallback
+  const claim = headlessCommerceClaim(result.text, text);
+  if (claim) {
+    return { ...HEADLESS_HANDOFFS[claim], source: 'rules', toolCalls: result.toolCalls };
+  }
+
   return { text: result.text, source: 'model', toolCalls: result.toolCalls };
 }
 
@@ -195,18 +225,25 @@ function fallbackFor(text: string, options: AnswerOptions): string {
  */
 export async function answerConversation(
   text: string,
-  options: ConversationOptionsFull
+  options: ConversationOptionsFull,
+  headlessRunner: typeof runHeadless = runHeadless
 ): Promise<ConversationResult> {
   const fallback = answerMessage(text, options);
+  let rejectedHeadlessPrice: ConversationResult | undefined;
 
   /*
    * The headless path keeps its own conversation through `--resume`, so the turns recorded here
    * are for the record and for the API path, not replayed into it.
    */
   if (options.headless) {
-    const result = await answerViaHeadless(text, options, options.headless, fallbackFor(text, options));
-    recordTurns(text, result.text, options);
-    return result;
+    const result = await answerViaHeadless(text, options, options.headless, fallbackFor(text, options), headlessRunner);
+    if (result.reason !== 'HEADLESS_PRICE_UNVERIFIED' || !options.llm?.port) {
+      recordTurns(text, result.text, options);
+      return result;
+    }
+    // Prices can retry through the existing RAG tool path. There is no corresponding source of
+    // production/delivery dates or stock, so those commitments stop at the human handoff above.
+    rejectedHeadlessPrice = result;
   }
 
   if (!options.llm?.port) {
@@ -233,8 +270,14 @@ export async function answerConversation(
     loadPersonaPrompt(activePersonaId(), 'local')
   );
 
-  recordTurns(text, result.text, options);
-  return result;
+  // A second ungrounded model price is not a successful retry. Published evidence owns its final
+  // text; otherwise retain the handoff for numeric commercial claims, including small prices.
+  const retryClaim = rejectedHeadlessPrice && result.reason !== 'PUBLISHED_CATALOG_EVIDENCE'
+    ? headlessCommerceClaim(result.text, text) : null;
+  const final: ConversationResult = retryClaim ? { ...HEADLESS_HANDOFFS[retryClaim], source: 'rules', toolCalls: result.toolCalls } : result;
+  if (rejectedHeadlessPrice) final.toolCalls = [...rejectedHeadlessPrice.toolCalls, ...final.toolCalls];
+  recordTurns(text, final.text, options);
+  return final;
 }
 
 function recordTurns(

@@ -13,7 +13,7 @@ export const QUERY_REGISTRY: Record<string, RegisteredQuery> = {
   'executive_summary.v1': {
     queryId: 'executive_summary.v1',
     version: '1.0.0',
-    description: 'SmartGift executive aggregate metrics and status',
+    description: 'Executive aggregate metrics and status',
     sensitivity: 'INTERNAL',
     allowedColumns: ['total_revenue', 'total_orders', 'active_customers', 'growth_rate', 'risk_flag'],
     maxRowCap: 10,

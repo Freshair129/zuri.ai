@@ -42,12 +42,11 @@ export function headlessProviderHome(
 export const JOB_MODEL_BUDGET_MS = 30000;
 
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
-  // The headless pricing MCP has no server-derived Business scope and reads the
-  // local SmartGift catalog. Never let a Business conversation reach that door.
+  // A headless CLI has no server-derived Business/corpus scope. Keep it outside
+  // Business conversations even after removal of the local pricing MCP.
   if (config.headlessEnabled) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
-  // Separate standalone readers (`mcp/genesis-mcp-server.ts#search_catalog`,
-  // `mcp/pricing-server.ts`, `cli/index.ts`, and `pricing/http-server.ts`,
-  // launched by `scripts/start-pricing-service.ts`) still lack a server-derived
+  // Separate standalone readers (`mcp/genesis-mcp-server.ts#search_catalog` and
+  // `cli/index.ts`) still lack a server-derived
   // Business scope. They stay outside this executor; this patch does not claim
   // all-reader isolation, and they must not serve Business-scoped requests.
   // Corpus-bound answers require the instrumented tool path. Neither a local

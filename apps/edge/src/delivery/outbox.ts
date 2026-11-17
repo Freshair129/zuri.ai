@@ -22,7 +22,7 @@ import { Role } from '../identity/registry.js';
  * standing between a crash and a customer who never got an answer.
  *
  * The state machine is deliberately the one from SPEC-CR-012's outbox
- * (`line-copilot-runtime/src/outbox.mjs` on the SmartGift repo): content-hash idempotency keys,
+ * (`line-copilot-runtime/src/outbox.mjs` in the sibling runtime repository): content-hash idempotency keys,
  * revision-based optimistic claims, quarantine as a real terminal state rather than a log line.
  * The record shape here is this agent's, because CR-012's is Zuri's — but the vocabulary matches
  * exactly, so when that runtime ships the two can be merged by renaming rather than by argument.

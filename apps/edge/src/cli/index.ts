@@ -150,9 +150,8 @@ function llmOptions(config: LoadedConfig): LlmOptions | null {
 /**
  * The subscription-backed path, or null.
  *
- * The MCP server it points at is the built one under `dist/`, resolved from this file's own
- * location: the child process is started somewhere outside the repository, so a relative path
- * would not find it.
+ * The local pricing MCP was removed in ADR-119. This path retains local assistance and the
+ * explicitly enabled web/file capabilities; commercial answers need the catalog API or a handoff.
  */
 function headlessOptions(config: LoadedConfig): HeadlessOptions | null {
   if (!config.headlessEnabled) return null;

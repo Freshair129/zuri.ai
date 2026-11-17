@@ -32,7 +32,7 @@ Migration first preserves current behavior while moving source; transport cutove
 
 ## Architecture & Taxonomy (ADR-041)
 
-1. **Zuri Edge Device (The Physical Host / Node Entity):** The on-premise hardware machine (e.g. `DEV-SMARTGIFT-PRIMARY`) paired with Zuri Cloud via Zero-Trust tokens and active heartbeat telemetry.
+1. **Zuri Edge Device (The Physical Host / Node Entity):** The on-premise hardware machine (e.g. a registered device id) paired with Zuri Cloud via Zero-Trust tokens and active heartbeat telemetry.
 2. **Zuri Edge Runtime:** The retained local GenesisBlock and Knowledge/RAG components. Edge-device pairing, the device executor for LINE OA, the Edge LINE webhook adapters, and the former configuration UI are retired by ADR-110.
 3. **Zuri Edge Command (The Operator / CLI & MCP Interface):** The command-line interface (`zuri-agent`, `zuri-cli`) and MCP tools for executing governed action envelopes.
 
@@ -91,7 +91,7 @@ another group's history, or treat a model's statement as an operational fact.
 | Capability | Permission | Rule |
 |---|---|---|
 | Claim a Zuri job | Allowed | Registered device, compatible contract/version, valid lease only |
-| Read SmartGift DuckDB | Allowed | Registered read-only query id and validated parameters only |
+| Read local DuckDB | Allowed | Registered read-only query id and validated parameters only |
 | Build evidence packet | Allowed | Aggregate/minimized data with source, `as_of`, sensitivity, and query version |
 | Build Flex view model / preview | Allowed | Approved template and CTA allow-list only; preview is never delivery |
 | Submit evidence to Zuri | Allowed | Current lease, matching tenant/policy/query/template versions only |

@@ -45,8 +45,8 @@ const NUMBER = /\d+(?:\.\d+)?/g
 const WRITTEN_NUMBER = /^(\d+)(?:\.(\d+))?$/
 // A code with no digit is checked only when it is written in capitals as
 // letters, a separator and letters (PM-PEN, PM-BOTTLE-LED, SG-ECO) AND it starts
-// with a catalogue code family: PM- (ProductMaster rows) or SG- (the SmartGift
-// knowledge catalogue), or the first segment of a product_code in this evidence.
+// with a catalogue code family: PM- (ProductMaster rows) or SG- (a knowledge
+// catalogue family), or the first segment of a product_code in this evidence.
 // Capitalised words such as QR-CODE, LINE-OA, NON-WOVEN or UV-LED stay unchecked,
 // as do units (THB, GB) and one-letter tails (USB-C).
 const LETTER_CODE = /^[A-Z]{2,}(?:[._-][A-Z]{2,})+$/

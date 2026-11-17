@@ -16,7 +16,7 @@ import {
  * The conversational layer.
  *
  * The model decides what the person is asking and how to say the answer back. It does not decide
- * what anything costs: every figure comes from a tool call into the pricing engine, and the
+ * what anything costs: commercial figures come from catalog RAG tools, and the
  * finished text is checked against those tool results before it is allowed out. A price quoted in
  * chat is a commitment to a customer, so "the model produced a plausible number" is not a
  * standard this path is allowed to meet.
@@ -57,7 +57,7 @@ export interface ConversationResult {
 }
 
 /** Who the assistant is when no persona folder is selected — the `.agents/` persona replaces exactly this part. */
-export const DEFAULT_PERSONA = `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของ SmartGift ผู้นำเข้าของพรีเมียมองค์กร
+export const DEFAULT_PERSONA = `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของธุรกิจนี้ ผู้นำเข้าของพรีเมียมองค์กร
 คุยกับทีมงานผ่านแชท LINE
 
 วิธีคุย
@@ -122,7 +122,7 @@ const SUGGESTION_MARKERS = ['เช่น', 'ตัวอย่างเช่�
  *
  * The failure this exists for: asked for a New Year gift with no product type named, the model
  * answered without calling a tool and suggested เสื้อผ้า, ไฟ LED and ของแต่งโต๊ะทำงาน — none of
- * which SmartGift sells. `unverifiedNumbers` already refuses an invented *price*; an invented
+ * which this business sells. `unverifiedNumbers` already refuses an invented *price*; an invented
  * *category* is the same promise made one level up, and nothing was catching it.
  *
  * Two conditions, and both are necessary. No tool call means there is no evidence in the turn at
