@@ -73,6 +73,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
         '/inventory',
         '/inventory/locations',
         '/inventory/work-orders',
+        '/inventory/recipes',
         '/inventory/reservations',
         '/inventory/stocktakes',
         '/inventory/hygiene',
@@ -96,7 +97,7 @@ describe('SCM groups the supply-chain domains without becoming one', () => {
       const labels = sidebar.sub.map((item) => item.label)
       expect(new Set(labels).size, `duplicate sidebar labels: ${labels.join(', ')}`).toBe(labels.length)
       expect(labels).not.toContain('Dashboard')
-      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Reservations', 'Stocktake', 'SKU Hygiene', 'Import', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders', 'สูตรคำนวณราคา'])
+      expect(labels).toEqual(['Inventory', 'Locations', 'Work Orders', 'Recipes', 'Reservations', 'Stocktake', 'SKU Hygiene', 'Import', 'Warehouse', 'Procurement', 'Purchase Orders', 'Order Management', 'Orders', 'สูตรคำนวณราคา'])
     }
   })
 

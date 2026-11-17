@@ -6,13 +6,13 @@
 // @spec ADR-069, ADR-074
 // @tested tests/unit/module-tabs.test.js
 
-// @req FR-182 — Inventory crosses one page into four with the SCM operations
-// console, so FR-170's rule applies to it for the first time: the views live in
-// the canvas and switch by clicking a tab.
+// @req FR-156, FR-182 — Inventory's recipe editor and SCM operations console
+//   use FR-170's in-canvas tabs, with each view linked to its real route.
 export const INVENTORY_TABS = [
   { key: 'dashboard', label: 'Dashboard', path: '/inventory' },
   { key: 'locations', label: 'Locations', path: '/inventory/locations' },
   { key: 'work-orders', label: 'Work Orders', path: '/inventory/work-orders' },
+  { key: 'recipes', label: 'Recipes', path: '/inventory/recipes' },
   { key: 'reservations', label: 'Reservations', path: '/inventory/reservations' },
   { key: 'stocktakes', label: 'Stocktake', path: '/inventory/stocktakes' },
   // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).
