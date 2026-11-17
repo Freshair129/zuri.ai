@@ -1,6 +1,7 @@
 // @req FR-094, FR-095, FR-096 — session assurance levels and step-up elevation
 // @spec ADR-045 D2, D4, SDD-052, SEC-018
-// @tested tests/unit/identity/session-assurance.test.js
+// @tested tests/unit/identity/session-assurance.test.js, tests/integration/mfa-totp-lifecycle.test.js,
+//   tests/integration/passkey-lifecycle.test.js
 
 import prisma from '@/lib/db'
 import { httpError } from '@/app/api/_helpers'
@@ -11,9 +12,12 @@ export const ASSURANCE_LEVELS = Object.freeze({
   AAL2: 2,
 })
 
+export const STEP_UP_WINDOW_SECONDS = 900
+
 /**
  * Determine the current effective assurance level of a Session.
- * A session with an active elevatedUntil timestamp is granted AAL2 until expiry.
+ * A session with an active elevatedUntil timestamp or a WebAuthn login is AAL2.
+ * The stored assuranceLevel column is descriptive and never grants authority.
  *
  * @param {object} session
  * @returns {'AAL1' | 'AAL2'}
@@ -21,17 +25,10 @@ export const ASSURANCE_LEVELS = Object.freeze({
 export function resolveSessionAssurance(session) {
   if (!session) return 'AAL1'
 
-  // Elevated step-up window takes effect if unexpired
-  if (session.elevatedUntil) {
-    const until = session.elevatedUntil instanceof Date ? session.elevatedUntil.getTime() : new Date(session.elevatedUntil).getTime()
-    if (until > Date.now()) {
-      return 'AAL2'
-    }
-  }
+  const until = session.elevatedUntil == null ? Number.NaN : new Date(session.elevatedUntil).getTime()
+  if (until > Date.now()) return 'AAL2'
 
-  if (session.assuranceLevel === 'AAL2') {
-    return 'AAL2'
-  }
+  if (session.assurance === 'WEBAUTHN') return 'AAL2'
 
   return 'AAL1'
 }
@@ -62,43 +59,48 @@ export function assertSessionAssurance(sessionOrViewer, requiredLevel = 'AAL1') 
 }
 
 /**
- * Elevate a session's assurance level to AAL2 for a bounded time window (step-up).
+ * Elevate a live Session belonging to this Person for the server-owned step-up window.
  *
  * @param {object} params
  * @param {string} params.tokenHash Session token hash
- * @param {number} [params.ttlSeconds=900] Elevation TTL in seconds (default 15 mins)
+ * @param {string} params.personId Person who owns the session
  * @param {string} [params.reason='STEP_UP_VERIFIED']
  * @param {object} [params.db=prisma]
+ * @param {() => Date} [params.now]
  * @returns {Promise<{ elevatedUntil: Date, assuranceLevel: 'AAL2' }>}
  */
-export async function elevateSession({ tokenHash, ttlSeconds = 900, reason = 'STEP_UP_VERIFIED', db = prisma }) {
-  if (!tokenHash) {
-    throw httpError(400, 'tokenHash is required for session elevation')
-  }
-
-  const session = await db.session.findUnique({ where: { tokenHash } })
-  if (!session || session.status !== 'ACTIVE') {
+export async function elevateSession({ tokenHash, personId, reason = 'STEP_UP_VERIFIED', db = prisma, now = () => new Date() }) {
+  if (!tokenHash || !personId) {
     throw httpError(401, 'ACTIVE_SESSION_REQUIRED')
   }
 
-  const now = new Date()
-  const elevatedUntil = new Date(now.getTime() + ttlSeconds * 1000)
+  const currentTime = now()
+  const elevatedUntil = new Date(currentTime.getTime() + STEP_UP_WINDOW_SECONDS * 1000)
+  const where = {
+    tokenHash,
+    personId,
+    status: 'ACTIVE',
+    expiresAt: { gt: currentTime },
+    revokedAt: null,
+  }
+  const session = await db.session.findFirst({ where, select: { id: true } })
+  if (!session) throw httpError(401, 'ACTIVE_SESSION_REQUIRED')
 
-  const updated = await db.session.update({
-    where: { tokenHash },
+  const updated = await db.session.updateMany({
+    where: { ...where, id: session.id },
     data: {
-      assuranceLevel: 'AAL2',
       elevatedUntil,
       version: { increment: 1 },
     },
   })
+  if (updated.count !== 1) throw httpError(401, 'ACTIVE_SESSION_REQUIRED')
 
   await recordAudit(db, {
     entityType: 'SESSION',
-    entityId: updated.id,
+    entityId: session.id,
     action: 'ELEVATED',
     payload: {
-      personId: updated.personId,
+      personId,
       assuranceLevel: 'AAL2',
       reason,
       elevatedUntil: elevatedUntil.toISOString(),
@@ -106,7 +108,7 @@ export async function elevateSession({ tokenHash, ttlSeconds = 900, reason = 'ST
   }).catch(() => {})
 
   return {
-    id: updated.id,
+    id: session.id,
     assuranceLevel: 'AAL2',
     elevatedUntil,
   }

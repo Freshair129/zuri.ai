@@ -21,8 +21,9 @@ import {
   writeBlockReason,
 } from '@/modules/inventory/ui/sku-console'
 
-// @req FR-175 — the SKU detail page displays the moving weighted average
-//   landed cost, last receipt cost, and stock ledger receipt cost history.
+// @req FR-175 — the SKU detail page displays the moving weighted-average
+//   valuation and its partial evidence, last receipt cost, all-time purchasing
+//   average, and stock ledger receipt cost history.
 // @req FR-203 — the SKU detail page's identifier desk: the barcodes, GTINs and
 //   partner codes a SKU carries, a form that catches a bad GTIN check digit
 //   before it is sent, and a two-step RETIRE. When the server refuses a value
@@ -248,6 +249,23 @@ export default function InventoryProductPage() {
               {product?.costing?.weightedAverageLandedCostSatang != null
                 ? `${(product.costing.weightedAverageLandedCostSatang / 100).toFixed(2)} ฿ / ${product?.unit || ''}`
                 : 'ยังไม่มีข้อมูลต้นทุน'}
+            </p>
+            {product?.costing?.valuation?.partial && (
+              <p className="mt-1 text-xs text-amber-700 dark:text-amber-300">
+                {product.costing.valuation.partialReasons?.includes('NEGATIVE_BALANCE')
+                  ? 'ยอดคงเหลือติดลบในบางช่วงเมื่อเรียงรายการเคลื่อนไหวตามวันที่ (มักเกิดจากรายการย้อนหลังหรือกำหนดวันที่มีผลภายหลัง) จึงยังยืนยันตัวเลขนี้ไม่ได้'
+                  : product.costing.valuation.partialReasons?.includes('UNCOSTED_RECEIPT')
+                    ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยรับเข้าหรือปรับเพิ่มโดยไม่มีต้นทุนในบัญชีเคลื่อนไหว`
+                    : product.costing.valuation.partialReasons?.includes('UNCOSTED_ADJUSTMENT')
+                      ? `ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมี ${product.costing.valuation.uncostedQty} หน่วยปรับเพิ่มขณะที่ยังไม่มีต้นทุน`
+                      : 'ตัวเลขนี้เป็นข้อมูลบางส่วน เพราะมีรายการเคลื่อนไหวที่ไม่ถูกต้องในบัญชี'}
+              </p>
+            )}
+            <p className="mt-1 text-xs text-muted">
+              ค่าเฉลี่ยราคาซื้อสะสม (ไม่ใช่ต้นทุนสินค้าคงเหลือ):{' '}
+              {product?.costing?.allTimeReceiptAverageSatang != null
+                ? `${(product.costing.allTimeReceiptAverageSatang / 100).toFixed(2)} ฿ / ${product?.unit || ''}`
+                : '—'}
             </p>
           </div>
           <div className="rounded-lg border border-[var(--border)] p-3">

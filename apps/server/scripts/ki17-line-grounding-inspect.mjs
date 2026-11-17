@@ -1,32 +1,33 @@
 #!/usr/bin/env node
-// @req FR-235 — read-only preflight for the TASK-ZAI-095 production switch:
+// @req FR-235 — read-only inspection for an explicitly authorized target:
 //   lists every LineOaAccount's current `knowledgeGrounding` mode, runtime owner,
-//   shadow state, Business, a descriptive SmartGift classification, a best-effort
+//   shadow state, Business identity, a best-effort
 //   DIRECT-traffic signal, and latest mode/shadow audit events per account.
 //   Requires the approved direct `DIRECT_URL`; incomplete required queries are
 //   reported and return a failing exit code. Executes SELECT-only database
-//   queries; it writes a local JSON report file only when an output path is
-//   supplied (creating the parent directory if needed).
-// @spec ADR-090 D5 — SmartGift goes first, after ADR-075 Phase 3; ADR-057 —
-//   production inspection uses DIRECT_URL only, never the pooler role, which
-//   this repo's migration notes record as missing some grants.
+//   queries; an optional JSON report is create-once outside the repository.
+// @spec ADR-090 D1, ADR-057, ADR-119 D1/D3 — use an explicit DIRECT_URL,
+//   reject known Supabase poolers, verify TLS, and do not revive the retired
+//   SmartGift pilot or infer authority from a customer name.
 // @tested tests/unit/ki17-line-grounding-inspect-lib.test.js (the shaping
 //   logic and Zod report contract), tests/unit/ki17-line-grounding-inspect-script.test.js
 //   (read-only SQL, DIRECT_URL requirement, and an executed incomplete-query path).
 //
-// Usage: DIRECT_URL=... node scripts/ki17-line-grounding-inspect.mjs [output.json]
-// Docs: docs/runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md — the operator
-//   runbook this script is the pre-flight step of. Run this before touching any
-//   account's grounding mode, not only before the eventual production switch.
+// Usage: DIRECT_URL=... node scripts/ki17-line-grounding-inspect.mjs [/protected/evidence/report.json]
+// Historical context: docs/runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md.
+// That superseded pilot is not an operative switch authorization.
 
 import pg from 'pg'
 import fs from 'node:fs'
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { assertOutsideRepository } from './production-migration-evidence.mjs'
 import {
   buildGroundingInspectionReport,
   GroundingInspectionReportSchema,
   KNOWLEDGE_GROUNDING_AUDIT_ACTION,
   KNOWLEDGE_GROUNDING_SHADOW_AUDIT_ACTION,
+  resolveGroundingInspectionTarget,
 } from './ki17-line-grounding-inspect-lib.mjs'
 
 const { Pool } = pg
@@ -45,9 +46,17 @@ if (!connectionString) {
   process.exit(1)
 }
 
+const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', '..')
+const reportPath = outputPath ? assertOutsideRepository(outputPath, repositoryRoot) : null
+if (reportPath && fs.existsSync(reportPath)) throw new Error('refuse: report already exists; refusing to overwrite it')
+if (!Number.isInteger(audienceWindowDays) || audienceWindowDays <= 0) throw new Error('audience window must be a positive integer')
+const caPath = process.env.KI17_GROUNDING_INSPECT_CA_FILE
+const { clientConfig, connectionTarget } = resolveGroundingInspectionTarget(connectionString, {
+  ...(caPath ? { ca: fs.readFileSync(caPath, 'utf8') } : {}),
+})
+
 const pool = new Pool({
-  connectionString,
-  ssl: connectionString.includes('supabase') ? { rejectUnauthorized: false } : undefined,
+  ...clientConfig,
   max: 1,
   connectionTimeoutMillis: 10_000,
   query_timeout: 20_000,
@@ -113,13 +122,14 @@ try {
   const report = GroundingInspectionReportSchema.parse({
     ...buildGroundingInspectionReport({ accountRows, jobAudienceRows, auditRows, queryFailures }),
     connectionSource,
+    connectionTarget,
     audienceWindowDays,
   })
 
   const serialized = JSON.stringify(report, null, 2) + '\n'
-  if (outputPath) {
-    fs.mkdirSync(path.dirname(outputPath), { recursive: true })
-    fs.writeFileSync(outputPath, serialized, 'utf8')
+  if (reportPath) {
+    fs.mkdirSync(path.dirname(reportPath), { recursive: true, mode: 0o700 })
+    fs.writeFileSync(reportPath, serialized, { encoding: 'utf8', flag: 'wx', mode: 0o600 })
   }
   console.log(serialized)
   const failedQueries = Object.keys(queryFailures)

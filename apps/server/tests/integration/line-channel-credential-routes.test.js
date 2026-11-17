@@ -1,10 +1,11 @@
-// @req FR-224 — the credential-write gate on every credential route: an AAL1 session,
+// @req FR-094, FR-095, FR-096, FR-224 — live session assurance and the credential-write gate:
+//   an AAL1 session,
 //   an expired elevation and a Person with no factor are refused before any LINE
 //   call; the rate limit answers 429 with retryAfterSeconds (proof 4).
 // @req FR-223, FR-226 — connect, rotate, validate and revoke through the routes,
 //   with no material in any response, a no-store header, and the legacy
 //   deployment-secret body unchanged.
-// @spec ADR-089 D2, D4, D5, D6, D7 and proofs 1, 4, 5, 6; SEC-030
+// @spec ADR-089 D2, D4, D5, D6, D7 and proofs 1, 4, 5, 6; SEC-018, SEC-030; ADR-045 D2, D4
 // @tested tests/integration/line-channel-credential-routes.test.js
 import { randomBytes, randomUUID } from 'node:crypto'
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -72,7 +73,7 @@ async function newSession({ elevatedFor = 900, assuranceLevel = 'AAL2' } = {}) {
   const token = randomBytes(24).toString('base64url')
   await prisma.session.create({
     data: {
-      personId: person.id, tokenHash: hashSessionToken(token), status: 'ACTIVE', assuranceLevel,
+      personId: person.id, tokenHash: hashSessionToken(token), status: 'ACTIVE', assurance: 'PASSWORD', assuranceLevel,
       elevatedUntil: elevatedFor === null ? null : new Date(Date.now() + elevatedFor * 1000),
       expiresAt: new Date(Date.now() + 3600_000),
     },
@@ -130,6 +131,8 @@ describe('LINE credential routes (FR-223, FR-224, FR-226)', () => {
     it('an expired elevation, even though the session row still says AAL2', async () => {
       const { bundle } = channel()
       const token = await newSession({ elevatedFor: -1, assuranceLevel: 'AAL2' })
+      const stored = await prisma.session.findUnique({ where: { tokenHash: hashSessionToken(token) } })
+      expect(stored).toMatchObject({ assurance: 'PASSWORD', assuranceLevel: 'AAL2' })
       const { status, json } = await call(CONNECT, 'http://local/api/line-oa/connections', { businessId: business.id, name: 'x', ...bundle }, { token })
       expect({ status, error: json.error }).toEqual({ status: 403, error: 'ASSURANCE_LEVEL_INSUFFICIENT' })
       expect(fetchCalls).toEqual([])

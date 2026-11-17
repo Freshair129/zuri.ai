@@ -282,6 +282,21 @@ user. `AccessInvite`'s indexes and RLS policy still carry the `WorkspaceInvite`
 name after the rename — cosmetic only, since Postgres tracks both by OID, but
 worth naming so a future reader is not confused by it.
 
+### Amendment 2026-11-13 — AccessInvite HTTP routes
+
+The 2026-09-12 statement above that TENANT/BUSINESS AccessInvite operations
+were service-level only was accurate when recorded. FR-195 is now reachable
+through `POST /api/access-invites`, `POST /api/access-invites/accept`, `POST
+/api/access-invites/decline` and `DELETE /api/access-invites/[id]`. Each route
+resolves the live session viewer and checks the existing session-bound
+API-write CSRF token before mutation. Acceptance and decline derive
+`personId` from the session principal. The mint response is `Cache-Control:
+no-store` and returns the raw token once; storage remains hash-only. Service
+authority, role refusals, generic acceptance errors and audit behavior are
+unchanged. `issueOperatorGrant` still has neither a route nor a CLI. The
+existing `/api/workspace-invites` routes and `mintWorkspaceInvite` are
+unchanged, preserving AC-195.9. LINE identity resolution remains out of scope.
+
 ## Alternatives considered
 
 **Let `ownsBusiness` satisfy the self-verify and self-post refusals, as it

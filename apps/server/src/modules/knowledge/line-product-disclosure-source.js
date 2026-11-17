@@ -3,13 +3,13 @@ import prisma from '@/lib/db'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import { readAuthorizedKnowledgeManifest } from './knowledge-corpus-service'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
-  SMARTGIFT_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-  splitSmartGiftCatalogRecords,
-} from './smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_MAX_FILE_BYTES,
+  STRUCTURED_CATALOG_PROVIDER,
+  structuredCatalogSourceKey,
+  splitStructuredCatalogRecords,
+} from './structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from './genesisrag17-contract'
 import { DISCLOSURE_FIELDS } from './line-product-disclosure-contract'
 
@@ -258,12 +258,12 @@ function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset,
     && ingestion.executionRunId === entry.executionRunId && ingestion.snapshotId === entry.snapshotId
     && ingestion.snapshotGeneration === entry.generation && ingestion.receiptHash === entry.receiptHash
     && ingestion.rawArtifactId === entry.rawArtifactId && ingestion.parsedArtifactId === entry.parsedArtifactId
-    && requiredText(ingestion.sourceMetaJson, SMARTGIFT_CATALOG_MAX_FILE_BYTES))
+    && requiredText(ingestion.sourceMetaJson, STRUCTURED_CATALOG_MAX_FILE_BYTES))
   insist(asset && asset.id === entry.fileAssetId && asset.tenantId === input.tenantId
     && asset.businessId === input.businessId && asset.projectId == null && asset.workItemId == null
-    && asset.storageKind === 'MANAGED_BLOB' && asset.mime === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && asset.storageKind === 'MANAGED_BLOB' && asset.mime === STRUCTURED_CATALOG_CONTENT_TYPE
     && producerKind && requiredText(asset.name, 255)
-    && Number.isSafeInteger(asset.size) && asset.size > 0 && asset.size <= SMARTGIFT_CATALOG_MAX_FILE_BYTES
+    && Number.isSafeInteger(asset.size) && asset.size > 0 && asset.size <= STRUCTURED_CATALOG_MAX_FILE_BYTES
     && SHA256.test(asset.sha256 ?? '') && asset.status === 'ACTIVE' && asset.deletedAt == null
     && Number.isSafeInteger(asset.version))
 
@@ -275,12 +275,12 @@ function validateSourceAndIngestion({ source, ingestion, entry, manifest, asset,
     && sourceMeta.size === Buffer.byteLength(ingestion.content, 'utf8')
     && sourceMeta.storageKind === asset.storageKind && sourceMeta.sourceVersion === ingestion.sourceVersion
     && sourceMeta.contentHash === ingestion.contentHash
-    && descriptor?.format === SMARTGIFT_CATALOG_FORMAT && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
-    && descriptor.entityType === 'ProductMaster' && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && descriptor?.format === STRUCTURED_CATALOG_FORMAT && descriptor.provider === STRUCTURED_CATALOG_PROVIDER
+    && descriptor.entityType === 'ProductMaster' && descriptor.contentType === STRUCTURED_CATALOG_CONTENT_TYPE
     && requiredText(descriptor.externalId, 500) && Number.isSafeInteger(descriptor.recordIndex)
     && descriptor.recordIndex >= 0 && Number.isSafeInteger(descriptor.recordCount)
     && descriptor.recordCount > descriptor.recordIndex && descriptor.fileSha256 === asset.sha256
-    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
+    && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
     && source.title === `ProductMaster ${descriptor.externalId}`
     && ingestion.sourceVersion === asset.sha256)
   return { sourceMeta, descriptor, producerKind }
@@ -433,7 +433,7 @@ export async function resolveLineProductDisclosureSource(input, options = {}) {
     insist(bytes.length === asset.size && createHash('sha256').update(bytes).digest('hex') === asset.sha256)
     let content
     try { content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) } catch { throw unavailable() }
-    const split = splitSmartGiftCatalogRecords({
+    const split = splitStructuredCatalogRecords({
       content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name,
     })
     insist(split.recordCount === descriptor.recordCount && descriptor.recordIndex < split.recordCount)

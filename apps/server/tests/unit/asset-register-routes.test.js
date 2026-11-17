@@ -4,6 +4,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { GET as listRoute, POST as registerRoute } from '@/app/api/assets/register/route'
 import { GET as detailRoute } from '@/app/api/assets/register/[id]/route'
+import { GET as listIntakesRoute } from '@/app/api/assets/intakes/route'
+import { resolveAssetRequestScope } from '@/modules/asset-management/application/asset-request-scope'
+import { listAssetIntakesForRegistration } from '@/modules/asset-management/application/asset-register-service'
 
 vi.mock('@/modules/identity/request-viewer', () => ({
   resolveRequestViewer: vi.fn().mockResolvedValue({
@@ -44,9 +47,50 @@ vi.mock('@/modules/asset-management/application/asset-register-service', () => (
     assetCode: 'AST-2026-00001',
     name: 'ThinkPad',
   }),
+  listAssetIntakesForRegistration: vi.fn().mockResolvedValue({
+    items: [{ id: 'intake-1', code: 'INT-001', status: 'READY_FOR_REGISTRATION', name: 'ThinkPad' }],
+  }),
+}))
+
+vi.mock('@/modules/asset-management/application/asset-intake-service', () => ({
+  upsertAssetIntake: vi.fn(),
 }))
 
 describe('Asset Register API Routes', () => {
+  describe('GET /api/assets/intakes', () => {
+    it('returns 400 when businessId is missing', async () => {
+      const request = new Request('http://localhost:3000/api/assets/intakes')
+      const res = await listIntakesRoute(request)
+
+      expect(res.status).toBe(400)
+    })
+
+    it('returns 400 when status is not an AssetIntake status', async () => {
+      const request = new Request('http://localhost:3000/api/assets/intakes?businessId=biz-1&status=UNKNOWN')
+      const res = await listIntakesRoute(request)
+
+      expect(res.status).toBe(400)
+    })
+
+    it('requires read scope and returns the registration service result', async () => {
+      const request = new Request(
+        'http://localhost:3000/api/assets/intakes?businessId=biz-1&status=READY_FOR_REGISTRATION&limit=75'
+      )
+      const res = await listIntakesRoute(request)
+
+      expect(res.status).toBe(200)
+      expect(resolveAssetRequestScope).toHaveBeenCalledWith(request, 'biz-1', { capability: 'read' })
+      expect(listAssetIntakesForRegistration).toHaveBeenCalledWith({
+        businessId: 'biz-1',
+        status: 'READY_FOR_REGISTRATION',
+        limit: '75',
+      })
+      expect(await res.json()).toEqual({
+        items: [{ id: 'intake-1', code: 'INT-001', status: 'READY_FOR_REGISTRATION', name: 'ThinkPad' }],
+      })
+    })
+  })
+
   describe('GET /api/assets/register', () => {
     it('returns 400 when businessId is missing', async () => {
       const request = new Request('http://localhost:3000/api/assets/register')

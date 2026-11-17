@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { hashPassword } from './auth-service'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 
@@ -76,11 +76,11 @@ export async function createAccount({ email, displayName, password, db = prisma 
     throw error
   }
 
-  // BR-002: the human code is generated, never derived from anything external.
-  const code = await uniqueHumanCode('PSN', name, async (candidate) =>
-    Boolean(await db.person.findUnique({ where: { code: candidate }, select: { id: true } })))
+  const create = async (tx) => {
+    // BR-002: the human code is generated, never derived from anything external.
+    const code = await uniqueHumanCode('PSN', name, async (candidate) =>
+      Boolean(await tx.person.findUnique({ where: { code: candidate }, select: { id: true } })))
 
-  return db.$transaction(async (tx) => {
     // **This is a check, not a constraint, and the difference is real.**
     // `Person.email` carries no unique index in either schema, so two requests
     // that arrive together can both find nothing here and both insert. SQLite
@@ -114,5 +114,12 @@ export async function createAccount({ email, displayName, password, db = prisma 
     })
 
     return person
-  })
+  }
+  if (typeof db?.$transaction === 'function') {
+    return retryOnCodeConflict(() => db.$transaction(create), {
+      exhausted: () => failure(409, 'PERSON_CODE_EXHAUSTED'),
+    })
+  }
+  // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+  return create(db)
 }

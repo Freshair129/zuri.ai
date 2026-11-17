@@ -32,6 +32,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/asset-evidence-intake-execution.test.js](../../../apps/server/tests/integration/asset-evidence-intake-execution.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/managed-blob-recovery-custody.test.js](../../../apps/server/tests/integration/managed-blob-recovery-custody.test.js) — `verifies` (`transitive`)
@@ -44,6 +45,7 @@ status: generated
 - [apps/server/tests/unit/asset-evidence-storage-contract.test.js](../../../apps/server/tests/unit/asset-evidence-storage-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-production-activation-contract.test.js](../../../apps/server/tests/unit/asset-production-activation-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-receiving-evidence-ui.test.js](../../../apps/server/tests/unit/asset-receiving-evidence-ui.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/asset-register-routes.test.js](../../../apps/server/tests/unit/asset-register-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-request-scope-capability.test.js](../../../apps/server/tests/unit/asset-request-scope-capability.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/private-business-object-storage.test.js](../../../apps/server/tests/unit/private-business-object-storage.test.js) — `verifies` (`test-reference`)
 
@@ -65,6 +67,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/asset-evidence-intake-execution.test.js](../../../apps/server/tests/integration/asset-evidence-intake-execution.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`test-reference`)
@@ -73,6 +76,7 @@ status: generated
 - [apps/server/tests/unit/asset-evidence-route-schema-contract.test.js](../../../apps/server/tests/unit/asset-evidence-route-schema-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/asset-evidence-storage-contract.test.js](../../../apps/server/tests/unit/asset-evidence-storage-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-production-activation-contract.test.js](../../../apps/server/tests/unit/asset-production-activation-contract.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/asset-register-routes.test.js](../../../apps/server/tests/unit/asset-register-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/asset-request-scope-capability.test.js](../../../apps/server/tests/unit/asset-request-scope-capability.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-139](requirements/FR-139.md)

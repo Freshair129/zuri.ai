@@ -1,23 +1,24 @@
-// @req FR-091, FR-093, FR-146, FR-151 — LINE Studio Unified Live CRM & Customer Suite
+// @req FR-091, FR-093, FR-146, FR-151 — LINE Studio Live CRM surfaces
 // @spec SDD-050, SDD-060, ADR-060, ADR-061
+// @tested tests/unit/line-studio-design-preview-render.test.js, tests/unit/line-crm-module-availability.test.js
 "use client";
 
 import React, { useState } from "react";
 import LineCrmLiveChat from "@/modules/line-crm/LineCrmLiveChat";
 import LineCrmMembers from "@/modules/line-crm/LineCrmMembers";
-import LineCrmLoyalty from "@/modules/line-crm/LineCrmLoyalty";
-import LineCrmCampaigns from "@/modules/line-crm/LineCrmCampaigns";
-import { MessageSquare, Users, Star, Send } from "lucide-react";
+import { LINE_CRM_MODULES } from "@/modules/line-crm/lineCrmModules";
+
+const studioTabLabels = {
+  chat: "แชทสด & Live Inbox",
+  members: "สมาชิก 360°",
+};
 
 export default function LineStudioLiveCrm() {
-  const [activeSubTab, setActiveSubTab] = useState("chat"); // 'chat' | 'members' | 'loyalty' | 'campaigns'
+  const [activeSubTab, setActiveSubTab] = useState("chat");
 
-  const subTabs = [
-    { id: "chat", label: "แชทสด & Live Inbox", icon: MessageSquare },
-    { id: "members", label: "สมาชิก 360°", icon: Users },
-    { id: "loyalty", label: "แต้มสะสม & Tier", icon: Star },
-    { id: "campaigns", label: "บรอดแคสต์ & แคมเปญ", icon: Send }
-  ];
+  const subTabs = LINE_CRM_MODULES
+    .filter((module) => module.available && studioTabLabels[module.id])
+    .map((module) => ({ id: module.id, label: studioTabLabels[module.id], icon: module.icon }));
 
   return (
     <div className="space-y-4 font-thai">
@@ -45,7 +46,7 @@ export default function LineStudioLiveCrm() {
         </div>
 
         <div className="text-xs text-slate-500 hidden sm:block">
-          LineCRM-MCP Hub · Omni-Channel Customer Operations
+          ศูนย์ดูแลการสนทนาและสมาชิก
         </div>
       </div>
 
@@ -53,8 +54,6 @@ export default function LineStudioLiveCrm() {
       <div>
         {activeSubTab === "chat" && <LineCrmLiveChat />}
         {activeSubTab === "members" && <LineCrmMembers />}
-        {activeSubTab === "loyalty" && <LineCrmLoyalty />}
-        {activeSubTab === "campaigns" && <LineCrmCampaigns />}
       </div>
     </div>
   );

@@ -1,16 +1,24 @@
 ---
-version: "0.2.1"
+version: "0.3.0"
 created_at: "2026-09-27T00:00:00+07:00,Claude Sonnet 5"
-last_update: "2026-11-08T14:39:37+07:00,Codex"
-status: "beta"
-superseded_by: null
+last_update: "2026-11-17T00:00:00+07:00,Codex"
+status: "superseded"
+superseded_by: "ZAI:ADR-119"
 attributes:
   domain: "knowledge"
   doc_type: "runbook"
-  scope: "TASK-ZAI-095 — an explicitly selected SmartGift Business/account, the GKS_THEN_BUSINESS_KNOWLEDGE pilot, its 14-day shadow window, and audited rollback"
+  scope: "Historical, unexecuted SmartGift scope of TASK-ZAI-095; proposed GKS_THEN_BUSINESS_KNOWLEDGE pilot and audited rollback, superseded by ADR-119 and not current operating authority"
 ---
 
-# TASK-ZAI-095 — LINE OA grounding pilot switch runbook
+# TASK-ZAI-095 — historical SmartGift grounding pilot plan (superseded)
+
+> **Historical and non-operative.** This document preserves the proposed SmartGift pilot attached to TASK-ZAI-095 before ADR-119. The pilot was not executed. ADR-119 supersedes ADR-075 and removes SmartGift from Zuri; the steps below are retained as history and must not be used as current operating instructions. TASK-ZAI-095 keeps its original SmartGift scope and is not assigned to another Business or account. Any future generic FR-235/FR-277 production target requires separate authorization and new scope; none is selected here.
+
+## Current generic read-only inspector boundary (FR-235 / FR-277)
+
+The maintained inspector is a generic, read-only database report. It does not identify a SmartGift target, select a Business/account, verify operator authority, approve a switch, or change account state. It requires `DIRECT_URL`, rejects recognized Supabase pooler endpoints, and supports direct self-hosted PostgreSQL and Supabase targets without pinning a production project. Only `sslmode` is accepted as a URL option. Remote TLS certificate and host verification are enabled; `sslmode=disable` is accepted only for loopback targets. A self-hosted CA can be supplied through `KI17_GROUNDING_INSPECT_CA_FILE`. The report includes sanitized configured-target identity (host, port, database and role), never the password; it does not attest the actual database identity or readiness.
+
+The report is printed to stdout by default. To save it, use an absolute output path outside the repository, such as `/protected/evidence/report.json`. Existing files are refused; newly created parent directories use mode `0700`, and the report is created once with mode `0600` (`wx`). Unit/script tests use fixture URLs and a mocked database adapter and need no production credentials. A `COMPLETE` report means only that its three SELECT queries succeeded against the configured endpoint; it is not target authorization or a production readiness decision.
 
 ## Decision and authority boundary
 
@@ -132,7 +140,7 @@ Re-run the inspection and verify `knowledgeGrounding: BUSINESS_KNOWLEDGE`, `know
 
 The exit criterion is satisfied by the end-of-pilot restore or an earlier rollback only when an authorized operator actually performs both changes in production through the existing audited actions — restore `BUSINESS_KNOWLEDGE` and disable shadow — verifies that later primary traces return to Business Knowledge, and records both changes in `AuditEvent`, the existing migration notes and the TASK-ZAI-095 container changelog. Record the switch and its 14-day evidence there as well. An uneventful window without the production restore or rollback, the later-trace check and those records does not satisfy the criterion. Keep the named approval and DoD flags unchanged unless the corresponding production evidence actually satisfies them.
 
-The separate TASK-ZAI-050 activation record must be completed by the production-host operator. Its prepared skeleton is `.brain/reports/2026-11-08-task-zai-050-activation-record.md`; all current host fields remain `NOT_VERIFIED`.
+The separate TASK-ZAI-050 activation record must be completed by the production-host operator. Its prepared skeleton is `reports/2026-11-08-task-zai-050-activation-record.md`; all current host fields remain `NOT_VERIFIED`.
 
 ## Host-only commands for the authorized operator
 
@@ -147,6 +155,7 @@ node scripts/ki17-smoke.mjs
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0 | 2026-11-17 | superseded | Marks the proposed SmartGift pilot unexecuted and non-operative under ADR-119; retains its original steps as history and documents the generic read-only inspector boundary. No target is selected, no Task095 reassignment or production switch is claimed. | working-tree | Codex |
 | 0.2.1 | 2026-11-08 | beta | Clarifies that the end-of-pilot restore or a rollback satisfies the exit criterion only when both grounding-mode restoration and shadow disablement are performed in production through audited actions, later primary traces return to Business Knowledge, and both changes are recorded in AuditEvent, migration notes and the container changelog. | working-tree | Codex |
 | 0.2.0 | 2026-11-08 | beta | Applies ASTRA-D1 D4: selects GKS_THEN_BUSINESS_KNOWLEDGE for a 14-consecutive-day pilot; documents explicit Business/account/runtime selection, direct-source complete preflight, existing switch and shadow actions, the built shadow harness, and rollback that restores BUSINESS_KNOWLEDGE and disables shadow. Records production-host blockers without claiming activation. | working-tree | Codex |
 | 0.1.0 | 2026-09-27 | beta | Initial runbook: preflight, the audited switch and rollback, shadow evidence and migration-note recording. It did not resolve TASK-ZAI-042/TASK-ZAI-050 or specify a campaign-window duration. | working-tree | Claude Sonnet 5 |

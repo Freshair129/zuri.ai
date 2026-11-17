@@ -21,6 +21,7 @@ status: generated
 - [apps/server/src/app/(pm)/assets/page.jsx](../../../apps/server/src/app/%28pm%29/assets/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/assets/register/page.jsx](../../../apps/server/src/app/%28pm%29/assets/register/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/assets/scanner/page.jsx](../../../apps/server/src/app/%28pm%29/assets/scanner/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/api/assets/intakes/route.js](../../../apps/server/src/app/api/assets/intakes/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/lookup/route.js](../../../apps/server/src/app/api/assets/lookup/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/register/\[id\]/allocate/route.js](../../../apps/server/src/app/api/assets/register/%5Bid%5D/allocate/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/register/\[id\]/dispose/route.js](../../../apps/server/src/app/api/assets/register/%5Bid%5D/dispose/route.js) — `implements` (`annotation`)
@@ -38,16 +39,19 @@ status: generated
 - [apps/server/src/modules/asset-management/application/asset-maintenance-service.js](../../../apps/server/src/modules/asset-management/application/asset-maintenance-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-register-service.js](../../../apps/server/src/modules/asset-management/application/asset-register-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-request-scope.js](../../../apps/server/src/modules/asset-management/application/asset-request-scope.js) — `implements` (`annotation`)
+- [apps/server/src/modules/asset-management/components/AssetReadyIntakesSection.jsx](../../../apps/server/src/modules/asset-management/components/AssetReadyIntakesSection.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetTagLabel.jsx](../../../apps/server/src/modules/asset-management/components/AssetTagLabel.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetTagModal.jsx](../../../apps/server/src/modules/asset-management/components/AssetTagModal.jsx) — `implements` (`annotation`)
+- [apps/server/src/modules/asset-management/domain/asset-intake.js](../../../apps/server/src/modules/asset-management/domain/asset-intake.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/index.js](../../../apps/server/src/modules/asset-management/index.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/server/tests/e2e/fr041-business-first.spec.js](../../../apps/server/tests/e2e/fr041-business-first.spec.js) — `verifies` (`transitive`)
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/e2e/fr254-knowledge-console.spec.js](../../../apps/server/tests/e2e/fr254-knowledge-console.spec.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
@@ -147,6 +151,7 @@ status: generated
 - [apps/server/src/app/(pm)/assets/page.jsx](../../../apps/server/src/app/%28pm%29/assets/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/assets/register/page.jsx](../../../apps/server/src/app/%28pm%29/assets/register/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/assets/scanner/page.jsx](../../../apps/server/src/app/%28pm%29/assets/scanner/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/api/assets/intakes/route.js](../../../apps/server/src/app/api/assets/intakes/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/intakes/validate/route.js](../../../apps/server/src/app/api/assets/intakes/validate/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/lookup/route.js](../../../apps/server/src/app/api/assets/lookup/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/assets/register/\[id\]/allocate/route.js](../../../apps/server/src/app/api/assets/register/%5Bid%5D/allocate/route.js) — `implements` (`annotation`)
@@ -166,6 +171,7 @@ status: generated
 - [apps/server/src/modules/asset-management/application/asset-person-scope.js](../../../apps/server/src/modules/asset-management/application/asset-person-scope.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-register-service.js](../../../apps/server/src/modules/asset-management/application/asset-register-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/application/asset-request-scope.js](../../../apps/server/src/modules/asset-management/application/asset-request-scope.js) — `implements` (`annotation`)
+- [apps/server/src/modules/asset-management/components/AssetReadyIntakesSection.jsx](../../../apps/server/src/modules/asset-management/components/AssetReadyIntakesSection.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetRegisterWorkspace.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx](../../../apps/server/src/modules/asset-management/components/AssetScannerWorkspace.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/asset-management/components/AssetTagLabel.jsx](../../../apps/server/src/modules/asset-management/components/AssetTagLabel.jsx) — `implements` (`annotation`)
@@ -177,6 +183,7 @@ status: generated
 
 ### Test paths — graph bindings
 
+- [apps/server/tests/e2e/fr133-asset-register-scanner.spec.js](../../../apps/server/tests/e2e/fr133-asset-register-scanner.spec.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/asset-disposal-audit.test.js](../../../apps/server/tests/integration/asset-disposal-audit.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)

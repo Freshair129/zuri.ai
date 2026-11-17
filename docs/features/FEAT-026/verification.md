@@ -18,19 +18,16 @@ status: generated
 
 ### Code paths — graph bindings
 
-- [apps/server/src/app/api/knowledge/catalog-files/route.js](../../../apps/server/src/app/api/knowledge/catalog-files/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/knowledge/ingestions/route.js](../../../apps/server/src/app/api/knowledge/ingestions/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/knowledge-admission-service.js](../../../apps/server/src/modules/knowledge/knowledge-admission-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/knowledge-runtime.js](../../../apps/server/src/modules/knowledge/knowledge-runtime.js) — `implements` (`annotation`)
-- [apps/server/src/modules/knowledge/smartgift-catalog-adapter.js](../../../apps/server/src/modules/knowledge/smartgift-catalog-adapter.js) — `implements` (`annotation`)
-- [apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js](../../../apps/server/src/modules/knowledge/smartgift-catalog-upload-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/knowledge/structured-catalog-adapter.js](../../../apps/server/src/modules/knowledge/structured-catalog-adapter.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/structured-record-policy.js](../../../apps/server/src/modules/knowledge/structured-record-policy.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/mcp/transport.js](../../../apps/server/src/modules/project-manager/mcp/transport.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/genesisrag17-executor.js](../../../apps/server/src/platform/integrations/core/genesisrag17-executor.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
-- [apps/server/tests/acceptance/genesisrag17-smartgift.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/acceptance/knowledge-admission-native.test.js](../../../apps/server/tests/acceptance/knowledge-admission-native.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr236-knowledge-candidate.test.js](../../../apps/server/tests/integration/fr236-knowledge-candidate.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js](../../../apps/server/tests/integration/fr236-stage5-zero-pii-agreement.test.js) — `verifies` (`test-reference`)
@@ -41,12 +38,11 @@ status: generated
 - [apps/server/tests/integration/knowledge-replay.integration.test.js](../../../apps/server/tests/integration/knowledge-replay.integration.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/managed-blob-recovery-consumers.test.js](../../../apps/server/tests/integration/managed-blob-recovery-consumers.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/structured-catalog-admission.test.js](../../../apps/server/tests/integration/structured-catalog-admission.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/genesisrag17-parser-2.test.js](../../../apps/server/tests/unit/genesisrag17-parser-2.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/ki17-build-stage.test.js](../../../apps/server/tests/unit/ki17-build-stage.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-msp-only-release.test.js](../../../apps/server/tests/unit/ki17-msp-only-release.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/ki17-overlay-release.test.js](../../../apps/server/tests/unit/ki17-overlay-release.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/ki17-real-corpus.test.js](../../../apps/server/tests/unit/ki17-real-corpus.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-admission-mcp.test.js](../../../apps/server/tests/unit/knowledge-admission-mcp.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-admission-routes.test.js](../../../apps/server/tests/unit/knowledge-admission-routes.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/knowledge-admission-service.test.js](../../../apps/server/tests/unit/knowledge-admission-service.test.js) — `verifies` (`transitive`)
@@ -58,8 +54,7 @@ status: generated
 - [apps/server/tests/unit/knowledge-zero-pii-policy.test.js](../../../apps/server/tests/unit/knowledge-zero-pii-policy.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/pipeline-mcp-transport.test.js](../../../apps/server/tests/unit/pipeline-mcp-transport.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/project-manager-mcp.test.js](../../../apps/server/tests/unit/project-manager-mcp.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/unit/smartgift-catalog-upload-service.test.js](../../../apps/server/tests/unit/smartgift-catalog-upload-service.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/structured-catalog-adapter.test.js](../../../apps/server/tests/unit/structured-catalog-adapter.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-188](requirements/FR-188.md)
 
@@ -68,23 +63,21 @@ status: generated
 - [apps/server/src/modules/knowledge/genesisrag17-source.js](../../../apps/server/src/modules/knowledge/genesisrag17-source.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/genesisrag17-structured-record.js](../../../apps/server/src/modules/knowledge/genesisrag17-structured-record.js) — `implements` (`annotation`)
 - [apps/server/src/modules/knowledge/knowledge-corpus-service.js](../../../apps/server/src/modules/knowledge/knowledge-corpus-service.js) — `implements` (`annotation`)
-- [apps/server/src/modules/knowledge/smartgift-catalog-adapter.js](../../../apps/server/src/modules/knowledge/smartgift-catalog-adapter.js) — `implements` (`annotation`)
+- [apps/server/src/modules/knowledge/structured-catalog-adapter.js](../../../apps/server/src/modules/knowledge/structured-catalog-adapter.js) — `implements` (`annotation`)
 - [apps/server/src/platform/integrations/core/genesisrag17-executor.js](../../../apps/server/src/platform/integrations/core/genesisrag17-executor.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
 
 - [apps/edge/tests/unit/genesisrag17-edge.test.ts](../../../apps/edge/tests/unit/genesisrag17-edge.test.ts) — `verifies` (`test-reference`)
-- [apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift-merged-fixture.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/acceptance/genesisrag17-smartgift.test.js](../../../apps/server/tests/acceptance/genesisrag17-smartgift.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/genesisrag17-parser-2.test.js](../../../apps/server/tests/integration/genesisrag17-parser-2.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/genesisrag17-tier1.test.js](../../../apps/server/tests/integration/genesisrag17-tier1.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-corpus.test.js](../../../apps/server/tests/integration/knowledge-corpus.test.js) — `verifies` (`test-reference`)
-- [apps/server/tests/integration/smartgift-catalog-admission.test.js](../../../apps/server/tests/integration/smartgift-catalog-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/structured-catalog-admission.test.js](../../../apps/server/tests/integration/structured-catalog-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/genesisrag17-parser-2.test.js](../../../apps/server/tests/unit/genesisrag17-parser-2.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/genesisrag17-source.test.js](../../../apps/server/tests/unit/genesisrag17-source.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/ki17-acceptance-harness.test.js](../../../apps/server/tests/unit/ki17-acceptance-harness.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-delivery-fence.test.js](../../../apps/server/tests/unit/knowledge-delivery-fence.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/smartgift-catalog-adapter.test.js](../../../apps/server/tests/unit/smartgift-catalog-adapter.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/structured-catalog-adapter.test.js](../../../apps/server/tests/unit/structured-catalog-adapter.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-189](requirements/FR-189.md)
 

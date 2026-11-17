@@ -13,6 +13,8 @@ import { registerIntegrationProvider, createIntegrationConnection, LINE_OA_PROVI
 // @tested tests/integration/crm-retention-sweep.test.js
 
 const DAY_MS = 24 * 60 * 60 * 1000
+const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
+const NO_OVERRIDE_WINDOW = Symbol('NO_OVERRIDE_WINDOW')
 
 let tenant, business, provider, sequence = 0
 
@@ -56,6 +58,30 @@ async function backdatedMessage({ threadId, externalMessageId, ageDays }) {
   const createdAt = new Date(Date.now() - ageDays * DAY_MS)
   await prisma.message.update({ where: { id: result.messageId }, data: { createdAt } })
   return result
+}
+
+function scopedRetentionDb({ tenantId, overrideWindowDays = NO_OVERRIDE_WINDOW }) {
+  return new Proxy(prisma, {
+    get(target, property) {
+      if (property === 'tenant') return new Proxy(target.tenant, {
+        get(delegate, method) {
+          if (method === 'findMany') return args => delegate.findMany({
+            ...args, where: { AND: [args.where ?? {}, { id: tenantId }] },
+          })
+          return Reflect.get(delegate, method, delegate)
+        },
+      })
+      if (property === 'tenantRetentionOverride' && overrideWindowDays !== NO_OVERRIDE_WINDOW) {
+        return new Proxy(target.tenantRetentionOverride, {
+          get(delegate, method) {
+            if (method === 'findUnique') return async () => ({ windowDays: overrideWindowDays })
+            return Reflect.get(delegate, method, delegate)
+          },
+        })
+      }
+      return Reflect.get(target, property, target)
+    },
+  })
 }
 
 describe('CRM retention sweep — MESSAGE_BODY_AND_ATTACHMENTS (FR-230)', () => {
@@ -192,5 +218,35 @@ describe('CRM retention sweep — MESSAGE_BODY_AND_ATTACHMENTS (FR-230)', () => 
     expect(payload.countsByClass).not.toHaveProperty('RAW_LINE_PAYLOAD')
     expect(payload.countsByClass).not.toHaveProperty('AGENT_TRACE_EVENT')
     expect(payload.countsByClass).not.toHaveProperty('MSP_SESSION_CONTENT')
+    expect(payload.invalidOverrides).toBeUndefined()
+  })
+
+  it.each([0, -5, 1.5, Number.NaN])('ignores an invalid stored override %s and keeps a recent message', async windowDays => {
+    const now = new Date()
+    const suffix = ++sequence
+    const message = await backdatedMessage({
+      threadId: `TH-SWEEP-INVALID-${suffix}`, externalMessageId: `MI-SWEEP-INVALID-${suffix}`, ageDays: 2,
+    })
+    const before = await prisma.message.findUnique({ where: { id: message.messageId } })
+    const db = Number.isSafeInteger(windowDays)
+      ? scopedRetentionDb({ tenantId: tenant.id })
+      : scopedRetentionDb({ tenantId: tenant.id, overrideWindowDays: windowDays })
+    if (Number.isSafeInteger(windowDays)) {
+      await prisma.tenantRetentionOverride.upsert({
+        where: { tenantId_dataClass: { tenantId: tenant.id, dataClass: CLASS } },
+        create: { tenantId: tenant.id, dataClass: CLASS, windowDays },
+        update: { windowDays },
+      })
+    }
+
+    const result = await runRetentionSweep({ db, now })
+    const after = await prisma.message.findUnique({ where: { id: message.messageId } })
+    const audit = await prisma.auditEvent.findUnique({ where: { id: result.auditEventId } })
+    const payload = JSON.parse(audit.payloadJson)
+
+    expect(result.countsByClass[CLASS].redactedMessages).toBe(0)
+    expect(after.body).toBe(`ข้อความ MI-SWEEP-INVALID-${suffix}`)
+    expect(after.updatedAt).toEqual(before.updatedAt)
+    expect(payload.invalidOverrides).toEqual([{ tenantId: tenant.id }])
   })
 })

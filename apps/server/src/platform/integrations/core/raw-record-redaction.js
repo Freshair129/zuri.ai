@@ -1,10 +1,11 @@
-// @req FR-022, FR-081 — the integration half of PDPA erasure: the verbatim provider
+// @req FR-022, FR-081, FR-230 — the integration half of PDPA erasure and raw payload
+//   retention: the verbatim provider
 //   payload FR-081 keeps as replayable evidence.
 // @spec SEC-001 — tenant-scoped: an external id alone never reaches another tenant's
 //   raw records.
 // Boundary: docs/domains/integration/CHARTER.md — "PDPA erasure wins over
 //   replayability; the tombstone keeps the envelope".
-// @tested tests/integration/crm-customer-erasure.test.js
+// @tested tests/integration/crm-customer-erasure.test.js, tests/integration/raw-line-retention-sweep.test.js
 // @req FR-022 — a LINE message event is keyed by its `webhookEventId` whenever LINE
 //   sends one (line-oa-webhook.js `externalEventId`), and no business row stores that
 //   id, so an erased message's raw payload is also found by the message id INSIDE the
@@ -26,9 +27,9 @@
 //
 // Deleting the row would be the other failure. Replay tooling reads this table to
 // reconstruct what arrived; a missing row looks like an ingestion gap — a bug to chase
-// — where a tombstone is a fact to read. So every envelope column stays exactly as it
-// was (id, idempotencyKey, payloadHash, receivedAt, connectionId, provider, lane,
-// entityType, externalId, receivedAt, processing state) and only `payloadJson` is
+// — where a tombstone is a fact to read. Its evidence envelope stays (id, idempotencyKey,
+// payloadHash, receivedAt, connectionId, provider, lane, entityType, externalId,
+// processing state); `updatedAt` advances to record the write. Only `payloadJson` is
 // replaced. The hash deliberately still describes the payload that WAS there: it is
 // the evidence that this row is a redaction of a specific delivery, not a fabricated
 // one, and recomputing it would erase that link too.
@@ -36,6 +37,7 @@
 import { LINE_OA_PROVIDER_CODE } from './integration-registry'
 
 export const RAW_RECORD_ERASURE_REASON = 'PDPA_ERASURE'
+export const RAW_RECORD_RETENTION_REASON = 'RETENTION_EXPIRED'
 
 /** The exact JSON an erased raw payload carries. */
 export function rawRecordErasureTombstone(erasedAt) {
@@ -46,11 +48,36 @@ export function rawRecordErasureTombstone(erasedAt) {
   })
 }
 
-function isTombstoned(payloadJson) {
+/** The exact JSON a payload carries after its installation retention window. */
+export function rawRecordRetentionTombstone(expiredAt) {
+  return JSON.stringify({
+    redacted: true,
+    reason: RAW_RECORD_RETENTION_REASON,
+    expiredAt: (expiredAt instanceof Date ? expiredAt : new Date(expiredAt ?? Date.now())).toISOString(),
+  })
+}
+
+function tombstonePrefix(builder, timestampKey) {
+  const serialized = builder(new Date(0))
+  const timestampMarker = `"${timestampKey}":`
+  const timestampOffset = serialized.indexOf(timestampMarker)
+  if (timestampOffset < 0) throw new Error(`Raw record tombstone is missing ${timestampKey}`)
+  return serialized.slice(0, timestampOffset)
+}
+
+// Database candidate/update guards derive their exact prefixes from the same
+// builders that define persisted tombstones, so the wire format is declared once.
+export const RAW_RECORD_TOMBSTONE_PREFIXES = Object.freeze([
+  tombstonePrefix(rawRecordErasureTombstone, 'erasedAt'),
+  tombstonePrefix(rawRecordRetentionTombstone, 'expiredAt'),
+])
+
+export function isRawRecordTombstoned(payloadJson) {
   if (typeof payloadJson !== 'string' || !payloadJson.startsWith('{')) return false
   try {
     const parsed = JSON.parse(payloadJson)
-    return parsed?.redacted === true && parsed?.reason === RAW_RECORD_ERASURE_REASON
+    return parsed?.redacted === true
+      && [RAW_RECORD_ERASURE_REASON, RAW_RECORD_RETENTION_REASON].includes(parsed?.reason)
   } catch {
     return false
   }
@@ -134,7 +161,10 @@ export async function tombstoneRawRecordsForExternalIds(tx, { tenantId, external
   const tombstone = rawRecordErasureTombstone(now ?? new Date())
   let tombstonedRawRecords = 0
   for (const row of rows) {
-    if (isTombstoned(row.payloadJson)) continue
+    // Retention expiry and PDPA erasure are both terminal for raw payload content.
+    // A later erasure must not overwrite the retention tombstone (or count it as
+    // newly erased), just as a later sweep must leave a PDPA tombstone alone.
+    if (isRawRecordTombstoned(row.payloadJson)) continue
     await tx.rawExternalRecord.update({ where: { id: row.id }, data: { payloadJson: tombstone } })
     tombstonedRawRecords += 1
   }

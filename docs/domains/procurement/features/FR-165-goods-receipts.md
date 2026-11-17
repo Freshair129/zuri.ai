@@ -6,7 +6,7 @@ source: legacy-prior-art
 bundle: FEAT-024
 requirements:
   - FR-165
-version: "0.2.0b"
+version: "0.3.0b"
 status: building
 ---
 
@@ -36,9 +36,27 @@ A receipt is posted only against a SENT order.
 **Lots, expiry and serials travel with the line.** A LOT-tracked SKU needs
 its `lotCode` (Inventory's `INVENTORY_LOT_REQUIRED` bubbles up); a given
 `expiresAt` is set on a lot that has none yet and never overwrites one that
-does; a SERIAL-tracked SKU needs exactly one serial per unit. An uncounted
+does — through Inventory's `setLotExpiryIfUnset`, which compare-and-swaps the
+lot `version`, bumps it and audits `PRODUCT_LOT_EXPIRY_SET`; Procurement never
+writes `ProductLot` (review finding C8); a SERIAL-tracked SKU needs exactly one serial per unit. An uncounted
 SKU or a free-text line is recorded on the receipt, touches no ledger, and
 refuses lot or serial data.
+
+**The unit cost is derived, never typed (review finding C14).** ADR-074 D3
+says landed cost is computed. A counted line's cost handed to Inventory is the
+PO line's agreed cost — converted at the locked rate of a confirmed
+`SupplierCostSheet` (`fxCostSheetId`, same Business, supplier and currency; the
+rate is read from the sheet, never supplied) when the PO is not in THB — plus
+each typed `landedCosts` component (`SEA_FREIGHT`, `IMPORT_DUTY`,
+`INBOUND_TRUCK`, `OTHER` with a note) amortised `ceil(amount / counted
+quantity)`. The legacy `batchCostSatang` still works and is recorded as one
+`OTHER` component; it cannot be combined with `landedCosts`. The components,
+rate, sheet and each line's derived `unitCostSatang` are stored on the receipt
+and in the audit row, so the figure is reproducible from stored rows. A
+supplied `costSatang` is refused by the strict contract; a component above the 32-bit column is refused by the request contract (422 validation) and a derived unit cost above it by `PROCUREMENT_RECEIPT_COST_OUT_OF_RANGE`, and Inventory's public
+`recordMovement` refuses the reserved reason `GOODS_RECEIPT`.
+There is **no manual-override path**: the approved text defines none, so none
+was invented.
 
 **Two ladders, checked separately.** The buyer's `procurement.receipt.post`
 (or the owner) posts the receipt; the ledger rows need Inventory's write
@@ -96,11 +114,30 @@ check. Browser screenshots show the real persisted voucher and Bangkok date.
 
 Purchase returns and credit notes; a receipt against no order (a direct
 receipt stays Inventory's own RECEIPT movement); warehouse locations; quality
-inspection and quarantine on receipt; landed cost; production application of
-the migration (ADR-057).
+inspection and quarantine on receipt; production application of the migration
+(ADR-057, `20261113090000_goods_receipt_cost_provenance`).
+
+## Open policy questions (not decided by the approved text)
+
+- **Manual cost override.** Whether an authorised person may post a receipt at a
+  cost different from the derived one (with actor, reason and audit event) is
+  not decided by ADR-074, FR-164/165 or the charters. The strict path ships
+  without it; adding one needs an owner/delegated decision.
+- **Which locked rate.** ADR-074 D3 says "the rate locked at clearance". Today
+  the only recorded locked rate is a `SupplierCostSheet.fxRateLocked`, so a
+  foreign-currency receipt uses the sheet the caller names. A rate captured at
+  customs clearance on the receipt itself would need its own record.
+- **Minor units.** A foreign PO line's `unitCostSatang` is read as the PO
+  currency's two-decimal minor unit (`/100`). A currency with another exponent
+  (`NON_TWO_DECIMAL_CURRENCIES`, e.g. JPY, KWD) is refused for a counted line
+  (`422 PROCUREMENT_RECEIPT_FX_CURRENCY_UNSUPPORTED`) instead of being mis-valued;
+  supporting them needs a currency-exponent rule on the PO.
+- **SCM service.** `services/scm` does not port `landedCosts` / FX; it refuses
+  them (`PROCUREMENT_RECEIPT_COST_INPUTS_NOT_SUPPORTED`) until it owns the flow.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.3.0b | 2026-11-13 | building | Receipt cost derived from recorded inputs with stored provenance and no manual override; lot expiry set through Inventory's version-checked contract; additive schema columns with an unapplied migration | working-tree | Claude Sonnet 5.5 |
 | 0.2.0b | 2026-09-11 | building | Complete the retained receipt workstation with actual scoped projections, validated pagination, intake and printable detail; no schema or posting-policy change | working-tree | RWANG |

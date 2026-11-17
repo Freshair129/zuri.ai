@@ -1011,6 +1011,8 @@ export async function requestKnowledgePipelineReplay(executionRunId, input, opti
   return createPipelineReplayRun(executionRunId, input, { ...options, knowledgeScoped: true })
 }
 
+// Keys are the businessCode values the local worker already sends; kept as is
+// so no worker run changes behaviour.
 const SOURCE_BUSINESS_TO_ZURI_CODE = Object.freeze({
   smartgift: 'BUS-SMARTGIFT',
 })

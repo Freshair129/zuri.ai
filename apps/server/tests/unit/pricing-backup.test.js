@@ -5,11 +5,12 @@ import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { exportSnapshot, importSnapshot, previewImport, validateSnapshotRecovery, SNAPSHOT_MODELS } from '@/modules/project-manager/application/backup-service'
 import { insertSnapshotIntoEmptyTarget, validateSnapshotRecovery as validateOfflineSnapshot } from '../../scripts/phase-b-recovery-hooks.mjs'
-import { calculatePrice, defaultPricingRules, pricingHash, normalizePricingInput } from '@/modules/commerce/domain/pricing-engine'
+import { calculatePrice, pricingHash, normalizePricingInput } from '@/modules/commerce/domain/pricing-engine'
+import { fixtureRules } from '../../../../services/scm/test/support/pricing-rules-fixture.js'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 
-const rules = defaultPricingRules()
+const rules = fixtureRules()
 const rule = (id, sourceRuleSetId = null) => ({ id, tenantId: 'tenant-a', businessId: 'business-a', name: id, sourceRuleSetId, status: 'APPROVED', version: 1, rulesJson: JSON.stringify(rules), rulesHash: pricingHash(rules), approvedAt: '2026-09-17T00:00:00Z', effectiveFrom: '2026-09-17T00:00:00Z', approvalReason: 'test' })
 const snapshot = () => ({ schemaVersion: '1.0', tables: { dependency: [], tenant: [{ id: 'tenant-a' }], business: [{ id: 'business-a', tenantId: 'tenant-a' }], pricingRuleSet: [rule('child', 'root'), rule('root')], pricingCalculation: [] } })
 function mockDb(counts = {}, liveRows = []) {

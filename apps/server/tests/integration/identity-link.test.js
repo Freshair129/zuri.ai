@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { createHash } from 'node:crypto'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { resolveLineIdentity, revokeLineIdentity } from '@/modules/identity/resolve-line-identity'
@@ -7,8 +8,10 @@ import { issueLinkToken, redeemLinkToken } from '@/modules/identity/link-line-id
 import { createAgentApprovalRequest, consumeAgentApprovalRequest } from '@/modules/agent/approval-gateway'
 import { defaultWriteTools } from '@/modules/agent/write-tools'
 
-// @req FR-022 — account linking: a LINE subject binds to an EXISTING Person via a
+// @req FR-022, FR-097 — account linking: a LINE subject binds to an EXISTING Person via a
 // single-use, expiring token; idempotent, revoke-reactivating, and (opt-in) merging.
+// @spec SEC-018, ADR-045 D1/D5, SDD-052
+// @tested tests/integration/identity-link.test.js
 
 let tenant, business
 
@@ -44,6 +47,79 @@ describe('account linking (FR-022)', () => {
     await expect(redeemLinkToken({ tenantId: tenant.id, token, lineUserId: 'Ulnk-2' })).rejects.toThrow(/already been used/)
   })
 
+  it('stores only the SHA-256 token digest and returns the raw token once', async () => {
+    const person = await staffPerson('PSN-lnk-hash')
+    const issued = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    const stored = await prisma.identityLinkToken.findUnique({ where: { id: issued.tokenId } })
+    const digest = createHash('sha256').update(issued.token).digest('hex')
+
+    expect(issued.token).toBeTruthy()
+    expect(stored.token).toBe(digest)
+    expect(stored.token).not.toBe(issued.token)
+  })
+
+  it('allows exactly one concurrent redemption and writes one binding', async () => {
+    const person = await staffPerson('PSN-lnk-concurrent')
+    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    const lineUserIds = ['Ulnk-concurrent-1', 'Ulnk-concurrent-2']
+    let lookupCount = 0
+    let releaseLookups
+    const bothPreReadsComplete = new Promise((resolve) => { releaseLookups = resolve })
+    const atomicityTestDb = {
+      identityLinkToken: {
+        findUnique: async (args) => {
+          const row = await prisma.identityLinkToken.findUnique(args)
+          if (args.where?.token) {
+            lookupCount += 1
+            if (lookupCount === 2) releaseLookups()
+            await bothPreReadsComplete
+          }
+          return row
+        },
+      },
+      externalIdentity: prisma.externalIdentity,
+      $transaction: (callback) => prisma.$transaction(callback),
+    }
+
+    const results = await Promise.allSettled([
+      redeemLinkToken({ tenantId: tenant.id, token, lineUserId: lineUserIds[0] }, { db: atomicityTestDb }),
+      redeemLinkToken({ tenantId: tenant.id, token, lineUserId: lineUserIds[1] }, { db: atomicityTestDb }),
+    ])
+
+    expect(lookupCount).toBe(2)
+    expect(results.filter(({ status }) => status === 'fulfilled')).toHaveLength(1)
+    expect(results.filter(({ status }) => status === 'rejected')).toHaveLength(1)
+    expect(results.find(({ status }) => status === 'rejected').reason.message).toMatch(/already been used/i)
+    expect(await prisma.externalIdentity.count({
+      where: { tenantId: tenant.id, provider: 'LINE', providerSubject: { in: lineUserIds } },
+    })).toBe(1)
+    expect(await prisma.channelIdentity.count({ where: { tenantId: tenant.id, providerSubject: { in: lineUserIds } } })).toBe(1)
+  })
+
+  it('cannot redeem a STEPUP provider row as a LINE link token', async () => {
+    const person = await staffPerson('PSN-lnk-stepup-namespace')
+    const presentedToken = 'stepup-token-presented-to-line-redeemer'
+    const tokenDigest = createHash('sha256').update(presentedToken).digest('hex')
+    await prisma.identityLinkToken.create({
+      data: {
+        tenantId: tenant.id,
+        personId: person.id,
+        provider: 'STEPUP',
+        token: tokenDigest,
+        expiresAt: new Date(Date.now() + 60_000),
+      },
+    })
+
+    await expect(redeemLinkToken({
+      tenantId: tenant.id,
+      token: presentedToken,
+      lineUserId: 'Ulnk-stepup-cannot-link',
+    })).rejects.toThrow(/Invalid link token/)
+    expect(await prisma.externalIdentity.count({
+      where: { tenantId: tenant.id, provider: 'LINE', providerSubject: 'Ulnk-stepup-cannot-link' },
+    })).toBe(0)
+  })
+
   it('re-linking the same subject to the same person is an idempotent confirm', async () => {
     const person = await staffPerson('PSN-lnk-3')
     const t1 = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
@@ -71,8 +147,8 @@ describe('account linking (FR-022)', () => {
 
   it('rejects an expired token', async () => {
     const person = await staffPerson('PSN-lnk-5')
-    const { token } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
-    await prisma.identityLinkToken.update({ where: { token }, data: { expiresAt: new Date(Date.now() - 1000) } })
+    const { token, tokenId } = await issueLinkToken({ tenantId: tenant.id, personId: person.id })
+    await prisma.identityLinkToken.update({ where: { id: tokenId }, data: { expiresAt: new Date(Date.now() - 1000) } })
     await expect(redeemLinkToken({ tenantId: tenant.id, token, lineUserId: 'Ulnk-5' })).rejects.toThrow(/expired/)
   })
 

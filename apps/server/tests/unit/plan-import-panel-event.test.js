@@ -89,6 +89,13 @@ function findElement(node, predicate) {
   return null
 }
 
+function textContent(node) {
+  if (typeof node === 'string' || typeof node === 'number') return String(node)
+  if (Array.isArray(node)) return node.map(textContent).join(' ')
+  if (!node || typeof node !== 'object') return ''
+  return textContent(node.props?.children)
+}
+
 describe('PlanImportPanel dry-run click handler', () => {
   beforeEach(() => {
     harness.state = []
@@ -119,5 +126,38 @@ describe('PlanImportPanel dry-run click handler', () => {
       method: 'POST',
       body: { plan, workspaceId: 'workspace-1', projectId: 'project-1' },
     })
+  })
+
+  it('shows a distinct Thai message for an import replay', async () => {
+    const plan = { schemaVersion: '1.0', project: { code: 'PRJ-REPLAY-1', name: 'Replay panel test' }, workstreams: [] }
+    harness.api.mockResolvedValueOnce({ valid: true, preview: { inserts: [], updates: [], conflicts: [], dependencyCount: 0 }, workspace: { code: 'WS-1' } })
+    const textarea = findElement(renderPanel(), (element) => element.type === 'textarea')
+    textarea.props.onChange({ target: { value: JSON.stringify(plan) } })
+    const dryButton = findElement(renderPanel(), (element) => element.type === 'button' && element.props.children === 'Validate + dry run')
+    await dryButton.props.onClick()
+
+    harness.api.mockResolvedValueOnce({ committed: true, replay: true, projectId: 'project-replay', projectCode: 'PRJ-REPLAY-1' })
+    const commitButton = findElement(renderPanel(), (element) => element.type === 'button' && element.props.children === 'Confirm import')
+    await commitButton.props.onClick()
+
+    const rendered = textContent(renderPanel())
+    expect(rendered).toContain('นำเข้าแผนนี้แล้วก่อนหน้านี้')
+    expect(rendered).toContain('ไม่มีการเปลี่ยนแปลงในครั้งนี้')
+    expect(rendered).not.toContain('Imported ✓')
+  })
+
+  it('keeps the existing success message for a first import', async () => {
+    const plan = { schemaVersion: '1.0', project: { code: 'PRJ-FIRST-1', name: 'First panel test' }, workstreams: [] }
+    harness.api.mockResolvedValueOnce({ valid: true, preview: { inserts: [], updates: [], conflicts: [], dependencyCount: 0 }, workspace: { code: 'WS-1' } })
+    const textarea = findElement(renderPanel(), (element) => element.type === 'textarea')
+    textarea.props.onChange({ target: { value: JSON.stringify(plan) } })
+    const dryButton = findElement(renderPanel(), (element) => element.type === 'button' && element.props.children === 'Validate + dry run')
+    await dryButton.props.onClick()
+
+    harness.api.mockResolvedValueOnce({ committed: true, replay: false, projectId: 'project-first', projectCode: 'PRJ-FIRST-1' })
+    const commitButton = findElement(renderPanel(), (element) => element.type === 'button' && element.props.children === 'Confirm import')
+    await commitButton.props.onClick()
+
+    expect(textContent(renderPanel())).toContain('Imported ✓')
   })
 })

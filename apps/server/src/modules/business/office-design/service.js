@@ -22,13 +22,14 @@ export async function authorizeOfficeTarget({businessId,workspaceId,viewer,db=pr
 }
 function assertRegistryScope(registry,scope){if(registry&&(registry.businessId!==scope.businessId||registry.tenantId!==scope.tenantId))throw notFound()}
 const countsFor=manifest=>manifest.entities.reduce((out,e)=>{out[e.type]=(out[e.type]||0)+1;return out},{})
+const omissionDetails=(existing,entities)=>{const current=new Set(entities.map(e=>e.id)),omittedIdentityCount=existing.reduce((count,row)=>count+(current.has(row.externalId)?0:1),0);return{omittedIdentityCount,warnings:omittedIdentityCount?[{code:'OFFICE_IDENTITY_OMITTED',count:omittedIdentityCount,message:'Existing design identities are absent from this revision; they are kept and may be referenced by earlier revisions and receipts.'}]:[]}}
 function replay(receipt,commandHash){if(receipt.commandHash!==commandHash)throw conflict();return{result:JSON.parse(receipt.resultJson),replayed:true}}
 export async function registerOfficeDesign({businessId,workspaceId,viewer,bytes,expectedVersion,requestKey,dryRun=false,db=prisma}){
  const scope=await authorizeOfficeTarget({businessId,workspaceId,viewer,db})
  if(!Number.isSafeInteger(expectedVersion)||expectedVersion<0||expectedVersion>1000000000||typeof requestKey!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(requestKey))throw officeError(400,'OFFICE_COMMAND_INVALID')
  const verified=await verifyOfficeArchive(bytes),{manifest,assets,archiveSha256}=verified
  const commandHash=createHash('sha256').update(JSON.stringify({workspaceId,expectedVersion,contentHash:manifest.contentHash,archiveSha256})).digest('hex')
- if(dryRun){const registry=await db.officeDesignRegistry.findUnique({where:keyFor(workspaceId)});assertRegistryScope(registry,scope);if((registry?.version||0)!==expectedVersion)throw conflict();return{result:{registered:false,version:registry?.version||0,contentHash:manifest.contentHash,counts:countsFor(manifest),runtimeAgentsCreated:0,permissionsGranted:0},replayed:false}}
+ if(dryRun){const registry=await db.officeDesignRegistry.findUnique({where:keyFor(workspaceId)});assertRegistryScope(registry,scope);if((registry?.version||0)!==expectedVersion)throw conflict();const existing=registry?await db.officeDesignIdentity.findMany({where:{registryId:registry.id}}):[],omission=omissionDetails(existing,manifest.entities);return{result:{registered:false,version:registry?.version||0,contentHash:manifest.contentHash,counts:countsFor(manifest),...omission,runtimeAgentsCreated:0,permissionsGranted:0},replayed:false}}
  try{return await db.$transaction(async tx=>{
   const fresh=await authorizeOfficeTarget({businessId,workspaceId,viewer,db:tx})
   let registry=await tx.officeDesignRegistry.findUnique({where:keyFor(workspaceId)})
@@ -39,15 +40,15 @@ export async function registerOfficeDesign({businessId,workspaceId,viewer,bytes,
   const changed=await tx.officeDesignRegistry.updateMany({where:{id:registry.id,version:expectedVersion},data:{version:{increment:1}}})
   if(changed.count!==1)throw conflict()
   const version=expectedVersion+1
-  const existing=await tx.officeDesignIdentity.findMany({where:{registryId:registry.id}}),byExternal=new Map(existing.map(e=>[e.externalId,e])),newRows=[]
+  const existing=await tx.officeDesignIdentity.findMany({where:{registryId:registry.id}}),omission=omissionDetails(existing,manifest.entities),byExternal=new Map(existing.map(e=>[e.externalId,e])),newRows=[]
   for(const entity of manifest.entities){let row=byExternal.get(entity.id);if(row&&(row.kind!==entity.type||row.semanticKey!==entity.key))throw conflict();if(!row){const id=randomUUID();row={id,code:'ODI-'+id,registryId:registry.id,externalId:entity.id,kind:entity.type,semanticKey:entity.key};newRows.push(row);byExternal.set(entity.id,row)}}
   for(let i=0;i<newRows.length;i+=100)await tx.officeDesignIdentity.createMany({data:newRows.slice(i,i+100)})
   const present=new Set((await tx.officeDesignBlob.findMany({where:{registryId:registry.id},select:{sha256:true}})).map(b=>b.sha256))
   for(const asset of assets)if(!present.has(asset.sha256))await tx.officeDesignBlob.create({data:{registryId:registry.id,sha256:asset.sha256,byteLength:asset.byteLength,bytes:Buffer.from(asset.bytes)}})
   const revision=await tx.officeDesignRevision.create({data:{registryId:registry.id,version,contentHash:manifest.contentHash,archiveSha256,manifestJson:JSON.stringify(manifest),producerRevision:OFFICE_PRODUCER_REVISION,createdByPersonId:fresh.actorId}})
   const mapping=manifest.entities.map(e=>{const r=byExternal.get(e.id);return{externalSource:SOURCE,externalId:e.id,kind:e.type,key:e.key,zuriId:r.id,code:r.code,version}})
-  const audit=await recordAudit(tx,{entityType:'OFFICE_DESIGN',entityId:registry.id,action:'REGISTER_DESIGN_REVISION',actorId:fresh.actorId,tenantId:fresh.tenantId,businessId:fresh.businessId,payload:{workspaceId,revisionId:revision.id,version,contentHash:manifest.contentHash,counts:countsFor(manifest),runtimeAgentsCreated:0,permissionsGranted:0}})
-  const result={registered:true,registrationKind:'visual-design',registryId:registry.id,revisionId:revision.id,tenantId:fresh.tenantId,businessId:fresh.businessId,workspaceId,version,contentHash:manifest.contentHash,mapping,auditEventId:audit.id,runtimeAgentsCreated:0,permissionsGranted:0}
+  const audit=await recordAudit(tx,{entityType:'OFFICE_DESIGN',entityId:registry.id,action:'REGISTER_DESIGN_REVISION',actorId:fresh.actorId,tenantId:fresh.tenantId,businessId:fresh.businessId,payload:{workspaceId,revisionId:revision.id,version,contentHash:manifest.contentHash,counts:countsFor(manifest),omittedIdentityCount:omission.omittedIdentityCount,runtimeAgentsCreated:0,permissionsGranted:0}})
+  const result={registered:true,registrationKind:'visual-design',registryId:registry.id,revisionId:revision.id,tenantId:fresh.tenantId,businessId:fresh.businessId,workspaceId,version,contentHash:manifest.contentHash,...omission,mapping,auditEventId:audit.id,runtimeAgentsCreated:0,permissionsGranted:0}
   await tx.officeDesignImportReceipt.create({data:{registryId:registry.id,requestKey,commandHash,resultJson:JSON.stringify(result),version}})
   return{result,replayed:false}
  },{maxWait:4000,timeout:120000})}catch(error){

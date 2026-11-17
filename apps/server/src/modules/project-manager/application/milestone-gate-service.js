@@ -1,7 +1,7 @@
 import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
 import { assertPipelineEndpointRetained } from './pipeline-state'
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { zMilestoneInput, zGateInput } from '@/lib/validation/entities'
 import { recordAudit, safeParse } from './audit'
 import { assertProjectWritable } from './project-authorization'
@@ -18,8 +18,14 @@ const codeExists = (model, db = prisma) => async (code) =>
   Boolean(await db[model].findUnique({ where: { code } }))
 
 export async function createMilestone(input, { viewer, db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createMilestone(input, { viewer, db: tx }))
   const data = zMilestoneInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createMilestone(data, { viewer, db: tx }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('MILESTONE_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const project = await db.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
   await assertProjectWritable(viewer, data.projectId, { db })
@@ -70,8 +76,14 @@ export async function updateMilestone(id, patch, { viewer, db = prisma } = {}) {
 }
 
 export async function createGate(input, { viewer, db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createGate(input, { viewer, db: tx }))
   const data = zGateInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createGate(data, { viewer, db: tx }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('GATE_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const project = await db.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
   await assertProjectWritable(viewer, data.projectId, { db })

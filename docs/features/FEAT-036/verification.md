@@ -74,6 +74,7 @@ status: generated
 - [apps/server/tests/unit/credential-vault-postgres-target.test.js](../../../apps/server/tests/unit/credential-vault-postgres-target.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr080-integration-management.test.js](../../../apps/server/tests/unit/fr080-integration-management.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/integration/credential-route-body-cap.test.js](../../../apps/server/tests/unit/integration/credential-route-body-cap.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/integration/credential-vault-migrations.test.js](../../../apps/server/tests/unit/integration/credential-vault-migrations.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/integration/credential-vault-schema-contract.test.js](../../../apps/server/tests/unit/integration/credential-vault-schema-contract.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/integration/dispatching-secret-manager.test.js](../../../apps/server/tests/unit/integration/dispatching-secret-manager.test.js) — `verifies` (`test-reference`)
@@ -120,6 +121,7 @@ status: generated
 - [apps/server/tests/unit/api-error-mapping.test.js](../../../apps/server/tests/unit/api-error-mapping.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js](../../../apps/server/tests/unit/identity/rate-limit-bucket-migration.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/integration/credential-route-body-cap.test.js](../../../apps/server/tests/unit/integration/credential-route-body-cap.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/line-oa-connect-wizard-render.test.js](../../../apps/server/tests/unit/line-oa-connect-wizard-render.test.js) — `verifies` (`transitive`)
 
 ## [ZAI:FR-225](requirements/FR-225.md)

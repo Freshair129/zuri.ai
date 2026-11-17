@@ -1,9 +1,7 @@
 import { createHash } from 'node:crypto'
-import { parseDocument } from 'yaml'
 import { Decimal, pricingError, validatePricingFormula } from './pricing-formula'
-import { SOURCE_RULES, SOURCE_SHA256 } from './pricing-source'
 
-// @req FR-253 — strict rules import, all supported variable groups and source lineage.
+// @req FR-253 — strict rules validation, all supported variable groups and source lineage.
 // @spec ADR-098
 // @tested tests/unit/pricing-engine.test.js
 
@@ -154,63 +152,3 @@ export function validatePricingRules(input) {
   validatePricingFormula(r.formulas)
   return r
 }
-
-const cap = (n) => n === Infinity || n === null ? null : n
-function sourceRules(source, sha) {
-  // Import is a translation, not an alternative runtime fallback. Only the
-  // reviewed source schema is accepted; unmapped source policy is preserved as
-  // explicitly inactive evidence instead of being exposed as working controls.
-  const s = source
-  exact(s, ['version', 'contract_reference', 'last_updated', 'updated_by', 'tenant_id', 'business_id', 'vault_id', 'currency_exchange_rates', 'logistics_density_and_freight', 'price_rounding', 'profit_floors_thb', 'profit_floors', 'profit_floors_by_kind', 'small_order_factors', 'markup_bands_standard', 'standard_quote_profile', 'corporate_quote_profile', 'logo_methods', 'logo_positions_rule', 'lead_time_working_days', 'srp_benchmark_rules', 'shipping_rate_matrix', 'sources'], 'source')
-  const sourceShape = (value, template, path) => {
-    if (Array.isArray(template)) {
-      if (!Array.isArray(value) || !value.length || value.length > 32) throw pricingError('Invalid source table', path)
-      value.forEach((row, i) => sourceShape(row, template[0], `${path}.${i}`))
-    } else if (template && typeof template === 'object') {
-      exact(value, Object.keys(template), path)
-      for (const key of Object.keys(template)) sourceShape(value[key], template[key], `${path}.${key}`)
-    } else if (typeof template === 'number') {
-      if ((value === null || value === Infinity) && /\.(max_qty|max_cost_thb)$/.test(path)) return
-      if (typeof value !== 'number' || !Number.isFinite(value)) throw pricingError('Invalid source numeric field', path)
-    } else if (typeof template === 'string' || typeof template === 'boolean') {
-      if (typeof value !== typeof template) throw pricingError('Invalid source field type', path)
-    } else if (template === null && value !== null && (typeof value !== 'number' || !Number.isFinite(value))) {
-      throw pricingError('Expected null or numeric source field', path)
-    }
-  }
-  for (const key of Object.keys(s)) if (!['sources', 'version', 'last_updated', 'updated_by'].includes(key)) sourceShape(s[key], SOURCE_RULES[key], `source.${key}`)
-  const l = s.logistics_density_and_freight, m = s.logo_methods, lead = s.lead_time_working_days
-  const tier = (rows, key, name) => rows.map((row) => ({ maxQty: cap(row.max_qty), [name]: String(row[key]) }))
-  const profile = (p, corporate) => ({ name: p.name, basis: p.basis, anchorQty: p.anchor_qty, breaks: p.breaks, factors: p.factors.map(String), flatMarkup: p.flat_markup === undefined ? null : String(p.flat_markup), referenceGoodsType: p.reference_goods_type || null, targetProfitThb: corporate ? String(p.package_profit_guardrails.target_package_profit_thb) : null, marginWarningBand: corporate ? { minPercent: '20', maxPercent: '35' } : { minPercent: '39', maxPercent: '52' } })
-  const rules = {
-    schemaVersion: 'pricing-rules.v1', version: s.version,
-    provenance: { sourcePath: 'config/pricing_rules_formula.yaml', sourceSha256: sha, sourceVersion: s.version,
-      sourceContext: { contract: s.contract_reference, tenant: s.tenant_id, business: s.business_id, updatedBy: s.updated_by, updatedAt: s.last_updated, inactive: { srpBenchmark: s.srp_benchmark_rules, inlandCbm: { rate: l.inland_china_freight.rate_cny_per_cbm, minimum: l.inland_china_freight.min_charge_cny } }, legacyPackageGuardrails: s.corporate_quote_profile.package_profit_guardrails },
-      sources: s.sources, importNotes: ['Corporate single-drop policy: SmartGift ADR-009, THB 2500/order.', 'Kind floors and independent USD FX are enforced; legacy omission is not copied.', 'Approved 20260913 Q5: kind floor THB 20000; corporate target THB 30000 is a warning, not a clamp.', 'Source SRP benchmark and inland CBM are inactive; separate policy scope is required.'] },
-    fx: { cnyToThb: String(s.currency_exchange_rates.cny_to_thb), usdToThb: String(s.currency_exchange_rates.usd_to_thb) },
-    logistics: { densityThreshold: String(l.density_threshold_kg_per_cbm), minCbm: String(l.min_chargeable_cbm), seaThresholdCbm: String(l.sea_threshold_cbm), peakMonths: l.seasonality_peak_months, forceTruckInPeak: l.auto_force_truck_in_peak, inlandCnyPerUnit: String(l.inland_china_freight.default_rate_cny_per_set), domesticSingleDropThb: '2500', rates: s.shipping_rate_matrix },
-    rounding: { priceStepThb: String(s.price_rounding.ladder_price_step_thb) },
-    quantityFloors: tier(s.profit_floors, 'thb', 'thb'),
-    kindFloors: Object.fromEntries(Object.entries(s.profit_floors_by_kind).map(([k, rows]) => [k, rows.map((row) => ({ minQty: row.min_qty, thb: String(row.thb) }))])),
-    smallOrderFactors: tier(s.small_order_factors, 'sof', 'factor'), markupBands: s.markup_bands_standard.map((row) => ({ maxCostThb: cap(row.max_cost_thb) === null ? null : String(row.max_cost_thb), multiplier: String(row.markup_multiplier) })),
-    profiles: { standard: profile(s.standard_quote_profile, false), corporate: profile(s.corporate_quote_profile, true) },
-    logo: { flatThbPerPosition: String(m.flat.default_rate_thb), hotstampSetupUsd: String(m.hotstamp.setup_usd), hotstampBaseQty: 100, hotstampTiers: tier(m.hotstamp.per_piece_over_100_usd, 'usd', 'usd'), hotstampTextUsd: String(m.hotstamp_text.flat_usd), engraveTiers: tier(m.engrave.per_piece_usd, 'usd', 'usd'), silkFlatUpToQty: m.silk.flat_usd_up_to_qty, silkFlatUsd: String(m.silk.flat_usd), silkPerPieceUsd: String(m.silk.per_piece_usd_above), uvPerPieceUsd: m.uv.per_piece_usd === null ? null : String(m.uv.per_piece_usd) },
-    logoPositions: { piecesFromCodeLastDigit: s.logo_positions_rule.pieces_from_code_last_digit, extraPositions: s.logo_positions_rule.extra_positions, minPositions: s.logo_positions_rule.min_positions },
-    leadTime: { artwork: lead.artwork_confirm, sample: lead.sample, production: lead.production.map((row) => ({ maxQty: cap(row.max_qty), min: row.min, max: row.max })), freight: lead.freight },
-    formulas: [{ name: 'candidatePrice', expression: 'anchorPrice * factor / anchorFactor', unit: 'THB/unit' }],
-  }
-  if (l.inland_china_freight.implemented_basis !== 'per_set') throw pricingError('Only per_set inland costing is supported', 'source.logistics_density_and_freight.inland_china_freight.implemented_basis')
-  if (s.standard_quote_profile.markup_source !== 'markup_bands_standard') throw pricingError('Unsupported markup source', 'source.standard_quote_profile.markup_source')
-  return validatePricingRules(rules)
-}
-
-export function importPricingRulesYaml(yamlText) {
-  if (typeof yamlText !== 'string' || yamlText.length > 64000) throw pricingError('Expected YAML up to 64KB', 'source')
-  try {
-    const doc = parseDocument(yamlText, { uniqueKeys: true, version: '1.2' })
-    if (doc.errors.length || doc.warnings.length) throw new Error('Invalid YAML')
-    const source = doc.toJS({ maxAliasCount: 0 })
-    return sourceRules(source, createHash('sha256').update(yamlText).digest('hex'))
-  } catch (e) { if (e.status === 422) throw e; throw pricingError('Malformed or unsupported YAML', 'source') }
-}
-export function defaultPricingRules() { return sourceRules(structuredClone(SOURCE_RULES), SOURCE_SHA256) }

@@ -48,6 +48,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Codex — Session 4: Market Intelligence Service Extraction](../migrations/service-extraction/SESSION-4-MARKET-INTELLIGENCE-CODEX-PROMPT.md)
 - [Compact managed-blob operator restore/rebind implementation plan](../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md)
 - [Compact Self-host Implementation Plan](../plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md)
+- [Documentation architecture redesign proposal](../plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md)
 - [Approved GenesisRAG17 implementation contract](../plans/GENESISRAG17-CONTRACT.md)
 - [GenesisRAG17 on the edge device: Phase 3 deployment design](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md)
 - [Knowledge admission contract — phases 0–4](../plans/KNOWLEDGE-ADMISSION-CONTRACT.md)
@@ -75,4 +76,4 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Production PostgreSQL migration reconciliation runbook](../runbooks/production-migration-reconciliation.md)
 - [S-01 navigation pointer](../runbooks/S-01.md)
 - [Self-hosted inference pool — qualification, activation and recovery](../runbooks/SELF-HOSTED-INFERENCE-POOL.md)
-- [TASK-ZAI-095 — LINE OA grounding pilot switch runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md)
+- [TASK-ZAI-095 — historical SmartGift grounding pilot plan (superseded)](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md)

@@ -18,7 +18,6 @@ import { resolveFileAssetContent } from '@/modules/project-manager/application/f
 import { createConfiguredAssetObjectStoragePort, createConfiguredKnowledgeCatalogObjectStoragePort, createConfiguredManagedBlobObjectStoragePort } from '@/platform/storage/supabase-object-storage'
 import { uploadAssetEvidence, reviewAssetEvidence, extractAssetEvidence } from '@/modules/asset-management/application/asset-evidence-service'
 import { upsertAssetIntake } from '@/modules/asset-management/application/asset-intake-service'
-import { uploadSmartGiftCatalogFile } from '@/modules/knowledge/smartgift-catalog-upload-service'
 import { assertKnowledgeFileReadable, assertKnowledgeFileCurrent } from '@/modules/knowledge/knowledge-authorization'
 import { admitPricingCatalog } from '@/modules/commerce/application/pricing-catalog-service'
 import { parseBusinessObjectRef } from '@/platform/storage/private-business-object-storage'
@@ -121,36 +120,6 @@ describe('OR4 domain invariants after exact-original rebind (controlled provider
     io.mockClear()
     await expect(extractAssetEvidence(evidence.id, { db, viewer: foreign, extractor, objectStoragePort: reader })).rejects.toMatchObject({ status: 404 })
     expect(io).not.toHaveBeenCalled(); expect(extractor.extract).not.toHaveBeenCalled()
-  })
-
-  it('preserves SmartGift source/ingestion and parsed records without re-admission or publication', async () => {
-    const content = readFileSync(path.resolve('tests/fixtures/genesisrag17/smartgift-catalog/products.json'))
-    // Existing intake creates durable QUEUED lineage only; no worker/model runs.
-    const uploaded = await uploadSmartGiftCatalogFile({ businessId: business.id, name: 'products.json', contentBase64: content.toString('base64') }, { db, viewer: pricing.owner, env: pricing.env, objectStoragePort: catalogPort })
-    ownedFileIds.push(uploaded.fileAssetId)
-    const before = await knowledgeSnapshot()
-    expect(before.sources.some(s => s.fileAssetId === uploaded.fileAssetId)).toBe(true)
-    objects.clear()
-    await recover(uploaded.fileAssetId, content)
-    const current = await assertKnowledgeFileReadable(pricing.owner, uploaded.fileAssetId, { db, businessId: business.id, env: pricing.env })
-    expect(current).toBeTruthy()
-    expect(JSON.parse((await read(uploaded.fileAssetId)).content.toString())).toEqual(JSON.parse(content))
-    expect(await knowledgeSnapshot()).toEqual(before)
-  })
-
-  it('composes the selected catalog port without an injected storage port and reports unavailable admission honestly', async () => {
-    const content = Buffer.concat([readFileSync(path.resolve('tests/fixtures/genesisrag17/smartgift-catalog/products.json')), Buffer.from('\n')])
-    vi.stubGlobal('fetch', fetchFn)
-    try {
-      const result = await uploadSmartGiftCatalogFile({ businessId: business.id, name: 'other.json', contentBase64: content.toString('base64') }, {
-        db, viewer: pricing.owner, env: pricing.env,
-        admit: async () => { throw Object.assign(new Error('Fixture unavailable'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' }) },
-      })
-      ownedFileIds.push(result.fileAssetId)
-      expect(result).toMatchObject({ fileStatus: 'STORED', knowledgeStatus: 'UNAVAILABLE' })
-      expect((await row(result.fileAssetId)).blobRef).toMatch(/^s3-business:\/\/catalog\/catalog-private\/business-catalog\//)
-      expect((await read(result.fileAssetId)).content).toEqual(content)
-    } finally { vi.unstubAllGlobals() }
   })
 
   it('preserves pricing calculation/rules/ledger lineage and current policy checks', async () => {

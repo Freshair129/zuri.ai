@@ -71,4 +71,37 @@ The old device-side extraction flow and its setup are retained only in the
 claim/complete/fail calls, and `extraction` CLI commands are retired and must not be used.
 The record is not a current operator runbook.
 
+## GenesisBlock MCP server
+
+Build the Edge app before using the compiled server:
+
+```powershell
+npm run build
+```
+
+Use stdio for local Claude Desktop or Cursor integrations:
+
+```powershell
+node dist/mcp/genesis-mcp-server.js
+```
+
+Use HTTP/SSE on port 8989 with `start-genesis-mcp.bat`. It binds to `127.0.0.1` by default. For a LAN
+bind, set `GENESIS_MCP_HOST` explicitly and provide `GENESIS_MCP_TOKEN` with at least 32 characters.
+For a tunnel that forwards to loopback, keep the default host and still configure a token before
+exposing the service. Whenever configured, the token protects `/sse` and `/messages` with
+`Authorization: Bearer <token>`. Unauthenticated `/health` returns only `status` and `service`; a
+valid token receives readiness details. The HTTP/SSE surface sends no browser CORS headers and is
+intended for MCP clients.
+
+The MCP entry point reads the process environment directly and does not load `.env`. For example,
+replace this placeholder with a unique generated token before launching:
+
+```powershell
+$env:GENESIS_MCP_HOST = '0.0.0.0'
+$env:GENESIS_MCP_TOKEN = '<generate-a-unique-token-with-at-least-32-characters>'
+.\start-genesis-mcp.bat
+```
+
+Never commit a real token or print it in logs.
+
 Version diff unversioned → 0.1.0b (2026-09-06, RWANG): documented central monorepo candidate and optional executor target; runtime behavior unchanged.

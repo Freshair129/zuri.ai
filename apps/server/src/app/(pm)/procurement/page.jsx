@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { ClipboardList, RefreshCw } from 'lucide-react'
+import { ClipboardList, FileSpreadsheet, RefreshCw } from 'lucide-react'
 import { Card, DataTable, Kpi, ModuleTabs, PageHeader, SectionTitle } from '@/components/ui'
 import { PROCUREMENT_TABS } from '@/lib/module-tabs'
 import { useScope } from '@/context/ScopeContext'
@@ -12,6 +12,7 @@ import { SUPPLIER_ACTIONS } from '@/lib/validation/enums'
 //   orders, awaiting delivery, partially received, the outstanding value —
 //   every number computed by the server on this load from the lines and the
 //   receipt lines) and the Business's suppliers: list, create, archive.
+// @req FR-154 — links the Inventory Product catalogue into supplier cost-sheet intake.
 // @req FR-165 — the entry to the purchase-orders console where receipts are posted.
 // @spec ADR-066; SEC-001 — every request names the selected Business as a
 //   selector the server validates against the trusted viewer.
@@ -106,6 +107,7 @@ export default function ProcurementDashboardPage() {
       subtitle={`ใบสั่งซื้อที่เปิดอยู่ ของที่รอรับ และผู้ขายของธุรกิจ — ตัวเลขคำนวณจากรายการและใบรับของทุกครั้ง${business ? ` · ${business.name}` : ''}`}
       actions={<>
         <Link className="btn btn-primary" href="/procurement/purchase-orders"><ClipboardList size={15} /> ใบสั่งซื้อ</Link>
+        <Link className="btn" href="/procurement/cost-sheets"><FileSpreadsheet size={15} /> ต้นทุนผู้ขาย</Link>
         <button type="button" className="btn" onClick={() => refresh().catch((err) => setError(err.message))} disabled={busy}><RefreshCw size={15} /> โหลดใหม่</button>
       </>}
     />

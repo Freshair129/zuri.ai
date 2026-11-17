@@ -1,5 +1,5 @@
 import { PRODUCT_ENTITY } from '../../../kernel/inventory/inventory.js'
-import { customizationUnitCostSatang, weightedAverageUnitCostSatang } from '../../../kernel/inventory/inventory-costing.js'
+import { customizationUnitCostSatang, movingAverageValuation } from '../../../kernel/inventory/inventory-costing.js'
 import {
   CUSTOMIZATION_WORK_ORDER_ENTITY, customizationCompletionRule, customizationWorkOrderCode, grossIssueQuantity,
   reconcileCustomizationRun, workOrderDayKey, zCancelWorkOrder, zCompleteCustomizationWorkOrder, zOpenCustomizationWorkOrder, zWorkOrderAction,
@@ -12,6 +12,9 @@ import * as catalogRepo from '../adapters/catalog-repo.js'
 import * as repo from '../adapters/inventory-repo.js'
 import * as wipRepo from '../adapters/wip-repo.js'
 
+// @req FR-175 — raw cost after issue comes from the retained moving average.
+// @spec ADR-074 D2, D3, D4; BR-027
+// @tested test/component/inventory-work-orders.test.js
 // Customization work orders (FR-176) inside SCM — port of apps/server
 // customization-work-order-service with the same codes, order of refusals and
 // audit actions. OPEN computes the gross issue (net + BR-029 buffer) and, unless
@@ -166,7 +169,7 @@ function complete(sql, scope, id, data, ctx) {
   const consumed = rule.run.completedQty > 0 ? appendMovement(sql, scope, { ...shared, productId: raw.id, kind: 'ISSUE', quantity: rule.run.completedQty, reason: 'CUSTOMIZATION_CONSUMED', sourceLocationId: at }, { now: ctx.now }) : null
   const scrapped = rule.run.scrapQty > 0 ? appendMovement(sql, scope, { ...shared, productId: raw.id, kind: 'ISSUE', quantity: rule.run.scrapQty, reason: 'CUSTOMIZATION_SCRAP', sourceLocationId: at }, { now: ctx.now }) : null
   // 2. The branded output arrives at raw landed cost + this run's added cost (null when the raw cost is unknown).
-  const rawCost = weightedAverageUnitCostSatang(wipRepo.receiptsOf(sql, raw.id))
+  const rawCost = movingAverageValuation(wipRepo.movementsOf(sql, raw.id)).unitCostSatang
   const addedCost = customizationUnitCostSatang({ setupCostSatang: order.setupCostSatang, runCostSatang: order.runCostSatang, plannedQty: order.plannedQty })
   const unitCostSatang = rawCost === null ? null : rawCost + addedCost
   const produced = rule.run.completedQty > 0

@@ -7,7 +7,7 @@ import { workspacePath, workspaceRoot, canonicalRelative } from './workspace-pat
 // Usage: node scripts/doc-preflight.mjs [--strict]
 //   --strict  exit 1 on any CRITICAL finding
 
-import { writeFileSync, readdirSync, statSync, existsSync } from 'fs'
+import { writeFileSync, readdirSync, statSync, existsSync, readFileSync } from 'fs'
 import { spawnSync } from 'child_process'
 import path from 'path'
 import { fileURLToPath } from 'url'
@@ -109,6 +109,7 @@ const canonicalPaths = new Set(canonicalRecords.map(record => record.path))
       '.data-pipeline-map.json',
       '.doc-graph-drift-report.json',
       '.doc-graph.json',
+      '.doc-catalog.json',
       '.domain-state.json',
       '.preflight-report.json',
       'DOCUMENT-LINKS.md',
@@ -1056,6 +1057,18 @@ const ROUTE_VIEWER_BASELINE = path.join(SPEC_PACK, '.route-viewer-baseline.json'
       // worker and the programme usage reports endpoint above. Proven by
       // tests/unit/crm-retention-sweep-route.test.js.
       rel(file) === 'src/app/api/crm/retention-sweep/route.js' ||
+      // ADR-093 D5 / FR-245 archive expiry is deployment-authenticated with the
+      // same bearer and proves refusal before work in its route unit test.
+      // tests/unit/crm-archive-expiry-route.test.js.
+      rel(file) === 'src/app/api/crm/archive-expiry/route.js' ||
+      // ADR-091 D2 / FR-230: the Integration raw LINE retention trigger uses the
+      // deployment bearer ZURI_RETENTION_SWEEP_TOKEN, compared before any work.
+      // tests/unit/raw-line-retention-sweep-route.test.js proves the 401 path.
+      rel(file) === 'src/app/api/integration/raw-retention-sweep/route.js' ||
+      // ADR-091 D2 / FR-230: the Agent trace retention trigger uses the deployment
+      // bearer ZURI_RETENTION_SWEEP_TOKEN, compared before any work.
+      // tests/unit/agent-trace-retention-sweep-route.test.js proves the 401 path.
+      rel(file) === 'src/app/api/agent/trace-retention-sweep/route.js' ||
       // FR-230 / ADR-091: owner-requested MSP maintenance counterpart. Separate
       // deployment bearer is checked before work; no browser/model authority.
       // tests/unit/msp-retention-route-worker.test.js proves refusal and scope.
@@ -1469,6 +1482,39 @@ if (existsSync(ROADMAP) && existsSync(GRAPH)) {
   }
   for (const f of evaluateUntrackedDocs({ git: runGit, ci: Boolean(process.env.CI) })) {
     add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  }
+}
+
+// ---- Check 22: documents added against the merge base ------------------------
+// ADR-118 amendments 1 to 3; redesign proposal section 7.2, checks D1 to D3. Findings are
+// WARNING, except a doc-placement finding for a file added or renamed into a legacy home
+// whose policy rule says enforce:"critical" (.agent/, agent/, .rwang-tasks/, .brain/plans/,
+// docs/superpowers/, docs/roadmap/PLAN-*.md), which is CRITICAL. There is no baseline: only
+// added/renamed files are examined, so existing files are never reported. A guard that
+// cannot run is reported as NOT EVALUATED (warning under CI, info locally), never as a pass.
+// See scripts/doc-added-files.mjs.
+{
+  const repoRoot = workspaceRoot(ROOT)
+  const runGitAdded = (args) => {
+    const r = spawnSync('git', args, { cwd: repoRoot, encoding: 'utf8', windowsHide: true, maxBuffer: 256 * 1024 * 1024 })
+    return r.error || r.status !== 0 ? { ok: false, stdout: '' } : { ok: true, stdout: r.stdout }
+  }
+  // Imported lazily: the guard reads tools/document-catalog.mjs and the kinds policy, which a
+  // relocated or partial copy of scripts/ (the doc-links CLI test fixture) does not carry.
+  // A guard that cannot load is info, never an error exit.
+  try {
+    const { evaluateAddedDocumentGuards } = await import('./doc-added-files.mjs')
+    const { loadPolicy } = await import('../../../tools/document-catalog.mjs')
+    const guards = evaluateAddedDocumentGuards({
+      git: runGitAdded,
+      baseRef: process.env.GITHUB_BASE_REF || '',
+      policy: loadPolicy(repoRoot),
+      read: (file) => { try { return readFileSync(path.join(repoRoot, file), 'utf8') } catch { return null } },
+      exists: (file) => existsSync(path.join(repoRoot, file)),
+    })
+    for (const f of guards) add(f.severity, f.check, f.title, f.details, f.files, f.action)
+  } catch (error) {
+    add(process.env.CI ? 'warning' : 'info', 'doc-added-files', 'Added-document guards NOT EVALUATED (neither a pass nor a failure)', `The guard or the kinds policy could not be loaded: ${error.message}. The legacy-home CRITICAL guard did not run for this change.`, ['docs/governance/DOCUMENT-KINDS.json'], 'Restore tools/document-catalog.mjs and the kinds policy, then rerun npm run govern')
   }
 }
 

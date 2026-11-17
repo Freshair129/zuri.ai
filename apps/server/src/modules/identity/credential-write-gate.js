@@ -1,23 +1,21 @@
-// @req FR-224 — the credential-write step-up gate and rate limit: every credential
-//   write, rotation, revocation and live validation needs an ACTIVE TOTP factor and
-//   a Session inside its AAL2 step-up window, then passes the per Person-and-
-//   Business limit (and, when LINE is called, the installation-wide one) — all of it
-//   before any LINE call or store write.
+// @req FR-094, FR-095, FR-096, FR-224 — live Session assurance for factor
+//   enrollment, revocation and credential writes, plus the credential rate limits.
 // @spec ADR-089 D4 and proof 4; SEC-018; ADR-045 D2, D4
-// @tested tests/integration/line-channel-credential-routes.test.js
+// @tested tests/integration/line-channel-credential-routes.test.js,
+//   tests/integration/mfa-totp-lifecycle.test.js, tests/integration/passkey-lifecycle.test.js
 //
-// Why the gate reads `elevatedUntil` and not `assuranceLevel`. elevateSession()
-// writes assuranceLevel = 'AAL2' together with a 900-second elevatedUntil and never
-// writes it back, so after the window the column still says AAL2 and
-// resolveSessionAssurance() would keep answering AAL2. ADR-089 requires "an expired
-// elevation" to be refused, so the gate hands assertSessionAssurance only the
-// window: a Session is AAL2 here exactly while its step-up is live.
+// Sensitive writes and factor changes load the persisted Session from the request
+// cookie (or a trusted server-side token-hash seam), verify ownership and liveness,
+// then require a future elevatedUntil. A WebAuthn login remains AAL2 for general
+// assurance, but never substitutes for this recent step-up. The descriptive
+// assuranceLevel column never grants authority. The ADR-100 operator suspension
+// remains an explicit credential-write exception; it does not apply to factor
+// enrollment or revocation.
 
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { AUTH_SESSION_COOKIE, hashSessionToken } from './auth-service'
 import { readRequestCookie } from './session-port'
-import { assertSessionAssurance } from './session-assurance'
 import { CREDENTIAL_RATE_LIMITS, LINE_VALIDATION_KEY, consumeRateLimit, credentialWriteKey } from './rate-limit'
 
 export const MFA_ENROLMENT_PATH = '/api/auth/mfa/totp/enroll'
@@ -51,16 +49,73 @@ function refuse(status, code, details) {
   return error
 }
 
-async function requestSession(request, db) {
+export function resolveSessionTokenHash({ request = null, tokenHash = null, viewer = null } = {}) {
   const cookie = request ? readRequestCookie(request, AUTH_SESSION_COOKIE) : null
-  if (!cookie) return null
-  return db.session.findUnique({ where: { tokenHash: hashSessionToken(cookie) } })
+  if (cookie) return hashSessionToken(cookie)
+  return tokenHash ?? viewer?.sessionTokenHash ?? viewer?.session?.tokenHash ?? null
+}
+
+async function requestSession(request, db, tokenHash = null) {
+  const sessionTokenHash = resolveSessionTokenHash({ request, tokenHash })
+  if (!sessionTokenHash) return null
+  return db.session.findUnique({ where: { tokenHash: sessionTokenHash } })
+}
+
+/**
+ * Require a recent step-up on the live persisted Session belonging to this Person.
+ * Unlike general AAL2 assurance, a WebAuthn login never satisfies this gate.
+ */
+export async function assertRecentStepUp({
+  personId,
+  request = null,
+  tokenHash = null,
+  session = undefined,
+  db = prisma,
+  now = () => new Date(),
+} = {}) {
+  if (typeof personId !== 'string' || !personId) throw refuse(401, 'AUTH_REQUIRED')
+  const row = session === undefined ? await requestSession(request, db, tokenHash) : session
+  const currentTime = now()
+  const live = row &&
+    row.personId === personId &&
+    row.status === 'ACTIVE' &&
+    row.revokedAt == null &&
+    new Date(row.expiresAt).getTime() > currentTime.getTime()
+  const elevatedUntil = row?.elevatedUntil == null ? Number.NaN : new Date(row.elevatedUntil).getTime()
+  if (!live || !(elevatedUntil > currentTime.getTime())) {
+    throw refuse(403, 'ASSURANCE_LEVEL_INSUFFICIENT', [{ code: 'ASSURANCE_LEVEL_INSUFFICIENT', stepUpPath: '/api/auth/step-up' }])
+  }
+  return { personId, sessionId: row.id, session: row }
+}
+
+/**
+ * Adding another factor requires a recent step-up on the live Session. The first
+ * factor can be enrolled at AAL1, but this state check runs on both start and
+ * confirmation.
+ */
+export async function assertFactorEnrollmentAssurance({
+  personId,
+  request = null,
+  tokenHash = null,
+  db = prisma,
+  now = () => new Date(),
+} = {}) {
+  if (typeof personId !== 'string' || !personId) throw refuse(401, 'AUTH_REQUIRED')
+  const [totp, passkey] = await Promise.all([
+    db.mfaFactor.findFirst({ where: { personId, type: 'TOTP', status: 'ACTIVE' }, select: { id: true } }),
+    db.passkeyCredential.findFirst({ where: { personId, status: 'ACTIVE' }, select: { id: true } }),
+  ])
+  if (!totp && !passkey) return { personId, firstFactor: true }
+  return {
+    ...(await assertRecentStepUp({ personId, request, tokenHash, db, now })),
+    firstFactor: false,
+  }
 }
 
 /**
  * Refuse unless the viewer's Person has an ACTIVE TOTP factor and the request's
- * Session is inside a live step-up window. Order matters: a Person with no factor
- * is told to enrol, because stepping up is impossible for them.
+ * live Session has a recent step-up. Order matters: a Person with no factor is
+ * told to enrol, because stepping up is impossible for them.
  */
 export async function assertCredentialWriteAssurance({ viewer, request = null, session = undefined, db = prisma, now = () => new Date(), env = process.env } = {}) {
   const personId = viewer?.principal?.id ?? viewer?.personId
@@ -70,14 +125,8 @@ export async function assertCredentialWriteAssurance({ viewer, request = null, s
   if (isCredentialStepUpSuspended(env)) return { personId, sessionId: null, stepUp: 'SUSPENDED' }
   const factor = await db.mfaFactor.findFirst({ where: { personId, type: 'TOTP', status: 'ACTIVE' }, select: { id: true } })
   if (!factor) throw refuse(403, 'MFA_FACTOR_REQUIRED', [{ code: 'MFA_FACTOR_REQUIRED', enrolmentPath: MFA_ENROLMENT_PATH }])
-  const row = session === undefined ? await requestSession(request, db) : session
-  const live = row && row.personId === personId && row.status === 'ACTIVE' && new Date(row.expiresAt).getTime() > now().getTime()
-  try {
-    assertSessionAssurance({ assuranceLevel: 'AAL1', elevatedUntil: live ? row.elevatedUntil ?? null : null }, 'AAL2')
-  } catch {
-    throw refuse(403, 'ASSURANCE_LEVEL_INSUFFICIENT', [{ code: 'ASSURANCE_LEVEL_INSUFFICIENT', stepUpPath: '/api/auth/step-up' }])
-  }
-  return { personId, sessionId: row.id, stepUp: 'VERIFIED' }
+  const { sessionId } = await assertRecentStepUp({ personId, request, session, db, now })
+  return { personId, sessionId, stepUp: 'VERIFIED' }
 }
 
 /**

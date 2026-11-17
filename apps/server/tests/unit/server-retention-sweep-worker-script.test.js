@@ -4,7 +4,7 @@ import { resolve } from 'node:path'
 import { runnerStage } from '../helpers/dockerfile-stage.js'
 
 // @req FR-230 — the single-shot worker script itself: it authenticates, calls the
-//   route once, logs exactly one JSON line and exits — no loop, no cadence, no
+//   owning-domain routes in order, logs one JSON line per route and exits — no loop, no cadence, no
 //   live network call in this test (the shape is what's under test, not a real
 //   fetch — see tests/unit/retention-sweep-worker-run.test.js for the core
 //   behaviour these lines call into).
@@ -12,6 +12,7 @@ import { runnerStage } from '../helpers/dockerfile-stage.js'
 // @tested tests/unit/server-retention-sweep-worker-script.test.js
 
 const script = readFileSync(resolve(process.cwd(), 'scripts/server-retention-sweep-worker.mjs'), 'utf8')
+const taskRegistration = readFileSync(resolve(process.cwd(), 'scripts/register-retention-sweep-task.ps1'), 'utf8')
 
 describe('the single-shot retention sweep worker script', () => {
   it('is single-shot: no loop, no cadence backoff, no signal-draining supervisor state', () => {
@@ -21,12 +22,19 @@ describe('the single-shot retention sweep worker script', () => {
     expect(script).not.toMatch(/process\.on\(/)
   })
 
-  it('calls the core exactly once and exits with a code derived from the result', () => {
+  it('calls the ordered sequence, logs one line per route and sets a combined exit code', () => {
     expect(script).toContain('resolveRetentionSweepWorkerConfig(process.env)')
-    expect(script).toContain('runRetentionSweepOnce(')
+    expect(script).toContain('runRetentionSweepSequence(')
+    expect(script).toContain("process.argv.slice(2).includes('--dry-run')")
     expect(script).toContain('formatRetentionSweepLogLine(')
     expect(script).toContain('console.log(')
-    expect(script).toContain('process.exit(')
+    expect(script).toContain('for (const entry of result.results)')
+    expect(script).toContain('process.exitCode = result.ok ? 0 : 1')
+  })
+
+  it('gives all four ten-minute route calls time to finish in Task Scheduler', () => {
+    expect(taskRegistration).toContain('-ExecutionTimeLimit (New-TimeSpan -Minutes 50)')
+    expect(taskRegistration).toContain('CRM archive expiry')
   })
 })
 

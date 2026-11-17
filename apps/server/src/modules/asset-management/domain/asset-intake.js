@@ -1,9 +1,10 @@
-// @req FR-134, FR-135 — one strict Asset intake contract with evidence,
+// @req FR-133, FR-134, FR-135 — Asset intake lifecycle and strict contract with evidence,
 // procurement, expiry, scope and temporal validation across every surface.
 // @spec SDD-079, SDD-080, BR-023, BR-024, SEC-023, ADR-055
 // @tested tests/unit/asset-management-contract.test.js
 import { z } from 'zod'
 import {
+  ASSET_INTAKE_STATUSES,
   zAssetDepreciationMethod,
   zAssetEvidenceRole,
   zAssetIntakeChannel,
@@ -12,6 +13,11 @@ import {
 } from '../../../lib/validation/enums.js'
 
 export const ASSET_INTAKE_SCHEMA_VERSION = '1.0'
+
+export { ASSET_INTAKE_STATUSES }
+export const ASSET_INTAKE_STATUS = Object.freeze(Object.fromEntries(
+  ASSET_INTAKE_STATUSES.map((status) => [status, status]),
+))
 
 const zSource = z.object({
   channel: zAssetIntakeChannel,

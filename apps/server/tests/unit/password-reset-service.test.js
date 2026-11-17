@@ -11,6 +11,7 @@ import {
 // @req FR-104 — mint is authority-gated and hash-bound; consume is single-use,
 // expiring, generic-on-failure, and evicts every live session.
 // @spec SDD-054, SEC-008, SEC-014
+// @tested tests/unit/password-reset-service.test.js
 
 const TARGET = { id: 'per-target', code: 'PER-TARGET', displayName: 'Staff' }
 
@@ -87,21 +88,33 @@ describe('mintPasswordReset authority', () => {
   })
 })
 
-function consumeDb(record) {
+function consumeDb(record, { claimCount = 1, transactionError } = {}) {
   const state = { credential: null, used: null, revoked: 0 }
   const tx = {
     personCredential: {
-      upsert: vi.fn(async ({ update, create }) => { state.credential = update.passwordHash || create.passwordHash }),
-    },
-    passwordResetToken: {
-      update: vi.fn(async ({ data }) => { state.used = data.usedAt }),
+      upsert: vi.fn(async ({ update, create }) => {
+        if (transactionError) throw transactionError
+        state.credential = update.passwordHash || create.passwordHash
+      }),
     },
     auditEvent: { create: vi.fn(async ({ data }) => ({ id: 'audit-2', ...data })) },
   }
   return {
     state,
     tx,
-    passwordResetToken: { findUnique: vi.fn().mockResolvedValue(record) },
+    passwordResetToken: {
+      findUnique: vi.fn().mockResolvedValue(record),
+      updateMany: vi.fn(async ({ where, data }) => {
+        if (where.usedAt === null) {
+          if (claimCount === 1) state.used = data.usedAt
+          return { count: claimCount }
+        }
+
+        const ownsClaim = state.used instanceof Date && state.used.getTime() === where.usedAt.getTime()
+        if (ownsClaim && data.usedAt === null) state.used = null
+        return { count: ownsClaim ? 1 : 0 }
+      }),
+    },
     $transaction: vi.fn(async (fn) => fn(tx)),
     session: {
       updateMany: vi.fn(async () => { state.revoked = 2; return { count: 2 } }),
@@ -121,6 +134,14 @@ describe('resetPassword consumption', () => {
     expect(result.success).toBe(true)
     expect(verifyPassword('a-new-password', db.state.credential)).toBe(true)
     expect(db.state.used).toBeInstanceOf(Date)
+    expect(db.passwordResetToken.updateMany).toHaveBeenCalledWith({
+      where: {
+        id: 'prt-1',
+        usedAt: null,
+        expiresAt: { gt: expect.any(Date) },
+      },
+      data: { usedAt: expect.any(Date) },
+    })
     // A stolen session must not survive the reset that exists to evict it.
     expect(db.session.updateMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { personId: TARGET.id, status: 'ACTIVE' },
@@ -134,6 +155,37 @@ describe('resetPassword consumption', () => {
     expect(db.passwordResetToken.findUnique).toHaveBeenCalledWith(expect.objectContaining({
       where: { token: hashPasswordResetToken('raw-token') },
     }))
+  })
+
+  it('returns the generic failure without opening a transaction when the token claim loses', async () => {
+    const db = consumeDb(liveRecord(), { claimCount: 0 })
+
+    const result = await resetPassword({ token: 'raw-token', newPassword: 'a-new-password', db })
+
+    expect(result).toEqual({ success: false, error: 'INVALID_OR_EXPIRED_TOKEN' })
+    expect(db.passwordResetToken.updateMany).toHaveBeenCalledTimes(1)
+    expect(db.$transaction).not.toHaveBeenCalled()
+    expect(db.tx.personCredential.upsert).not.toHaveBeenCalled()
+    expect(db.tx.auditEvent.create).not.toHaveBeenCalled()
+    expect(db.session.updateMany).not.toHaveBeenCalled()
+    expect(db.state.credential).toBeNull()
+    expect(db.state.revoked).toBe(0)
+  })
+
+  it('releases the claim and rethrows a transaction error without revoking sessions', async () => {
+    const transactionError = new Error('credential write failed')
+    const db = consumeDb(liveRecord(), { transactionError })
+
+    await expect(resetPassword({ token: 'raw-token', newPassword: 'a-new-password', db })).rejects.toBe(transactionError)
+
+    expect(db.passwordResetToken.updateMany).toHaveBeenCalledTimes(2)
+    expect(db.passwordResetToken.updateMany).toHaveBeenNthCalledWith(2, {
+      where: { id: 'prt-1', usedAt: expect.any(Date) },
+      data: { usedAt: null },
+    })
+    expect(db.state.used).toBeNull()
+    expect(db.$transaction).toHaveBeenCalledTimes(1)
+    expect(db.session.updateMany).not.toHaveBeenCalled()
   })
 
   it.each([

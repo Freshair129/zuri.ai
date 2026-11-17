@@ -849,6 +849,9 @@
     "ADR-114",
     "ADR-115",
     "ADR-116",
+    "ADR-117",
+    "ADR-118",
+    "ADR-119",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -3981,15 +3984,23 @@
     "FR-187": {
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "d4a4ebbc260221ba22cb574def55eb921803c5c9645566489dd1915dfb2b9eb4",
       "history": [
         {
           "anchor": "a structured record source adapter enters the 17 stage",
           "since": "2026-09-10",
           "reason": "declared"
+        },
+        {
+          "anchor": "a structured record source adapter enters the 17 stage",
+          "since": "2026-11-15",
+          "reason": "ADR-119 (delegated product-owner decision, Astra gpt-6-astra, owner instruction 2026-11-15) removes SmartGift from Zuri; id stays burnt, anchor unchanged.",
+          "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
         }
-      ]
+      ],
+      "retired_at": "2026-11-15",
+      "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
     },
     "FR-188": {
       "family": "FR",
@@ -10110,15 +10121,23 @@
     "ADR-040": {
       "family": "ADR",
       "source": "docs/decisions/ADR-040-CODEX-MEDIATED-SMARTGIFT-PIPELINE-BRIDGE.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "a3dcfda1957d350797589d2e65615310db3ab349610d1f1ae0b60a65610d3dee",
       "history": [
         {
           "anchor": "codex mediated smartgift pipeline evidence bridge",
           "since": "2026-08-21",
           "reason": "declared"
+        },
+        {
+          "anchor": "codex mediated smartgift pipeline evidence bridge",
+          "since": "2026-11-15",
+          "reason": "ADR-119 (delegated product-owner decision, Astra gpt-6-astra, owner instruction 2026-11-15) removes SmartGift from Zuri; id stays burnt, anchor unchanged.",
+          "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
         }
-      ]
+      ],
+      "retired_at": "2026-11-15",
+      "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
     },
     "ADR-041": {
       "family": "ADR",
@@ -10583,15 +10602,23 @@
     "ADR-075": {
       "family": "ADR",
       "source": "docs/decisions/ADR-075-SMARTGIFT-CATALOG-ENTERS-VIA-17-STAGE-SOURCE-ADAPTER.md",
-      "status": "current",
+      "status": "superseded",
       "statement_digest": "5f12c3563c13789dd75bd0fa042a28c4d6445b2251de115b017659f1b1663735",
       "history": [
         {
           "anchor": "smartgift catalog enters genesisblockdb only through the 17",
           "since": "2026-09-10",
           "reason": "declared"
+        },
+        {
+          "anchor": "smartgift catalog enters genesisblockdb only through the 17",
+          "since": "2026-11-15",
+          "reason": "ADR-119 (delegated product-owner decision, Astra gpt-6-astra, owner instruction 2026-11-15) removes SmartGift from Zuri; id stays burnt, anchor unchanged.",
+          "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
         }
-      ]
+      ],
+      "retired_at": "2026-11-15",
+      "declared_in": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md#1.0.0"
     },
     "ADR-076": {
       "family": "ADR",
@@ -11122,6 +11149,45 @@
         {
           "anchor": "visual office repository data access and serving boundary",
           "since": "2026-11-05",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-117": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md",
+      "status": "current",
+      "statement_digest": "2cab988b03d8f28688072bdea597e86f5f431c32db6befdf7c216870671f5941",
+      "history": [
+        {
+          "anchor": "cancel the 24 week programme as the delivery plan",
+          "since": "2026-11-13",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-118": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md",
+      "status": "current",
+      "statement_digest": "c751c37d6007ec127eb1b670627e39fc19cb4db76c746cf978b2c151508c5b08",
+      "history": [
+        {
+          "anchor": "document kinds and write homes",
+          "since": "2026-11-14",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-119": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md",
+      "status": "current",
+      "statement_digest": "b0415982e7973dc71055bb7697c69485923dbf278f53dd64874eb9955bb92968",
+      "history": [
+        {
+          "anchor": "remove smartgift and govibe from zuri",
+          "since": "2026-11-15",
           "reason": "declared"
         }
       ]

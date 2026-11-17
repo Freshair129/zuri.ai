@@ -38,6 +38,7 @@ Feature record: [ZAI:FEAT-025 canonical record](feature.md).
 
 > 🟠 implemented locally 2026-09-10 (ADR-074 D3) — `inventory/domain/inventory-costing.js` (pure), `costSatang` on the ledger; `tests/unit/inventory-costing.test.js`, `tests/integration/fr177-kitting-work-order.test.js`
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
+- [Why the cost figures changed on 2026-11-12](../../domains/inventory/features/FR-175-moving-average-valuation.md) — `references` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-176 canonical record](requirements/FR-176.md)

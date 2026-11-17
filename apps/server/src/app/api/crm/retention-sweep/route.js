@@ -18,6 +18,8 @@ import { bearerMatches } from '@/modules/platform-control/application/programme-
 //   caller. The idempotency guard below is this route's own addition, layered
 //   on top of (never instead of) the service's own row-level idempotency.
 // @spec SEC-001 — deployment bearer, constant-time compare, fail closed.
+//   Strict `dry_run=true|false` adds a counts-only read path that skips the
+//   same-day audit lookup and the sweep's writes.
 // @tested tests/unit/crm-retention-sweep-route.test.js
 export const dynamic = 'force-dynamic'
 
@@ -52,8 +54,18 @@ export async function POST(request) {
   if (!bearerMatches(request.headers.get('authorization'), process.env.ZURI_RETENTION_SWEEP_TOKEN)) {
     return NextResponse.json({ error: 'RETENTION_SWEEP_CREDENTIAL_REQUIRED' }, { status: 401 })
   }
+  const query = new URL(request.url).searchParams
+  if ([...query.keys()].some(key => key !== 'dry_run') || query.getAll('dry_run').length > 1
+    || (query.has('dry_run') && !['true', 'false'].includes(query.get('dry_run')))) {
+    return NextResponse.json({ error: 'RETENTION_SWEEP_REQUEST_INVALID' }, { status: 400 })
+  }
+  const dryRun = query.get('dry_run') === 'true'
   const now = new Date()
   try {
+    if (dryRun) {
+      const result = await Promise.race([runRetentionSweep({ db: prisma, now, dryRun: true }), timeout(SWEEP_TIMEOUT_MS)])
+      return NextResponse.json({ dryRun: true, countsByClass: result.countsByClass, tenants: result.tenants })
+    }
     // A scheduler retry (its own request timed out but the first run already
     // finished server-side, or it simply fires twice) must not write a second
     // RETENTION_SWEEP_COMPLETED audit event for the same calendar day. Running

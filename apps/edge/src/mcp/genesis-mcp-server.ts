@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
-import http from 'http';
+import http, { type IncomingMessage, type Server as HttpServer, type ServerResponse } from 'node:http';
+import { createHash, timingSafeEqual } from 'node:crypto';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { SSEServerTransport } from '@modelcontextprotocol/sdk/server/sse.js';
@@ -16,16 +19,17 @@ import {
 
 /**
  * GenesisBlock MCP Server
- * Exposes GenesisBlock Graph Database & Catalog 2026 as an MCP Server over both:
- * 1. Stdio (Local CLI, Claude Desktop, Cursor)
- * 2. HTTP / SSE (Remote Client over Network & Cloudflare Tunnel)
+ * Exposes GenesisBlock Graph Database & Catalog 2026 over stdio or authenticated HTTP/SSE.
  */
 
-const genesis = new GenesisNativeCatalog({
-  storePath: process.env.GENESIS_STORE_PATH || './data/genesis_smartgift_store_family_v2',
-});
+let genesisCatalog: GenesisNativeCatalog | undefined;
 
-void genesis.init();
+function getGenesisCatalog(): GenesisNativeCatalog {
+  genesisCatalog ??= new GenesisNativeCatalog({
+    storePath: process.env.GENESIS_STORE_PATH || './data/genesis_smartgift_store_family_v2',
+  });
+  return genesisCatalog;
+}
 
 const TOOLS = [
   {
@@ -78,7 +82,7 @@ function unavailableResult(genesisRag: GenesisNativeCatalog, code: string, messa
   });
 }
 
-function createServerInstance() {
+function createServerInstance(catalog: GenesisNativeCatalog = getGenesisCatalog()) {
   const server = new Server(
     { name: 'genesisblock-mcp-server', version: '1.0.0' },
     { capabilities: { tools: {} } }
@@ -92,37 +96,37 @@ function createServerInstance() {
     const { name, arguments: args } = request.params;
 
     if (name === 'search_catalog') {
-      const ready = await genesis.init();
+      const ready = await catalog.init();
       if (!ready) {
         return unavailableResult(
-          genesis,
+          catalog,
           'GENESIS_CATALOG_UNAVAILABLE',
           'canonical catalog is not ready'
         );
       }
       const query = String((args as any)?.query || '');
       const limit = Number((args as any)?.limit || 5);
-      const results = await genesis.searchProducts(query, limit);
+      const results = await catalog.searchProducts(query, limit);
       return toolText(results);
     }
 
     if (name === 'taxonomy_preview') {
-      const ready = await genesis.init();
+      const ready = await catalog.init();
       if (!ready) {
         return unavailableResult(
-          genesis,
+          catalog,
           'TAXONOMY_PROJECTION_UNAVAILABLE',
           'canonical catalog is not ready'
         );
       }
       try {
-        const result = await genesis.previewTaxonomy(
+        const result = await catalog.previewTaxonomy(
           ((args || {}) as TaxonomyServingQueryInput)
         );
         return toolText(result);
       } catch (error) {
         return unavailableResult(
-          genesis,
+          catalog,
           error instanceof TaxonomyServingError
             ? error.code
             : 'TAXONOMY_PROJECTION_UNAVAILABLE',
@@ -137,66 +141,215 @@ function createServerInstance() {
   return server;
 }
 
-// Mode Selection: Stdio vs HTTP/SSE Server
-const args = process.argv.slice(2);
-const ssePortIndex = args.indexOf('--port');
-const ssePort = ssePortIndex !== -1 ? parseInt(args[ssePortIndex + 1], 10) : null;
+export type HttpServerOptions = {
+  host?: string | null;
+  port?: number;
+  token?: string | null;
+  createMcpServer?: () => ReturnType<typeof createServerInstance>;
+  getHealthDetails?: () => Record<string, unknown>;
+};
 
-if (ssePort) {
-  // Remote SSE MCP Server Mode (for sharing across LAN / Cloudflare Tunnel)
-  let sseTransport: SSEServerTransport | null = null;
-  const mcpServer = createServerInstance();
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', '::ffff:127.0.0.1', 'localhost']);
+const MAX_CONCURRENT_SSE_SESSIONS = 16;
 
-  const httpServer = http.createServer(async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', '*');
+function isLoopbackHost(host: string): boolean {
+  return LOOPBACK_HOSTS.has(host.toLowerCase());
+}
 
-    if (req.method === 'OPTIONS') {
-      res.writeHead(200).end();
+function hasValidBearerToken(request: IncomingMessage, expectedToken: string): boolean {
+  const authorization = request.headers.authorization;
+  const match = authorization && /^Bearer ([^\s]+)$/i.exec(authorization);
+  if (!match) return false;
+
+  const expected = createHash('sha256').update(expectedToken, 'utf8').digest();
+  const supplied = createHash('sha256').update(match[1], 'utf8').digest();
+  return timingSafeEqual(expected, supplied);
+}
+
+function allowedLoopbackHostHeaders(server: HttpServer): string[] {
+  const address = server.address();
+  if (!address || typeof address === 'string') return [];
+
+  return [
+    `127.0.0.1:${address.port}`,
+    `localhost:${address.port}`,
+    `[::1]:${address.port}`,
+  ];
+}
+
+function writeJson(response: ServerResponse, value: Record<string, unknown>): void {
+  response.writeHead(200, { 'Content-Type': 'application/json' }).end(JSON.stringify(value));
+}
+
+function defaultHealthDetails(): Record<string, unknown> {
+  const catalog = getGenesisCatalog();
+  return {
+    engine: 'GenesisBlock Native Rust',
+    readiness: {
+      catalog: catalog.getCatalogStatus(),
+      taxonomyProjection: catalog.getTaxonomyProjectionStatus(),
+    },
+  };
+}
+
+/** Creates and listens on the local HTTP/SSE surface. A non-loopback host must have a strong token. */
+export function createHttpServer(options: HttpServerOptions = {}): Promise<HttpServer> {
+  const hostOption = Object.hasOwn(options, 'host') ? options.host : process.env.GENESIS_MCP_HOST;
+  const host = hostOption?.trim() || '127.0.0.1';
+  const tokenOption = Object.hasOwn(options, 'token') ? options.token : process.env.GENESIS_MCP_TOKEN;
+  if (typeof tokenOption === 'string' && /\s/.test(tokenOption)) {
+    throw new Error('GENESIS_MCP_TOKEN must not contain whitespace.');
+  }
+  const token = tokenOption || undefined;
+
+  if (token && Array.from(token).length < 32) {
+    throw new Error('GENESIS_MCP_TOKEN must contain at least 32 characters when configured.');
+  }
+  if (!isLoopbackHost(host) && !token) {
+    throw new Error('GENESIS_MCP_TOKEN is required with at least 32 characters when GENESIS_MCP_HOST binds beyond loopback.');
+  }
+
+  const sessions = new Map<string, { transport: SSEServerTransport; server: ReturnType<typeof createServerInstance> }>();
+
+  const httpServer = http.createServer((request, response) => {
+    void handleRequest(request, response).catch((error) => {
+      console.error('[GenesisBlock MCP] HTTP request failed:', error);
+      if (!response.writableEnded) {
+        if (!response.headersSent) response.writeHead(500);
+        response.end('Internal Server Error');
+      }
+    });
+  });
+
+  async function handleRequest(request: IncomingMessage, response: ServerResponse): Promise<void> {
+    const url = new URL(request.url || '/', 'http://localhost');
+    let allowedHosts: string[] = [];
+    if (!token) {
+      allowedHosts = allowedLoopbackHostHeaders(httpServer);
+      const hostHeader = request.headers.host?.toLowerCase();
+      if (!hostHeader || !allowedHosts.includes(hostHeader)) {
+        response.writeHead(403).end('Forbidden');
+        return;
+      }
+      // The SDK compares allowedHosts literally, so normalize after the case-insensitive check.
+      request.headers.host = hostHeader;
+    }
+
+    if (request.method === 'OPTIONS') {
+      response.writeHead(405).end();
       return;
     }
 
-    if (req.url === '/sse') {
-      sseTransport = new SSEServerTransport('/messages', res);
-      await mcpServer.connect(sseTransport);
+    if (url.pathname === '/health' && request.method === 'GET') {
+      const health: Record<string, unknown> = {
+        status: 'ok',
+        service: 'genesisblock-mcp',
+      };
+      if (token && hasValidBearerToken(request, token)) {
+        Object.assign(health, options.getHealthDetails?.() ?? defaultHealthDetails());
+      }
+      writeJson(response, health);
       return;
     }
 
-    if (req.url === '/messages' && req.method === 'POST') {
-      if (sseTransport) {
-        await sseTransport.handlePostMessage(req, res);
-      } else {
-        res.writeHead(400).end('SSE session not established');
+    if (url.pathname === '/sse' && request.method === 'GET') {
+      if (token && !hasValidBearerToken(request, token)) {
+        response.writeHead(401).end('Unauthorized');
+        return;
+      }
+
+      if (sessions.size >= MAX_CONCURRENT_SSE_SESSIONS) {
+        response.writeHead(503).end('SSE session capacity reached');
+        return;
+      }
+
+      const transport = new SSEServerTransport('/messages', response, token ? undefined : {
+        enableDnsRebindingProtection: true,
+        allowedHosts,
+      });
+      const sessionId = transport.sessionId;
+      const mcpServer = options.createMcpServer?.() ?? createServerInstance();
+      sessions.set(sessionId, { transport, server: mcpServer });
+      transport.onclose = () => {
+        sessions.delete(sessionId);
+      };
+
+      try {
+        await mcpServer.connect(transport);
+      } catch (error) {
+        sessions.delete(sessionId);
+        throw error;
       }
       return;
     }
 
-    if (req.url === '/health') {
-      res.writeHead(200, { 'Content-Type': 'application/json' }).end(
-        JSON.stringify({
-          status: 'ok',
-          service: 'genesisblock-mcp',
-          engine: 'GenesisBlock Native Rust',
-          readiness: {
-            catalog: genesis.getCatalogStatus(),
-            taxonomyProjection: genesis.getTaxonomyProjectionStatus(),
-          },
-        })
-      );
+    if (url.pathname === '/messages' && request.method === 'POST') {
+      if (token && !hasValidBearerToken(request, token)) {
+        response.writeHead(401).end('Unauthorized');
+        return;
+      }
+
+      const sessionId = url.searchParams.get('sessionId');
+      if (!sessionId) {
+        response.writeHead(400).end('Missing sessionId parameter');
+        return;
+      }
+
+      const session = sessions.get(sessionId);
+      if (!session) {
+        response.writeHead(404).end('SSE session not found');
+        return;
+      }
+
+      await session.transport.handlePostMessage(request, response);
       return;
     }
 
-    res.writeHead(404).end('Not Found');
-  });
+    response.writeHead(404).end('Not Found');
+  }
 
-  httpServer.listen(ssePort, '0.0.0.0', () => {
-    console.log(`[GenesisBlock MCP] 🚀 Remote MCP Server listening on http://0.0.0.0:${ssePort}/sse`);
-    console.log(`[GenesisBlock MCP] 🔗 Health endpoint: http://localhost:${ssePort}/health`);
+  return new Promise<HttpServer>((resolveServer, rejectServer) => {
+    const onError = (error: Error) => {
+      httpServer.off('listening', onListening);
+      rejectServer(error);
+    };
+    const onListening = () => {
+      httpServer.off('error', onError);
+      resolveServer(httpServer);
+    };
+    httpServer.once('error', onError);
+    httpServer.once('listening', onListening);
+    httpServer.listen(options.port ?? 8989, host);
   });
-} else {
-  // Local Stdio Mode (for Claude Desktop / Cursor in local machine)
-  const mcpServer = createServerInstance();
+}
+
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+  const ssePortIndex = args.indexOf('--port');
+  if (ssePortIndex !== -1) {
+    const ssePort = Number(args[ssePortIndex + 1]);
+    if (!Number.isInteger(ssePort) || ssePort < 1 || ssePort > 65535) {
+      throw new Error('A valid port number from 1 to 65535 is required after --port.');
+    }
+
+    const httpServer = await createHttpServer({ port: ssePort });
+    void getGenesisCatalog().init();
+    const address = httpServer.address();
+    const listeningHost = address && typeof address !== 'string' ? address.address : '127.0.0.1';
+    console.log(`[GenesisBlock MCP] HTTP/SSE server listening on http://${listeningHost}:${ssePort}/sse`);
+    console.log(`[GenesisBlock MCP] Health endpoint: http://${listeningHost}:${ssePort}/health`);
+    return;
+  }
+
+  const catalog = getGenesisCatalog();
+  void catalog.init();
   const transport = new StdioServerTransport();
-  await mcpServer.connect(transport);
+  await createServerInstance(catalog).connect(transport);
+}
+
+if (process.argv[1] && fileURLToPath(import.meta.url) === resolve(process.argv[1])) {
+  void main().catch((error) => {
+    console.error('[GenesisBlock MCP] Startup failed:', error instanceof Error ? error.message : String(error));
+    process.exitCode = 1;
+  });
 }

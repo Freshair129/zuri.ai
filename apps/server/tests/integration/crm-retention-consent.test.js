@@ -258,6 +258,33 @@ describe('retention consent — who records it (FR-022, ADR-093 1.2.0)', () => {
 })
 
 describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1.2.0)', () => {
+  it('re-seals the current evidence when the Tenant chain already contains a retired archive', async () => {
+    const scope = await freshScope('q1-retired-chain')
+    const { viewer, session } = await ownerFor(scope.business)
+    await say({ scope, speaker: `U-rc-old-${randomUUID().slice(0, 8)}`,
+      thread: `C-rc-old-${randomUUID().slice(0, 8)}`, text: 'older unrelated archive', at: old() })
+    await runRetentionSweep({ now: new Date(), baseDir })
+    const expiredManifest = await prisma.archiveManifest.findFirst({ where: { tenantId: scope.tenant.id } })
+    const expiredRun = await expireChatEvidenceArchive(prisma, {
+      tenantId: scope.tenant.id, now: new Date(), baseDir, retentionYears: 0,
+    })
+    expect(expiredRun.retiredManifestIds).toEqual([expiredManifest.id])
+
+    const s = await scene(scope)
+    await runRetentionSweep({ now: new Date(Date.now() + 1000), baseDir })
+    const hold = await holdB(scope, s)
+    const erased = await erasePrincipal({ tenantId: scope.tenant.id, personId: s.customerA.personId, reason: 'TEST_ERASURE' }, { archiveBaseDir: baseDir })
+
+    expect(erased.retainedForLegalHolds).toEqual([{ legalHoldId: hold.legalHoldId, messageCount: 3 }])
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true }))
+      .resolves.toMatchObject({ valid: true, retiredManifestIds: [expiredManifest.id] })
+    const forB = await retrieveArchivedChatEvidence(s.customerB.id, {
+      businessId: scope.business.id, ...range(), caseReference: 'DSP-RETIRED-CHAIN',
+    }, { viewer, session: { ...session, personId: viewer.principal.id }, baseDir })
+    expect(forB.chainIntegrity.retiredManifestIds).toEqual([expiredManifest.id])
+    expect(bodiesOf(forB)).toEqual({ ...s.b, ...s.aArchived, ...s.aRecent })
+  })
+
   it('with hold + consent: A\'s lines after B joined and the staff note are re-sealed under B\'s hold key before A\'s key is destroyed', async () => {
     const scope = await freshScope('q1-keep')
     const { viewer, session } = await ownerFor(scope.business)
@@ -285,7 +312,7 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     expect(Object.keys(segment).sort()).toEqual(['ciphertext', 'iv', 'keyScope', 'legalHoldId', 'tag'])
     // One appended manifest; the chain and every earlier file still verify.
     expect(await prisma.archiveManifest.count({ where: { tenantId: scope.tenant.id } })).toBe(manifestsBefore + 1)
-    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true, retiredManifestIds: [] })
     // B's retrieval opens the hold key while the hold and consent are active.
     const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-B' }, { viewer, session, baseDir })
     expect(bodiesOf(forB)).toEqual({ ...s.b, ...s.aArchived, ...s.aRecent })
@@ -391,9 +418,9 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     expect(revoked.destroyedHoldKeys).toEqual([hold.legalHoldId])
     expect(await prisma.legalHoldArchiveKey.findUnique({ where: { legalHoldId: hold.legalHoldId } })).toBeNull()
     expectGone(await recoverable(scope.tenant.id), { ...s.aArchived, ...s.aRecent })
-    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true, retiredManifestIds: [] })
     const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-B2' }, { viewer, session, baseDir })
-    expect(forB.chainIntegrity).toEqual({ valid: true })
+    expect(forB.chainIntegrity).toEqual({ valid: true, retiredManifestIds: [] })
     expect(bodiesOf(forB)).toEqual(s.b)
   })
 
@@ -434,11 +461,13 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
 
     expect(afterHold.destroyedHoldKeys).toEqual([hold.legalHoldId])
     expect(afterHold.deletedFiles).not.toContain(reseal.id)
+    expect(afterHold.retiredManifestIds).not.toContain(reseal.id)
     expect(await prisma.legalHoldArchiveKey.count({ where: { tenantId: scope.tenant.id } })).toBe(0)
     expectGone(await recoverable(scope.tenant.id), s.aArchived)
-    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true })
+    await expect(verifyManifestChain(prisma, scope.tenant.id, { baseDir, checkFiles: true })).resolves.toEqual({ valid: true, retiredManifestIds: [] })
     const again = await expireChatEvidenceArchive(prisma, { tenantId: scope.tenant.id, now: later, baseDir })
     expect(again.skipped).toBe(false)
+    expect(again.retiredManifestIds).toEqual([])
 
     // A new hold on B, and another member C erased: the re-seal still reads and writes.
     const hold2 = await recordCustomerLegalHold(s.customerB.id, { businessId: scope.business.id, reason: 'คดีใหม่', endDate: futureDateOnly(700) }, { viewer })
@@ -450,7 +479,7 @@ describe('Q1 — erasing A keeps the evidence of a held, consenting B (ADR-093 1
     expect(erasedC.retainedForLegalHolds).toEqual([{ legalHoldId: hold2.legalHoldId, messageCount: 1 }])
     expect((await recoverable(scope.tenant.id)).get(cLine.messageId)).toMatchObject({ scope: 'LEGAL_HOLD', key: hold2.legalHoldId })
     const forB = await retrieveArchivedChatEvidence(s.customerB.id, { businessId: scope.business.id, ...range(), caseReference: 'DSP-B3' }, { viewer, session, baseDir })
-    expect(forB.chainIntegrity).toEqual({ valid: true })
+    expect(forB.chainIntegrity).toEqual({ valid: true, retiredManifestIds: [] })
   })
 
   it('erasing B afterwards destroys the hold key too', async () => {

@@ -1,10 +1,10 @@
 ---
 id: ZAI:PM-PHASE-B-RECOVERY-ERASURE-DECISION
 title: Phase B recovery and reviewed text erasure decision
-version: "0.3.26b"
+version: "0.3.27b"
 status: beta
 created_at: "2026-09-17T04:15:00+07:00,RWANG,bd99651f"
-last_update: "2026-10-30,Codex Root, composed Mission and OR2 recovery binding"
+last_update: "2026-11-13,Codex, GoodsReceipt cost provenance rebind"
 attributes:
   domain: project-manager
   doc_type: architecture-decision
@@ -619,6 +619,7 @@ still requires its existing independent and real-role gates.
 ## CHANGELOG
 
 0.3.25b -> 0.3.26b (2026-10-30): compose the owner-selected OR2 installation-local journal/fence with the published Mission schema. Preserve all 212 prior model/table mappings; the complete census is 214. No live migration, activation or recovery/erasure authority is added.
+0.3.26b -> 0.3.27b (2026-11-13): rebind the 219-table Phase B inventory to the GoodsReceipt cost-provenance columns with table mappings unchanged; retain the previous hash pair as historical. No live migration or recovery/erasure authority is added.
 
 | 0.3.24b | 2026-10-24 | beta | Add excluded product-field disclosure authority to the complete 210-table census; preserve every predecessor mapping and historical binding refusal | working-tree | Codex Root |
 | 0.3.25b | 2026-10-24 | beta | Compose Pipeline C1 and FR-235 into the current 210-table recovery binding; retain predecessor bindings as historical | working-tree | Codex Root |
@@ -834,3 +835,13 @@ No recovery activation or live migration follows from this static binding.
 
 Candidate/AI/operatorRecovery qualification gates remain unchanged. Tests using
 administrative fixture arrangement are not installed operator restore acceptance.
+
+## GoodsReceipt cost-provenance schema rebind (2026-11-13)
+
+The GoodsReceipt cost-provenance fields change the exact canonical schema bytes
+but add no application tables. All 219 table mappings remain unchanged. This
+static binding does not authorize a live migration or recovery/erasure operation.
+
+- Previous 219-table binding: schema `d31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4`, target `d8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2`.
+- Current 219-table binding: schema `20f8aaeaec011716977832042d7311b173bd8545cc576a0b5aeeab2cb48728d9`, target `4cd23aa28f862f446778d8e341b5b10004675ec10880a7f7be32fefbb2afb844`.
+- The previous binding remains historical and is refused by the current loader and adapters.

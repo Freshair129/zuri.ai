@@ -2,10 +2,10 @@ import { describe, expect, it } from 'vitest'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { parseArguments, verifyPins } from '../../deploy/ki17/verify-ki17-pins.mjs'
-import { deriveSmartgiftBenchmark } from '../../deploy/ki17/build-smartgift-benchmark.mjs'
+import { deriveStructuredBenchmark } from '../../deploy/ki17/build-structured-benchmark.mjs'
 import { dockerfileStage, runnerStage } from '../helpers/dockerfile-stage.js'
 
-// @req FR-187 — the SmartGift catalog source adapter's Tier 4 worker is deployed
+// @req FR-187 — (withdrawn, ADR-119) the structured-catalog source adapter's Tier 4 worker is deployed
 //   from pinned commits; these are the guards on the build that pins them.
 // @spec ADR-075, docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md
 // @tested tests/unit/ki17-build-stage.test.js
@@ -156,8 +156,8 @@ describe('the pin gate', () => {
   })
 })
 
-describe('the derived SmartGift benchmark (P-6)', () => {
-  const corpus = JSON.parse(read('tests/fixtures/genesisrag17-smartgift-corpus-v1.json'))
+describe('the derived structured-catalog benchmark (P-6)', () => {
+  const corpus = JSON.parse(read('tests/fixtures/genesisrag17-structured-corpus-v1.json'))
 
   it('keeps the acceptance corpus per-record rather than introducing a global query union', () => {
     // The worker accepts benchmark entries with their own fixtureVersion and
@@ -168,7 +168,7 @@ describe('the derived SmartGift benchmark (P-6)', () => {
   })
 
   it('derives one benchmark entry per record in the shape the worker accepts', () => {
-    const derived = deriveSmartgiftBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
+    const derived = deriveStructuredBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
     expect(typeof derived.fixtureVersion).toBe('string')
     expect(Array.isArray(derived.queries)).toBe(false)
     expect(derived.benchmarks).toHaveLength(corpus.benchmarks.length)
@@ -187,7 +187,7 @@ describe('the derived SmartGift benchmark (P-6)', () => {
   })
 
   it('carries its own provenance, so a derived fixture never passes as a hand-written one', () => {
-    const derived = deriveSmartgiftBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
+    const derived = deriveStructuredBenchmark(corpus, { sourceFile: 'corpus.json', sourceSha256: 'f'.repeat(64) })
     expect(derived.derived).toBe(true)
     expect(derived.derivedFrom).toMatchObject({
       file: 'corpus.json',
@@ -198,7 +198,7 @@ describe('the derived SmartGift benchmark (P-6)', () => {
   })
 
   it('rejects a corpus whose benchmarks carry no queries instead of writing an empty fixture', () => {
-    expect(() => deriveSmartgiftBenchmark({ fixtureVersion: 'v', benchmarks: [{ externalId: 'X' }] }))
+    expect(() => deriveStructuredBenchmark({ fixtureVersion: 'v', benchmarks: [{ externalId: 'X' }] }))
       .toThrow(/KI17_BENCHMARK_CORPUS_INVALID/)
   })
 })

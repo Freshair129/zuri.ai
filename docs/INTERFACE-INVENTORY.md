@@ -1,7 +1,7 @@
 ---
-version: "1.44.0b"
+version: "1.45.0b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-10-30T00:00:00+07:00,Codex"
+last_update: "2026-11-10T00:00:00+07:00,Claude Opus 5.5"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -11,6 +11,8 @@ attributes:
 ---
 
 # Zuri V2 — Interface Inventory
+
+Version diff 1.44.0b to 1.45.0b (2026-11-10): add `/procurement/cost-sheets`, the first UI over the FR-164/FR-154 supplier cost-sheet import (TASK-ZAI-053); 119 page routes.
 
 Version diff 1.43.1b to 1.44.0b (2026-10-31): add the FR-295 Office handoff page; 118 page routes. Local implementation and deployment remain separate.
 
@@ -38,7 +40,7 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=118; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=118; operational_domain_keys=16; operational_subdomain_entries=58; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -154,6 +156,7 @@ receipt lines — never from the page.
 |---|---|---|---|---|---|
 | `/procurement/receipts` | Goods Receipts workstation | BusinessShell → Procurement / Goods Receipts | paged receipt registry; actual quantity/lot/serial intake against SENT orders; persisted printable receipt with PO and supplier | Business and Procurement read authority; existing receipt plus Inventory write ladders; no-Business, loading, error, ready, busy states; stale responses discarded on Business change | local implementation under verification; FR-165 / ADR-066 |
 | `/procurement` | Procurement Dashboard | BusinessShell → Procurement / Dashboard | open purchase orders, awaiting delivery, partially received, outstanding value; the supplier list with archive; create-supplier form | Business and `procurement` domain visibility to read; suppliers need OWNER or `PROCUREMENT_BUYER`; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/page.jsx`, FR-164 / ADR-066 |
+| `/procurement/cost-sheets` | Supplier cost-sheet import | BusinessShell → Procurement / Cost Sheets | choose an ACTIVE supplier, currency and locked FX; download the workbook template; upload `.xlsx` for a preview with per-SKU Product suggestions; a person confirms each Product (suggestions are never auto-accepted) and commit sends the preview hash with confirmed mappings only; list and detail of committed sheets | Business plus Procurement/Inventory authority enforced by the server; no-Business, loading, error, preview, busy and committed states; stale preview hash refused | FR-164, FR-154; `tests/unit/supplier-cost-sheet-ui.test.js`, `tests/e2e/fr164-supplier-cost-sheet-import.spec.js` |
 | `/procurement/purchase-orders` | Purchase Orders console | BusinessShell → Procurement / Purchase Orders | order list with total, receipt state and status; send / close / cancel; per-order lines (ordered, received, outstanding), receipts, and the receipt form (quantity per line, lot and expiry for a LOT-tracked SKU, serials for a SERIAL-tracked one, delivery-note number); create form with a supplier and lines that may name an inventory SKU at the agreed cost | Business and `procurement` domain visibility to read; orders and receipts need OWNER or `PROCUREMENT_BUYER`; the ledger half of a receipt needs OWNER or `INVENTORY_MANAGER` too; no-business, loading, error, ready, busy | implemented; `src/app/(pm)/procurement/purchase-orders/page.jsx`, FR-164, FR-165 / ADR-066 |
 
 ### 3.3 CRM domain
@@ -190,7 +193,6 @@ page routes from nine navigation entries because its Dashboard and Settings entr
 | `/platform/product-readiness/[domain]` | Product Readiness — domain lane | BusinessShell → Platform / Product Readiness / domain | the same contract scoped to one stable domain key | platform-visibility required, auth required, ready, unknown-domain not-found | implemented beta; `src/app/(pm)/platform/product-readiness/[domain]/page.jsx`, FR-124 |
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants; attaching an existing Person to an owned Business as MEMBER (FR-038); Enterprise API key list / mint / revoke for Tenant owners and the installation operator (FR-106) | owner-only, empty, loading, error, forbidden; add-member inline result and refusal; key panel hidden for a caller governing no Tenant; raw key shown once on mint; revoke behind a confirmation | implemented; `src/app/(pm)/platform/users/page.jsx`, `src/modules/identity/platform-users-view.js`, FR-038/062/106 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
-| `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |
 | `/platform/sot-pipeline` | SoT Pipeline Plan Board | BusinessShell → Platform / SoT Pipeline | view the SoT pipeline's P0–P10 phases with status derived from run evidence; navigate to run evidence and the approval inbox | business-scope required, loading, error, empty runs | implemented beta; `src/app/(pm)/platform/sot-pipeline/page.jsx`, FR-099 |
 | `/platform/sot-pipeline/graph` | SoT Pipeline Graph | BusinessShell → Platform / SoT Pipeline | read-only node/edge view of the same plan payload with pending-decision badges | business-scope required, loading, error | implemented beta; `src/app/(pm)/platform/sot-pipeline/graph/page.jsx`, FR-101 |
 | `/platform/sot-pipeline/inbox` | SoT Approval Inbox | BusinessShell → Platform / SoT Pipeline | approve or reject pending data-plane decisions (reject requires a reason); payload shown verbatim | business-scope required, loading, error, empty queue, action failure | implemented beta; `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx`, FR-100 |

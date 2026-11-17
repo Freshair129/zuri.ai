@@ -1,7 +1,7 @@
 import { withPipelineTransaction, isPipelineTransaction } from './pipeline-transaction'
 import { assertPipelineEndpointRetained, pipelineScopeAudit } from './pipeline-state'
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import {
   zProjectInput,
   zProjectUpdate,
@@ -141,8 +141,14 @@ export async function getProject(id) {
 }
 
 export async function createProject(input, { viewer, db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createProject(input, { viewer, db: tx }))
   const data = zProjectInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createProject(input, { viewer, db: tx }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('PROJECT_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const workspace = await db.workspace.findUnique({ where: { id: data.workspaceId } })
   if (!workspace) throw new Error('Workspace not found')
   await assertWorkspaceWritable(viewer, workspace)
@@ -234,8 +240,14 @@ export async function archiveProject(id, { viewer, db = prisma } = {}) {
 // ---- Workstreams -----------------------------------------------------------
 
 export async function createWorkstream(input, { viewer, db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => createWorkstream(input, { viewer, db: tx }))
   const data = zWorkstreamInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createWorkstream(input, { viewer, db: tx }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('WORKSTREAM_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   const project = await db.project.findUnique({ where: { id: data.projectId } })
   if (!project || project.deletedAt) throw new Error('Project not found')
   await assertProjectWritable(viewer, data.projectId, { db })

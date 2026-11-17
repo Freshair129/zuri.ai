@@ -20,6 +20,16 @@ const scannerSource = readFileSync(
   'utf8'
 )
 
+const readyIntakesSource = readFileSync(
+  resolve(process.cwd(), 'src/modules/asset-management/components/AssetReadyIntakesSection.jsx'),
+  'utf8'
+)
+
+const receivingWorkspaceSource = readFileSync(
+  resolve(process.cwd(), 'src/modules/asset-management/components/AssetReceivingWorkspace.jsx'),
+  'utf8'
+)
+
 describe('Asset Tag Label & QR Generator Contract (AM-RQ-022, AM-RQ-023)', () => {
   it('implements deterministic SVG QR code generation without external dependencies', () => {
     expect(labelSource).toContain('generateQrMatrix')
@@ -66,5 +76,47 @@ describe('Asset Scanner & Stocktake Workspace Contract (AM-RQ-061, AM-RQ-062)', 
     expect(scannerSource).toContain('observedLocationName')
     expect(scannerSource).toContain('observedCondition')
     expect(scannerSource).toContain('relocateIfMismatch')
+  })
+
+  it('sends the Business scope in the verify body, which is the only place the route reads it', () => {
+    const routeSource = readFileSync(
+      resolve(process.cwd(), 'src/app/api/assets/register/[id]/verify/route.js'),
+      'utf8'
+    )
+    // The route destructures businessId from the JSON body (not the query string).
+    expect(routeSource).toMatch(/const\s*\{[^}]*\bbusinessId\b[^}]*\}\s*=\s*body/)
+    const start = scannerSource.indexOf('/verify`')
+    expect(start).toBeGreaterThan(-1)
+    const verifyCall = scannerSource.slice(start, scannerSource.indexOf('})', start))
+    expect(verifyCall).toMatch(/businessId:\s*business\.id/)
+  })
+
+  it('shows the verification success message after refreshing the asset', () => {
+    const start = scannerSource.indexOf('const handleVerifyObservation =')
+    expect(start).toBeGreaterThan(-1)
+    const verifyHandler = scannerSource.slice(start, scannerSource.indexOf('\n  return (', start))
+
+    // A lookup clears auditSuccess before it fetches, so the confirmation must
+    // be set only after the refresh has finished.
+    expect(verifyHandler).toMatch(/await handleLookup\(scannedAsset\.assetCode\)[\s\S]*?setAuditSuccess\(\s*relocateIfMismatch/)
+  })
+})
+
+describe('Asset Register ready intake contract', () => {
+  it('loads intakes for the currently selected Business', () => {
+    expect(readyIntakesSource).toContain('/api/assets/intakes?')
+    expect(readyIntakesSource).toMatch(/new URLSearchParams\(\{[\s\S]*businessId:\s*business\.id/)
+    expect(readyIntakesSource).toContain("status: 'READY_FOR_REGISTRATION'")
+  })
+
+  it('posts the selected intake and Business to the existing register endpoint', () => {
+    expect(readyIntakesSource).toContain("fetch('/api/assets/register'")
+    expect(readyIntakesSource).toMatch(/businessId:\s*business\.id/)
+    expect(readyIntakesSource).toMatch(/intakeId:\s*intake\.id/)
+  })
+
+  it('directs receiving users to the Register page for Asset ID issuance', () => {
+    expect(receivingWorkspaceSource).toContain('href="/assets/register"')
+    expect(receivingWorkspaceSource).toContain('หน้า Register')
   })
 })

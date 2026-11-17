@@ -1,12 +1,12 @@
 import { createHash } from 'node:crypto'
 import { describe, expect, it, vi } from 'vitest'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-  splitSmartGiftCatalogRecords,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
+  structuredCatalogSourceKey,
+  splitStructuredCatalogRecords,
+} from '@/modules/knowledge/structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { projectDisclosureFacts, renderDisclosureFacts } from '@/modules/knowledge/line-product-disclosure-contract'
 
@@ -43,22 +43,22 @@ function fixture({ multipleRows = false } = {}) {
   const content = JSON.stringify(multipleRows ? [first, second] : [first])
   const asset = {
     id: id(5), tenantId, businessId, projectId: null, code: `PCAT-${'a'.repeat(64)}`,
-    name: 'products.json', mime: SMARTGIFT_CATALOG_CONTENT_TYPE,
+    name: 'products.json', mime: STRUCTURED_CATALOG_CONTENT_TYPE,
     size: Buffer.byteLength(content), sha256: sha256(content), version: 2,
     status: 'ACTIVE', deletedAt: null, storageKind: 'MANAGED_BLOB', blobRef: 'private-blob-location',
   }
-  const split = splitSmartGiftCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
+  const split = splitStructuredCatalogRecords({ content, fileAssetId: asset.id, fileSha256: asset.sha256, fileName: asset.name })
   const admitted = split.records.find((row) => row.externalId === sourceRecord.externalId)
   const sourceId = id(6)
   const ingestionId = id(7)
   const source = {
-    id: sourceId, corpusId: id(8), sourceKey: smartGiftSourceKey({ fileName: asset.name, recordCode: sourceRecord.externalId }),
+    id: sourceId, corpusId: id(8), sourceKey: structuredCatalogSourceKey({ fileName: asset.name, recordCode: sourceRecord.externalId }),
     kind: 'FILE', title: `ProductMaster ${sourceRecord.externalId}`, fileAssetId: asset.id,
     activeIngestionId: ingestionId, desiredRevision: 3, version: 4, revokedAt: null, deletedAt: null,
   }
   const descriptor = {
-    format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
-    entityType: 'ProductMaster', contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+    format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
+    entityType: 'ProductMaster', contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
     externalId: sourceRecord.externalId, recordIndex: multipleRows ? 1 : 0,
     recordCount: split.recordCount, fileSha256: asset.sha256,
   }
@@ -129,11 +129,11 @@ function filFixture({ sku = 'DEMO-KB-MUG-350-001', liveSku = 'DEMO-KB-MUG-350-00
   const fileName = 'demo-kb-product-master.json'
   const content = JSON.stringify([record])
   const assetSha256 = sha256(content)
-  const split = splitSmartGiftCatalogRecords({
+  const split = splitStructuredCatalogRecords({
     content, fileAssetId: f.asset.id, fileSha256: assetSha256, fileName,
   })
   const admitted = split.records[0]
-  const sourceKey = smartGiftSourceKey({ fileName, recordCode: sku })
+  const sourceKey = structuredCatalogSourceKey({ fileName, recordCode: sku })
   const title = `ProductMaster ${sku}`
 
   Object.assign(f.asset, {
@@ -142,7 +142,7 @@ function filFixture({ sku = 'DEMO-KB-MUG-350-001', liveSku = 'DEMO-KB-MUG-350-00
   })
   Object.assign(f.source, { sourceKey, title, fileAssetId: f.asset.id })
   const structured = {
-    format: SMARTGIFT_CATALOG_FORMAT, provider: SMARTGIFT_CATALOG_PROVIDER,
+    format: STRUCTURED_CATALOG_FORMAT, provider: STRUCTURED_CATALOG_PROVIDER,
     entityType: 'ProductMaster', contentType: 'application/json',
     externalId: sku, recordIndex: 0, recordCount: split.recordCount, fileSha256: assetSha256,
   }

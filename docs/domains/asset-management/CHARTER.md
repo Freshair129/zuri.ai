@@ -18,7 +18,7 @@ owns_routes:
   - src/app/api/edge/extraction-jobs/**
 technical_owner: TD-ASSET-MANAGEMENT
 status: active-evidence-intake-beta
-version: "1.3.0b"
+version: "1.3.1b"
 created_at: "2026-09-01T00:00:00+07:00"
 updated_at: "2026-09-06T13:30:00+07:00"
 ---
@@ -77,11 +77,10 @@ Asset Management (DOM-ASSET-MANAGEMENT)
   Workstream without moving ownership into Project Manager.
 - `AssetDepreciationCandidate` deterministic preview evidence. It is not an
   accounting book, journal or posting authority.
-- `AssetExtractionJob` (FR-143, ADR-059) — the queued unit of work that lets the
-  customer-premise Zuri Edge Device execute FR-138 extraction. The domain owns the
-  job's lifecycle (QUEUED → CLAIMED → COMPLETED | FAILED | CANCELLED), its 10-minute
-  lease and its result; it does **not** own the device's identity, which is
-  identity's `EdgeDeviceCredential` (FR-144).
+- `AssetExtractionJob` (FR-143, ADR-059) — retained historical schema data. ADR-110
+  retired its Edge queue and execution port; no current service dispatches these
+  jobs. The current Server extraction endpoint is separate and does not enqueue
+  `AssetExtractionJob` rows.
 
 ## Explicitly not owned
 
@@ -147,15 +146,11 @@ Runtime surfaces are under `/assets` and `/api/assets`. The domain must not impo
 page/route to reach another domain's private repository; cross-domain work uses an
 explicit contract or read projection.
 
-The device-authenticated extraction routes are a separate family,
-`/api/edge/extraction-jobs/**` (claim · evidence · complete · fail), and are the one
-place in this domain where the caller is **not** a session viewer: they authenticate
-through identity's `resolveEdgeDeviceContext` (FR-144) and are scoped to the Business
-of the presented credential. They are named in `owns_routes` because they sit outside
-the `/api/assets` prefix and would otherwise fall to project-manager's
-`src/app/api/**` catch-all. `GET .../[id]/evidence` streams bytes to the
-lease-holding device only and never hands out a bucket URL, signed link or storage
-credential (SEC-025, ADR-041 D3).
+The former device-authenticated `/api/edge/extraction-jobs/**` route family
+(claim · evidence · complete · fail) was retired by ADR-110 and is absent. The
+`AssetExtractionJob` schema model remains as historical data, with no Edge route
+or dispatch. FR-143/ADR-059 described the retired pull-based Edge lane before
+ADR-110's 2026-09-24 retirement.
 
 ## Delivery state
 
@@ -163,7 +158,8 @@ The foundation declares and locally proves the canonical contract, validation,
 pipeline identity, schema shape, backup coverage and dashboard. CR-015/ADR-056 adds
 the beta evidence intake execution lane: private managed-object evidence, candidate
 OCR/Vision with human review, Excel/bounded Sheet snapshot import-export and trusted
-LINE FileAsset handoff. FR-143/ADR-059 delivers pull-based on-premise Edge extraction.
+LINE FileAsset handoff. FR-143/ADR-059's pull-based Edge extraction lane is retired;
+its job model remains historical and is not dispatched.
 SRS.md (v0.3.0) specifies the complete 8-subdomain physical lifecycle: Registration &
 Tagging, Custody Handover, Project Allocation Return, Maintenance, Stocktake, Disposal,
 and Finance candidate handoff.
@@ -187,6 +183,7 @@ and Finance candidate handoff.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.3.1b | 2026-11-12 | active-evidence-intake-beta | Marked Edge extraction routes retired and `AssetExtractionJob` historical-only with no dispatch | working-tree | Codex |
 | 1.3.0b | 2026-09-06 | active-evidence-intake-beta | Refined 8-subdomain lifecycle architecture and added SRS.md reference | working-tree | Gemini (Antigravity) |
 | 1.2.0b | 2026-09-04 | active-evidence-intake-beta | Claimed `AssetExtractionJob` and the device-authenticated `/api/edge/extraction-jobs/**` route family for FR-143 / ADR-059 | working-tree | Claude Code |
 | 1.1.0b | 2026-09-02 | beta | Added receiver/reviewer capabilities and the provider-neutral evidence, extraction, workbook/snapshot and LINE handoff execution lane | working-tree | RWANG |

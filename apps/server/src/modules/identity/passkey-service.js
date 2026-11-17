@@ -133,6 +133,7 @@ export async function finishPasskeyRegistration({
   if (viewer?.sessionTokenHash) {
     await elevateSession({
       tokenHash: viewer.sessionTokenHash,
+      personId,
       db,
     }).catch(() => {})
   }
@@ -304,6 +305,7 @@ export async function stepUpWithPasskey({
 
   const elevation = await elevateSession({
     tokenHash: viewer.sessionTokenHash,
+    personId,
     db,
   })
 

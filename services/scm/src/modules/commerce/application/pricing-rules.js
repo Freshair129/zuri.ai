@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { calculatePrice, defaultPricingRules, normalizePricingInput, pricingHash, validatePricingRules } from '../../../kernel/commerce/pricing-engine.js'
+import { calculatePrice, normalizePricingInput, pricingHash, validatePricingRules } from '../../../kernel/commerce/pricing-engine.js'
 import { commerceAuthority, denied } from '../../../infrastructure/delegation.js'
 import { enqueueOutbox, recordAudit } from '../../../infrastructure/evidence.js'
 import * as repo from '../adapters/pricing-repo.js'
@@ -87,7 +87,7 @@ export function listPricingRules(sql, scopeOf, query, now) {
   const business = ownerBusiness(scopeOf, data.businessId)
   const rows = repo.rulesOfBusiness(sql, business.tenantId, business.id)
   const current = repo.latestEffectiveRule(sql, business.tenantId, business.id, now)
-  return { businessId: business.id, rules: rows.map((row) => ({ ...ruleDto(row, now), isActive: row.id === current?.id && usable(row, now) })), template: defaultPricingRules(), canManage: true }
+  return { businessId: business.id, rules: rows.map((row) => ({ ...ruleDto(row, now), isActive: row.id === current?.id && usable(row, now) })), template: null, canManage: true }
 }
 
 export function createPricingRuleSet(sql, scopeOf, input, ctx) {

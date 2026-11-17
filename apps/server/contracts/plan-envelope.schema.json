@@ -226,7 +226,8 @@
         },
         "idempotencyKey": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "not": { "pattern": "^zai-legacy-plan:" }
         },
         "replayOfExecutionRunId": {
           "type": [
@@ -1132,7 +1133,8 @@
             },
             "idempotencyKey": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "not": { "pattern": "^zai-legacy-plan:" }
             }
           }
         },
@@ -1961,7 +1963,8 @@
             },
             "idempotencyKey": {
               "type": "string",
-              "format": "uuid"
+              "format": "uuid",
+              "not": { "pattern": "^zai-legacy-plan:" }
             }
           }
         },

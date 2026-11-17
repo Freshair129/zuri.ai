@@ -1,7 +1,7 @@
 ---
-version: "0.6.2b"
+version: "0.8.0b"
 status: active
-last_update: "2026-10-16,Codex"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 id: ZAI:DOMAIN-INTEGRATION
 relations:
   - type: relates_to
@@ -34,6 +34,7 @@ owns_routes:
   - src/app/api/platform/integrations/**
   - src/app/api/line-oa/connections/**
   - src/app/api/integration/model-providers/**
+  - src/app/api/integration/raw-retention-sweep/**
   - src/app/api/integrations/notion/**
   - src/app/api/platform/integrations/notion/webhook-verification/**
   - src/app/oauth/notion/callback/**
@@ -136,27 +137,24 @@ needs a viewer: the owner-scoped management service behind the Platform surface.
 - The `/platform/integrations` page and its API are this domain's surfaces. They
   show metadata and redacted secret status only, and accept only an opaque
   `supabase-vault:<uuid>` reference in the implemented generic FR-080 form. Raw
-  secret entry stays in the Supabase Dashboard Vault UI until an approved
-  provider-specific `SecretManagerProvisionPort` exists. Candidate FR-125 /
+  secret entry through the generic form stays in the Supabase Dashboard Vault UI.
+  Candidate FR-125 /
   ADR-053 proposes the first such write-only path for FlowAccount; it does not
   relax the generic form and no browser response may contain secret material.
 - ADR-061 adds an owner-only LINE connection metadata provisioner at `POST /api/line-oa/connections`. It accepts a deployment-secret reference, never secret bytes. Server LINE channel credentials may resolve from an out-of-checkout read-only deployment secret mount, scoped to Tenant, Business, account, connection and destination. This exception concerns channel transport credentials only.
-- **Decided, not built: browser write-only credential entry (ADR-089).** The two
-  bullets above describe today. ADR-089 decides that this lane will own a
-  write-only `SecretStorePort` — Supabase Vault primary, an envelope-encryption
-  store for self-host, the mount kept as an operator-only read adapter,
-  cross-store resolution refused (SDD-097) — and that `POST /api/line-oa/connections`
-  will accept a Channel ID and Channel secret from an AAL2 Business owner, never
-  echoing them (SEC-030). Until FR-223..FR-228 land, the reference-only rules above
-  stay in force. See "Credential vault and self-serve LINE OA onboarding" below.
+- **Implemented in the repository: browser write-only LINE credentials (ADR-089).**
+  `connectLineChannelWithSecret` validates the Channel ID and secret, writes through
+  the `SecretStorePort` with compensation, and returns masked credential metadata;
+  the connect and credential routes are described below. The generic FR-080 form
+  remains reference-only.
 - Local encrypted vault storage is dev/test only. Production uses Supabase Vault
   through the private `zuri_line_runtime` resolver and fails closed when it is
   unavailable.
 - Ollama is a local/dev/test evaluation provider and is not a public LINE or
-  production provider **of this cloud runtime**. An EDGE-mode LINE OA account
-  (ADR-060 D5) answers on its own Zuri Edge Device, whose local Ollama or Codex
-  CLI is the device's provider — never one this lane resolves, proxies or lists
-  (ADR-031 revision 0.3.0b).
+  production provider **of this cloud runtime**. Edge Device and harness credential,
+  pairing and reporting surfaces were retired by ADR-110; `EdgeDeviceCredential`
+  and `HarnessCredential` remain in the schema as historical data, not active
+  Integration credentials.
 - **This lane owns the execution ledger — the six `Pipeline*` models — for every
   pipeline, not only its own.** `PipelineRun`, `PipelineStep`,
   `PipelineEventReceipt`, `PipelineRecordEvent`, `PipelineReconciliation` and
@@ -285,7 +283,7 @@ or publishing raw provider records into an owner domain.
 
 ## FEAT-019 execution handoffs
 
-See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Server transport is independent of Edge execution; BR-011/FR-050 describe retained legacy forwarding only.
+See [the domain phase map](../../roadmap/PLAN-FEAT-019-DOMAIN-PHASES.md) and [[ZAI:ADR-061]]. Phase ownership does not change this charter's model/route manifest. Edge execution is retired by ADR-110; BR-011/FR-050 describe retained legacy forwarding only.
 
 ## Credential vault and self-serve LINE OA onboarding (ADR-089, FEAT-036 — Phase 1 merged and migrations applied, not deployed)
 
@@ -335,7 +333,10 @@ Channel ID and secret body (a `deployment-secret:` body still provisions the mou
 path, FR-149); `POST /api/line-oa/connections/[id]/credential` rotates,
 `…/credential/revoke` revokes with a typed `REVOKE` and fences the account, and
 `…/credential/validate` re-proves the stored pair. All four go through
-`credential-route.js`: a ≤ 16 KiB body refused with a generic 400, identity's write
+`credential-route.js`: the trusted viewer is resolved first (401/503 before any body byte is
+read), the body is then read through a bounded reader that counts actual bytes and
+stops at 16 KiB (413 `CREDENTIAL_INPUT_TOO_LARGE`, also for an oversized
+`Content-Length`; unparsable JSON is a generic 400), identity's write
 gate and rate limit before LINE or the store, `Cache-Control: no-store`, and no
 material in any response (`line-channel-credential-service.js` for the last three).
 
@@ -353,21 +354,52 @@ material in any response (`line-channel-credential-service.js` for the last thre
 - **Boundaries that do not move.** No read-back route in any store; display is a
   mask plus the last four characters of the Channel ID; the store functions
   re-prove Tenant, Business, connection and destination from rows; a reference
-  whose store is not configured resolves `Unavailable`. EDGE-mode accounts keep
-  their credentials on the device (ADR-041 D2). The Phase-1 model-credential
-  resolver is untouched.
+  whose store is not configured resolves `Unavailable`. ADR-110 retired the Edge
+  Device and harness credential routes; their schema models remain historical.
+  The Phase-1 model-credential resolver is untouched.
 - **Who calls it.** The Studio's connect wizard posts to this lane's route and
   holds nothing; identity supplies the AAL2 gate and the rate limit (FR-224).
 - **Design evidence.** [Credential vault and chat-history design](../../plans/LINE-OA-CREDENTIAL-VAULT-ONBOARDING-AND-CHAT-HISTORY-DESIGN.md) §4–5.
 - **Chat retention touches raw evidence.** Under [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
   D2, LINE `RawExternalRecord.payloadJson` gets a 90-day retention tombstone with a
-  second reason code beside `PDPA_ERASURE`; envelope columns are kept, as the
-  erasure boundary above already requires.
+  second reason code (`RETENTION_EXPIRED`) beside `PDPA_ERASURE`; its evidence
+  envelope, including `payloadHash` and `processingStatus`, stays while `updatedAt`
+  advances with the write. The Integration sweep
+  lives in `src/platform/integrations/core/raw-line-retention-sweep-service.js`,
+  beside the provider-neutral raw record substrate: it reads the shared
+  `resolveEffectiveRetentionWindow` port, limits writes to `LINE_OA_PROVIDER_CODE`,
+  and uses `RawExternalRecord.externalId = LineConversationJob.eventId` to find
+  active work. A stored override must be a safe integer of at least one day;
+  invalid values are ignored in favor of the installation default, reported per
+  Tenant and in the run audit, and logged without record payloads. Snapshot
+  restore accepts only a known class and a window from one day through its
+  installation default. It leaves PDPA/retention tombstones alone, and
+  skips/counts `ADMITTING` rows because `line-admission-reconciler.js` reparses
+  their payload.
+  `POST /api/integration/raw-retention-sweep` is the bodyless, deployment-bearer
+  trigger. Strict `dry_run=true|false` is its only optional query; `true` returns
+  the same per-Tenant counts without writing tombstones, audit events or the
+  daily claim. The shared worker calls it after CRM; no deployment schedule is claimed.
+  A page failure stops this Tenant, leaves earlier committed pages intact and later
+  rows untouched, reports `{ tenantId, code }`, then continues with the next Tenant.
+  Before enabling a scheduled run, an operator must run
+  `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
+  container and compare per-Tenant counts for `POST /api/crm/retention-sweep`,
+  `POST /api/crm/archive-expiry`, `POST /api/integration/raw-retention-sweep`,
+  and `POST /api/agent/trace-retention-sweep`. On the first real run, the CRM
+  sweep targets every eligible CRM message past the Tenant's effective window
+  (24 months by default, shorter with an override) that is not skipped by the
+  non-terminal-job, tombstone, archive-failure or deferral rules, and archive
+  expiry also irreversibly destroys expired archive keys and deletes expired files.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.9.0b | 2026-11-13 | FR-230 / FR-245: the shared `--dry-run` worker now previews all four retention routes and reports their per-Tenant counts before any first real run | Codex |
+| 0.8.0b | 2026-11-13 | FR-230: invalid stored retention windows now fall back to the installation default and are reported; raw LINE sweep adds a bodyless count-only dry run and the shared worker exposes it through `--dry-run` | Codex |
+| 0.7.0b | 2026-11-12 | FR-230 / ADR-091 D2: Integration now tombstones expired LINE OA raw payloads in bounded pages, preserves the full envelope, skips live jobs and ADMITTING outbox rows, and exposes `/api/integration/raw-retention-sweep`; no deployment schedule is claimed | Codex |
+| 0.6.3b | 2026-11-12 | Reconciled browser write-only LINE credential status with the implemented service and marked Edge/harness credential surfaces retired | Codex |
 | 0.6.1b | 2026-09-27 | FR-022: erasure now also tombstones the raw payloads of a person's own postback/follow/unfollow events (keyed by webhook event id) and of their own message events, found by `event.message.id` inside the payload since those records are keyed by webhook event id too | Claude Opus 5.5 (MC0) |
 | 0.4.2b | 2026-09-14 | Migrations 20260914140000..140400 applied on production on the owner's instruction (ADR-057; ADR-089 proof 10 waived); the Phase 1 section says so; nothing deployed | Claude Opus 5 |
 | 0.4.1b | 2026-09-14 | TASK-ZAI-078..080 merged in #398 (main 2aef8caa): the Phase 1 section now says merged instead of built on a branch; migrations 20260914140000..140400 still not applied, nothing deployed | Claude Opus 5 |

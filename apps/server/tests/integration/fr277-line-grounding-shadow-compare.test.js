@@ -13,6 +13,7 @@ import { zLineOaAccountAction } from '@/modules/line-oa-studio/domain/line-oa-ac
 import { runLineGroundingShadowCompare } from '@/modules/agent/line-grounding-shadow-compare'
 import { createDeterministicBusinessModel } from '@/modules/agent/grounded-business-answer'
 import { createLineGroundingReader } from '@/modules/agent/line-knowledge-grounding'
+import { createServerLineAnswer } from '@/modules/agent/server-line-answer'
 
 const { createCorpusKnowledgeReaderMock } = vi.hoisted(() => ({ createCorpusKnowledgeReaderMock: vi.fn() }))
 vi.mock('@/modules/knowledge', () => ({
@@ -237,6 +238,30 @@ describe('FR-277 — the harness persists a real comparison row through the shar
 
     expect(scopedAccount.knowledgeGrounding).toBe('BUSINESS_KNOWLEDGE')
     expect(scopedAccount.knowledgeGroundingShadow).toBe(false)
+
+    // Qualify the next turn from the persisted rollback state, not only the control row.
+    const restoredAccount = await prisma.lineOaAccount.findUnique({ where: { id: scopedAccount.id } })
+    const nextJob = { id: `job-${randomUUID()}`, accountId: scopedAccount.id, account: restoredAccount,
+      tenantId: scopedBusiness.tenantId, businessId: scopedBusiness.id, modelAccess: 'LOCAL_ONLY',
+      inbound: { body: 'AB-1 ราคาเท่าไร' } }
+    const query = vi.fn().mockResolvedValue({ records: [{ name: 'แก้ว', product_code: 'AB-1', sell_price: 50,
+      currency: 'THB', unit: 'ชิ้น', moq: 1, specification: {}, as_of: '2026-09-01T00:00:00Z' }] })
+    const model = createDeterministicBusinessModel()
+    createCorpusKnowledgeReaderMock.mockClear()
+    const answer = await createServerLineAnswer({ env: {}, runtimeFactory: async () => ({
+      businessKnowledge: { query }, resolveModel: async () => model,
+    }) })(nextJob)
+    expect(answer).toContain('AB-1')
+    expect(query).toHaveBeenCalledOnce()
+    expect(query.mock.calls[0][0]).toMatchObject({ tenantId: scopedBusiness.tenantId, businessId: scopedBusiness.id })
+    expect(createCorpusKnowledgeReaderMock).not.toHaveBeenCalled()
+    expect(await runLineGroundingShadowCompare({ job: nextJob, primaryMode: restoredAccount.knowledgeGrounding,
+      primaryAnswerText: answer, tenantId: scopedBusiness.tenantId, businessId: scopedBusiness.id,
+      question: nextJob.inbound.body, model, businessKnowledgeReader: { query },
+    })).toBeNull()
+    expect(query).toHaveBeenCalledOnce()
+    expect(await prisma.lineGroundingShadowComparison.findUnique({ where: { jobId: nextJob.id } })).toBeNull()
+
     const audits = await prisma.auditEvent.findMany({
       where: { entityId: scopedAccount.id, action: { in: [
         'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED',

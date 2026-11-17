@@ -24,6 +24,9 @@ export const INVENTORY_TABS = [
 export const PROCUREMENT_TABS = [
   { key: 'dashboard', label: 'Dashboard', path: '/procurement' },
   { key: 'purchase-orders', label: 'Purchase Orders', path: '/procurement/purchase-orders' },
+  // @req FR-164, FR-154 — supplier cost-sheet intake maps factory SKUs to Inventory Products.
+  // @spec ZAI:PROPOSAL-SMARTGIFT-COST-QUOTE-ENGINE-20260913; TASK-ZAI-053
+  { key: 'cost-sheets', label: 'Cost Sheets', path: '/procurement/cost-sheets' },
   { key: 'receipts', label: 'Goods Receipts', path: '/procurement/receipts' },
 ]
 

@@ -18,10 +18,15 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/access-invites/\[id\]/route.js](../../../apps/server/src/app/api/access-invites/%5Bid%5D/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/access-invites/accept/route.js](../../../apps/server/src/app/api/access-invites/accept/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/access-invites/decline/route.js](../../../apps/server/src/app/api/access-invites/decline/route.js) — `implements` (`annotation`)
+- [apps/server/src/app/api/access-invites/route.js](../../../apps/server/src/app/api/access-invites/route.js) — `implements` (`annotation`)
 - [apps/server/src/lib/validation/enums.js](../../../apps/server/src/lib/validation/enums.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/access-invite-service.js](../../../apps/server/src/modules/identity/access-invite-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/onboarding-service.js](../../../apps/server/src/modules/identity/onboarding-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/workspace-membership-service.js](../../../apps/server/src/modules/identity/workspace-membership-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/application/backup-service.js](../../../apps/server/src/modules/project-manager/application/backup-service.js) — `implements` (`annotation`)
 
 ### Test paths — graph bindings
@@ -29,17 +34,20 @@ status: generated
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr195-access-invite-http.test.js](../../../apps/server/tests/integration/fr195-access-invite-http.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr195-access-invite.test.js](../../../apps/server/tests/integration/fr195-access-invite.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-server-backup.test.js](../../../apps/server/tests/integration/line-server-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-stock-policy-backup.test.js](../../../apps/server/tests/integration/line-stock-policy-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-backup.test.js](../../../apps/server/tests/integration/marketing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/marketing-content-backup.test.js](../../../apps/server/tests/integration/marketing-content-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/pipeline-endpoint-matrix.test.js](../../../apps/server/tests/integration/pipeline-endpoint-matrix.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/workspace-collaboration-roster.test.js](../../../apps/server/tests/integration/workspace-collaboration-roster.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/workspace-onboarding-flow.test.js](../../../apps/server/tests/integration/workspace-onboarding-flow.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/access-invite-routes.test.js](../../../apps/server/tests/unit/access-invite-routes.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/context-composer.test.js](../../../apps/server/tests/unit/context-composer.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
@@ -55,6 +63,7 @@ status: generated
 
 - [apps/server/src/app/(pm)/commerce/orders/page.jsx](../../../apps/server/src/app/%28pm%29/commerce/orders/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/app/(pm)/procurement/purchase-orders/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/purchase-orders/page.jsx) — `implements` (`annotation`)
+- [apps/server/src/app/(pm)/procurement/receipts/page.jsx](../../../apps/server/src/app/%28pm%29/procurement/receipts/page.jsx) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/application/payment-service.js](../../../apps/server/src/modules/commerce/application/payment-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/commerce/domain/commerce.js](../../../apps/server/src/modules/commerce/domain/commerce.js) — `implements` (`annotation`)
 - [apps/server/src/modules/identity/rbac-service.js](../../../apps/server/src/modules/identity/rbac-service.js) — `implements` (`annotation`)
@@ -74,8 +83,8 @@ status: generated
 - [apps/server/tests/integration/scm-legacy-races.postgres.test.js](../../../apps/server/tests/integration/scm-legacy-races.postgres.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/commerce-domain.test.js](../../../apps/server/tests/unit/commerce-domain.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/commerce-routes.test.js](../../../apps/server/tests/unit/commerce-routes.test.js) — `verifies` (`transitive`)
-- [apps/server/tests/unit/customer-import-review-service.test.js](../../../apps/server/tests/unit/customer-import-review-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr076-product-owner-business-assignment.test.js](../../../apps/server/tests/unit/fr076-product-owner-business-assignment.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/goods-receipts-self-attestation.test.js](../../../apps/server/tests/unit/goods-receipts-self-attestation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/procurement-domain.test.js](../../../apps/server/tests/unit/procurement-domain.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`test-reference`)
 

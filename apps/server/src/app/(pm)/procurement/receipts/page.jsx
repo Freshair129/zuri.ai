@@ -3,15 +3,17 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Card, ModuleTabs, PageHeader } from '@/components/ui'
 import { PROCUREMENT_TABS } from '@/lib/module-tabs'
+import { selfVerificationRefusalMessage } from '@/lib/self-verification-ui'
 import { useScope } from '@/context/ScopeContext'
 
 // @req FR-165 — registry, actual receiving quantities and printable persisted GRNs.
+// @req FR-196 — a self-created PO requires an explicit, receipt-scoped attestation.
 // @spec ADR-066; SEC-001; FR-072
-// @tested tests/e2e/fr165-receipt-workstation.spec.js
+// @tested tests/e2e/fr165-receipt-workstation.spec.js, tests/unit/goods-receipts-self-attestation.test.js
 async function api(url, options = {}) {
   const response = await fetch(url, options)
   const body = await response.json()
-  if (!response.ok) throw new Error(body.issues?.join(' · ') || body.error || 'Request failed')
+  if (!response.ok) throw new Error(selfVerificationRefusalMessage(body.error) || body.issues?.join(' · ') || body.error || 'Request failed')
   return body
 }
 const field = 'w-full rounded-lg border border-[var(--border)] bg-white p-2 text-sm'
@@ -31,6 +33,7 @@ function ReceiptStation({ businessId }) {
   const [orders, setOrders] = useState([])
   const [offset, setOffset] = useState(0)
   const [selectedPoId, setSelectedPoId] = useState('')
+  const [receiptSelfAttestation, setReceiptSelfAttestation] = useState(null)
   const [lines, setLines] = useState({})
   const [reference, setReference] = useState('')
   const [notes, setNotes] = useState('')
@@ -62,6 +65,10 @@ function ReceiptStation({ businessId }) {
   useEffect(() => { refresh() }, [refresh])
   const order = orders.find(row => row.id === selectedPoId)
   const receivable = order?.lines.filter(line => line.outstandingQty > 0 && line.product?.stockPolicy !== 'SERVICE') ?? []
+  const receiptAttestationChecked = Boolean(order
+    && receiptSelfAttestation?.businessId === businessId
+    && receiptSelfAttestation?.orderId === order.id
+    && receiptSelfAttestation?.checked)
   const bindLine = (id, name) => ({ value: lines[id]?.[name] ?? '', onChange: event => setLines(old => ({ ...old, [id]: { ...old[id], [name]: event.target.value } })) })
 
   async function showReceipt(id) {
@@ -82,9 +89,13 @@ function ReceiptStation({ businessId }) {
       if (entered.some(line => !Number.isInteger(Number(lines[line.id].qty)) || Number(lines[line.id].qty) < 0)) throw new Error('จำนวนรับต้องเป็นจำนวนเต็มตั้งแต่ 0 ขึ้นไป')
       const selected = entered.filter(line => Number(lines[line.id].qty) > 0)
       if (!selected.length) throw new Error('ระบุจำนวนรับอย่างน้อยหนึ่งรายการ')
+      const selfVerifyAttested = receiptSelfAttestation?.businessId === businessId
+        && receiptSelfAttestation?.orderId === order.id
+        && receiptSelfAttestation?.checked === true
       const result = await api(`/api/procurement/purchase-orders/${encodeURIComponent(order.id)}/receipts`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          ...(selfVerifyAttested ? { selfVerifyAttested: true } : {}),
           ...(reference.trim() ? { supplierReference: reference.trim() } : {}), ...(notes.trim() ? { notes: notes.trim() } : {}),
           lines: selected.map(line => {
             const input = lines[line.id]
@@ -98,7 +109,7 @@ function ReceiptStation({ businessId }) {
       })
       if (!alive.current) return
       setMessage(`บันทึกรับสินค้า ${result.receipt.code} แล้ว`)
-      setLines({}); setReference(''); setNotes(''); setSelectedPoId('')
+      setLines({}); setReference(''); setNotes(''); setSelectedPoId(''); setReceiptSelfAttestation(null)
       await showReceipt(result.receipt.id)
       await refresh()
     } catch (err) { if (alive.current) setError(err.message) }
@@ -125,9 +136,18 @@ function ReceiptStation({ businessId }) {
       <h2 className="font-semibold">บันทึกรับสินค้า</h2>
       <form onSubmit={post} className="space-y-3">
         <fieldset disabled={busy || loading} className="space-y-3">
-          <label className="block">ใบสั่งซื้อ<select aria-label="ใบสั่งซื้อสำหรับรับสินค้า" className={field} value={selectedPoId} onChange={event => { setSelectedPoId(event.target.value); setLines({}); setReference(''); setNotes('') }}>
+          <label className="block">ใบสั่งซื้อ<select aria-label="ใบสั่งซื้อสำหรับรับสินค้า" className={field} value={selectedPoId} onChange={event => { setSelectedPoId(event.target.value); setReceiptSelfAttestation(null); setLines({}); setReference(''); setNotes('') }}>
             <option value="">เลือกใบสั่งซื้อ</option>{orders.map(row => <option key={row.id} value={row.id}>{row.code} · {row.supplier.name}</option>)}</select></label>
           <p className="text-xs text-muted">แสดงใบสั่งซื้อที่ส่งผู้ขายแล้ว สูงสุด 200 รายการล่าสุด</p>
+          {order && <label className="flex items-start gap-2 text-xs">
+            <input
+              type="checkbox"
+              aria-label={`ยืนยันรับของใบสั่งซื้อ ${order.code} ด้วยตนเอง`}
+              checked={receiptAttestationChecked}
+              onChange={event => setReceiptSelfAttestation({ businessId, orderId: order.id, checked: event.target.checked })}
+            />
+            <span>ฉันสร้างใบสั่งซื้อ {order.code} และยืนยันรับของด้วยตนเองสำหรับครั้งนี้ การเลือกนี้ใช้กับใบรับของครั้งนี้เท่านั้นและบันทึกไว้ในประวัติ</span>
+          </label>}
           <label className="block">เลขที่ใบส่งของ<input className={field} value={reference} onChange={event => setReference(event.target.value)} /></label>
           <label className="block">หมายเหตุ<input className={field} value={notes} onChange={event => setNotes(event.target.value)} /></label>
           {receivable.map(line => <fieldset key={line.id} className="rounded border p-3"><legend>{line.description} · ค้างรับ {line.outstandingQty}</legend>

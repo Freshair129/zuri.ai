@@ -1,5 +1,5 @@
 ---
-version: "0.7.20"
+version: "0.7.24"
 status: active
 superseded_by: null
 ---
@@ -9,6 +9,40 @@ superseded_by: null
 This index links to the current ZAI source records, their compatibility exports,
 and generated navigation views. It is hand-authored so the generated category
 indexes do not index themselves.
+
+## Before you write a document
+
+[ADR-118](decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md) adopts one write home
+and one source-of-truth owner per kind of knowledge; the
+[redesign proposal](plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md) holds the
+measurements and the staged design (a candidate, not a source of truth) and
+[DOCUMENT-KINDS.json](governance/DOCUMENT-KINDS.json) is the machine form. Added-document
+checks (`doc-placement`, `doc-metadata`, `doc-prior-art`) flag documents added or renamed into a path; they are warnings,
+except that adding to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`, `docs/superpowers/` or
+`docs/roadmap/PLAN-*.md` is CRITICAL (ADR-118 amendment 3), and this policy moves no file (amendment 3 separately approves archiving two named root files, as its own change). The table is a
+quick reference of the main kinds; the full matrix (K1-K18, legacy homes, and the kinds with
+no single source of truth such as session memory and generated views) is in ADR-118 and
+the proposal.
+
+| Kind | Write new documents here | Source of truth |
+|---|---|---|
+| Requirement / feature | `docs/features/FEAT-nnn/`, `docs/requirements/` via the reviewed record workflow (never by hand) | canonical per-ID records |
+| Decision | `docs/decisions/ADR-nnn-*` (next free number) | the ADR |
+| Change request | `docs/change-requests/<area>/`; issued ZV2-CR in `docs/changes/` | the change record |
+| Domain boundary | `docs/domains/<d>/CHARTER.md` (optional `SRS.md` beside it) | the charter |
+| Architecture / design | `docs/architecture/` | accepted ADRs, then `ARCHITECTURE.md`; code for implementation |
+| Service execution | `docs/services/<svc>/` | package scripts and wire schemas |
+| Plan | `docs/plans/` | the plan for its bounded scope; delivery state is only `docs/roadmap/ROADMAP.md` |
+| Runbook / deployment | `docs/runbooks/`, `docs/deployment/` | the runbook |
+| Dated evidence / assessment | `reports/` | that dated scope only |
+| Root-cause analysis | `.brain/rca/` | the RCA |
+| Agent and team instructions | `AGENTS.md`, `CLAUDE.md`, `.agents/`, `.claude/` | `AGENTS.md` |
+
+Search first: `npm run docs:find -- "<subject words>"` (also `--id FR-292`, `--kind plan`,
+`--domain agent`, `--path docs/plans`). A hit shows a document exists; a miss is not proof
+it does not, so enumerate the intended home with `git ls-files <home>` (AGENTS.md section
+21). If one exists, extend or supersede it instead of writing a parallel copy, and record
+`prior_art` in the new document's frontmatter (a report-only warning checks the declaration, not that a search happened).
 
 ## Rebuild blueprint
 
@@ -47,37 +81,10 @@ plans and historical test receipts are separate from the build specification.
   links current requirements/code and retained audit findings to
   [accepted ADR-115](decisions/ADR-115-COMPACT-SELF-HOST-PROFILE.md) and its
   [approved implementation plan](plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md).
-  Safe Compact continuation includes isolated TEST core, private Asset/catalog and
-  explicit PostgreSQL Marketing intake work;
-  production, live credentials and release actions remain separate.
-  The [2026-10-28 Task4 requalification](../reports/compact-selfhost-2026-10-27/task4-requalification-20261028.md)
-  records the private S3 integrity correction and real pricing-catalog consumer checks.
-  The [2026-10-28 Task5 requalification](../reports/compact-selfhost-2026-10-27/task5-requalification-20261028.md)
-  records PostgreSQL provider/retry evidence and honest failed-fixture cleanup.
-  The [2026-10-28 Task6 verification](../reports/compact-selfhost-2026-10-27/task6-requalification-20261028.md)
-  separates isolated native/provider evidence from the still-unqualified AI profiles.
-  The [2026-10-29 operator restore/rebind assessment](../reports/compact-selfhost-2026-10-27/operator-restore-rebind-assessment-20261029.md)
-  records source-bound managed-blob recovery gaps and the candidate plan;
-  operator recovery, PostgreSQL installation restore and AI remain unqualified.
-  The [OR0 contract proposal](change-requests/project-manager/compact-managed-blob-recovery-or0-20261029.md)
-  specifies proposed transport/custody, source writer audit and owner-selected
-  backup transfer prerequisite before canonical adoption and recovery activation.
-  The [OR0 canonical-adoption decision](change-requests/project-manager/compact-managed-blob-recovery-adoption-20261030.md)
-  is bound by the sanctioned migration issuing [ZAI:FR-292 recovery](requirements/FR-292.md)
-  and [ZAI:FR-293 backup transfer](requirements/FR-293.md), both delivery planned.
-  The implementation plan remains candidate and no runtime qualification is granted.
-  The [2026-11-01 OR5 prerequisite assessment](../reports/compact-selfhost-2026-10-27/or5-prerequisite-assessment-20261101.md)
-  records the still-blocking supported transfer/activation dependency at `59145776`;
-  OR5 is not complete and the existing deferred minors and qualification gates remain open.
-  The [selected Knowledge package TEST](../reports/compact-selfhost-2026-10-27/task6-knowledge-package-20261028.md)
-  adds relocated OCI, fresh-baseline and offline model evidence; application/cohort
-  recovery and AI qualification remain open.
-  The [actual idle Knowledge cohort TEST](../reports/compact-selfhost-2026-10-27/task6-idle-cohort-20261028.md)
-  verifies manual web/native namespace rebind and retained-volume markers;
-  Business authority, active-work replay and native recovery remain separate gates.
-  The [scoped TEXT HTTP journey](../reports/compact-selfhost-2026-10-27/task6-scoped-text-journey-20261029.md)
-  adds real TEST Business authority and durable same-run publication/query/withdrawal;
-  storage, native recovery, LINE and full AI qualification remain open.
+  The dated Compact record trail (requalifications, restore/rebind assessment, OR0/OR5
+  and TEST snapshots, with their limits) is in the
+  [Compact record trail](../reports/README.md#compact-self-host-record-trail); production,
+  live credentials, release actions and AI qualification remain separate gates.
 - [Template index](templates/README.md) lists document templates and their
   scope.
 - [Root-file register](governance/ROOT-FILE-REGISTER.md) enumerates every
@@ -163,6 +170,15 @@ kit outside this execution repository.
 - [PRD and SDD](PRD-SDD-v1.0.md) · [Feature registry export](FEATURES.md)
 - [Decision record on pinned requirement identities](decisions/ADR-039-REQUIREMENT-IDS-ARE-PINNED-BY-SUBJECT-ANCHOR.md)
 
+Version diff 0.7.22 → 0.7.23 (2026-11-14, Stage 4a): the "Before you write a document" section states that adding to the named legacy homes is CRITICAL (ADR-118 amendment 3, delegated product-owner decision); other added-document findings stay warnings. Hand edit; nothing moved.
+
+Version diff 0.7.21 → 0.7.22 (2026-11-14, Stage 3): the "Before you write a document" section now says the
+only checks are report-only warnings (ADR-118 amendment 1). Hand edit; nothing moved.
+
+Version diff 0.7.20 → 0.7.21 (2026-11-14): adds the "Before you write a document"
+section (ADR-118 kind table, search-before-write protocol, `docs:find`). Hand edit only;
+no file moved, no check enabled, and the dated narrative below is unchanged.
+
 Version diff 0.3.0 → 0.4.0: adds the reconciled rebuild blueprint entrypoint;
 preserves canonical records and generated feature views.
 
@@ -203,3 +219,8 @@ snapshot without promoting Business authority, active-work or recovery claims.
 
 Version diff 0.7.19 → 0.7.20 (2026-11-06): links the bounded scoped TEXT HTTP
 journey and preserves the first-run timestamp caveat and remaining AI gates.
+
+Version diff 0.7.23 → 0.7.24 (2026-11-15): the dated Compact self-host narrative moved
+unchanged in substance (dates, evidence, limits, links) to the report index
+[Compact record trail](../reports/README.md#compact-self-host-record-trail); this entry keeps a short link
+(ADR-118 amendment 3, D-D3, delegated decision).

@@ -1,7 +1,7 @@
 ---
-version: "0.8.0b"
+version: "0.10.0b"
 status: active
-last_update: "2026-10-16,Codex"
+last_update: "2026-11-13T15:33:27+07:00,Codex"
 id: ZAI:DOMAIN-AGENT
 relations:
   - type: relates_to
@@ -75,6 +75,35 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   GKS or Edge state. The agent still does not own the production Postgres
   runtime (`zuri_core.line_channel_binding`, `line_activation_event`) or MSP
   vaults; those remain behind binding and vault ports.
+- **Trace payload retention (FR-230, ADR-091 D2).**
+  `trace-retention-sweep-service.js` sweeps whole `(tenantId, businessId, turnId)`
+  units by the maximum `AgentTraceEvent.createdAt`, so future retry timestamps in
+  `occurredAt` do not extend content life. It calls `redactTraceTurn` with
+  `RETENTION_EXPIRED`, retaining event envelopes and appending the canonical
+  `retentionTombstoneKey(turnId)` so playback closes as incomplete. The sweep
+  reads the shared effective-window resolver: a stored override must be a safe
+  integer of at least one day, invalid values use the installation default and
+  are reported per Tenant and in the run audit, and restore accepts only a
+  known class and a window up to its installation default. Strict
+  `dry_run=true|false` counts eligible turns and events without redaction,
+  tombstones, audit events or the daily claim; the route returns per-Tenant
+  counts and Tenant ids only. The sweep
+  skips/counts the six shared non-terminal LINE job states, terminal jobs whose
+  MSP memory delivery remains `PENDING`, and open `MEMORY_THREAD_ERASURE_PENDING`
+  turns without an acknowledgement (including failed requests). Its trigger is
+  `POST /api/agent/trace-retention-sweep`; the shared deployment worker invokes
+  it after Integration. No deployment schedule is claimed. A turn failure stops
+  this Tenant, keeps earlier committed turns redacted and later turns intact,
+  reports `{ tenantId, code }`, then continues with the next Tenant. Before the
+  first scheduled run, an operator must run
+  `node scripts/server-retention-sweep-worker.mjs --dry-run` inside the `web`
+  container and compare per-Tenant counts for `POST /api/crm/retention-sweep`,
+  `POST /api/crm/archive-expiry`, `POST /api/integration/raw-retention-sweep`,
+  and `POST /api/agent/trace-retention-sweep`. On the first real run, the CRM
+  sweep targets every eligible CRM message past the Tenant's effective window
+  (24 months by default, shorter with an override) that is not skipped by the
+  non-terminal-job, tombstone, archive-failure or deferral rules, and archive
+  expiry also irreversibly destroys expired archive keys and deletes expired files.
 - **Owns the local Business Agent Factory configuration (FR-285).**
   `BusinessAgentConfig` pins the standard five role/tool/policy snapshots to one
   server-derived Tenant and Business. Existing Businesses have no implicit
@@ -103,15 +132,20 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
 
 ## Public contract
 
+- `POST /api/agent/trace-retention-sweep` — bodyless deployment-bearer trigger
+  using the shared `ZURI_RETENTION_SWEEP_TOKEN`; it is guarded by this sweep's
+  own UTC-day audit identity and returns counts only. Its optional query is
+  strictly one `dry_run=true|false` parameter; `true` bypasses the guard and
+  returns `{ dryRun: true, countsByClass, tenants }` without writes or audit.
 - `GET`/`POST /api/businesses/[id]/agent-template` (FR-285) — owner-scoped local
   configuration/preview and explicit initial apply. A missing persisted config
   remains `NOT_CONFIGURED` until apply; identical apply is idempotent, conflicting
   versions or content refuse without overwrite. Provider provisioning, live-agent
   activation, upgrades and bulk backfill are outside this v1 contract.
-- `POST /api/agent/line-webhook` — this lane's inbound seam (FR-028). It is no longer
-  the product's only LINE inbound seam: a `serverEnabled` account is refused here and
-  enters through the Studio's native `POST /api/line-oa/accounts/[id]/webhook`
-  (FR-149, ADR-061), which never calls `handleAgentTurn`.
+- `POST /api/agent/line-webhook` — the former FR-028 Agent ingress. The route is
+  absent from the current API tree. Inbound LINE traffic enters through LINE OA
+  Studio's `POST /api/line-oa/accounts/[id]/webhook` (FR-149, ADR-061), which
+  never calls `handleAgentTurn`.
 - `withLineCatalogCommand(answer)` / `lineCatalogViewer(job)` (`line-catalog-command.js`,
   FR-210, ADR-084 D4) — wraps the native worker's answer port: a DIRECT-chat `#sku`
   text from a sender whose LINE channel identity is verified and whose resolved
@@ -122,11 +156,8 @@ scoped `AgentTraceEvent` journal for execution evidence and read-only playback.
   (SDD-091, BR-042).
 - `handleAgentTurn` — one end-to-end turn; identity resolution and policy
   checks happen before any memory-port call (FR-057).
-- `GET`/`POST`/`DELETE /api/agent/heartbeat` — the Business-scoped Edge Device
-  liveness view (FR-141, ADR-041 D3): trusted viewer on every method, registry
-  keyed by the viewer's owned Business, process-local per instance by decision,
-  registration/transition/removal audited. It is a cache of a device's last
-  heartbeat, not a pairing record — durable pairing is undeclared.
+- `/api/agent/heartbeat` — the former FR-141 Edge Device liveness route, retired
+  by ADR-110 and absent from the current API tree.
 - `GET /api/agent/approval-requests?businessId=...` and
   `POST /api/agent/approval-requests/{requestId}/decision` — authenticated
   same-Business OWNER queue and decision surface for Agent-owned FR-026 approval
@@ -161,28 +192,32 @@ owner-only read-only playback route. MSP Soul sessions and runtime assembly,
 GKS retrieval and the optional Edge adapter remain external phase gates; this
 charter does not authorize direct writes to their repositories or databases.
 
-## Context Composer, memory tiers and grounding composition (ADR-091, ADR-090 — declared, not built)
+## Context Composer, memory tiers and grounding composition (ADR-091, ADR-090 — composer and grounding implemented)
 
 [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md)
 and [ADR-090](../../decisions/ADR-090-LINE-ANSWERS-GROUNDED-BY-THE-PUBLISHED-GKS-CORPUS-AND-REVIEWED-KNOWLEDGE-CANDIDATES.md)
-(accepted 2026-09-14) give this lane three planned responsibilities. None exists in
-code yet; `owns_models` changes only when a model lands.
+(accepted 2026-09-14) assign this lane three responsibilities. The Context Composer
+and GKS grounding are implemented in the repository: `apps/server/src/modules/agent/context-composer.js`
+is called from `apps/server/src/modules/agent/server-line-answer.js` and covered by
+`apps/server/tests/unit/context-composer.test.js`. CRM/ERP fact records remain a
+later phase and `records` is empty on every caller today. Agent-side memory
+consolidation summaries remain unbuilt; `owns_models` is unchanged.
 
-- **Context Composer (FR-234, SDD-100).** A module, `src/modules/agent/context-composer.js`,
-  not a service: this lane stays the turn orchestrator. It assembles every model
-  prompt from the AuthContext, MSP slices with provenance, knowledge evidence with
-  citation ids, CRM/ERP facts and account policy; authorization first, then
+- **Context Composer (FR-234, SDD-100) — implemented.** A pure module, not a service:
+  this lane stays the turn orchestrator. It composes already-fetched MSP slices
+  with knowledge evidence and citation ids under one prompt-wide budget; authorization first, then
   CRM/ERP record over GKS evidence over MSP memory, with memory that contradicts a
   record dropped as `SUPERSEDED_BY_RECORD`; one prompt-wide budget with reported
   trims; group slices never cross threads; a denial yields an empty packet; no
   evidence and no facts means no model call. Each model invocation records one
   `ContextReceipt` (references, hash, budget) on `AgentTraceEvent`, referenced by
-  MSP's injection receipt. A follow-on to FR-171-P2; it moves assembly out of
-  `createServerLineAnswer`.
+  MSP's injection receipt. CRM/ERP records are not yet supplied by callers. A
+  follow-on to FR-171-P2, it moves composition into this module.
 - **Memory tiers (FR-230, FR-231, FR-232).** CRM holds the business record; MSP's
-  session tier is the agent's 90-day ledger, consolidated on session close into
-  episodic and passport memory. MSP calls no model, so **this lane produces the
-  consolidation summaries** and sends them back. MSP persists nothing into
+  session tier is the agent's 90-day ledger. LINE OA Studio implements the
+  per-job `MemoryProjectionReceipt`; publisher opt-in for memory sync defaults to
+  off. Agent-side summaries for session-close consolidation into episodic and
+  passport memory are not built. MSP calls no model, persists nothing into
   GenesisBlockDB, and the GenesisBlockDB write-ahead log is never a chat buffer.
   API-011 session/thread projection and API-010 → API-009 episodic access remain
   separate authorization paths. LINE OA Studio owns the per-job
@@ -190,16 +225,21 @@ code yet; `owns_models` changes only when a model lands.
   API-009 memory port and context-composition boundary. The principal erasure
   worker exposes `PENDING_MSP` until MSP returns an erasure receipt. Production
   episodic access stays off until the signed API-010 contract is accepted on MSP
-  main and release gates pass. Trace input snapshots gain a 90-day retention window.
-- **Grounding composition (FR-235, SDD-099).** This lane composes the knowledge
-  lane's corpus reader into the server answer by the account's grounding mode and
-  records `retrievalRefs`, source and reason on `EVIDENCE_SELECTED`; it owns no model
-  for this.
+  main and release gates pass. The Agent trace sweeper now enforces the 90-day
+  window through `redactTraceTurn`; no deployment schedule is claimed.
+- **Grounding composition (FR-235, SDD-099) — implemented.** The server answer
+  composes budgeted corpus evidence by the account's grounding mode in the same
+  call as MSP slices and records `retrievalRefs`, source and reason on
+  `EVIDENCE_SELECTED`; this lane owns no model for it.
 
 ## CHANGELOG
 
 | Version | Date | Summary | Agent |
 |---|---|---|---|
+| 0.11.0b | 2026-11-13 | FR-230: shared worker `--dry-run` now previews CRM retention and archive expiry alongside Integration and Agent, with per-Tenant counts for comparison before the first real run | Codex |
+| 0.10.0b | 2026-11-13 | FR-230: trace retention adds a count-only dry run using grouped event counts; invalid stored windows fall back to the installation default and restore validates the override floor; worker dry-run calls Agent and Integration only | Codex |
+| 0.9.0b | 2026-11-12 | FR-230 / ADR-091 D2: Agent now sweeps whole expired trace turns through the shared redaction path; it protects open MSP erasures and pending memory delivery and exposes `/api/agent/trace-retention-sweep`; no deployment schedule is claimed | Codex |
+| 0.8.1b | 2026-11-12 | Corrected the Context Composer and grounding status, marked Agent memory consolidation unbuilt, and retired the former Agent LINE webhook and heartbeat routes | Codex |
 | 0.8.0b | 2026-10-16 | TASK-ZAI-010: owns the Agent L1-L4 request/decision ledger and authenticated same-Business OWNER decision API; preserves Identity, Gate F, HIGH step-up, canonical writers, audit and PM separation | Codex |
 | 0.7.0b | 2026-10-15 | FR-285: owns BusinessAgentConfig and its scoped administration route; separates internal FR-074 provisioning from persisted owner administration and preserves Gate F/provider boundaries | Codex |
 | 0.6.0b | 2026-10-04 | Separates API-011 session projection from API-010 episodic memory; assigns the LINE-specific durable projection receipt to LINE OA Studio and records the MSP-main activation gate | Codex |

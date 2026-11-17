@@ -43,7 +43,7 @@ owns_code:
   - src/modules/line-oa-studio/**
 technical_owner: TD-LINE-OA-STUDIO
 status: phase-1-building
-version: "0.16.1b"
+version: "0.16.2b"
 created_at: "2026-09-05T00:00:00+07:00"
 updated_at: "2026-10-16T04:29:27+07:00,Codex"
 ---
@@ -430,20 +430,23 @@ code or schema; each column enters the model in the slice that implements it.
 - [ADR-059 edge-executed evidence extraction](../../decisions/ADR-059-EDGE-EXECUTED-EVIDENCE-EXTRACTION.md) — the pull-model job precedent
 - [ADR-041 edge device topology](../../decisions/ADR-041-ZURI-EDGE-DEVICE-TOPOLOGY.md) — where LINE secrets live
 
-## Declared, not yet in schema (FEAT-040, ADR-094)
+## Session timeout and business-hours settings (FEAT-040, ADR-094 — in schema and Server code)
 
 [ADR-094](../../decisions/ADR-094-A-LINE-CONVERSATION-IS-SPLIT-INTO-IDLE-BOUNDED-SESSIONS.md)
-(accepted 2026-09-16) adds three per-account settings to `LineOaAccount`: the
-conversation session idle timeout (FR-243, 30 minutes by default, 10 to 120),
-business hours in Asia/Bangkok, and a fixed out-of-hours reply (FR-244). The edge
-worker reads the hours of the accounts it serves to decide when the local model
-stays loaded; a message outside hours is answered with the out-of-hours reply and
-no model call. A session closing never loads or unloads a model.
+(accepted 2026-09-16) is implemented in the schema and Server code. `LineOaAccount`
+stores `sessionIdleTimeoutMinutes` (FR-243, 30 minutes by default, 10 to 120),
+`businessHoursOpen`, `businessHoursClose` and `outOfHoursReplyText` (FR-244).
+Server-side admission evaluates the configured hours and snapshots the fixed reply
+for an out-of-hours job; the Server worker sends it without a model call, and the
+Conversation Runtime handles `OUT_OF_HOURS` as a fixed reply without Work or model
+execution. The former Edge worker description is retired by ADR-100/ADR-110. A
+session closing never loads or unloads a model.
 
 ## CHANGELOG
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.16.2b | 2026-11-12 | phase-1-building | Corrected session/business-hours schema and Server reply status; removed the retired Edge worker description | working-tree | Codex |
 | 0.16.0b | 2026-10-04 | phase-1-building | FR-057/FR-231/FR-232: claims the LINE-owned projection receipt model, Project-derived API-010 scope and durable delivery/erasure evidence; production activation stays gated | working-tree | Codex |
 | 0.15.0b | 2026-09-16 | phase-1-building | FR-246 (not merged): notes `serverLinePorts` as reachable from crm's `sendStaffReply`, the one place outside this domain that calls it | working-tree | Claude Sonnet 5 |
 | 0.14.0b | 2026-09-16 | phase-1-building | FR-243 (TASK-ZAI-107, not merged): `LineConversationJob.sessionId` copied at admission (migration `20260916120000`); `listLineConversationJobs` filters by session code within the account; the Edge Connection card sets `CONFIGURE_SESSION_TIMEOUT` (audited as `LINE_OA_ACCOUNT_SESSION_TIMEOUT_CONFIGURED`, health-only, never fences) and shows each job's trace | working-tree | Claude Opus 5 |

@@ -1,4 +1,7 @@
 // @req FR-294 — build a pinned, offline verifier; package-supplied code is never loaded.
+// Pinned revision: reachable only from archive/main of Freshair129/zuri-visual-office. Re-obtaining it and
+// reviewing a pin change: docs/architecture/2026-10-22-visual-office-zuri-client-design.md section 12.4.
+// Changing the `revision` constant below needs the owner's approval first.
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import {execFileSync} from 'node:child_process'

@@ -117,8 +117,7 @@ activation.
 | `overlay/msp-only.Dockerfile` | Replaces MSP and pin metadata on a frozen image, validates the old and new tuples, and preserves the inherited app revision with a separate configuration-revision label |
 | `docker-compose.ki17-gks-http.yml` | Opt-in private MSP-to-GKS HTTP overlay; the default transport remains stdio |
 | `docker-compose.ki17-gks-http-canary.yml` | Local-canary-only overlay that disables the ngrok profile |
-| `build-smartgift-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the SmartGift acceptance corpus. Read its header before changing it |
-| `build-smartgift-real-corpus.mjs` | Derives a benchmark corpus (the input of `build-smartgift-benchmark.mjs`) from **real** SmartGift catalog files instead of the Phase 2 test corpus. Every gold text comes from the production path (`splitSmartGiftCatalogRecords` → `renderStructuredCatalogDocument`), so a real upload can pass the retrieval dimension; queries are natural phrasings, never the chunk text itself. Regenerate it whenever the catalog changes, or Stage 16 refuses the changed records with `BENCHMARK_NO_APPLICABLE_QUERIES`. `--base <deployed.json>` merges new or changed records onto the fixture the worker boots with, keeping it cumulative; `--check <benchmark.json> <catalog.json>...` says whether an upload is covered before you make it. The operator procedure is [EDGE-DEPLOYMENT §10.1](../../../../docs/plans/GENESISRAG17-EDGE-DEPLOYMENT.md#101-adding-or-changing-a-catalog-record-the-per-record-benchmark-step); production reads the fixture from the `ki17-state` volume, not from the image |
+| `build-structured-benchmark.mjs` | P-6. Derives the one benchmark fixture a long-running worker can boot with, from the synthetic structured-catalog corpus. Read its header before changing it |
 
 The `ki17-acceptance` build target (gate G-3) is described under
 [Running the acceptance inside the images](#running-the-acceptance-inside-the-images-gate-g-3).
@@ -507,11 +506,10 @@ npm run test:genesisrag17 -- -t "TASK-ZAI-094" # focused LINE grounding cases
 Pop-Location
 ~~~
 
-Expected full result: **3 files, 42 passed, 0 failed, 0 skipped, about 610 s**.
-`genesisrag17-e2e` passes 29/29 (including TASK-ZAI-094 at 4/4),
-`genesisrag17-smartgift` passes 11/11, and
-`genesisrag17-smartgift-merged-fixture` passes 2/2. The focused
-`-t "TASK-ZAI-094"` run passes 4/4.
+Expected full result (2026-11-08 record): `genesisrag17-e2e` passes 29/29 (including
+TASK-ZAI-094 at 4/4). The two SmartGift-corpus suites that were part of the earlier
+3-file, 42-test result were removed by ADR-119; this command now runs the generic
+suite only. The focused `-t "TASK-ZAI-094"` run passes 4/4.
 
 Each run rewrites tracked evidence under `.brain/reports`: `genesisrag17-*.json`,
 `fr252-computed-catalog-native.json`, and `task-zai-094-line-grounding.json`.

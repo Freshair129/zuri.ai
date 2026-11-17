@@ -1099,13 +1099,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-042",
     "sprint": "SPR-ZAI-02",
-    "title": "SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189",
+    "title": "Historical SmartGift catalog convergence through the seventeen-stage adapter — FEAT-026, FR-187 to FR-189 (no new work under ADR-119)",
     "status": "in-progress",
     "proofScope": "UNKNOWN",
     "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-025",
     "authority": "ROADMAP.md",
-    "evidence": "ASTRA-D1 D1 (2026-11-08) supersedes the Edge LINE/fallback-window success and exit criteria; they were not executed. Catalog convergence and the remaining delivery/recovery obligations stay visible; Section 3.1 row 4; ADR-075"
+    "evidence": "Pre-ADR-119 task status retained as history. ADR-119 supersedes ADR-075, so this SmartGift-specific catalog scope no longer directs work. ASTRA-D1 D1’s Edge LINE/fallback-window criteria were superseded, not executed. Generic mechanisms survive only under independent authority; no completion is claimed."
   },
   {
     "id": "TASK-ZAI-043",
@@ -1187,13 +1187,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-050",
     "sprint": "SPR-ZAI-03",
-    "title": "Activate the seventeen-stage runtime on production beyond the isolated profile: knowledge migrations recorded, MSP/GKS/worker reachable, one real corpus published",
+    "title": "Activate the seventeen-stage runtime on production beyond the isolated profile: record knowledge migrations and MSP/GKS/worker reachability; admit, publish and cite one separately authorized in-scope Business document (none selected)",
     "status": "in-progress",
     "proofScope": "PRODUCTION",
     "implementationState": "IN_PROGRESS",
     "dependsOn": "TASK-ZAI-045; TASK-ZAI-049",
     "authority": "ROADMAP.md",
-    "evidence": "Production observation 2026-09-24 remains historical: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, healthy `genesis-worker`, SmartGift generation 22, 22 published ingestions/receipts and `ontology_v2` verdicts (38 rows); it is not current host evidence. The 2026-09-27 inference that the four knowledge migrations were recorded by exclusion is not a row-level ledger check and does not satisfy acceptance. MSP §6 at `520ac7109b032d11a6b15b87720b58380173ba7f` records operator-attested d0 image qualification, restored canary, production publication/query/denial/persistence and 42/42 on its composed image on 2026-10-24; underlying private artifacts were not inspected, and this is not today's Zuri source or current production proof. The activation-record skeleton at `.brain/reports/2026-11-08-task-zai-050-activation-record.md` has current fields marked `NOT_VERIFIED`; all three DoD booleans remain false. Exit still requires one real Business document to be admitted, published, queried and cited on production; no fixed-corpus substitute. Owen-named approval: pending — not exercised in P1; requires production-host evidence."
+    "evidence": "Production observation 2026-09-24 remains historical: `zuri-ai-web-ki17:release-fad8ec62-ki17-overlay`, healthy `genesis-worker`, former SmartGift generation 22, 22 published ingestions/receipts and `ontology_v2` verdicts (38 rows); SmartGift is no longer a target under ADR-119, and this is not current host evidence. The 2026-09-27 inference that the four knowledge migrations were recorded by exclusion is not a row-level ledger check and does not satisfy acceptance. MSP §6 at `520ac7109b032d11a6b15b87720b58380173ba7f` records operator-attested d0 image qualification, restored canary, production publication/query/denial/persistence and 42/42 on its composed image on 2026-10-24; underlying private artifacts were not inspected, and this is not today's Zuri source or current production proof. The activation-record skeleton at `reports/2026-11-08-task-zai-050-activation-record.md` has current fields marked `NOT_VERIFIED`; all three DoD booleans remain false. Exit still requires one real in-scope Business document to be admitted, published, queried and cited on production, after separate authorization of that target; none is selected here, and no fixed-corpus substitute qualifies. Owen-named approval: pending — not exercised in P1; requires production-host evidence."
   },
   {
     "id": "TASK-ZAI-051",
@@ -1682,13 +1682,13 @@ export const ROADMAP_TASK_LEDGER = [
   {
     "id": "TASK-ZAI-095",
     "sprint": "SPR-ZAI-06",
-    "title": "SmartGift grounding switch on production — after qualified Phase-3 catalog publication, explicitly authorize/select the Business and account, switch to GKS_THEN_BUSINESS_KNOWLEDGE, shadow-compare for 14 consecutive days with exact Bangkok timestamps, then preserve an audited rollback",
+    "title": "Historical SmartGift grounding pilot — superseded by ADR-119 (2026-11-15), not executed; no replacement Business/account is authorized or selected",
     "status": "planned",
     "proofScope": "UNKNOWN",
     "implementationState": "NOT_STARTED",
     "dependsOn": "TASK-ZAI-094; TASK-ZAI-050",
     "authority": "ROADMAP.md",
-    "evidence": "Qualify publication evidence directly; TASK-ZAI-042's superseded Edge LINE/fallback-window criteria are not the acceptance gate. Rehearsal uses existing switch and shadow actions on isolated data; production switch/approval remain pending; ../roadmap/ROADMAP-zuri-ai-24w-program.md"
+    "evidence": "Original SmartGift scope and planned status are retained as history; the proposed Phase-3/14-day pilot was not executed and no longer directs work. A future generic FR-235/FR-277 production target requires separate authorization and a new scope; no target, switch or approval is recorded."
   },
   {
     "id": "TASK-ZAI-096",

@@ -28,11 +28,23 @@ describe('Session Assurance & Step-up Guard', () => {
     expect(() => assertSessionAssurance(session, 'AAL2')).toThrow(/ASSURANCE_LEVEL_INSUFFICIENT/)
   })
 
-  it('resolves session to AAL2 if assuranceLevel is AAL2', () => {
+  it('does not grant AAL2 from a stale assuranceLevel after the elevation expires', () => {
     const session = {
       status: 'ACTIVE',
-      assurance: 'MFA_TOTP',
+      assurance: 'PASSWORD',
       assuranceLevel: 'AAL2',
+      elevatedUntil: new Date(Date.now() - 5000),
+    }
+    expect(resolveSessionAssurance(session)).toBe('AAL1')
+    expect(() => assertSessionAssurance(session, 'AAL2')).toThrow(/ASSURANCE_LEVEL_INSUFFICIENT/)
+  })
+
+  it('resolves a passkey-login session to AAL2 from its authentication method', () => {
+    const session = {
+      status: 'ACTIVE',
+      assurance: 'WEBAUTHN',
+      assuranceLevel: 'AAL1',
+      elevatedUntil: null,
     }
     expect(resolveSessionAssurance(session)).toBe('AAL2')
     expect(assertSessionAssurance(session, 'AAL2')).toBe(true)

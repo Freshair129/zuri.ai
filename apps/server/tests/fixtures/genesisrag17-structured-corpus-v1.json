@@ -1,0 +1,52 @@
+{
+  "fixtureVersion": "structured-catalog-corpus-v1",
+  "purpose": "SYNTHETIC benchmark corpus: one benchmark per admitted record, because a GenesisBlock generation holds exactly the chunks of the decision that produced it. Every query and text is invented.",
+  "ontologyVersion": "ontology_v2",
+  "benchmarks": [
+    {
+      "externalId": "PM-TMB",
+      "entityType": "ProductMaster",
+      "fixtureVersion": "structured-catalog-corpus-v1:PM-TMB",
+      "queries": [
+        {
+          "query": "Which sample tumbler is in the catalog?",
+          "relevantTexts": [
+            "ProductMaster PM-TMB\nnameEn: Sample Tumbler"
+          ]
+        },
+        {
+          "query": "What category is the sample tumbler in?",
+          "relevantTexts": [
+            "{\"object\":\"eco-friendly\",\"predicate\":\"IN_CATEGORY\",\"subject\":\"PM-TMB\"}"
+          ]
+        }
+      ]
+    },
+    {
+      "externalId": "PM-PEN",
+      "entityType": "ProductMaster",
+      "fixtureVersion": "structured-catalog-corpus-v1:PM-PEN",
+      "queries": [
+        {
+          "query": "Which sample pen is in the catalog?",
+          "relevantTexts": [
+            "ProductMaster PM-PEN\nnameEn: Sample Pen"
+          ]
+        }
+      ]
+    },
+    {
+      "externalId": "PKG-NY-2027-REACH-OPS",
+      "entityType": "BundleOffer",
+      "fixtureVersion": "structured-catalog-corpus-v1:PKG-NY-2027-REACH-OPS",
+      "queries": [
+        {
+          "query": "Which products does the sample bundle B contain?",
+          "relevantTexts": [
+            "{\"object\":\"PM-TMB\",\"predicate\":\"HAS_COMPONENT\",\"subject\":\"PKG-NY-2027-REACH-OPS\"}"
+          ]
+        }
+      ]
+    }
+  ]
+}

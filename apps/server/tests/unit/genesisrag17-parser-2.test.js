@@ -25,7 +25,7 @@ import { normalizeOrganizationName } from '@/modules/knowledge/normalization'
 // @spec ADR-075, docs/plans/GENESISRAG17-CONTRACT.md, docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
 // @tested tests/unit/genesisrag17-parser-2.test.js
 
-const fixture = (name) => readFileSync(new URL(`../fixtures/genesisrag17/smartgift-catalog/${name}`, import.meta.url), 'utf8')
+const fixture = (name) => readFileSync(new URL(`../fixtures/genesisrag17/structured-catalog/${name}`, import.meta.url), 'utf8')
 const products = JSON.parse(fixture('products.json'))
 const bundles = JSON.parse(fixture('bundles.json'))
 const pricelist = JSON.parse(fixture('pricelist.json'))
@@ -139,8 +139,8 @@ describe('genesisrag17-parser-2 rendering (C-4)', () => {
       { subject: 'PKG-NY-2027-REACH-OPS', predicate: 'HAS_COMPONENT', object: 'PM-TMB' },
       { subject: 'PKG-NY-2027-REACH-OPS', predicate: 'HAS_COMPONENT', object: 'PM-BOTTLE-LED' },
     ])
-    expect(claimsOf('PM-BOTTLE-LED@qty100')).toEqual([{ subject: 'PM-BOTTLE-LED', predicate: 'PRICED_AT', object: 'PM-BOTTLE-LED:qty100:20000' }])
-    expect(claimsOf('PM-TMB@qty500')).toEqual([{ subject: 'PM-TMB', predicate: 'PRICED_AT', object: 'PM-TMB:qty500:20000' }])
+    expect(claimsOf('PM-BOTTLE-LED@qty100')).toEqual([{ subject: 'PM-BOTTLE-LED', predicate: 'PRICED_AT', object: 'PM-BOTTLE-LED:qty100:7500' }])
+    expect(claimsOf('PM-TMB@qty500')).toEqual([{ subject: 'PM-TMB', predicate: 'PRICED_AT', object: 'PM-TMB:qty500:9800' }])
     expect(all.flatMap(({ chunks }) => chunks.filter(isClaim))).toHaveLength(5 + 5 + 15)
   })
 
@@ -240,7 +240,7 @@ describe('genesisrag17-parser-2 temporal rendering (C-5)', () => {
       }
     }
     const { mentions } = results.find(({ record }) => record.externalId === 'PM-TMB@qty1')
-    expect(mentions.map((mention) => mention.name)).toEqual(['PM-TMB:qty1:32000', 'PM-TMB:qty1:32000', 'PM-TMB'])
+    expect(mentions.map((mention) => mention.name)).toEqual(['PM-TMB:qty1:15000', 'PM-TMB:qty1:15000', 'PM-TMB'])
   })
 
   it('refuses a mixed batch, an impossible date and a temporal phrase in a claim', () => {
@@ -269,10 +269,10 @@ describe('genesisrag17-parser-2 negative and idempotency cases', () => {
       }
       expect(result).toBeUndefined()
       expect(thrown).toMatchObject({ status: 422, code: 'GENESISRAG17_STRUCTURED_RECORD_INVALID' })
-      expect(JSON.stringify(thrown.details ?? {})).not.toContain('กระบอก')
+      expect(JSON.stringify(thrown.details ?? {})).not.toContain('ขวดตัวอย่าง')
     }
     expect(() => parse2({ ...bundles[1], components: [...bundles[1].components, { productExternalId: 'PKG-NESTED', qty: 1, srpQty1Thb: 1 }] })).toThrow(/not a product code/)
-    expect(() => parse2({ ...pricelist[0], srpUnitPriceThb: 290.001 })).toThrow(/satang/)
+    expect(() => parse2({ ...pricelist[0], srpUnitPriceThb: 100.001 })).toThrow(/satang/)
   })
 
   it('strips an unknown top-level field without rendering it, so Stage 5 still owns the deny', () => {
@@ -304,10 +304,10 @@ describe('genesisrag17-parser-2 negative and idempotency cases', () => {
   })
 
   it('types a priced package subject as PACKAGE', () => {
-    const entry = { ...pricelist[0], externalId: 'PKG-XMAS@qty10', productExternalId: 'PKG-XMAS-2026-SIGNATURE-CLEVEL', qty: 10, srpUnitPriceThb: 930 }
+    const entry = { ...pricelist[0], externalId: 'PKG-XMAS@qty10', productExternalId: 'PKG-XMAS-2026-SIGNATURE-CLEVEL', qty: 10, srpUnitPriceThb: 495 }
     const [{ chunks, mentions }] = parseAll([entry])
     expect(mentions.filter((mention) => mention.chunkId === chunks[1].chunkId).map((mention) => [mention.semanticType, mention.name])).toEqual([
-      ['PRICE_TIER', 'PKG-XMAS-2026-SIGNATURE-CLEVEL:qty10:93000'],
+      ['PRICE_TIER', 'PKG-XMAS-2026-SIGNATURE-CLEVEL:qty10:49500'],
       ['PACKAGE', 'PKG-XMAS-2026-SIGNATURE-CLEVEL'],
     ])
   })

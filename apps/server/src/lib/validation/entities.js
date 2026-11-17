@@ -204,12 +204,14 @@ export const zIngestLineUnsendEventInput = z.object({
   sessionIdleTimeoutMinutes: z.number().int().optional(),
 })
 
-// FR-022 — account linking: issue a single-use token for an existing Person, then
+// @req FR-022, FR-097 — account linking: issue a single-use token for an existing Person, then
 // redeem it against a LINE subject so the subject binds to that Person (not a new one).
+// @spec SEC-018, ADR-045 D1/D5, SDD-052
+// @tested tests/integration/identity-link.test.js, tests/integration/fr097-line-channel-onboarding.test.js
 export const zIssueLinkTokenInput = z.object({
   tenantId: z.string().min(1),
   personId: z.string().min(1),
-  ttlSeconds: z.number().int().positive().default(900),
+  ttlSeconds: z.number().int().min(60).max(900).default(900),
 })
 
 export const zRedeemLinkTokenInput = z.object({

@@ -52,6 +52,11 @@ grant that never landed.
 
 ## The accepting session, not the invited address
 
+Minting requires at least one addressee: a valid `targetPersonId`, a nonblank
+`invitedEmail`, or a nonblank `invitedLineUserId`. Email and LINE user ID values
+are trimmed before the service checks this invariant, so whitespace-only values
+do not count; the service enforces the same rule for direct callers.
+
 The Membership binds to `personId` — the trusted **session** presenting the
 token — never resolved from `invitedEmail` or `invitedLineUserId`. Those two
 fields only route the link to a person; they are never read at acceptance to
@@ -109,11 +114,20 @@ acceptance/decline time, the same discipline FR-067 already uses.
 | AC-195.8 | Revocation requires the same authority as minting, evaluated against the invite's own stored scope; a non-PENDING invite refuses revocation with 409. |
 | AC-195.9 | PORTFOLIO-scope minting and acceptance behave identically to FR-067's `WorkspaceInvite` before this change — no regression to the Workspace collaboration flow. |
 
-## Deliberately out of scope
+## HTTP surface
 
-- No route was wired for TENANT/BUSINESS-scope minting in this change; the
-  service is complete and tested at the service layer. Wiring a route is
-  routine plumbing that can follow without touching this contract.
+The AccessInvite service is reachable through four session-bound routes:
+`POST /api/access-invites`, `POST /api/access-invites/accept`, `POST
+/api/access-invites/decline` and `DELETE /api/access-invites/[id]`. They resolve
+the request viewer and verify the session-bound API-write CSRF token before
+reading a write body or calling the service. The accept and decline routes
+always use the session principal. The service retains all scope authority,
+refusal, token and audit behavior described above.
+
+The existing `/api/workspace-invites` routes and `mintWorkspaceInvite` remain
+unchanged under AC-195.9; they continue to serve the FR-067 Workspace flow.
+
+## Deliberately out of scope
 - `invitedLineUserId` is stored and validated as an addressee but nothing yet
   resolves a LINE user id to a `Person` at acceptance time — that resolution
   belongs to whichever surface consumes it (a LINE-side accept flow), not to

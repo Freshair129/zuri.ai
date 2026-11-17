@@ -1,6 +1,6 @@
 // @req FR-105 — the Task Containers of the submitted programme, one per
 // backlog row, copied from the YAML blocks of ROADMAP-ZURI-AI-24W-PROGRAM
-// (v0.4.43, 2026-11-08) so the board can open a task the way the html board
+// (v0.4.44, 2026-11-17) so the board can open a task the way the html board
 // does: links, container identity, definition of done with the per-criterion
 // `checked` flags the document records, changelog and dependencies.
 // @req FR-219 — plus priority, delivered ids, link state and subtasks.
@@ -1737,7 +1737,7 @@ export const PROGRAMME_CONTAINERS = {
     "linkState": {
       "code": "present",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FEAT-025",
@@ -1940,7 +1940,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-042",
     "phase": "PHASE-ZAI-01",
     "sprint": "SPR-ZAI-02",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "priority": "P1",
     "pic": "Claude",
     "executor": "Claude",
@@ -1952,7 +1952,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "unavailable"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "unavailable"
     },
@@ -1965,7 +1965,7 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys, never prose",
+        "text": "[Historical acceptance recorded under FR-187/ADR-075 before ADR-119; retained as evidence, not a current work gate] Given SmartGift catalog data, when it enters knowledge, then it enters before Stage 1 through the structured-record adapter and passes the Stage 5 Zero-PII gate as locators and keys, never prose",
         "checked": true
       },
       "success": {
@@ -1977,14 +1977,14 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own. 2026-11-08 (ASTRA-D1 D1): the Edge LINE answer-path and 120-day fallback-window criteria above are superseded, not executed. Retain the catalog-convergence acceptance and remaining delivery/recovery obligations; no Edge reader, tests or v4 implementation are deleted.",
+    "changelog": "Opened 2026-09-13 on the re-baseline under deliverable 4 (Second Brain), listed with the CR-019 wave because it is SmartGift work. FR-187 adapter merged (PR #324, 2026-09-11, tests, not deployed); FR-188 parser profile merged locally (PR #327) behind two external repositories' pull requests; FR-189 approved 2026-09-11 with the fallback window set. Rollout waits on GenesisBlock and Genesis-Knowledge-System merges the repository does not own. 2026-11-08 (ASTRA-D1 D1): the Edge LINE answer-path and 120-day fallback-window criteria above are superseded, not executed. The acceptance criterion above remains the recorded pre-ADR-119 acceptance; its checked value is preserved as historical evidence. ADR-119 supersedes ADR-075 and removes the SmartGift-specific catalog scope from current work; no new SmartGift catalog or Edge work is authorized here. No deletion or completion is claimed.",
     "created": "2026-09-13T00:00:00Z,Claude,retroactive",
     "predictedTokens": 0,
     "totalTokens": 0,
     "dependsOn": [
       "TASK-ZAI-025"
     ],
-    "evidence": "Edge LINE/fallback-window success and exit criteria superseded by ASTRA-D1 D1 (2026-11-08), not executed; catalog and remaining obligations stay visible; Section 3.1 row 4; ADR-075"
+    "evidence": "Pre-ADR-119 status retained as history; ADR-119 supersedes ADR-075 and removes SmartGift from Zuri. ASTRA-D1 D1’s Edge LINE/fallback-window criteria were superseded, not executed. Generic mechanisms remain only under independent authority; no completion claimed"
   },
   "TASK-ZAI-043": {
     "container": "TC-TASK-ZAI-043",
@@ -2050,7 +2050,7 @@ export const PROGRAMME_CONTAINERS = {
       "test": "unavailable"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
       "test": "unavailable"
     },
@@ -2324,7 +2324,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-050",
     "phase": "PHASE-ZAI-02",
     "sprint": "SPR-ZAI-03",
-    "version": "0.3.0",
+    "version": "0.4.0",
     "priority": "P0",
     "pic": "ATHER",
     "executor": "ATHER",
@@ -2352,11 +2352,11 @@ export const PROGRAMME_CONTAINERS = {
         "checked": false
       },
       "exit": {
-        "text": "Given one real Business document (not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop \"product-wide partial\"",
+        "text": "Given one separately authorized in-scope real Business document (no target is currently selected; not the fixed corpus), when it is admitted, published and queried on production, then the run, receipt and cited answer are recorded with commit and date, and the FR-109/FR-110 PRD rows drop \"product-wide partial\"",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): historical review prose inferred the four named migrations from ADR-104's missing-version summary; the current criterion remained unchecked pending a row-level ledger check. ASTRA-D1 D4 (2026-11-08) reconciles all three DoD booleans as false. MSP §6 at 520ac7109b032d11a6b15b87720b58380173ba7f is attributed operator-attested historical evidence: d0 image qualification, restored canary, production publication/query/denial/persistence, and 42/42 in its composed image on 2026-10-24. Underlying private artifacts were not inspected; this does not establish current Zuri source, current production state or this task's DoD. Activation-record skeleton: .brain/reports/2026-11-08-task-zai-050-activation-record.md; current fields NOT_VERIFIED; the exit criterion still requires a real Business document with production publication, query and citation. Owen-named approval: pending — not exercised in P1; requires production-host evidence.",
+    "changelog": "Opened 2026-09-13 (v0.4.1). ADR-073 authorized isolated execution only; its 2026-09-11 amendment lifts \"no production deployment\" for one profile on the edge device after the ADR-075 Phase 2 gate. This task is the operator step that turns the built pipeline into a running knowledge base; TASK-ZAI-043 applies the deliverable-11 migrations in the same sprint and the two share one deploy window. Depends on TASK-ZAI-049 so that the first real document has somewhere durable to live. Status corrected to in-progress 2026-09-27 to match the live ROADMAP.md task row (moved there by Revision 2.134.0b on 2026-09-24 and never mirrored into this container). 2026-09-27 (v0.2.0, .brain/reports/2026-09-27-task-zai-050-dod-review.md): historical review prose inferred the four named migrations from ADR-104's missing-version summary; the current criterion remained unchecked pending a row-level ledger check. ASTRA-D1 D4 (2026-11-08) reconciles all three DoD booleans as false. MSP §6 at 520ac7109b032d11a6b15b87720b58380173ba7f is attributed operator-attested historical evidence: d0 image qualification, restored canary, production publication/query/denial/persistence, and 42/42 in its composed image on 2026-10-24. Underlying private artifacts were not inspected; this does not establish current Zuri source, current production state or this task's DoD. Activation-record skeleton: reports/2026-11-08-task-zai-050-activation-record.md; current fields NOT_VERIFIED; the exit criterion still requires a real Business document with production publication, query and citation. 2026-11-17 after ADR-119: no SmartGift target is in scope and no replacement Business/account is selected. Any future real Business document must be separately authorized. Owen-named approval remains pending — not exercised in P1; requires production-host evidence.",
     "created": "2026-09-13T00:00:00Z,Claude,pending",
     "predictedTokens": 30000,
     "totalTokens": 0,
@@ -2364,7 +2364,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-045",
       "TASK-ZAI-049"
     ],
-    "evidence": "Three DoD items remain unchecked; MSP §6 is historical attributed evidence only; current production host and activation remain NOT_VERIFIED; ADR-073 amendment; ADR-075 Phase 2 gate"
+    "evidence": "Three DoD items remain unchecked; MSP §6 and the 2026-09-24 observation are attributed historical evidence only; current production host/activation NOT_VERIFIED; any future real Business document requires separate authorization; ADR-073/ADR-075 are retained as historical provenance"
   },
   "TASK-ZAI-051": {
     "container": "TC-TASK-ZAI-051",
@@ -2701,9 +2701,9 @@ export const PROGRAMME_CONTAINERS = {
       "test": "apps/server/tests/integration/fr181-smartgift-agent-tools.test.js"
     },
     "linkState": {
-      "code": "present",
+      "code": "missing",
       "doc": "present",
-      "test": "present"
+      "test": "missing"
     },
     "delivers": [
       "FR-132"
@@ -4670,7 +4670,7 @@ export const PROGRAMME_CONTAINERS = {
     "container": "TC-TASK-ZAI-095",
     "phase": "PHASE-ZAI-03",
     "sprint": "SPR-ZAI-06",
-    "version": "0.2.0",
+    "version": "0.3.0",
     "priority": "P0",
     "pic": "Owen",
     "executor": "ATHER",
@@ -4690,19 +4690,19 @@ export const PROGRAMME_CONTAINERS = {
     "subtasks": [],
     "dod": {
       "acceptance": {
-        "text": "Given qualified Phase-3 catalog publication, an explicitly selected account and Business with verified action authority, and the owner's production instruction, when the authorized operator configures GKS_THEN_BUSINESS_KNOWLEDGE through the existing action, then the account reads the published corpus first and preserves the traced Business-knowledge fallback",
+        "text": "[HISTORICAL SMARTGIFT PLAN — superseded by ADR-119 (2026-11-15), not executed; no replacement target authorized] Given qualified Phase-3 catalog publication, an explicitly selected account and Business with verified action authority, and the owner's production instruction, when the authorized operator configures GKS_THEN_BUSINESS_KNOWLEDGE through the existing action, then the account reads the published corpus first and preserves the traced Business-knowledge fallback",
         "checked": false
       },
       "success": {
-        "text": "Given a 14-consecutive-day pilot with planned exact Bangkok start and end timestamps recorded before the switch, when shadow comparisons are collected, then the record includes actual Bangkok timestamps at both boundaries, evidence covering the full window, and the selected account's actual runtime owner",
+        "text": "[HISTORICAL SMARTGIFT PLAN — superseded by ADR-119 (2026-11-15), not executed; no replacement target authorized] Given a 14-consecutive-day pilot with planned exact Bangkok start and end timestamps recorded before the switch, when shadow comparisons are collected, then the record includes actual Bangkok timestamps at both boundaries, evidence covering the full window, and the selected account's actual runtime owner",
         "checked": false
       },
       "exit": {
-        "text": "Given a rollback or the end of the pilot, when the authorized operator restores BUSINESS_KNOWLEDGE and disables shadow through the existing audited actions, then later primary traces return to Business Knowledge and both mode/shadow changes are recorded in AuditEvent, migration notes and this container's changelog",
+        "text": "[HISTORICAL SMARTGIFT PLAN — superseded by ADR-119 (2026-11-15), not executed; no replacement target authorized] Given a rollback or the end of the pilot, when the authorized operator restores BUSINESS_KNOWLEDGE and disables shadow through the existing audited actions, then later primary traces return to Business Knowledge and both mode/shadow changes are recorded in AuditEvent, migration notes and this container's changelog",
         "checked": false
       }
     },
-    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. 2026-11-08 (ASTRA-D1 D4): qualify the actual Phase-3 catalog publication directly; TASK-ZAI-042's retired Edge LINE/fallback criteria are not this task's acceptance gate. Use the existing CONFIGURE_KNOWLEDGE_GROUNDING and CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW actions. The first pilot is GKS_THEN_BUSINESS_KNOWLEDGE for 14 consecutive days, with exact Bangkok start/end timestamps; TASK-ZAI-050's three DoD booleans stay false. Rehearsal is isolated only. Owen-named approval: pending — not exercised in P1; requires production-host evidence.",
+    "changelog": "Opened 2026-09-14 (v0.4.7) on the owner's instruction: the whole LINE OA platform plan (ADR-089, ADR-090 and ADR-091, merged in PR #389) is written into the programme and the Project Manager with tasks and lanes bound before work starts, so that every later session is measured — tokens in and out, cache, requests, active time and tool calls — and task statuses are updated truthfully as work proceeds. The owner delegated all twenty design decisions the same day. 2026-11-08 (ASTRA-D1 D4): qualify the actual Phase-3 catalog publication directly; TASK-ZAI-042's retired Edge LINE/fallback criteria are not this task's acceptance gate. Use the existing CONFIGURE_KNOWLEDGE_GROUNDING and CONFIGURE_KNOWLEDGE_GROUNDING_SHADOW actions. The first pilot is GKS_THEN_BUSINESS_KNOWLEDGE for 14 consecutive days, with exact Bangkok start/end timestamps; TASK-ZAI-050's three DoD booleans stay false. Rehearsal is isolated only. 2026-11-17 after ADR-119: the original SmartGift pilot plan is superseded and was not executed. Keep all three criteria unchecked and do not assign this task to another Business/account. Any future generic FR-235/FR-277 production target requires separate authorization and a new scope; none is selected here. Owen-named approval remains pending — not exercised in P1; requires production-host evidence.",
     "created": "2026-09-14T00:00:00Z,Claude,pending",
     "predictedTokens": 16000,
     "totalTokens": 0,
@@ -4710,7 +4710,7 @@ export const PROGRAMME_CONTAINERS = {
       "TASK-ZAI-094",
       "TASK-ZAI-050"
     ],
-    "evidence": "Qualify publication evidence directly; TASK-ZAI-042's retired Edge LINE criteria are not the acceptance gate; ADR-090 D5; ADR-075 Phase 3; ADR-057"
+    "evidence": "Original SmartGift scope only; future generic FR-235/FR-277 production target needs separate authorization and a new scope; no Task095 ID reassignment"
   },
   "TASK-ZAI-096": {
     "container": "TC-TASK-ZAI-096",

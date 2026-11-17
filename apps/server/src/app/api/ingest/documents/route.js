@@ -8,7 +8,7 @@ import {
 } from '@/platform/integrations/core/cloud-sot-agent'
 import { DOCUMENT_INTAKE_DOMAINS } from '@/platform/integrations/core/document-intake-contract'
 
-// @req FR-071 — server-mediated SmartGift document staging and redacted monitor
+// @req FR-071 — server-mediated document staging and redacted monitor
 // read model; neither method writes a canonical Product or Customer row.
 // @spec BR-001, SEC-001, SEC-008
 // @tested tests/unit/platform/cloud-sot-agent.test.js, tests/unit/document-intake-ui.test.js

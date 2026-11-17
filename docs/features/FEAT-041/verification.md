@@ -18,9 +18,13 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/crm/archive-expiry/route.js](../../../apps/server/src/app/api/crm/archive-expiry/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/crm/customers/\[customerId\]/chat-evidence/retrieve/route.js](../../../apps/server/src/app/api/crm/customers/%5BcustomerId%5D/chat-evidence/retrieve/route.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/chat-evidence-archive-crypto.js](../../../apps/server/src/modules/crm/chat-evidence-archive-crypto.js) — `implements` (`annotation`)
+- [apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js](../../../apps/server/src/modules/crm/chat-evidence-archive-expiry-run-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js](../../../apps/server/src/modules/crm/chat-evidence-archive-expiry-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/chat-evidence-archive-service.js](../../../apps/server/src/modules/crm/chat-evidence-archive-service.js) — `implements` (`annotation`)
+- [apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js](../../../apps/server/src/modules/crm/chat-evidence-hold-reseal-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/chat-evidence-retrieval-service.js](../../../apps/server/src/modules/crm/chat-evidence-retrieval-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/crm/retention-sweep-service.js](../../../apps/server/src/modules/crm/retention-sweep-service.js) — `implements` (`annotation`)
 - [apps/server/src/modules/project-manager/api-docs/openapi.js](../../../apps/server/src/modules/project-manager/api-docs/openapi.js) — `implements` (`annotation`)
@@ -29,11 +33,15 @@ status: generated
 ### Test paths — graph bindings
 
 - [apps/server/tests/integration/backup.test.js](../../../apps/server/tests/integration/backup.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/crm-archive-expiry-dry-run.test.js](../../../apps/server/tests/integration/crm-archive-expiry-dry-run.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-archive-group-speakers.test.js](../../../apps/server/tests/integration/crm-archive-group-speakers.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-archive-legal-hold.test.js](../../../apps/server/tests/integration/crm-archive-legal-hold.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-archive-retirement.test.js](../../../apps/server/tests/integration/crm-archive-retirement.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-chat-evidence-archive.test.js](../../../apps/server/tests/integration/crm-chat-evidence-archive.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-chat-evidence-retrieval.test.js](../../../apps/server/tests/integration/crm-chat-evidence-retrieval.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-conversation-analysis.test.js](../../../apps/server/tests/integration/crm-conversation-analysis.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/crm-retention-consent.test.js](../../../apps/server/tests/integration/crm-retention-consent.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/crm-retention-sweep-dry-run.test.js](../../../apps/server/tests/integration/crm-retention-sweep-dry-run.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/crm-retention-sweep.test.js](../../../apps/server/tests/integration/crm-retention-sweep.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/fr075-restore-authorization.test.js](../../../apps/server/tests/integration/fr075-restore-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/line-non-text-admission.test.js](../../../apps/server/tests/integration/line-non-text-admission.test.js) — `verifies` (`transitive`)
@@ -46,10 +54,15 @@ status: generated
 - [apps/server/tests/integration/release-safety-backup.test.js](../../../apps/server/tests/integration/release-safety-backup.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/archive-storage-readiness.test.js](../../../apps/server/tests/unit/archive-storage-readiness.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/crm-archive-expiry-route.test.js](../../../apps/server/tests/unit/crm-archive-expiry-route.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js](../../../apps/server/tests/unit/crm-chat-evidence-archive-crypto.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/crm-chat-evidence-archive-expiry-run.test.js](../../../apps/server/tests/unit/crm-chat-evidence-archive-expiry-run.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/crm-legal-hold-migration.test.js](../../../apps/server/tests/unit/crm-legal-hold-migration.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/crm-retention-dry-run-helpers.test.js](../../../apps/server/tests/unit/crm-retention-dry-run-helpers.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/domain-visibility-server-enforcement.test.js](../../../apps/server/tests/unit/domain-visibility-server-enforcement.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/retention-sweep-worker-run.test.js](../../../apps/server/tests/unit/retention-sweep-worker-run.test.js) — `verifies` (`test-reference`)
 
 ## [ZAI:FR-246](requirements/FR-246.md)
 

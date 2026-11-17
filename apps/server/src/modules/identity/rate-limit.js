@@ -2,9 +2,11 @@
 //   RateLimitBucket, consumed with compare-and-set so concurrent requests cannot
 //   both take the last slot, answering 429 CREDENTIAL_RATE_LIMITED with
 //   retryAfterSeconds.
-// @req FR-296, FR-297 — durable login buckets and the shared per-Person TOTP bucket.
-// @spec ADR-089 D4; ADR-058 (a table, not Redis); SEC-026
-// @tested tests/integration/credential-rate-limit.test.js, tests/integration/auth-rate-limit.test.js
+// @req FR-094, FR-095, FR-296, FR-297 — durable passkey/password login buckets and
+//   the shared per-Person TOTP bucket.
+// @spec ADR-045, ADR-089 D4; ADR-058 (a table, not Redis); SEC-018, SEC-026
+// @tested tests/integration/credential-rate-limit.test.js, tests/integration/auth-rate-limit.test.js,
+//   tests/integration/passkey-login-rate-limit.test.js, tests/unit/identity/passkey-login-rate-limit.test.js
 
 import { createHash } from 'node:crypto'
 import { isIP } from 'node:net'
@@ -21,6 +23,10 @@ export const AUTHENTICATION_RATE_LIMITS = Object.freeze({
     identifierAddress: Object.freeze({ limit: 10, windowSeconds: 15 * 60 }),
     identifier: Object.freeze({ limit: 50, windowSeconds: 15 * 60 }),
     address: Object.freeze({ limit: 200, windowSeconds: 15 * 60 }),
+  }),
+  passkeyLogin: Object.freeze({
+    address: Object.freeze({ limit: 60, windowSeconds: 15 * 60 }),
+    identifier: Object.freeze({ limit: 20, windowSeconds: 15 * 60 }),
   }),
   totpVerification: Object.freeze({
     person: Object.freeze({ limit: 5, windowSeconds: 15 * 60 }),
@@ -77,6 +83,25 @@ export function passwordLoginRateLimitKeys(username, headers, env = process.env)
     identifierAddress: `AUTH_RATE_LIMIT:LOGIN:IDENTIFIER_ADDRESS:${identifierHash}:${addressHash}`,
     identifier: `AUTH_RATE_LIMIT:LOGIN:IDENTIFIER:${identifierHash}`,
     address: `AUTH_RATE_LIMIT:LOGIN:ADDRESS:${addressHash}`,
+  }
+}
+
+/**
+ * Stable, hashed buckets for passkey sign-in. Options pass a normalized email;
+ * verification passes an opaque credential id. With neither usable address nor
+ * identifier, no bucket is consumed; never group anonymous callers in one bucket.
+ */
+export function passkeyLoginRateLimitKeys(identifier, headers, env = process.env) {
+  const normalizedIdentifier = typeof identifier === 'string' ? identifier.trim() : ''
+  const address = passwordLoginClientAddress(headers, env)
+
+  return {
+    address: address
+      ? `AUTH_RATE_LIMIT:PASSKEY_LOGIN:ADDRESS:${hashRateLimitKeyPart(address)}`
+      : null,
+    identifier: normalizedIdentifier
+      ? `AUTH_RATE_LIMIT:PASSKEY_LOGIN:IDENTIFIER:${hashRateLimitKeyPart(normalizedIdentifier)}`
+      : null,
   }
 }
 
@@ -167,6 +192,29 @@ export async function consumeLoginRateLimits({ username, headers, db = prisma, n
     const limits = AUTHENTICATION_RATE_LIMITS.passwordLogin[bucket]
     try {
       await consumeRateLimit({ key: keys[bucket], ...limits, db, now })
+    } catch (error) {
+      if (!isRateLimitError(error)) throw error
+      const retry = Number.isInteger(error.retryAfterSeconds) && error.retryAfterSeconds > 0
+        ? error.retryAfterSeconds
+        : 1
+      throw limited(retry)
+    }
+  }
+}
+
+/** Consume the durable address and identifier budgets shared by passkey login routes. */
+export async function consumePasskeyLoginRateLimits({ identifier, headers, db = prisma, now = () => new Date() } = {}) {
+  const keys = passkeyLoginRateLimitKeys(identifier, headers)
+  const buckets = ['address', 'identifier'].filter(bucket => keys[bucket])
+
+  for (const bucket of buckets) {
+    try {
+      await consumeRateLimit({
+        key: keys[bucket],
+        ...AUTHENTICATION_RATE_LIMITS.passkeyLogin[bucket],
+        db,
+        now,
+      })
     } catch (error) {
       if (!isRateLimitError(error)) throw error
       const retry = Number.isInteger(error.retryAfterSeconds) && error.retryAfterSeconds > 0

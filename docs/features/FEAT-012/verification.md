@@ -33,6 +33,7 @@ status: generated
 - [apps/server/tests/integration/external-ref-import.test.js](../../../apps/server/tests/integration/external-ref-import.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/import-target-authorization.test.js](../../../apps/server/tests/integration/import-target-authorization.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/openapi-docs.test.js](../../../apps/server/tests/integration/openapi-docs.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/plan-import-legacy-replay.test.js](../../../apps/server/tests/integration/plan-import-legacy-replay.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/plan-import.test.js](../../../apps/server/tests/integration/plan-import.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/project-business-binding.test.js](../../../apps/server/tests/integration/project-business-binding.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/bundle-schema.test.js](../../../apps/server/tests/unit/bundle-schema.test.js) — `verifies` (`test-reference`)

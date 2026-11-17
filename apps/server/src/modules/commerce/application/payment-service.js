@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
   PAYMENT_ENTITY,
@@ -59,7 +60,7 @@ export async function recordPayment(orderId, input, { viewer, db = prisma, now =
   const id = typeof orderId === 'string' ? orderId.trim() : ''
   if (!id) throw notFound()
   const data = zRecordPayment.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const order = await tx.salesOrder.findUnique({ where: { id }, select: { id: true, code: true, businessId: true, status: true } })
     if (!order) throw notFound()
     const business = await loadBusiness(tx, viewer, order.businessId, { capability: 'order' })
@@ -84,7 +85,7 @@ export async function recordPayment(orderId, input, { viewer, db = prisma, now =
     })
     await recordAudit(tx, { entityType: PAYMENT_ENTITY, entityId: created.id, action: 'PAYMENT_RECORDED', actorId: actor(viewer), payload: { businessId: business.id, code: created.code, orderCode: order.code, kind, method: created.method, amount: fromSatang(created.amountSatang), bankReference: created.bankReference, slipFileAssetId: created.slipFileAssetId } })
     return created
-  })
+  }), { exhausted: () => failure(409, 'PAYMENT_CODE_EXHAUSTED') })
   return toDto(row)
 }
 

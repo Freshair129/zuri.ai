@@ -4073,6 +4073,9 @@ CREATE TABLE "GoodsReceipt" (
     "purchaseOrderId" TEXT NOT NULL,
     "supplierReference" TEXT,
     "notes" TEXT,
+    "fxCostSheetId" TEXT,
+    "fxRateLocked" DOUBLE PRECISION,
+    "landedCostsJson" TEXT,
     "receivedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "postedByPersonId" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -4089,6 +4092,7 @@ CREATE TABLE "GoodsReceiptLine" (
     "lotCode" TEXT,
     "expiresAt" TIMESTAMP(3),
     "serialNosJson" TEXT,
+    "unitCostSatang" INTEGER,
 
     CONSTRAINT "GoodsReceiptLine_pkey" PRIMARY KEY ("id")
 );
@@ -6308,6 +6312,9 @@ CREATE INDEX "GoodsReceipt_businessId_receivedAt_idx" ON "GoodsReceipt"("busines
 CREATE UNIQUE INDEX "GoodsReceipt_tenantId_code_key" ON "GoodsReceipt"("tenantId", "code");
 
 -- CreateIndex
+CREATE INDEX "GoodsReceipt_fxCostSheetId_idx" ON "GoodsReceipt"("fxCostSheetId");
+
+-- CreateIndex
 CREATE INDEX "GoodsReceiptLine_receiptId_idx" ON "GoodsReceiptLine"("receiptId");
 
 -- CreateIndex
@@ -7614,6 +7621,9 @@ ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_businessId_fkey" FOREIGN
 
 -- AddForeignKey
 ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_purchaseOrderId_fkey" FOREIGN KEY ("purchaseOrderId") REFERENCES "PurchaseOrder"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "GoodsReceipt" ADD CONSTRAINT "GoodsReceipt_fxCostSheetId_fkey" FOREIGN KEY ("fxCostSheetId") REFERENCES "SupplierCostSheet"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "GoodsReceiptLine" ADD CONSTRAINT "GoodsReceiptLine_receiptId_fkey" FOREIGN KEY ("receiptId") REFERENCES "GoodsReceipt"("id") ON DELETE CASCADE ON UPDATE CASCADE;

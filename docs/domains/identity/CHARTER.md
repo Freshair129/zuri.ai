@@ -11,6 +11,7 @@ owns_routes:
   - src/app/api/entry/**
   - src/app/api/onboarding/**
   - src/app/api/workspace-invites/**
+  - src/app/api/access-invites/**
   - src/app/api/workspace-memberships/**
   - src/app/api/plugin/auth/**
   - src/app/api/platform/edge-devices/**
@@ -70,6 +71,11 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 
 ## Public contract
 
+For the session contract, write-protection coverage, rate limits and the
+application/database isolation boundary, see [Identity System Diagram, sections
+5–9](SYSTEM-DIAGRAM.md#5-human-sign-in-flows).
+
+- `same-origin-write.js` and `src/middleware.js` are the one browser-origin gate in front of every API write route (`POST`/`PUT`/`PATCH`/`DELETE` under `/api/**`): it refuses a cross-site or `null` `Origin` with 403 `CSRF_INVALID` before any route code runs and authenticates nothing. A new write route inherits it; `tests/unit/identity/write-route-coverage.test.js` enumerates the route tree and fails on a write route outside `/api`, an unrefused cross-site `Origin`, or an allowlist entry without a bearer/signature reason (the allowlist is empty). The session-bound API-write CSRF token (`api-write-csrf.js`) stays as the stricter second check where a route names it. Details: [SYSTEM-DIAGRAM.md §7](SYSTEM-DIAGRAM.md#7-protection-of-cookie-authenticated-writes).
 - `resolveLineIdentity` — the one resolver; no other site may resolve a
   lineUserId on its own (see the identity impact scan, archived).
 - `classifyPrincipal`, the viewer gate, `erasePrincipal`.
@@ -91,21 +97,11 @@ the shared policy-enforcement point, the viewer gate, and PDPA erasure.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
-- `resolveEdgeDeviceContext(request)` (FR-144) is a **third** request identity,
-  beside the session seam and `resolveSotDataPlaneViewer`: an `EdgeDeviceCredential`
-  bearer token (`Authorization: Bearer edgk_…`) scoped to one **Business**, resolving
-  to `{ deviceId, businessId, tenantId, credentialId }` and to nothing Person-shaped.
-  It exists because no existing credential answers "which device at which Business" —
-  `ApiAccessKey` is Tenant-bound (FR-106) and a `PluginSession` is a browser-obtained
-  public-client identity (FR-123) — and collapsing the three would let one leaked
-  credential satisfy a check it was never issued for (ADR-047 D2, ADR-059 D2). It
-  never produces `isOperator`, never satisfies `ownsBusiness` or `isApiAccessFor`,
-  and refuses with one generic 401 in which missing, malformed, unknown, revoked and
-  foreign-prefix keys are indistinguishable. Mint / list / revoke live at
-  `/api/platform/edge-devices/credentials` under Business OWNER or operator
-  authority, with 404-shaped refusals (FR-072); the raw `edgk_` key exists only in
-  the mint response and is stored only as SHA-256 (SEC-025, ADR-041 D3). Its
-  consumers are the FR-143 edge extraction routes and the FR-141 heartbeat `POST`.
+- **Retired Edge device credential contract (FR-144, ADR-041 D3; ADR-110).** The
+  former `resolveEdgeDeviceContext` resolver and `/api/platform/edge-devices/**`
+  routes are retired; the former FR-143 Edge extraction and FR-141 heartbeat
+  consumers are absent from the active route tree. `EdgeDeviceCredential` remains
+  in the schema as historical data.
 - `listUserPermissions`, `updateUserPermissions` and `addBusinessMembership`
   (FR-038) are the one seam that administers `Membership` role and per-domain
   grants. `addBusinessMembership` attaches an **existing** Person to a Business
@@ -177,14 +173,24 @@ Profile completion is an identity step over `Person`
 (`Person.profileCompletedAt`, written by `onboarding-service`), not an
 authorization grant. The Profile-first entry resolves a Profile-only person into
 the Waiting Room without creating a Tenant, Business or Project. Workspace
-invitation (`AccessInvite`, renamed from `WorkspaceInvite` by FR-195/ADR-079 to
-also cover TENANT/BUSINESS scope; hash-bound single-use tokens per SEC-014) and
-`WorkspaceMembership` (keyed by `portfolioId`, ADR-027 §D2) are a separate
-collaboration contract from the existing Tenant/Business `Membership`; they
-widen nothing — `resolveViewer` never reads `WorkspaceMembership` (BR-016), so
-holding one grants no `visibleBusinessIds`, `ownedBusinessIds`, or per-Business
-domain. Implemented by FR-066/067 (`onboarding-service.js`,
-`workspace-membership-service.js`).
+invitations use hash-bound single-use `AccessInvite` tokens (FR-195/ADR-079,
+SEC-014). At PORTFOLIO scope, accepting one creates a `WorkspaceMembership`
+(keyed by `portfolioId`, ADR-027 §D2), the Workspace collaboration contract
+that widens nothing: `resolveViewer` never reads `WorkspaceMembership` (BR-016),
+so holding one grants no `visibleBusinessIds`, `ownedBusinessIds`, or
+per-Business domain. TENANT/BUSINESS-scope acceptance instead creates a real
+Tenant/Business `Membership` through `grantBusinessMembership` (ADR-077 D8).
+Implemented by FR-066/067 (`onboarding-service.js`,
+`workspace-membership-service.js`) and FR-195 (`access-invite-service.js`).
+
+FR-195's `AccessInvite` HTTP lifecycle is owned by this domain at
+`POST /api/access-invites`, `POST /api/access-invites/accept`, `POST
+/api/access-invites/decline` and `DELETE /api/access-invites/[id]`. Every
+mutation resolves a live request viewer and checks the session-bound API-write
+CSRF token before the body or service mutation. Acceptance and decline pass the
+session principal; invited email and LINE identity never select the recipient.
+The existing `/api/workspace-invites` handlers and `mintWorkspaceInvite` remain
+the separate FR-067 path, unchanged under AC-195.9.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
@@ -196,19 +202,12 @@ domain. Implemented by FR-066/067 (`onboarding-service.js`,
   same allowance rather than a new claim: it writes the same three columns, in
   the same lane, for the step that comes immediately before FR-066's.
 
-## Agent harness devices (FR-220, ADR-087)
+## Agent harness devices (FR-220, ADR-087 — retired by ADR-110)
 
-A Claude Code or Codex installation pairs the way a Zuri Edge Device does: an
-anonymous bounded start, approval by a signed-in person on `/harness/pair` who
-compares the check code and device label, and one redemption by the harness
-holding the device secret. The resulting `HarnessCredential` is bound to that
-**person** and a server-issued installation id, stored as a hash, and scoped to
-`PROGRAMME_USAGE_REPORT` only — it is not a viewer, and every route except
-platform-control's usage report endpoint and its whoami read refuses it. Only an
-installation operator or a person holding a visible Business may approve; a
-non-operator's device is `PENDING_ACTIVATION` until an operator activates it on
-the Agent devices tab. `describeHarnessReporters` is the read port the board uses
-for device labels and person names; it returns no key material.
+Historically, an approved harness carried a person-bound, hashed
+`HarnessCredential` for programme usage attribution. ADR-110 retired pairing,
+device-management and reporting routes in the repository; `HarnessCredential`
+remains in the schema as historical data.
 
 ## Credential-write step-up gate and PDPA erasure fan-out (ADR-089, ADR-091 — gate merged, erasure fan-out declared)
 
@@ -217,16 +216,26 @@ for device labels and person names; it returns no key material.
   `credential-write-gate.js` is the gate other lanes call before a credential write,
   rotation, revocation or live validation: `assertCredentialWriteAssurance` refuses a
   Person with no ACTIVE TOTP factor `MFA_FACTOR_REQUIRED` (with the enrolment path),
-  then calls `assertSessionAssurance` with the Session's live step-up window only and
-  refuses `ASSURANCE_LEVEL_INSUFFICIENT`. It reads `elevatedUntil`, not the stored
-  `assuranceLevel`, because `elevateSession` leaves that column at AAL2 after the
-  900-second window ends. `createCredentialWriteGuard` composes the gate with the
+  then requires a live `elevatedUntil` on the persisted Session. A WebAuthn login
+  stamps the same 900-second window and remains AAL2 for general assurance, but
+  never substitutes for this recent step-up; stored `assuranceLevel` is descriptive
+  only, including old AAL2 values left by previous releases. The exact server-only
+  ADR-100 setting `ZURI_CREDENTIAL_STEP_UP=off` remains an explicit exception for
+  credential writes.
+  `createCredentialWriteGuard` composes the gate with the
   product's first rate limit (`rate-limit.js`, model `RateLimitBucket`, migration
   `20260914140400_rate_limit_bucket.sql`, applied on production 2026-09-14): five writes or validations in
   fifteen minutes per Person and Business, a rejected LINE validation counting twice,
   and sixty LINE validation calls a minute per installation, answering 429
-  `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. This does not change MFA
-  enrolment or verification, and sealing the TOTP secret at rest is a separate lane.
+  `CREDENTIAL_RATE_LIMITED` with `retryAfterSeconds`. Factor enrollment follows
+  current factor state at both initiation and confirmation: the first active factor
+  may be established at AAL1, while adding another ACTIVE TOTP factor or registered
+  passkey requires a live `elevatedUntil` (FR-094..096, SEC-018, ADR-045 D2/D4).
+  Revoking an MFA factor or passkey also requires a live `elevatedUntil`. The factor
+  enrollment check is not atomic with its write; that millisecond race is accepted.
+  A Person whose only ACTIVE TOTP secret is unreadable (`MFA_SECRET_UNAVAILABLE`)
+  and who has no passkey needs operator recovery because step-up is unreachable.
+  Sealing the TOTP secret at rest remains a separate lane.
 - **Erasure fan-out (FR-232, [ADR-091](../../decisions/ADR-091-CHAT-RECORD-AND-AGENT-MEMORY-SPLIT-AND-THE-CONTEXT-COMPOSER.md) D6).**
   `erasePrincipal` stays the one erasure transaction. It will additionally compose
   the knowledge lane's candidate tombstone writer and leave durable work items for

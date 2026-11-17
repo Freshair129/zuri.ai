@@ -4,15 +4,13 @@
 //   per-Tenant window, keeps envelope columns (id, direction, timestamps —
 //   the same shape conversation-redaction-service.js already keeps), skips a
 //   row a non-terminal LineConversationJob still references, and writes exactly
-//   one audit event per run naming the counts it actually produced.
+//   one audit event per real run naming the counts it actually produced.
 //
 //   RAW_LINE_PAYLOAD (integration's RawExternalRecord) and AGENT_TRACE_EVENT
-//   (agent's AgentTraceEvent) are each other domain's charter to sweep — this
-//   module does not write either model. MSP_SESSION_CONTENT lives in MSP, a
-//   separate repository this codebase never reaches. See the task report for
-//   the ownership boundary; RETENTION_DATA_CLASSES / RETENTION_DEFAULT_WINDOW_DAYS
-//   (src/lib/validation/enums.js) already declare all four so nothing here needs
-//   to change shape once those sweepers exist.
+//   (agent's AgentTraceEvent) have their own domain sweepers and routes. MSP
+//   session content lives in MSP, a separate repository this codebase never
+//   reaches. Each domain writes only its own model; the shared worker invokes
+//   the three callable sweeps in order.
 // @req FR-245 — before a candidate is tombstoned it is archived and verified
 //   (ADR-093 D2): `chat-evidence-archive-service.js` writes and verifies the
 //   Tenant's batch, and only that module's own transaction — never this one —
@@ -23,7 +21,7 @@
 //   are exactly what this run tombstoned, never a placeholder for a class it did
 //   not touch.
 // @spec BR-002, SEC-031, ADR-093 D2, D4; SEC-034
-// @tested tests/integration/crm-retention-sweep.test.js, tests/integration/crm-chat-evidence-archive.test.js
+// @tested tests/integration/crm-retention-sweep.test.js, tests/integration/crm-chat-evidence-archive.test.js, tests/integration/crm-retention-sweep-dry-run.test.js
 //
 // IDEMPOTENCY
 // -----------
@@ -50,7 +48,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 import { CUSTOMER_ERASURE_TOMBSTONE } from './conversation-redaction-service'
 import { LINE_UNSEND_TOMBSTONE } from './line-ingest-service'
 import { refreshConversationPreview } from './conversation-preview-service'
-import { getEffectiveRetentionWindowDays } from './retention-override-service'
+import { resolveEffectiveRetentionWindow } from './retention-override-service'
 import { CRM_OWNED_RETENTION_CLASSES } from '@/lib/validation/enums'
 import { archiveAndTombstoneTenantMessages } from './chat-evidence-archive-service'
 import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
@@ -67,7 +65,7 @@ const CLASS = 'MESSAGE_BODY_AND_ATTACHMENTS'
 // an operator's acknowledgement to leave that status: LINE's own delivery
 // outcome is still unresolved, and a sweep must not remove evidence a human has
 // not yet closed out.
-const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = ['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN']
+export const LINE_CONVERSATION_JOB_NON_TERMINAL_STATUSES = Object.freeze(['QUEUED', 'CLAIMED', 'READY', 'SENDING', 'ACCEPTED', 'UNKNOWN'])
 
 // Re-exported unchanged so every existing import of this constant from this
 // module keeps working — see retention-sweep-tombstone.js for why it now lives
@@ -92,8 +90,11 @@ async function countSkippedNonTerminalJob(db, tenantId, cutoff) {
   })
 }
 
-async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir } = {}) {
-  const windowDays = await getEffectiveRetentionWindowDays({ tenantId, dataClass: CLASS, db })
+export async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env, baseDir, dryRun = false } = {}) {
+  const { windowDays, source } = await resolveEffectiveRetentionWindow({ tenantId, dataClass: CLASS, db })
+  const invalidOverride = source === 'DEFAULT_INVALID_OVERRIDE'
+    ? { invalidOverrideIgnored: true }
+    : {}
   const cutoff = new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
 
   const candidates = await db.message.findMany({
@@ -102,7 +103,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       id: true,
       conversationId: true,
       direction: true,
-      body: true,
+      ...(!dryRun ? { body: true } : {}),
       contentKind: true,
       sessionId: true,
       createdAt: true,
@@ -115,7 +116,8 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       },
     },
   })
-  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0, archiveFailed: false, manifest: null }
+  if (candidates.length === 0) return { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0,
+    archiveFailed: false, manifest: null, ...invalidOverride }
 
   // @req FR-245 — archive before tombstone, fail closed (ADR-093 D2). A failure
   // anywhere in the archive write leaves every one of this Tenant's candidates
@@ -124,7 +126,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
   // anything by the time this catch fires.
   let archiveResult
   try {
-    archiveResult = await archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env, baseDir })
+    archiveResult = await archiveAndTombstoneTenantMessages(db, { tenantId, candidates, now, env, baseDir, dryRun })
   } catch (error) {
     const skippedNonTerminalJob = await countSkippedNonTerminalJob(db, tenantId, cutoff)
     return {
@@ -134,12 +136,15 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
       archiveFailed: true,
       archiveFailureReason: error?.code || error?.message || 'ARCHIVE_FAILED',
       manifest: null,
+      ...invalidOverride,
     }
   }
 
-  const conversationIds = [...new Set(candidates.map((row) => row.conversationId))]
-  for (const conversationId of conversationIds) {
-    await refreshConversationPreview(db, conversationId)
+  if (!dryRun) {
+    const conversationIds = [...new Set(candidates.map((row) => row.conversationId))]
+    for (const conversationId of conversationIds) {
+      await refreshConversationPreview(db, conversationId)
+    }
   }
 
   // Reported for visibility only — how many otherwise-eligible rows this run left
@@ -166,6 +171,7 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
     manifest: archiveResult.manifest
       ? { manifestId: archiveResult.manifest.id, runId: archiveResult.manifest.runId, manifestHash: archiveResult.manifest.manifestHash }
       : null,
+    ...invalidOverride,
   }
 }
 
@@ -178,31 +184,44 @@ async function sweepMessageBodyAndAttachmentsForTenant(db, tenantId, now, { env,
  * candidates stay in the database, untouched) rather than aborting the whole
  * multi-Tenant sweep, and the failure is named in the audit payload.
  *
- * @param {{db?: object, now?: Date, env?: object, baseDir?: string}} [options]
- * @returns {Promise<{auditEventId: string, countsByClass: Record<string, object>}>}
+ * @param {{db?: object, now?: Date, env?: object, baseDir?: string, dryRun?: boolean}} [options]
+ * @returns {Promise<{auditEventId?: string, dryRun?: boolean, countsByClass: Record<string, object>, tenants?: object[]}>}
  */
-export async function runRetentionSweep({ db = prisma, now = new Date(), env = process.env, baseDir } = {}) {
+export async function runRetentionSweep({ db = prisma, now = new Date(), env = process.env, baseDir, dryRun = false } = {}) {
   const totals = { redactedMessages: 0, redactedAttachments: 0, skippedNonTerminalJob: 0 }
   const manifests = []
   const archiveFailures = []
+  const invalidOverrides = []
+  const tenantCounts = []
   let deferredErasedKey = 0
   let blankedWithoutArchive = 0
   const settleFailures = []
 
   // CRM_OWNED_RETENTION_CLASSES has exactly one member today (MESSAGE_BODY_AND_ATTACHMENTS);
-  // looping over it rather than hard-coding the call keeps this function's shape
-  // unchanged on the day a second crm-owned class exists.
+  // the Integration and Agent domains have separate sweep services for their classes.
   for (const dataClass of CRM_OWNED_RETENTION_CLASSES) {
     if (dataClass !== CLASS) continue // no second class exists yet to dispatch to
     const tenants = await db.tenant.findMany({ select: { id: true } })
     for (const tenant of tenants) {
-      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now, { env, baseDir })
+      const result = await sweepMessageBodyAndAttachmentsForTenant(db, tenant.id, now, { env, baseDir, dryRun })
       totals.redactedMessages += result.redactedMessages
       totals.redactedAttachments += result.redactedAttachments
       totals.skippedNonTerminalJob += result.skippedNonTerminalJob
       deferredErasedKey += result.deferredErasedKey ?? 0
       blankedWithoutArchive += result.blankedWithoutArchive ?? 0
       if (result.settleFailed) settleFailures.push({ tenantId: tenant.id, reason: result.settleFailureReason })
+      if (result.invalidOverrideIgnored) invalidOverrides.push({ tenantId: tenant.id })
+      tenantCounts.push({
+        tenantId: tenant.id,
+        redactedMessages: result.redactedMessages,
+        redactedAttachments: result.redactedAttachments,
+        skippedNonTerminalJob: result.skippedNonTerminalJob,
+        deferredErasedKey: result.deferredErasedKey ?? 0,
+        blankedWithoutArchive: result.blankedWithoutArchive ?? 0,
+        ...(result.archiveFailed ? { archiveFailed: true, archiveFailureReason: result.archiveFailureReason } : {}),
+        ...(result.settleFailed ? { settleFailed: true, settleFailureReason: result.settleFailureReason } : {}),
+        ...(result.invalidOverrideIgnored ? { invalidOverrideIgnored: true } : {}),
+      })
       if (result.archiveFailed) {
         archiveFailures.push({ tenantId: tenant.id, reason: result.archiveFailureReason })
       } else if (result.manifest) {
@@ -218,18 +237,24 @@ export async function runRetentionSweep({ db = prisma, now = new Date(), env = p
       //   "truthful reporting": a run with nothing to archive or no failure
       //   names neither, rather than an empty array claiming it checked.
       ...(archiveFailures.length > 0 ? { archiveFailures } : {}),
-      ...(manifests.length > 0 ? { manifests } : {}),
+      ...(!dryRun && manifests.length > 0 ? { manifests } : {}),
       ...(deferredErasedKey > 0 ? { deferredErasedKey } : {}),
       ...(blankedWithoutArchive > 0 ? { blankedWithoutArchive } : {}),
       ...(settleFailures.length > 0 ? { settleFailures } : {}),
     },
   }
+  if (dryRun) {
+    tenantCounts.sort((left, right) => left.tenantId < right.tenantId ? -1 : left.tenantId > right.tenantId ? 1 : 0)
+    return { dryRun: true, countsByClass, tenants: tenantCounts }
+  }
+
   const event = await recordAudit(db, {
     entityType: 'RETENTION_SWEEP',
     entityId: `sweep:${now.toISOString()}`,
     action: 'RETENTION_SWEEP_COMPLETED',
     actorType: 'SYSTEM',
-    payload: { ranAt: now.toISOString(), countsByClass },
+    payload: { ranAt: now.toISOString(), countsByClass,
+      ...(invalidOverrides.length > 0 ? { invalidOverrides } : {}) },
   })
 
   return { auditEventId: event.id, countsByClass }

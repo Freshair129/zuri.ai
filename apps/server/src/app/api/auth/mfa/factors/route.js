@@ -1,10 +1,11 @@
-// @req FR-094, FR-095 — List and revoke registered MFA factors
-// @spec ADR-045 D2, D5, SDD-052, SEC-018
+// @req FR-094, FR-095, FR-096 — List and revoke registered MFA factors
+// @spec ADR-045 D2, D4, D5, SDD-052, SEC-018
 // @tested tests/integration/mfa-totp-lifecycle.test.js
 
 import { handle, httpError } from '../../../_helpers'
 import { resolveRequestViewer } from '@/modules/identity/request-viewer'
 import { listMfaFactors, revokeMfaFactor } from '@/modules/identity/mfa-service'
+import { assertRecentStepUp, resolveSessionTokenHash } from '@/modules/identity/credential-write-gate'
 
 export const dynamic = 'force-dynamic'
 
@@ -28,6 +29,12 @@ export async function DELETE(request, options = {}) {
     const body = await request.json().catch(() => ({}))
     const factorId = body.factorId
     if (!factorId) throw httpError(400, 'factorId is required')
+
+    await assertRecentStepUp({
+      personId,
+      request,
+      tokenHash: resolveSessionTokenHash({ request, tokenHash: options.tokenHash, viewer }),
+    })
 
     return await revokeMfaFactor({ personId, factorId })
   })

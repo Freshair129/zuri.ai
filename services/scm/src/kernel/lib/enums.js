@@ -234,15 +234,10 @@ export const CONVERSATION_EVENT_KINDS = [
 // FR-230 — every copy of a person's conversation content has a declared retention
 // data class and an installation-default window (ADR-091 D2, SEC-031). A Tenant
 // may only shorten a window (TenantRetentionOverride); lengthening one is refused
-// by the writer. Only MESSAGE_BODY_AND_ATTACHMENTS is swept by this codebase today
-// — the other three name a model this crm-scoped change does not own:
-//   RAW_LINE_PAYLOAD        — RawExternalRecord.payloadJson, integration's charter
-//   AGENT_TRACE_EVENT       — AgentTraceEvent payloads, agent's charter
-//   MSP_SESSION_CONTENT     — MSP's own storage, a separate repository this
-//                             codebase never reaches
-// Their entries here exist so a Tenant can already declare an override for them
-// (and TenantRetentionOverride never needs a schema change when their own
-// sweepers land), not because this change sweeps them.
+// by the writer. Three classes are swept in this codebase by their owning
+// domains: RawExternalRecord.payloadJson (Integration), Message body/attachments
+// (CRM), and AgentTraceEvent payloads (Agent). MSP_SESSION_CONTENT lives in MSP's
+// own storage, a separate repository this codebase never reaches.
 export const RETENTION_DATA_CLASSES = [
   'RAW_LINE_PAYLOAD', 'MESSAGE_BODY_AND_ATTACHMENTS', 'AGENT_TRACE_EVENT', 'MSP_SESSION_CONTENT',
 ]
@@ -255,9 +250,8 @@ export const RETENTION_DEFAULT_WINDOW_DAYS = Object.freeze({
   AGENT_TRACE_EVENT: 90,
   MSP_SESSION_CONTENT: 90,
 })
-// The subset of RETENTION_DATA_CLASSES this codebase can actually tombstone —
-// see the module comment above. retention-sweep-service.js sweeps exactly this
-// list; a class outside it is not this crm-scoped change's model to write.
+// The subset of RETENTION_DATA_CLASSES owned by CRM. Integration and Agent
+// dispatch their own classes from their domain services.
 export const CRM_OWNED_RETENTION_CLASSES = ['MESSAGE_BODY_AND_ATTACHMENTS']
 // LineConversationJob's own status vocabulary is deliberately NOT registered
 // here — see the FR-152 comment above this block: a registry entry would read
@@ -305,6 +299,7 @@ export const IDENTITY_PROVIDERS = ['LINE']
 // @req FR-133, FR-134, FR-135, FR-136 — closed Asset foundation vocabulary.
 // @spec SDD-078, SDD-079, SDD-080, ADR-055
 export const ASSET_INTAKE_CHANNELS = ['WEB', 'REST_API', 'EXCEL', 'GOOGLE_SHEET', 'AGENT_MCP', 'LINE_OA', 'LIFF']
+export const ASSET_INTAKE_STATUSES = ['DRAFT', 'NEEDS_REVIEW', 'READY_FOR_REGISTRATION', 'REGISTERED']
 export const ASSET_EVIDENCE_ROLES = ['ASSET_PHOTO', 'RECEIPT', 'INVOICE', 'PAYMENT_PROOF', 'DELIVERY', 'INSPECTION', 'WARRANTY', 'OTHER']
 export const ASSET_EVIDENCE_DOCUMENT_TYPES = ['RECEIPT', 'INVOICE', 'PAYMENT_SLIP', 'DELIVERY', 'OTHER']
 export const ASSET_PROCUREMENT_REF_TYPES = ['PR', 'PR_LINE', 'PO', 'PO_LINE', 'GRN', 'INVOICE', 'SUPPLIER']
@@ -621,6 +616,7 @@ export const zAccessInviteRole = z.enum(ACCESS_INVITE_ROLES)
 export const zPrincipalType = z.enum(PRINCIPAL_TYPES)
 export const zIdentityProvider = z.enum(IDENTITY_PROVIDERS)
 export const zAssetIntakeChannel = z.enum(ASSET_INTAKE_CHANNELS)
+export const zAssetIntakeStatus = z.enum(ASSET_INTAKE_STATUSES)
 export const zAssetEvidenceRole = z.enum(ASSET_EVIDENCE_ROLES)
 export const zAssetEvidenceDocumentType = z.enum(ASSET_EVIDENCE_DOCUMENT_TYPES)
 export const zAssetProcurementRefType = z.enum(ASSET_PROCUREMENT_REF_TYPES)

@@ -4,13 +4,20 @@
 import { z } from 'zod'
 import { DEPENDENCY_ENDPOINT_TYPES, DEPENDENCY_TYPES, EXECUTION_MODES, WORK_STATUSES, WORKSTREAM_STATUSES, CONTAINER_STATUSES, PIPELINE_NODE_TYPES } from '@/lib/validation/enums'
 import { zHandoffContractV1 } from '../application/handoff-contract'
+import { isReservedPlanImportIdempotencyKey, RESERVED_PLAN_IMPORT_KEY_MESSAGE } from './reserved-keys'
 
 const id = z.string().uuid().transform(value => value.toLowerCase())
 const hash = z.string().regex(/^[0-9a-f]{64}$/)
 const clientRef = z.string().min(1).max(64).regex(/^[A-Za-z0-9_-]+$/)
 const type = z.enum(DEPENDENCY_ENDPOINT_TYPES)
 const ref = z.union([z.object({ type, id }).strict(), z.object({ type, ref: clientRef }).strict()])
-const trace = z.object({ correlationId: id, idempotencyKey: id }).strict()
+const trace = z.object({
+  correlationId: id,
+  idempotencyKey: z.string().uuid()
+    .describe('Caller-supplied receipt key; the zai-legacy-plan: prefix is reserved for server-derived legacy replay identities.')
+    .refine((value) => !isReservedPlanImportIdempotencyKey(value), { message: RESERVED_PLAN_IMPORT_KEY_MESSAGE })
+    .transform((value) => value.toLowerCase()),
+}).strict()
 const name = z.string().transform(value => value.trim().normalize('NFC')).refine(value => [...value].length >= 1 && [...value].length <= 240)
 const code = z.string().regex(/^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/)
 const decimal = z.number().finite().refine(value => {

@@ -699,6 +699,18 @@ inventories of tracked direct children of `docs/` at their recorded revision.
 They are not approval lists and do not include ignored or untracked files;
 refresh the filesystem enumeration before relying on them for a later change.
 
+**Search before you write a document** ([ADR-118](docs/decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md)):
+put a new document in the write home of its kind (table in [docs/README.md](docs/README.md);
+machine form [DOCUMENT-KINDS.json](docs/governance/DOCUMENT-KINDS.json)) and run
+`npm run docs:find -- "<subject words>"` first. A miss is not proof of absence (§21).
+This is guidance with one hard edge: adding a document to `.agent/`, `agent/`, `.rwang-tasks/`, `.brain/plans/`,
+`docs/superpowers/` or `docs/roadmap/PLAN-*.md` is CRITICAL in preflight (ADR-118 amendment 3, a delegated
+product-owner decision); every other added-document finding is a warning. ADR-118 D5 lists everything that stays unapproved (amendment 3 separately approves archiving two named root files);
+in short: any file move, rename, deletion or archiving, redirect stubs, CI-classification and preflight
+changes, rewriting existing frontmatter, and anything under `apps/edge/docs/`.
+Brainstorming and plan skills write to `docs/plans/`, not `docs/superpowers/`. Added-document checks (`doc-placement`, `doc-metadata`, `doc-prior-art`, ADR-118 amendments 1 to 3) flag
+documents you add in the wrong place or without metadata; they are warnings except the CRITICAL legacy homes above.
+
 When adding a document, identify its authority and audience first. If the document
 would establish a new source of requirement, membership or ownership authority,
 update the applicable canonical contract through its reviewed workflow instead of
@@ -755,10 +767,12 @@ the same reason the group itself does not.
 place in Zuri's domain, client, authentication, API, or persistence boundaries,
 read the [client architecture design](docs/architecture/2026-10-22-visual-office-zuri-client-design.md)
 (candidate; it records the owner's 2026-10-23 approval of an optional, separately
-deployed client) and the candidate [ADR-116](docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md),
-which would amend the client-registration prerequisite for a same-origin first
-slice. Zuri owns identity, Business scope, business data and the contracts it
-produces. Neither document establishes a route, schema, permission or service
+deployed client; its §12 describes the FR-294/FR-295 handoff as built) and
+[ADR-116](docs/decisions/ADR-116-VISUAL-OFFICE-INTEGRATION-BOUNDARY.md), accepted
+by the owner on 2026-11-07. For the first slice only, its decision 4 replaces
+the client-registration prerequisite with same-origin serving under explicit
+conditions. Zuri owns identity, Business scope, business data and the contracts
+it produces. Neither document establishes a route, schema, permission or service
 owner.
 
 ### 20. The legacy project's documentation (retired)
@@ -883,3 +897,11 @@ atlas and identifies its schematic limits and source authority; no UI behavior
 or design-system rule changes.
 
 Version diff (2026-11-04): reference the portable Git/worktree lifecycle policy; preserve ADR-113, canonical document governance, session memory and runtime/data ownership.
+
+Version diff (2026-11-12): §19 states ADR-116 as accepted (2026-11-07) instead of candidate and points to the as-built handoff section of the Visual Office client design; no rule changes.
+
+Version diff (2026-11-14): §19 adds a pointer to ADR-118 and `npm run docs:find`; guidance only, no rule rewritten, no check enabled, nothing moved.
+
+Version diff (2026-11-14, Stage 3): §19 states that plan skills write to `docs/plans/` and notes the report-only added-document warnings of ADR-118 amendment 1; no check can fail and nothing is moved.
+
+Version diff (2026-11-14, Stage 4a): §19 states that adding a document to the named legacy homes is CRITICAL in preflight (ADR-118 amendment 3, delegated product-owner decision); all other added-document findings stay warnings; nothing moved.
