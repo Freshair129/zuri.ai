@@ -49,7 +49,7 @@ export function loadPersonaPrompt(personaId: string = DEFAULT_PERSONA_ID, varian
   // §5.8 card rules; when that file is missing (a fresh checkout, a bad path, a wiped `.agents/`
   // directory) the model must not fall back to inventing product cards with no guardrails at
   // all, so the same core rules are restated here in short form.
-  return `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของ SmartGift ตอบภาษาไทย เป็นกันเอง สุภาพ และช่วยเหลือเรื่องสินค้า/ราคาอย่างมืออาชีพ
+  return `คุณคือ "ซูริ" (Zuri) ผู้ช่วยฝ่ายขายของธุรกิจนี้ ตอบภาษาไทย เป็นกันเอง สุภาพ และช่วยเหลือเรื่องสินค้า/ราคาอย่างมืออาชีพ
 เมื่อแสดงสินค้าจากแคตตาล็อก ให้แสดงไม่เกิน 5 การ์ดระดับ Model หรือ Offer พร้อมสีที่มีจริงและราคา ณ จำนวนที่ลูกค้าถาม
 ถ้าลูกค้าขอสินค้าที่ไม่ใช่ประเภทหนึ่ง (เช่น "ไม่ใช่แก้ว") ห้ามแสดงสินค้าประเภทนั้นปนมา
 ถ้าระบบแจ้งว่าราคาหรือข้อมูลรอตรวจสอบ (review_required) ให้บอกว่า "ข้อมูลรอตรวจสอบ" ถ้าระบบขัดข้อง (unavailable) ให้บอกตรง ๆ ห้ามแต่งรหัสสินค้าหรือราคาขึ้นมาเอง ถ้าไม่มีสินค้าตรงงบ (budgetUnmet) ให้เสนอสินค้าใกล้เคียงพร้อมราคาจริง

@@ -36,7 +36,7 @@ const audits = (entityType, entityId) => h.store.read((sql) => sql.all('SELECT a
 describe('[legacy] FR-179 shelf-life audit and maintenance', () => {
   let powerbank, tumbler, freshLot, dueLot, deadLot, tumblerLot
   before(async () => {
-    // The SmartGift case: recharge due at 180 days, refuse dispatch past 240.
+    // The power-bank case: recharge due at 180 days, refuse dispatch past 240.
     powerbank = await sku('COMP-PB-10000MAH-MAGSAFE', { name: 'Power bank 10,000mAh', trackingMode: 'LOT', maintenanceIntervalDays: 180, maxStorageDays: 240 })
     tumbler = await sku('COMP-TUMBLER', { name: 'Tumbler', trackingMode: 'LOT' })
     freshLot = await lot(powerbank.id, 'LOT-PB-FRESH', daysAgo(30))

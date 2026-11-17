@@ -21,7 +21,7 @@ import { QUERY_REGISTRY } from '../../src/queries/registry.js';
  */
 const NEEDS_SOT = process.env.SMARTGIFT_DUCKDB_PATH
   ? false
-  : 'SMARTGIFT_DUCKDB_PATH is not set — point it at a read-only copy of the SmartGift DuckDB';
+  : 'SMARTGIFT_DUCKDB_PATH is not set — point it at a read-only copy of the DuckDB';
 
 describe('DuckDB Read-Only Query Slice (S3)', () => {
   it('executes registered query executive_summary.v1 correctly', { skip: NEEDS_SOT }, async () => {

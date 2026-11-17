@@ -43,7 +43,7 @@ export const JOB_MODEL_BUDGET_MS = 30000;
 
 export function validateExecutionPolicy(job: ConversationJob, config: Partial<AgentConfig>, ragUrl: string): void {
   // The headless pricing MCP has no server-derived Business scope and reads the
-  // local SmartGift catalog. Never let a Business conversation reach that door.
+  // local catalog. Never let a Business conversation reach that door.
   if (config.headlessEnabled) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
   // Separate standalone readers (`mcp/genesis-mcp-server.ts#search_catalog`,
   // `mcp/pricing-server.ts`, `cli/index.ts`, and `pricing/http-server.ts`,
