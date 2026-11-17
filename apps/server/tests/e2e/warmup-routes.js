@@ -90,7 +90,7 @@ const ROUTES = [
   // @req FR-182, FR-184 — the SCM operations console pages. Each is a first
   // request that compiles its own module, which is precisely the class of cold
   // start this list exists to pay for before a spec's expect does.
-  '/inventory/locations', '/inventory/work-orders', '/inventory/reservations', '/inventory/stocktakes',
+  '/inventory/locations', '/inventory/work-orders', '/inventory/recipes', '/inventory/reservations', '/inventory/stocktakes',
   // @req FR-206 — the SKU hygiene tab (ADR-083), the sixth Inventory page.
   '/inventory/hygiene',
   // @req FR-209 — the catalogue intake tab and its SKU links (ADR-084), the seventh Inventory page.

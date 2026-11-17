@@ -223,6 +223,8 @@ export const DOMAINS = [
       { label: 'Dashboard', path: '/inventory', icon: LayoutDashboard, exact: true },
       { label: 'Locations', path: '/inventory/locations', icon: LayoutGrid },
       { label: 'Work Orders', path: '/inventory/work-orders', icon: ClipboardList },
+      // @req FR-156 — recipe (BOM) management, mirrored by INVENTORY_TABS.
+      { label: 'Recipes', path: '/inventory/recipes', icon: ClipboardList },
       { label: 'Reservations', path: '/inventory/reservations', icon: Bookmark },
       { label: 'Stocktake', path: '/inventory/stocktakes', icon: ClipboardList },
       // @req FR-206 — the catalogue hygiene report and the merge desk (ADR-083 D6).

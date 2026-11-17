@@ -1,4 +1,4 @@
-// @req FR-170 — a sub-domain module with multiple pages renders them as
+// @req FR-156, FR-170 — a sub-domain module with multiple pages renders them as
 //   in-canvas tabs, active tab derived from the URL (`usePathname()`), never
 //   from separate component state — the "id binding" the owner asked for.
 // @spec ADR-069
@@ -7,7 +7,7 @@ import React, { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 import { ModuleTabs } from '@/components/ui'
-import { COMMERCE_TABS, PROCUREMENT_TABS } from '@/lib/module-tabs'
+import { COMMERCE_TABS, INVENTORY_TABS, PROCUREMENT_TABS } from '@/lib/module-tabs'
 
 // esbuild's classic JSX runtime emits a bare React.createElement — see
 // tests/unit/global-view-drilldown.test.js for why this is set here.
@@ -58,5 +58,13 @@ describe("ModuleTabs — the in-canvas view switcher", () => {
     expect(html).toContain('href="/commerce"')
     expect(html).toContain('href="/commerce/orders"')
     expect(html.match(/<a href="\/commerce\/orders"[^>]*>/)[0]).toContain('aria-current="page"')
+  })
+
+  it('the Inventory tabs include the Recipes route and mark it active by path', () => {
+    currentPath = '/inventory/recipes'
+    const html = renderToStaticMarkup(createElement(ModuleTabs, { tabs: INVENTORY_TABS }))
+    const recipesLink = html.match(/<a href="\/inventory\/recipes"[^>]*>/)[0]
+    expect(recipesLink).toContain('aria-current="page"')
+    expect(html).toContain('Recipes')
   })
 })
