@@ -6,8 +6,6 @@
 //   node zuri-approve.mjs pending --project <projectId>
 //   node zuri-approve.mjs gate <gateId> <PASSED|WAIVED|BLOCKED>
 //        --approved-by "<person>" [--evidence <file.json>] [--note "<why>"] --confirm
-//   node zuri-approve.mjs review <caseId> --business <businessId>
-//        --expected-version <n> --decisions <file.json> --confirm
 //
 // Without --confirm nothing is sent: the payload is printed for the approver to read.
 
@@ -72,31 +70,6 @@ if (command === 'pending') {
     process.exit(0)
   }
   await send('PATCH', `/api/gates/${gateId}`, body)
-} else if (command === 'review') {
-  const caseId = positional[0]
-  const businessId = flag('business')
-  const expectedVersion = Number(flag('expected-version'))
-  const decisionsFile = flag('decisions')
-  if (!caseId || !businessId || !Number.isInteger(expectedVersion) || !decisionsFile) {
-    die('usage: zuri-approve.mjs review <caseId> --business <businessId> --expected-version <n> --decisions <file.json> --confirm')
-  }
-  const decisions = JSON.parse(readFileSync(decisionsFile, 'utf8'))
-  const list = Array.isArray(decisions) ? decisions : decisions.decisions
-  if (!Array.isArray(list) || !list.length) die('the decisions file must hold a non-empty array of decisions')
-  for (const d of list) {
-    if (!['CREATE_SEPARATE', 'LINK_EXISTING', 'REJECT', 'DEFER'].includes(d.action)) {
-      die(`decision for "${d.provenanceId}": action must be CREATE_SEPARATE, LINK_EXISTING, REJECT or DEFER`)
-    }
-    if (d.action === 'LINK_EXISTING' && !d.targetCustomerId) die(`decision for "${d.provenanceId}": LINK_EXISTING requires targetCustomerId`)
-    if (d.note) die(`decision for "${d.provenanceId}": free-text notes are disabled on this queue (no-raw-PII rule)`)
-  }
-  const body = { businessId, expectedVersion, decisions: list }
-  preview('Review decisions to submit:', 'POST', `/api/platform/customer-import-reviews/${caseId}/decisions`, body)
-  if (!confirmed) {
-    console.log('\nNothing was sent. Show this to the approver, then re-run with --confirm.')
-    process.exit(0)
-  }
-  await send('POST', `/api/platform/customer-import-reviews/${caseId}/decisions`, body)
 } else {
-  die('usage: zuri-approve.mjs <pending|gate|review> [args]')
+  die('usage: zuri-approve.mjs <pending|gate> [args]')
 }

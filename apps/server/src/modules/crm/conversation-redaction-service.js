@@ -12,7 +12,7 @@ import { refreshConversationPreview } from './conversation-preview-service'
 //   conversation in the same call.
 // @spec BR-001, SEC-005, SDD-048
 // @spec ADR-091 D5
-// @tested tests/integration/crm-customer-erasure.test.js, tests/integration/identity-erase.test.js
+// @tested tests/integration/crm-customer-erasure.test.js, tests/integration/identity-erase.test.js, tests/unit/crm-retention-dry-run-helpers.test.js
 // @req FR-022 — a LINE group or room thread is shared: it belongs to its first
 //   speaker's Customer, yet every member writes in it. Such a thread is never erased
 //   wholesale; `redactSpeakerContentInSharedThreads` redacts one speaker's own lines
@@ -253,7 +253,8 @@ async function attributeFromIngestAudit(tx, { tenantId, customerIds, channelIden
 
 /**
  * @req FR-022, SEC-034 — attribute INBOUND rows that carry no author, by the same
- * evidence erasure uses, and write the attribution back. The chat evidence archive
+ * evidence erasure uses, and write the attribution back on a live call. Dry-run
+ * mode returns the same would-write map without changing the author column. The chat evidence archive
  * calls this before it seals a batch, so a row the author backfill never reached is
  * sealed under its speaker's key, not the thread owner's — otherwise erasing that
  * speaker would leave the line readable, and erasing the owner would shred it.
@@ -269,10 +270,10 @@ async function attributeFromIngestAudit(tx, { tenantId, customerIds, channelIden
  * still null, so it never overwrites an existing author.
  *
  * @param {object} db prisma client or transaction client
- * @param {{tenantId: string, messageIds: string[]}} scope
- * @returns {Promise<Map<string, string>>} message id → ChannelIdentity id, for the rows written
+ * @param {{tenantId: string, messageIds: string[], dryRun?: boolean}} scope
+ * @returns {Promise<Map<string, string>>} message id → ChannelIdentity id; in dry-run mode this is the would-write map
  */
-export async function attributeInboundMessageAuthors(db, { tenantId, messageIds } = {}) {
+export async function attributeInboundMessageAuthors(db, { tenantId, messageIds, dryRun = false } = {}) {
   if (!tenantId) throw new Error('attributeInboundMessageAuthors requires tenantId')
   const written = new Map()
   const ids = [...new Set((messageIds ?? []).filter(Boolean))]
@@ -333,6 +334,8 @@ export async function attributeInboundMessageAuthors(db, { tenantId, messageIds 
       if (identity) found.set(messageId, identity.id)
     }
   }
+
+  if (dryRun) return new Map(found)
 
   for (const [messageId, identityId] of found) {
     const updated = await db.message.updateMany({

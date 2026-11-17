@@ -2,10 +2,10 @@ import { createHash } from 'node:crypto'
 import { z } from 'zod'
 import { inspectMemoryWriteLink } from './memory-trace-contract'
 
-// @req FR-149, FR-171 — one append-only, scope-bound journal for an admitted agent turn.
-// @spec ADR-061, ADR-070, SEC-001 — the journal stores bounded data snapshots only; it never
+// @req FR-149, FR-171, FR-230 — one append-only, scope-bound journal for an admitted agent turn.
+// @spec ADR-061, ADR-070, ADR-091 D2, SEC-001 — the journal stores bounded data snapshots only; it never
 // executes tools, replays side effects, or carries provider credentials.
-// @tested tests/integration/execution-trace.test.js
+// @tested tests/integration/execution-trace.test.js, tests/integration/agent-trace-retention-sweep.test.js
 
 /**
  * The event vocabulary is deliberately small. New event kinds are a contract change:
@@ -859,7 +859,7 @@ export function playbackTrace(events) {
  * RETENTION_TOMBSTONE. Metadata (ids, kinds, ordering and scope) remains queryable;
  * the model context/output cannot be reconstructed after this operation.
  */
-async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
+async function redactTraceTurnInternal(db, { scope, turnId, now, reason = 'PDPA_ERASURE' } = {}) {
   const model = assertTraceModel(db)
   const normalizedScope = normalizeScope(scope)
   const normalizedTurnId = requiredUuid(turnId, 'turnId')
@@ -875,22 +875,43 @@ async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
       await jobs.updateMany({ where: { id: normalizedTurnId, ...normalizedScope }, data: { id: normalizedTurnId } })
     }
   }
-  const rows = await model.findMany({ where, orderBy: [{ occurredAt: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }] })
-  for (const row of rows) assertRowScope(row, normalizedScope)
-
-  const existingTombstone = rows.find((row) => row.kind === 'RETENTION_TOMBSTONE'
-    && row.idempotencyKey === retentionTombstoneKey(normalizedTurnId))
+  const existingTombstone = await model.findFirst({ where: { ...where, kind: 'RETENTION_TOMBSTONE',
+    idempotencyKey: retentionTombstoneKey(normalizedTurnId) } })
   if (existingTombstone) {
-    return Object.freeze({ redactedCount: rows.filter((row) => row.kind !== 'RETENTION_TOMBSTONE').length, tombstone: existingTombstone })
+    return Object.freeze({ redactedCount: await model.count({ where: { ...where, kind: { not: 'RETENTION_TOMBSTONE' } } }),
+      tombstone: existingTombstone, alreadyRedacted: true })
   }
 
   if (typeof model.updateMany !== 'function') {
     throw traceError('EXECUTION_TRACE_MODEL_UNAVAILABLE', 'Prisma AgentTraceEvent model must support updateMany for retention', 500)
   }
-  await model.updateMany({ where, data: { payloadJson: REDACTED_PAYLOAD_JSON } })
+  // Page metadata only. Payload snapshots can be large and one turn can contain
+  // many events; never load the complete turn into memory to redact it.
+  const pageSize = 100
+  let afterId = null
+  let executionId = null
+  let redactedCount = 0
+  while (true) {
+    const page = await model.findMany({
+      where: { ...where, ...(afterId ? { id: { gt: afterId } } : {}) },
+      select: { id: true, tenantId: true, businessId: true, executionId: true },
+      orderBy: { id: 'asc' }, take: pageSize,
+    })
+    if (page.length === 0) break
+    for (const row of page) {
+      assertRowScope(row, normalizedScope)
+      if (!executionId && row.executionId) executionId = row.executionId
+    }
+    const updated = await model.updateMany({
+      where: { ...where, id: { in: page.map((row) => row.id) } },
+      data: { payloadJson: REDACTED_PAYLOAD_JSON },
+    })
+    redactedCount += updated.count
+    afterId = page[page.length - 1].id
+    if (page.length < pageSize) break
+  }
 
-  const executionId = rows.find((row) => row.executionId)?.executionId ?? null
-  const payload = { reason: 'PDPA_ERASURE', redactedAt: redactedAt.toISOString() }
+  const payload = { reason, redactedAt: redactedAt.toISOString() }
   let tombstone
   try {
     tombstone = await appendTraceEventInternal(db, {
@@ -913,7 +934,7 @@ async function redactTraceTurnInternal(db, { scope, turnId, now } = {}) {
     if (!winner || winner.kind !== 'RETENTION_TOMBSTONE') throw error
     tombstone = winner
   }
-  return Object.freeze({ redactedCount: rows.length, tombstone })
+  return Object.freeze({ redactedCount, tombstone, alreadyRedacted: false })
 }
 
 export async function redactTraceTurn(db, input) {
@@ -929,8 +950,9 @@ export async function redactTraceTurn(db, input) {
           idempotencyKey: retentionTombstoneKey(normalizedTurnId) },
       })
       if (!winner) throw error
-      const rows = await db.agentTraceEvent.findMany({ where: { ...normalizedScope, turnId: normalizedTurnId } })
-      return Object.freeze({ redactedCount: rows.filter((row) => row.kind !== 'RETENTION_TOMBSTONE').length, tombstone: winner })
+      const redactedCount = await db.agentTraceEvent.count({ where: { ...normalizedScope, turnId: normalizedTurnId,
+        kind: { not: 'RETENTION_TOMBSTONE' } } })
+      return Object.freeze({ redactedCount, tombstone: winner, alreadyRedacted: true })
     }
   }
   return redactTraceTurnInternal(db, input)

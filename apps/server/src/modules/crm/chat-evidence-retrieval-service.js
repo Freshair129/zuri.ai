@@ -1,8 +1,8 @@
-// @req FR-245 — an OWNER at AAL2 retrieves one Customer's archived messages for
+// @req FR-245, SEC-034 — an OWNER at AAL2 retrieves one Customer's archived messages for
 //   a date range, grouped by session, with a mandatory case reference, as an
 //   export carrying the file and manifest hashes it was recovered from
 //   (ADR-093 D7, TASK-ZAI-112).
-// @spec ADR-093 D4, D7; SEC-034; SDD-103; BR-001
+// @spec ADR-093 D4, D5 (1.3.0), D7; SEC-001; SDD-103; BR-001
 // @tested tests/integration/crm-chat-evidence-retrieval.test.js
 //
 // WHY THIS NEVER TRUSTS A MANIFEST OR A FILE WITHOUT RE-VERIFYING BOTH
@@ -293,8 +293,10 @@ export async function retrieveArchivedChatEvidence(customerId, input, {
 
       const found = new Map()
       const manifests = await db.archiveManifest.findMany({ where: { tenantId: customer.tenantId }, orderBy: { createdAt: 'asc' } })
+      const retiredManifestIds = new Set(chainIntegrity.retiredManifestIds ?? [])
       for (const manifest of manifests) {
         if (!keptForCustomer && found.size === wanted.size) break // every wanted message already recovered
+        if (manifest.filePath.endsWith('.zcr') || retiredManifestIds.has(manifest.id)) continue
         if (!manifestSelfConsistent(manifest)) continue // the row itself doesn't reproduce its own hash — never trust its file claim
 
         let raw

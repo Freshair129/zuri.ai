@@ -70,7 +70,7 @@ const NOT_INLINED = [
   ['docs/appendices/A-api-spec.md', 'generated — the API surface'],
   ['docs/appendices/B-db-schema.md', 'the database schema'],
   ['docs/appendices/D-traceability.md', 'generated — the traceability appendix'],
-  ['docs/roadmap/ROADMAP.md', 'live delivery state (Thai) — read by GoVibe Mission Control'],
+  ['docs/roadmap/ROADMAP.md', 'live delivery state (Thai) — read by Mission Control'],
 ];
 
 const read = (p) => readFileSync(join(ROOT, p), 'utf8');

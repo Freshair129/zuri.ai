@@ -73,7 +73,7 @@ async function prepare(tx, bundle, authority) {
       if (!decided?.valid) throw pipelineError('SCOPE_UNAVAILABLE', 404)
     }
     allocations[entry.bundleProjectRef] = perProject
-    const result = await commitPlan(entry.plan, { db: virtual, viewer: authority.viewer, workspaceId: base.projects.find(project => project.bundleProjectRef === entry.bundleProjectRef).workspaceId, allocatedEntityIds: perProject, traceSourceKind: 'BUNDLE' })
+    const result = await commitPlan(entry.plan, { db: virtual, viewer: authority.viewer, workspaceId: base.projects.find(project => project.bundleProjectRef === entry.bundleProjectRef).workspaceId, allocatedEntityIds: perProject, traceSourceKind: 'BUNDLE', legacyReplayKey: false })
     if (!result.committed) throw pipelineError('INVALID_ENVELOPE', 400)
   }
   const projectIds = Object.values(projectIdsByRef).sort(), edges = new Map(), proposedContracts = new Map(), tuples = new Set()

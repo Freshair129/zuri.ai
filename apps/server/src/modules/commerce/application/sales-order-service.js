@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { seesBusiness } from '@/modules/identity/viewer-authority'
 import { appendMovement, mayManage as mayManageInventory, stockOnHand } from '@/modules/inventory'
@@ -123,7 +124,7 @@ async function nextCode(tx, business, now) {
 
 export async function createOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zCreateOrder.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { capability: 'order' })
     let customerId = data.customerId ?? null
     if (customerId) await requireCustomer(tx, viewer, business, customerId)
@@ -147,7 +148,7 @@ export async function createOrder(input, { viewer, db = prisma, now = new Date()
     const dto = orderDto(created)
     await recordAudit(tx, { entityType: SALES_ORDER_ENTITY, entityId: created.id, action: 'SALES_ORDER_CREATED', actorId: actor(viewer), payload: { businessId: business.id, code: created.code, origin: created.origin, customerId, conversationId, lines: lines.length, total: dto.total } })
     return created
-  })
+  }), { exhausted: () => failure(409, 'SALES_ORDER_CODE_EXHAUSTED') })
   return orderDto(row)
 }
 

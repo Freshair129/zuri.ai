@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { seesBusiness } from '@/modules/identity/viewer-authority'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { appendMovement, mayManage as mayManageInventory } from '@/modules/inventory'
@@ -126,7 +127,8 @@ export async function checkoutPosSale(businessId, input, { viewer, db = prisma, 
     if (error?.issues?.some((issue) => issue.path?.[0] === 'lines' && issue.path?.[2] === 'qty' && issue.code === 'too_big')) throw failure(422, 'POS_AMOUNT_INVALID')
     throw error
   }
-  return db.$transaction(async (tx) => {
+  let exhaustedCode = 'SALES_ORDER_CODE_EXHAUSTED'
+  return retryOnCodeConflict(() => db.$transaction(async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { capability: 'order' })
     if (!mayManageInventory(viewer, business.id)) throw failure(403, 'POS_STOCK_ISSUE_REQUIRES_INVENTORY_AUTHORITY')
     const { branch, location } = await resolveLocation(tx, business, data.branchId, data.warehouseLocationId)
@@ -139,6 +141,7 @@ export async function checkoutPosSale(businessId, input, { viewer, db = prisma, 
     const payment = paymentInput(data.payment, totals.total)
     const profile = await profileForQr(tx, business, data.payment.method)
     const promptPay = profile ? promptPayPayloadForProfile(profile, totals.total) : null
+    exhaustedCode = 'SALES_ORDER_CODE_EXHAUSTED'
     const orderCodeValue = await nextOrderCode(tx, business, now)
     const order = await tx.salesOrder.create({
       data: {
@@ -188,6 +191,7 @@ export async function checkoutPosSale(businessId, input, { viewer, db = prisma, 
       const slip = await tx.fileAsset.findUnique({ where: { id: data.payment.slipFileAssetId }, select: { businessId: true, deletedAt: true } })
       if (!slip || slip.businessId !== business.id || slip.deletedAt) throw failure(422, 'PAYMENT_SLIP_NOT_FOUND')
     }
+    exhaustedCode = 'PAYMENT_CODE_EXHAUSTED'
     const paymentCodeValue = await nextPaymentCode(tx, business, now)
     const paymentRow = await tx.payment.create({
       data: {
@@ -233,7 +237,7 @@ export async function checkoutPosSale(businessId, input, { viewer, db = prisma, 
       order: orderDto(fullOrder),
       completedAt: now,
     }
-  })
+  }), { exhausted: () => failure(409, exhaustedCode) })
 }
 
 /** POS catalogue is identity plus recomputed on-hand; every sale price is manual. */

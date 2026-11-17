@@ -245,9 +245,11 @@ export default function PlanImportPanel({ projectId }) {
           )}
           {committed && (
             <Card>
-              <SectionTitle>Imported ✓</SectionTitle>
+              <SectionTitle>{committed.replay ? 'นำเข้าแผนนี้แล้วก่อนหน้านี้' : 'Imported ✓'}</SectionTitle>
               <p className="text-xs">
-                Project <b>{committed.projectCode}</b> committed transactionally. Audit event recorded.
+                {committed.replay
+                  ? 'แผนนี้ถูกนำเข้าแล้ว และไม่มีการเปลี่ยนแปลงในครั้งนี้'
+                  : <>Project <b>{committed.projectCode}</b> committed transactionally. Audit event recorded.</>}
               </p>
               <a className="btn btn-primary mt-3 inline-block" href={`/projects/${committed.projectId}`}>
                 Open project

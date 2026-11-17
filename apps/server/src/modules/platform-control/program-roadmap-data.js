@@ -75,7 +75,7 @@ export const PROGRAMME_HISTORY = {
 
 export const PROGRAMME_DELIVERABLES = [
   'Visual Office 2.5D',
-  'GoVibe Mission Control — the Development-domain Project system, plus the agent mission feed',
+  'Mission Control — the Development-domain Project system, plus the agent mission feed',
   'Interactive Node View 3D',
   'Second Brain / governed memory',
   'Five core agent roles',

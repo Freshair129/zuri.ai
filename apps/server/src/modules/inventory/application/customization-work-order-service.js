@@ -1,7 +1,8 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { PRODUCT_ENTITY } from '../domain/inventory'
-import { customizationUnitCostSatang, weightedAverageUnitCostSatang } from '../domain/inventory-costing'
+import { customizationUnitCostSatang } from '../domain/inventory-costing'
 import {
   CUSTOMIZATION_WORK_ORDER_ENTITY,
   customizationCompletionRule,
@@ -17,6 +18,7 @@ import {
 import { loadBusiness, notFound } from './inventory-authority'
 import { appendMovement } from './inventory-stock-service'
 import { transferInTransaction } from './location-transfer-service'
+import { readInventoryValuation } from './inventory-valuation-service'
 
 // @req FR-176 — the only writer of `CustomizationWorkOrder`: the durable record
 //   of blank hardware becoming a client's branded component.
@@ -38,7 +40,9 @@ import { transferInTransaction } from './location-transfer-service'
 //   different product row and not a flag. The only way out of a dedication is
 //   an explicit ADJUSTMENT write-off, which a person decides and the audit
 //   records.
-// @spec ADR-074 D4; BR-028; BR-029; BR-002; SEC-001; FR-072; FR-155
+// @req FR-175 — raw cost is read from moving valuation after issue; an empty
+//   position retains its last average for the produced branded SKU.
+// @spec ADR-074 D3, D4; BR-028; BR-029; BR-002; SEC-001; FR-072; FR-155
 // @tested tests/integration/fr176-customization-work-order.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
@@ -113,10 +117,10 @@ async function requireProduct(tx, id, businessId, code = 'INVENTORY_PRODUCT_NOT_
   return product
 }
 
-/** The raw SKU's landed unit cost, weighted across everything it has received (FR-175). */
+/** The raw SKU's moving average after issue; the empty position retains its last unit cost (FR-175). */
 async function rawUnitCostSatang(tx, productId) {
-  const receipts = await tx.stockMovement.findMany({ where: { productId, kind: 'RECEIPT' }, select: { quantity: true, costSatang: true } })
-  return weightedAverageUnitCostSatang(receipts)
+  const valuation = await readInventoryValuation(productId, { db: tx })
+  return valuation.unitCostSatang
 }
 
 /**
@@ -153,7 +157,7 @@ async function createOutputProduct(tx, { business, raw, code, customerId, salesO
 
 export async function openCustomizationWorkOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zOpenCustomizationWorkOrder.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     const raw = await requireProduct(tx, data.rawProductId, business.id)
     if (raw.stockPolicy !== 'TRACKED') throw failure(422, 'INVENTORY_PRODUCT_UNTRACKED')
@@ -209,6 +213,11 @@ export async function openCustomizationWorkOrder(input, { viewer, db = prisma, n
     })
     return customizationDto(created)
   })
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'CUSTOMIZATION_WORK_ORDER_CODE_EXHAUSTED') })
 }
 
 /**

@@ -97,7 +97,7 @@ import {
 // and recognized by genesisrag17-structured-recognizer-1; its batch carries
 // the rendered parsed content so every chunk stays an exact substring of it.
 // @spec ADR-050, ADR-063, ADR-067, ADR-068, ADR-075, NFR-020, docs/plans/GENESISRAG17-CONTRACT.md
-// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/genesisrag17-parser-2.test.js,
+// @tested tests/integration/genesisrag17-tier1.test.js, tests/integration/structured-catalog-admission.test.js, tests/integration/genesisrag17-parser-2.test.js,
 //         tests/unit/genesisrag17-executor-legacy-resume.test.js
 
 const RAW_SOURCE_TYPE = 'TEXT'

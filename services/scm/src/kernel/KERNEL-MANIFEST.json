@@ -4,8 +4,8 @@
     {
       "source": "apps/server/src/lib/validation/enums.js",
       "kernel": "src/kernel/lib/enums.js",
-      "sourceSha256": "90b635ec9a73e3598bf4e55fbb6f8ceb581e56ed19271996d3f54d1db9db0d64",
-      "kernelSha256": "90b635ec9a73e3598bf4e55fbb6f8ceb581e56ed19271996d3f54d1db9db0d64"
+      "sourceSha256": "dbe05940431fb2faed386e07633e4e2201efacda4a138a486d482ee0acea9c52",
+      "kernelSha256": "dbe05940431fb2faed386e07633e4e2201efacda4a138a486d482ee0acea9c52"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-formula.js",
@@ -16,20 +16,14 @@
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-rules.js",
       "kernel": "src/kernel/commerce/pricing-rules.js",
-      "sourceSha256": "ac550ef7a7b8de2a3d385b13edd98d48f411b67a2f4a23fcb743606f8818e193",
-      "kernelSha256": "23c59f1bb7259a1180aa8a52017bfcee12f193ef4a19ec5c16c691d09c216221"
-    },
-    {
-      "source": "apps/server/src/modules/commerce/domain/pricing-source.js",
-      "kernel": "src/kernel/commerce/pricing-source.js",
-      "sourceSha256": "3dc6b53fe7ea63260f7cc1858ad48592c5f417fb8037d0f6f3e288934c8b64aa",
-      "kernelSha256": "3dc6b53fe7ea63260f7cc1858ad48592c5f417fb8037d0f6f3e288934c8b64aa"
+      "sourceSha256": "f5cbe33d4fd5747ab161576bd67047b08cfab677b88b125410719b592b739027",
+      "kernelSha256": "b9f7ca5485d6665b82f63c71c3ab5d2e86567eb6784a51bc7115a2eba2cfc6dc"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-engine.js",
       "kernel": "src/kernel/commerce/pricing-engine.js",
-      "sourceSha256": "4cc9b2e0410491644e4c56213feea367380f0d0979f0714241082e51474c3a45",
-      "kernelSha256": "0c418172c11fd1a25c479a060fe4d9847a1c8dacbd36155b8435d95f538f68fc"
+      "sourceSha256": "53d80c99640bfe41219e32ed7f6ad53db4ed1d2af87b30f2c516d789fd501705",
+      "kernelSha256": "e98de8a2a6766fa025646f52f382e43546802ad90da8961a53be6ef6167fa855"
     },
     {
       "source": "apps/server/src/modules/commerce/domain/pricing-catalog-projection.js",
@@ -52,8 +46,8 @@
     {
       "source": "apps/server/src/modules/procurement/domain/procurement.js",
       "kernel": "src/kernel/procurement/procurement.js",
-      "sourceSha256": "c3947a428af24f236b8a71c12cf9ff7f02b886e9d99d3866df07782584174b20",
-      "kernelSha256": "09aa5761da5aa9154ccc14b43a981fcdf7b89d440da1121c2b7aa327c5a9eaad"
+      "sourceSha256": "81dc6e26c16a774faf30de20aab16f372768d6392d0328fe999e87968b61bca1",
+      "kernelSha256": "f63c4b1318a39792ebb215622168794d7a0f1b079b53796090eac63d24ef0b81"
     },
     {
       "source": "apps/server/src/modules/inventory/domain/inventory.js",
@@ -64,8 +58,8 @@
     {
       "source": "apps/server/src/modules/inventory/domain/inventory-costing.js",
       "kernel": "src/kernel/inventory/inventory-costing.js",
-      "sourceSha256": "85bb2db729276b13534a26db8bab562be6fa4ce75c68efb30babfd76be9271a9",
-      "kernelSha256": "85bb2db729276b13534a26db8bab562be6fa4ce75c68efb30babfd76be9271a9"
+      "sourceSha256": "1d4dee0aba2c5e2a893b0c622efb23eb4685a192490f3f4602e4a23212c508c1",
+      "kernelSha256": "1d4dee0aba2c5e2a893b0c622efb23eb4685a192490f3f4602e4a23212c508c1"
     },
     {
       "source": "apps/server/src/modules/inventory/domain/inventory-governance.js",

@@ -46,8 +46,12 @@ const GOVERNED_FAMILIES = [
 // scheduled tick, never one viewer's visible slice of it. Named path by path, not by
 // pattern, so a future route cannot claim the same exemption by sitting in this folder —
 // exactly the discipline the exemption lists in doc-preflight.mjs already follow.
+// The archive-expiry route authenticates the ZURI_RETENTION_SWEEP_TOKEN bearer before
+// any work and runs FR-245 / SEC-034 expiry across every Tenant with archive rows (ADR-093
+// D5 P7); tests/unit/crm-archive-expiry-route.test.js proves its 401 path.
 const STRUCTURALLY_EXEMPT_ROUTES = new Set([
   resolve(SRC, 'app', 'api', 'crm', 'retention-sweep', 'route.js'),
+  resolve(SRC, 'app', 'api', 'crm', 'archive-expiry', 'route.js'),
 ])
 
 function routeFilesUnder(dir, out = []) {

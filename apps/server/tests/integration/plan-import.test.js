@@ -260,14 +260,19 @@ describe('plan envelope import', () => {
     expect(audit.actorType).toBe('AGENT_PLAN')
   })
 
-  it('re-import classifies as updates, not conflicts (idempotent upsert)', async () => {
-    const result = await dryRun(plan)
+  it('re-import with changed content classifies as updates, not conflicts (idempotent upsert)', async () => {
+    const changedPlan = structuredClone(plan)
+    changedPlan.workstreams[0].name = 'Dev updated'
+    const result = await dryRun(changedPlan)
     expect(result.valid).toBe(true)
     expect(result.preview.summary.updateCount).toBeGreaterThan(0)
-    const commit2 = await runCommit(plan)
+    const commit2 = await runCommit(changedPlan)
     expect(commit2.committed).toBe(true)
+    expect(commit2.replay).not.toBe(true)
     const count = await prisma.workstream.count({ where: { code: 'WST-IMP-DEV' } })
     expect(count).toBe(1)
+    await expect(prisma.workstream.findUnique({ where: { code: 'WST-IMP-DEV' } }))
+      .resolves.toMatchObject({ name: 'Dev updated' })
   })
 
   it('conflicts block commit: same project code in another workspace', async () => {

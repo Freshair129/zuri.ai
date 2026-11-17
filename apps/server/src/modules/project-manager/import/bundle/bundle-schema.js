@@ -2,6 +2,7 @@ import { zHandoffContractV1 } from '../../application/handoff-contract'
 import { z } from 'zod'
 import { zFullPlanEnvelope } from '../plan-schema'
 import { DEPENDENCY_TYPES } from '@/lib/validation/enums'
+import { isReservedPlanImportIdempotencyKey, RESERVED_PLAN_IMPORT_KEY_MESSAGE } from '../reserved-keys'
 
 // @req FR-108 — ExecutionPlanBundle runtime validator: the Zod mirror of
 // contracts/execution-plan-bundle.schema.json, plus the bundle-level semantic
@@ -110,7 +111,10 @@ const zCrossProjectDependency = z
 const zTrace = z
   .object({
     correlationId: z.string().min(1).max(256).optional(),
-    idempotencyKey: z.string().min(1).max(256).optional(),
+    idempotencyKey: z.string().min(1).max(256)
+      .describe('Caller-supplied receipt key; the zai-legacy-plan: prefix is reserved for server-derived legacy replay identities.')
+      .refine((value) => !isReservedPlanImportIdempotencyKey(value), { message: RESERVED_PLAN_IMPORT_KEY_MESSAGE })
+      .optional(),
     sourceType: z.enum(['HUMAN', 'AGENT', 'API', 'MCP', 'IMPORT', 'OTHER']).optional(),
     sourceRef: z.string().max(1000).optional(),
     replayOfBundleRunId: z.string().max(256).optional(),
@@ -137,7 +141,12 @@ export const zLegacyExecutionPlanBundle = z
 export const zHandoffExecutionPlanBundle = zLegacyExecutionPlanBundle.extend({
   schemaVersion: z.literal('1.1'),
   expectedPreviewHash: z.string().regex(/^[0-9a-f]{64}$/).nullable(),
-  trace: zTrace.extend({ correlationId: z.string().uuid(), idempotencyKey: z.string().uuid() }).strict(),
+  trace: zTrace.extend({
+    correlationId: z.string().uuid(),
+    idempotencyKey: z.string().uuid()
+      .describe('Caller-supplied receipt key; the zai-legacy-plan: prefix is reserved for server-derived legacy replay identities.')
+      .refine((value) => !isReservedPlanImportIdempotencyKey(value), { message: RESERVED_PLAN_IMPORT_KEY_MESSAGE }),
+  }).strict(),
   dependencies: z.array(zCrossProjectDependency.extend({ contract: zHandoffContractV1 }).strict()).max(1000).default([]),
 }).strict()
 export const zExecutionPlanBundle = z.union([zLegacyExecutionPlanBundle,zHandoffExecutionPlanBundle])

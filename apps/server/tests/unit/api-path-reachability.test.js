@@ -31,6 +31,11 @@ const ALLOWLIST = new Set([
   // <InsightsLayout>, which appends /summary, /metric/{key}, /metric/{key}/export
   // and /content (all real routes, FR-275). There is no route at the bare base.
   '/api/insights',
+  // src/middleware.js — the Next.js middleware `matcher` pattern (`:path*` is
+  // path-to-regexp syntax) that puts every API write behind the same-origin
+  // guard. It is a route pattern, never a path anything fetches; the guard's
+  // own coverage test (write-route-coverage.test.js) asserts it covers every route.
+  '/api/:path*',
 ])
 
 /**

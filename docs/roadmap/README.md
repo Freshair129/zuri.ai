@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-index
 status: active
-version: "0.1.0"
+version: "0.2.0"
 checked_at: "2026-10-22"
 checked_base_revision: "1f1e5a0a7591f4e42646ebc33e78654a4e3477be"
 ---
@@ -12,9 +12,11 @@ checked_base_revision: "1f1e5a0a7591f4e42646ebc33e78654a4e3477be"
 
 [ROADMAP.md](ROADMAP.md) is the only source of current delivery status. Its canonical delivery ledger owns task state, evidence scope, and delivery status.
 
-[ROADMAP-zuri-ai-24w-program.md](ROADMAP-zuri-ai-24w-program.md) is a derived schedule and proposal projection. Its metadata sets source_of_truth to false and identifies ROADMAP.md as its status source. It retains the 24-week programme shape; its status cells do not override the canonical ledger.
+[ROADMAP-zuri-ai-24w-program.md](ROADMAP-zuri-ai-24w-program.md) is a derived projection of the **cancelled** 24-week programme. By [ADR-117](../decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md), recorded on an owner instruction given in chat on 2026-11-13 and relayed by the lead session, its schedule, phase and sprint dates and `GATE-ZAI-*` targets are not the delivery plan. Its metadata still sets source_of_truth to false and identifies ROADMAP.md as its status source. It is kept for history, and for the board and generated projections that still read its task containers; its status cells do not override the canonical ledger, and nothing in it is progress against a schedule.
 
-[ROADMAP-zuri-ai-24w-program.html](ROADMAP-zuri-ai-24w-program.html) is a static historical snapshot measured at commit 7d8c9d0 on 2026-08-23. It is not a current board. Its task values and percentages are retained as historical evidence.
+The current plan is the architecture-review gap-closure work ([review](../../.brain/reviews/2026-11-12-architecture-review-domains-and-core-systems.md)), tracked by ROADMAP.md delivery rows and pull requests, not by sprint dates. The cancellation declares no work done, rewrites no task count or percentage, and states no production effect.
+
+[ROADMAP-zuri-ai-24w-program.html](ROADMAP-zuri-ai-24w-program.html) is a static historical snapshot measured at commit 7d8c9d0 on 2026-08-23 of the now-cancelled programme. It is not a current board. Its task values and percentages are retained as historical evidence.
 
 Other PLAN, phase, JSON, or project-specific files remain at their present paths until each is individually classified. Do not create new roadmap plans here; put new bounded plans in [docs/plans](../plans/README.md). Do not delete or relocate an existing plan based on its filename or age alone.
 
@@ -95,3 +97,7 @@ An existing project-plan index and phase files remain under this directory:
 0.0 → 0.1.0 (2026-10-22): Separates the delivery ledger, schedule projection,
 and historical HTML snapshot; enumerates existing roadmap and nested phase
 artifacts without changing their task states.
+
+0.1.0 → 0.2.0 (2026-11-13): Records that the 24-week programme is cancelled as the
+delivery plan (ADR-117, owner chat instruction relayed by the lead session).
+Task states, counts, percentages and file inventory are unchanged.

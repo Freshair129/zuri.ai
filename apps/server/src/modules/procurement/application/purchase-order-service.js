@@ -1,4 +1,5 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
   PURCHASE_ORDER_ENTITY,
@@ -40,8 +41,8 @@ const LINE_SELECT = {
   product: { select: { id: true, code: true, name: true, stockPolicy: true, trackingMode: true, status: true } },
   receiptLines: { select: { id: true, receiptId: true, qty: true } },
 }
-const RECEIPT_LINE_SELECT = { id: true, purchaseOrderLineId: true, qty: true, lotCode: true, expiresAt: true, serialNosJson: true }
-const RECEIPT_SELECT = { id: true, code: true, purchaseOrderId: true, supplierReference: true, notes: true, receivedAt: true, postedByPersonId: true, createdAt: true, lines: { select: RECEIPT_LINE_SELECT } }
+const RECEIPT_LINE_SELECT = { id: true, purchaseOrderLineId: true, qty: true, lotCode: true, expiresAt: true, serialNosJson: true, unitCostSatang: true }
+const RECEIPT_SELECT = { id: true, code: true, purchaseOrderId: true, supplierReference: true, notes: true, receivedAt: true, postedByPersonId: true, createdAt: true, fxCostSheetId: true, fxRateLocked: true, landedCostsJson: true, lines: { select: RECEIPT_LINE_SELECT } }
 const PO_SELECT = {
   id: true, code: true, tenantId: true, businessId: true, supplierId: true, status: true, currency: true, expectedAt: true, notes: true, orderedAt: true,
   sentAt: true, receivedAt: true, closedAt: true, closeReason: true, cancelledAt: true, cancelReason: true, createdByPersonId: true, createdAt: true, updatedAt: true, version: true,
@@ -69,7 +70,30 @@ const lineDto = (l) => {
   }
 }
 
-export const receiptDto = (r) => ({ ...r, lines: r.lines.map(({ serialNosJson, ...line }) => ({ ...line, serialNos: parseSerials(serialNosJson) })) })
+const parseLandedCosts = (json) => {
+  if (!json) return []
+  try {
+    const value = JSON.parse(json)
+    return Array.isArray(value) ? value : []
+  } catch {
+    return []
+  }
+}
+
+export const receiptDto = (r) => {
+  const { landedCostsJson, ...receipt } = r
+  return {
+    ...receipt,
+    fxCostSheetId: r.fxCostSheetId ?? null,
+    fxRateLocked: r.fxRateLocked ?? null,
+    landedCosts: parseLandedCosts(landedCostsJson),
+    lines: r.lines.map(({ serialNosJson, ...line }) => ({
+      ...line,
+      unitCostBaht: line.unitCostSatang == null ? null : fromSatang(line.unitCostSatang),
+      serialNos: parseSerials(serialNosJson),
+    })),
+  }
+}
 
 export function purchaseOrderDto(row) {
   const { lines, receipts, supplier, ...order } = row
@@ -124,7 +148,8 @@ async function nextCode(tx, business, now) {
 
 export async function createPurchaseOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zCreatePurchaseOrder.parse(input)
-  const row = await db.$transaction(async (tx) => {
+  const row = await retryOnCodeConflict(
+    () => db.$transaction(async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { capability: 'po' })
     const supplier = await requireSupplier(tx, business, data.supplierId)
     const lines = await resolveLines(tx, business, data.lines)
@@ -140,7 +165,9 @@ export async function createPurchaseOrder(input, { viewer, db = prisma, now = ne
     const dto = purchaseOrderDto(created)
     await recordAudit(tx, { entityType: PURCHASE_ORDER_ENTITY, entityId: created.id, action: 'PURCHASE_ORDER_CREATED', actorId: actor(viewer), payload: { businessId: business.id, code: created.code, supplierId: supplier.id, lines: lines.length, total: dto.total } })
     return created
-  })
+    }),
+    { exhausted: () => failure(409, 'PURCHASE_ORDER_CODE_EXHAUSTED') },
+  )
   return purchaseOrderDto(row)
 }
 

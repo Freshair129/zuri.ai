@@ -15,3 +15,11 @@ workflow catalog before invoking the preserved producer semantic validator.
 Changing the pin/catalog is a contract review, not an automatic package upgrade.
 Git attributes preserve the literal hashed bytes across platforms; the generated
 verifier retains upstream comment whitespace instead of editing the pinned bundle.
+
+Re-obtaining the source and reviewing a bump: the pinned revision is reachable
+only from `archive/main` of `https://github.com/Freshair129/zuri-visual-office.git`
+(not from `Freshair129/visual-office`). The commands, the review steps a pin
+change requires and the owner-approval rule are in
+`docs/architecture/2026-10-22-visual-office-zuri-client-design.md` §12.4.
+`tests/unit/office-design-current-producer.test.js` records how the current
+producer compares with this pin.

@@ -1,0 +1,37 @@
+{
+  "fixtureVersion": "structured-catalog-v1",
+  "generatedFor": "Structured-record source adapter tests before genesisrag17.v1 Stage 1 (ADR-073)",
+  "note": "SYNTHETIC. Every name, price, code, dimension and provenance value is invented; ids and shapes are kept so the adapter, parser and admission tests exercise the real record shapes.",
+  "scope": {
+    "business": "Fixture Business",
+    "classification": "product_metadata",
+    "sourceProvider": "SMARTGIFT_CATALOG",
+    "tenant": "Fixture Tenant",
+    "note": "sourceProvider keeps the persisted provider value the Stage 5 gate keys on. The adapter resolves scope at ingestion time; this fixture assigns no runtime UUIDs."
+  },
+  "piiInvariant": {
+    "deniedPattern": "05_crm_customer_data|customer|contact|quotation|ลูกค้า|ใบเสนอราคา",
+    "note": "No customer, contact or quotation data; no cost, margin or freight fields."
+  },
+  "recordMapping": "One record in products.json / bundles.json / pricelist.json becomes exactly one RawExternalRecord (payloadJson = canonical JSON of the record, entityType/externalId as shown) + one KnowledgeRawArtifact (content = frozen byte-stable JSON text of the record, contentHash = sha256 of that text, sourceId = smartgift-catalog:<file>, version = fixtureVersion).",
+  "files": [
+    {
+      "file": "products.json",
+      "recordCount": 5,
+      "sha256": "cc605e40888b66963d6b3260cdbb6cf4793f3a5a1e0000b59840ef9bf22877b2",
+      "sizeBytes": 5721
+    },
+    {
+      "file": "bundles.json",
+      "recordCount": 2,
+      "sha256": "14f20b5e3ebc2bf1f549bef18a0bd88701d429d006875fd81f37cb72c658df63",
+      "sizeBytes": 1833
+    },
+    {
+      "file": "pricelist.json",
+      "recordCount": 15,
+      "sha256": "6ebda85c9fc496a616cbe0aac274becd151283e7d89169d627fbe9f01408c01e",
+      "sizeBytes": 4989
+    }
+  ]
+}

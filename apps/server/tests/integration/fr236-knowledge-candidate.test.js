@@ -78,7 +78,7 @@ describe('FR-236 KnowledgeCandidate (ADR-090 D6)', () => {
     // admitKnowledge's runtime resolver validates a credential/transport are
     // configured even though this test never runs the Stage 1-17 worker
     // (admission only queues the immutable source row) — mirrored from
-    // tests/integration/smartgift-catalog-admission.test.js.
+    // tests/integration/structured-catalog-admission.test.js.
     process.env.MSP_PIPELINE_PRINCIPALS = JSON.stringify([{ role: 'source', credential: 'test-credential', scope }])
     process.env.ZURI_MSP_COMMAND = process.execPath
 

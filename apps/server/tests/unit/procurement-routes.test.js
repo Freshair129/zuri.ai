@@ -55,7 +55,17 @@ describe('FR-164 / FR-165 procurement route and persistence contract', () => {
       expect(body(sqlite), model).not.toBe('')
       expect(body(postgres), model).toBe(body(sqlite))
       expect(body(sqlite)).toMatch(/id\s+String\s+@id @default\(uuid\(\)\)/)
-      expect(body(sqlite)).not.toMatch(/Float|Decimal/)
+      // FX rates are ratios, not monetary amounts.
+      const monetaryFields = body(sqlite).split(/\r?\n/).filter((line) => !/^\s*fxRateLocked\s/.test(line)).join('\n')
+      expect(monetaryFields).not.toMatch(/Float|Decimal/)
+    }
+    for (const schema of [sqlite, postgres]) {
+      const receipt = schema.match(/model GoodsReceipt \{[\s\S]*?\n\}/)[0]
+      expect(receipt).toMatch(/^\s*fxCostSheetId\s+String\?/m)
+      expect(receipt).toMatch(/^\s*fxRateLocked\s+Float\?/m)
+      expect(receipt).toMatch(/^\s*landedCostsJson\s+String\?/m)
+      const receiptLine = schema.match(/model GoodsReceiptLine \{[\s\S]*?\n\}/)[0]
+      expect(receiptLine).toMatch(/^\s*unitCostSatang\s+Int\?/m)
     }
     const order = sqlite.match(/model PurchaseOrder \{[\s\S]*?\n\}/)[0]
     expect(order).toContain('@@unique([tenantId, code])')

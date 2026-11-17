@@ -3,12 +3,12 @@ import prisma from '@/lib/db'
 import { createHash } from 'node:crypto'
 import { resolveFileAssetContent } from '@/modules/project-manager/application/file-asset-service'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-  splitSmartGiftCatalogRecords,
-} from './smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_PROVIDER,
+  structuredCatalogSourceKey,
+  splitStructuredCatalogRecords,
+} from './structured-catalog-adapter'
 import { hashGenesisRag17Json, hashGenesisRag17Text } from './genesisrag17-contract'
 
 // @req FR-235 — an in-process implementation of the existing `knowledge.query`
@@ -138,10 +138,10 @@ function acceptedCatalogSource({ ingestion, source, asset, entry, descriptor, re
     && /^PCAT-[a-f0-9]{64}$/.test(asset.code || '')
     && asset.name === `commerce-price-${productId}.json`
     && SHA256.test(asset.sha256 || '')
-    && descriptor.format === SMARTGIFT_CATALOG_FORMAT
-    && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
+    && descriptor.format === STRUCTURED_CATALOG_FORMAT
+    && descriptor.provider === STRUCTURED_CATALOG_PROVIDER
     && descriptor.entityType === 'PriceListEntry'
-    && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && descriptor.contentType === STRUCTURED_CATALOG_CONTENT_TYPE
     && descriptor.externalId === externalId
     && Number.isSafeInteger(descriptor.recordIndex) && descriptor.recordIndex >= 0
     && Number.isSafeInteger(descriptor.recordCount) && descriptor.recordCount > descriptor.recordIndex
@@ -171,7 +171,7 @@ function acceptedCatalogSource({ ingestion, source, asset, entry, descriptor, re
     && sourceMeta.structured?.recordIndex === descriptor.recordIndex
     && sourceMeta.structured?.recordCount === descriptor.recordCount
     && sourceMeta.structured?.fileSha256 === descriptor.fileSha256
-    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: externalId })
+    && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: externalId })
 }
 
 /**
@@ -233,7 +233,7 @@ export function createCorpusKnowledgeReader({
       const assetBefore = await db.fileAsset.findUnique({ where: { id: entry.fileAssetId } })
       if (!assetBefore || assetBefore.tenantId !== tenantId || assetBefore.businessId !== businessId
         || assetBefore.projectId !== null || assetBefore.storageKind !== 'MANAGED_BLOB'
-        || assetBefore.mime !== SMARTGIFT_CATALOG_CONTENT_TYPE
+        || assetBefore.mime !== STRUCTURED_CATALOG_CONTENT_TYPE
         || !/^PCAT-[a-f0-9]{64}$/.test(assetBefore.code || '')) return null
       const { asset: resolvedAsset, content: rawContent } = await fileContentResolver(entry.fileAssetId, {
         db,
@@ -246,7 +246,7 @@ export function createCorpusKnowledgeReader({
       if (bytes.length !== assetBefore.size || fileSha256 !== assetBefore.sha256 || fileSha256 !== descriptor?.fileSha256) return null
       let content
       try { content = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) } catch { return null }
-      const split = splitSmartGiftCatalogRecords({
+      const split = splitStructuredCatalogRecords({
         content,
         fileAssetId: assetBefore.id,
         fileSha256,

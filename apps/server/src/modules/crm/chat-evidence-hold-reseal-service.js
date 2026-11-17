@@ -12,8 +12,10 @@ import {
   findThreadCustomerMembers,
   getOrCreateLegalHoldArchiveKeyDek,
   hashMessageIdList,
+  lockTenantArchiveChain,
   isMemberForLine,
   openExistingCustomerArchiveKeyDek,
+  readArchiveChainTail,
   resolveArchiveBaseDir,
   resolveReplySources,
   verifyManifestChain,
@@ -28,10 +30,10 @@ import { RETENTION_SWEEP_TOMBSTONE } from './retention-sweep-tombstone'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { recordErrorEvent } from '@/modules/platform-control/application/error-events'
 
-// @req FR-022, SEC-034 — erasing a Customer must not shred evidence a held,
+// @req FR-022, FR-245, SEC-034 — erasing a Customer must not shred evidence a held,
 //   consenting member of the same thread relies on (owner ruling 2026-09-27,
 //   ADR-093 1.2.0, question 1).
-// @spec ADR-093 1.2.0 (amending D6), SEC-034, SDD-103
+// @spec ADR-093 1.2.0 (amending D6), D5 (1.3.0), SEC-001, SDD-103
 // @tested tests/integration/crm-retention-consent.test.js
 //
 // THE PROBLEM
@@ -190,9 +192,10 @@ async function findQualifyingHolds(tx, { tenantId, conversationIds, excludedHold
 }
 
 /** Every archived line sealed under one of these Customers' keys, from verified files only (the caller verified the chain). */
-async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, env }) {
+async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, env, retiredManifestIds = [] }) {
   const lines = new Map()
   const deks = new Map()
+  const retired = new Set(retiredManifestIds)
   try {
     for (const customerId of customerIds) {
       const dek = await openExistingCustomerArchiveKeyDek(tx, { tenantId, customerId }, env)
@@ -201,6 +204,7 @@ async function readArchivedLinesUnderKeys(tx, { tenantId, customerIds, baseDir, 
     if (deks.size === 0) return lines
     const manifests = await tx.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
     for (const manifest of manifests) {
+      if (manifest.filePath.endsWith('.zcr') || retired.has(manifest.id)) continue
       const raw = await fs.readFile(path.join(baseDir, manifest.filePath))
       if (createHash('sha256').update(raw).digest('hex') !== manifest.fileSha256) continue
       const fileLines = raw.toString('utf8').trim().split('\n')
@@ -275,7 +279,10 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
     throw new ErasureBlockedError('ERASURE_BLOCKED_ARCHIVE_CHAIN_INVALID', details)
   }
   const archived = includeArchivedCustomerLines
-    ? await readArchivedLinesUnderKeys(tx, { tenantId, customerIds: erased, baseDir: resolvedBaseDir, env })
+    ? await readArchivedLinesUnderKeys(tx, {
+      tenantId, customerIds: erased, baseDir: resolvedBaseDir, env,
+      retiredManifestIds: chainIntegrity.retiredManifestIds ?? [],
+    })
     : new Map()
   const replySources = await resolveReplySources(tx, [...new Set(capturedLines.map((m) => m.conversation.id))])
   const allLines = new Map(archived)
@@ -316,7 +323,8 @@ export async function resealErasedEvidenceUnderLegalHolds(tx, {
   try {
     const ids = [...messageIds]
     const messageIdListHash = hashMessageIdList(ids)
-    const previous = await tx.archiveManifest.findFirst({ where: { tenantId }, orderBy: { createdAt: 'desc' } })
+    await lockTenantArchiveChain(tx, { tenantId })
+    const previous = await readArchiveChainTail(tx, tenantId)
     const previousManifestHash = previous?.manifestHash ?? null
     const manifestHash = computeManifestHash({
       tenantId, runId, filePath: relativePath, fileSha256, messageCount: ids.length, messageIdListHash, previousManifestHash,

@@ -12,6 +12,8 @@ owner: "Owen"
 ratification_authority: "Owen (Owner)"
 auditor: "ATHER"
 source_of_truth: false
+delivery_plan_status: "cancelled"
+cancelled_by: "docs/decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md"
 derived_from: "docs/roadmap/ROADMAP.md"
 status_source: "docs/roadmap/ROADMAP.md#canonical-delivery-ledger"
 access_scope: "H3"
@@ -31,6 +33,8 @@ related_docs:
 ---
 
 # ROADMAP: Zuri AI — 24-Week Full System Delivery Program
+
+> **CANCELLED as the delivery plan (ADR-117, 2026-11-13).** On the owner's chat instruction of 2026-11-13, relayed by the lead session, the schedule, programme window, `PHASE-ZAI-01..06`, `SPR-ZAI-01..12` dates and `GATE-ZAI-01..09` targets below are not the current plan and carry no deadline or acceptance meaning. The current plan is the architecture-review gap closure, tracked by `docs/roadmap/ROADMAP.md` delivery rows and pull requests. This file is retained as history and because existing views still read its task containers; no task state, count, percentage or evidence below is rewritten, and nothing here states a production effect. See [ADR-117](../decisions/ADR-117-CANCEL-24-WEEK-PROGRAMME-AS-DELIVERY-PLAN.md).
 
 > Derived compatibility projection. `docs/roadmap/ROADMAP.md` is the only delivery-state source of truth. This document keeps the 24-week phase/sprint/task-container shape consumed by existing views; its status cells are not an independent claim and must be reconciled from the canonical ledger.
 

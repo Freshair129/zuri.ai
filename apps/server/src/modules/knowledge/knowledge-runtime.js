@@ -22,7 +22,7 @@ import {
 // @req FR-187 — a structured record carries its provider, entity type and
 // content type from the admitted row, so the Stage 5 Zero-PII gate can see it.
 // @spec ADR-072, ADR-073, ADR-075
-// @tested tests/unit/knowledge-runtime.test.js, tests/integration/knowledge-replay.integration.test.js, tests/acceptance/knowledge-admission-native.test.js, tests/integration/smartgift-catalog-admission.test.js
+// @tested tests/unit/knowledge-runtime.test.js, tests/integration/knowledge-replay.integration.test.js, tests/acceptance/knowledge-admission-native.test.js, tests/integration/structured-catalog-admission.test.js
 const unavailable = () => Object.assign(new Error('Knowledge runtime is unavailable for this Business'), { status: 503, code: 'KNOWLEDGE_RUNTIME_UNAVAILABLE' })
 const date = (now) => typeof now === 'function' ? now() : now || new Date()
 

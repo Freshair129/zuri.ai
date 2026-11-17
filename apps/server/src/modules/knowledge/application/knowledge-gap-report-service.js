@@ -2,7 +2,7 @@ import prisma from '@/lib/db'
 import { isDomainVisible } from '@/config/domains'
 import { assertDomainVisible, domainsForBusiness } from '@/modules/identity/viewer-domains'
 
-// @req FR-237 — a Business-scoped report over EVIDENCE_SELECTED trace events
+// @req FR-237, FR-230 — a Business-scoped report over EVIDENCE_SELECTED trace events
 //   (agent lane, execution-trace.js/line-execution-trace.js) with
 //   `reason === 'NO_EVIDENCE'`: counts, product locators (where the traced
 //   query names one) and last-seen times only. The question text never
@@ -19,6 +19,7 @@ import { assertDomainVisible, domainsForBusiness } from '@/modules/identity/view
 const KNOWLEDGE_DOMAIN = 'knowledge'
 const NO_EVIDENCE = 'NO_EVIDENCE'
 const EVIDENCE_SELECTED = 'EVIDENCE_SELECTED'
+const REDACTED_TRACE_PAYLOAD_JSON = '{"redacted":true}'
 // A generous but bounded read: this is a computed-on-read report, not a paged
 // list, and a business running far past this volume of gaps needs a
 // persisted aggregate — a decision for a later task, not a silent unbounded
@@ -87,7 +88,10 @@ export async function getKnowledgeGapReport({ businessId } = {}, { viewer, db = 
   if (!businessIds.length) return { businesses: [], truncated: false }
 
   const rows = await db.agentTraceEvent.findMany({
-    where: { businessId: { in: businessIds }, kind: EVIDENCE_SELECTED },
+    // Retention keeps the event envelope but replaces its content. Exclude
+    // those envelopes before the oldest-first cap, or expired rows can occupy
+    // all 5,000 slots and hide still-readable evidence.
+    where: { businessId: { in: businessIds }, kind: EVIDENCE_SELECTED, payloadJson: { not: REDACTED_TRACE_PAYLOAD_JSON } },
     select: { businessId: true, payloadJson: true, occurredAt: true },
     orderBy: { occurredAt: 'asc' },
     take: MAX_EVENTS + 1,

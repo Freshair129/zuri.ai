@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { isCodeConflict, retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import {
   zPortfolioInput,
   zTenantInput,
@@ -100,6 +100,7 @@ export async function listScope() {
  * an operator primitive, without either one re-deciding the question.
  */
 async function insertPortfolio(name, client = prisma) {
+  // This helper may run inside a caller-owned transaction; its transaction owner handles code conflicts.
   const code = await uniqueHumanCode('PF', name, codeExists('portfolio', client))
   const portfolio = await client.portfolio.create({ data: { code, name } })
   await recordAudit(client, { entityType: 'PORTFOLIO', entityId: portfolio.id, action: 'CREATED', payload: { code } })
@@ -116,7 +117,9 @@ export async function createPortfolio(input, { viewer } = {}) {
     await recordAudit(prisma, { entityType: 'PORTFOLIO', entityId: portfolio.id, action: 'CREATED', payload: { code: data.code } })
     return portfolio
   }
-  return insertPortfolio(data.name)
+  return retryOnCodeConflict(() => insertPortfolio(data.name), {
+    exhausted: () => refusal(409, 'PORTFOLIO_CODE_EXHAUSTED'),
+  })
 }
 
 export async function createTenant(input, { viewer } = {}) {
@@ -124,12 +127,17 @@ export async function createTenant(input, { viewer } = {}) {
   // @req FR-075 — a Tenant is the isolation boundary itself (BR-001); creating
   // one is an installation act, not something an existing Tenant's owner does.
   assertOperator(viewer, 'Creating a Tenant')
-  const code = data.code || (await uniqueHumanCode('TNT', data.name, codeExists('tenant')))
-  const tenant = await prisma.tenant.create({
-    data: { code, name: data.name, portfolioId: data.portfolioId, status: data.status || 'ACTIVE' },
+  const create = async () => {
+    const code = data.code || (await uniqueHumanCode('TNT', data.name, codeExists('tenant')))
+    const tenant = await prisma.tenant.create({
+      data: { code, name: data.name, portfolioId: data.portfolioId, status: data.status || 'ACTIVE' },
+    })
+    await recordAudit(prisma, { entityType: 'TENANT', entityId: tenant.id, action: 'CREATED', payload: { code } })
+    return tenant
+  }
+  return data.code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'TENANT_CODE_EXHAUSTED'),
   })
-  await recordAudit(prisma, { entityType: 'TENANT', entityId: tenant.id, action: 'CREATED', payload: { code } })
-  return tenant
 }
 
 /**
@@ -146,20 +154,25 @@ export async function createLegalEntity(input, { viewer } = {}) {
   // @req FR-075 — unchanged: a LegalEntity is installation-controlled master
   // data, not a self-service write.
   assertOperator(viewer, 'Creating a LegalEntity')
-  const code = data.code || (await uniqueHumanCode('LE', data.legalName, codeExists('legalEntity')))
-  const entity = await prisma.legalEntity.create({
-    data: {
-      code,
-      legalName: data.legalName,
-      tenantId: data.tenantId,
-      identifiers: data.identifiers
-        ? { create: data.identifiers.map((i) => ({ country: i.country || 'TH', type: i.type, value: i.value })) }
-        : undefined,
-    },
-    include: { identifiers: true },
+  const create = async () => {
+    const code = data.code || (await uniqueHumanCode('LE', data.legalName, codeExists('legalEntity')))
+    const entity = await prisma.legalEntity.create({
+      data: {
+        code,
+        legalName: data.legalName,
+        tenantId: data.tenantId,
+        identifiers: data.identifiers
+          ? { create: data.identifiers.map((i) => ({ country: i.country || 'TH', type: i.type, value: i.value })) }
+          : undefined,
+      },
+      include: { identifiers: true },
+    })
+    await recordAudit(prisma, { entityType: 'LEGAL_ENTITY', entityId: entity.id, action: 'CREATED', payload: { code } })
+    return entity
+  }
+  return data.code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'LEGAL_ENTITY_CODE_EXHAUSTED'),
   })
-  await recordAudit(prisma, { entityType: 'LEGAL_ENTITY', entityId: entity.id, action: 'CREATED', payload: { code } })
-  return entity
 }
 
 /**
@@ -212,17 +225,24 @@ export async function createBusiness(input, { viewer } = {}) {
     const legalEntity = await prisma.legalEntity.findUnique({ where: { id: data.legalEntityId }, select: { tenantId: true } })
     if (!legalEntity || legalEntity.tenantId !== data.tenantId) throw refusal(422, 'LEGAL_ENTITY_TENANT_MISMATCH')
   }
-  const code = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business')))
-  return prisma.$transaction(async (tx) => {
-    const business = await tx.business.create({
-      data: {
-        code,
-        name: data.name,
-        tenantId: data.tenantId,
-        legalEntityId: data.legalEntityId ?? null,
-        status: data.status || 'ACTIVE',
-      },
-    })
+  const explicitBusinessCodeConflicts = new WeakSet()
+  const create = () => prisma.$transaction(async (tx) => {
+    const code = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business', tx)))
+    let business
+    try {
+      business = await tx.business.create({
+        data: {
+          code,
+          name: data.name,
+          tenantId: data.tenantId,
+          legalEntityId: data.legalEntityId ?? null,
+          status: data.status || 'ACTIVE',
+        },
+      })
+    } catch (error) {
+      if (data.code && isCodeConflict(error)) explicitBusinessCodeConflicts.add(error)
+      throw error
+    }
     // @req FR-286 — template and default Space use the same already-authorized
     // Tenant transaction; the helper accepts no client-provided authority.
     const provisioned = await provisionStandardBusinessTemplate(tx, {
@@ -234,6 +254,10 @@ export async function createBusiness(input, { viewer } = {}) {
     await provisionBusinessAgentConfig(tx, { business: provisioned.business, actorId: viewer.principal.id })
     await recordAudit(tx, { entityType: 'BUSINESS', entityId: business.id, action: 'CREATED', payload: { code } })
     return provisioned.business
+  })
+  return retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'BUSINESS_CODE_EXHAUSTED'),
+    shouldRetry: (error) => !explicitBusinessCodeConflicts.has(error),
   })
 }
 
@@ -265,19 +289,26 @@ export async function createBusinessInGroup(input, { viewer, db = prisma } = {})
   // provisioning transaction below. Its audit then rolls back with later scope
   // or agent-config failures.
 
-  // Codes are resolved before the transaction: uniqueness probes are reads.
-  const businessCode = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business', db)))
-  const tenantCode = await uniqueHumanCode('TNT', data.name, codeExists('tenant', db))
-  const workspaceCode = await uniqueHumanCode('WS', data.name, codeExists('workspace', db))
-
-  return db.$transaction(async (tx) => {
+  const explicitBusinessCodeConflicts = new WeakSet()
+  const create = () => db.$transaction(async (tx) => {
+    const businessCode = data.code || (await uniqueHumanCode('BUS', data.name, codeExists('business', tx)))
+    const tenantCode = await uniqueHumanCode('TNT', data.name, codeExists('tenant', tx))
+    const workspaceCode = await uniqueHumanCode('WS', data.name, codeExists('workspace', tx))
     const portfolio = selectedPortfolio || await insertPortfolio('กลุ่มธุรกิจของฉัน', tx)
     const tenant = await tx.tenant.create({
       data: { code: tenantCode, name: data.name, portfolioId: portfolio.id },
     })
-    const business = await tx.business.create({
-      data: { code: businessCode, name: data.name, tenantId: tenant.id },
-    })
+    let business
+    try {
+      business = await tx.business.create({
+        data: { code: businessCode, name: data.name, tenantId: tenant.id },
+      })
+    } catch (error) {
+      // Keep caller-supplied Business-code conflicts byte-for-byte: the Tenant
+      // and Workspace codes are generated, but this value is not an allocation.
+      if (data.code && isCodeConflict(error)) explicitBusinessCodeConflicts.add(error)
+      throw error
+    }
     const workspace = await tx.workspace.create({
       data: {
         code: workspaceCode,
@@ -342,6 +373,10 @@ export async function createBusinessInGroup(input, { viewer, db = prisma } = {})
     })
     return { portfolio, tenant, business: provisioned.business, workspace: provisioned.workspace }
   })
+  return retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'BUSINESS_CODE_EXHAUSTED'),
+    shouldRetry: (error) => !explicitBusinessCodeConflicts.has(error),
+  })
 }
 
 export async function createBranch(input, { viewer } = {}) {
@@ -358,20 +393,25 @@ export async function createBranch(input, { viewer } = {}) {
   if (business.tenantId !== data.tenantId) {
     throw new Error('Branch tenant must match its business tenant (tenant != branch)')
   }
-  const code = data.code || (await uniqueHumanCode('BR', data.name, codeExists('branch')))
-  const branch = await prisma.branch.create({
-    data: {
-      code,
-      name: data.name,
-      tenantId: data.tenantId,
-      businessId: data.businessId,
-      // @req FR-194 — defaults to SITE at the schema level too; passed through
-      // explicitly here only when the caller names one.
-      ...(data.kind ? { kind: data.kind } : {}),
-    },
+  const create = async () => {
+    const code = data.code || (await uniqueHumanCode('BR', data.name, codeExists('branch')))
+    const branch = await prisma.branch.create({
+      data: {
+        code,
+        name: data.name,
+        tenantId: data.tenantId,
+        businessId: data.businessId,
+        // @req FR-194 — defaults to SITE at the schema level too; passed through
+        // explicitly here only when the caller names one.
+        ...(data.kind ? { kind: data.kind } : {}),
+      },
+    })
+    await recordAudit(prisma, { entityType: 'BRANCH', entityId: branch.id, action: 'CREATED', payload: { code } })
+    return branch
+  }
+  return data.code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'BRANCH_CODE_EXHAUSTED'),
   })
-  await recordAudit(prisma, { entityType: 'BRANCH', entityId: branch.id, action: 'CREATED', payload: { code } })
-  return branch
 }
 
 export async function createWorkspace(input, { viewer } = {}) {
@@ -418,19 +458,24 @@ export async function createWorkspace(input, { viewer } = {}) {
     portfolioId = tenant.portfolioId
   }
 
-  const code = data.code || (await uniqueHumanCode('WS', data.name, codeExists('workspace')))
-  const workspace = await prisma.workspace.create({
-    data: {
-      code,
-      name: data.name,
-      scopeType: data.scopeType,
-      portfolioId: portfolioId ?? null,
-      tenantId: tenantId ?? null,
-      businessId: businessId ?? null,
-    },
+  const create = async () => {
+    const code = data.code || (await uniqueHumanCode('WS', data.name, codeExists('workspace')))
+    const workspace = await prisma.workspace.create({
+      data: {
+        code,
+        name: data.name,
+        scopeType: data.scopeType,
+        portfolioId: portfolioId ?? null,
+        tenantId: tenantId ?? null,
+        businessId: businessId ?? null,
+      },
+    })
+    await recordAudit(prisma, { entityType: 'WORKSPACE', entityId: workspace.id, action: 'CREATED', payload: { code } })
+    return workspace
+  }
+  return data.code ? create() : retryOnCodeConflict(create, {
+    exhausted: () => refusal(409, 'WORKSPACE_CODE_EXHAUSTED'),
   })
-  await recordAudit(prisma, { entityType: 'WORKSPACE', entityId: workspace.id, action: 'CREATED', payload: { code } })
-  return workspace
 }
 
 const MUTABLE_SCOPE_ENTITIES = {

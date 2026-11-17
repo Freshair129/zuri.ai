@@ -7,12 +7,18 @@
 // @spec ADR-066; BR-002
 // @tested tests/unit/procurement-domain.test.js
 import { describe, expect, it } from 'vitest'
+import { readdirSync, readFileSync } from 'node:fs'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
+import * as procurementDomain from '@/modules/procurement/domain/procurement'
 import {
   dayKey,
   fromSatang,
   goodsReceiptCode,
+  currencyMinorUnitDigits,
   lineCostSatang,
   lineReceipt,
+  NON_TWO_DECIMAL_CURRENCIES,
   nextPurchaseOrderStatus,
   planReceipt,
   procurementSummary,
@@ -92,6 +98,140 @@ describe('FR-164 supplier and purchase-order contracts', () => {
     expect(purchaseOrderCode(at, 3)).toBe('PO-20260907-003')
     expect(goodsReceiptCode(at, 12)).toBe('GRN-20260907-012')
     expect(receiptReference('PO-20260907-003', 'GRN-20260907-012')).toBe('PO:PO-20260907-003/GRN:GRN-20260907-012')
+  })
+})
+
+describe('FR-165 receipt cost provenance', () => {
+  const deriveReceiptLineCost = (...args) => procurementDomain.deriveReceiptLineCost(...args)
+
+  it('keeps THB factory cost and ceils each recorded component over the counted batch', () => {
+    expect(deriveReceiptLineCost({
+      currency: 'THB',
+      agreedUnitCostSatang: 1234,
+      fxRateLocked: null,
+      countedQty: 3,
+      components: [
+        { component: 'SEA_FREIGHT', amountSatang: 10 },
+        { component: 'IMPORT_DUTY', amountSatang: 8 },
+        { component: 'INBOUND_TRUCK', amountSatang: 4 },
+        { component: 'OTHER', amountSatang: 1, note: 'handling' },
+        { component: 'OTHER', amountSatang: 2, note: 'packing' },
+      ],
+    })).toEqual({
+      agreedUnitCostSatang: 1234,
+      fxRateLocked: null,
+      factoryUnitCostSatang: 1234,
+      componentUnitCostSatang: { SEA_FREIGHT: 4, IMPORT_DUTY: 3, INBOUND_TRUCK: 2, OTHER: 2 },
+      unitCostSatang: 1245,
+    })
+  })
+
+  it('converts a foreign PO minor-unit cost using the locked FX rate before adding satang components', () => {
+    expect(deriveReceiptLineCost({
+      currency: 'USD',
+      agreedUnitCostSatang: 125,
+      fxRateLocked: 34,
+      countedQty: 2,
+      components: [{ component: 'SEA_FREIGHT', amountSatang: 5 }],
+    })).toEqual({
+      agreedUnitCostSatang: 125,
+      fxRateLocked: 34,
+      factoryUnitCostSatang: 4250,
+      componentUnitCostSatang: { SEA_FREIGHT: 3 },
+      unitCostSatang: 4253,
+    })
+    expect(() => deriveReceiptLineCost({ currency: 'USD', agreedUnitCostSatang: 125, fxRateLocked: null, countedQty: 1, components: [] })).toThrow()
+  })
+
+  it('lists and refuses currencies whose minor units are not two decimal places', () => {
+    expect(NON_TWO_DECIMAL_CURRENCIES).toEqual([
+      'BIF', 'CLP', 'DJF', 'GNF', 'ISK', 'JPY', 'KMF', 'KRW', 'PYG', 'RWF', 'UGX', 'UYI', 'VND', 'VUV', 'XAF', 'XOF', 'XPF',
+      'BHD', 'IQD', 'JOD', 'KWD', 'LYD', 'OMR', 'TND',
+      'CLF', 'UYW', 'XDR',
+    ])
+    expect(Object.isFrozen(NON_TWO_DECIMAL_CURRENCIES)).toBe(true)
+    for (const currency of NON_TWO_DECIMAL_CURRENCIES) {
+      expect(() => deriveReceiptLineCost({ currency, agreedUnitCostSatang: 100, fxRateLocked: 34, countedQty: 1, components: [] }))
+        .toThrow(`unsupported non-two-decimal receipt currency: ${currency}`)
+    }
+  })
+
+  it('accepts two-minor-unit foreign currencies and rejects other ISO currency exponents', () => {
+    for (const currency of ['USD', 'EUR', 'GBP']) {
+      expect(currencyMinorUnitDigits(currency)).toBe(2)
+      expect(deriveReceiptLineCost({ currency, agreedUnitCostSatang: 100, fxRateLocked: 1, countedQty: 1 }).unitCostSatang).toBe(100)
+    }
+    expect(currencyMinorUnitDigits('JPY')).toBe(0)
+    expect(currencyMinorUnitDigits('KWD')).toBe(3)
+    for (const currency of ['JPY', 'KWD', 'XDR']) {
+      expect(() => deriveReceiptLineCost({ currency, agreedUnitCostSatang: 100, fxRateLocked: 1, countedQty: 1 }))
+        .toThrow(`unsupported non-two-decimal receipt currency: ${currency}`)
+    }
+  })
+
+  it('normalizes currency codes before asking Intl for minor-unit digits', () => {
+    // Node v24.20.0 / ICU 78.3 accepts unassigned ZZZ and reports two digits.
+    expect(currencyMinorUnitDigits('ZZZ')).toBe(2)
+    expect(currencyMinorUnitDigits('zzz')).toBe(2)
+    expect(deriveReceiptLineCost({ currency: 'zzz', agreedUnitCostSatang: 100, fxRateLocked: 1, countedQty: 1 }).unitCostSatang).toBe(100)
+  })
+
+  it('treats a currency rejected by Intl with RangeError as unsupported', () => {
+    expect(currencyMinorUnitDigits('ZZ')).toBeNull()
+    expect(() => deriveReceiptLineCost({ currency: 'ZZ', agreedUnitCostSatang: 100, fxRateLocked: 1, countedQty: 1 }))
+      .toThrow('unsupported non-two-decimal receipt currency: ZZ')
+  })
+
+  it('keeps a line with no agreed cost basis uncosted even when the receipt has components', () => {
+    expect(deriveReceiptLineCost({
+      currency: 'THB',
+      agreedUnitCostSatang: null,
+      fxRateLocked: null,
+      countedQty: 2,
+      components: [{ component: 'SEA_FREIGHT', amountSatang: 5 }],
+    })).toEqual({
+      agreedUnitCostSatang: null,
+      fxRateLocked: null,
+      factoryUnitCostSatang: null,
+      componentUnitCostSatang: { SEA_FREIGHT: 3 },
+      unitCostSatang: null,
+    })
+  })
+
+  it('keeps one legacy batch amount equal to the former amortised batch cost', () => {
+    expect(deriveReceiptLineCost({
+      currency: 'THB',
+      agreedUnitCostSatang: 2000,
+      fxRateLocked: null,
+      countedQty: 3,
+      components: [{ component: 'OTHER', amountSatang: 4000, note: 'batchCostSatang (untyped batch cost)' }],
+    })).toMatchObject({ factoryUnitCostSatang: 2000, componentUnitCostSatang: { OTHER: 1334 }, unitCostSatang: 3334 })
+  })
+
+  it('keeps the receipt API strict and validates the recorded component vocabulary', () => {
+    const line = { purchaseOrderLineId: 'line', qty: 1 }
+    const maxInt32 = 2147483647
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'OTHER', amountSatang: 1, note: 'other' }] }).success).toBe(true)
+    expect(zPostReceipt.safeParse({ lines: [line], batchCostSatang: maxInt32 }).success).toBe(true)
+    expect(zPostReceipt.safeParse({ lines: [line], batchCostSatang: maxInt32 + 1 }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: maxInt32 }] }).success).toBe(true)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: maxInt32 + 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], batchCostSatang: 1, landedCosts: [] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'OTHER', amountSatang: 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'SEA_FREIGHT', amountSatang: 1 }, { component: 'SEA_FREIGHT', amountSatang: 2 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], landedCosts: [{ component: 'WAREHOUSE', amountSatang: 1 }] }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [line], costSatang: 100 }).success).toBe(false)
+    expect(zPostReceipt.safeParse({ lines: [{ ...line, costSatang: 100 }] }).success).toBe(false)
+  })
+
+  it('keeps Procurement source independent of Inventory lot storage', () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../src/modules/procurement')
+    const visit = (directory) => readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+      const file = path.join(directory, entry.name)
+      return entry.isDirectory() ? visit(file) : [file]
+    })
+    const references = visit(root).filter((file) => readFileSync(file, 'utf8').includes('productLot'))
+    expect(references).toEqual([])
   })
 })
 

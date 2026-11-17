@@ -9,7 +9,7 @@ import { withPipelineTransaction, isPipelineTransaction, pipelineTransactionFaca
 // @spec SEC-001, SEC-008, BR-001
 // @tested tests/integration/fr072-project-file-authorization.test.js
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { zProjectFileInput } from '@/lib/validation/entities'
 import { recordAudit } from './audit'
 import { legacyFileAssetDto } from './file-asset-service'
@@ -40,8 +40,14 @@ export async function listProjectFiles(projectId, { db = prisma } = {}) {
 }
 
 export async function createProjectFile(projectId, input, { db = prisma, viewer } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db,tx=>createProjectFile(projectId,input,{db:pipelineTransactionFacade(tx),viewer}))
   const data = zProjectFileInput.parse(input)
+  if (!isPipelineTransaction(db)) {
+    const create = () => withPipelineTransaction(db, tx => createProjectFile(projectId, data, { db: pipelineTransactionFacade(tx), viewer }))
+    return data.code ? create() : retryOnCodeConflict(create, {
+      exhausted: () => Object.assign(new Error('PROJECT_FILE_CODE_EXHAUSTED'), { status: 409 }),
+    })
+  }
+  // A caller-owned pipeline transaction cannot be retried here; its owner handles code conflicts.
   await assertProject(db, projectId)
   await assertProjectWritable(viewer, projectId, { db })
   if (data.workItemId) {

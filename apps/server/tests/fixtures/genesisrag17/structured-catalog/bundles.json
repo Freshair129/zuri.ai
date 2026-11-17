@@ -1,0 +1,76 @@
+[
+  {
+    "code": "PKG-XMAS-2026-SIGNATURE-CLEVEL",
+    "componentSrpQty1TotalThb": 550,
+    "components": [
+      {
+        "productExternalId": "PM-NB",
+        "qty": 1,
+        "srpQty1Thb": 300
+      },
+      {
+        "productExternalId": "PM-PB10K",
+        "qty": 1,
+        "srpQty1Thb": 200
+      },
+      {
+        "productExternalId": "PM-PEN",
+        "qty": 1,
+        "srpQty1Thb": 50
+      }
+    ],
+    "entityType": "BundleOffer",
+    "externalId": "PKG-XMAS-2026-SIGNATURE-CLEVEL",
+    "flowaccountOfferCode": "FX-OFFER-A",
+    "giftTier": "Signature",
+    "nameTh": "ชุดตัวอย่าง A",
+    "occasion": "christmas_2026",
+    "offerPriceTiersThb": [
+      {
+        "minQty": 10,
+        "unitPriceThb": 495
+      },
+      {
+        "minQty": 50,
+        "unitPriceThb": 468
+      },
+      {
+        "minQty": 100,
+        "unitPriceThb": 440
+      }
+    ],
+    "provenance": {
+      "upstreamFile": "synthetic/BundleOffer.json",
+      "upstreamRecordId": "synthetic:PKG-XMAS-2026-SIGNATURE-CLEVEL"
+    },
+    "recipientSegment": "C-Level"
+  },
+  {
+    "code": "PKG-NY-2027-REACH-OPS",
+    "componentSrpQty1TotalThb": 250,
+    "components": [
+      {
+        "productExternalId": "PM-TMB",
+        "qty": 1,
+        "srpQty1Thb": 150
+      },
+      {
+        "productExternalId": "PM-BOTTLE-LED",
+        "qty": 1,
+        "srpQty1Thb": 100
+      }
+    ],
+    "entityType": "BundleOffer",
+    "externalId": "PKG-NY-2027-REACH-OPS",
+    "flowaccountOfferCode": "FX-OFFER-B",
+    "giftTier": "Reach",
+    "nameTh": "ชุดตัวอย่าง B",
+    "occasion": "new_year_2027",
+    "offerPriceTiersThb": [],
+    "provenance": {
+      "upstreamFile": "synthetic/BundleOffer.json",
+      "upstreamRecordId": "synthetic:PKG-NY-2027-REACH-OPS"
+    },
+    "recipientSegment": "Operations"
+  }
+]

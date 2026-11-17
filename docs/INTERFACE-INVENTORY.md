@@ -1,7 +1,7 @@
 ---
-version: "1.46.0b"
+version: "1.46.1b"
 created_at: "2026-08-18T00:00:00+07:00,ATHER"
-last_update: "2026-11-10T08:12:53+07:00,Codex Luna"
+last_update: "2026-11-17T00:00:00+07:00,Codex"
 status: "candidate"
 superseded_by: null
 attributes:
@@ -11,6 +11,8 @@ attributes:
 ---
 
 # Zuri V2 — Interface Inventory
+
+Version diff 1.46.0b to 1.46.1b (2026-11-17): reconcile the recipe UI with current `main` after the ADR-119 pricing-page removal. The composed source has 119 page routes and 59 operational subdomain entries; `/inventory/recipes` remains present and the removed pricing page stays retired.
 
 Version diff 1.45.0b to 1.46.0b (2026-11-10): add `/inventory/recipes` for FR-156 recipe and BOM management, and a Recipes entry in the Inventory sidebar; 120 page routes, 60 operational subdomain entries.
 
@@ -35,14 +37,14 @@ Version diff 1.37.0b -> 1.38.0b: retire Edge and harness pairing routes, describ
 
 | Field | Value |
 |---|---|
-| **Version** | 1.46.0b |
+| **Version** | 1.46.1b |
 | **Status** | Candidate — normalized registry; runtime status is per interface |
-| **Last Updated** | 2026-11-10 |
+| **Last Updated** | 2026-11-17 |
 | **Primary responsibility** | Canonical registry of current user-visible interfaces and implementation status |
 | **Runtime evidence** | `src/app/**/page.jsx`, `src/config/domains.js`, route/layout files |
 | **Change authority** | [ZV2-CR-007](changes/ZV2-CR-007-INTERFACE-INVENTORY-NORMALIZATION.md) |
 
-<!-- interface-inventory-counts: page_routes=120; operational_domain_keys=16; operational_subdomain_entries=60; business_home_shell_slots=1 -->
+<!-- interface-inventory-counts: page_routes=119; operational_domain_keys=16; operational_subdomain_entries=59; business_home_shell_slots=1 -->
 
 ## 1. Responsibility and authority boundary
 
@@ -195,7 +197,6 @@ page routes from nine navigation entries because its Dashboard and Settings entr
 | `/platform/product-readiness/[domain]` | Product Readiness — domain lane | BusinessShell → Platform / Product Readiness / domain | the same contract scoped to one stable domain key | platform-visibility required, auth required, ready, unknown-domain not-found | implemented beta; `src/app/(pm)/platform/product-readiness/[domain]/page.jsx`, FR-124 |
 | `/platform/users` | Users and Permissions | BusinessShell → Platform / Users | OWNER-scoped membership role and domain grants; attaching an existing Person to an owned Business as MEMBER (FR-038); Enterprise API key list / mint / revoke for Tenant owners and the installation operator (FR-106) | owner-only, empty, loading, error, forbidden; add-member inline result and refusal; key panel hidden for a caller governing no Tenant; raw key shown once on mint; revoke behind a confirmation | implemented; `src/app/(pm)/platform/users/page.jsx`, `src/modules/identity/platform-users-view.js`, FR-038/062/106 |
 | `/platform/integrations` | Platform Integrations | BusinessShell → Platform / Integrations | owner-only provider/connection metadata and redacted Vault readiness | owner-only, empty, loading, error, manager unavailable; no raw secret state | implemented beta; `src/app/(pm)/platform/integrations/page.jsx`, FR-080 |
-| `/platform/customer-import-reviews` | Customer Duplicate Review | BusinessShell → Platform / Customer Review | review held duplicate groups, inspect redacted evidence and append a per-item decision | reviewer-only, empty, loading, error, forbidden, stale-version conflict; no Customer publish | implemented beta; `src/app/(pm)/platform/customer-import-reviews/page.jsx`, FR-078 |
 | `/platform/sot-pipeline` | SoT Pipeline Plan Board | BusinessShell → Platform / SoT Pipeline | view the SoT pipeline's P0–P10 phases with status derived from run evidence; navigate to run evidence and the approval inbox | business-scope required, loading, error, empty runs | implemented beta; `src/app/(pm)/platform/sot-pipeline/page.jsx`, FR-099 |
 | `/platform/sot-pipeline/graph` | SoT Pipeline Graph | BusinessShell → Platform / SoT Pipeline | read-only node/edge view of the same plan payload with pending-decision badges | business-scope required, loading, error | implemented beta; `src/app/(pm)/platform/sot-pipeline/graph/page.jsx`, FR-101 |
 | `/platform/sot-pipeline/inbox` | SoT Approval Inbox | BusinessShell → Platform / SoT Pipeline | approve or reject pending data-plane decisions (reject requires a reason); payload shown verbatim | business-scope required, loading, error, empty queue, action failure | implemented beta; `src/app/(pm)/platform/sot-pipeline/inbox/page.jsx`, FR-100 |
@@ -436,6 +437,7 @@ The current route evidence is:
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 1.46.1b | 2026-11-17 | candidate | Reconcile recipes with ADR-119 pricing removal; 119 page routes and 59 operational subdomain entries | working-tree | Codex |
 | 1.46.0b | 2026-11-10 | candidate | Add `/inventory/recipes` for FR-156 recipe management; page routes 119 -> 120 | working-tree | Codex Luna |
 | 1.43.1b | 2026-10-30 | candidate | Link the 117-route UI dimensional atlas as a derived schematic companion; route authority unchanged | working-tree | Codex |
 | 1.40.0b | 2026-10-05 | candidate | Add the FR-278 `/growth/line-sales` executive dashboard; 116 page routes | working-tree | Codex |

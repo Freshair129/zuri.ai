@@ -29,38 +29,7 @@ prior record. Authority: the server requires write authority over the Business t
 governs the project; a viewer without it gets a refusal that is deliberately
 indistinguishable from "gate not found" — do not try to tell them apart.
 
-## 2. Customer import review queue
-
-A Business-scoped, redacted duplicate-review queue. It records decisions; it does **not**
-publish Customer rows — applying them is a separate, governed step.
-
-Read: `GET /api/platform/customer-import-reviews?businessId=<id>` (and
-`/targets` for masked candidates). Names come back masked; that is the contract, not a
-rendering accident.
-
-Write: `POST /api/platform/customer-import-reviews/{caseId}/decisions`
-
-```json
-{
-  "businessId": "<business id>",
-  "expectedVersion": 3,
-  "decisions": [
-    { "provenanceId": "<provenance id>", "action": "LINK_EXISTING", "targetCustomerId": "<customer id>" },
-    { "provenanceId": "<provenance id>", "action": "CREATE_SEPARATE" }
-  ]
-}
-```
-
-Rules the server enforces, so build the payload to match:
-
-- permission `customer.import.review.decide` at that Business, and an authenticated
-  actor — the decision is bound to the person, not the session;
-- `expectedVersion` must equal the version you read (optimistic lock; `409` = re-read);
-- each `provenanceId` appears at most once per request;
-- `LINK_EXISTING` requires `targetCustomerId`; no other action may carry one;
-- free-text `note` is rejected — the queue holds no raw PII.
-
-## 3. Knowledge source approval artifact
+## 2. Knowledge source approval artifact
 
 Not an endpoint: a file, validated against
 `contracts/business-knowledge-approval.schema.json`.

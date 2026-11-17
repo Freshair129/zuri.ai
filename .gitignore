@@ -100,3 +100,6 @@ docs/appendices/D-traceability.md
 llms-full.txt
 
 .claude/worktrees/
+
+# ADR-118 / ADR-081: the document catalog is built output, never committed.
+docs/.doc-catalog.json

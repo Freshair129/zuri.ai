@@ -303,7 +303,6 @@ export const DOMAINS = [
       { label: 'Product Readiness', path: '/platform/product-readiness', icon: Gauge },
       { label: 'Users', path: '/platform/users', icon: Users },
       { label: 'Integrations', path: '/platform/integrations', icon: PlugZap },
-      { label: 'Customer Review', path: '/platform/customer-import-reviews', icon: ClipboardCheck },
       { label: 'SoT Pipeline', path: '/platform/sot-pipeline', icon: Workflow },
       { label: 'Audit', path: '/audit', icon: ScrollText },
       { label: 'Backup', path: '/backup', icon: DatabaseBackup },

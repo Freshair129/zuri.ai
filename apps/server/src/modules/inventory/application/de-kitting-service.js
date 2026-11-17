@@ -2,12 +2,13 @@ import { z } from 'zod'
 import prisma from '@/lib/db'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { STOCK_MOVEMENT_ENTITY, explodeRecipe } from '../domain/inventory'
-import { weightedAverageUnitCostSatang } from '../domain/inventory-costing'
 import { isGenericStockLocation } from '../domain/warehouse-location'
 import { loadBusiness, notFound } from './inventory-authority'
+import { readInventoryValuation } from './inventory-valuation-service'
 import { LOCATION_SELECT } from './warehouse-location-service'
 import { appendMovement } from './inventory-stock-service'
 
+// @req FR-175 — returned components carry the shared moving-average unit cost.
 // @req FR-178 — controlled disassembly: a finished set is issued and its
 //   components are received back, in one transaction, at a stated location.
 //
@@ -18,7 +19,7 @@ import { appendMovement } from './inventory-stock-service'
 //   disassembly destroyed — the caller names the destroyed lines, because only
 //   the person holding the torn box knows which they are, and a service that
 //   guessed would put a ruined foam insert back on the shelf as stock.
-// @spec ADR-074 D6; BR-028; SEC-001; FR-072; FR-155; FR-156
+// @spec ADR-074 D3, D6; BR-028; SEC-001; FR-072; FR-155; FR-156
 // @tested tests/integration/fr178-de-kitting.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
@@ -58,8 +59,8 @@ const PRODUCT_SELECT = {
 }
 
 async function unitCostOf(tx, productId) {
-  const receipts = await tx.stockMovement.findMany({ where: { productId, kind: 'RECEIPT' }, select: { quantity: true, costSatang: true } })
-  return weightedAverageUnitCostSatang(receipts)
+  const valuation = await readInventoryValuation(productId, { db: tx })
+  return valuation.unitCostSatang
 }
 
 export async function deKitFinishedSets(input, { viewer, db = prisma, now = new Date() } = {}) {

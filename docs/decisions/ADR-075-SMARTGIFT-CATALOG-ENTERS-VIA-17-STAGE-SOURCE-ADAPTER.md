@@ -12,7 +12,7 @@ attributes:
 
 # ADR-075 — SmartGift Catalog Enters GenesisBlockDB Only Through the 17-Stage Source Adapter
 
-**Status:** Approved by the owner on 2026-09-11 (instruction "approve" on PR #321).
+**Status:** Superseded by [ADR-119](ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md) on 2026-11-15; kept as history. Prior status: Approved by the owner on 2026-09-11 (instruction "approve" on PR #321).
 The approval covers the direction (D1–D9) and authorizes Phase 1 (Tier 1 adapter code;
 no schema, migration or deployment). Phases 2–5 each still require their own explicit
 owner approval (D8). Owner questions 2–4 were answered on 2026-09-11 (edge device;

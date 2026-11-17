@@ -23,12 +23,12 @@ import {
   KNOWLEDGE_BINARY_PARSER_VERSION,
 } from './knowledge-binary-parser'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
-  SMARTGIFT_CATALOG_PROVIDER,
-  splitSmartGiftCatalogRecords,
-} from './smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_MAX_FILE_BYTES,
+  STRUCTURED_CATALOG_PROVIDER,
+  splitStructuredCatalogRecords,
+} from './structured-catalog-adapter'
 
 // @req FR-173 — Files, Project Files, HTTP and MCP share one authorized durable
 // admission boundary for immutable Text/Markdown source versions.
@@ -56,7 +56,7 @@ import {
 // decision keeps holding on its own terms rather than by accident of a
 // shared fallback.
 // @spec ADR-072, ADR-075, ADR-090 D6, D7, ZAI:KNOWLEDGE-ADMISSION-CONTRACT, SEC-001, SEC-008
-// @tested tests/unit/knowledge-admission-service.test.js, tests/integration/knowledge-admission.integration.test.js, tests/unit/smartgift-catalog-adapter.test.js, tests/integration/smartgift-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
+// @tested tests/unit/knowledge-admission-service.test.js, tests/integration/knowledge-admission.integration.test.js, tests/unit/structured-catalog-adapter.test.js, tests/integration/structured-catalog-admission.test.js, tests/integration/fr236-knowledge-candidate.test.js, tests/integration/fr238-line-studio-description-admission.test.js
 
 const MAX_CONTENT_BYTES = 1024 * 1024
 const MAX_LIMIT = 100
@@ -73,7 +73,7 @@ const SUPPORTED_EXTENSIONS = new Set(['.txt', '.md', '.markdown', '.mdown', '.mk
 // A bare `.json` upload stays 415, exactly as it was before FR-187.
 const STRUCTURED_MIME_TYPES = new Set(['application/json', 'text/json'])
 const STRUCTURED_EXTENSIONS = new Set(['.json'])
-const STRUCTURED_FORMATS = Object.freeze([SMARTGIFT_CATALOG_FORMAT])
+const STRUCTURED_FORMATS = Object.freeze([STRUCTURED_CATALOG_FORMAT])
 
 const identifier = z.string().trim().min(1).max(200)
 const textSource = z.object({
@@ -473,7 +473,7 @@ async function loadFileSource(value, { db, fileContentResolver = defaultResolveF
     }
     // The 1 MiB bound remains for text files; structured projections have their
     // own explicit size limit.
-    content = decodeUtf8(loaded?.content ?? loaded, format ? SMARTGIFT_CATALOG_MAX_FILE_BYTES : MAX_CONTENT_BYTES)
+    content = decodeUtf8(loaded?.content ?? loaded, format ? STRUCTURED_CATALOG_MAX_FILE_BYTES : MAX_CONTENT_BYTES)
   } catch (error) {
     if (error?.status) throw error
     throw failure(409, 'KNOWLEDGE_FILE_UNAVAILABLE', 'File asset content is unavailable')
@@ -823,7 +823,7 @@ async function admitStructuredRecords({
 }) {
   const asset = source.asset
   const fileSha256 = source.contentHash
-  const split = splitSmartGiftCatalogRecords({
+  const split = splitStructuredCatalogRecords({
     content: source.content,
     fileAssetId: asset.id,
     fileSha256,
@@ -842,9 +842,9 @@ async function admitStructuredRecords({
     for (const record of split.records) {
       const structured = {
         format: value.source.format,
-        provider: SMARTGIFT_CATALOG_PROVIDER,
+        provider: STRUCTURED_CATALOG_PROVIDER,
         entityType: record.entityType,
-        contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+        contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
         externalId: record.externalId,
         recordIndex: record.index,
         recordCount: split.recordCount,
@@ -1160,4 +1160,4 @@ export function createKnowledgeAdmissionService(defaults = {}) {
 export const KNOWLEDGE_ADMISSION_STATUSES = JOB_STATUSES
 export const KNOWLEDGE_ADMISSION_MAX_CONTENT_BYTES = MAX_CONTENT_BYTES
 export const KNOWLEDGE_ADMISSION_STRUCTURED_FORMATS = STRUCTURED_FORMATS
-export const KNOWLEDGE_ADMISSION_MAX_STRUCTURED_FILE_BYTES = SMARTGIFT_CATALOG_MAX_FILE_BYTES
+export const KNOWLEDGE_ADMISSION_MAX_STRUCTURED_FILE_BYTES = STRUCTURED_CATALOG_MAX_FILE_BYTES

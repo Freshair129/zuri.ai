@@ -46,7 +46,9 @@ stable labels for people; provider keys, tax numbers, LINE identities, repositor
 provider IDs, file paths and hashes are external references or attributes, never
 relational primary keys. Use the owning model and its declared unique constraints
 from the schema rather than fabricating an identity from a name, path, label or
-content hash.
+content hash. The [identifier and code system](architecture/IDENTIFIER-AND-CODE-SYSTEM.md)
+page lists how codes are generated and scoped, which mapping table holds which
+external identifier, and the models whose primary key is not a random UUID.
 
 `Person` is the product's human principal. `Membership`, `RoleBinding`,
 `WorkspaceMembership`, `Session`, `ExternalIdentity` and their related models

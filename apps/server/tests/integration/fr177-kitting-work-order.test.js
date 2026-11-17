@@ -10,7 +10,7 @@ import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { makeViewer } from '../factories/viewer'
 import { ROLE_INVENTORY_MANAGER } from '@/modules/identity/rbac'
-import { createCategory, createProduct, createProductMaster, setFlowAccountSku } from '@/modules/inventory/application/inventory-catalog-service'
+import { createCategory, createProduct, createProductMaster, getProduct, setFlowAccountSku } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement } from '@/modules/inventory/application/inventory-stock-service'
 import { createRecipe } from '@/modules/inventory/application/inventory-recipe-service'
 import { flowAccountSkuOf } from '@/modules/inventory/application/inventory-catalog-service'
@@ -146,10 +146,13 @@ describe('FR-177 Kitting work orders', () => {
   it('AC-177.4 — releasing stages the gross quantities at the line without changing Business-wide on-hand', async () => {
     const [order] = await listKittingWorkOrders({ businessId: b(), status: 'DRAFT', viewer: manager })
     const before = await onHand(tumbler.id)
+    const valuationBefore = (await getProduct(tumbler.id, { viewer: owner })).costing.valuation
     const released = await releaseKittingWorkOrder(order.id, { businessId: b(), version: order.version }, { viewer: manager })
 
     expect(released.status).toBe('IN_PROGRESS')
     expect(await onHand(tumbler.id)).toBe(before)
+    expect(valuationBefore).toMatchObject({ method: 'MOVING_WEIGHTED_AVERAGE', scope: 'PRODUCT', unitCostSatang: 11346, onHandQty: before, partial: false })
+    expect((await getProduct(tumbler.id, { viewer: owner })).costing.valuation).toEqual(valuationBefore)
     const staged = await prisma.stockMovement.aggregate({ where: { productId: tumbler.id, targetLocationId: asmLoc.id }, _sum: { quantity: true } })
     expect(staged._sum.quantity).toBe(510)
   })

@@ -45,6 +45,12 @@ const FEATURE_MUTATIONS = [
   { method: 'post', path: '/api/projects/{id}/governance-snapshots', operationId: 'captureProjectGovernanceSnapshot', schema: zCaptureSnapshotInput, summary: 'Capture server-verified bound-commit evidence', create: true, capture: true },
 ]
 
+const RETENTION_SWEEP_PATHS = new Set([
+  '/api/crm/retention-sweep',
+  '/api/integration/raw-retention-sweep',
+  '/api/agent/trace-retention-sweep',
+])
+
 // This is the machine-readable mirror of the current Next route tree. The
 // integration test enumerates src/app/api/**/route.js and fails when this
 // inventory or the generated document falls behind a route change.
@@ -85,7 +91,6 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/knowledge/ingestions', ['GET', 'POST']], ['/api/knowledge/ingestions/{runId}', ['GET']],
   ['/api/knowledge/ingestions/{runId}/replay', ['POST']],
   ['/api/knowledge/queries', ['POST']], ['/api/knowledge/citations/{citationId}', ['GET']],
-  ['/api/knowledge/catalog-files', ['POST']],
   // @req FR-254 — enumerate the Console read contracts alongside existing admission.
   ['/api/knowledge/sources/{sourceId}', ['GET', 'DELETE']],
   ['/api/knowledge/sources', ['GET']], ['/api/knowledge/console/runs', ['GET']],
@@ -275,6 +280,11 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // D2). Deployment-authenticated (ZURI_RETENTION_SWEEP_TOKEN), same shape as
   // /api/line-oa/worker and /api/platform/programme-usage-reports below.
   ['/api/crm/retention-sweep', ['POST']],
+  // @req FR-245, SEC-034 — chain-safe archive expiry trigger (ADR-093 D5, P7).
+  ['/api/crm/archive-expiry', ['POST']],
+  // @req FR-230 — Integration and Agent retain ownership of their own payload sweeps.
+  ['/api/integration/raw-retention-sweep', ['POST']],
+  ['/api/agent/trace-retention-sweep', ['POST']],
   // @req FR-230 — separate Agent-owned MSP maintenance/recovery endpoint.
   ['/api/agent/memory-retention', ['POST']],
   // @req FR-161 — sales tasks: the collection (list + create) and the item
@@ -329,7 +339,7 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   // @req FR-110 — the pull half (ADR-068): one operator tick of the evidence
   // importer, zuri-ai → MSP → gks_stage_evidence_export. One path, one operation.
   ['/api/pipelines/knowledge/evidence/pull', ['POST']],
-  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/people/employment', ['POST']], ['/api/people/employment/{employmentId}', ['PATCH']], ['/api/pipelines/health', ['GET']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/customer-import-reviews', ['GET']], ['/api/platform/customer-import-reviews/{caseId}/decisions', ['POST']], ['/api/platform/customer-import-reviews/targets', ['GET']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
+  ['/api/milestones', ['GET', 'POST']], ['/api/milestones/{id}', ['PATCH']], ['/api/people', ['GET']], ['/api/people/employment', ['POST']], ['/api/people/employment/{employmentId}', ['PATCH']], ['/api/pipelines/health', ['GET']], ['/api/pipelines/runs', ['GET', 'POST']], ['/api/pipelines/runs/{executionRunId}', ['GET']], ['/api/pipelines/runs/{executionRunId}/events', ['POST']], ['/api/pipelines/runs/{executionRunId}/replay', ['POST']], ['/api/platform/sot/plan', ['GET']], ['/api/platform/sot/decisions', ['GET', 'POST']], ['/api/platform/sot/decisions/{decisionId}/decide', ['POST']], ['/api/platform/sot/decisions/export', ['GET']],
   // @req FR-106 — GET lists key metadata for the Tenants the caller may govern
   // (never key material); POST mints; DELETE revokes.
   ['/api/platform/api-access-keys', ['GET', 'POST']], ['/api/platform/api-access-keys/{id}', ['DELETE']],
@@ -342,6 +352,9 @@ export const CURRENT_API_ROUTE_INVENTORY = [
   ['/api/projects/{id}/execution-runs/{executionRunId}/approvals/{approvalRequestId}/decision', ['POST']],
   ['/api/projects/{id}/team', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/projects/{id}/teams', ['GET', 'POST', 'DELETE']], ['/api/projects/{id}/tree', ['GET']], ['/api/projects/overview', ['GET']],
   ['/api/repositories', ['GET', 'POST']], ['/api/repositories/{id}', ['PATCH']], ['/api/repositories/link', ['POST']], ['/api/repositories/link/{id}', ['DELETE']], ['/api/resolve', ['GET']], ['/api/scope', ['GET', 'POST', 'PATCH', 'DELETE']], ['/api/auth/login', ['POST']], ['/api/auth/logout', ['POST']], ['/api/auth/reset-password', ['POST']], ['/api/auth/signup', ['POST']], ['/api/onboarding/profile', ['POST']], ['/api/onboarding/state', ['GET']], ['/api/onboarding/workspaces', ['POST']], ['/api/workspace-invites', ['POST']], ['/api/workspace-invites/accept', ['POST']], ['/api/workspace-invites/{id}', ['DELETE']], ['/api/workspace-memberships', ['GET', 'DELETE']], ['/api/platform/users/password-resets', ['POST']],
+  // @req FR-195 — service-backed scoped invitation routes; FR-067 routes above stay unchanged.
+  ['/api/access-invites', ['POST']], ['/api/access-invites/accept', ['POST']],
+  ['/api/access-invites/decline', ['POST']], ['/api/access-invites/{id}', ['DELETE']],
   // @req FR-038 — the owner attaches an existing Person to a Business they own.
   ['/api/platform/users/memberships', ['POST']],
   // @req FR-191 — the withdrawal half of a grant's life (ADR-077 D2).
@@ -386,6 +399,26 @@ const zRouteInventoryRequest = z.record(z.string(), z.unknown()).openapi({
 const zRouteInventoryResponse = z.any().openapi({
   description: 'Handler-specific response fields are intentionally not inferred here. This operation proves route coverage only; the route and Appendix A remain the detailed contract authority.',
 })
+
+const zRetentionSweepResponse = z.object({
+  auditEventId: z.string(),
+  countsByClass: z.record(z.string(), z.unknown()),
+  alreadyRanToday: z.boolean(),
+}).strict().openapi({ description: 'Counts-only receipt for one domain-owned daily retention sweep.' })
+
+const zArchiveExpiryResponse = z.object({
+  counts: z.object({
+    tenantsVisited: z.number().int().nonnegative(),
+    keysDestroyed: z.number().int().nonnegative(),
+    holdKeysDestroyed: z.number().int().nonnegative(),
+    manifestsRetired: z.number().int().nonnegative(),
+    filesDeleted: z.number().int().nonnegative(),
+    retiredFilesStillPresent: z.number().int().nonnegative(),
+    skipped: z.number().int().nonnegative(),
+    failures: z.number().int().nonnegative(),
+  }).strict(),
+  alreadyRanToday: z.boolean(),
+}).strict().openapi({ description: 'Aggregate counts for one daily CRM archive-expiry run; no Customer IDs or file paths.' })
 
 const zLineStockDisclosureRequest = z.object({
   businessId: z.string().trim().min(1).max(200),
@@ -608,6 +641,37 @@ function genericResponses(path, method) {
   }
 }
 
+function accessInviteResponses(path) {
+  const successDescription = path === '/api/access-invites'
+    ? 'AccessInvite minted; the raw single-use token is returned once to the authenticated caller.'
+    : path === '/api/access-invites/accept'
+      ? 'AccessInvite accepted using the authenticated session principal.'
+      : path === '/api/access-invites/decline'
+        ? 'AccessInvite declined by the authenticated session principal.'
+        : 'Pending AccessInvite revoked.'
+  const common = {
+    200: json(zRouteInventoryResponse, successDescription),
+    401: json(zError, 'Authenticated session required.'),
+    403: json(zError, 'CSRF_INVALID: the request Origin or session-bound X-CSRF-Token is missing or invalid.'),
+    503: json(zError, 'Session or CSRF configuration is unavailable.'),
+  }
+
+  if (path === '/api/access-invites') return {
+    ...common,
+    400: json(zError, 'The strict mint request, scope, role, or addressee is invalid.'),
+    404: json(zError, 'The requested Portfolio, Tenant, or Business scope, scope authority, or target Person was not found; scope refusals are hidden as 404.'),
+  }
+  if (path === '/api/access-invites/accept' || path === '/api/access-invites/decline') return {
+    ...common,
+    400: json(zError, 'The strict request is invalid or the invite token is invalid, expired, revoked, or for another target; these token refusals use one generic 400.'),
+  }
+  return {
+    ...common,
+    404: json(zError, 'The AccessInvite or its stored scope authority was not found; these refusals are hidden as 404.'),
+    409: json(zError, 'The AccessInvite is no longer PENDING and cannot be revoked.'),
+  }
+}
+
 function conversationRuntimeResponses(method, contractVersion) {
   if (method === 'get') return {
     200: json(zConversationRuntimeHealth(contractVersion), 'Authenticated operational health only; it is not a claim or ownership gate.'),
@@ -692,6 +756,8 @@ function registerInventoryOperations(registry) {
     for (const method of methods) {
       const methodName = method.toLowerCase()
       if (detailedOperations.has(`${methodName} ${path}`)) continue
+      const retentionSweep = methodName === 'post' && RETENTION_SWEEP_PATHS.has(path)
+      const archiveExpiry = methodName === 'post' && path === '/api/crm/archive-expiry'
       const knowledgeStudio = path.startsWith('/api' + '/control/knowledge-studio' + '/')
       const knowledgeReplay = path === '/api/knowledge/ingestions/{runId}/replay'
       const conversationRuntime = CONVERSATION_RUNTIME_PATHS.has(path)
@@ -701,17 +767,27 @@ function registerInventoryOperations(registry) {
       const approvalNotificationRead = path === '/api/agent/approval-notifications/{id}' && methodName === 'post'
       const missionSubmission = path === '/api/work/agent-mission-submissions' && methodName === 'post'
       const conversationAnalysis = path === '/api/crm/conversations/{id}/analysis' && methodName === 'get'
+      const accessInviteMutation = path.startsWith('/api/access-invites')
       registry.registerPath({
         method: methodName,
         path,
-        summary: conversationAnalysis ? 'Read consent-gated analysis for one CRM Inbox conversation'
+        summary: archiveExpiry ? 'Expire and retire CRM chat archives'
+          : accessInviteMutation ? `AccessInvite ${method.toLowerCase()}`
+          : retentionSweep ? 'Run one domain-owned retention sweep'
+          : conversationAnalysis ? 'Read consent-gated analysis for one CRM Inbox conversation'
           : missionSubmission ? 'Submit a verified Agent draft as one planned WorkItem'
           : conversationRuntime ? `Private Conversation Runtime ${method} adapter`
           : knowledgeReplay ? 'Retry one owner-authorized immutable Knowledge admission'
           : lineStockDisclosure ? 'Set explicit LINE stock-disclosure grant'
           : knowledgeStudio ? `Knowledge Studio ${method} read`
             : `Route inventory: ${method} ${path}`,
-        description: conversationAnalysis
+        description: archiveExpiry
+          ? 'Deployment-authenticated with ZURI_RETENTION_SWEEP_TOKEN; accepts no request body and runs once per UTC day. Verifies each Tenant chain, appends one format-4 retirement file before deleting expired archive files, and returns aggregate counts only. Storage refusal and run-level failure answer 503.'
+          : accessInviteMutation
+          ? 'Session-authenticated Identity AccessInvite mutation. Requires the configured application Origin and the session-bound X-CSRF-Token issued by GET /api/auth/csrf. The actor comes from the trusted session; see Appendix A for strict bodies, scope authority and refusal behavior.'
+          : retentionSweep
+          ? 'Deployment-authenticated with the shared ZURI_RETENTION_SWEEP_TOKEN bearer; accepts no request body and returns only the audit event ID, per-class counts and whether this domain already ran today. CRM, Integration and Agent retain separate audit identities and sweep ownership.'
+          : conversationAnalysis
           ? 'Session-authenticated, read-only projection for a conversation already visible in the selected Business Inbox. Enforces customer-domain visibility and current consent and erasure state; the response omits raw analysis-provider output. It does not add sibling-Business visibility or inference/provider operations.'
           : missionSubmission
           ? 'An authenticated human with current write access to the selected Workstream submits the current Agent mission revision and digest. The server derives Tenant/Business/Workspace/Project scope, records source provenance in the same transaction as one PLANNED WorkItem, and returns the same item on an identical replay. Submission does not grant Agent execution, approval, or release authority.'
@@ -730,7 +806,7 @@ function registerInventoryOperations(registry) {
               ? 'Installation-operator-only, read-only projection of the generated Zuri document graph. No Business scope or database access is added; see Appendix A for bounds and unavailable states.'
               : 'Installation-operator-only, read-only exact Markdown lookup by a node ID in the generated graph. Source paths are resolved from indexed documents; see Appendix A for bounds and unavailable states.'
           : `Current handler inventory coverage for ${method} ${path}. This generic operation is deliberately transparent: handler-specific request and response fields are not claimed here; use Appendix A and live route validation for the detailed contract.`,
-        tags: conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
+        tags: accessInviteMutation ? ['Identity AccessInvite'] : archiveExpiry || retentionSweep ? ['Data retention'] : conversationRuntime ? ['Internal service'] : lineStockDisclosure ? ['Inventory'] : knowledgeStudio ? ['Platform Control'] : ['Route inventory'],
         parameters: conversationRuntime
           ? [{ name: 'operation', in: 'path', required: true, schema: { type: 'string', enum: methodName === 'get' ? ['health'] : CONVERSATION_RUNTIME_OPERATIONS } }]
           : [
@@ -741,7 +817,7 @@ function registerInventoryOperations(registry) {
               description: 'Live-session-bound API-write token issued by GET /api/auth/csrf.',
             }] : []),
             ...(conversationAnalysis ? [{ name: 'businessId', in: 'query', required: true, schema: { type: 'string', minLength: 1 } }] : []),
-            ...((approvalDecision || approvalNotificationRead || missionSubmission) ? [{
+            ...((approvalDecision || approvalNotificationRead || missionSubmission || accessInviteMutation) ? [{
               name: 'X-CSRF-Token',
               in: 'header',
               required: true,
@@ -749,12 +825,24 @@ function registerInventoryOperations(registry) {
               description: 'Session-bound API-write token issued by GET /api/auth/csrf.',
             }] : []),
           ],
-        request: missionSubmission
+        ...(retentionSweep || archiveExpiry ? {} : { request: missionSubmission
           ? { body: { required: true, content: { 'application/json': { schema: zAgentMissionSubmission } } } }
           : conversationRuntime && methodName === 'post'
           ? { body: { required: true, content: { 'application/json': { schema: zConversationRuntimeEnvelope(runtimeContractVersion) } } } }
-          : genericRequest(path, methodName),
-        responses: conversationAnalysis
+          : genericRequest(path, methodName) }),
+        responses: archiveExpiry
+          ? {
+            200: json(zArchiveExpiryResponse, 'Archive expiry completed or already ran today; aggregate counts only.'),
+            401: json(zError, 'RETENTION_SWEEP_CREDENTIAL_REQUIRED: valid deployment bearer required.'),
+            503: json(zError, 'ARCHIVE_EXPIRY_UNAVAILABLE: storage was refused or the bounded run failed.'),
+          }
+          : retentionSweep
+          ? {
+            200: json(zRetentionSweepResponse, 'Sweep completed or already ran today; counts only, no retained payload content.'),
+            401: json(zError, 'RETENTION_SWEEP_CREDENTIAL_REQUIRED: valid deployment bearer required.'),
+            503: json(zError, 'RETENTION_SWEEP_UNAVAILABLE: the bounded sweep could not complete.'),
+          }
+          : conversationAnalysis
           ? {
             200: json(zRouteInventoryResponse, 'Read-only analysis projection and selected Inbox scope.'),
             400: json(zError, 'A valid conversation ID and selected Business ID are required.'),
@@ -774,13 +862,20 @@ function registerInventoryOperations(registry) {
             500: json(zError, 'Unexpected submission failure.'),
             503: json(zError, 'The verified Agent mission source is unavailable.'),
           }
+          : accessInviteMutation ? accessInviteResponses(path)
           : conversationRuntime ? conversationRuntimeResponses(methodName, runtimeContractVersion) : genericResponses(path, methodName),
-        ...(conversationRuntime
+        ...(archiveExpiry
+          ? { security: [{ RetentionSweepOperator: [] }], 'x-zuri-contract': 'chat-evidence-archive-expiry/v1' }
+          : retentionSweep
+          ? { security: [{ RetentionSweepOperator: [] }], 'x-zuri-contract': 'retention-sweep/v1' }
+          : conversationRuntime
           ? { security: [{ ConversationRuntimeService: [] }], 'x-zuri-contract': runtimeContractVersion }
           : conversationAnalysis
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'crm-conversation-analysis-read/v1' }
           : missionSubmission
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'agent-mission-intake/v1' }
+          : accessInviteMutation
+            ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'identity-access-invite/v1' }
           : lineStockDisclosure
             ? { security: [{ SessionAuth: [] }], 'x-zuri-contract': 'line-stock-disclosure/v1' }
           : path.startsWith('/api/backup/transfers')
@@ -843,6 +938,7 @@ const zDryRunResponse = z.object({
 
 const zCommitResponse = z.object({
   committed: z.boolean(),
+  replay: z.boolean().optional().describe('true when the same plan was already committed and nothing was re-applied'),
   projectId: z.string().optional(),
   projectCode: z.string().optional(),
   errors: z.array(z.string()).optional(),
@@ -938,6 +1034,10 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
   registry.registerComponent('securitySchemes', 'MspRetentionOperator', {
     type: 'http', scheme: 'bearer', bearerFormat: 'opaque maintenance token',
     description: 'ZURI_MSP_RETENTION_SWEEP_TOKEN authenticates the deployment maintenance caller. Recovery additionally requires an expiring host-only Ed25519 stopped-container attestation.',
+  })
+  registry.registerComponent('securitySchemes', 'RetentionSweepOperator', {
+    type: 'http', scheme: 'bearer', bearerFormat: 'opaque deployment token',
+      description: 'ZURI_RETENTION_SWEEP_TOKEN authenticates the deployment caller for domain-owned retention sweeps and CRM archive expiry.',
   })
   registry.register('Error', zError)
   registry.register('LocalOllamaModelListResponse', zLocalOllamaModelListResponse)
@@ -1228,7 +1328,8 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
     summary: 'Commit a plan envelope in a single transaction',
     description:
       'Re-runs the dry run and refuses on any conflict. Entities matched by external id are updated in place — ' +
-      'their existing code is never overwritten. Every commit appends a PLAN_IMPORTED audit event.',
+      'their existing code is never overwritten. A newly applied plan appends one PLAN_IMPORTED audit event; identical authorized plans replay the original result without another event. ' +
+      'Full plans at schemaVersion 1.0 and 1.1 derive replay identity from normalized content, actor and Workspace; 1.2 uses trace.idempotencyKey.',
     tags: ['Intake'],
     request: { body: { content: { 'application/json': { schema: zImportRequest } } } },
     responses: {
@@ -1311,6 +1412,7 @@ export function buildOpenApiDocument({ serverUrl = '/' } = {}) {
       { name: 'Feature view', description: 'Scoped explicit Project Features and verified reference reads' },
       { name: 'Feature mutations', description: 'Owner writes with live CSRF, CAS, idempotency and atomic audit' },
       { name: 'Local model selection', description: 'Default-off owner controls for the main-dev TEST ONLY local model profile' },
+      { name: 'Data retention', description: 'Deployment-authenticated, counts-only domain retention sweeps' },
       { name: 'Identity', description: 'Map customer core ids onto internal records' },
       { name: 'Inventory', description: 'Explicitly scoped inventory disclosure policy administration' },
       { name: 'Platform Control', description: 'Installation-operator-only operational reads' },

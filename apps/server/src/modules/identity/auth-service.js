@@ -16,6 +16,7 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js
 // @tested tests/unit/password-reset-service.test.js, tests/integration/password-reset-flow.test.js,
 //   tests/integration/passkey-lifecycle.test.js
+// @spec SEC-014
 
 export const AUTH_SESSION_COOKIE = 'zuri_session'
 export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
@@ -354,33 +355,52 @@ export async function resetPassword({ token, newPassword, db = prisma, now = Dat
     return { success: false, error: 'PASSWORD_INVALID' }
   }
 
+  const nowDate = new Date(now)
   const record = await db.passwordResetToken.findUnique({
     where: { token: hashPasswordResetToken(token) },
     select: { id: true, personId: true, usedAt: true, expiresAt: true },
   })
-  if (!record || record.usedAt || record.expiresAt <= new Date(now)) {
+  if (!record || record.usedAt || record.expiresAt <= nowDate) {
     return { success: false, error: 'INVALID_OR_EXPIRED_TOKEN' }
   }
 
-  await db.$transaction(async (tx) => {
-    await tx.personCredential.upsert({
-      where: { personId: record.personId },
-      update: { passwordHash },
-      create: { personId: record.personId, passwordHash },
-    })
-    await tx.passwordResetToken.update({
-      where: { id: record.id },
-      data: { usedAt: new Date(now) },
-    })
-    await recordAudit(tx, {
-      entityType: 'PERSON',
-      entityId: record.personId,
-      action: 'PASSWORD_RESET_COMPLETED',
-      // The consumer is unauthenticated by design; the actor of record is the
-      // mint event one row earlier in this Person's audit stream.
-      payload: {},
-    })
+  // The conditional UPDATE is the atomic single-use claim. Keep it outside the
+  // interactive transaction so waiting contenders do not hold transaction
+  // connections while they queue on the write lock. A process crash between
+  // this claim and the credential commit burns the token; the operator re-mints.
+  const claim = await db.passwordResetToken.updateMany({
+    where: { id: record.id, usedAt: null, expiresAt: { gt: nowDate } },
+    data: { usedAt: nowDate },
   })
+  if (claim.count !== 1) return { success: false, error: 'INVALID_OR_EXPIRED_TOKEN' }
+
+  try {
+    await db.$transaction(async (tx) => {
+      await tx.personCredential.upsert({
+        where: { personId: record.personId },
+        update: { passwordHash },
+        create: { personId: record.personId, passwordHash },
+      })
+      await recordAudit(tx, {
+        entityType: 'PERSON',
+        entityId: record.personId,
+        action: 'PASSWORD_RESET_COMPLETED',
+        // The consumer is unauthenticated by design; the actor of record is the
+        // mint event one row earlier in this Person's audit stream.
+        payload: {},
+      })
+    })
+  } catch (error) {
+    try {
+      await db.passwordResetToken.updateMany({
+        where: { id: record.id, usedAt: nowDate },
+        data: { usedAt: null },
+      })
+    } catch {
+      // Preserve the transaction error; claim release is best-effort.
+    }
+    throw error
+  }
 
   // A stolen session must not survive the reset that exists to evict it.
   await revokeAllSessions(record.personId, { db, now, reason: 'PASSWORD_RESET' })

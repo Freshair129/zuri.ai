@@ -1,7 +1,7 @@
 ---
 doc_type: filesystem-inventory
 status: active
-version: "0.3.2"
+version: "0.3.3"
 checked_at: "2026-10-30"
 checked_base_revision: "d804d28be37aa3b155da3144df99a2299856974e"
 ---
@@ -41,17 +41,15 @@ affected filesystem again before any later move or deletion.
 | [`ERP-MODULE-MAP.md`](../ERP-MODULE-MAP.md) | ERP module mapping/reader view; it does not by itself establish domain ownership. | Domain charters; roadmap; PRD/FEATURES compatibility exports; `llms.txt`. | Keep as navigation/context; defer ownership to accepted domain charters and ADRs. |
 | [`EXECUTION-MODES.md`](../EXECUTION-MODES.md) | Seven canonical execution-mode definitions referenced by the current agent/product instructions. | `AGENTS.md`; blueprint tooling; roadmap and plan artifacts. | Keep as the shared mode reference; do not add modes without an accepted change to its authority. |
 | [`FEATURES.md`](../FEATURES.md) | Generated compatibility export of feature records; `AGENTS.md` says not to hand-edit it. | `AGENTS.md`; blueprint tooling; PM specifications and many repository readers. | Keep at the compatibility path; edit canonical records and regenerate through the approved writer workflow. |
-| [`GAP-ANALYSIS-ZURI-GOVIBE.md`](../GAP-ANALYSIS-ZURI-GOVIBE.md) | Cross-repository comparison dated 2026-08-31; capability counts and recommendations describe that snapshot. | `docs/roadmap/ROADMAP.md`; reports; migration inventory. | Preserve as historical analysis, not current implementation status or an active plan. ADR-009 governs the GoVibe relationship; ADR-024 governs the standalone product boundary. |
 | [`GOVERNANCE-LINK-METADATA.md`](../GOVERNANCE-LINK-METADATA.md) | Beta metadata/linking guidance for document relations and IDs. | `AGENTS.md`; governance index; change-request review records. | Keep as the applicable metadata guide subject to accepted migration/registry contracts. |
 | [`GOVERNANCE-MODEL-SOURCES.md`](../GOVERNANCE-MODEL-SOURCES.md) | Active evidence rules for binding domain charters to repository-owned model sources. | `docs/README.md`. | Keep; newly linked from the main documentation entrypoint. |
-| [`GOVIBE-INTEGRATION.md`](../GOVIBE-INTEGRATION.md) | Historical 2026-08-12 proposal for ongoing GoVibe governance/integration; it predates ADR-009. | `docs/GAP-ANALYSIS-ZURI-GOVIBE.md`; migration inventory and gap reports. | Preserve as history. ADR-009 supersedes its proposed ongoing integration with an optional owner-run one-time bootstrap and no live dependency. ADR-024 separately governs Zuri's standalone-product boundary; do not conflate them. |
 | [`INTERFACE-INVENTORY.md`](../INTERFACE-INVENTORY.md) | Candidate interface inventory (`version: 1.42.0b`); it does not replace route or schema contracts. | `apps/server/scripts/doc-preflight.mjs`; `docs/ROUTES-SITEMAP.md`; governance index and route tests. | Keep at its path while consumers exist; treat candidate claims as unaccepted unless separately approved. |
 | [`KNOWLEDGE-INGESTION-17-STAGE-FLOW.md`](../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) | Beta execution-flow explanation for the 17-stage ingestion pipeline. | Server runtime/domain-state; roadmap; features export; system diagram. | Keep distinct from the stage specification; verify runtime details against code and tests. |
 | [`KNOWLEDGE-INGESTION-17-STAGE-SPEC.md`](../KNOWLEDGE-INGESTION-17-STAGE-SPEC.md) | Beta stage-level specification (`version: 1.4.7b`); distinct from execution flow and user-facing surfaces. | Architecture diagrams; repository README/`llms.txt`; gap analysis and other source docs. | Keep as the stage contract candidate; do not merge it with the flow or surface inventory. |
 | [`KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md`](../KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) | Beta inventory of ingestion surfaces and user flows; separate concern from stage behavior. | ADR-085; data-pipeline map; feature design and domain feature records. | Keep distinct and link to the stage spec/flow; do not duplicate their normative clauses. |
 | [`PRD-SDD-v1.0.md`](../PRD-SDD-v1.0.md) | Generated compatibility export of canonical requirement records; it currently has a `draft` label, which describes the export metadata, not authority to hand-edit rows. | `AGENTS.md`; Server preflight and tests; repository readers. | Keep at its compatibility path; update source records through the approved registry flow, then regenerate. |
 | [`PRODUCT.md`](../PRODUCT.md) | Active product boundary, purpose, hierarchy, and surface overview (`version: 1.5.0`). | `AGENTS.md`; repository README and `llms.txt`; registry and migration tooling. | Keep as product-level authority within accepted ADR precedence; avoid copying its requirements elsewhere. |
-| [`README.md`](../README.md) | Hand-authored `docs/` entrypoint (`version: 0.4.0`). | Repository README; architecture index; blueprint tooling; `llms.txt`. | Keep as the human navigation root; link to canonical sources and indexes. |
+| [`README.md`](../README.md) | Hand-authored `docs/` entrypoint (its version is recorded in its own frontmatter, not here, so this row cannot drift). | Repository README; architecture index; blueprint tooling; `llms.txt`. | Keep as the human navigation root; link to canonical sources and indexes. |
 | [`ROUTES-SITEMAP.md`](../ROUTES-SITEMAP.md) | Route/shell topology view. It is distinct in scope from the domain-to-subdomain navigation map. | `docs/SITEMAP-DOMAIN-NAV.md`; interface inventory; route tests and gap reports. | Keep separate from domain navigation; verify current routes against code and inventory. |
 | [`schema.local.prisma`](../schema.local.prisma) | Logical/local starter schema, not the current Server physical schema; older manifest/source records still name it. | Migration source manifest and schema documentation. | Preserve provenance; use `apps/server/prisma/schema.prisma` for current Server model truth. Relocation/removal requires reconciling historical consumers. |
 | [`SITEMAP-DOMAIN-NAV.md`](../SITEMAP-DOMAIN-NAV.md) | Domain-to-subdomain navigation map used as an accepted grouping source by Server configuration/structural checks; not route topology. | `apps/server` domain configuration/tests; `docs/ROUTES-SITEMAP.md`; interface inventory and plans. | Keep at the consumed path; do not collapse with `ROUTES-SITEMAP.md`. |
@@ -64,6 +62,7 @@ affected filesystem again before any later move or deletion.
 
 ## Findings and limits
 
+- Current enumeration (2026-11-15): 41 tracked direct files under `docs/`, matching this register by name. ADR-119 removed `GAP-ANALYSIS-ZURI-GOVIBE.md` and `GOVIBE-INTEGRATION.md` (43 before); their rows are removed. The reviewed-base figures below are historical and unchanged.
 - Git enumeration at the reviewed base found 42 tracked direct files. This
   change adds one visual companion, yielding 43 tracked direct files. Ignored
   generated files are outside this tracked-file count. The register covers 20
@@ -88,6 +87,8 @@ affected filesystem again before any later move or deletion.
   is not deletion approval and is not a recursive filesystem census.
 
 ## Version diff
+
+0.3.2 → 0.3.3 (2026-11-14): refreshes the current direct-file count against main `57611a61` and removes a hard-coded entrypoint version that had drifted; no file classification changed and nothing was moved.
 
 0.1.0 → 0.2.0 (2026-10-22): Resolves the named S-01 duplicate, Workspace
 currentness, and GoVibe lifecycle classifications using existing policy,

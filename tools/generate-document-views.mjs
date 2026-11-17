@@ -306,7 +306,7 @@ function categoryMatch(category, path) {
   switch (category) {
     case 'product':
       return ['docs/product/', 'docs/domains/'].some((prefix) => lower.startsWith(prefix))
-        || ['docs/product.md', 'docs/prd-sdd-v1.0.md', 'docs/features.md', 'docs/gap-analysis-zuri-govibe.md'].includes(lower);
+        || ['docs/product.md', 'docs/prd-sdd-v1.0.md', 'docs/features.md'].includes(lower);
     case 'architecture':
       return lower === 'docs/architecture.md'
         || lower.startsWith('docs/architecture-')

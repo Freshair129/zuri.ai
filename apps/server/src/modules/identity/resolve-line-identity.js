@@ -1,5 +1,5 @@
 import prisma from '@/lib/db'
-import { uniqueHumanCode } from '@/lib/ids'
+import { retryOnCodeConflict, uniqueHumanCode } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { zResolveLineIdentityInput } from '@/lib/validation/entities'
 import {
@@ -108,9 +108,9 @@ export async function resolveLineIdentity(input, { db = prisma } = {}) {
   // First contact: create Person + ExternalIdentity atomically. The @@unique on
   // (tenantId, provider, providerSubject) makes concurrent first-contacts safe —
   // the loser gets P2002 and reads the winner's row.
-  const code = await uniqueHumanCode('PSN', displayName || lineUserId, async (candidate) => Boolean(await db.person.findUnique({ where: { code: candidate } })))
   try {
     const createIdentity = async (tx) => {
+      const code = await uniqueHumanCode('PSN', displayName || lineUserId, async (candidate) => Boolean(await tx.person.findUnique({ where: { code: candidate } })))
       const person = await tx.person.create({ data: { code, displayName: displayName || 'LINE user' } })
       const identity = await tx.externalIdentity.create({
         // First contact discovers a channel subject; it does not prove ownership.
@@ -133,7 +133,15 @@ export async function resolveLineIdentity(input, { db = prisma } = {}) {
       })
       return { person, identity, channelIdentity }
     }
-    const result = await (typeof db.$transaction === 'function' ? db.$transaction(createIdentity) : createIdentity(db))
+    let result
+    if (typeof db?.$transaction === 'function') {
+      result = await retryOnCodeConflict(() => db.$transaction(createIdentity), {
+        exhausted: () => Object.assign(new Error('PERSON_CODE_EXHAUSTED'), { status: 409 }),
+      })
+    } else {
+      // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+      result = await createIdentity(db)
+    }
     return {
       personId: result.person.id,
       externalIdentityId: result.identity.id,

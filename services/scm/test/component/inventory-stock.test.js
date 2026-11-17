@@ -1,3 +1,6 @@
+// @req FR-155, FR-165 — public stock movements preserve Inventory policy and reserve the Procurement receipt reason.
+// @spec ADR-074 D3 — callers cannot bypass recorded receipt cost provenance through Inventory.
+// @tested test/component/inventory-stock.test.js
 // The stock core (FR-155) through the real SCM commands and queries: RECEIPT,
 // ISSUE and ADJUSTMENT on a plain SKU, lots by code and by the explicit path,
 // serial units received and issued one by one, the refusals by code, the
@@ -131,5 +134,16 @@ describe('[legacy] FR-155 Inventory stock ledger', () => {
     assert.equal((await record({ productId: lotted.id, kind: 'ISSUE', quantity: 8 })).onHandAfter, 0)
     const audit = (await audits('STOCK_MOVEMENT', [fefo.movements[0].id]))[0]
     assert.equal(JSON.parse(audit.payloadJson).allocations.length, 2)
+  })
+
+  test('only Procurement may write GOODS_RECEIPT; other public receipt reasons remain available', async () => {
+    const before = await h.bus.queries.movements(as('member'), { businessId: BIZ, productId: plain.id })
+    await rejects(record({ productId: plain.id, kind: 'RECEIPT', quantity: 1, costSatang: 1234, reason: 'GOODS_RECEIPT' }), {
+      status: 422, code: 'INVENTORY_RECEIPT_REASON_RESERVED',
+    })
+    const after = await h.bus.queries.movements(as('member'), { businessId: BIZ, productId: plain.id })
+    assert.deepEqual(after.movements.map((row) => row.id), before.movements.map((row) => row.id))
+    const manual = await record({ productId: plain.id, kind: 'RECEIPT', quantity: 1, costSatang: 1234, reason: 'MANUAL_RECEIPT' })
+    assert.deepEqual([manual.movements[0].reason, manual.movements[0].costSatang], ['MANUAL_RECEIPT', 1234])
   })
 })

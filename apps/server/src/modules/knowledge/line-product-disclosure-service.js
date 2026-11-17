@@ -7,12 +7,12 @@ import { assertDomainVisible } from '@/modules/identity/viewer-domains'
 import { LINE_OA_DOMAIN_KEY } from '@/modules/line-oa-studio/domain/line-oa-account'
 import { readAuthorizedKnowledgeManifest } from './knowledge-corpus-service'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_FORMAT,
-  SMARTGIFT_CATALOG_MAX_FILE_BYTES,
-  SMARTGIFT_CATALOG_PROVIDER,
-  smartGiftSourceKey,
-} from './smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_FORMAT,
+  STRUCTURED_CATALOG_MAX_FILE_BYTES,
+  STRUCTURED_CATALOG_PROVIDER,
+  structuredCatalogSourceKey,
+} from './structured-catalog-adapter'
 import {
   DISCLOSURE_FIELDS,
   disclosureLookupHash,
@@ -279,11 +279,11 @@ function isCurrentProductMasterCandidate({ source, ingestion, asset, entry, corp
     || ingestion.rawArtifactId !== entry.rawArtifactId || ingestion.parsedArtifactId !== entry.parsedArtifactId
     || asset.id !== entry.fileAssetId || asset.tenantId !== scope.business.tenantId
     || asset.businessId !== scope.business.id || asset.projectId != null || asset.workItemId != null
-    || asset.storageKind !== 'MANAGED_BLOB' || asset.mime !== SMARTGIFT_CATALOG_CONTENT_TYPE
+    || asset.storageKind !== 'MANAGED_BLOB' || asset.mime !== STRUCTURED_CATALOG_CONTENT_TYPE
     || !lineProductDisclosureAssetKind(asset) || typeof asset.name !== 'string'
     || asset.name.length < 1 || asset.name.length > 255 || asset.name.trim() !== asset.name
     || !Number.isSafeInteger(asset.size)
-    || asset.size <= 0 || asset.size > SMARTGIFT_CATALOG_MAX_FILE_BYTES || !SHA256.test(asset.sha256 || '')
+    || asset.size <= 0 || asset.size > STRUCTURED_CATALOG_MAX_FILE_BYTES || !SHA256.test(asset.sha256 || '')
     || asset.status !== 'ACTIVE' || asset.deletedAt != null || !Number.isSafeInteger(source.version)
     || entry.scope?.tenantId !== scope.business.tenantId || entry.scope?.businessId !== scope.business.id) return false
 
@@ -295,14 +295,14 @@ function isCurrentProductMasterCandidate({ source, ingestion, asset, entry, corp
     && metadata.mime === asset.mime && metadata.storageKind === asset.storageKind
     && Number.isSafeInteger(metadata.size) && metadata.size > 0 && metadata.size <= asset.size
     && metadata.sourceVersion === ingestion.sourceVersion && metadata.contentHash === ingestion.contentHash
-    && descriptor?.format === SMARTGIFT_CATALOG_FORMAT && descriptor.provider === SMARTGIFT_CATALOG_PROVIDER
-    && descriptor.entityType === 'ProductMaster' && descriptor.contentType === SMARTGIFT_CATALOG_CONTENT_TYPE
+    && descriptor?.format === STRUCTURED_CATALOG_FORMAT && descriptor.provider === STRUCTURED_CATALOG_PROVIDER
+    && descriptor.entityType === 'ProductMaster' && descriptor.contentType === STRUCTURED_CATALOG_CONTENT_TYPE
     && typeof descriptor.externalId === 'string' && descriptor.externalId.length > 0
     && descriptor.externalId.trim() === descriptor.externalId
     && Number.isSafeInteger(descriptor.recordIndex) && descriptor.recordIndex >= 0
     && Number.isSafeInteger(descriptor.recordCount) && descriptor.recordCount > descriptor.recordIndex
     && descriptor.fileSha256 === asset.sha256
-    && source.sourceKey === smartGiftSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
+    && source.sourceKey === structuredCatalogSourceKey({ fileName: asset.name, recordCode: descriptor.externalId })
     && source.title === `ProductMaster ${descriptor.externalId}`
     && ingestion.sourceVersion === asset.sha256
 }

@@ -12,9 +12,9 @@ import {
   hashGenesisRag17Text,
 } from '@/modules/knowledge/genesisrag17-contract'
 import {
-  SMARTGIFT_CATALOG_CONTENT_TYPE,
-  SMARTGIFT_CATALOG_PROVIDER,
-} from '@/modules/knowledge/smartgift-catalog-adapter'
+  STRUCTURED_CATALOG_CONTENT_TYPE,
+  STRUCTURED_CATALOG_PROVIDER,
+} from '@/modules/knowledge/structured-catalog-adapter'
 
 // @req FR-188 — a SMARTGIFT_CATALOG raw entry runs Stages 1–8 under
 // genesisrag17-parser-2 and genesisrag17-structured-recognizer-1: the parsed
@@ -26,8 +26,8 @@ import {
 // @spec ADR-075, ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/integration/genesisrag17-parser-2.test.js
 
-const bundles = JSON.parse(readFileSync(new URL('../fixtures/genesisrag17/smartgift-catalog/bundles.json', import.meta.url), 'utf8'))
-const products = JSON.parse(readFileSync(new URL('../fixtures/genesisrag17/smartgift-catalog/products.json', import.meta.url), 'utf8'))
+const bundles = JSON.parse(readFileSync(new URL('../fixtures/genesisrag17/structured-catalog/bundles.json', import.meta.url), 'utf8'))
+const products = JSON.parse(readFileSync(new URL('../fixtures/genesisrag17/structured-catalog/products.json', import.meta.url), 'utf8'))
 const sha256 = (text) => createHash('sha256').update(Buffer.from(text, 'utf8')).digest('hex')
 const now = () => new Date('2026-09-11T10:00:00.000Z')
 
@@ -69,9 +69,9 @@ describe('GenesisRAG17 parser-2 Tier 1 execution (FR-188)', () => {
       version: sha256(content),
       content,
       connectionId: connection.id,
-      provider: SMARTGIFT_CATALOG_PROVIDER,
+      provider: STRUCTURED_CATALOG_PROVIDER,
       entityType: 'BundleOffer',
-      contentType: SMARTGIFT_CATALOG_CONTENT_TYPE,
+      contentType: STRUCTURED_CATALOG_CONTENT_TYPE,
       policy: { allowEmbedding: true, allowPublication: true },
       ...over,
     }

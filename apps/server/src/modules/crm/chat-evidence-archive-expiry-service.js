@@ -1,13 +1,11 @@
-// @req SEC-034 — the chat evidence archive's 10-year retention (ADR-093 D5;
+// @req FR-245, SEC-034 — the chat evidence archive expiry (ADR-093 D5;
 //   TASK-ZAI-113 P2). For one Tenant: destroys a Customer's archive data key
 //   once every archived line they have — across every manifest, not only one
-//   file — is at least `retentionYears` old, and deletes an archive file once
-//   every line in it, for every Customer named in it, has expired. Not wired
-//   into a route or a scheduled worker here — that production wiring is
-//   TASK-ZAI-114's job, matching how TASK-ZAI-111 built the archive writer
-//   without wiring its own cron.
-// @spec ADR-093 D5, D6; SEC-034; SDD-103
-// @tested tests/integration/crm-archive-legal-hold.test.js
+//   file — is at least `retentionYears` old, and retires each fully-expired
+//   manifest in the chain before deleting its file. The route and scheduled
+//   worker trigger are wired through the archive-expiry run service.
+// @spec ADR-093 D5 (1.3.0, 1.3.2), SDD-103, SEC-001
+// @tested tests/integration/crm-archive-legal-hold.test.js, tests/integration/crm-archive-retirement.test.js, tests/integration/crm-archive-expiry-dry-run.test.js
 //
 // WHY THE WHOLE-TENANT CHAIN IS CHECKED FIRST, BEFORE ANY DESTRUCTION
 // -----------------------------------------------------------------------
@@ -22,8 +20,9 @@
 // individually, and refuse the run entirely if it is broken. Re-deriving a
 // weaker, per-manifest-only check here — the mistake a sibling lane's reviewed
 // code made this same week — would silently reopen exactly the gap that fix
-// closed. A broken chain destroys nothing and deletes nothing for that Tenant;
-// the run is recorded as skipped, not silently a no-op.
+// closed. A broken chain stops Customer-key expiry and archive-file retirement
+// or deletion for that Tenant. The separate lapsed-hold-key cleanup runs before
+// this check; the run is recorded as skipped, not silently a no-op.
 //
 // WHAT "EVERY LINE HAS EXPIRED" MEANS FOR A FILE (a genuine design decision —
 // ADR-093 does not spell this out, only the plain 10-year case)
@@ -53,10 +52,12 @@
 //      erasure, and treating them differently here would need new schema on a
 //      table SEC-030's own precedent already excludes from every snapshot.
 // An ACTIVE legal hold always blocks deletion of a file naming that Customer —
-// held is never expired, by definition (ADR-093 D6) — and so does a segment
-// this run could not positively verify (a read or decrypt failure): "cannot
-// prove it is expired" defaults to "leave the file alone," the same fail-closed
-// bias the writer and the retrieval path already hold to.
+// held is never expired, by definition (ADR-093 D6). A file carrying a legal-
+// hold re-seal segment is likewise never retired under D5 P5, and the `.zcr`
+// retirement records themselves remain in the chain for its life. A segment
+// this run could not positively verify (a read or decrypt failure) also stays:
+// "cannot prove it is expired" defaults to "leave the file alone," the same
+// fail-closed bias the writer and the retrieval path already hold to.
 
 import { createHash } from 'node:crypto'
 import { gunzipSync } from 'node:zlib'
@@ -64,8 +65,17 @@ import { promises as fs } from 'node:fs'
 import path from 'node:path'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import {
+  buildRunId,
+  computeManifestHash,
+  hashMessageIdList,
+  archiveTenantYearDirectory,
+  writeArchiveFile,
+  removeUnreferencedArchiveFile,
   resolveArchiveBaseDir,
+  assertArchiveStorageWritable,
   verifyManifestChain,
+  lockTenantArchiveChain,
+  readArchiveChainTail,
   findActiveLegalHold,
   destroyCustomerArchiveKey,
   destroyLegalHoldArchiveKeys,
@@ -74,18 +84,187 @@ import { customersWithActiveRetentionConsent } from './retention-consent-reader'
 import { openCustomerArchiveKey, openArchiveSegment, ChatEvidenceArchiveCryptoError } from './chat-evidence-archive-crypto'
 
 export const CHAT_EVIDENCE_ARCHIVE_RETENTION_YEARS = 10
+const RETIREMENT_FORMAT_VERSION = 4
+const RETIREMENT_UNCOMMITTED_CODES = new Set([
+  'ARCHIVE_CHAIN_LOCK_UNAVAILABLE', 'ARCHIVE_CHAIN_TAIL_INVALID', 'ARCHIVE_TENANT_NOT_FOUND',
+  'ARCHIVE_CHAIN_CHANGED', 'ARCHIVE_RETIREMENT_TARGET_CHANGED', 'ARCHIVE_RETIREMENT_ALREADY_COMMITTED',
+  'P2034', '40001', '40P01', '55P03', 'SQLITE_BUSY', 'SQLITE_LOCKED',
+])
+
+function archiveFailureCode(error) {
+  return typeof error?.code === 'string' && error.code.startsWith('ARCHIVE_')
+    ? error.code
+    : 'ARCHIVE_RETIREMENT_FAILED'
+}
+
+/** Write the ADR-093 D5 retirement evidence and append it to this Tenant's chain. */
+async function appendRetirementManifest(db, { tenantId, manifests, now, baseDir, retentionYears }) {
+  const runId = buildRunId(now)
+  const finalPath = path.join(baseDir, tenantId, String(now.getUTCFullYear()), `${runId}.zcr`)
+  const relativePath = path.relative(baseDir, finalPath).split(path.sep).join('/')
+  const retired = manifests.map((manifest) => ({
+    manifestId: manifest.id,
+    runId: manifest.runId,
+    filePath: manifest.filePath,
+    fileSha256: manifest.fileSha256,
+    manifestHash: manifest.manifestHash,
+    messageCount: manifest.messageCount,
+    messageIdListHash: manifest.messageIdListHash,
+  }))
+  const header = {
+    v: RETIREMENT_FORMAT_VERSION,
+    kind: 'RETIREMENT',
+    tenantId,
+    runId,
+    createdAt: now.toISOString(),
+    reason: 'RETENTION_EXPIRED',
+    retentionYears,
+    retired,
+  }
+
+  let written
+  try {
+    written = await writeArchiveFile({ baseDir, tenantId, runId, now, header, segments: [], extension: '.zcr' })
+  } catch (error) {
+    await removeUnreferencedArchiveFile(db, { tenantId, runId, relativePath, baseDir })
+    throw error
+  }
+
+  try {
+    const manifest = await db.$transaction(async (tx) => {
+      await lockTenantArchiveChain(tx, { tenantId })
+      const previous = await readArchiveChainTail(tx, tenantId)
+      const currentChain = await verifyManifestChain(tx, tenantId, { baseDir, checkFiles: true })
+      if (!currentChain.valid) {
+        const error = new Error('ARCHIVE_CHAIN_CHANGED')
+        error.code = 'ARCHIVE_CHAIN_CHANGED'
+        throw error
+      }
+      const rows = await tx.archiveManifest.findMany({
+        where: { tenantId },
+        select: {
+          id: true, tenantId: true, runId: true, filePath: true, fileSha256: true,
+          messageCount: true, messageIdListHash: true, previousManifestId: true,
+          previousManifestHash: true, manifestHash: true,
+        },
+      })
+      const rowsById = new Map(rows.map((row) => [row.id, row]))
+      for (const recorded of retired) {
+        const current = rowsById.get(recorded.manifestId)
+        if (!current
+          || current.manifestHash !== recorded.manifestHash
+          || current.fileSha256 !== recorded.fileSha256
+          || current.filePath !== recorded.filePath) {
+          const error = new Error('ARCHIVE_RETIREMENT_TARGET_CHANGED')
+          error.code = 'ARCHIVE_RETIREMENT_TARGET_CHANGED'
+          throw error
+        }
+      }
+
+      const alreadyRetired = new Set(currentChain.retiredManifestIds ?? [])
+      if (retired.some((entry) => alreadyRetired.has(entry.manifestId))) {
+        const error = new Error('ARCHIVE_RETIREMENT_ALREADY_COMMITTED')
+        error.code = 'ARCHIVE_RETIREMENT_ALREADY_COMMITTED'
+        throw error
+      }
+      const data = {
+        tenantId,
+        runId,
+        filePath: written.relativePath,
+        fileSha256: written.fileSha256,
+        messageCount: 0,
+        messageIdListHash: hashMessageIdList([]),
+        previousManifestId: previous?.id ?? null,
+        previousManifestHash: previous?.manifestHash ?? null,
+      }
+      data.manifestHash = computeManifestHash(data)
+      return tx.archiveManifest.create({ data })
+    })
+    return { manifest, retiredManifestIds: retired.map((entry) => entry.manifestId) }
+  } catch (error) {
+    // Lock, tail and pre-create conflicts are known to precede any manifest
+    // insert, so remove this exact file directly even if a concurrent SQLite
+    // writer temporarily prevents a follow-up query. For uncertain outcomes,
+    // retain the shared reference check: a lost commit acknowledgement must
+    // never delete a file the database may already name.
+    if (RETIREMENT_UNCOMMITTED_CODES.has(error?.code)) {
+      await fs.rm(path.join(baseDir, written.relativePath)).catch(() => {})
+    } else {
+      await removeUnreferencedArchiveFile(db, { tenantId, runId, relativePath: written.relativePath, baseDir })
+    }
+    try {
+      const committed = await db.archiveManifest.findUnique({ where: { tenantId_runId: { tenantId, runId } } })
+      if (committed) {
+        error.retirementManifest = { id: committed.id, manifestHash: committed.manifestHash }
+        error.retiredManifestIds = retired.map((entry) => entry.manifestId)
+      }
+    } catch {
+      // Unknown outcome: keep the retirement file; deleting any target is unsafe.
+    }
+    throw error
+  }
+}
+
+async function deleteRetiredArchiveFiles(manifests, { baseDir }) {
+  const deletedFiles = []
+  const retiredFilesAlreadyAbsent = []
+  const retiredFilesStillPresent = []
+  for (const manifest of manifests) {
+    try {
+      await fs.unlink(path.join(baseDir, manifest.filePath))
+      deletedFiles.push(manifest.id)
+    } catch (error) {
+      if (error?.code === 'ENOENT') {
+        retiredFilesAlreadyAbsent.push(manifest.id)
+        continue
+      }
+      try {
+        await fs.stat(path.join(baseDir, manifest.filePath))
+        retiredFilesStillPresent.push(manifest.id)
+      } catch (statError) {
+        if (statError?.code !== 'ENOENT') retiredFilesStillPresent.push(manifest.id)
+      }
+    }
+  }
+  return { deletedFiles, retiredFilesAlreadyAbsent, retiredFilesStillPresent }
+}
+
+async function listPresentRetiredFiles(manifests, { baseDir }) {
+  const present = []
+  for (const manifest of manifests) {
+    try {
+      await fs.stat(path.join(baseDir, manifest.filePath))
+      present.push(manifest.id)
+    } catch (error) {
+      if (error?.code !== 'ENOENT') present.push(manifest.id)
+    }
+  }
+  return present
+}
+
+async function previewRetiredArchiveFiles(manifests, { baseDir }) {
+  const deletedFiles = []
+  const retiredFilesAlreadyAbsent = []
+  const retiredFilesStillPresent = []
+  for (const manifest of manifests) {
+    try {
+      const stat = await fs.lstat(path.join(baseDir, manifest.filePath))
+      // unlink removes every non-directory entry, including symlinks and special files.
+      if (stat.isDirectory()) retiredFilesStillPresent.push(manifest.id)
+      else deletedFiles.push(manifest.id)
+    } catch (error) {
+      if (error?.code === 'ENOENT') retiredFilesAlreadyAbsent.push(manifest.id)
+      else retiredFilesStillPresent.push(manifest.id)
+    }
+  }
+  return { deletedFiles, retiredFilesAlreadyAbsent, retiredFilesStillPresent }
+}
 
 /**
- * @req FR-022, SEC-034 — end the legal-hold re-seal keys whose reason to exist is
- * gone (ADR-093 1.2.0): the hold has ended (`endDate` passed, or the hold row no
- * longer exists), or the held Customer no longer has an active retention consent
- * (a defensive re-check: revocation already destroys them in its own transaction).
- * Runs before, and independently of, the chain check: it reads no archive file and
- * infers no age, it only lets a lapsed hold stop protecting what it protected.
- *
- * @returns {Promise<string[]>} the hold ids whose key was destroyed
+ * Return lapsed hold ids whose re-seal keys are candidates for destruction.
+ * @returns {Promise<string[]>} lapsed candidate hold ids
  */
-export async function expireLegalHoldArchiveKeys(db, { tenantId, now = new Date() }) {
+async function findLapsedLegalHoldArchiveKeyIds(db, { tenantId, now = new Date() }) {
   const keys = await db.legalHoldArchiveKey.findMany({ where: { tenantId }, select: { legalHoldId: true, heldCustomerId: true } })
   if (keys.length === 0) return []
   const [holds, consenting] = await Promise.all([
@@ -97,7 +276,22 @@ export async function expireLegalHoldArchiveKeys(db, { tenantId, now = new Date(
     const hold = holdById.get(key.legalHoldId)
     return !hold || hold.customerId !== key.heldCustomerId || !(hold.endDate > now) || !consenting.has(key.heldCustomerId)
   }).map((key) => key.legalHoldId)
-  if (lapsed.length === 0) return []
+  return lapsed
+}
+
+/**
+ * @req FR-022, SEC-034 — end the legal-hold re-seal keys whose reason to exist is
+ * gone (ADR-093 1.2.0): the hold has ended (`endDate` passed, or the hold row no
+ * longer exists), or the held Customer no longer has an active retention consent
+ * (a defensive re-check: revocation already destroys them in its own transaction).
+ * Runs before, and independently of, the chain check: it reads no archive file and
+ * infers no age, it only lets a lapsed hold stop protecting what it protected.
+ *
+ * @returns {Promise<string[]>} destroyed hold ids, or ids that would be destroyed in a dry run
+ */
+export async function expireLegalHoldArchiveKeys(db, { tenantId, now = new Date(), dryRun = false }) {
+  const lapsed = await findLapsedLegalHoldArchiveKeyIds(db, { tenantId, now })
+  if (lapsed.length === 0 || dryRun) return lapsed
   return destroyLegalHoldArchiveKeys(db, { tenantId, legalHoldIds: lapsed })
 }
 
@@ -170,47 +364,70 @@ function newestLineInSegment(parsed, { dek, tenantId, customerId }) {
  * key whose archived lines are now entirely past `retentionYears`, unless an
  * active legal hold protects them, and deletes every archive file whose lines
  * have all expired for every Customer it names (see the module docstring for
- * exactly what that means). Always writes one `ARCHIVE_EXPIRY_COMPLETED` audit
- * event, including a run that destroys and deletes nothing, or one refused
- * outright by a broken chain — an access review must see the attempt either way.
+ * exactly what that means). A real run always writes one
+ * `ARCHIVE_EXPIRY_COMPLETED` audit event, including a run that destroys and
+ * deletes nothing, or one refused outright by a broken chain — an access review
+ * must see the attempt either way. A dry run is read-only and omits that audit.
  *
  * @param {object} db - a Prisma client (not a transaction: this makes many
  *   independent, individually-safe writes across possibly many Customers and
  *   files, not one atomic unit — the same shape `runRetentionSweep` uses
  *   across Tenants).
- * @param {{tenantId: string, now?: Date, baseDir?: string, env?: object, retentionYears?: number}} input
+ * @param {{tenantId: string, now?: Date, baseDir?: string, env?: object, retentionYears?: number, dryRun?: boolean}} input
  */
 export async function expireChatEvidenceArchive(db, {
   tenantId, now = new Date(), baseDir = resolveArchiveBaseDir(), env = process.env,
-  retentionYears = CHAT_EVIDENCE_ARCHIVE_RETENTION_YEARS,
+  retentionYears = CHAT_EVIDENCE_ARCHIVE_RETENTION_YEARS, dryRun = false,
 } = {}) {
   if (!tenantId) throw new Error('expireChatEvidenceArchive requires tenantId')
   const cutoff = cutoffDate(now, retentionYears)
   const readManifest = manifestReader(baseDir)
 
-  const destroyedHoldKeys = await expireLegalHoldArchiveKeys(db, { tenantId, now })
+  const destroyedHoldKeys = await expireLegalHoldArchiveKeys(db, { tenantId, now, dryRun })
 
   const chainIntegrity = await verifyManifestChain(db, tenantId, { baseDir, checkFiles: true })
   if (!chainIntegrity.valid) {
+    const retirementManifest = null
+    const retiredManifestIds = []
+    const retiredFilesAlreadyAbsent = []
+    const retiredFilesStillPresent = []
+    const retirementFailureReason = null
+    if (dryRun) {
+      return {
+        tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys,
+        retiredFilesAlreadyAbsent, retirementManifest, retiredManifestIds, retiredFilesStillPresent,
+        retirementFailureReason, dryRun: true, auditEventId: null,
+      }
+    }
     const audit = await recordAudit(db, {
       entityType: 'ARCHIVE',
       entityId: `expiry:${tenantId}:${now.toISOString()}`,
       action: 'ARCHIVE_EXPIRY_COMPLETED',
       actorType: 'SYSTEM',
       tenantId,
-      payload: { tenantId, ranAt: now.toISOString(), skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys },
+      payload: {
+        tenantId, ranAt: now.toISOString(), skipped: true, chainIntegrity,
+        destroyedKeys: [], deletedFiles: [], retiredFilesAlreadyAbsent, destroyedHoldKeys, retirementManifest,
+        retiredManifestIds, retiredFilesStillPresent, retirementFailureReason,
+      },
     })
-    return { tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys, auditEventId: audit.id }
+    return {
+      tenantId, ranAt: now, skipped: true, chainIntegrity, destroyedKeys: [], deletedFiles: [], destroyedHoldKeys,
+      retiredFilesAlreadyAbsent, retirementManifest, retiredManifestIds, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
+    }
   }
 
   const manifests = await db.archiveManifest.findMany({ where: { tenantId }, orderBy: { createdAt: 'asc' } })
+  const alreadyRetiredIds = chainIntegrity.retiredManifestIds ?? []
+  const alreadyRetired = new Set(alreadyRetiredIds)
+  const contentManifests = manifests.filter((manifest) => !manifest.filePath.endsWith('.zcr') && !alreadyRetired.has(manifest.id))
 
   // customerId -> Set(manifest.id) — which files carry a segment naming them,
   // discovered by parsing each segment's wrapper JSON (cheap: it is the
   // ciphertext envelope, not a decryption) rather than trusting anything
   // outside the files themselves.
   const manifestsByCustomer = new Map()
-  for (const manifest of manifests) {
+  for (const manifest of contentManifests) {
     const parsed = await readManifest(manifest)
     if (!parsed) continue
     for (const line of parsed.segmentLines) {
@@ -278,8 +495,17 @@ export async function expireChatEvidenceArchive(db, {
 
       verifiedAges.set(keyRow.customerId, perManifestNewest)
       if (overallNewest && overallNewest < cutoff) {
-        const result = await destroyCustomerArchiveKey(db, { tenantId, customerId: keyRow.customerId, now })
-        if (result.destroyed) destroyedKeys.push(keyRow.customerId)
+        // If the process dies after this key delete but before retirement commits,
+        // the next run treats its already-missing key as expired for that file and completes retirement.
+        if (dryRun) {
+          const currentHold = await findActiveLegalHold(db, { customerId: keyRow.customerId }, now)
+          if (currentHold) continue
+          const currentKey = await db.customerArchiveKey.findUnique({ where: { customerId: keyRow.customerId } })
+          if (currentKey?.tenantId === tenantId) destroyedKeys.push(keyRow.customerId)
+        } else {
+          const result = await destroyCustomerArchiveKey(db, { tenantId, customerId: keyRow.customerId, now })
+          if (result.destroyed) destroyedKeys.push(keyRow.customerId)
+        }
       }
     } finally {
       dek.fill(0)
@@ -287,14 +513,11 @@ export async function expireChatEvidenceArchive(db, {
   }
 
   const keyExistedAtStart = new Set(keysAtStart.map((k) => k.customerId))
-  // @req FR-022, SEC-034 — H1 of the #610 review: a file carrying a legal-hold
-  //   re-seal segment (ADR-093 1.2.0) is NEVER deleted. Deleting it would leave
-  //   its manifest row naming a missing file, and `verifyManifestChain(checkFiles)`
-  //   would then fail for the whole Tenant forever — refusing every later expiry
-  //   run and retrieval. Destroying the hold key (`expireLegalHoldArchiveKeys`) is
-  //   the crypto-shred; the ciphertext left on disk is unreadable.
-  const deletedFiles = []
-  for (const manifest of manifests) {
+  // @req FR-245, SEC-034 — ADR-093 D5 excludes every file with a legal-hold
+  //   re-seal segment from retirement. Its manifest row remains file-backed;
+  //   ending the hold destroys its key, leaving unreadable ciphertext.
+  const newlyExpired = []
+  for (const manifest of contentManifests) {
     const parsed = await readManifest(manifest)
     if (!parsed) continue // cannot positively account for this file's own contents — never delete it
 
@@ -333,14 +556,90 @@ export async function expireChatEvidenceArchive(db, {
       if (!newestInThisFile || !(newestInThisFile < cutoff)) { allExpired = false; break }
     }
 
-    if (allExpired) {
+    if (allExpired) newlyExpired.push(manifest)
+  }
+
+  let retirementManifest = null
+  let retiredManifestIds = []
+  let retirementFailureReason = null
+  if (newlyExpired.length > 0) {
+    if (dryRun) {
+      retiredManifestIds = newlyExpired.map((manifest) => manifest.id)
+    } else {
       try {
-        await fs.unlink(path.join(baseDir, manifest.filePath))
-        deletedFiles.push(manifest.id)
-      } catch {
-        // Already gone, or this host does not have the file mounted (ADR-093
-        // D8's second copy) — not fatal to the rest of the run.
+        const retirement = await appendRetirementManifest(db, { tenantId, manifests: newlyExpired, now, baseDir, retentionYears })
+        retirementManifest = { id: retirement.manifest.id, manifestHash: retirement.manifest.manifestHash }
+        retiredManifestIds = retirement.retiredManifestIds
+      } catch (error) {
+        retirementManifest = error?.retirementManifest ?? null
+        retiredManifestIds = error?.retiredManifestIds ?? []
+        retirementFailureReason = archiveFailureCode(error)
       }
+    }
+  }
+
+  const allRetiredIds = new Set([...alreadyRetiredIds, ...retiredManifestIds])
+  const retiredFiles = manifests.filter((manifest) => allRetiredIds.has(manifest.id) && !manifest.filePath.endsWith('.zcr'))
+  let deletedFiles = []
+  let retiredFilesAlreadyAbsent = []
+  let retiredFilesStillPresent = []
+  if (dryRun) {
+    const preview = await previewRetiredArchiveFiles(retiredFiles, { baseDir })
+    if (newlyExpired.length > 0 || preview.deletedFiles.length > 0) {
+      try {
+        const unlinkableManifestIds = new Set(preview.deletedFiles)
+        const targetDirectories = [
+          ...(newlyExpired.length > 0 ? [archiveTenantYearDirectory({ baseDir, tenantId, now })] : []),
+          ...retiredFiles
+            .filter((manifest) => unlinkableManifestIds.has(manifest.id))
+            .map((manifest) => path.dirname(path.join(baseDir, manifest.filePath))),
+        ]
+        await assertArchiveStorageWritable(targetDirectories)
+      } catch (error) {
+        retirementFailureReason = archiveFailureCode(error)
+        retiredManifestIds = []
+        const previouslyRetiredFiles = manifests.filter((manifest) =>
+          alreadyRetired.has(manifest.id) && !manifest.filePath.endsWith('.zcr'))
+        const previousPreview = await previewRetiredArchiveFiles(previouslyRetiredFiles, { baseDir })
+        retiredFilesAlreadyAbsent = previousPreview.retiredFilesAlreadyAbsent
+        retiredFilesStillPresent = [...new Set([
+          ...previousPreview.deletedFiles,
+          ...previousPreview.retiredFilesStillPresent,
+        ])]
+      }
+    }
+    if (!retirementFailureReason) {
+      deletedFiles = preview.deletedFiles
+      retiredFilesAlreadyAbsent = preview.retiredFilesAlreadyAbsent
+      retiredFilesStillPresent = preview.retiredFilesStillPresent
+    }
+  } else if (retirementFailureReason) {
+    // The failed batch is never deleted before its retirement commit. Files
+    // whose retirement was already verified in an earlier run remain safe to
+    // clean up (P5). If this transaction may have committed but its outcome
+    // could not be confirmed, preserve those files for the next verified run.
+    const previouslyRetiredFiles = retiredFiles.filter((manifest) => alreadyRetired.has(manifest.id))
+    const priorDeletion = await deleteRetiredArchiveFiles(previouslyRetiredFiles, { baseDir })
+    deletedFiles = priorDeletion.deletedFiles
+    retiredFilesAlreadyAbsent = priorDeletion.retiredFilesAlreadyAbsent
+    retiredFilesStillPresent = [...priorDeletion.retiredFilesStillPresent]
+    const committedButUnconfirmed = retirementManifest
+      ? retiredFiles.filter((manifest) => !alreadyRetired.has(manifest.id))
+      : []
+    const unconfirmedPresent = await listPresentRetiredFiles(committedButUnconfirmed, { baseDir })
+    retiredFilesStillPresent = [...new Set([...retiredFilesStillPresent, ...unconfirmedPresent])]
+  } else {
+    const deletion = await deleteRetiredArchiveFiles(retiredFiles, { baseDir })
+    deletedFiles = deletion.deletedFiles
+    retiredFilesAlreadyAbsent = deletion.retiredFilesAlreadyAbsent
+    retiredFilesStillPresent = deletion.retiredFilesStillPresent
+  }
+
+  if (dryRun) {
+    return {
+      tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, destroyedHoldKeys,
+      retirementManifest, retiredManifestIds, retiredFilesAlreadyAbsent, retiredFilesStillPresent,
+      retirementFailureReason, dryRun: true, auditEventId: null,
     }
   }
 
@@ -353,8 +652,12 @@ export async function expireChatEvidenceArchive(db, {
     payload: {
       tenantId, ranAt: now.toISOString(), skipped: false, chainIntegrity,
       destroyedKeys, deletedFiles, retentionYears, destroyedHoldKeys,
+      retirementManifest, retiredManifestIds, retiredFilesAlreadyAbsent, retiredFilesStillPresent, retirementFailureReason,
     },
   })
 
-  return { tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, destroyedHoldKeys, auditEventId: audit.id }
+  return {
+    tenantId, ranAt: now, skipped: false, chainIntegrity, destroyedKeys, deletedFiles, destroyedHoldKeys,
+    retirementManifest, retiredManifestIds, retiredFilesAlreadyAbsent, retiredFilesStillPresent, retirementFailureReason, auditEventId: audit.id,
+  }
 }

@@ -1,7 +1,8 @@
 import prisma from '@/lib/db'
+import { retryOnCodeConflict } from '@/lib/ids'
 import { recordAudit } from '@/modules/project-manager/application/audit'
 import { explodeRecipe, stockOnHand } from '../domain/inventory'
-import { isFinishedSetSku, kittedUnitCostSatang, weightedAverageUnitCostSatang } from '../domain/inventory-costing'
+import { isFinishedSetSku, kittedUnitCostSatang } from '../domain/inventory-costing'
 import { flowAccountSkuOf } from './inventory-catalog-service'
 import {
   KITTING_WORK_ORDER_ENTITY,
@@ -18,6 +19,7 @@ import {
 import { loadBusiness, notFound } from './inventory-authority'
 import { availableToPromiseFor } from './inventory-atp-service'
 import { appendMovement } from './inventory-stock-service'
+import { readInventoryValuation } from './inventory-valuation-service'
 import { transferInTransaction } from './location-transfer-service'
 
 // @req FR-177 — the only writer of `KittingWorkOrder`: the assembly of one
@@ -33,11 +35,13 @@ import { transferInTransaction } from './location-transfer-service'
 //   line. COMPLETE consumes what the attempts actually used, receives the
 //   assembled sets at the finished-goods location with a blended landed unit
 //   cost (FR-175), and returns the unused buffer.
+// @req FR-175 — component costs use the shared moving valuation; staging a
+//   transfer to WIP does not change the Business-wide cost basis.
 //
 //   Components consumed = per-set × attempts, where attempts = assembled +
 //   scrapped sets: a set that was ruined during assembly still ate its
 //   tumbler.
-// @spec ADR-074 D5; BR-029; BR-032; BR-027; BR-028; BR-002; SEC-001; FR-072; FR-155; FR-156
+// @spec ADR-074 D3, D5; BR-029; BR-032; BR-027; BR-028; BR-002; SEC-001; FR-072; FR-155; FR-156
 // @tested tests/integration/fr177-kitting-work-order.test.js
 
 const failure = (status, message) => Object.assign(new Error(message), { status })
@@ -103,8 +107,8 @@ async function nextCode(tx, business, now) {
 }
 
 async function unitCostOf(tx, productId) {
-  const receipts = await tx.stockMovement.findMany({ where: { productId, kind: 'RECEIPT' }, select: { quantity: true, costSatang: true } })
-  return weightedAverageUnitCostSatang(receipts)
+  const valuation = await readInventoryValuation(productId, { db: tx })
+  return valuation.unitCostSatang
 }
 
 /** How many of a component one *attempt* at a set consumes, from the frozen line. */
@@ -112,7 +116,7 @@ const perAttempt = (line, attempts) => (line.fixed ? line.grossQty : Math.ceil((
 
 export async function openKittingWorkOrder(input, { viewer, db = prisma, now = new Date() } = {}) {
   const data = zOpenKittingWorkOrder.parse(input)
-  return inTx(db, async (tx) => {
+  const attempt = () => inTx(db, async (tx) => {
     const business = await loadBusiness(tx, viewer, data.businessId, { write: true })
     const recipe = await tx.productRecipe.findUnique({ where: { id: data.recipeId }, select: RECIPE_SELECT })
     if (!recipe || recipe.businessId !== business.id) throw failure(422, 'PRODUCT_RECIPE_NOT_FOUND')
@@ -194,6 +198,11 @@ export async function openKittingWorkOrder(input, { viewer, db = prisma, now = n
     })
     return kittingDto(created)
   })
+  if (typeof db?.$transaction !== 'function') {
+    // A caller-owned transaction cannot be retried here; its owner handles code conflicts.
+    return attempt()
+  }
+  return retryOnCodeConflict(attempt, { exhausted: () => failure(409, 'KITTING_WORK_ORDER_CODE_EXHAUSTED') })
 }
 
 /** Stage the frozen gross quantities at the assembly line. On-hand is unchanged. */

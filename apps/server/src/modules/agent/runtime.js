@@ -8,7 +8,7 @@ import { sha256 } from './execution-trace'
 // @req FR-029 — bind the agent to the REAL backends: MSP memory + GenesisBlockDB
 //   knowledge, as the ports assembleAgentContext/handleAgentTurn consume.
 // @spec ADR-007 §P6 — the agent consumes settled contracts (Identity + MSP + GKS +
-//   Tools); each is a separate authority/store (not bundled as in GoVibe), wired here.
+//   Tools); each is a separate authority/store (not bundled into one service), wired here.
 //   Graceful fallback: an unconfigured backend degrades to the in-memory / Prisma
 //   default so the same turn runs in tests, demo, and production.
 // @tested tests/integration/agent-runtime.test.js
