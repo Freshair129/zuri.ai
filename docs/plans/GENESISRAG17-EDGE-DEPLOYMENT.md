@@ -1,14 +1,15 @@
 ---
 id: ZAI:GENESISRAG17-EDGE-DEPLOYMENT
 title: GenesisRAG17 edge-device deployment design (SmartGift structured-record profile)
-version: "0.7.5"
-status: beta
+version: "0.8.0"
+status: superseded
+superseded_by: ZAI:ADR-119
 created_at: "2026-09-11T19:15:00+07:00,Claude Opus 5"
-last_update: "2026-11-08T04:03:25+07:00,Codex"
+last_update: "2026-11-17T00:00:00+07:00,Codex"
 attributes:
   domain: knowledge
   doc_type: deployment-design
-  scope: "ADR-075 Phase 3 — the edge-device deployment design for MSP, GKS and the GenesisBlock GenesisRAG17 worker, including the separately gated private MSP-to-GKS HTTP canary and its stdio rollback path"
+  scope: "Historical SmartGift/ADR-075 Phase 3 deployment design for MSP, GKS and the GenesisBlock GenesisRAG17 worker; retained for evidence and superseded by ADR-119, not a current deployment or customer-scope authority"
 relations:
   - type: relates_to
     target: ZAI:ADR-073
@@ -18,14 +19,14 @@ relations:
 
 # GenesisRAG17 on the edge device: Phase 3 deployment design
 
-> **Status (updated 2026-09-24): superseded by §9.2 — see there for current production
-> state.** This section is left as written through the 2026-09-16 revision (0.2.0) as a
+> **Historical design (updated 2026-11-17):** ADR-119 supersedes ADR-075 and removes SmartGift from Zuri; this SmartGift-profile plan is retained for provenance and is not current deployment authority. Generic mechanisms and the MSP protocol remain under their own authority (ADR-119 D3–D4); this disposition does not retire them. §9.2 is a dated 2026-09-24 production observation, §9.3 is native Windows developer acceptance, and §9.4 records attributed historical MSP evidence and TASK-ZAI-050 state. None proves current production-host state. The proposed TASK-ZAI-095 SmartGift pilot was not executed and is superseded; no replacement target is selected or authorized. No completed activation record or production switch is claimed.
+> The original 2026-09-24 status note below is retained as historical context. This section is left as written through the 2026-09-16 revision (0.2.0) as a
 > historical record of the design-time assumption: "None of it has been deployed," no
 > `docker compose` command run, no credential generated, no migration applied, the one
 > thing executed being gate **G-3** (§9.1) against throwaway test images. That assumption
 > no longer holds — §9.2 records a 2026-09-24 read-only production probe that found the
-> runtime this design describes already running. Do not read this blockquote as the
-> current state; read §9.2.
+> runtime this design describes already running. §9.2 records only that dated
+> observation, not the current host state.
 >
 > **The private MSP-to-GKS HTTP canary (§5.1, ADR-075 D10) is NOT_RUN.** Only a
 > render-only `docker compose config --quiet` check ran, on 2026-09-23, with example env and
@@ -407,12 +408,33 @@ the fact list and source provenance are in
 This native run does not replace the G-3 Linux image gate or exact-image
 acceptance before a production promotion.
 
-**Open question for the owner (FR-189):** does FR-189 remain applicable after
-ADR-110 retired the edge-device worker connection? No FR-189 status or
-supersession change is made here.
+### 9.4 TASK-ZAI-050 evidence reconciliation and TASK-ZAI-095 historical status — 2026-11-17
 
-**Disposition pointer (2026-11-08):** ASTRA-D1 D1 supersedes FR-189 as an active
-Edge LINE shadow/cutover obligation; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
+MSP §6 at revision `520ac7109b032d11a6b15b87720b58380173ba7f` records historical,
+operator-attested evidence dated 2026-10-24: d0 image qualification, restored canary,
+production publication/query/denial/persistence, and 42/42 tests in the composed MSP
+acceptance image. The underlying private artifacts were not inspected in this review.
+Keep that attribution and image/app provenance; it is not acceptance of the current
+Zuri source, not current production-host verification, and does not close TASK-ZAI-050.
+
+The 2026-09-24 production probe remains a dated observation, not proof of current host
+health. SmartGift-specific values in that observation are historical and no longer an in-scope target under ADR-119. The native Windows 42/42 result in §9.3 is developer acceptance of the stated
+tuple, not Linux exact-image qualification or live LINE production acceptance. The three
+TASK-ZAI-050 DoD booleans remain false. Its activation-record skeleton is
+[`2026-11-08-task-zai-050-activation-record.md`](../../reports/2026-11-08-task-zai-050-activation-record.md);
+current host fields are `NOT_VERIFIED`, and its exit criterion still requires a real
+Business document to be admitted, published, queried and cited on production.
+
+The TASK-ZAI-095 SmartGift pilot described in the 2026-11-08 preparation was a proposal only; it was not executed. ADR-119 supersedes ADR-075 and removes SmartGift from Zuri, so the Task095 steps are no longer operative. Preserve the original Task095 ID, SmartGift scope, and unchecked criteria as historical evidence; do not reassign it to another Business or account. A future generic FR-235/FR-277 production target requires separate authorization and a new scope; none is selected here. The read-only inspector and isolated switch/shadow/rollback rehearsal do not authorize or evidence production work. The [TASK-ZAI-095 runbook](../runbooks/TASK-ZAI-095-LINE-GROUNDING-SWITCH.md) is retained as a superseded historical record.
+
+**Historical (pre-ASTRA-D1 D1) open question (FR-189):** did FR-189 remain
+applicable after ADR-110 retired the edge-device worker connection? The question
+and its statement that no status change was made describe the pre-migration state
+and are no longer current.
+
+**Current disposition (2026-11-08):** FR-189 is superseded as an active Edge LINE
+shadow/cutover obligation by ASTRA-D1 D1 through the canonical source-row migration
+merged in PR #793; see the [reviewed source-row migration](../change-requests/knowledge/ki17-status-reconciliation-20261108.md).
 No cutover, sunset or deletion is asserted.
 
 ## 10. Start order (operator procedure, not executed)
@@ -618,6 +640,9 @@ cutover.
 
 | Version | Date | Status | Summary | Commit Hash | Agent |
 |---|---|---|---|---|---|
+| 0.8.0 | 2026-11-17 | superseded | Records ADR-119 supersession of ADR-075/SmartGift scope; retains MSP §6 and production observations as attributed history, keeps TASK-ZAI-050 open with all DoD false/NOT_VERIFIED, and marks the proposed Task095 pilot unexecuted and non-operative. No replacement target or production action claimed. | working-tree | Codex |
+| 0.7.8 | 2026-11-08 | beta | Marks the former FR-189 owner question as historical and records its supersession by ASTRA-D1 D1 through the canonical source-row migration merged in PR #793; preserves the no-cutover/no-deletion boundary. | working-tree | Codex |
+| 0.7.7 | 2026-11-08 | beta | Adds §9.4 to attribute MSP §6 as historical evidence with its private-artifact limitation, reconcile TASK-ZAI-050 without checking any DoD items, and point to the NOT_VERIFIED activation skeleton and isolated TASK-ZAI-095 pilot plan. No production action is claimed. | working-tree | Codex |
 | 0.7.6 | 2026-11-08 | beta | Adds a dated pointer to ASTRA-D1 D1's reviewed FR-189 disposition; preserves runtime and production evidence boundaries | working-tree | Codex |
 | 0.7.5 | 2026-11-08 | beta | Adds the native Windows developer-check recipe and §9.3 result, records production MSP evidence from MSP §6 with its source caveat, and preserves FR-189 for owner decision; FR-187/188 source-row status migration remains gated by an approved migration document | working-tree | Codex |
 | 0.7.0 | 2026-09-23 | beta | Corrects the HTTP pipeline credential boundary and adds the same child-environment filter to GenesisBlock's inherited worker spawn | working-tree | RWANG |

@@ -25,6 +25,7 @@ describe('programme snapshot metadata', () => {
 
     expect(PROGRAMME_SNAPSHOT.version).toBe(field('version'))
     expect(PROGRAMME_SNAPSHOT.updated).toBe(field('updated'))
+    expect(PROGRAMME_SNAPSHOT.status).toBe(field('status'))
   })
 })
 
