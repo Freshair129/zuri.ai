@@ -1,13 +1,5 @@
-import { Catalog, CatalogProduct, findByCode, isQuotable } from '../catalog/store.js';
+import type { Catalog } from '../catalog/store.js';
 import { Role } from '../identity/registry.js';
-import { ScopedQuote, scopeQuote } from '../identity/scope.js';
-import {
-  FreightMode,
-  buildPriceQuote,
-  leadTimeFor,
-  modeForDeadline,
-  screenPositionsForItemCode,
-} from '../pricing/index.js';
 import type { AnswerRag } from '../rag/genesis-rag.js';
 import type { SearchEvidenceV4 } from './format-cards.js';
 import type { PublishedProductQueryResult } from '../rag/genesisrag17/product-rag.js';
@@ -15,14 +7,12 @@ import type { PublishedProductQueryResult } from '../rag/genesisrag17/product-ra
 /**
  * The facts a model is allowed to answer from.
  *
- * Everything here is computed by the pricing engine and then cut to the caller's role *before* it
- * is returned. A sales conversation therefore never has a factory cost or a markup in the model's
- * context at all — not hidden behind an instruction, simply absent. An instruction can be argued
- * with by whatever the customer types; an absent field cannot.
+ * Product facts and commercial prices are read through the RAG adapter. The removed local
+ * cost-to-price engine is never a fallback. Published snapshots retain their provenance and
+ * unverified commercial conditions rather than becoming live quotes.
  *
- * These are also the only source of numbers in a reply. `verifyNumbers` in `llm.ts` checks the
- * finished text against what these returned, so a figure the model invented does not reach a
- * customer.
+ * `unverifiedNumbers` in `llm.ts` checks model figures against these results; published catalog
+ * evidence instead owns the deterministic final text and its limitations.
  */
 
 export interface EvidenceOptions {
@@ -40,26 +30,6 @@ export interface EvidenceRecord {
   output: unknown;
 }
 
-function quoteInputFor(p: CatalogProduct, options: EvidenceOptions) {
-  const [l, w, h] = p.dims as [number, number, number];
-  return {
-    sku: p.code,
-    factoryCostRmb: p.rmb as number,
-    exchangeRate: options.exchangeRate,
-    carton: {
-      unitsPerCarton: p.upc as number,
-      cartonCbm: Math.round(((l * w * h) / 1e6) * 10000) / 10000,
-      ...(p.kg ? { cartonWeightKg: p.kg } : {}),
-    },
-    freight: {
-      mode: 'auto' as const,
-      shipMonth: options.shipMonth ?? new Date().getMonth() + 1,
-      goodsClass: (p.e ? 'electronic_tisi' : 'general') as 'electronic_tisi' | 'general',
-    },
-    logo: { positions: screenPositionsForItemCode(p.code) },
-  };
-}
-
 /**
  * A price step with the order total alongside it.
  *
@@ -67,7 +37,11 @@ function quoteInputFor(p: CatalogProduct, options: EvidenceOptions) {
  * sentence to say 150,000 — and a figure worked out in prose is a figure nothing checked. Putting
  * arithmetic in the evidence keeps the rule simple: every number in a reply came from the engine.
  */
-export type QuoteBreakEvidence = ScopedQuote['breaks'][number] & { orderTotalThb: number };
+export interface QuoteBreakEvidence {
+  quantity: number;
+  unitPriceThb: number;
+  orderTotalThb: number;
+}
 
 export interface QuoteEvidence {
   publishedProducts?: PublishedProductQueryResult;
@@ -82,7 +56,6 @@ export interface QuoteEvidence {
   quotable?: boolean;
   missing?: string[];
   breaks?: QuoteBreakEvidence[];
-  cost?: ScopedQuote['cost'];
   notes?: string[];
   asOf?: string;
   /** The break a customer at this quantity actually pays, when one was asked about. */
@@ -97,82 +70,17 @@ export interface QuoteEvidence {
 }
 
 /**
- * Price from the local rmb-catalog engine — the estimate path.
- *
- * Kept as the fallback for a code the catalog graph does not know about (or has not been ingested
- * with yet): a rough figure computed from factory cost and freight, clearly labelled
- * `estimate_rmb` rather than presented as the real ladder.
- */
-function quotePriceRmb(sku: string, quantity: number | null, options: EvidenceOptions): QuoteEvidence {
-  const product = findByCode(options.catalog, sku);
-  if (!product) {
-    return { found: false, sku, message: `ไม่มีรหัส ${sku} ในแคตตาล็อก` };
-  }
-  if (!isQuotable(product)) {
-    return {
-      found: true,
-      quotable: false,
-      sku: product.code,
-      name: product.name,
-      missing: [
-        product.rmb === null ? 'ต้นทุนโรงงาน' : null,
-        product.upc === null || product.dims === null ? 'ข้อมูลกล่อง' : null,
-      ].filter(Boolean) as string[],
-      message: 'แคตตาล็อกยังไม่มีข้อมูลพอสำหรับคำนวณราคา',
-    };
-  }
-
-  const scoped = scopeQuote(buildPriceQuote(quoteInputFor(product, options)), options.role);
-  const evidence: QuoteEvidence = {
-    found: true,
-    quotable: true,
-    sku: scoped.sku,
-    name: product.name,
-    breaks: scoped.breaks.map((b) => ({
-      ...b,
-      orderTotalThb: Math.round(b.quantity * b.unitPriceThb * 100) / 100,
-    })),
-    ...(scoped.cost ? { cost: scoped.cost } : {}),
-    notes: scoped.notes,
-    asOf: scoped.asOf,
-  };
-
-  /*
-   * An off-ladder quantity is answered with the break above it. The ladder is a published promise
-   * at its own steps; reading a cheaper step downwards would be inventing a discount.
-   */
-  if (quantity !== null && quantity > 0) {
-    const above = scoped.breaks.find((b) => b.quantity >= quantity);
-    const chosen = above || scoped.breaks[scoped.breaks.length - 1];
-    if (chosen) {
-      evidence.priceAtQuantity = {
-        askedQuantity: quantity,
-        usesBreak: chosen.quantity,
-        unitPriceThb: chosen.unitPriceThb,
-        orderTotalThb: Math.round(quantity * chosen.unitPriceThb * 100) / 100,
-        note: above
-          ? 'ใช้ขั้นราคาที่ครอบจำนวนที่ถาม'
-          : 'เกินขั้นสูงสุดในตาราง ควรขอราคาพิเศษ',
-      };
-    }
-  }
-  return evidence;
-}
-
-/**
  * Real per-unit prices, straight from the catalog graph's commercial SKU ladder.
  *
- * The graph is asked first because it carries the actual quoted prices (§5.7). A code the graph
- * has no ladder for — not yet ingested, or a code from the older rmb catalog — falls through to
- * the estimate path, and the caller is told which one it got via `priceSource`. A graph that
- * cannot be reached at all is reported as unavailable rather than silently answered from the
- * estimate path, so a customer never receives a number the system could not actually confirm.
+ * A missing ladder is reported as having no confirmed price, and an unreachable service is
+ * explicitly unavailable. Neither case falls back to an RMB estimate. Published snapshots
+ * carry catalog amounts without inventing live quote totals, tax, shipping or validity.
  */
 export async function quotePrice(
   sku: string,
   quantity: number | null,
   options: EvidenceOptions
-): Promise<QuoteEvidence & { priceSource: 'commercial_sku' | 'estimate_rmb' }> {
+): Promise<QuoteEvidence & { priceSource: 'commercial_sku' }> {
   const priceEv = await options.rag.priceForCode(sku, quantity);
 
   if (priceEv.unavailable) {
@@ -232,7 +140,9 @@ export async function quotePrice(
     return evidence;
   }
 
-  return { ...quotePriceRmb(sku, quantity, options), priceSource: 'estimate_rmb' };
+  // ADR-119: the local RMB cost-to-price estimate was removed with the Edge pricing engine, so a
+  // code the published catalog does not know is reported as not found, never as an estimate.
+  return { found: false, sku, message: `ไม่มีราคาที่ยืนยันได้สำหรับรหัส ${sku}`, priceSource: 'commercial_sku' };
 }
 
 export interface BudgetEvidence {
@@ -399,101 +309,4 @@ export function compactSearchForModel(ev: SearchEvidenceV4): unknown {
       passages: ev.passages.map((p) => ({ text: p.text, score: p.score, chunkId: p.citation.chunkId })),
     } : {}),
   };
-}
-
-export interface LeadTimeEvidence {
-  quantity: number;
-  rush: boolean;
-  requested?: { mode: FreightMode; minDays: number; maxDays: number; stages: unknown };
-  forDeadline?: { deadlineDays: number; mode: FreightMode | null; reason: string };
-  note: string;
-}
-
-export function leadTime(
-  quantity: number,
-  options: { mode?: FreightMode; deadlineDays?: number; rush?: boolean }
-): LeadTimeEvidence {
-  const rush = options.rush ?? false;
-  const evidence: LeadTimeEvidence = {
-    quantity,
-    rush,
-    note: 'นับเฉพาะวันทำงานของบริษัท ไม่รวมเวลาที่ลูกค้าใช้คอนเฟิร์มอาร์ตเวิร์คและตัวอย่าง',
-  };
-
-  if (options.deadlineDays) {
-    const decided = modeForDeadline(quantity, options.deadlineDays, rush);
-    evidence.forDeadline = {
-      deadlineDays: options.deadlineDays,
-      mode: decided.mode,
-      reason: decided.reason,
-    };
-    evidence.requested = {
-      mode: decided.leadTime.mode,
-      minDays: decided.leadTime.minDays,
-      maxDays: decided.leadTime.maxDays,
-      stages: decided.leadTime.stages,
-    };
-    return evidence;
-  }
-
-  const lt = leadTimeFor(quantity, options.mode ?? 'truck', rush);
-  evidence.requested = {
-    mode: lt.mode,
-    minDays: lt.minDays,
-    maxDays: lt.maxDays,
-    stages: lt.stages,
-  };
-  return evidence;
-}
-
-/**
- * The standing commercial terms, written out once.
- *
- * They exist as a tool rather than as prose in the system prompt so that "ส่งต่างจังหวัดคิดยังไง"
- * is answered from the same place every time, and so that changing a term is a change to one
- * table rather than to a paragraph the model may paraphrase.
- */
-export const POLICY_TOPICS = {
-  shipping_thailand:
-    'ค่าส่งในไทย: กรุงเทพฯ และปริมณฑลส่งฟรี ต่างจังหวัดคิดตามจริง (เหมารถส่ง หรือ Flash) ' +
-    'ยังไม่ได้รวมอยู่ในราคาต่อชุด',
-  freight_mode:
-    'วิธีขนส่งจากจีน: ทางรถเร็วกว่าแต่ค่าขนส่งสูงกว่า ทางเรือถูกกว่าแต่ใช้เวลานานกว่า ' +
-    'ช่วงฤดูขาย กันยายน–มกราคม ใช้ทางรถทั้งหมดเพราะลูกค้าเร่ง นอกฤดูกาลออเดอร์ที่เกิน 5 คิว ใช้ทางเรือ ' +
-    'ราคาต่อชุดจึงต่างกันตามวิธีส่ง',
-  screening:
-    'ค่าสกรีนโลโก้รวมอยู่ในต้นทุนแล้ว จำนวนจุดสกรีนมาจากเลขตัวสุดท้ายของรหัสสินค้า บวกอีก 2 จุด ' +
-    'สำหรับถุงและกล่องที่มีทุกชุด',
-  order_steps:
-    'ขั้นตอนสั่งซื้อ: 1) วางมัดจำ 50% พร้อมส่งไฟล์โลโก้ 2) เราส่งอาร์ตเวิร์คให้ตรวจ ' +
-    '3) ลูกค้าคอนเฟิร์มอาร์ตเวิร์ค 4) ทำตัวอย่างพร้อมภาพและคลิป 5) ลูกค้าคอนเฟิร์มตัวอย่าง ' +
-    '6) ผลิต 7) จัดส่ง — งานเร่งข้ามขั้นตัวอย่างได้ ผลิตทันทีหลังคอนเฟิร์มอาร์ตเวิร์ค',
-  price_ladder:
-    'ราคาเป็นขั้นบันไดตามจำนวน สั่งมากขึ้นราคาต่อชุดถูกลง ทั้งลูกค้าทั่วไปและลูกค้าองค์กร ' +
-    'จำนวนที่ไม่ตรงขั้นจะใช้ราคาของขั้นที่สูงกว่า',
-} as const;
-
-export type PolicyTopic = keyof typeof POLICY_TOPICS;
-
-/**
- * The same topics as a literal tuple, for the tool's JSON Schema `enum`.
- *
- * Kept in step with the table by the assignment below rather than by hand: adding a topic to
- * `POLICY_TOPICS` without listing it here stops the build.
- */
-export const POLICY_TOPIC_KEYS = [
-  'shipping_thailand',
-  'freight_mode',
-  'screening',
-  'order_steps',
-  'price_ladder',
-] as const;
-
-const _topicsAreComplete: readonly PolicyTopic[] = POLICY_TOPIC_KEYS;
-const _topicsAreExhaustive: PolicyTopic = null as unknown as (typeof POLICY_TOPIC_KEYS)[number];
-void _topicsAreComplete;
-void _topicsAreExhaustive;
-
-export function explainPolicy(topic: PolicyTopic): { topic: string; text: string } {
-  return { topic, text: POLICY_TOPICS[topic] };
 }

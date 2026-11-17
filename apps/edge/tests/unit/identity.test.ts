@@ -12,8 +12,6 @@ import {
   resolveIdentity,
   revoke,
 } from '../../src/identity/registry.js';
-import { formatQuoteForLine, scopeQuote } from '../../src/identity/scope.js';
-import { buildPriceQuote } from '../../src/pricing/index.js';
 
 // @tested SDD-009 — the deny-by-default chat register and its role scoping.
 
@@ -93,60 +91,5 @@ describe('LINE identity register', () => {
     fs.mkdirSync(root, { recursive: true });
     fs.writeFileSync(path.join(root, 'identities.json'), '{not json', 'utf8');
     assert.throws(() => listIdentities(options()), /unreadable/);
-  });
-});
-
-describe('What each role is told', () => {
-  const quote = buildPriceQuote(SKU);
-
-  it('gives sales the customer price and nothing commercial', () => {
-    const scoped = scopeQuote(quote, 'sales');
-
-    assert.ok(scoped.breaks.length > 0);
-    assert.ok(scoped.breaks.every((b) => b.unitPriceThb > 0));
-    assert.strictEqual(scoped.cost, undefined, 'the cost stack must not be present at all');
-    for (const b of scoped.breaks) {
-      assert.strictEqual(b.landedUnitCostThb, undefined);
-      assert.strictEqual(b.orderGrossProfitThb, undefined);
-      assert.strictEqual(b.grossMarginPct, undefined);
-    }
-  });
-
-  it('gives the owner the whole picture', () => {
-    const scoped = scopeQuote(quote, 'owner');
-    assert.ok(scoped.cost);
-    assert.ok(scoped.breaks.every((b) => b.grossMarginPct !== undefined));
-  });
-
-  it('passes no engine note to sales unless it was allowed deliberately', () => {
-    const sales = scopeQuote(quote, 'sales');
-    const owner = scopeQuote(quote, 'owner');
-
-    assert.ok(owner.notes.length > 0, 'the owner still sees the engine notes');
-    assert.deepStrictEqual(sales.notes, [], 'nothing reaches sales by default');
-  });
-
-  it('lets no cost figure through to sales in any form', () => {
-    // The engine states costs in THB per set inside its warnings; a block-list once let one past.
-    const text = formatQuoteForLine(scopeQuote(quote, 'sales'), 'พัดลม + ร่ม');
-    assert.ok(!/THB per set/i.test(text));
-    assert.ok(!/freight/i.test(text));
-    assert.ok(!/premium/i.test(text));
-    assert.ok(!/บาท\/ชุด/.test(text.split('ราคาต่อชุด')[1] || ''));
-  });
-
-  it('never prints a cost figure in the sales reply', () => {
-    const text = formatQuoteForLine(scopeQuote(quote, 'sales'), 'พัดลม + ร่ม');
-
-    assert.ok(text.includes('ราคาต่อชุด'));
-    assert.ok(!text.includes('ต้นทุนรวม'));
-    assert.ok(!text.includes('margin'));
-    assert.ok(!text.includes('ตัวคูณ'));
-  });
-
-  it('prints the cost stack for the owner', () => {
-    const text = formatQuoteForLine(scopeQuote(quote, 'owner'), 'พัดลม + ร่ม');
-    assert.ok(text.includes('ต้นทุนรวม'));
-    assert.ok(text.includes('margin'));
   });
 });

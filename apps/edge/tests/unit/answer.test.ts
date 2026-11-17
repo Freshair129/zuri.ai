@@ -1,11 +1,12 @@
 import { describe, it } from 'node:test';
 import { buildCodexEvidence } from '../../src/answer/codex-evidence.js';
-import { HEADLESS_TOOLS_NOTE, headlessToolsNote } from '../../src/answer/respond.js';
 import { suggestsUnseenProducts, unverifiedNumbers } from '../../src/answer/llm.js';
 import assert from 'node:assert';
 
 import { parseMessage } from '../../src/answer/parse.js';
-import { answerMessage } from '../../src/answer/respond.js';
+import { answerMessage, answerConversation, type ConversationOptionsFull } from '../../src/answer/respond.js';
+import { allowedTools, type runHeadless } from '../../src/answer/headless.js';
+import { emptyFakeRag } from '../helpers/fake-rag.js';
 import { Catalog, CatalogProduct } from '../../src/catalog/store.js';
 
 // @tested SDD-010 — the conversational answer stack across its pattern, API and headless layers.
@@ -31,6 +32,83 @@ const NO_CARTON: Omit<CatalogProduct, 'book'> = {
 
 const catalog = catalogOf([FAN, BOTTLE, NO_CARTON]);
 const base = { catalog, exchangeRate: 5, shipMonth: 11 } as const;
+
+const headlessOptions: ConversationOptionsFull = {
+  ...base, role: 'sales', rag: emptyFakeRag(), conversationKey: 'commerce-guard',
+  memory: { root: '.', hashKey: 'fixture' }, retainHistory: false,
+  headless: { bin: 'unused-fixture', model: 'fixture', maxTurns: 1, timeoutMs: 5000,
+    sandboxRoot: '.', sessionRoot: '.', sessionRetentionHours: 1, webSearch: true, fileAuthoring: true },
+};
+const headlessReply = (text: string): typeof runHeadless => async () => ({
+  ok: true, text, evidence: text, rememberedNumbers: [780, 49, 12, 15], toolCalls: ['WebSearch'],
+});
+
+describe('headless commercial answers after local pricing removal', () => {
+  it('does not treat model, web or remembered prices as catalog authority', async () => {
+    for (const reply of ['ราคา 780 บาท/ชุดค่ะ', 'ชุดละ 49 บาทค่ะ', 'ราคา ฿๔๙ ค่ะ', '185.-/ชุดค่ะ', 'ลดให้ 5% ค่ะ']) {
+      const answer = await answerConversation('ขอดูราคาหน่อย', headlessOptions, headlessReply(reply));
+      assert.equal(answer.source, 'rules');
+      assert.equal(answer.reason, 'HEADLESS_PRICE_UNVERIFIED');
+      assert.match(answer.text, /แคตตาล็อกที่เผยแพร่/);
+      assert.notEqual(answer.text, reply);
+    }
+  });
+
+  it('hands off delivery commitments, including small day counts, without retrying price tools', async () => {
+    let apiCalls = 0;
+    const options = { ...headlessOptions, llm: { timeoutMs: 5000, maxIterations: 1,
+      port: { id: 'unused', model: 'unused', generate: async () => { apiCalls++; return { text: '' }; } } } };
+    for (const [question, reply] of [
+      ['ช่วยอธิบายหน่อย', 'ผลิตและจัดส่งภายใน 12–15 วันค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งภายใน 3 วันค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'จัดส่งวันที่ 20/11/2026 ค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งวันศุกร์ค่ะ'],
+      ['ช่วยอธิบายหน่อย', 'ส่งภายในสิ้นเดือนค่ะ'],
+      ['ส่งของเมื่อไร', 'ประมาณ 12 วันค่ะ'],
+      ['When will it ship?', 'Delivery takes 2 weeks.'],
+    ]) {
+      const answer = await answerConversation(question, options, headlessReply(reply));
+      assert.equal(answer.source, 'rules');
+      assert.equal(answer.reason, 'HEADLESS_DELIVERY_UNVERIFIED');
+      assert.match(answer.text, /ยืนยัน/);
+      assert.notEqual(answer.text, reply);
+    }
+    assert.equal(apiCalls, 0, 'catalog tools cannot authorize lead time');
+  });
+
+  it('hands off explicit stock promises because catalog prices do not verify current inventory', async () => {
+    for (const reply of ['มีเหลือ 20 ชิ้นค่ะ', 'สินค้าพร้อมส่งค่ะ', 'There are 20 units in stock.']) {
+      const answer = await answerConversation('มีสินค้าไหม', headlessOptions, headlessReply(reply));
+      assert.equal(answer.reason, 'HEADLESS_STOCK_UNVERIFIED');
+      assert.equal(answer.source, 'rules');
+      assert.notEqual(answer.text, reply);
+    }
+  });
+
+  it('does not let an API retry return another unsupported small price', async () => {
+    let apiCalls = 0;
+    const answer = await answerConversation('ขอดูราคาหน่อย', { ...headlessOptions,
+      llm: { timeoutMs: 5000, maxIterations: 1, port: { id: 'fixture', model: 'fixture', generate: async () => {
+        apiCalls++; return { text: 'ราคา 49 บาทค่ะ' };
+      } } },
+    }, headlessReply('ราคา 780 บาทค่ะ'));
+    assert.equal(apiCalls, 1);
+    assert.equal(answer.reason, 'HEADLESS_PRICE_UNVERIFIED');
+    assert.doesNotMatch(answer.text, /49|780/);
+  });
+
+  it('keeps general numeric answers and the enabled web/file capabilities', async () => {
+    for (const reply of ['CI retries 15 times.', 'The research period was 30 days.', 'Production logs cover 30 days.', 'Wrote 500 rows to out/report.csv.']) {
+      const answer = await answerConversation('ช่วยวิเคราะห์งานนี้', headlessOptions, async (...args) => {
+        assert.match(args[1], /# Persona: Zuri/);
+        assert.deepEqual(allowedTools(args[4]), ['WebSearch', 'WebFetch', 'Write', 'Read', 'Glob', 'Grep']);
+        return headlessReply(reply)(...args);
+      });
+      assert.equal(answer.text, reply);
+      assert.equal(answer.source, 'model');
+    }
+  });
+});
 
 describe('Reading the question', () => {
   it('pulls the item code out of a sentence', () => {
@@ -78,48 +156,20 @@ describe('Reading the question', () => {
 });
 
 describe('Answering, by role', () => {
-  it('quotes every break for a known code', () => {
-    const text = answerMessage('TJS23-2', { ...base, role: 'owner' });
-    assert.ok(text.includes('TJS23-2'));
-    assert.ok(text.includes('500 ชุด'));
-    assert.ok(text.includes('ต้นทุนรวม'), 'the owner sees the cost stack');
+  // ADR-119: the local cost-to-price calculator was removed, so the pattern reader no longer
+  // quotes or searches by budget; it says so and never prints a price.
+  it('does not compute a price for a known code, whatever the role', () => {
+    for (const role of ['owner', 'sales'] as const) {
+      const text = answerMessage('TJS23-2 100 ชุด', { ...base, role });
+      assert.match(text, /ซูริยังคำนวณราคาในโหมดนี้ไม่ได้/);
+      assert.ok(!/บาท\/ชุด|ต้นทุน|margin|ตัวคูณ/.test(text), 'no price or cost may appear');
+    }
   });
 
-  it('never shows cost or margin to sales', () => {
-    const text = answerMessage('TJS23-2 100 ชุด', { ...base, role: 'sales' });
-    assert.ok(text.includes('ราคาต่อชุด'));
-    assert.ok(!text.includes('ต้นทุนรวม'));
-    assert.ok(!text.includes('margin'));
-    assert.ok(!/ตัวคูณ/.test(text));
-  });
-
-  it('answers an off-ladder quantity with the break above it, never below', () => {
-    const text = answerMessage('TJS23-2 150 ชุด', { ...base, role: 'sales' });
-    assert.match(text, /ใช้ราคาขั้น 300 ชุด/);
-  });
-
-  it('says what is missing rather than guessing a price', () => {
-    const text = answerMessage('TSQ02-2', { ...base, role: 'owner' });
-    assert.match(text, /ยังคำนวณราคาให้ไม่ได้/);
-    assert.match(text, /ข้อมูลกล่อง/);
-    assert.ok(!/บาท\/ชุด/.test(text), 'no price may appear when the carton is unknown');
-  });
-
-  it('lists what fits a budget, dearest first', () => {
+  it('does not compute a budget search either', () => {
     const text = answerMessage('100 ชุด งบ 700', { ...base, role: 'sales' });
-    assert.match(text, /เจอ \d+ รายการ/);
-    assert.ok(text.includes('TJS2462') || text.includes('TJS23-2'));
-  });
-
-  it('suggests a way forward when nothing fits the budget', () => {
-    const text = answerMessage('100 ชุด งบ 20', { ...base, role: 'sales' });
-    assert.match(text, /ยังไม่มีสินค้าที่เข้างบ/);
-  });
-
-  it('keeps cost out of a budget search run by sales', () => {
-    const text = answerMessage('100 ชุด งบ 700', { ...base, role: 'sales' });
-    assert.ok(!text.includes('ต้นทุน'));
-    assert.ok(!text.includes('margin'));
+    assert.match(text, /ซูริยังคำนวณราคาในโหมดนี้ไม่ได้/);
+    assert.ok(!text.includes('TJS2462') && !text.includes('TJS23-2'));
   });
 
   it('finds products by name, including ones it cannot yet price', () => {
@@ -137,19 +187,8 @@ describe('Answering, by role', () => {
     assert.match(narrow, /เจอ 1 รายการ/);
   });
 
-  it('says plainly when a code is not in the catalog', () => {
-    const text = answerMessage('ZZ99-9', { ...base, role: 'owner' });
-    assert.match(text, /ไม่เจอรหัส ZZ99-9/);
-  });
-
   describe('an empty catalogue (no data loaded) is not a lookup that found nothing', () => {
     const empty = { ...base, catalog: catalogOf([]) };
-
-    it('never denies a product exists when there is no catalogue to check against', () => {
-      const text = answerMessage('TJS23-2', empty);
-      assert.ok(!/ไม่เจอรหัส/.test(text), 'must not claim a code is unknown with zero products loaded');
-      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
-    });
 
     it('gives the same cannot-answer copy for a search with no catalogue', () => {
       const text = answerMessage('umbrella', empty);
@@ -157,20 +196,10 @@ describe('Answering, by role', () => {
       assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
     });
 
-    it('gives the same cannot-answer copy for a budget search with no catalogue', () => {
-      const text = answerMessage('100 ชุด งบ 700', empty);
-      assert.ok(!/ยังไม่มีสินค้าที่เข้างบ/.test(text));
-      assert.match(text, /ตอบคำถามนี้ไม่ได้ตอนนี้/);
-    });
-
     it('still answers help from an empty catalogue', () => {
-      assert.match(answerMessage('ช่วย', empty), /ซูริช่วยเรื่องราคาได้/);
+      assert.match(answerMessage('ช่วย', empty), /ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้น/);
     });
 
-    it('a populated catalogue missing a code still says the code was not found (no regression)', () => {
-      const text = answerMessage('ZZ99-9', base);
-      assert.match(text, /ไม่เจอรหัส ZZ99-9/);
-    });
   });
 });
 
@@ -209,42 +238,6 @@ describe('codex evidence block (v4 prompt-carried evidence)', () => {
     const b = buildCodexEvidence(ev());
     assert.deepEqual(unverifiedNumbers('รุ่น TBS01-2 100 ชุด ชุดละ 780 บาทค่ะ', b.evidenceText, 'แก้วน้ำมีกี่สี'), []);
     assert.deepEqual(unverifiedNumbers('ชุดละ 555 บาทค่ะ', b.evidenceText, 'แก้วน้ำมีกี่สี'), [555]);
-  });
-});
-
-describe('headless tools note (claude deferred MCP)', () => {
-  it('names every smartgift tool and the exact select incantation', () => {
-    for (const t of ['search_products', 'quote_price', 'find_within_budget', 'lead_time', 'explain_policy']) {
-      assert.match(HEADLESS_TOOLS_NOTE, new RegExp(`mcp__smartgift__${t}`));
-    }
-    assert.match(HEADLESS_TOOLS_NOTE, /select:mcp__smartgift__search_products,mcp__smartgift__quote_price/);
-    assert.match(HEADLESS_TOOLS_NOTE, /ห้ามสรุปว่าไม่มีเครื่องมือ/);
-  });
-});
-
-describe('headless tools note is actually reachable by the model', () => {
-  it('names every catalog tool for both CLIs', () => {
-    for (const bin of ['claude', 'codex']) {
-      const note = headlessToolsNote(bin);
-      for (const t of ['search_products', 'quote_price', 'find_within_budget', 'lead_time', 'explain_policy']) {
-        assert.match(note, new RegExp(`mcp__smartgift__${t}`), `${bin} note is missing ${t}`);
-      }
-      assert.match(note, /ห้ามสรุปว่าไม่มีเครื่องมือ/, `${bin} note must forbid claiming the tools are absent`);
-    }
-  });
-
-  it('keeps the ToolSearch step for claude and drops it for codex', () => {
-    // claude defers MCP schemas and must load them by exact name first; codex surfaces every
-    // mcp__smartgift__* tool on turn one, so telling it to load them sends it after a tool that
-    // does not exist.
-    assert.match(headlessToolsNote('claude'), /ToolSearch/);
-    assert.doesNotMatch(headlessToolsNote('codex'), /ToolSearch/);
-    assert.doesNotMatch(headlessToolsNote('codex'), /ต้องโหลดก่อนใช้/);
-  });
-
-  it('resolves by binary name, however the path is written', () => {
-    assert.equal(headlessToolsNote('C:/tools/codex.exe'), headlessToolsNote('codex'));
-    assert.equal(headlessToolsNote('/usr/local/bin/claude'), headlessToolsNote('claude'));
   });
 });
 

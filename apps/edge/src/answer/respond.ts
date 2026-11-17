@@ -1,27 +1,17 @@
-import { Catalog, CatalogProduct, findByCode, isQuotable, searchByName } from '../catalog/store.js';
+import { Catalog, searchByName } from '../catalog/store.js';
 import { Role } from '../identity/registry.js';
-import { formatQuoteForLine, scopeQuote } from '../identity/scope.js';
-import {
-  PRICING_PROFILES,
-  buildPriceQuote,
-  screenPositionsForItemCode,
-} from '../pricing/index.js';
 import { HeadlessOptions, runHeadless } from './headless.js';
 import {
   ConversationResult,
   LlmOptions,
   OWNER_NOTE,
   SALES_NOTE,
-  SYSTEM_PROMPT,
   answerWithModel,
-  unverifiedNumbers,
 } from './llm.js';
 import { ConversationOptions, appendTurns, loadConversation } from './memory.js';
 import { Intent, parseMessage } from './parse.js';
 import { activePersonaId, loadPersonaPrompt } from './persona.js';
 import type { AnswerRag } from '../rag/genesis-rag.js';
-import { buildCodexEvidence } from './codex-evidence.js';
-import type { SearchEvidenceV4 } from './format-cards.js';
 
 // @req SDD-010 — the conversational answer stack: pattern, API and headless layers with short-lived memory.
 
@@ -43,123 +33,13 @@ export interface AnswerOptions {
 export const CANNOT_ANSWER_NOW_TEXT = 'ซูริตอบคำถามนี้ไม่ได้ตอนนี้ค่ะ ลองพิมพ์รหัสสินค้าพร้อมจำนวน เช่น TJS23-2 300 ชุด';
 
 const HELP_TEXT = [
-  'ซูริช่วยเรื่องราคาได้ 3 แบบค่ะ',
+  'พิมพ์ชื่อสินค้าเพื่อค้นหา เช่น  ร่ม',
   '',
-  '• พิมพ์รหัสสินค้า เช่น  TJS23-2',
-  '• รหัส + จำนวน เช่น  TJS23-2 100 ชุด',
-  '• จำนวน + งบ เช่น  100 ชุด งบ 300',
-  '',
-  'หรือพิมพ์ชื่อสินค้าเพื่อค้นหา เช่น  ร่ม',
+  'ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้นค่ะ',
 ].join('\n');
 
-/** Everything a quote needs, assembled from one catalog row. */
-function quoteInputFor(p: CatalogProduct, options: AnswerOptions) {
-  const [l, w, h] = p.dims as [number, number, number];
-  return {
-    sku: p.code,
-    factoryCostRmb: p.rmb as number,
-    exchangeRate: options.exchangeRate,
-    carton: {
-      unitsPerCarton: p.upc as number,
-      cartonCbm: Math.round((l * w * h) / 1e6 * 10000) / 10000,
-      ...(p.kg ? { cartonWeightKg: p.kg } : {}),
-    },
-    freight: {
-      mode: 'auto' as const,
-      shipMonth: options.shipMonth ?? new Date().getMonth() + 1,
-      goodsClass: (p.e ? 'electronic_tisi' : 'general') as 'electronic_tisi' | 'general',
-    },
-    logo: { positions: screenPositionsForItemCode(p.code) },
-  };
-}
-
-function priceAnswer(p: CatalogProduct, quantity: number | null, options: AnswerOptions): string {
-  if (!isQuotable(p)) {
-    const missing = [
-      p.rmb === null ? 'ต้นทุนโรงงาน' : null,
-      p.upc === null || p.dims === null ? 'ข้อมูลกล่อง' : null,
-    ].filter(Boolean);
-    return (
-      `${p.code} — ${p.name}\n\n` +
-      `ยังคำนวณราคาให้ไม่ได้ค่ะ ขาด${missing.join('และ')}\n` +
-      'สินค้ารุ่นเก่าในแคตตาล็อกยังไม่มีข้อมูลกล่อง กำลังขอจากโรงงานอยู่'
-    );
-  }
-
-  const quote = buildPriceQuote(quoteInputFor(p, options));
-  const scoped = scopeQuote(quote, options.role);
-  let text = formatQuoteForLine(scoped, p.name);
-
-  /*
-   * A quantity that is not one of the published breaks is answered with the break above it: the
-   * customer pays that price, and quoting the cheaper break below would be a promise the ladder
-   * does not make.
-   */
-  if (quantity !== null) {
-    const breaks = scoped.breaks;
-    const exact = breaks.find((b) => b.quantity === quantity);
-    if (!exact) {
-      const above = breaks.find((b) => b.quantity >= quantity);
-      const chosen = above || breaks[breaks.length - 1];
-      text +=
-        `\n\nที่ ${quantity.toLocaleString('en-US')} ชุด ` +
-        (above
-          ? `ใช้ราคาขั้น ${chosen.quantity} ชุด = ${chosen.unitPriceThb.toLocaleString('en-US')} บาท`
-          : `เกินขั้นสูงสุดในตาราง ใช้ราคาขั้น ${chosen.quantity} ชุด = ${chosen.unitPriceThb.toLocaleString('en-US')} บาท และควรขอราคาพิเศษ`);
-    }
-  }
-  return text;
-}
-
-/**
- * Products whose price at the asked quantity fits the budget.
- *
- * This is the reverse of a normal quote and it is what the sales floor actually asks for: the
- * customer names a headcount and a budget, and the question is which products clear it.
- */
-function budgetAnswer(quantity: number, maxPriceThb: number, options: AnswerOptions): string {
-  const profile = PRICING_PROFILES.standard;
-  const nearest =
-    profile.quantityBreaks.find((q) => q >= quantity) ??
-    profile.quantityBreaks[profile.quantityBreaks.length - 1];
-
-  const hits: Array<{ p: CatalogProduct; price: number }> = [];
-  for (const p of options.catalog.products) {
-    if (!isQuotable(p)) continue;
-    try {
-      const quote = buildPriceQuote(quoteInputFor(p, options));
-      const brk = quote.breaks.find((b) => b.quantity === nearest);
-      if (brk && brk.unitPriceThb <= maxPriceThb) hits.push({ p, price: brk.unitPriceThb });
-    } catch {
-      // A row with impossible carton figures is skipped rather than aborting the whole search.
-    }
-  }
-
-  if (!hits.length) {
-    return (
-      `${quantity.toLocaleString('en-US')} ชุด งบ ${maxPriceThb.toLocaleString('en-US')} บาท/ชุด\n\n` +
-      'ยังไม่มีสินค้าที่เข้างบนี้ค่ะ ลองเพิ่มงบหรือเพิ่มจำนวนสั่ง เพราะสั่งมากขึ้นราคาต่อชุดจะถูกลง'
-    );
-  }
-
-  hits.sort((a, b) => b.price - a.price);
-  const shown = hits.slice(0, 10);
-  const lines = shown.map(
-    (h) => `${h.p.code}  ${h.price.toLocaleString('en-US')} บาท  ${h.p.name.slice(0, 44)}`
-  );
-
-  return [
-    `${quantity.toLocaleString('en-US')} ชุด งบไม่เกิน ${maxPriceThb.toLocaleString('en-US')} บาท/ชุด`,
-    `เจอ ${hits.length} รายการ${hits.length > shown.length ? ` แสดง ${shown.length} ที่ใกล้งบที่สุด` : ''}`,
-    '',
-    ...lines,
-    '',
-    nearest !== quantity ? `* ใช้ราคาขั้น ${nearest} ชุด ซึ่งเป็นขั้นที่ครอบจำนวนที่ถาม` : '',
-    'พิมพ์รหัสสินค้าเพื่อดูราคาทุกขั้น',
-  ]
-    .filter(Boolean)
-    .join('\n');
-}
+/** The local cost-to-price calculator was removed (ADR-119); a price is only ever read from the published catalog. */
+const PRICE_NOT_AVAILABLE_TEXT = 'ซูริยังคำนวณราคาในโหมดนี้ไม่ได้ค่ะ ราคาตอบได้จากแคตตาล็อกที่เผยแพร่เท่านั้น';
 
 function searchAnswer(query: string, options: AnswerOptions): string {
   const found = searchByName(options.catalog, query);
@@ -186,7 +66,7 @@ export function answerMessage(text: string, options: AnswerOptions): string {
    * and `unknown` already says a truthful "did not understand" rather than claiming anything about
    * the catalogue, so both keep their normal replies.
    */
-  if (options.catalog.products.length === 0 && ['price', 'search', 'budget'].includes(intent.kind)) {
+  if (options.catalog.products.length === 0 && ['search'].includes(intent.kind)) {
     return CANNOT_ANSWER_NOW_TEXT;
   }
 
@@ -194,16 +74,9 @@ export function answerMessage(text: string, options: AnswerOptions): string {
     case 'help':
       return HELP_TEXT;
 
-    case 'price': {
-      const product = findByCode(options.catalog, intent.sku);
-      if (!product) {
-        return `ไม่เจอรหัส ${intent.sku} ในแคตตาล็อกค่ะ\n\nลองพิมพ์ชื่อสินค้าเพื่อค้นหา หรือตรวจรหัสอีกครั้ง`;
-      }
-      return priceAnswer(product, intent.quantity, options);
-    }
-
+    case 'price':
     case 'budget':
-      return budgetAnswer(intent.quantity, intent.maxPriceThb, options);
+      return PRICE_NOT_AVAILABLE_TEXT;
 
     case 'search':
       return searchAnswer(intent.query, options);
@@ -240,57 +113,51 @@ export interface ConversationOptionsFull extends AnswerOptions {
 const HEADLESS_NOTE = `
 คำตอบของคุณจะถูกส่งเข้าแชท LINE ตรง ๆ โดยไม่มีคนตรวจก่อน
 ตอบเป็นข้อความเดียวจบ ไม่ต้องเล่าว่ากำลังจะทำอะไรหรือทำอะไรไปแล้ว ให้บอกผลลัพธ์
+ช่องทางนี้ไม่มีเครื่องมือยืนยันราคาสินค้า ส่วนลด สต็อก หรือกำหนดผลิตและจัดส่ง ห้ามใช้เว็บหรือความจำยืนยันข้อมูลเหล่านี้ ให้ส่งต่อช่องทางข้อมูลสินค้าหรือทีมงาน
 ถ้าสร้างไฟล์ ให้เขียนลงโฟลเดอร์ out/ เท่านั้น แล้วบอกชื่อไฟล์ในคำตอบ`;
 
-/**
- * The claude CLI defers MCP tool schemas: they exist but must be loaded by exact name through
- * ToolSearch before the first call. A keyword search does not reliably surface them, so the exact
- * names and the load incantation are stated outright — without this the model concludes the
- * catalog tools do not exist and apologises to the customer.
- */
-export const HEADLESS_TOOLS_NOTE = `
-เครื่องมือแคตตาล็อกที่มีให้ (ต้องโหลดก่อนใช้):
-- mcp__smartgift__search_products  ค้นสินค้า (query ภาษาไทยได้)
-- mcp__smartgift__quote_price      ราคาตามขั้นจำนวนของรหัสสินค้า
-- mcp__smartgift__find_within_budget  หาสินค้าตามงบต่อชุด
-- mcp__smartgift__lead_time        ระยะเวลาผลิต-ส่ง
-- mcp__smartgift__explain_policy   นโยบายการขาย
-ขั้นแรกให้เรียก ToolSearch ด้วย query "select:mcp__smartgift__search_products,mcp__smartgift__quote_price,mcp__smartgift__find_within_budget,mcp__smartgift__lead_time,mcp__smartgift__explain_policy" หนึ่งครั้ง แล้วจึงใช้เครื่องมือเหล่านี้ตอบจากข้อมูลจริงเท่านั้น ห้ามสรุปว่าไม่มีเครื่องมือ`;
+const HEADLESS_HANDOFFS = {
+  price: { reason: 'HEADLESS_PRICE_UNVERIFIED',
+    text: 'ซูริยังยืนยันราคาหรือส่วนลดจากแคตตาล็อกที่เผยแพร่ไม่ได้ค่ะ กรุณาใช้ช่องทางที่เชื่อมข้อมูลสินค้าหรือให้ผู้ดูแลตรวจสอบก่อน' },
+  delivery: { reason: 'HEADLESS_DELIVERY_UNVERIFIED',
+    text: 'ซูริยังยืนยันกำหนดผลิตหรือจัดส่งไม่ได้ค่ะ ต้องให้ทีมงานตรวจสอบและยืนยันก่อน' },
+  stock: { reason: 'HEADLESS_STOCK_UNVERIFIED',
+    text: 'ซูริยังยืนยันสต็อกปัจจุบันไม่ได้ค่ะ ต้องให้ทีมงานตรวจสอบและยืนยันก่อน' },
+};
 
 /**
- * The same list without the ToolSearch step. Codex does not defer MCP schemas — every
- * `mcp__smartgift__*` tool is already visible on the first turn — so telling it to load them first
- * sends it looking for a tool that is not there.
+ * A headless CLI has no application catalog tool after ADR-119. Its web results and remembered
+ * numbers cannot authorize a commercial promise. Check explicit claim shapes, including amounts
+ * below the API's general numeric threshold, without rejecting arbitrary numbers in local tasks.
+ * This lexical guard supplements the prompt; it does not interpret every possible paraphrase.
  */
-export const HEADLESS_TOOLS_NOTE_CODEX = HEADLESS_TOOLS_NOTE.replace(
-  'เครื่องมือแคตตาล็อกที่มีให้ (ต้องโหลดก่อนใช้):',
-  'เครื่องมือแคตตาล็อกที่มีให้ (เรียกใช้ได้ทันที):',
-).replace(/ขั้นแรกให้เรียก ToolSearch[^\n]*?แล้วจึงใช้/, 'ใช้');
+function headlessCommerceClaim(reply: string, userText: string): keyof typeof HEADLESS_HANDOFFS | null {
+  const number = String.raw`[0-9๐-๙]+(?:[.,][0-9๐-๙]+)*(?:\s*(?:[-–—]|ถึง|to)\s*[0-9๐-๙]+(?:[.,][0-9๐-๙]+)*)?`;
+  const duration = new RegExp(`${number}\\s*(?:วัน|สัปดาห์|เดือน|ชั่วโมง|days?\\b|weeks?\\b|months?\\b|hours?\\b)`, 'iu');
+  const date = /(?:วันที่\s*[0-9๐-๙]|วัน(?:จันทร์|อังคาร|พุธ|พฤหัส|ศุกร์|เสาร์|อาทิตย์)|วันนี้|พรุ่งนี้|มะรืน|(?:ต้น|กลาง|สิ้น|ปลาย)(?:เดือน|สัปดาห์|ปี)|\b(?:today|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b|\b\d{4}[-/]\d{1,2}[-/]\d{1,2}\b)/iu;
+  const delivery = /(?:ผลิต|จัดส่ง|ส่งมอบ|ส่งของ|ส่งสินค้า|ส่ง(?:\s|ภายใน|ประมาณ|ใน|ให้|ได้|ถึง|วัน|เมื่อ)|พร้อมส่ง|สกรีน|\b(?:manufacturing|production\s+(?:time|takes|starts|ends)|delivery|shipping|dispatch|ship|lead\s*time)\b)/iu;
+  if ((duration.test(reply) || date.test(reply)) && delivery.test(`${reply}\n${userText}`)) return 'delivery';
 
-/**
- * Picks the note for the CLI actually in use.
- *
- * This note exists because without it the model concludes the catalog tools do not exist and
- * apologises to the customer — which is exactly what happened while it was merely exported and
- * never added to the prompt. Both CLIs need the tool names; only the Claude one needs the
- * ToolSearch step.
- */
-export function headlessToolsNote(bin: string): string {
-  return bin.includes('codex') ? HEADLESS_TOOLS_NOTE_CODEX : HEADLESS_TOOLS_NOTE;
+  const stock = /(?:มีเหลือ|ของเหลือ|สินค้าคงเหลือ|สินค้าพร้อมส่ง|ของพร้อมส่ง|มี(?:สินค้า|ของ)พร้อม|\bin\s+stock\b|\b(?:stock|inventory)\s*(?:available|remaining|:)|สต็อก[^\n]{0,24}[0-9๐-๙])/iu;
+  if (stock.test(reply)) return 'stock';
+
+  const amount = new RegExp(`(?:${number}\\s*(?:บาท|THB\\b|USD\\b|EUR\\b|RMB\\b|CNY\\b|[฿$€£¥])|[฿$€£¥]\\s*${number}|${number}\\s*[.]?-\\s*/\\s*(?:ชุด|ชิ้น))`, 'iu');
+  const price = new RegExp(`(?:ราคา|ชุดละ|ชิ้นละ|ส่วนลด|ลดให้|\\b(?:price|cost|discount)\\b)[^\\n0-9๐-๙]{0,40}${number}`, 'iu');
+  return amount.test(reply) || price.test(reply) ? 'price' : null;
 }
 
 /**
  * One turn through the headless CLI.
  *
- * The number check runs here exactly as it does on the API path — the evidence is harvested from
- * the tool results on the event stream rather than from a closure, but the rule is the same: a
- * figure that is in neither the evidence nor the person's own words means the reply is discarded.
+ * Explicit commercial claims require the published API path or a human handoff. The headless
+ * event stream is not catalog evidence; other local assistance keeps its web/file capabilities.
  */
 async function answerViaHeadless(
   text: string,
   options: ConversationOptionsFull,
   headless: HeadlessOptions,
-  fallback: string
+  fallback: string,
+  headlessRunner: typeof runHeadless
 ): Promise<ConversationResult> {
   const personaPrompt = loadPersonaPrompt(activePersonaId());
 
@@ -303,13 +170,12 @@ async function answerViaHeadless(
       recent.map(t => `${t.role === 'user' ? 'ลูกค้า' : 'ซูริ'}: ${t.text}`).join('\n');
   }
 
-  const result = await runHeadless(
+  const result = await headlessRunner(
     text,
     personaPrompt +
       '\n' +
       (options.role === 'owner' ? OWNER_NOTE : SALES_NOTE) +
       HEADLESS_NOTE +
-      headlessToolsNote(headless.bin) +
       conversationHistoryContext,
     options.role,
     options.conversationKey,
@@ -325,8 +191,11 @@ async function answerViaHeadless(
     };
   }
 
-  // When AI model generated a thorough response (e.g. CI design, marketing, consultation),
-  // return the model answer directly so it's not mistakenly overwritten by pricing fallback
+  const claim = headlessCommerceClaim(result.text, text);
+  if (claim) {
+    return { ...HEADLESS_HANDOFFS[claim], source: 'rules', toolCalls: result.toolCalls };
+  }
+
   return { text: result.text, source: 'model', toolCalls: result.toolCalls };
 }
 
@@ -356,18 +225,25 @@ function fallbackFor(text: string, options: AnswerOptions): string {
  */
 export async function answerConversation(
   text: string,
-  options: ConversationOptionsFull
+  options: ConversationOptionsFull,
+  headlessRunner: typeof runHeadless = runHeadless
 ): Promise<ConversationResult> {
   const fallback = answerMessage(text, options);
+  let rejectedHeadlessPrice: ConversationResult | undefined;
 
   /*
    * The headless path keeps its own conversation through `--resume`, so the turns recorded here
    * are for the record and for the API path, not replayed into it.
    */
   if (options.headless) {
-    const result = await answerViaHeadless(text, options, options.headless, fallbackFor(text, options));
-    recordTurns(text, result.text, options);
-    return result;
+    const result = await answerViaHeadless(text, options, options.headless, fallbackFor(text, options), headlessRunner);
+    if (result.reason !== 'HEADLESS_PRICE_UNVERIFIED' || !options.llm?.port) {
+      recordTurns(text, result.text, options);
+      return result;
+    }
+    // Prices can retry through the existing RAG tool path. There is no corresponding source of
+    // production/delivery dates or stock, so those commitments stop at the human handoff above.
+    rejectedHeadlessPrice = result;
   }
 
   if (!options.llm?.port) {
@@ -394,8 +270,14 @@ export async function answerConversation(
     loadPersonaPrompt(activePersonaId(), 'local')
   );
 
-  recordTurns(text, result.text, options);
-  return result;
+  // A second ungrounded model price is not a successful retry. Published evidence owns its final
+  // text; otherwise retain the handoff for numeric commercial claims, including small prices.
+  const retryClaim = rejectedHeadlessPrice && result.reason !== 'PUBLISHED_CATALOG_EVIDENCE'
+    ? headlessCommerceClaim(result.text, text) : null;
+  const final: ConversationResult = retryClaim ? { ...HEADLESS_HANDOFFS[retryClaim], source: 'rules', toolCalls: result.toolCalls } : result;
+  if (rejectedHeadlessPrice) final.toolCalls = [...rejectedHeadlessPrice.toolCalls, ...final.toolCalls];
+  recordTurns(text, final.text, options);
+  return final;
 }
 
 function recordTurns(

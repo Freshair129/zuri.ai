@@ -4,7 +4,6 @@ import { fileURLToPath } from 'url';
 import { loadConfig, validateConfig } from '../config/index.js';
 import { printJsonSuccess, printJsonError } from './output.js';
 import { logDiagnostic } from '../safety/redact.js';
-import { PRICE_QUOTE_USAGE, runPriceQuote } from './price.js';
 import { answerConversation } from '../answer/respond.js';
 import { LlmOptions } from '../answer/llm.js';
 import { createModelPort } from '../answer/providers/index.js';
@@ -62,32 +61,6 @@ function parseFlags(args: string[]): ParsedFlags {
   }
 
   return { positional, flags };
-}
-
-function handlePrice(subcommand: string | undefined, rest: string[]): void {
-  if (subcommand !== 'quote') {
-    printJsonError(
-      'UNKNOWN_SUBCOMMAND',
-      `Unsupported price subcommand: ${subcommand ?? '(none)'}. Only "quote" is available.`,
-      PRICE_QUOTE_USAGE,
-      1
-    );
-    return;
-  }
-
-  const { flags } = parseFlags(rest);
-  logDiagnostic('Running zuri-agent price quote');
-
-  try {
-    printJsonSuccess(runPriceQuote(flags));
-  } catch (err) {
-    printJsonError(
-      'PRICE_QUOTE_FAILED',
-      err instanceof Error ? err.message : String(err),
-      PRICE_QUOTE_USAGE,
-      1
-    );
-  }
 }
 
 function handleConfigCheck(): void {
@@ -177,9 +150,8 @@ function llmOptions(config: LoadedConfig): LlmOptions | null {
 /**
  * The subscription-backed path, or null.
  *
- * The MCP server it points at is the built one under `dist/`, resolved from this file's own
- * location: the child process is started somewhere outside the repository, so a relative path
- * would not find it.
+ * The local pricing MCP was removed in ADR-119. This path retains local assistance and the
+ * explicitly enabled web/file capabilities; commercial answers need the catalog API or a handoff.
  */
 function headlessOptions(config: LoadedConfig): HeadlessOptions | null {
   if (!config.headlessEnabled) return null;
@@ -188,12 +160,9 @@ function headlessOptions(config: LoadedConfig): HeadlessOptions | null {
     model: config.headlessModel || 'claude-sonnet-5',
     maxTurns: config.headlessMaxTurns || 8,
     timeoutMs: config.headlessTimeoutMs || 120000,
-    mcpServerPath: fileURLToPath(new URL('../mcp/pricing-server.js', import.meta.url)),
     sandboxRoot: config.headlessSandboxRoot || defaultSandboxRoot(),
     sessionRoot: config.headlessSessionRoot || 'state/agent-sessions',
     sessionRetentionHours: config.headlessSessionRetentionHours || 168,
-    catalogRoot: config.catalogRoot || 'state/catalog',
-    exchangeRate: config.exchangeRateThbPerRmb || 5,
     webSearch: config.headlessWebSearch === true,
     fileAuthoring: config.headlessFileAuthoring === true,
   };
@@ -442,11 +411,6 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (command === 'price') {
-    handlePrice(subcommand, args.slice(2));
-    return;
-  }
-
   if (command === 'outbox') {
     handleOutbox(subcommand);
     return;
@@ -476,7 +440,6 @@ async function main(): Promise<void> {
       usage: 'zuri-agent <command> [subcommand] [options]',
       availableCommands: [
         'config check',
-        PRICE_QUOTE_USAGE.usage,
         'chat say --text "<message>" [--role owner|sales] [--who <label>]',
         'chat prune',
         'outbox list',
@@ -484,11 +447,6 @@ async function main(): Promise<void> {
         'identity list [--status pending]',
         'identity approve --hash <h> --role <owner|sales> --email <address>',
         'identity revoke --hash <h>',
-      ],
-      priceQuoteFlags: { required: PRICE_QUOTE_USAGE.required, optional: PRICE_QUOTE_USAGE.optional },
-      notes: [
-        'price quote is a local calculation from supplied cost and carton figures. It reads no ' +
-          'tenant data and creates no Zuri command.',
       ],
     });
     return;

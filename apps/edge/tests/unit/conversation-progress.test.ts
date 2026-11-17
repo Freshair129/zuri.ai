@@ -50,7 +50,7 @@ test('actual local provider rounds and tool invocation report progress even with
       assert.match(String(url), /chat\/completions$/);
       rounds++;
       return Response.json({ choices: [{ message: rounds === 1
-        ? { role: 'assistant', content: null, tool_calls: [{ id: 'tool-1', type: 'function', function: { name: 'lead_time', arguments: '{"quantity":100}' } }] }
+        ? { role: 'assistant', content: null, tool_calls: [{ id: 'tool-1', type: 'function', function: { name: 'search_products', arguments: '{"quantity":100}' } }] }
         : { role: 'assistant', content: 'ตรวจเงื่อนไขแล้ว' } }] });
     },
   });

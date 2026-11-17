@@ -1,11 +1,11 @@
 ---
 id: "ZURI-CONVERSATIONAL-ANSWER"
-version: "0.1.1b"
+version: "0.1.2b"
 status: "candidate"
 owner: "zuri-command-agent"
 scope: "reading a free-form chat question and phrasing the reply"
 created_at: "2026-08-11T07:45:00+07:00, ATHER"
-last_update: "2026-08-31T00:00:00+07:00, Claude"
+last_update: "2026-11-17T00:00:00+07:00, Codex"
 ---
 
 # Conversational answers
@@ -13,6 +13,10 @@ last_update: "2026-08-31T00:00:00+07:00, Claude"
 > Current transport decision: [Server-owned LINE and optional Edge](SERVER-LINE-OPTIONAL-EDGE.md)
 > implements upstream ADR-061. New runtimes are compute-only; the transport behavior below
 > applies only to explicitly selected `LEGACY_EDGE` installations during migration.
+
+> ADR-119 update (2026-11-17): the local cost-to-price engine, pricing MCP, lead-time tool and
+> policy tool have been removed. Server Business jobs reject headless execution. The standalone
+> local headless path retains general assistance, with commercial handoffs described below.
 
 
 ## Outcome
@@ -29,10 +33,11 @@ anything costs.
 | Decision | Made by |
 |---|---|
 | Which product, quantity, budget, or topic the person means | Model |
-| Whether the answer needs a price, a search, a lead time, or a term | Model |
-| Every price, cost, margin, day count and match count | Pricing engine, through a tool call |
+| Whether the answer needs catalog data or a human handoff | Model and answer guard |
+| Catalog prices and product facts | RAG tools; published-catalog responses use deterministic snapshot text |
+| Production/delivery dates or unsupported commercial terms | Human confirmation; no local tool provides this authority |
 | Which of those figures the caller is allowed to see | `identity/scope.ts`, before the model sees them |
-| Whether the finished reply may be sent | The number check, after the model writes it |
+| Whether the finished reply may be sent | Published evidence rendering, API numeric checks, or the local headless commercial guard |
 
 ## The three things that keep that true
 
@@ -44,6 +49,8 @@ types into the chat, an absent field cannot.
 **The number check.** Every figure of 100 or more in the reply must appear in a tool result or in
 what the person themselves typed. Rounding to a whole baht is tolerated; anything else counts as
 invented, and the reply is discarded. See `unverifiedNumbers` in `answer/llm.ts`.
+This is the API's general numeric guard, not proof of a live quote. Published catalog evidence
+owns the final answer and retains its unknown tax, shipping, unit and validity conditions.
 
 **A real fallback — but only when it has something to read.** No key, model disabled, an API error,
 a timeout, no text, or a failed number check all end in the same place: the pattern-based answer
@@ -63,13 +70,18 @@ behind it, and never one dressed up to look like there was.
 |---|---|---|
 | Billing | Per token, needs `ANTHROPIC_API_KEY` | The signed-in **subscription plan** |
 | Continuity | We replay the last turns | `claude --resume`, keyed by conversation |
-| Tools | The five pricing calls | Pricing calls **+ web search + file authoring** |
+| Tools | `quote_price`, `find_within_budget`, `search_products` through RAG | Enabled web search and file authoring; no application pricing MCP |
 | Latency | Seconds | Tens of seconds |
 | Delivery | Fits a LINE reply token | **Needs push** |
 
-The headless layer wins when both are configured. It runs `claude --print --output-format
-stream-json`, which is what makes the number check possible on this path too: the tool results
-scroll past on that stream and are harvested in the parent.
+The headless layer starts first when both are configured. Explicit numeric price or discount
+claims are withheld and may retry through the configured API/RAG path. Published catalog evidence
+retains its deterministic final text; another unsupported numeric commercial answer is withheld.
+Without an API provider the result is a handoff. Explicit production/delivery dates, durations and
+stock promises hand off to a human because catalog tools do not authorize them. A headless tool stream, web result or
+remembered number is never accepted as price authority. General numeric local tasks still answer
+normally. The check recognizes explicit claim shapes, not every possible paraphrase, and is
+reinforced by persona instructions prohibiting unsupported commercial commitments.
 
 To keep the work on the plan, `ANTHROPIC_API_KEY` and `ANTHROPIC_AUTH_TOKEN` are removed from the
 child's environment. A key left in place would silently move the cost onto per-token billing.
@@ -84,11 +96,11 @@ can carry an instruction, and a coding agent follows instructions well. So the c
 - **an environment built from an allow-list** — no LINE token, no Vercel token, no database path,
   no API key exists in it to be read or spent;
 - **no shell**, ever: `Bash` is absent from the allow-list *and* named in `--disallowedTools`;
-- **one door to company data** — the pricing MCP server (`src/mcp/pricing-server.ts`), which is
-  registered read-only calls, started with the caller's role already fixed in its environment. Role
-  is not a tool parameter, so a message cannot ask to change it;
-- **`--strict-mcp-config`**, so no other MCP server on the machine is picked up;
-- **the message passed as an argument**, never through a shell, so punctuation stays punctuation.
+- **no application pricing MCP** — the server was removed in ADR-119;
+- **Claude `--strict-mcp-config`** with an empty server list. Stateful local Codex can still load
+  operator configuration; an empty `mcp_servers` override does not erase inherited configuration.
+  The separately validated stateless controls provide its stronger configuration boundary;
+- **the message passed over stdin**, never through a shell, so punctuation stays punctuation.
 
 `ZURI_HEADLESS_WEB_SEARCH` and `ZURI_HEADLESS_FILES` are each off by default. Each is an outward
 capability and should be a decision.
@@ -177,7 +189,7 @@ terminal state, so it exists only while a delivery is actually in flight.
   messages where it used to be one. Racing the answer against the token would avoid that, and adds
   a mode where crash-safety depends on which branch won — not worth it yet.
 - Group messages are untouched by this: only direct messages route through the queue.
-- A remembered figure is accepted by the number check for the life of the conversation, on the
-  grounds that the engine produced it. If the exchange rate or the ladder changes mid-conversation,
-  a stale figure would still pass. Retention bounds it to a week.
+- The API's general numeric check can accept figures from retained history. Published catalog
+  answers instead render current-turn evidence; headless commercial claims cannot use remembered
+  figures as authority.
 - The tunnel that carries the webhook is still an ephemeral Cloudflare Quick Tunnel.

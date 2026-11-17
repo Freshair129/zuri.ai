@@ -6,6 +6,7 @@ import { createPublishedGenerationClient, wrapAnswerRag, type GenesisRag17Runtim
 import { emptyFakeRag } from '../helpers/fake-rag.js';
 import { quotePrice, findWithinBudget, compactSearchForModel, type EvidenceOptions } from '../../src/answer/tools.js';
 import { answerWithModel } from '../../src/answer/llm.js';
+import { answerConversation } from '../../src/answer/respond.js';
 
 // @req FR-189 — typed product evidence, no price guesses or unscoped legacy fallbacks.
 // @spec ADR-075, ADR-090, SEC-001
@@ -28,6 +29,26 @@ function runtime(fn = async (_context: unknown, request: any) => response(reques
   return { settings: { scope }, client: { productQuery: fn } } as unknown as GenesisRag17Runtime;
 }
 const options = (rag: EvidenceOptions['rag']) => ({ rag, catalog: { products: [] }, role: 'sales', exchangeRate: 5 }) as EvidenceOptions;
+
+test('a headless price claim reaches the published catalog path instead of bypassing its final answer', async () => {
+  const rag = createPublishedProductRag(context(), runtime());
+  let apiCalls = 0;
+  const answer = await answerConversation('ราคา PM-A 100 ชุด', {
+    ...options(rag), conversationKey: 'published-headless', memory: { root: '.', hashKey: 'fixture' }, retainHistory: false,
+    headless: { bin: 'unused-fixture', model: 'fixture', maxTurns: 1, timeoutMs: 5000, sandboxRoot: '.', sessionRoot: '.',
+      sessionRetentionHours: 1, webSearch: false, fileAuthoring: false },
+    llm: { timeoutMs: 5000, maxIterations: 2, port: { id: 'fixture', model: 'fixture', async generate(request) {
+      apiCalls++;
+      await request.tools.find(tool => tool.name === 'quote_price')!.run({ sku: 'PM-A', quantity: 100 } as never);
+      return { text: 'ราคา 100.25 บาท รวมภาษี ส่งฟรี ใช้ได้วันนี้' };
+    } } },
+  }, async () => ({ ok: true, text: 'ราคา 780 บาทค่ะ', evidence: '780 บาท', rememberedNumbers: [780], toolCalls: [] }));
+  assert.equal(apiCalls, 1);
+  assert.equal(answer.reason, 'PUBLISHED_CATALOG_EVIDENCE');
+  assert.match(answer.text, /100\.25 THB/);
+  assert.match(answer.text, /ยังไม่ใช่ใบเสนอราคาหรือยอดชำระ/);
+  assert.doesNotMatch(answer.text, /780|รวมภาษี|ส่งฟรี|ใช้ได้วันนี้/);
+});
 
 test('corpus context refuses additional scope, duplicate source identities and oversized refs', () => {
   assert.ok(zEdgePublishedCorpusContext.safeParse(context()).success);

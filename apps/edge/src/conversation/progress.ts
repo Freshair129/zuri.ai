@@ -3,7 +3,7 @@ import { remainingConversationBudget } from './deadline.js';
 
 // @req ZAI:FR-150, ZAI:FR-171 — per-turn content-free local execution timeline.
 // @spec ZAI:ADR-090, SEC-025
-export const PROGRESS_TOOLS = ['quote_price', 'find_within_budget', 'search_products', 'lead_time', 'explain_policy', 'search_project_work', 'propose_work_change'] as const;
+export const PROGRESS_TOOLS = ['quote_price', 'find_within_budget', 'search_products', 'search_project_work', 'propose_work_change'] as const;
 export type ProgressDetail = { phase: 'CONTEXT' | 'MODEL' | 'TOOL'; state: 'STARTED' | 'COMPLETED' | 'FAILED'; toolName?: string };
 export type ExecutionProgress = ProgressDetail & { jobId: string; executionId?: string; modelRef?: string; elapsedMs: number; durationMs: number; remainingBudgetMs?: number };
 
