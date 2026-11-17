@@ -56,6 +56,39 @@ describe('FR-235 — LineOaAccount knowledgeGrounding publisher control', () => 
     expect(JSON.stringify(payload)).not.toMatch(/secret|token|password/i)
   })
 
+  it('rolls the pilot mode back to BUSINESS_KNOWLEDGE and records the reverse audit event', async () => {
+    const connection = await provisionLineServerConnection(
+      { businessId: business.id, name: 'Rollback rehearsal', destination: `U${randomUUID().replaceAll('-', '')}`, secretRef: 'deployment-secret:kground-rollback' },
+      { viewer: owner },
+    )
+    let rollbackAccount = await connectLineOaAccount(
+      { businessId: business.id, integrationConnectionId: connection.id, code: `oa-kground-rb-${randomUUID().slice(0, 8)}`, displayName: 'Rollback rehearsal' },
+      { viewer: owner },
+    )
+    rollbackAccount = await applyLineOaAccountAction(rollbackAccount.id, {
+      action: 'CONFIGURE_KNOWLEDGE_GROUNDING',
+      version: rollbackAccount.version,
+      knowledgeGrounding: 'GKS_THEN_BUSINESS_KNOWLEDGE',
+    }, { viewer: owner })
+    const switchedVersion = rollbackAccount.version
+    rollbackAccount = await applyLineOaAccountAction(rollbackAccount.id, {
+      action: 'CONFIGURE_KNOWLEDGE_GROUNDING',
+      version: rollbackAccount.version,
+      knowledgeGrounding: 'BUSINESS_KNOWLEDGE',
+    }, { viewer: owner })
+
+    expect(rollbackAccount.knowledgeGrounding).toBe('BUSINESS_KNOWLEDGE')
+    expect(rollbackAccount.version).toBe(switchedVersion + 1)
+
+    const audit = await prisma.auditEvent.findFirst({
+      where: { entityId: rollbackAccount.id, action: 'LINE_OA_ACCOUNT_KNOWLEDGE_GROUNDING_CONFIGURED' },
+      orderBy: { occurredAt: 'desc' },
+    })
+    const payload = JSON.parse(audit.payloadJson ?? audit.payload ?? '{}')
+    expect(payload.from.knowledgeGrounding).toBe('GKS_THEN_BUSINESS_KNOWLEDGE')
+    expect(payload.to.knowledgeGrounding).toBe('BUSINESS_KNOWLEDGE')
+  })
+
   // @req FR-235 — a grounding-mode switch is not a transport, credential or
   // execution-permission change: it never fences (bumps the transport epoch
   // or cancels QUEUED/CLAIMED/READY jobs), unlike CONFIGURE_EXECUTION,

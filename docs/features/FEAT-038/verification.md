@@ -70,6 +70,7 @@ status: generated
 - [apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js](../../../apps/server/tests/integration/fr235-line-oa-knowledge-grounding-control.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr237-knowledge-gap-report.test.js](../../../apps/server/tests/integration/fr237-knowledge-gap-report.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/fr238-line-studio-description-admission.test.js](../../../apps/server/tests/integration/fr238-line-studio-description-admission.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js](../../../apps/server/tests/integration/fr277-line-grounding-shadow-compare.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/knowledge-corpus.test.js](../../../apps/server/tests/integration/knowledge-corpus.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-project.test.js](../../../apps/server/tests/integration/knowledge-project.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/knowledge-query.test.js](../../../apps/server/tests/integration/knowledge-query.test.js) — `verifies` (`transitive`)
