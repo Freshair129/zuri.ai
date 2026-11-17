@@ -129,13 +129,16 @@ describe('the API/Ollama path answers as the selected persona', () => {
   });
 
   it('with the .agents/ persona the identity part is replaced and the number rules survive', async () => {
-    const { port, requests } = capture();
-    const persona = loadPersonaPrompt('zuri-01');
-    assert.ok(persona.includes('# Persona: Zuri'), 'reads the committed AGENTS.md');
-    await answerWithModel('ราคาเท่าไร', [], 'sales', evidence(), { port, timeoutMs: 5000, maxIterations: 1 }, 'fallback', persona);
-    const system = requests[0].system;
-    assert.ok(system.startsWith(ANSWER_RULES), 'the numbers-from-tools rules lead the system prompt');
-    assert.ok(system.includes('\n\n' + persona), 'the persona follows the rules');
-    assert.ok(!system.includes(DEFAULT_PERSONA), 'the built-in identity is not sent twice');
+    for (const variant of ['full', 'local'] as const) {
+      const { port, requests } = capture();
+      const persona = loadPersonaPrompt('zuri-01', variant);
+      assert.ok(persona.includes('# Persona: Zuri'), `reads the committed ${variant} persona`);
+      await answerWithModel('ราคาเท่าไร', [], 'sales', evidence(), { port, timeoutMs: 5000, maxIterations: 1 }, 'fallback', persona);
+      const system = requests[0].system;
+      assert.ok(system.startsWith(ANSWER_RULES), 'the numbers-from-tools rules lead the system prompt');
+      assert.ok(system.includes('\n\n' + persona), 'the persona follows the rules');
+      assert.ok(!system.includes(DEFAULT_PERSONA), 'the built-in identity is not sent twice');
+      assert.equal(/SmartGift/i.test(system), false, `${variant} must not claim to represent a removed customer`);
+    }
   });
 });
