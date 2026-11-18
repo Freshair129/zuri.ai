@@ -66,6 +66,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Private Runtime integration implementation plan](../plans/PRIVATE-RUNTIME-INTEGRATION-20261031.md)
 - [Project Manager Remaining Implementation Plan](../plans/PROJECT-MANAGER-IMPLEMENTATION-20261023.md)
 - [Plans location and retained sources](../plans/README.md)
+- [SmartGift Business data removal — owner runbook](../plans/SMARTGIFT-BUSINESS-DROP-RUNBOOK-20261120.md)
 - [TASK-ZAI-047 — Knowledge base console](../plans/TASK-ZAI-047-KNOWLEDGE-CONSOLE.md)
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md)
 - [Asset Evidence Production Activation Runbook](../runbooks/ASSET-EVIDENCE-PRODUCTION-ACTIVATION.md)
