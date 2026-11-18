@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-119
 title: Remove SmartGift and GoVibe from Zuri
-version: "1.0.0"
+version: "1.1.0"
 status: accepted
 created_at: "2026-11-15"
-last_update: "2026-11-15"
+last_update: "2026-11-16"
 author: Claude Sonnet 5.5
 superseded_by: null
 approval_scope: decision-record-only-supersede-adr-040-and-adr-075-withdraw-fr-187-no-code-data-or-production-change
@@ -27,6 +27,8 @@ relations:
     target: ZAI:ADR-024
   - type: relates_to
     target: ZAI:ADR-118
+  - type: relates_to
+    target: ZAI:ADR-110
 ---
 
 # ADR-119 — Remove SmartGift and GoVibe from Zuri
@@ -107,8 +109,30 @@ own change under the normal Git review and exact-head CI.
 - The id ledger records FR-187 as superseded and ADR-040 and ADR-075 as
   superseded; no subject anchor moves.
 
+## Amendment 1 — Edge SmartGift catalog serving path removed (2026-11-16, option X)
+
+**Basis:** owner instruction 2026-11-16 ("option X"), relayed by the lead Claude session, recorded as a
+delegated product-owner decision (Astra, gpt-6-astra) under owner instruction 2026-11-08. Not human
+approval. It is also the ADR-118 D5 approval for the `apps/edge/docs` documents removed with the code
+they describe (and no other Edge document).
+
+**Decision.** `apps/edge` no longer carries the SmartGift catalog: the Edge pricing engine, the catalog
+build/ingest/eval pipeline and the local catalog serving path (local RAG service :8888 and embed sidecars,
+GenesisBlock MCP server, taxonomy tooling) are removed (PRs 6b, 6c-1, 6c-2). This **partially supersedes
+ADR-110** only where it says `apps/edge` keeps a local Knowledge/RAG runtime (D1 closing paragraph as it
+applies to `apps/edge`, the Alternatives bullet on removing the whole `apps/edge` tree, and the matching
+Verification bullet). Everything else in ADR-110 stands: device/harness retirement (D1 list, D3, D4, D5),
+PRP key flow (D2), and the server-side Knowledge 17-stage pipeline, GenesisRAG, MSP/GKS, MinIO and Files
+work, which this amendment does not touch. `apps/edge` is not deleted; it keeps the CLI and the
+Conversation executor over the published GenesisRAG17 corpus.
+
+**Ids.** No id moves: ADR-110 stays `approved` and is not marked superseded in the ledger because most of
+its decisions remain in force; its body carries a pointer to this amendment. No FR, SDD or ADR number is
+reused or renumbered.
+
 ## Version history
 
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0.0 | 2026-11-15 | Claude Sonnet 5.5 | Initial record: supersedes ADR-040 and ADR-075 and withdraws FR-187 (ledger moves recorded with docs:ids --supersede). |
+| 1.1.0 | 2026-11-16 | Claude Sonnet 5.5 | Amendment 1: owner option X removes the Edge SmartGift catalog serving path and partially supersedes ADR-110 retained Edge Knowledge/RAG scope (pointer only; no id moves). |

@@ -14,8 +14,9 @@ attributes:
 > **Retirement status:** Edge-device pairing, `edgk_` credentials, cloud heartbeat,
 > device-side evidence extraction, and Edge-owned LINE ingress/delivery are retired.
 > Do not follow the old device enrollment or transport procedures in this README.
-> The local worker, Core conversation capability, and local Knowledge/RAG runtime remain
-> separate concerns. A Localworker API key is governed by the Private Runtime Platform
+> The local worker and Core conversation capability remain separate concerns; the local
+> catalog Knowledge/RAG runtime, GenesisBlock MCP server and catalog pricing were removed by
+> ADR-119 (amendment 1). A Localworker API key is governed by the Private Runtime Platform
 > (PRP); an old Edge-device key or device identity is not a substitute.
 
 ## Historical monorepo migration note
@@ -34,17 +35,17 @@ device configuration, cloud enrollment, LINE transport, or data migration.
 Standalone local runtime for the Zuri Command Agent. It is a consumer of Zuri's governed command
 API, not a replacement for the Zuri control plane.
 
-## Retained local worker, Core conversation, and Knowledge/RAG
+## Retained local worker and Core conversation
 
 The local worker and Core conversation capability are retained independently of Edge-device
 enrollment. Use the current Localworker API key contract from the Private Runtime Platform (PRP)
 when that integration is in scope. This repository's retired pairing flow, device id, and
 `edgk_` credential do not configure or authorize the Localworker API.
 
-The local Knowledge/RAG components are also retained. Their service boundaries and runbooks remain
-separate from device enrollment and LINE transport; see the
-[GenesisRAG pipeline runbook](docs/GENESIS-RAG-V4-PIPELINE-RUNBOOK.md). This README does not claim
-that the retired Edge webhook sends LINE messages or that a cloud heartbeat is active.
+The local catalog Knowledge/RAG service, its embed sidecars and the pipeline runbooks were removed by
+ADR-119 (amendment 1); Business conversations read only the published GenesisRAG17 corpus through the
+server-derived scope. This README does not claim that the retired Edge webhook sends LINE messages or
+that a cloud heartbeat is active.
 
 ## Ownership
 
@@ -71,37 +72,9 @@ The old device-side extraction flow and its setup are retained only in the
 claim/complete/fail calls, and `extraction` CLI commands are retired and must not be used.
 The record is not a current operator runbook.
 
-## GenesisBlock MCP server
+## GenesisBlock MCP server — removed
 
-Build the Edge app before using the compiled server:
-
-```powershell
-npm run build
-```
-
-Use stdio for local Claude Desktop or Cursor integrations:
-
-```powershell
-node dist/mcp/genesis-mcp-server.js
-```
-
-Use HTTP/SSE on port 8989 with `start-genesis-mcp.bat`. It binds to `127.0.0.1` by default. For a LAN
-bind, set `GENESIS_MCP_HOST` explicitly and provide `GENESIS_MCP_TOKEN` with at least 32 characters.
-For a tunnel that forwards to loopback, keep the default host and still configure a token before
-exposing the service. Whenever configured, the token protects `/sse` and `/messages` with
-`Authorization: Bearer <token>`. Unauthenticated `/health` returns only `status` and `service`; a
-valid token receives readiness details. The HTTP/SSE surface sends no browser CORS headers and is
-intended for MCP clients.
-
-The MCP entry point reads the process environment directly and does not load `.env`. For example,
-replace this placeholder with a unique generated token before launching:
-
-```powershell
-$env:GENESIS_MCP_HOST = '0.0.0.0'
-$env:GENESIS_MCP_TOKEN = '<generate-a-unique-token-with-at-least-32-characters>'
-.\start-genesis-mcp.bat
-```
-
-Never commit a real token or print it in logs.
+The Edge GenesisBlock MCP server (stdio and HTTP/SSE) and `start-genesis-mcp.bat` were removed by ADR-119
+(amendment 1, option X). There is no Edge MCP endpoint, token or port 8989 listener.
 
 Version diff unversioned → 0.1.0b (2026-09-06, RWANG): documented central monorepo candidate and optional executor target; runtime behavior unchanged.
