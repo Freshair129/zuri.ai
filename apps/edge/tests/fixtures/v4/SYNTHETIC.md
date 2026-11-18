@@ -22,8 +22,7 @@ the original Edge checkout and its history; it does not activate or relocate a r
 `scripts/generate-synthetic-fixtures.mjs` generates the fixture set from taxonomy
 and authored constants only. No original catalog fields, image paths, customer
 identifiers, transcript content or real prices are inputs to the generator.
-The [query rubric](../../../scripts/author-nl-queries.md) defines coverage and
-evaluation limits. `ZAI:ADR-062` is a qualified external Server reference.
+The query rubric document was removed with the catalog pipeline (ADR-119). `ZAI:ADR-062` is a qualified external Server reference.
 
 | Fixture | Preserved coverage |
 | --- | --- |
