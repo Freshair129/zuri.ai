@@ -133,7 +133,7 @@ export const GENESIS_RAG17_PARSER_PROFILES = Object.freeze({
   STRUCTURED_RECORD: 'structured-record',
 })
 
-/** Parser-2 is selected for SmartGift catalog sources only (FR-188). */
+/** Parser-2 is selected for former-customer catalog sources only (FR-188). */
 export function genesisRag17ParserProfileForProvider(provider) {
   return isStructuredCatalogProvider(provider) ? GENESIS_RAG17_PARSER_PROFILES.STRUCTURED_RECORD : GENESIS_RAG17_PARSER_PROFILES.TEXT
 }
@@ -727,7 +727,7 @@ function addHit(hits, { type, mention, offset, confidence = 0.85, verbatimKey = 
   hits.push({
     semanticType: type,
     name: value,
-    // FR-188 / C-6: a structured occurrence's key is the SmartGift code
+    // FR-188 / C-6: a structured occurrence's key is the former-customer code
     // verbatim. normalizeOrganizationName is a legal-affix stripper; its being
     // a no-op on today's codes is a coincidence, not a contract.
     resolutionKey: verbatimKey ? value : normalizeOrganizationName(value),
