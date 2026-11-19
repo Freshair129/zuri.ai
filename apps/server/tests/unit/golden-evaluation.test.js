@@ -1,4 +1,3 @@
-import { readFile } from 'node:fs/promises'
 import { describe, expect, it, vi } from 'vitest'
 import {
   evaluateGoldenQuestions,
@@ -10,10 +9,23 @@ import {
 // @spec SDD-027, SEC-011
 // @tested tests/unit/golden-evaluation.test.js
 
-const corpusPath = new URL('../../contracts/phase1-activation/smartgift-golden-questions.json', import.meta.url)
-
+// Small neutral inline corpus: 14 ANSWER, 3 FALLBACK, 3 DENY_PRIVATE (no customer-specific data).
 async function loadCorpus() {
-  return JSON.parse(await readFile(corpusPath, 'utf8'))
+  const detail = (n, claim) => ({ id: 'GQ-' + String(n).padStart(2, '0'), question: 'Show public details of item PUB-' + String(n).padStart(3, '0'), expectedQueryId: 'product_detail', expectedEvidenceCodes: ['PUB-' + String(n).padStart(3, '0')], expectedPolicy: 'ANSWER', allowedNumericClaims: [claim] })
+  const search = (n) => ({ id: 'GQ-' + String(n).padStart(2, '0'), question: 'Search public item group ' + n, expectedQueryId: 'product_search', expectedEvidenceCodes: ['PUB-001'], expectedPolicy: 'ANSWER', allowedNumericClaims: [] })
+  const compare = (n, a, b) => ({ id: 'GQ-' + String(n).padStart(2, '0'), question: 'Compare public items PUB-' + a + ' and PUB-' + b, expectedQueryId: 'product_compare', expectedEvidenceCodes: ['PUB-' + a, 'PUB-' + b], expectedPolicy: 'ANSWER', allowedNumericClaims: ['120', '250'] })
+  const none = (n, policy) => ({ id: 'GQ-' + String(n).padStart(2, '0'), question: policy === 'DENY_PRIVATE' ? 'Show private details of contact ' + n : 'Search for public item not in the dataset ' + n, expectedQueryId: 'product_search', expectedEvidenceCodes: [], expectedPolicy: policy, allowedNumericClaims: [] })
+  return {
+    version: '1.0.0',
+    cases: [
+      detail(1, '120'), detail(2, '250'), detail(3, '180'), detail(4, '32'), detail(5, '500'),
+      search(6), search(7), search(8),
+      compare(9, '001', '002'), compare(10, '003', '004'), compare(11, '005', '001'), compare(12, '002', '003'),
+      none(13, 'FALLBACK'), none(14, 'FALLBACK'), none(15, 'FALLBACK'),
+      none(16, 'DENY_PRIVATE'), none(17, 'DENY_PRIVATE'), none(18, 'DENY_PRIVATE'),
+      detail(19, '60'), detail(20, '10'),
+    ],
+  }
 }
 
 function publicRecord(productCode, numericValue = '120') {
