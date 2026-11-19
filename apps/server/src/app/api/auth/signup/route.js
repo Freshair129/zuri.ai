@@ -67,7 +67,7 @@ export async function POST(request) {
     }
     // Say why on the server: this 503 used to swallow the cause entirely. Only the
     // error class, code and a trimmed message are logged, never the request body.
-    console.error('[signup] unexpected failure', JSON.stringify({ name: error?.name, code: error?.code, message: String(error?.message || error).slice(0, 300) }))
+    console.error('[signup] unexpected failure', JSON.stringify({ name: error?.name, code: error?.code, message: String(error?.message || error).slice(-300), meta: error?.meta }))
     return NextResponse.json({ success: false, error: 'SIGNUP_UNAVAILABLE' }, { status: 503 })
   }
 
