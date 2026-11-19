@@ -101,8 +101,8 @@ export async function handle(fn) {
     // A refusal may carry a structured list the caller needs to act on (FR-156:
     // which components a recipe build is short of). Passed through only when
     // the service set it deliberately as an array; never the raw error object.
-    if (status >= 500 && process.env.ZURI_E2E_SERVER_DIAGNOSTICS) console.error('[e2e-diag]', JSON.stringify({ status, code: err?.code, stack: String(err?.stack || message).split('
-').slice(0, 14).join(' | ').slice(0, 1800) }))
+    if (status >= 500 && process.env.ZURI_E2E_SERVER_DIAGNOSTICS) console.error('[e2e-diag]', JSON.stringify({ status, code: err?.code, stack: String(err?.stack || message).split(/?
+/).slice(0, 14).join(' | ').slice(0, 1800) }))
     const details = Array.isArray(err?.details) ? err.details : undefined
     // @req FR-224 — a rate-limited refusal says when to retry, in the body and in
     // the standard header. Passed through only as a positive integer.

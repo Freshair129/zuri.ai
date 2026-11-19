@@ -65,8 +65,8 @@ export async function POST(request) {
     if (error?.status && error?.code) {
       return NextResponse.json({ success: false, error: error.code }, { status: error.status })
     }
-    if (process.env.ZURI_E2E_SERVER_DIAGNOSTICS) console.error('[e2e-diag] signup', JSON.stringify({ code: error?.code, stack: String(error?.stack || error).split('
-').slice(0, 14).join(' | ').slice(0, 1800) }))
+    if (process.env.ZURI_E2E_SERVER_DIAGNOSTICS) console.error('[e2e-diag] signup', JSON.stringify({ code: error?.code, stack: String(error?.stack || error).split(/?
+/).slice(0, 14).join(' | ').slice(0, 1800) }))
     return NextResponse.json({ success: false, error: 'SIGNUP_UNAVAILABLE' }, { status: 503 })
   }
 
