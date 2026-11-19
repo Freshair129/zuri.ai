@@ -66,17 +66,17 @@ Level 5: Branch / Physical Location (branch_id)
 - **Role**: Commercial, legal, and operational trading entity.
 - **Functions**:
   - Independent tax invoicing, general ledger (GL), balance sheet, and P&L.
-  - Dedicated operational scopes (e.g. SmartGift = e-commerce & retail; EMC = engineering & maintenance).
+  - Dedicated operational scopes (e.g. a retail business = e-commerce & retail; EMC = engineering & maintenance).
   - Business-scoped inbox and workflow routing (preventing cross-business inbox leakage).
-- **UI Label**: **Business** (e.g. `SmartGift`, `EMC`).
+- **UI Label**: **Business** (e.g. `Retail Co`, `EMC`).
 
 ### Level 4: Workspace / Operational Unit (`workspace_id`)
 - **ERP Concept**: Operational Container / Project Division / Department (พื้นที่ทำงานปฏิบัติการ)
 - **Role**: Execution container for projects, initiatives, tasks, and team collaborations.
 - **Functions**:
   - Houses projects, workstreams, milestones, task boards, and sprints.
-  - Allows a single business to segregate operations (e.g. `SmartGift Marketing Workspace`, `SmartGift Operations Workspace`).
-- **UI Label**: **Workspace** (e.g. `SmartGift Workspace`, `EMC Workspace`).
+  - Allows a single business to segregate operations (e.g. `Retail Co Marketing Workspace`, `Retail Co Operations Workspace`).
+- **UI Label**: **Workspace** (e.g. `Retail Co Workspace`, `EMC Workspace`).
 
 ### Level 5: Branch / Location (`branch_id`)
 - **ERP Concept**: Branch / Plant / Store / Warehouse / Fulfillment Center (สาขา / คลังสินค้า / หน้าร้าน)
@@ -137,7 +137,7 @@ While the database entity `Workspace` was demoted to "Space" on `/workspaces`.
 1. **Top Context Bar**:
    - `Group` ➔ Displays the Portfolio (e.g. `Group: Wannapa Group`).
    - `Organization` ➔ Displays the Tenant (e.g. `Org: Wannapa Org`).
-   - `Business` ➔ Displays the active operating company (e.g. `Business: SmartGift`).
+   - `Business` ➔ Displays the active operating company (e.g. `Business: Retail Co`).
 2. **Operational Workspaces**:
    - The `/workspaces` view is restored to its proper name: **Workspaces** (not "Spaces").
    - Each workspace clearly shows its parent Business and operational role.
