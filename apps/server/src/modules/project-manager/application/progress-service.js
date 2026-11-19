@@ -1,4 +1,4 @@
-import { withPipelineTransaction, isPipelineTransaction, pipelineTransactionFacade } from './pipeline-transaction'
+import { withPipelineTransaction, isPipelineTransaction, isPipelineContext, pipelineTransactionFacade } from './pipeline-transaction'
 // @req FR-084 — derived graph-row cache refreshes share the graph writer boundary.
 // @tested tests/integration/plan-delta.test.js
 import prisma from '@/lib/db'
@@ -20,11 +20,44 @@ function hydrateBundle(workstream) {
   }
 }
 
+// `progressCache` is advisory (the percent returned is always recomputed), so a
+// failed refresh must never fail the read that produced the number.
+async function writeProgressCaches(db, staleCaches) {
+  if (!staleCaches.length) return
+  await Promise.all(staleCaches.map((ws) =>
+    db.workstream.update({ where: { id: ws.id }, data: { progressCache: ws.percent } })))
+}
+
+async function refreshProgressCaches(db, staleCaches) {
+  if (!staleCaches?.length) return
+  try {
+    await withPipelineTransaction(db, tx => writeProgressCaches(pipelineTransactionFacade(tx), staleCaches))
+  } catch {
+    // Best-effort: the next read recomputes and retries the refresh.
+  }
+}
+
 /**
  * Compute progress for one workstream (loads data, runs pure calculator).
  */
 export async function computeWorkstreamProgress(workstreamId, { db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => computeWorkstreamProgress(workstreamId, { db: pipelineTransactionFacade(tx) }))
+  if (isPipelineTransaction(db) || isPipelineContext(db)) {
+    const loaded = await loadWorkstreamProgress(workstreamId, db)
+    if (isPipelineTransaction(db)) await writeProgressCaches(db, loaded.staleCaches)
+    return loaded.result
+  }
+  {
+    // Read under a non-writer transaction; the advisory cache is refreshed in a
+    // short writer transaction afterwards, and only when it is actually stale. A
+    // progress read used to take the global graph writer lock for its whole load,
+    // which made every page view queue behind (and block) real writes.
+    const computed = await withPipelineTransaction(db, tx => loadWorkstreamProgress(workstreamId, pipelineTransactionFacade(tx)), { write: false })
+    await refreshProgressCaches(db, computed.staleCaches)
+    return computed.result
+  }
+}
+
+async function loadWorkstreamProgress(workstreamId, db) {
   const workstream = await db.workstream.findUnique({
     where: { id: workstreamId },
     include: { items: true, containers: true, milestones: true, gates: true },
@@ -32,12 +65,7 @@ export async function computeWorkstreamProgress(workstreamId, { db = prisma } = 
   if (!workstream || workstream.deletedAt) throw new Error('Workstream not found')
   const bundle = hydrateBundle(workstream)
   const result = calculateWorkstreamProgress(workstream.progressStrategy, bundle)
-  // Refresh cache (best-effort; progress remains derivable at any time).
-  await db.workstream.update({
-    where: { id: workstreamId },
-    data: { progressCache: result.percent },
-  })
-  return {
+  const payload = {
     workstreamId,
     code: workstream.code,
     name: workstream.name,
@@ -47,13 +75,25 @@ export async function computeWorkstreamProgress(workstreamId, { db = prisma } = 
     ...result,
     calculatedAt: new Date().toISOString(),
   }
+  const staleCaches = workstream.progressCache !== result.percent ? [{ id: workstreamId, percent: result.percent }] : []
+  return { result: payload, staleCaches }
 }
 
 /**
  * Compute project progress: every active workstream + weighted roll-up.
  */
 export async function computeProjectProgress(projectId, { db = prisma } = {}) {
-  if (!isPipelineTransaction(db)) return withPipelineTransaction(db, tx => computeProjectProgress(projectId, { db: pipelineTransactionFacade(tx) }))
+  if (isPipelineTransaction(db) || isPipelineContext(db)) {
+    const loaded = await loadProjectProgress(projectId, db)
+    if (isPipelineTransaction(db)) await writeProgressCaches(db, loaded.staleCaches)
+    return loaded.result
+  }
+  const computed = await withPipelineTransaction(db, tx => loadProjectProgress(projectId, pipelineTransactionFacade(tx)), { write: false })
+  await refreshProgressCaches(db, computed.staleCaches)
+  return computed.result
+}
+
+async function loadProjectProgress(projectId, db) {
   const project = await db.project.findUnique({
     where: { id: projectId },
     include: {
@@ -89,18 +129,15 @@ export async function computeProjectProgress(projectId, { db = prisma } = {}) {
       staleCaches.push({ id: ws.id, percent: result.percent })
     }
   }
-  if (staleCaches.length) {
-    await Promise.all(staleCaches.map((ws) =>
-      db.workstream.update({ where: { id: ws.id }, data: { progressCache: ws.percent } })))
-  }
   const rollup = rollupProject(workstreamResults)
-  return {
+  const payload = {
     projectId,
     code: project.code,
     name: project.name,
     ...rollup,
     calculatedAt: new Date().toISOString(),
   }
+  return { result: payload, staleCaches }
 }
 
 // @req FR-020 — group landing: one health card per business.

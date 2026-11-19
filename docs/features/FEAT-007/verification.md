@@ -108,6 +108,7 @@ status: generated
 - [apps/server/tests/integration/plan-delta-moves.test.js](../../../apps/server/tests/integration/plan-delta-moves.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/plan-delta.test.js](../../../apps/server/tests/integration/plan-delta.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/production-migration-isolated-postgres.test.js](../../../apps/server/tests/integration/production-migration-isolated-postgres.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/integration/progress-read-writer-lock.test.js](../../../apps/server/tests/integration/progress-read-writer-lock.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/integration/xlsx-intake.test.js](../../../apps/server/tests/integration/xlsx-intake.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/postgres/pipeline-handoff-races.test.js](../../../apps/server/tests/postgres/pipeline-handoff-races.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/storage/compact-business-objects.test.js](../../../apps/server/tests/storage/compact-business-objects.test.js) — `verifies` (`transitive`)

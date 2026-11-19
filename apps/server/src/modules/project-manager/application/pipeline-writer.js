@@ -6,6 +6,8 @@ export { PIPELINE_GRAPH_LOCK }
 export const PIPELINE_TRANSACTION_OPTIONS = Object.freeze({maxWait:4000,timeout:120000,isolationLevel:'Serializable'})
 const contexts = new WeakMap()
 export const isPipelineTransaction = db => contexts.get(db)?.write === true
+// Any pipeline transaction, including a read-only one that holds no writer lock.
+export const isPipelineContext = db => contexts.has(db)
 export function pipelineTransactionFacade(tx) {
   if (!contexts.has(tx)) throw pipelineError('GRAPH_BUSY', 503)
   let facade
