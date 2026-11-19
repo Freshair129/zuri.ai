@@ -107,6 +107,7 @@ export async function handle(fn) {
     const retryAfterSeconds = status === 429 && Number.isInteger(err?.retryAfterSeconds) && err.retryAfterSeconds > 0
       ? err.retryAfterSeconds
       : undefined
+    if (status >= 500) console.error('[e2e-diag]', JSON.stringify({ status, name: err?.name, code: err?.code, message: String(message).slice(0, 300) }))
     const body = { error: message, ...(details ? { details } : {}), ...(retryAfterSeconds ? { retryAfterSeconds } : {}) }
     return NextResponse.json(body, { status, ...(retryAfterSeconds ? { headers: { 'Retry-After': String(retryAfterSeconds) } } : {}) })
   }
