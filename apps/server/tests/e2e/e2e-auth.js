@@ -1,5 +1,7 @@
 const { createHash } = require('node:crypto')
 const path = require('node:path')
+const { e2eTarget } = require('./e2e-target')
+const { prepareOwnerLogin } = require('./owner-login-isolation.cjs')
 
 // @req FR-046 — E2E uses an isolated credential and signed session, never an
 // application-side authentication bypass.
@@ -20,15 +22,24 @@ const E2E_SESSION_SECRET = process.env.ZURI_E2E_SESSION_SECRET || `e2e-session-$
 // is wiped by that navigation, and the test then silently asserts the default.
 async function loginAsOwner(page, { remember = false } = {}) {
   await page.goto('/login')
+  const target = e2eTarget()
+  if (new URL(page.url()).origin !== target.baseURL) throw new Error('E2E_LOGIN_TARGET_MISMATCH')
+  await prepareOwnerLogin(page.request, E2E_USERNAME)
   await page.getByLabel('Email or account code').fill(E2E_USERNAME)
   await page.getByLabel('Password', { exact: true }).fill(E2E_PASSWORD)
   if (remember) await page.getByLabel('จดจำฉันไว้').check()
-  await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+  const [response] = await Promise.all([
+    page.waitForResponse((response) => response.url() === `${target.baseURL}/api/auth/login`
+      && response.request().method() === 'POST'),
+    page.getByRole('button', { name: 'Sign in', exact: true }).click(),
+  ])
+  if (!response.ok()) throw new Error(`Owner login fixture failed: HTTP ${response.status()}`)
   await page.waitForURL('**/businesses')
 }
 
-function loginRequest(request, options = {}) {
-  return request.post('/api/auth/login', {
+async function loginRequest(request, options = {}) {
+  await prepareOwnerLogin(request, E2E_USERNAME)
+  return request.post(`${e2eTarget().baseURL}/api/auth/login`, {
     ...options,
     data: { username: E2E_USERNAME, password: E2E_PASSWORD },
   })

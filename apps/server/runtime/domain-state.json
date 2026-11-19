@@ -500,8 +500,10 @@
           "apps/server/tests/e2e/fr046-entry-contract.spec.js",
           "apps/server/tests/integration/auth-rate-limit.test.js",
           "apps/server/tests/integration/credential-rate-limit.test.js",
+          "apps/server/tests/integration/e2e-owner-login-rate-limit.test.js",
           "apps/server/tests/integration/pipeline-request-bounds.test.js",
           "apps/server/tests/unit/api-error-mapping.test.js",
+          "apps/server/tests/unit/e2e-owner-login-isolation.test.js",
           "apps/server/tests/unit/entry-surfaces.test.js",
           "apps/server/tests/unit/fr046-api-ui-contract.test.js",
           "apps/server/tests/unit/fr046-auth-route.test.js"
@@ -3425,7 +3427,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 89
+          "testCount": 91
         },
         {
           "id": "FR-059",
@@ -3866,7 +3868,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 4,
-          "testCount": 8,
+          "testCount": 10,
           "evidence": [
             "apps/server/src/app/api/auth/login/route.js",
             "apps/server/src/app/login/page.jsx",
@@ -3875,8 +3877,10 @@
             "apps/server/tests/e2e/fr046-entry-contract.spec.js",
             "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/e2e-owner-login-rate-limit.test.js",
             "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/e2e-owner-login-isolation.test.js",
             "apps/server/tests/unit/entry-surfaces.test.js",
             "apps/server/tests/unit/fr046-api-ui-contract.test.js",
             "apps/server/tests/unit/fr046-auth-route.test.js"
@@ -4186,8 +4190,10 @@
             "apps/server/tests/e2e/fr046-entry-contract.spec.js",
             "apps/server/tests/integration/auth-rate-limit.test.js",
             "apps/server/tests/integration/credential-rate-limit.test.js",
+            "apps/server/tests/integration/e2e-owner-login-rate-limit.test.js",
             "apps/server/tests/integration/pipeline-request-bounds.test.js",
             "apps/server/tests/unit/api-error-mapping.test.js",
+            "apps/server/tests/unit/e2e-owner-login-isolation.test.js",
             "apps/server/tests/unit/entry-surfaces.test.js",
             "apps/server/tests/unit/fr046-api-ui-contract.test.js",
             "apps/server/tests/unit/fr046-auth-route.test.js"
@@ -6993,7 +6999,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 89
+          "testCount": 91
         },
         {
           "id": "FR-075",
@@ -7799,7 +7805,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 89
+          "testCount": 91
         },
         {
           "id": "FR-056",
@@ -17944,7 +17950,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 90,
-          "testCount": 89
+          "testCount": 91
         }
       ],
       "evidence": [
@@ -18049,6 +18055,7 @@
         "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/backup.test.js",
         "apps/server/tests/integration/domain-visibility-server.test.js",
+        "apps/server/tests/integration/e2e-owner-login-rate-limit.test.js",
         "apps/server/tests/integration/fr001-scope-crud.test.js",
         "apps/server/tests/integration/fr038-business-membership-add.test.js",
         "apps/server/tests/integration/fr046-entry-contract.test.js",
@@ -18082,6 +18089,7 @@
         "apps/server/tests/unit/business-routing.test.js",
         "apps/server/tests/unit/business-shell-guard.test.js",
         "apps/server/tests/unit/business-strategy-route.test.js",
+        "apps/server/tests/unit/e2e-owner-login-isolation.test.js",
         "apps/server/tests/unit/entry-routing-boundary.test.js",
         "apps/server/tests/unit/entry-surfaces.test.js",
         "apps/server/tests/unit/file-content-route-headers.test.js",
@@ -22843,7 +22851,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 5,
-          "testCount": 8
+          "testCount": 10
         }
       ],
       "evidence": [
@@ -22855,8 +22863,10 @@
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
         "apps/server/tests/integration/auth-rate-limit.test.js",
         "apps/server/tests/integration/credential-rate-limit.test.js",
+        "apps/server/tests/integration/e2e-owner-login-rate-limit.test.js",
         "apps/server/tests/integration/pipeline-request-bounds.test.js",
         "apps/server/tests/unit/api-error-mapping.test.js",
+        "apps/server/tests/unit/e2e-owner-login-isolation.test.js",
         "apps/server/tests/unit/entry-surfaces.test.js",
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-auth-route.test.js"
