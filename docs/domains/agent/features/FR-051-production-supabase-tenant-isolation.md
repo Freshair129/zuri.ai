@@ -17,7 +17,7 @@ status: "beta"
 
 ## Rationale
 
-An application filter on `business_id` is not a production isolation boundary. the first production Business therefore
+An application filter on `business_id` is not a production isolation boundary. The first production Business therefore
 uses stable internal Portfolio, Tenant and Business UUIDs, composite ancestry constraints, a private
 `zuri_core` schema and forced RLS. The LINE read role can see only the reserved legacy Business scope (ADR-119).
 

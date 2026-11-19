@@ -87,7 +87,7 @@ descriptive text only. The fixture's PriceListEntry records are the priced facts
 ### Where the catalog version date comes from (C-5)
 
 The date comes from **an optional record field, `catalogVersionDate`**
-(`YYYY-MM-DD`, a real calendar date). the former customer's exporter stamps its export
+(`YYYY-MM-DD`, a real calendar date). The former customer's exporter stamps its export
 manifest date identically on every record of one export. The field is inside
 the immutable record bytes, so the record's `contentHash` covers it, and two
 parses of the same raw can never differ. The adapter's strict shapes (FR-187)
