@@ -18,13 +18,6 @@ test('retired Edge CLI and queue worker entrypoints are absent', () => {
   assert.equal(fs.existsSync(new URL('../../src/cli/conversation.ts', import.meta.url)), false);
 });
 
-test('local RAG launcher never starts the retired dist conversation worker', () => {
-  const launcher = fs.readFileSync(path.resolve('scripts/start-edge-stack.ps1'), 'utf8');
-  assert.doesNotMatch(launcher, /dist[\\/]cli[\\/]index\.js|conversation\s+serve/i);
-  assert.match(launcher, /scripts\\rag-serve\.ts/);
-  assert.match(launcher, /scripts\\embed-sidecar\.py/);
-});
-
 test('local executor rejects an unscoped Business turn before model or RAG access', async () => {
   let answerCalls = 0;
   const answer = createConversationExecutor({}, { ragUrl: 'http://127.0.0.1:8888',

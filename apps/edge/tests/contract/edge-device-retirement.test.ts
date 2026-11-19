@@ -49,7 +49,7 @@ test('retired device credentials do not configure the retained local runtime', (
   }
 });
 
-test('retired pairing UI and command API callers are absent while local RAG remains available', () => {
+test('retired pairing UI and command API callers are absent', () => {
   const cli = readAppFile('src/cli/index.ts');
   const tauriLib = readAppFile('src-tauri/src/lib.rs');
   const exampleEnv = readAppFile('.env.example');
@@ -75,6 +75,8 @@ test('retired pairing UI and command API callers are absent while local RAG rema
   assert.equal(fs.existsSync(new URL('src-tauri/src/supervisor.rs', appRoot)), false);
   assert.equal(fs.existsSync(new URL('src-tauri/src/durable_log.rs', appRoot)), false);
   assert.equal(fs.existsSync(new URL('src-tauri/src/packaged_runtime_tests.rs', appRoot)), false);
-  assert.equal(packageJson.scripts.start, 'npm run rag:serve');
+  // ADR-119 (option X) removed the local RAG service: `start`, `rag:serve` and the sidecar scripts are gone.
+  assert.equal(packageJson.scripts.start, undefined);
+  assert.equal(packageJson.scripts['rag:serve'], undefined);
   assert.equal(fs.existsSync(new URL('src/zuri-api/types.ts', appRoot)), false);
 });

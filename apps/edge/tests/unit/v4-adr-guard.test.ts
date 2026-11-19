@@ -51,16 +51,8 @@ describe('v4 ADR guard: the LINE agent process never opens the catalog graph sto
     });
   }
 
-  it('src/rag/genesis-native.ts is imported only from src/mcp/**', () => {
-    const allTs = walkTsFiles(path.join(REPO_ROOT, 'src'));
-    const importerRx = /from\s+['"](?:\.{1,2}\/)*rag\/genesis-native(?:\.js)?['"]/;
-    const importers = allTs.filter((f) => f !== path.join(REPO_ROOT, 'src', 'rag', 'genesis-native.ts') && importerRx.test(fs.readFileSync(f, 'utf8')));
-    const relImporters = importers.map((f) => path.relative(REPO_ROOT, f));
-    const nonMcp = relImporters.filter((f) => !f.startsWith(path.join('src', 'mcp') + path.sep));
-    assert.deepStrictEqual(nonMcp, [], `genesis-native.ts imported outside src/mcp/**: ${nonMcp.join(', ')}`);
-    // Sanity: the guard actually found the one legitimate importer, so an empty `importers` list
-    // (e.g. from a typo in the regex) cannot pass this test by vacuous truth.
-    assert.ok(relImporters.length >= 1, 'expected genesis-native.ts to still be imported from src/mcp/**');
+  it('src/rag/genesis-native.ts no longer exists (ADR-119): nothing can open the catalog graph store', () => {
+    assert.equal(fs.existsSync(path.join(REPO_ROOT, 'src', 'rag', 'genesis-native.ts')), false);
   });
 
   it('src/cli/index.ts does not contain the injected-context marker "[ข้อมูลสินค้าจาก"', () => {

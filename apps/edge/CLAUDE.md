@@ -3,67 +3,34 @@
 ## Product boundary
 
 ADR-110 retires Edge Device pairing, device credentials and heartbeat, the device executor for LINE OA,
-the Edge LINE webhook adapters, and harness surfaces. The retained `apps/edge` scope is local
-Knowledge/RAG, GenesisBlock catalog access, and local command-line/MCP integrations. These components
-do not claim LINE ingress, delivery, device enrollment, or authority in zuri.ai.
+the Edge LINE webhook adapters, and harness surfaces. ADR-119 (amendment 1, owner instruction option X,
+2026-11-16) additionally removes the Edge SmartGift catalog pricing engine, catalog build pipeline and
+local catalog serving path: the local RAG service (:8888), its embed sidecars, the GenesisBlock MCP
+server and the taxonomy tooling no longer exist, and the ADR-110 statement that `apps/edge` retains
+a local Knowledge/RAG runtime is superseded for this app. The server-side Knowledge 17-stage pipeline,
+GenesisRAG17, MSP/GKS and Business-scoped reads are unchanged.
 
-Read the root `AGENTS.md`, this app's `AGENTS.md`, and ADR-110 D1, D4, and D5 before changing these
-boundaries. Treat older setup guides, RCAs, and implementation records as historical evidence where
-they say they are retired or superseded.
+The retained `apps/edge` scope is a local command-line runtime plus the Conversation executor that
+answers only from the published GenesisRAG17 corpus of a server-derived Business scope. It claims no LINE
+ingress, delivery, device enrollment, catalog pricing or authority in zuri.ai.
+
+Read the root `AGENTS.md`, this app's `AGENTS.md`, ADR-110 D1, D4 and D5, and ADR-119 amendment 1 before
+changing these boundaries. Treat older setup guides, RCAs, specs and implementation records as historical
+evidence where they say they are retired, superseded or removed.
 
 ## Main source areas
 
-- `src/answer/` — local answer generation and headless CLI integration.
-- `src/mcp/` — GenesisBlock MCP server over stdio or HTTP/SSE.
-- `src/rag/` — local GenesisBlock and catalog Knowledge/RAG services.
-- `scripts/start-edge-stack.ps1` — health-gated startup for the retained local RAG services.
-- `start-genesis-mcp.bat` — launcher for the HTTP/SSE MCP mode.
+- `src/answer/` — local answer generation over published evidence and the headless CLI integration (no MCP
+  tool server).
+- `src/conversation/` — the Conversation executor; Business turns read only the published corpus.
+- `src/rag/genesis-rag.ts`, `src/rag/v4/{http-client,search,schema,embed-client,query-parser,price}.ts` —
+  the retrieval client types the answer layer still uses; the service they spoke to is removed.
+- `src/rag/genesisrag17/` — the published-corpus client (MSP stdio, product/record readers).
+- `src/safety/`, `src/identity/`, `src/history/`, `src/delivery/`, `src/plugin/`, `src/cards/`,
+  `src/queries/` — local safety, identity register, history, outbox, plugin and DuckDB card/query code.
 
-## Local Knowledge/RAG
+## Removed (do not recreate without a new decision)
 
-The retained RAG services can be started with:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File scripts/start-edge-stack.ps1
-```
-
-This launcher checks service health and leaves an already-running service alone. It does not start a
-device executor or a LINE webhook.
-
-## GenesisBlock MCP server
-
-Build before launching the compiled entry point:
-
-```powershell
-npm run build
-```
-
-Use stdio for a local Claude Desktop or Cursor integration:
-
-```powershell
-node dist/mcp/genesis-mcp-server.js
-```
-
-Use HTTP/SSE with the batch launcher:
-
-```powershell
-.\start-genesis-mcp.bat
-```
-
-HTTP/SSE defaults to `127.0.0.1`. Set `GENESIS_MCP_HOST` explicitly for a LAN bind; every non-loopback
-bind requires `GENESIS_MCP_TOKEN` with at least 32 characters. A tunnel can forward to loopback, but
-configure a token before exposing it. Whenever a token is configured, requests to `/sse` and
-`/messages` must send `Authorization: Bearer <token>`. The public `/health` response contains only
-`status` and `service`; a valid bearer token receives readiness detail. The MCP service does not
-enable browser CORS access.
-
-The MCP entry point reads these values from its process environment and does not load `.env`. For an
-explicit LAN bind, replace the token placeholder with a unique generated value before launching:
-
-```powershell
-$env:GENESIS_MCP_HOST = '0.0.0.0'
-$env:GENESIS_MCP_TOKEN = '<generate-a-unique-token-with-at-least-32-characters>'
-.\start-genesis-mcp.bat
-```
-
-Never place a real token in the repository or print it in logs.
+Edge pricing engine, `zuri-agent price`, the pricing HTTP service/page, the pricing MCP server, the SmartGift
+catalog build/ingest/eval pipeline, `npm start`/`rag:serve`, the embed sidecars, `start-edge-stack.ps1`,
+`start-genesis-mcp.bat`, `dist/mcp/genesis-mcp-server.js` and `zuri-agent taxonomy preview`.

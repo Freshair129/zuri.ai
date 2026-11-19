@@ -19,12 +19,6 @@ import {
   listIdentities,
   revoke,
 } from '../identity/registry.js';
-import {
-  loadTaxonomyServingContext,
-  serveTaxonomyPreview,
-  TaxonomyServingError,
-  type TaxonomyServingQueryInput,
-} from '../rag/taxonomy-serving.js';
 import { GenesisLocalRag } from '../rag/genesis-rag.js';
 
 // @req FR-001 — `config check` validates local runtime configuration.
@@ -352,55 +346,6 @@ function handleOutbox(subcommand: string | undefined): void {
   });
 }
 
-/** `zuri-agent taxonomy preview` — bounded, non-authoritative taxonomy evidence. */
-async function handleTaxonomy(subcommand: string | undefined, rest: string[]): Promise<void> {
-  if (subcommand !== 'preview') {
-    printJsonError(
-      'UNSUPPORTED_TAXONOMY_SUBCOMMAND',
-      `Unsupported taxonomy subcommand: ${subcommand ?? '(none)'}. Only "preview" is available.`,
-      undefined,
-      1
-    );
-    return;
-  }
-
-  const { flags } = parseFlags(rest);
-  const input: TaxonomyServingQueryInput = {
-    ...(typeof flags.query === 'string' ? { query: flags.query } : {}),
-    ...(typeof flags.category === 'string'
-      ? { categoryId: flags.category }
-      : typeof flags.categoryId === 'string'
-        ? { categoryId: flags.categoryId }
-        : {}),
-    ...(flags.limit !== undefined
-      ? { limit: typeof flags.limit === 'string' ? Number(flags.limit) : Number.NaN }
-      : {}),
-    ...(flags['exclude-review'] === true ? { includeReview: false } : {}),
-  };
-
-  try {
-    const context = loadTaxonomyServingContext();
-    printJsonSuccess(
-      serveTaxonomyPreview(
-        context.catalog,
-        context.report,
-        context.projectionManifest,
-        input
-      )
-    );
-  } catch (error) {
-    const code = error instanceof TaxonomyServingError
-      ? error.code
-      : 'TAXONOMY_PROJECTION_UNAVAILABLE';
-    printJsonError(
-      code,
-      error instanceof Error ? error.message : String(error),
-      { surface: 'cli', mode: 'preview' },
-      1
-    );
-  }
-}
-
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const command = args[0];
@@ -413,11 +358,6 @@ async function main(): Promise<void> {
 
   if (command === 'outbox') {
     handleOutbox(subcommand);
-    return;
-  }
-
-  if (command === 'taxonomy') {
-    await handleTaxonomy(subcommand, args.slice(2));
     return;
   }
 
@@ -443,7 +383,6 @@ async function main(): Promise<void> {
         'chat say --text "<message>" [--role owner|sales] [--who <label>]',
         'chat prune',
         'outbox list',
-        'taxonomy preview [--query <text>] [--category <id>] [--limit <n>] [--exclude-review]',
         'identity list [--status pending]',
         'identity approve --hash <h> --role <owner|sales> --email <address>',
         'identity revoke --hash <h>',

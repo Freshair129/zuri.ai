@@ -45,10 +45,9 @@ export function validateExecutionPolicy(job: ConversationJob, config: Partial<Ag
   // A headless CLI has no server-derived Business/corpus scope. Keep it outside
   // Business conversations even after removal of the local pricing MCP.
   if (config.headlessEnabled) throw new ConversationError('LOCAL_POLICY_UNAVAILABLE');
-  // Separate standalone readers (`mcp/genesis-mcp-server.ts#search_catalog` and
-  // `cli/index.ts`) still lack a server-derived
-  // Business scope. They stay outside this executor; this patch does not claim
-  // all-reader isolation, and they must not serve Business-scoped requests.
+  // The standalone `cli/index.ts` reader still lacks a server-derived
+  // Business scope. It stays outside this executor, and it must not serve
+  // Business-scoped requests.
   // Corpus-bound answers require the instrumented tool path. Neither a local
   // catalog fallback nor a headless CLI is bound to this authorized generation.
   if ('corpusContext' in job && job.corpusContext && (!config.llmEnabled || !config.llmBaseUrl)) {

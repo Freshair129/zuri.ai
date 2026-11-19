@@ -40,6 +40,10 @@ relations:
 
 # ADR-110 — Retire Edge Device and harness surfaces; keep PRP LocalWorker key flow
 
+**Amended 2026-11-16 by [ADR-119](ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md) amendment 1:** the
+statements that `apps/edge` keeps a local Knowledge/RAG runtime are superseded (option X); the rest of
+this decision stands.
+
 **Status:** Approved for local implementation on 2026-09-24. Removal from a running
 deployment, credential revocation, and any production data operation remain separate
 gates.
