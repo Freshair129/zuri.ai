@@ -149,7 +149,7 @@ test('FR-253 — OWNER edits variables and expressions, previews, approves and c
   const rule = await saved.json()
   expect(rule.rules.fx.cnyToThb).toBe('5.5')
   expect(rule.rules.formulas[0].expression).toBe('anchorPrice * factor / anchorFactor * 1.1')
-  await expect(page.getByRole('status')).toContainText('บันทึกร่างแล้ว')
+  await expect(page.getByRole('status').filter({ hasText: 'บันทึกร่างแล้ว' })).toContainText('บันทึกร่างแล้ว')
   await expect(page.getByRole('button', { name: 'อนุมัติรุ่นและตั้งวันมีผล', exact: true })).toBeDisabled()
 
   await page.getByRole('button', { name: 'ทดลองคำนวณ', exact: true }).click()
