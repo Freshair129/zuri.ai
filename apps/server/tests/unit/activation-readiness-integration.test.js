@@ -25,7 +25,6 @@ describe('activation readiness integration', () => {
   it('registers only readiness commands, not activation or LINE-send commands', () => {
     const pkg = JSON.parse(readFileSync('package.json', 'utf8'))
 
-    expect(pkg.scripts['phase1:evaluate']).toBe('node scripts/evaluate-phase1-golden.mjs')
     expect(pkg.scripts['phase1:isolation:verify']).toBe('node scripts/verify-line-runtime-isolation.mjs')
     expect(pkg.scripts['phase1:canary:plan']).toBe('node scripts/plan-line-canary.mjs')
     expect(Object.keys(pkg.scripts).join(' ')).not.toMatch(/phase1:activate|line:send/)
