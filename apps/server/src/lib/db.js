@@ -121,29 +121,4 @@ export const prisma = globalForPrisma.__zuriPrisma ?? new RuntimePrismaClient(
 
 globalForPrisma.__zuriPrisma = prisma
 
-// TEMP e2e diagnostic: report interactive transactions that stay open > 1.5 s.
-if (process.env.ZURI_E2E_SERVER_DIAGNOSTICS && !globalForPrisma.__zuriTxDiag) {
-  globalForPrisma.__zuriTxDiag = true
-  const open = new Map()
-  let seq = 0
-  const original = prisma.$transaction.bind(prisma)
-  prisma.$transaction = (arg, ...rest) => {
-    if (typeof arg !== 'function') return original(arg, ...rest)
-    const id = ++seq
-    const stack = String(new Error().stack).split('\n').slice(2, 9).map((l) => l.trim().slice(-140)).join(' < ')
-    const entry = { at: Date.now(), stack, logged: false }
-    open.set(id, entry)
-    return original(arg, ...rest).finally(() => {
-      open.delete(id)
-      const ms = Date.now() - entry.at
-      if (ms > 1500) console.warn('[tx-slow-end]', ms, stack.slice(0, 700))
-    })
-  }
-  setInterval(() => {
-    for (const [id, e] of open) {
-      if (!e.logged && Date.now() - e.at > 1500) { e.logged = true; console.warn('[tx-open]', id, Date.now() - e.at, 'openCount', open.size, e.stack.slice(0, 700)) }
-    }
-  }, 500).unref()
-}
-
 export default prisma
