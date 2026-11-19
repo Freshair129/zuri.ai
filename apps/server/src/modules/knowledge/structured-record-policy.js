@@ -7,18 +7,18 @@ import { canonicalGenesisRag17Json } from './genesisrag17-contract'
 // @tested tests/unit/knowledge-zero-pii-policy.test.js
 
 /**
- * Ported — not copied — from SmartGift's own producer-side policy
+ * Ported — not copied — from the former customer's own producer-side policy
  * (`business-01-smart-gift/pipeline/knowledge_registry/core.py`, `DENIED`).
  * The pattern is the deny semantics ADR-075 D5 names; keeping the identical
  * expression is the point, so the two sides cannot drift into two rules.
  *
- * SmartGift applies it to *source locators* (file paths), never to prose. This
+ * The former customer applied it to *source locators* (file paths), never to prose. This
  * port keeps that meaning: it inspects the source identity, every field NAME in
  * the record (a `customerName` or `contact` field is structural evidence of a
  * CRM shape) and the VALUES of locator-like fields (file, path, uri, upstream,
  * source, origin). Descriptive text is not scanned — a gift catalog legitimately
  * says "ของขวัญลูกค้าองค์กร", and a policy that refused it would be a different
- * rule from SmartGift's, not a stricter one.
+ * rule from the former customer's, not a stricter one.
  */
 export const STRUCTURED_RECORD_DENY_PATTERN = /05_crm_customer_data|customer|contact|quotation|ลูกค้า|ใบเสนอราคา/i
 
@@ -32,7 +32,7 @@ export const STRUCTURED_RECORD_DENY_POLICY = 'smartgift-zero-pii-1'
  * `LINE_FAQ_CANDIDATE` (FR-236) is deliberately NOT here (ADR-090 D6, revised
  * 2026-09-14, owner decision). This policy denies the literal words ลูกค้า /
  * ใบเสนอราคา / customer / contact / quotation wherever they occur — correct
- * for a locator-field-shaped SmartGift catalog record, wrong for a candidate's
+ * for a locator-field-shaped former-customer catalog record, wrong for a candidate's
  * free-text prose: an ordinary, already-approved FAQ such as
  * "ขอใบเสนอราคาได้ไหม" would be denied here even though it names no person,
  * phone number or quoted wording. Stage 5 classify routes `LINE_FAQ_CANDIDATE`

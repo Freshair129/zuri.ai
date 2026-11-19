@@ -25,7 +25,7 @@ import {
 // @req FR-071 — Codex uses a separate data_pipeline MCP namespace over the
 // existing server-owned staging/tracking services.
 // @req FR-187 — `knowledge.ingestion_create` passes a FILE source's `format`
-// through unchanged, so an agent admits a SmartGift structured projection over
+// through unchanged, so an agent admits a former-customer structured projection over
 // the same tool as Text/Markdown rather than a second MCP surface.
 // @spec ADR-029, ADR-040, ADR-075, SEC-001, SEC-008
 // @tested tests/unit/project-manager-mcp.test.js, tests/unit/pipeline-mcp-transport.test.js, tests/unit/knowledge-admission-mcp.test.js
@@ -113,7 +113,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'data_pipeline.run_create',
-    description: 'Create an idempotent SmartGift full-pipeline run after server-side Business resolution.',
+    description: 'Create an idempotent full-pipeline run after server-side Business resolution.',
     handler: 'pipeline.runCreate',
     readOnly: false,
     argumentKeys: RUN_CREATE_ARGUMENT_KEYS,
@@ -122,7 +122,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'data_pipeline.document_stage',
-    description: 'Submit a restricted SmartGift document contract through the server-resolved staging connection.',
+    description: 'Submit a restricted document-intake contract through the server-resolved staging connection.',
     handler: 'pipeline.documentStage',
     readOnly: false,
     argumentKeys: DOCUMENT_STAGE_ARGUMENT_KEYS,
@@ -140,7 +140,7 @@ const TOOL_DEFINITIONS = [
   },
   {
     name: 'data_pipeline.monitor_read',
-    description: 'Read the scope-filtered SmartGift pipeline monitor model.',
+    description: 'Read the scope-filtered pipeline monitor model.',
     handler: 'pipeline.monitorRead',
     readOnly: true,
     argumentKeys: MONITOR_ARGUMENT_KEYS,
