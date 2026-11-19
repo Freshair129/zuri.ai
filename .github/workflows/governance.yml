@@ -998,7 +998,7 @@ jobs:
           $port = [int]$env:E2E_PORT
           $env:NODE_ENV = 'test'
           $env:E2E_SERVER_MODE = 'production'
-          $env:DATABASE_URL = "file:./e2e-$port.db?connection_limit=16"
+          $env:DATABASE_URL = "file:./e2e-$port.db"
           $env:PUBLIC_BASE_URL = "http://localhost:$port"
           $env:ZURI_SESSION_SECRET = $env:ZURI_E2E_SESSION_SECRET
           $env:ZURI_SEED_OWNER_PASSWORD = $env:ZURI_E2E_AUTH_PASSWORD
