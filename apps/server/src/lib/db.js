@@ -130,8 +130,7 @@ if (process.env.ZURI_E2E_SERVER_DIAGNOSTICS && !globalForPrisma.__zuriTxDiag) {
   prisma.$transaction = (arg, ...rest) => {
     if (typeof arg !== 'function') return original(arg, ...rest)
     const id = ++seq
-    const stack = String(new Error().stack).split(/[
-]+/).slice(2, 9).map((l) => l.trim().replace(/^.*[\/]apps[\/]server[\/]/, '')).join(' < ')
+    const stack = String(new Error().stack).split('\n').slice(2, 9).map((l) => l.trim().slice(-140)).join(' < ')
     const entry = { at: Date.now(), stack, logged: false }
     open.set(id, entry)
     return original(arg, ...rest).finally(() => {
