@@ -6,7 +6,7 @@ status: "beta"
 superseded_by: null
 attributes:
   domain: "zuri-edge-device"
-  scope: "Zuri Edge Device on-premise node, Zuri Edge Runtime daemon, GenesisBlock Graph DB, MCP server, and Zuri Edge Command CLI"
+  scope: "Zuri Edge local runtime and Zuri Edge Command CLI (the Edge device, GenesisBlock catalog serving and MCP server were retired by ADR-110 and ADR-119)"
   upstream_contract: "zuri-command-agent-api-v1@0.1.0b"
 ---
 
@@ -33,8 +33,8 @@ Migration first preserves current behavior while moving source; transport cutove
 ## Architecture & Taxonomy (ADR-041)
 
 1. **Zuri Edge Device (The Physical Host / Node Entity):** The on-premise hardware machine (e.g. a registered device id) paired with Zuri Cloud via Zero-Trust tokens and active heartbeat telemetry.
-2. **Zuri Edge Runtime:** The retained local GenesisBlock and Knowledge/RAG components. Edge-device pairing, the device executor for LINE OA, the Edge LINE webhook adapters, and the former configuration UI are retired by ADR-110.
-3. **Zuri Edge Command (The Operator / CLI & MCP Interface):** The command-line interface (`zuri-agent`, `zuri-cli`) and MCP tools for executing governed action envelopes.
+2. **Zuri Edge Runtime:** The local conversation executor and answer layers over the published GenesisRAG17 corpus. Edge-device pairing, the device executor for LINE OA, the Edge LINE webhook adapters and the former configuration UI are retired by ADR-110; the local catalog RAG service, GenesisBlock MCP server and catalog pricing/pipeline are removed by ADR-119 (amendment 1).
+3. **Zuri Edge Command (The Operator / CLI):** The command-line interface (`zuri-agent`) for local configuration, chat, identity and outbox operations. There is no Edge MCP tool server.
 
 ## Identity
 
