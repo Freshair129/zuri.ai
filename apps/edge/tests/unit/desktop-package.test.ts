@@ -6,6 +6,6 @@ const packageJson = JSON.parse(fs.readFileSync(new URL('../../package.json', imp
 
 test('legacy Edge Device desktop packaging is no longer an available package command', () => {
   assert.equal(packageJson.scripts['package:desktop'], undefined);
-  assert.equal(packageJson.scripts.start, 'npm run rag:serve');
+  assert.equal(packageJson.scripts.start, undefined);
   assert.equal(fs.existsSync(new URL('../../scripts/package-desktop.mjs', import.meta.url)), false);
 });

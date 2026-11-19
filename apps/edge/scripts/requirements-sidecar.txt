@@ -1,7 +1,0 @@
-fastapi
-uvicorn
-sentence-transformers==5.2.0
-torch
-numpy
-pytest
-httpx
