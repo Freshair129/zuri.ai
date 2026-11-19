@@ -11,6 +11,8 @@ status: "beta"
 
 # FR-078 — Customer data backfill contract
 
+> **Historical note (ADR-119).** SmartGift is a former customer and is no longer part of Zuri. Names such as `SMARTGIFT_*`, `smartgift.document-intake.v1`, `BUS-SMARTGIFT` and `smartgift-*` below are persisted identifiers kept unchanged; the prose describes the legacy scope.
+
 ## Intent
 
 กำหนด contract สำหรับนำเข้าประวัติ Customer Profile จาก SmartGift DuckDB เข้า
