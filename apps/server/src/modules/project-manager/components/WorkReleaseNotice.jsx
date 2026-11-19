@@ -2,8 +2,32 @@
 // @spec ADR-035, NFR-008
 // @tested tests/e2e/pipeline-release-holds.spec.js
 'use client'
-import {useEffect,useState,useCallback} from 'react'
-import {api} from './useApi'
+import {createContext,useContext,useEffect,useMemo,useState,useCallback} from 'react'
+import {api,useFetch} from './useApi'
+// A page that renders many work-status controls reads their release state in ONE
+// scoped list request (`/api/work?release=1`, same service and viewer scope as
+// the per-item read) and shares it here, instead of every control issuing its own
+// full-graph `GET /api/work/:id` on mount. An id the batch does not contain
+// (truncated list, out of list scope, failed batch) still falls back to the
+// per-item read, so authorization and scope behaviour are unchanged.
+export const WorkReleaseBatchContext=createContext(null)
+export function releaseBatchById(items) {
+ const byId={}
+ for(const item of items||[])if(item?.id&&item.release!==undefined)byId[item.id]=item.release
+ return byId
+}
+export function useWorkReleaseBatch(path) {
+ const fetched=useFetch(path)
+ const byId=useMemo(()=>releaseBatchById(fetched.data?.items),[fetched.data])
+ return useMemo(()=>({byId,loading:!!path&&fetched.loading,error:fetched.error}),[byId,path,fetched.loading,fetched.error])
+}
+export function useBatchedWorkRelease(id,initialRelease) {
+ const batch=useContext(WorkReleaseBatchContext)
+ if(!batch||initialRelease!==undefined)return {batched:false,state:null}
+ if(batch.loading)return {batched:true,state:{loading:true,release:null,error:null}}
+ if(batch.byId[id]!==undefined)return {batched:true,state:{loading:false,release:batch.byId[id],error:null}}
+ return {batched:false,state:null}
+}
 export function workReleaseError(error) {
  if(error?.message==='RELEASE_HELD')return 'Release is held. Check handoff evidence before starting or finishing.'
  if(error?.message==='SCOPE_UNAVAILABLE')return 'The work or its handoff evidence is unavailable in your current scope.'

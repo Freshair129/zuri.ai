@@ -19,6 +19,7 @@ import { PageHeader, Card, StatusPill, EmptyState, ErrorState } from '@/componen
 import { MODE_LABELS } from '@/lib/validation/enums'
 import { useFetch, LoadingCard } from '../../components/useApi'
 import ProgressExplain from '../../components/ProgressExplain'
+import { WorkReleaseBatchContext, useWorkReleaseBatch } from '../../components/WorkReleaseNotice'
 import OperationsBusinessView from './OperationsBusinessView'
 import { MODE_BODIES } from './mode-bodies'
 
@@ -141,6 +142,13 @@ export default function ExecutionModeView({ mode, projectId }) {
   // load-bearing: `useFetch(null)` is a no-op, and an unguarded template would
   // have the global view asking the API for `/api/projects/undefined`.
   const project = useFetch(projectId ? `/api/projects/${projectId}` : null)
+  // One release read for every work-status control on the page (see
+  // WorkReleaseBatchContext); a per-control fetch made N full-graph reads at once.
+  const releaseBatch = useWorkReleaseBatch(
+    businessOperations
+      ? null
+      : `/api/work?executionMode=${mode}${projectId ? `&projectId=${projectId}` : ''}&release=1`,
+  )
 
   if (businessOperations) return <OperationsBusinessView />
 
@@ -177,9 +185,11 @@ export default function ExecutionModeView({ mode, projectId }) {
           }
         />
       )}
-      {(data || []).map((ws) => (
-        <WorkstreamPanel key={ws.id} workstream={ws} reload={reload} />
-      ))}
+      <WorkReleaseBatchContext.Provider value={releaseBatch}>
+        {(data || []).map((ws) => (
+          <WorkstreamPanel key={ws.id} workstream={ws} reload={reload} />
+        ))}
+      </WorkReleaseBatchContext.Provider>
     </div>
   )
 }

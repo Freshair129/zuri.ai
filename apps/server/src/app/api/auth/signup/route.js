@@ -65,6 +65,9 @@ export async function POST(request) {
     if (error?.status && error?.code) {
       return NextResponse.json({ success: false, error: error.code }, { status: error.status })
     }
+    // Say why on the server: this 503 used to swallow the cause entirely. Only the
+    // error class and code are logged: Prisma messages can echo request values.
+    console.error('[signup] unexpected failure', JSON.stringify({ name: error?.name, code: error?.code }))
     return NextResponse.json({ success: false, error: 'SIGNUP_UNAVAILABLE' }, { status: 503 })
   }
 

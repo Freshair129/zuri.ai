@@ -96,6 +96,7 @@
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
           "apps/server/tests/unit/global-view-drilldown.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/status-select-release-batch.test.js",
           "apps/server/tests/unit/work-list-business-scope.test.js",
           "apps/server/tests/unit/work-release-policy.test.js",
           "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -245,6 +246,7 @@
           "apps/server/tests/integration/plan-delta-moves.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+          "apps/server/tests/integration/progress-read-writer-lock.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
           "apps/server/tests/storage/compact-business-objects.test.js",
@@ -1105,6 +1107,7 @@
           "apps/server/tests/integration/plan-delta-moves.test.js",
           "apps/server/tests/integration/plan-delta.test.js",
           "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+          "apps/server/tests/integration/progress-read-writer-lock.test.js",
           "apps/server/tests/integration/xlsx-intake.test.js",
           "apps/server/tests/postgres/pipeline-handoff-races.test.js",
           "apps/server/tests/storage/compact-business-objects.test.js",
@@ -1164,6 +1167,7 @@
           "apps/server/tests/unit/conversation-analysis-contract.test.js",
           "apps/server/tests/unit/global-view-drilldown.test.js",
           "apps/server/tests/unit/plan-schema.test.js",
+          "apps/server/tests/unit/status-select-release-batch.test.js",
           "apps/server/tests/unit/work-list-business-scope.test.js",
           "apps/server/tests/unit/work-release-policy.test.js",
           "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -1763,7 +1767,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 20,
+          "testCount": 21,
           "evidence": [
             "apps/server/src/modules/agent/line-project-work-tools.js",
             "apps/server/tests/e2e/pipeline-release-holds.spec.js",
@@ -1783,6 +1787,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/global-view-drilldown.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/status-select-release-batch.test.js",
             "apps/server/tests/unit/work-list-business-scope.test.js",
             "apps/server/tests/unit/work-release-policy.test.js",
             "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -2191,6 +2196,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/global-view-drilldown.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/status-select-release-batch.test.js",
             "apps/server/tests/unit/work-list-business-scope.test.js",
             "apps/server/tests/unit/work-release-policy.test.js",
             "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -2324,7 +2330,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 1,
-          "testCount": 42,
+          "testCount": 43,
           "evidence": [
             "apps/server/src/modules/asset-management/application/asset-lifecycle-service.js",
             "apps/server/tests/e2e/dependency-handoff.spec.js",
@@ -2347,6 +2353,7 @@
             "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+            "apps/server/tests/integration/progress-read-writer-lock.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
@@ -2576,6 +2583,7 @@
             "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+            "apps/server/tests/integration/progress-read-writer-lock.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
@@ -7589,7 +7597,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         },
         {
           "id": "FR-012",
@@ -8053,7 +8061,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 20,
-          "testCount": 42,
+          "testCount": 43,
           "evidence": [
             "apps/server/src/app/api/resolve/route.js",
             "apps/server/src/modules/project-manager/api-docs/pipeline-contract.js",
@@ -8095,6 +8103,7 @@
             "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+            "apps/server/tests/integration/progress-read-writer-lock.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
@@ -8125,7 +8134,7 @@
           "declared": "planned",
           "status": "partial",
           "codeCount": 11,
-          "testCount": 20,
+          "testCount": 21,
           "evidence": [
             "apps/server/src/app/api/work/[id]/route.js",
             "apps/server/src/app/api/work/route.js",
@@ -8155,6 +8164,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/global-view-drilldown.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/status-select-release-batch.test.js",
             "apps/server/tests/unit/work-list-business-scope.test.js",
             "apps/server/tests/unit/work-release-policy.test.js",
             "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -9843,6 +9853,7 @@
             "apps/server/tests/integration/plan-delta-moves.test.js",
             "apps/server/tests/integration/plan-delta.test.js",
             "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+            "apps/server/tests/integration/progress-read-writer-lock.test.js",
             "apps/server/tests/integration/xlsx-intake.test.js",
             "apps/server/tests/postgres/pipeline-handoff-races.test.js",
             "apps/server/tests/storage/compact-business-objects.test.js",
@@ -9901,6 +9912,7 @@
             "apps/server/tests/unit/conversation-analysis-contract.test.js",
             "apps/server/tests/unit/global-view-drilldown.test.js",
             "apps/server/tests/unit/plan-schema.test.js",
+            "apps/server/tests/unit/status-select-release-batch.test.js",
             "apps/server/tests/unit/work-list-business-scope.test.js",
             "apps/server/tests/unit/work-release-policy.test.js",
             "apps/server/tests/unit/work-surface-scope-inventory.test.js"
@@ -11139,7 +11151,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 23,
-          "testCount": 42
+          "testCount": 43
         },
         {
           "id": "FR-085",
@@ -11147,7 +11159,7 @@
           "status": "partial",
           "progressPercent": 80,
           "codeCount": 13,
-          "testCount": 20
+          "testCount": 21
         }
       ],
       "evidence": [
@@ -11223,6 +11235,7 @@
         "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/plan-delta.test.js",
         "apps/server/tests/integration/production-migration-isolated-postgres.test.js",
+        "apps/server/tests/integration/progress-read-writer-lock.test.js",
         "apps/server/tests/integration/project-core.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/integration/work-release-gates.test.js",
@@ -11256,6 +11269,7 @@
         "apps/server/tests/unit/project-feature-repository.test.js",
         "apps/server/tests/unit/project-file-service.test.js",
         "apps/server/tests/unit/project-structure-tree.test.js",
+        "apps/server/tests/unit/status-select-release-batch.test.js",
         "apps/server/tests/unit/wbs-structure.test.js",
         "apps/server/tests/unit/work-list-business-scope.test.js",
         "apps/server/tests/unit/work-release-policy.test.js",
@@ -16385,12 +16399,13 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 2,
-          "testCount": 2
+          "testCount": 3
         }
       ],
       "evidence": [
         "apps/server/src/app/api/progress/project/[id]/route.js",
         "apps/server/src/modules/project-manager/progress/rollup.js",
+        "apps/server/tests/integration/progress-read-writer-lock.test.js",
         "apps/server/tests/unit/authorization-seam-routes.test.js",
         "apps/server/tests/unit/rollup.test.js"
       ]
@@ -23146,7 +23161,7 @@
       "title": "UI ที่เพิ่มหรือแก้ใน V2 ใช้ semantic/component token, มี state contract และผ่าน WCAG 2.2 AA baseline; V1 module ที่ lift ยังคง parity…",
       "status": "verified",
       "codeCount": 20,
-      "testCount": 30,
+      "testCount": 31,
       "domains": [
         "knowledge",
         "platform-control",

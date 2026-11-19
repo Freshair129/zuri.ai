@@ -5,15 +5,16 @@
 import { useState } from 'react'
 import { api } from './useApi'
 import {PIPELINE_PROTECTED_WORK_STATUSES} from '@/lib/validation/enums'
-import WorkReleaseNotice, {useWorkRelease,workReleaseError} from './WorkReleaseNotice'
+import WorkReleaseNotice, {useWorkRelease,useBatchedWorkRelease,workReleaseError} from './WorkReleaseNotice'
 
 /**
  * Inline status dropdown that PATCHes an entity endpoint on change.
  */
 export default function StatusSelect({ entity, id, value, statuses, onChanged, initialRelease }) {
   const [refreshRelease,setRefreshRelease] = useState(false)
-  const releaseState = useWorkRelease(entity === 'work' && (initialRelease === undefined || refreshRelease) ? id : null)
-  const noticeState = initialRelease === undefined || refreshRelease ? releaseState : {release:initialRelease}
+  const batch = useBatchedWorkRelease(id, entity === 'work' ? initialRelease : undefined)
+  const releaseState = useWorkRelease(entity === 'work' && ((initialRelease === undefined && !batch.batched) || refreshRelease) ? id : null)
+  const noticeState = refreshRelease ? releaseState : initialRelease !== undefined ? {release:initialRelease} : batch.batched ? batch.state : releaseState
   const reloadRelease = () => {setRefreshRelease(true);releaseState.reload()}
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState(null)

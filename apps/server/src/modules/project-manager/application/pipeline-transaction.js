@@ -7,8 +7,8 @@ import { resolveViewer } from '@/modules/identity/resolve-viewer'
 import { assertProjectWritable } from './project-authorization'
 import { ownsBusiness } from '@/modules/identity/viewer-authority'
 
-import { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction } from './pipeline-writer'
-export { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction }
+import { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, isPipelineContext, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction } from './pipeline-writer'
+export { PIPELINE_GRAPH_LOCK, pipelineError, isPipelineTransaction, isPipelineContext, pipelineTransactionFacade, isPostgres, lockPipelineGraph, withPipelineTransaction }
 
 const inactivePipelineScope=row=>['DELETED','ARCHIVED','SUSPENDED'].includes(row.status)
 
