@@ -11,6 +11,8 @@ live_document: true
 
 # ROADMAP: Business-01 SmartGift — Delivery
 
+> **Superseded by [ADR-119](../decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md).** SmartGift and GoVibe are no longer part of Zuri. This document is kept as a historical record only; do not derive new work from it.
+
 สถานะจริงของงานส่งมอบ SmartGift (Business-01) — เขียนใน dialect เดียวกับ
 `ROADMAP.md` เพื่อให้ GoVibe Mission Control อ่านเป็นอีก tab หนึ่ง
 คู่กับ Zuri V2 ทุกแถวอ้างหลักฐานจริงในเวิร์กสเปซ (`D:\workspace\Bussiness-01-SmartGift`)

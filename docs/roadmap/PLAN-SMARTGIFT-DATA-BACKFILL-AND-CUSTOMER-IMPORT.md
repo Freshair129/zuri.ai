@@ -13,6 +13,8 @@ attributes:
 
 # Roadmap — SmartGift data backfill and customer import
 
+> **Superseded by [ADR-119](../decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md).** SmartGift and GoVibe are no longer part of Zuri. This document is kept as a historical record only; do not derive new work from it.
+
 เอกสารนี้กำหนดลำดับการทำงาน 4 ระยะเพื่อให้ SmartGift ใช้งานข้อมูลสินค้าใน
 Production ได้ก่อน แล้วจึงออกแบบและนำเข้าข้อมูลลูกค้าเก่าผ่าน backfill path ที่
 ควบคุมได้ แผนนี้เป็น roadmap/implementation boundary และมี current evidence
