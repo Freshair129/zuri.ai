@@ -25,7 +25,7 @@ module.exports = function globalSetup() {
   if (process.env.E2E_EXTERNAL_SERVER === 'true') return
 
   // Only this run's own database, so a sibling worktree's e2e run is untouched.
-  for (const file of [target.databasePath, `${target.databasePath}-journal`, `${target.databasePath}-wal`, `${target.databasePath}-shm`]) {
+  for (const file of [target.databasePath, `${target.databasePath}-journal`]) {
     if (existsSync(file)) rmSync(file)
   }
 
@@ -43,7 +43,4 @@ module.exports = function globalSetup() {
   // worktree's empty database.
   execSync('npx prisma db push', { cwd: repositoryRoot, env, stdio: 'inherit' })
   execSync('node prisma/seed.js', { cwd: repositoryRoot, env, stdio: 'inherit' })
-  // After the seed, so the push/seed run in the default mode and only the
-  // database the server and specs share is switched. See enable-sqlite-wal.cjs.
-  execSync('node tests/e2e/enable-sqlite-wal.cjs', { cwd: repositoryRoot, env, stdio: 'inherit' })
 }
