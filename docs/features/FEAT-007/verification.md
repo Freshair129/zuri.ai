@@ -168,6 +168,7 @@ status: generated
 - [apps/server/tests/unit/conversation-analysis-contract.test.js](../../../apps/server/tests/unit/conversation-analysis-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/global-view-drilldown.test.js](../../../apps/server/tests/unit/global-view-drilldown.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/plan-schema.test.js](../../../apps/server/tests/unit/plan-schema.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/status-select-release-batch.test.js](../../../apps/server/tests/unit/status-select-release-batch.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/work-list-business-scope.test.js](../../../apps/server/tests/unit/work-list-business-scope.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/work-release-policy.test.js](../../../apps/server/tests/unit/work-release-policy.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/work-surface-scope-inventory.test.js](../../../apps/server/tests/unit/work-surface-scope-inventory.test.js) — `verifies` (`transitive`)
