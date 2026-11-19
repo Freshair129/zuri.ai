@@ -1,5 +1,5 @@
-// @req FR-011, FR-084 — a progress read recomputes under a non-writer
-//   transaction and refreshes the advisory progressCache in a separate short
+// @req FR-011, FR-084 — a progress read recomputes with plain reads (no
+//   interactive transaction) and refreshes the advisory progressCache in a separate short
 //   writer transaction, only when it is stale, so a page view never holds the
 //   global graph writer lock for the length of its load.
 // @spec ADR-035, SDD-046
@@ -39,7 +39,7 @@ describe('progress reads and the graph writer lock', () => {
     expect((await prisma.workstream.findUnique({ where: { id: ws.id } })).progressCache).toBe(stream.percent)
   })
 
-  it('does not enter a writer transaction when the cache is already current', async () => {
+  it('opens no interactive transaction at all when the cache is already current', async () => {
     await computeWorkstreamProgress(ws.id)
     const original = prisma.$transaction.bind(prisma)
     let transactions = 0
@@ -50,8 +50,9 @@ describe('progress reads and the graph writer lock', () => {
     } finally {
       prisma.$transaction = original
     }
-    // One read transaction per call; no second (writer) transaction.
-    expect(transactions).toBe(2)
+    // Prisma's SQLite connector serializes interactive transactions, so a pure
+    // read must not queue in one.
+    expect(transactions).toBe(0)
   })
 
   it('computes inside a read-only pipeline transaction without writing', async () => {

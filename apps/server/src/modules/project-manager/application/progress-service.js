@@ -46,15 +46,15 @@ export async function computeWorkstreamProgress(workstreamId, { db = prisma } = 
     if (isPipelineTransaction(db)) await writeProgressCaches(db, loaded.staleCaches)
     return loaded.result
   }
-  {
-    // Read under a non-writer transaction; the advisory cache is refreshed in a
-    // short writer transaction afterwards, and only when it is actually stale. A
-    // progress read used to take the global graph writer lock for its whole load,
-    // which made every page view queue behind (and block) real writes.
-    const computed = await withPipelineTransaction(db, tx => loadWorkstreamProgress(workstreamId, pipelineTransactionFacade(tx)), { write: false })
-    await refreshProgressCaches(db, computed.staleCaches)
-    return computed.result
-  }
+  // Plain reads, no interactive transaction. Prisma's SQLite connector runs every
+  // interactive transaction one at a time on a single connection, so a page that
+  // fired several progress/release reads queued them behind each other past the
+  // 5 s transaction timeout (P1008). The percent is recomputed on every read and
+  // `progressCache` is only an advisory hint, so a read needs no snapshot; only
+  // the cache refresh needs the graph writer, and only when it is stale.
+  const computed = await loadWorkstreamProgress(workstreamId, db)
+  await refreshProgressCaches(db, computed.staleCaches)
+  return computed.result
 }
 
 async function loadWorkstreamProgress(workstreamId, db) {
@@ -88,7 +88,7 @@ export async function computeProjectProgress(projectId, { db = prisma } = {}) {
     if (isPipelineTransaction(db)) await writeProgressCaches(db, loaded.staleCaches)
     return loaded.result
   }
-  const computed = await withPipelineTransaction(db, tx => loadProjectProgress(projectId, pipelineTransactionFacade(tx)), { write: false })
+  const computed = await loadProjectProgress(projectId, db)
   await refreshProgressCaches(db, computed.staleCaches)
   return computed.result
 }
