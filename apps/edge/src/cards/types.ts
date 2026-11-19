@@ -2,8 +2,6 @@ import { CardViewModel } from '../contracts.js';
 
 export const ALLOWED_CTA_DOMAINS = [
   'https://zuri.app',
-  'https://smartgift.co.th',
-  'https://app.smartgift.co.th',
   'https://docs.google.com',
 ];
 
