@@ -1,5 +1,7 @@
 const { test, expect } = require('@playwright/test')
-const { randomUUID } = require('node:crypto')
+const { createHash, randomUUID } = require('node:crypto')
+const { pathToFileURL } = require('node:url')
+const path = require('node:path')
 const { PrismaClient } = require('@prisma/client')
 const { e2eTarget } = require('./e2e-target')
 const { loginRequest, readScope, E2E_PASSWORD } = require('./e2e-auth')
@@ -11,7 +13,8 @@ const { signUpBusinessActor } = require('./e2e-business-actor')
 
 const FIXTURE_TENANT_CODE = 'TNT-FR253-PRICING'
 const FIXTURE_TENANT_NAME = 'FR-253 pricing E2E tenant'
-const FIXTURE_BUSINESS_CODE = 'BUS-SMARTGIFT'
+const FIXTURE_BUSINESS_CODE = 'BUS-FR253-PRICING'
+const SEED_RULE_NAME = 'FR-253 seeded policy'
 const FIXTURE_BUSINESS_NAME = 'FR-253 pricing E2E Business'
 const prisma = new PrismaClient({ datasources: { db: { url: e2eTarget().databaseUrl } } })
 let fixture
@@ -69,7 +72,7 @@ async function removePricingFixture() {
 async function preparePricingFixture() {
   await removePricingFixture()
   const existingBusiness = await prisma.business.findUnique({ where: { code: FIXTURE_BUSINESS_CODE } })
-  if (existingBusiness) throw new Error('BUS-SMARTGIFT is already owned outside the FR-253 E2E fixture')
+  if (existingBusiness) throw new Error(`${FIXTURE_BUSINESS_CODE} is already owned outside the FR-253 E2E fixture`)
   const portfolio = await prisma.portfolio.findFirst({ orderBy: { code: 'asc' } })
   if (!portfolio) throw new Error('FR-253 E2E seed Portfolio is unavailable')
   const tenant = await prisma.tenant.create({
@@ -79,6 +82,28 @@ async function preparePricingFixture() {
     data: { code: FIXTURE_BUSINESS_CODE, name: FIXTURE_BUSINESS_NAME, tenantId: tenant.id },
   })
   fixture = { tenant, business }
+  await seedFirstRuleSet(tenant, business)
+}
+
+// Pricing rules ship no template (ADR-119), so the first rule set of a Business is
+// seeded here through Prisma from the invented SCM fixture, as an owner-approved,
+// already-effective policy. The test then clones it through the UI.
+const sortKeys = (value) => Array.isArray(value) ? value.map(sortKeys)
+  : value && typeof value === 'object' ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeys(value[key])])) : value
+
+async function seedFirstRuleSet(tenant, business) {
+  const { fixtureRules } = await import(pathToFileURL(path.resolve(__dirname, '../../../../services/scm/test/support/pricing-rules-fixture.js')).href)
+  const rules = sortKeys(fixtureRules())
+  const rulesJson = JSON.stringify(rules)
+  const now = new Date()
+  await prisma.pricingRuleSet.create({
+    data: {
+      tenantId: tenant.id, businessId: business.id, name: SEED_RULE_NAME, status: 'APPROVED', rulesJson,
+      rulesHash: createHash('sha256').update(rulesJson).digest('hex'),
+      approvedAt: new Date(now.getTime() - 120000), effectiveFrom: new Date(now.getTime() - 120000),
+      approvalReason: 'FR-253 E2E seeded policy', version: 2,
+    },
+  })
 }
 
 test.beforeAll(async () => { await preparePricingFixture() })
@@ -109,7 +134,8 @@ test('FR-253 — OWNER edits variables and expressions, previews, approves and c
   await createInventory('stock-movements', { productId: product.id, kind: 'RECEIPT', quantity: 1000, costSatang: 10000 })
   await page.goto('/commerce/pricing-rules')
   await expect(page.getByRole('heading', { name: 'สูตรคำนวณราคา', exact: true })).toBeVisible()
-  await page.getByRole('button', { name: 'ร่างใหม่จากแม่แบบ', exact: true }).click()
+  // The seeded approved policy is selected on load; start the draft by cloning it.
+  await page.getByRole('button', { name: 'คัดลอกเป็นร่างรุ่นใหม่', exact: true }).click()
   const name = `สูตรทดสอบ ${randomUUID().slice(0, 8)}`
   await page.getByLabel('ชื่อชุดสูตร', { exact: true }).fill(name)
   await page.getByLabel('นิพจน์ candidatePrice', { exact: true }).fill('anchorPrice * factor / anchorFactor * 1.1')
@@ -123,7 +149,7 @@ test('FR-253 — OWNER edits variables and expressions, previews, approves and c
   const rule = await saved.json()
   expect(rule.rules.fx.cnyToThb).toBe('5.5')
   expect(rule.rules.formulas[0].expression).toBe('anchorPrice * factor / anchorFactor * 1.1')
-  await expect(page.getByRole('status')).toContainText('บันทึกร่างแล้ว')
+  await expect(page.getByRole('status').filter({ hasText: 'บันทึกร่างแล้ว' })).toContainText('บันทึกร่างแล้ว')
   await expect(page.getByRole('button', { name: 'อนุมัติรุ่นและตั้งวันมีผล', exact: true })).toBeDisabled()
 
   await page.getByRole('button', { name: 'ทดลองคำนวณ', exact: true }).click()
@@ -196,12 +222,13 @@ test('FR-253 — authenticated outsider cannot read or create another Business p
   expect((await loginRequest(request)).ok()).toBe(true)
   const scope = await readScope(request)
   const businessId = scope.businesses.find((business) => business.code === 'BUS-001').id
-  const templateResponse = await request.get(`/api/commerce/pricing-rules?businessId=${businessId}`)
-  expect(templateResponse.ok()).toBe(true)
-  const { template } = await templateResponse.json()
+  const listing = await request.get(`/api/commerce/pricing-rules?businessId=${businessId}`)
+  expect(listing.ok()).toBe(true)
+  // ADR-119: no Business is ever offered a seed template.
+  expect((await listing.json()).template).toBeNull()
   // This independent fixture must not consume the other suites' loopback signup quota.
   const signup = await request.post('/api/auth/signup', { headers: { 'x-forwarded-for': '192.0.2.253' }, data: { email: `pricing-outsider-${randomUUID()}@example.test`, displayName: 'Pricing outsider', password: E2E_PASSWORD } })
   expect(signup.status()).toBe(201)
   expect((await request.get(`/api/commerce/pricing-rules?businessId=${businessId}`)).status()).toBe(404)
-  expect((await request.post('/api/commerce/pricing-rules', { data: { businessId, name: 'Forbidden', rules: template } })).status()).toBe(404)
+  expect((await request.post('/api/commerce/pricing-rules', { data: { businessId, name: 'Forbidden', rules: { schemaVersion: 'pricing-rules.v1' } } })).status()).toBe(404)
 })
