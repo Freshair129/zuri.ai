@@ -48,6 +48,18 @@ describe('Playwright database bootstrap', () => {
     expect(setup).toContain('node prisma/seed.js')
   })
 
+  it('switches the seeded e2e database to WAL so reads and the writer do not time out', () => {
+    const setup = read('tests/e2e/global-setup.js')
+    // After the seed, and sidecars from a previous run are removed with the file.
+    expect(setup.indexOf('node prisma/seed.js')).toBeGreaterThan(-1)
+    expect(setup.indexOf('enable-sqlite-wal.cjs')).toBeGreaterThan(setup.indexOf('node prisma/seed.js'))
+    expect(setup).toContain('`${target.databasePath}-wal`')
+    expect(setup).toContain('`${target.databasePath}-shm`')
+    const wal = read('tests/e2e/enable-sqlite-wal.cjs')
+    expect(wal).toContain("PRAGMA journal_mode=WAL")
+    expect(wal).toContain('e2eTarget().databaseUrl')
+  })
+
   it('keeps the primary checkout on :3100 so CI and the docs stay true', () => {
     expect(resolveE2ePort({ root: '/some/primary/checkout', env: {}, primary: true })).toBe(BASE_PORT)
     // And the real repository this runs in resolves without throwing.
