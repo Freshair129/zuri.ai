@@ -34,7 +34,7 @@ one customer or allowing prompt injection to select another vault.
 - A group thread keeps each participant's private context separate.
 - `agentId`, `workspaceId`, and `projectId` are server-owned context, not user/model
   supplied authority.
-- Every canonical MSP turn calls GoVibe API-010 `msp_vault_resolve` with the
+- Every canonical MSP turn calls external MSP vault API-010 `msp_vault_resolve` with the
   server-derived AuthContext and current authorization facts before API-009 memory
   retrieval or write.
 - API-010's `workspacePrivateVaultId`, Global Private IDs, Shared IDs, and
@@ -65,8 +65,8 @@ one customer or allowing prompt injection to select another vault.
 
 ## Out of scope
 
-- Changes to GoVibe/MSP canonical schemas or migrations; those remain owned by
-  GoVibe/MSP and are consumed through API-010.
+- Changes to the external MSP canonical schemas or migrations; those remain owned by
+  the MSP owner and are consumed through API-010.
 - GKS semantic promotion;
 - proactive group replies or write actions;
 - production LINE activation.

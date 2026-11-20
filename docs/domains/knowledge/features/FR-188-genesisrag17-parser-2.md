@@ -19,11 +19,13 @@ relations:
 
 # FR-188 — `genesisrag17-parser-2` and the structured recognizer (Tier 1, Stages 1–8)
 
+> **Historical note (ADR-119).** SmartGift is a former customer and is no longer part of Zuri. Names such as `SMARTGIFT_*`, `smartgift.document-intake.v1`, `BUS-SMARTGIFT` and `smartgift-*` below are persisted identifiers kept unchanged; the prose describes the legacy scope.
+
 This is the zuri-ai side of ADR-075 D6 (Phase 2): contract revision 2 in
 `.brain/proposals/2026-09-11-genesisrag17-structured-record-profile.md`. It is
 **rollout step 3**. It merges only after the GenesisBlock worker accepts
 `{ontology_v1, ontology_v2}` (step 1) and GKS accepts both and produces
-`ontology_v2` (step 2). Until then a SmartGift decision would fail the worker's
+`ontology_v2` (step 2). Until then a former-customer decision would fail the worker's
 or the gate's version check. MSP needs no change: it relays opaquely.
 
 No model, column, migration or deployment. Nothing here changes the
@@ -36,11 +38,11 @@ metrics are unchanged.
 |---|---|---|
 | 2 parse | `genesisrag17-parser-1`; parsed content = raw text | `genesisrag17-parser-2`; parsed content = the rendered record text |
 | 7 chunk | sections windowed at 80 whitespace tokens | one rendered section = one chunk, no window (`chunkBoundary: record-section`) |
-| 8 mentions | `rule_v1`, `resolutionKey = normalizeOrganizationName(name)` | `genesisrag17-structured-recognizer-1`, `resolutionKey` = SmartGift code verbatim |
+| 8 mentions | `rule_v1`, `resolutionKey = normalizeOrganizationName(name)` | `genesisrag17-structured-recognizer-1`, `resolutionKey` = former-customer code verbatim |
 
 The profile follows the provider (`genesisRag17ParserProfileForProvider`). A caller
 cannot choose it: naming `genesisrag17-parser-1`, a token budget or a chunker
-version on a SmartGift source is a 400 `GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`.
+version on a former-customer source is a 400 `GENESISRAG17_PARSER_CONFIG_UNSUPPORTED`.
 The recognizer guard stays closed. Its one exception is the pinned structured
 recognizer object (C-6); any other function is still
 `GENESISRAG17_CUSTOM_RECOGNIZER_UNSUPPORTED`.
@@ -76,7 +78,7 @@ descriptive text only. The fixture's PriceListEntry records are the priced facts
 - A descriptive chunk's type comes from its header entity type.
 - A claim object's type comes from the predicate: `HAS_COMPONENT` → `Product`,
   `PRICED_AT` → `PRICE_TIER`, `IN_CATEGORY` → `CATEGORY`.
-- A claim subject is `PACKAGE` when its code starts with `PKG-`, SmartGift's
+- A claim subject is `PACKAGE` when its code starts with `PKG-`, the former customer's
   bundle namespace, and `Product` otherwise. The renderer refuses any
   ProductMaster/BundleOffer whose own type disagrees with that rule, and any
   bundle component that is a `PKG-` code. So the rule can only ever decide the
@@ -85,7 +87,7 @@ descriptive text only. The fixture's PriceListEntry records are the priced facts
 ### Where the catalog version date comes from (C-5)
 
 The date comes from **an optional record field, `catalogVersionDate`**
-(`YYYY-MM-DD`, a real calendar date). SmartGift's exporter stamps its export
+(`YYYY-MM-DD`, a real calendar date). The former customer's exporter stamps its export
 manifest date identically on every record of one export. The field is inside
 the immutable record bytes, so the record's `contentHash` covers it, and two
 parses of the same raw can never differ. The adapter's strict shapes (FR-187)
@@ -128,7 +130,7 @@ gets its own parsed row and never collides with a parser-1 row. The same raw
 parsed twice reuses one row: the render is deterministic, and the 409 guard
 fires only on different content. The text-profile intent derivation is byte
 for byte the pre-FR-188 shape, so every existing prose intent replays
-unchanged. A SmartGift intent created under parser-1 before this change would
+unchanged. A former-customer intent created under parser-1 before this change would
 be refused on replay as `GENESISRAG17_INTENT_CONFLICT`. That is correct: it is a
 different processing version. FR-187 is not deployed, so no such intent exists
 outside test databases.
@@ -166,7 +168,7 @@ or batch. Its details name paths and codes, never values.
 
 ## Not done here
 
-- The four-process acceptance run on the SmartGift corpus (§I Stage 17 row and
+- The four-process acceptance run on the former-customer corpus (§I Stage 17 row and
   the Recall@5 / MRR / citation / cross-tenant thresholds) needs steps 1 and 2
   merged first.
 - The PRD-SDD, FEATURES and ROADMAP status of FR-188 is left to the integration

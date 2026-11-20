@@ -347,7 +347,7 @@ lane's binding status contract as the account's default `bindingStatus` port,
 so `effectiveStatus` reaches LIVE when the read role sees an ACTIVE, in-window
 binding and health reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN with its
 source. Not yet: the `/line-oa` pages, transport jobs and quota, and a
-per-Tenant read policy (today pinned to SmartGift, so other Tenants read
+per-Tenant read policy (today pinned to the legacy Business, so other Tenants read
 NOT_ACTIVE). Slice 3 (**FR-151**, 2026-09-06) claimed `LineOaRichMenu` and
 `LineOaRichMenuVersion`: the rich menu designer's data — identity, alias and
 default flag on the menu; numbered bodies that freeze into immutable versions;

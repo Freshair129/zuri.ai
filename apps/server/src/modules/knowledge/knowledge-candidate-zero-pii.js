@@ -8,7 +8,7 @@
 // FR-187's structured-record category-word policy (`structured-record-
 // policy.js`). FR-187 denies the literal words ลูกค้า / ใบเสนอราคา /
 // customer / contact / quotation wherever they occur — the right rule for a
-// locator-field-shaped SmartGift catalog record, the wrong rule for a
+// locator-field-shaped former-customer catalog record, the wrong rule for a
 // candidate's free-text prose: an ordinary, already-approved FAQ such as
 // "ขอใบเสนอราคาได้ไหม" or "คุณลูกค้าสามารถสั่งขั้นต่ำ 50 ชิ้นได้ค่ะ" would be
 // denied by FR-187's pattern even though it names no person, phone number or

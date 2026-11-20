@@ -34,7 +34,7 @@ import {
 // admission boundary for immutable Text/Markdown source versions.
 // @req TASK-ZAI-048 — the same FILE boundary admits explicitly typed,
 // hash/size-verified PDF, DOCX and static HTML bytes for the bounded offline parser.
-// @req FR-187 — the same boundary admits one SmartGift structured-record
+// @req FR-187 — the same boundary admits one former-customer structured-record
 // projection as N immutable per-record sources before Stage 1, through the
 // existing queue rather than a second caller or a second write path.
 // @req FR-236 — the same boundary, unmodified, is the ADR-072 admission
@@ -699,7 +699,7 @@ async function resolveCorpus(tx, { value, scope, policy, admittedAt }) {
 }
 
 /**
- * Queue one immutable source version. Text, plain FILE and each SmartGift
+ * Queue one immutable source version. Text, plain FILE and each former-customer
  * structured record all land here, so there is exactly one place that writes a
  * KnowledgeSource/KnowledgeIngestion pair.
  */
@@ -807,7 +807,7 @@ async function admitOneRecord(tx, {
 }
 
 /**
- * FR-187 — one authorized, byte-frozen SmartGift projection becomes N FILE
+ * FR-187 — one authorized, byte-frozen former-customer projection becomes N FILE
  * sources that all share the one `fileAssetId`, in one transaction. Sharing the
  * asset id is what keeps the existing ACL and revocation checks
  * (`knowledge-corpus-service`) correct for every derived record.

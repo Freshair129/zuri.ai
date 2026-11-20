@@ -1,3 +1,5 @@
+> **Historical task prompt.** GoVibe is external prior art and is not part of Zuri (ADR-119). This prompt is kept for provenance only; do not treat its GoVibe target instructions as a current Zuri task.
+
 # Codex task — Extract MSP from GoVibe into a standalone repo `Freshair129/msp`
 
 You are extracting the Mission State Protocol (MSP) memory runtime out of the GoVibe

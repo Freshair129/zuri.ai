@@ -156,7 +156,7 @@ sources; it introduces no Vault model, audience grant or new requirement.
   be bound through MSP → GKS or the ADR-046 interim surface, never to the
   substrate directly. `smartgift-rag-pipeline.js`, the third such client,
   went the same day (ADR-063 D2a); `smartgift-knowledge-catalog.js` stays as
-  data and feeds the PUBLIC business-knowledge fixture the SmartGift webhook
+  data and feeds the PUBLIC business-knowledge fixture the former customer's webhook
   e2e test reads through the in-memory reader. Zero exceptions remain.
 - **Has one navigation slot, Knowledge (GKS)** ([ADR-085](../../decisions/ADR-085-KNOWLEDGE-GKS-SLOT-AND-THE-DATA-PIPELINE-MAP.md),
   FR-214): the domain key `knowledge`, base path `/knowledge`. The label names
@@ -382,7 +382,7 @@ bound (measured: single 1,001- and 1,500-character chunks) — fixed by
 capping that forward search to the character budget and hard-cutting there
 as the documented last resort. Proven by
 `tests/unit/genesisrag17-chunker-safety-fixes.test.js`
-(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b). Production note: SmartGift
+(`docs/plans/GENESISRAG17-CONTRACT.md` 1.4.5b). Production note: the former customer's
 production uses `parser-2` only (untouched by any of this — proven
 byte-identical by `tests/unit/genesisrag17-parser-2.test.js`), so none of
 these three fixes changes a published record.
@@ -475,7 +475,7 @@ Design evidence: [the LINE → GKS design](../../plans/LINE-TO-GKS-GROUNDING-AND
   job's server-derived scope, within a configurable 2 500 ms / top-5 / 8 KiB budget.
   The agent lane composes it per the account's grounding mode (stored by
   line-oa-studio); the business-knowledge port above remains the default. First
-  Business: SmartGift, after ADR-075 Phase 3. It holds no GenesisBlockDB client —
+  Business: the former customer (ADR-119), after ADR-075 Phase 3. It holds no GenesisBlockDB client —
   every read still goes through MSP.
 - **Knowledge candidates (FR-236) — built.** `KnowledgeCandidate` —
   PENDING_REVIEW, APPROVED, REJECTED, TOMBSTONED — carries `sourceRef` locators

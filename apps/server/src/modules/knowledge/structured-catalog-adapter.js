@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { canonicalGenesisRag17Json, hashGenesisRag17Json, hashGenesisRag17Text } from './genesisrag17-contract'
 import { findZeroPiiViolation } from './structured-record-policy'
 
-// @req FR-187 — one SmartGift catalog projection is split into N immutable
+// @req FR-187 — one former-customer catalog projection is split into N immutable
 // structured records before Stage 1: identity, byte-stable hashes and the
 // Zero-PII predicate are computed here, and nothing downstream is synthesized.
 // @req FR-188 — the record shapes are the ones parser-2 renders; an optional
@@ -55,7 +55,7 @@ const zProvenance = z.object({
 
 /**
  * FR-188 / ADR-075 D6 (contract rev 2, C-5): the one catalog version date a
- * SmartGift export may carry. It is a plain `YYYY-MM-DD` calendar date that
+ * former-customer export may carry. It is a plain `YYYY-MM-DD` calendar date that
  * the exporter stamps identically on every record of one export (its manifest
  * date). It travels inside the immutable record bytes, so it is covered by the
  * record's contentHash and can never make two parses of the same raw differ.
@@ -179,7 +179,7 @@ export function parseStructuredCatalogFile(content) {
 /**
  * Split one authorized, byte-frozen projection into the immutable per-record
  * admissions Stage 1 receives. `content` is the exact UTF-8 text of the file;
- * `fileSha256` is SmartGift's registry hash for those bytes (ADR-075 D3), which
+ * `fileSha256` is the former customer's registry hash for those bytes (ADR-075 D3), which
  * is also the FileAsset's own sha256 because they are the same bytes.
  *
  * Denied records are returned separately rather than throwing: a customer-shaped
@@ -190,9 +190,9 @@ export function splitStructuredCatalogRecords({ content, fileAssetId, fileSha256
   if (typeof content !== 'string' || !content.length) {
     throw adapterError(422, 'KNOWLEDGE_CONTENT_EMPTY', 'Structured catalog file is empty')
   }
-  if (typeof fileAssetId !== 'string' || !fileAssetId) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires a fileAssetId')
-  if (typeof fileSha256 !== 'string' || !fileSha256) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires the frozen file sha256')
-  if (typeof fileName !== 'string' || !fileName) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'SmartGift catalog split requires the file name')
+  if (typeof fileAssetId !== 'string' || !fileAssetId) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'Structured catalog split requires a fileAssetId')
+  if (typeof fileSha256 !== 'string' || !fileSha256) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'Structured catalog split requires the frozen file sha256')
+  if (typeof fileName !== 'string' || !fileName) throw adapterError(400, 'KNOWLEDGE_STRUCTURED_SOURCE_INVALID', 'Structured catalog split requires the file name')
 
   const records = parseStructuredCatalogFile(content)
   const accepted = []

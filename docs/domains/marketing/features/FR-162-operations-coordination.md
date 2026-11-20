@@ -81,5 +81,5 @@ collection remains safe on reload, browser Back and copied URLs.
 ## Out of scope
 
 PM task creation/import, CRM message creation, Commerce or inventory mutation,
-provider activation/spend/publishing, automatic approval, and live SmartGift
+provider activation/spend/publishing, automatic approval, and live legacy-customer
 Project Manager imports remain separate owner-authorized work.

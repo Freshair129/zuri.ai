@@ -40,7 +40,7 @@ is narrow on purpose: the `zuri_line_smartgift_ro` policy shows only ACTIVE,
 in-window rows, so the port reports ACTIVE / NOT_ACTIVE / NO_BINDING / UNKNOWN
 and never a PENDING or INACTIVE it cannot see, and `health.sources.binding`
 says which of the four applies and why. The policy is still pinned to the
-SmartGift Tenant/Business; other Tenants read NOT_ACTIVE until an operator
+legacy Tenant/Business; other Tenants read NOT_ACTIVE until an operator
 migration widens it.
 
 **Health is computed from three owners and stored nowhere.** Connection status,
