@@ -18154,7 +18154,7 @@
     },
     {
       "id": "FR-047",
-      "title": "Curated business-knowledge read contract: the SmartGift pilot exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded.",
+      "title": "Curated business-knowledge read contract: the pilot Business exposes only an allow-listed, versioned public product projection through `BusinessKnowledgeReadPort`; DuckDB and Supabase are adapters. PII, cost, margin, invoice, unrestricted SQL and local paths are excluded.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -18276,7 +18276,7 @@
     },
     {
       "id": "FR-051",
-      "title": "Production Supabase tenant isolation: SmartGift knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
+      "title": "Production Supabase tenant isolation: the pilot Business knowledge lives in private `zuri_core`, every row carries the reserved Tenant and Business UUIDs, composite foreign keys enforce ancestry, forced RLS plus tenant-leading indexes protect reads, and the DuckDB import retains SHA-256 lineage plus an immutable import audit event.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -18532,7 +18532,7 @@
     },
     {
       "id": "FR-057",
-      "title": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls GoVibe/MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.",
+      "title": "Authorized agent context: every LINE turn resolves ExternalIdentity, Person, Membership, thread/session assurance and server-owned agent/workspace/project scope, then calls MSP API-010 `msp_vault_resolve` before API-009 retrieval; the model, prompt, client payload and stale session cannot widen the canonical authorized vault set.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -19055,7 +19055,7 @@
     },
     {
       "id": "FR-071",
-      "title": "Supabase data pipeline monitor and replay: the governed SmartGift DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
+      "title": "Supabase data pipeline monitor and replay: the governed DuckDB/source-artifact → Supabase pipeline exposes stable definition, run, stage, step, attempt, record, batch, `doc_id`, `pic_id`, `fact_id`, destination and audit IDs, plus the complete supporting identity envelope (`node_id`, `edge_id`, `artifact_id`, `contract_id` (CRM Contact), `meeting_id`, `call_id`, `followup_id`, `req_id`, `verify_id`, `gate_id`, `integration_id`, `graph_id`, `workflow_contract_id`, `workflow_id`, `runbook_id`, `promotion_id`, `skill_id`, `tool_id`) on every stage/record event; monitors hashes/counts/status/tags/failure points; and supports authorized full, failed-stage, failed-record and provenance-filtered replay with immutable lineage, scope checks, RLS and idempotent destination writes.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
@@ -21917,7 +21917,7 @@
     },
     {
       "id": "FR-277",
-      "title": "LINE grounding shadow-compare harness: a LINE OA account carries a publisher/operator-set `knowledgeGroundingShadow` flag, default false and independent of `knowledgeGrounding` itself. When true, a SERVER job's primary answer is unchanged; right after that answer's text is final, a second, best-effort, non-blocking generation runs under the account's PAIRED grounding mode (`BUSINESS_KNOWLEDGE` and `GKS_THEN_BUSINESS_KNOWLEDGE` mirror each other; `GKS_CORPUS` has no defined partner and produces no comparison) using the same resolved model and question but no MSP memory context, and records one `LineGroundingShadowComparison` row per job — evidence source and reason on each side, retrieval references, both (bounded-length) answer texts, a divergence signal, latency and outcome (`COMPLETED`, `FAILED` or `TIMED_OUT`). The shadow answer is recorded only: it is never sent to the customer, never appended to CRM or MSP thread memory, and never traced into the job's own `AgentTraceEvent` journal. A shadow failure of any kind — a thrown reader/model error, a timeout, or the comparison write itself failing — never affects the primary answer, the job's outcome or its trace; every account not explicitly switched on behaves byte-identically to before this requirement. This harness produces the comparison data for TASK-ZAI-095's owner-triggered switch of one SmartGift DIRECT account; the switch/rollback operator runbook itself is separate.",
+      "title": "LINE grounding shadow-compare harness: a LINE OA account carries a publisher/operator-set `knowledgeGroundingShadow` flag, default false and independent of `knowledgeGrounding` itself. When true, a SERVER job's primary answer is unchanged; right after that answer's text is final, a second, best-effort, non-blocking generation runs under the account's PAIRED grounding mode (`BUSINESS_KNOWLEDGE` and `GKS_THEN_BUSINESS_KNOWLEDGE` mirror each other; `GKS_CORPUS` has no defined partner and produces no comparison) using the same resolved model and question but no MSP memory context, and records one `LineGroundingShadowComparison` row per job — evidence source and reason on each side, retrieval references, both (bounded-length) answer texts, a divergence signal, latency and outcome (`COMPLETED`, `FAILED` or `TIMED_OUT`). The shadow answer is recorded only: it is never sent to the customer, never appended to CRM or MSP thread memory, and never traced into the job's own `AgentTraceEvent` journal. A shadow failure of any kind — a thrown reader/model error, a timeout, or the comparison write itself failing — never affects the primary answer, the job's outcome or its trace; every account not explicitly switched on behaves byte-identically to before this requirement. This harness produces the comparison data for TASK-ZAI-095's owner-triggered switch of one DIRECT account; the switch/rollback operator runbook itself is separate.",
       "kind": "requirement",
       "registryStatus": "live",
       "requirementIds": [
