@@ -186,7 +186,7 @@ The Agent action gate is also a transaction owner: both its approved and direct
 paths retry the entire `$transaction` on code conflicts. This includes approval
 and step-up consumption, `action.execute`, and the `EXECUTED` audit, so the
 failed attempt rolls all of them back before the next attempt. The registered
-agent and SmartGift executors write through the supplied `tx`; review found no
+agent and former SmartGift-pipeline executors write through the supplied `tx`; review found no
 external HTTP, file write, or out-of-transaction outbox effect in those action
 implementations. Exhaustion returns `ACTION_CODE_EXHAUSTED` with status 409; the
 approved path records one `DENIED` audit after its transaction has rolled back.

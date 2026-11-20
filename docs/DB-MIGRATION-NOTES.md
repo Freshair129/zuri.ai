@@ -348,11 +348,11 @@ returning 200/IDLE, both compose overlays present, and
 `ZURI_LINE_SERVER_ENABLED=true`. This worker did not access production or
 rerun those checks.
 
-SmartGift activation is a separate owner-gated action. No SmartGift
-activation is claimed here: the flag was false for all four Businesses in the
+Activation for the former SmartGift Business is historical (ADR-119 removed that
+Business from Zuri). No activation is claimed here: the flag was false for all four Businesses in the
 recorded post-apply inventory. Enabling it must use
 `business-knowledge-candidates-service.js` (or the audited PATCH route), with
-the SmartGift Business's expected version, `requestedBy`, and reason, and must
+the target Business's expected version, `requestedBy`, and reason, and must
 produce the `KNOWLEDGE_CANDIDATES_ENABLED_CHANGED` AuditEvent. The
 `apps/server/scripts/enable-smartgift-knowledge-candidates.mjs` helper is
 dry-run by default; its `--apply` path was not run in this worker because no

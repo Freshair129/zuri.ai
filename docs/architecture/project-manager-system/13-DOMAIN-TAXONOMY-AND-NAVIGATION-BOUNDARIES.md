@@ -150,7 +150,7 @@ Business context: Group > Organization > Business
 Domain bar: Business Home | SCM | CRM | Marketing | Projects & Work | ... | Platform
 +-------------------------+-----------------------------------------------------+
 | Projects & Work         | Work Management                                     |
-|                         | Business: SmartGift  | Projects: Project A           |
+|                         | Business: Retail Co  | Projects: Project A           |
 | Project Management      | Breadcrumb: Projects & Work > Work Management       |
 | Work Management [active]|                                                     |
 | Delivery Design         | List | Board [active] | Timeline | Calendar | ...   |
@@ -162,7 +162,7 @@ Domain bar: Business Home | SCM | CRM | Marketing | Projects & Work | ... | Plat
 +-------------------------+-----------------------------------------------------+
 ```
 
-ชื่อ SmartGift และ Project A เป็นตัวอย่าง layout ไม่ใช่ข้อมูลสถานะจริง บนมือถือให้ยุบ Domain navigation และ sidebar เป็น control/drawer ที่ระบุระดับชัด; local tabs คง active view และใช้ overflow ที่เข้าถึงด้วย keyboard ได้ ไม่วาง 6 modules กับทุก tab ใน rail เดียว
+ชื่อ Retail Co และ Project A เป็นตัวอย่าง layout ไม่ใช่ข้อมูลสถานะจริง บนมือถือให้ยุบ Domain navigation และ sidebar เป็น control/drawer ที่ระบุระดับชัด; local tabs คง active view และใช้ overflow ที่เข้าถึงด้วย keyboard ได้ ไม่วาง 6 modules กับทุก tab ใน rail เดียว
 
 ### 5.3 Business Home
 
