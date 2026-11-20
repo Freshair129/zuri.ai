@@ -124,7 +124,7 @@ Implementation happens in the audit worktree, fast-forwarded to the latest revie
 - Activation fails for missing mount/material, expired/revoked credentials, inactive provider and scope mismatch. No failed validation may produce `serverEnabled=true`.
 - Handoff confirmation is an actual user attestation; code cannot silently fill `legacyQuiesced=true` on behalf of a click that does not explain the handoff.
 - HTTP 400/401/403/409/503 and rejected fetch never show sent/saved success. A provider acceptance is distinct from recipient delivery/read.
-- Empty registry stays empty; only current scoped registry entries appear. No fixed channel/group IDs or SmartGift persona are operational defaults for another Business.
+- Empty registry stays empty; only current scoped registry entries appear. No fixed channel/group IDs or former-customer persona are operational defaults for another Business.
 - Account selection survives intended navigation, resets when Business changes, and cannot be replaced by a stale response or a Project ID.
 - Rich Menu/LIFF UI-generated requests pass actual boundary schemas without weakening validation. Valid draft saves survive reload; missing account or failed write retains the user's draft and shows an error.
 - The sidebar exposes Rich Menu under Design Studio without a second sibling item. Old `/line-oa/rich-menus` links and CRM links open the same workspace with the intended account/tool after refresh and browser navigation. One editor owns the flow; no mock publish action can claim a provider outcome.

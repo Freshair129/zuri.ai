@@ -9,9 +9,11 @@ status: candidate
 
 # FR-071 — Supabase data pipeline monitor and replay
 
+> **Historical note (ADR-119).** SmartGift is a former customer and is no longer part of Zuri. Names such as `SMARTGIFT_*`, `smartgift.document-intake.v1`, `BUS-SMARTGIFT` and `smartgift-*` below are persisted identifiers kept unchanged; the prose describes the legacy scope.
+
 ## Intent
 
-Zuri must monitor the governed SmartGift knowledge pipeline from the approved
+Zuri must monitor the governed legacy knowledge pipeline from the approved
 DuckDB/source artifact into Supabase/Postgres, identify the exact stage and
 record that failed, attach stable tags, and replay a full run, failed stage or
 failed record without mutating the original run.
@@ -106,7 +108,7 @@ worker and production Supabase apply remain separate gates.
 
 ## Approved local slice — Codex-mediated worker bridge
 
-The approved local slice connects the local SmartGift agents to the
+The approved local slice connects the local legacy agents to the
 existing server-owned ledger without giving the agents Supabase or browser
 credentials:
 
@@ -392,7 +394,7 @@ pipeline mutation and must not expose another Tenant's failure metadata.
 
 ## Acceptance criteria
 
-- **AC-071.1** The SmartGift DuckDB/source-artifact → Supabase pipeline has one
+- **AC-071.1** The legacy DuckDB/source-artifact → Supabase pipeline has one
   stable `dataPipelineDefinitionId` and the existing `migration_id` remains a
   compatibility projection.
 - **AC-071.2** Every run, stage occurrence, attempt, record event and audit
@@ -440,7 +442,7 @@ pipeline mutation and must not expose another Tenant's failure metadata.
 - **AC-071.16** A replay copies the resolved supporting references into the new
   lineage after revalidation, while creating new run/step/attempt/audit IDs; it
   never derives an ID from a label, hash or source path.
-- **AC-071.17** The SmartGift document intake route validates
+- **AC-071.17** The legacy document intake route validates
   `smartgift.document-intake.v1`, enforces the Product/Customer field allowlists
   and evidence locations, resolves Tenant/Business from the server-owned
   connection, stores only a raw staging record, and never writes a canonical
@@ -452,7 +454,7 @@ pipeline mutation and must not expose another Tenant's failure metadata.
   connection by a visible Business without requiring the browser to know a
   connection ID; absent provisioning is returned as `configured: false`, not
   as fake progress or a successful empty import.
-- **AC-071.20** The SmartGift bootstrap migration creates the provider and one
+- **AC-071.20** The legacy bootstrap migration creates the provider and one
   active primary staging connection without an IntegrationCredential, enforces
   one active primary receiver per Business, records a provisioning audit event,
   and fails closed when the approved Business/connection identity is missing.
@@ -479,7 +481,7 @@ pipeline mutation and must not expose another Tenant's failure metadata.
 - **AC-071.27** The tracking migration enables forced RLS and revokes Data API
   access for public/browser roles; browser code never receives a service-role
   key, database URL or unrestricted SQL capability.
-- **AC-071.28** The local SmartGift agents emit only append-only, redacted
+- **AC-071.28** The local legacy agents emit only append-only, redacted
   lifecycle evidence; they never receive a Supabase `service_role`, browser
   credential or caller-selected Tenant/Business destination.
 - **AC-071.29** Codex can use a separate `data_pipeline.*` MCP namespace to

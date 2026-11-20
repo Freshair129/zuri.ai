@@ -17,9 +17,9 @@ status: "beta"
 
 ## Rationale
 
-An application filter on `business_id` is not a production isolation boundary. SmartGift therefore
+An application filter on `business_id` is not a production isolation boundary. The first production Business therefore
 uses stable internal Portfolio, Tenant and Business UUIDs, composite ancestry constraints, a private
-`zuri_core` schema and forced RLS. The LINE read role can see only the reserved SmartGift scope.
+`zuri_core` schema and forced RLS. The LINE read role can see only the reserved legacy Business scope (ADR-119).
 
 The curated DuckDB export remains the provenance source for this first import. Import SQL validates
 the reconciliation SHA-256 and row count, writes the target Tenant/Business UUIDs itself, records the
