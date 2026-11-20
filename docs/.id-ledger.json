@@ -2055,7 +2055,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "3fa70ebbfef52311c879363b40beb130a5395e46817dafa2cc13e58eb08c8354"
+      "statement_digest": "05f775d692c690fcb65ee37e3022a4c960518e1d00c313d404b6674af1a989fe",
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-048": {
       "family": "FR",
@@ -2109,7 +2111,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "dee476a855a2e14fde2931f7b9e8a797c076bcbba3bd9fac793c24cf7d6070ef"
+      "statement_digest": "5470fcac242139af174ed7b7df032f927ddffb68f11e781af58d3e647b4f0cb5",
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-052": {
       "family": "FR",
@@ -2187,7 +2191,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "e549c6e148048789c86aad3a6becce8d9a66c5c6e0f8b82b25674115ccb5bb4f"
+      "statement_digest": "34f42f5ad345db5af772cd0e1f5ad5e39e0905d9300630101d146d53080203f6",
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-058": {
       "family": "FR",
@@ -2371,7 +2377,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "fc53c4c0879362008881011d3a27909c98351db187652215bd06b9ac24450bfe"
+      "statement_digest": "42d1fab459f5a1b04293db73d3aa8c3ff5162cbce99d845330f2946b4fddae1b",
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-072": {
       "family": "FR",
@@ -2464,7 +2472,9 @@
           "reason": "declared"
         }
       ],
-      "statement_digest": "b8a6053ce370cf4dd08a6365bbce101d5ef11f029d2e65ffcb584caf0014fdca"
+      "statement_digest": "1339c834e17d9cfe2d887199c2f19295122d4fc4650f1e036c0f9dfd5bc20e0b",
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-079": {
       "family": "FR",
@@ -4663,7 +4673,7 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "d2056f96965407424414c9e1268377acdf85cc9c3ab34a913f9e2d9c7f170eb6",
+      "statement_digest": "93c5f674aa78843763f2f4f5d6a7b43fc82aecd83436f9e042766333407f5906",
       "history": [
         {
           "anchor": "line answer grounding from the published knowledge corpus",
@@ -4671,8 +4681,8 @@
           "reason": "declared"
         }
       ],
-      "statement_digest_reviewed_at": "2026-10-24",
-      "statement_digest_reason": "Approved metadata-only ProductMaster contract v0.2.0 preserves the published-corpus grounding subject and final-send checks while adding exact UUID and SKU mapping."
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-236": {
       "family": "FR",
@@ -5257,14 +5267,16 @@
       "family": "FR",
       "source": "docs/PRD-SDD-v1.0.md",
       "status": "current",
-      "statement_digest": "8e5c56cf6f00d0771b6c4e443430e2e62db1f513cd1c01d1718cf0c6221bc9dc",
+      "statement_digest": "0afe3c79485cf8b52174355569f7081ff44d1930f57fde4cd9f18ba6f64f1061",
       "history": [
         {
           "anchor": "line grounding shadow compare harness",
           "since": "2026-09-27",
           "reason": "declared"
         }
-      ]
+      ],
+      "statement_digest_reviewed_at": "2026-11-20",
+      "statement_digest_reason": "ADR-119 B1 reviewed migration neutralises one SmartGift/GoVibe product-name phrase; subject anchor unchanged"
     },
     "FR-278": {
       "family": "FR",
