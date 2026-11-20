@@ -818,7 +818,7 @@ legal/ToS review (see the FR-092 feature note's "Decision 2026-09-02").
 ## Customer duplicate review queue (FR-078 / ADR-033)
 
 The queue is a private, Business-scoped review surface for the 130 held
-SmartGift rows. It exposes redacted evidence and stable review IDs only; it does
+former-customer rows. It exposes redacted evidence and stable review IDs only; it does
 not publish Customers, replay LINE traffic or accept free-text PII notes.
 
 | Method | Path | Contract |
@@ -1376,10 +1376,10 @@ Runtime configuration for provider-backed calls is server-only:
 | GET/POST | `/api/assets/register/[id]/maintenance` | owner/writer; GET lists service history logs from audit stream; POST creates maintenance ticket (`action: CREATE`, status → `MAINTENANCE`) or completes repair (`action: COMPLETE`, status → `ACTIVE`/`IN_USE`) with audit logging (FR-133, FR-135). |
 | GET/POST | `/api/assets/register/[id]/dispose` | owner/writer; GET lists disposal records from audit stream; POST finalizes decommissioning & disposal (`method: SCRAP\|SELL\|DONATE\|LOSS_THEFT`, status → `DISPOSED`), verifies no active project allocation, and records `ASSET_DISPOSED` audit event (FR-133, FR-135). |
 
-## SmartGift document intake (FR-071 — staging receiver)
+## External document intake (FR-071 — staging receiver)
 
-These routes are the CloudSoTAgent boundary for the local SmartGift
-`smartgift.document-intake.v1` contract. They resolve the IntegrationConnection
+These routes are the CloudSoTAgent boundary for the local external-document
+`smartgift.document-intake.v1` contract (a persisted legacy name). They resolve the IntegrationConnection
 server-side and never accept Tenant or Business authority from the request body.
 The receiver writes only to the existing private `RawExternalRecord` application
 staging layer, creates an `IngestionRun` and `AuditEvent`, and does not promote
@@ -1400,7 +1400,7 @@ The Codex bridge uses `data_pipeline.document_stage` so the server resolves the
 active connection from the server-owned `PipelineRun`; the local outbox cannot
 choose `tenantId`, `businessId` or `connectionId`.
 
-## SmartGift full pipeline tracking (FR-071 — local ledger and monitor)
+## Full pipeline tracking (FR-071 — local ledger and monitor)
 
 These server-owned routes expose only redacted run/step/record/reconciliation/
 gate evidence. Pipeline events are validated against the FR-071 identity and

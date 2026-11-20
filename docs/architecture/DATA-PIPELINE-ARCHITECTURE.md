@@ -87,13 +87,13 @@ each with its own envelope:
 | Supplier cost sheets | Supplier-cost envelope | Excel, JSON | `apps/server/src/modules/procurement/application/supplier-cost-sheet-service.js` — draft preview, human-confirmed mappings, one transaction |
 | Assets | `AssetIntakeEnvelope` | Excel, hashed Google Sheet snapshot | `apps/server/src/modules/asset-management/application/asset-intake-service.js`; registration is a second, separate transaction |
 
-A fifth intake stages rather than writes: the SmartGift document intake
-(`POST /api/ingest/documents`, contract `smartgift.document-intake.v1`) records
+A fifth intake stages rather than writes: the external document intake
+(`POST /api/ingest/documents`; the contract name `smartgift.document-intake.v1` is a persisted legacy name) records
 an incoming document as Integration-owned raw evidence and stops there (§3,
 row 28).
 
 There is no customer spreadsheet intake. The one customer load in the
-repository is a fixed migration from a SmartGift snapshot (§3, row 5).
+repository is a fixed migration from a former customer's snapshot (§3, row 5; SmartGift was removed from Zuri by ADR-119).
 
 ## 3. Inventory
 
@@ -107,8 +107,8 @@ returned to the caller is a refusal, not a hold.
 | 2 | Catalogue intake | Intake | Envelope + per-item validation | Persisted, hashed plan | One transaction; plan re-computed inside it | Business + channel + correlation key, and the plan hash | Stale or conflicting plan refuses | Intake status, writer AuditEvents | inventory | CH-11 |
 | 3 | Supplier cost sheet | Intake | Envelope normalisation | Persisted draft with mapping suggestions | One transaction after mappings are confirmed | Business + source SHA-256, and the preview hash | Unconfirmed or stale mappings refuse; the draft stays | Sheet and line status, `SUPPLIER_COST_SHEET_PREVIEWED` and `_COMMITTED` AuditEvents | procurement | CH-24 |
 | 4 | Asset intake and registration | Intake | Strict envelope from the converters | Workbook or sheet preview | Intake: one transaction. Registration: a later one | Business + channel + correlation, bound to the payload hash | Invalid envelope refuses | `AssetIntake`, evidence, AuditEvents, ledger definition `DPL-ASSET-REGISTER-IMPORT-V1` | asset-management | CH-08 |
-| 5 | SmartGift customer backfill | Migration script | Snapshot hash and a migration contract | Redacted dry-run receipt | Direct SQL transaction (`apps/server/scripts/apply_smartgift_customer_backfill.py`) | Batch id derived from contract + snapshot, plus row hashes | Duplicates and doubtful rows go to a review queue | Batch, provenance and review tables | crm | CH-20 |
-| 6 | SmartGift business-knowledge import | Migration script | Field, version and hash checks | Reconciliation artifact | Generated SQL, run by an operator (`apps/server/scripts/build_business_knowledge_import.py`) | Batch and artifact hash; deterministic ids; upsert | Fails closed | Bootstrap audit event, row count | knowledge | CH-03 |
+| 5 | Former-customer backfill (legacy-named SmartGift scripts) | Migration script | Snapshot hash and a migration contract | Redacted dry-run receipt | Direct SQL transaction (`apps/server/scripts/apply_smartgift_customer_backfill.py`) | Batch id derived from contract + snapshot, plus row hashes | Duplicates and doubtful rows go to a review queue | Batch, provenance and review tables | crm | CH-20 |
+| 6 | Former-customer business-knowledge import | Migration script | Field, version and hash checks | Reconciliation artifact | Generated SQL, run by an operator (`apps/server/scripts/build_business_knowledge_import.py`) | Batch and artifact hash; deterministic ids; upsert | Fails closed | Bootstrap audit event, row count | knowledge | CH-03 |
 | 7 | LINE webhook → CRM → turn | Event ingress | Signature over bounded raw bytes; account binding | — | Raw capture and admission marker before the acknowledgement; ingest and job creation in one later transaction | LINE event and message ids | Capture failure returns non-2xx; stale admissions are reconciled from stored evidence | Raw evidence, `LineConversationJob`, CRM events, AuditEvents | line-oa-studio, crm, integration | CH-02, 18, 20, 22 |
 | 8 | Notion webhook receipt | Event ingress | HMAC over exact bytes; Zod event schema | — | One receipt insert | Provider event id (the receipt's primary key) | Storage failure returns 503 | `NotionWebhookReceipt`; no AuditEvent per event was found | integration | Nodes `in.notion-webhook` and `s.notion-receipts`, no chain: no consumer processes a receipt (only backup export and restore carry the table), so no path reaches a recipient |
 | 9 | Knowledge admission and 17 stages | Staged run | Source and envelope validation | None end to end | Per stage; Stages 9–17 run outside zuri-ai | Source and run identity; idempotency key | Failed and quarantined counts in stage evidence; a failed run can be replayed with lineage | `PipelineRun`, steps, gate decisions | knowledge | CH-04, 22 |
@@ -130,7 +130,7 @@ returned to the caller is a refusal, not a hold.
 | 25 | Knowledge query and citation | Read path | Query contract and scope | — | None | — | An empty result is an answer | Citation and trace read model | knowledge, agent | CH-06, 21, 23 |
 | 26 | Repository → readiness | Projection | — | — | — | — | — | Generated snapshots | project-manager | CH-16 |
 | 27 | FlowAccount pull | — | **Declared only.** ADR-053 says no connector is implemented | — | — | — | — | — | integration | Marked declared |
-| 28 | SmartGift document staging | Intake (staging) | `smartgift.document-intake.v1`; writing needs installation-operator authority, reading the monitor needs it or a visible Business | — | One transaction; it writes raw evidence, not a canonical record | The ingestion idempotency key on `RawExternalRecord`: Tenant, connection, entity type, document id and payload hash | A contract marked `QUARANTINED` is stored with that status | Raw record status; `DOCUMENT_INTAKE_STAGED` or `DOCUMENT_INTAKE_QUARANTINED` AuditEvent | integration | CH-27 (`in.document-intake`) |
+| 28 | External document staging | Intake (staging) | `smartgift.document-intake.v1`; writing needs installation-operator authority, reading the monitor needs it or a visible Business | — | One transaction; it writes raw evidence, not a canonical record | The ingestion idempotency key on `RawExternalRecord`: Tenant, connection, entity type, document id and payload hash | A contract marked `QUARANTINED` is stored with that status | Raw record status; `DOCUMENT_INTAKE_STAGED` or `DOCUMENT_INTAKE_QUARANTINED` AuditEvent | integration | CH-27 (`in.document-intake`) |
 | 29 | LINE raw payload retention | Lifecycle | The Tenant's effective window (90 days by default; an override is never longer); a record a live job or admission still needs is skipped | Dry run supported (it writes no run audit and skips the daily check) | Per page of 100 records; no Tenant-wide transaction | One run per UTC day, checked before the run starts (not atomic) | A failed page stops that Tenant; committed pages stay redacted, later rows are intact; the next run re-queries and skips existing tombstones | One `RAW_LINE_RETENTION_SWEEP_COMPLETED` AuditEvent per run, naming any `{ tenantId, code }` failure | integration | Node `p.raw-line-retention`, no chain |
 | 30 | Agent trace payload retention | Lifecycle | The Tenant's effective window (90 days by default; an override is never longer); a turn that a live job, pending memory delivery or open erasure request still needs is skipped | Dry run supported (it writes no run audit and skips the daily check) | One transaction per turn | One run per UTC day, checked before the run starts (not atomic) | A failed turn stops that Tenant; committed turns stay redacted; the next run re-queries and skips existing tombstones | One `AGENT_TRACE_RETENTION_SWEEP_COMPLETED` AuditEvent per run, naming any `{ tenantId, code }` failure | agent | Node `p.agent-trace-retention`, no chain |
 
@@ -159,7 +159,7 @@ These are places where the code does something the architecture summary does
 not describe. None is hidden in the code; each is simply not written down
 where a reader of the rule would look.
 
-1. **The SmartGift migrations write domain tables by SQL, not through the
+1. **The former-customer migrations write domain tables by SQL, not through the
    owning application service** (rows 5 and 6). The customer backfill and its
    review-queue script (`apply_smartgift_customer_backfill.py`,
    `build_smartgift_customer_review_queue.py`) apply SQL directly, after a
@@ -230,7 +230,7 @@ where a reader of the rule would look.
    `zuri_server_test`) bound to the source package and synthetic-dataset
    evidence (`MANAGED_BLOB_TRANSFER_NOT_ADMITTED`). The code does not prove that
    database is disposable.
-8. **SmartGift document staging stops at raw evidence** (row 28). The receipt
+8. **External document staging stops at raw evidence** (row 28). The receipt
    names `DOMAIN_VALIDATION` as the next step (`REVIEW_REQUIRED` when
    quarantined), but nothing under `apps/server/src` promotes a staged record to
    a canonical row: the code reads staged records only for the duplicate lookup,
@@ -253,7 +253,7 @@ page used to list as missing are now registry nodes (2026-11-13):
 | Managed-blob transfer (21) | `p.blob-transfer` | CH-26 |
 | CRM retention sweep and cold archive (22) | `p.crm-retention-sweep`, `p.crm-archive-expiry` (row 23) | none: a lifecycle loop |
 | MSP memory retention (24) | `p.msp-retention` | none: a lifecycle loop |
-| SmartGift document staging (28) | `in.document-intake` | CH-27 |
+| External document staging (28) | `in.document-intake` | CH-27 |
 
 The two 90-day sweepers of rows 29 and 30 were mapped with the retention change
 (`p.raw-line-retention`, `p.agent-trace-retention`). The ledger's replay API and
