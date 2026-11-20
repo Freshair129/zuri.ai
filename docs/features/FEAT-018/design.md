@@ -38,7 +38,7 @@ Feature record: [ZAI:FEAT-018 canonical record](feature.md).
 
 **Source row final cell (display projection; full row in canonical record):**
 
-> 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the SmartGift Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then
+> 🟠 implemented locally 2026-09-05 — reader, env factory (shares the Phase 1 runtime pool and read-role wrapper) and the FR-146 default port; `tests/unit/line-binding-status.test.js`, `tests/integration/fr146-line-oa-account.test.js` AC-146.7. Not exercised against production Postgres in this slice, and the read policy is still pinned to the pilot Tenant/Business — widening it per Tenant is operator migration work, so other Tenants read NOT_ACTIVE until then
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
