@@ -17,6 +17,8 @@ relations:
 
 # FR-187 — SmartGift structured-record source adapter (Phase 1)
 
+> **Historical note (ADR-119).** SmartGift is a former customer and is no longer part of Zuri. Names such as `SMARTGIFT_*`, `smartgift.document-intake.v1`, `BUS-SMARTGIFT` and `smartgift-*` below are persisted identifiers kept unchanged; the prose describes the legacy scope.
+
 ADR-075 Phase 1 only: Tier 1 adapter code, **no new model, no column, no
 migration, no deployment**. The record travels through the existing
 `rule_v1` / `ontology_v1` profile as an opaque structured document; the typed
@@ -43,7 +45,7 @@ freeze bytes/hash/version, split, enqueue. It synthesizes no stage result.
 | Field | Value |
 |---|---|
 | `sourceKey` | `smartgift-catalog:<fileName>#<record externalId>` |
-| `version` | the file-level SHA-256 — SmartGift's registry hash for those exact bytes, which is also the `FileAsset.sha256` because they are the same bytes |
+| `version` | the file-level SHA-256 — the former customer's registry hash for those exact bytes, which is also the `FileAsset.sha256` because they are the same bytes |
 | `contentHash` | SHA-256 of `canonicalGenesisRag17Json(record)`, which is also the stored `content` |
 | idempotency key | `hashGenesisRag17Json({ fileAssetId, fileSha256, externalId })`, namespaced the way every other admission key is |
 
@@ -78,21 +80,21 @@ delete-by-absence rule would let a truncated upstream export silently retire
 live knowledge, which is a bigger decision than this phase makes.
 
 **Zero-PII is per record, at two points (ADR-075 D5).** The deny expression is
-ported verbatim from SmartGift's own
+ported verbatim from the former customer's own
 `pipeline/knowledge_registry/core.py` `DENIED`:
 
 ```
 /05_crm_customer_data|customer|contact|quotation|ลูกค้า|ใบเสนอราคา/i
 ```
 
-SmartGift applies that expression to *source locators* (file paths), never to
+The former customer applied that expression to *source locators* (file paths), never to
 prose, and the port keeps that meaning. It inspects the source identity
 (`sourceId`, `sourceUri`), every field **name** at any depth (a `customerName`
 or `contact` field is structural evidence of a CRM shape) and the **values of
 locator-like fields** (`file`, `path`, `uri`, `url`, `upstream`, `source`,
 `origin`, `locator`). Descriptive text is not scanned: a corporate-gift
 catalog legitimately says "ของขวัญสำหรับลูกค้าองค์กร", and a rule that refused
-it would be a different policy from SmartGift's, not a stricter one. The
+it would be a different policy from the former customer's, not a stricter one. The
 denial names the offending path (`record.provenance.upstreamFile`) and the
 matched policy literal, never record data.
 

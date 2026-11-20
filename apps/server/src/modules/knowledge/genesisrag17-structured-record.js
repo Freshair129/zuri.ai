@@ -9,15 +9,15 @@ import {
 } from './structured-catalog-adapter'
 
 // @req FR-188 — the Stage 2/7 structured-record profile `genesisrag17-parser-2`
-// renders each SmartGift catalog record into one DESCRIPTIVE section (exactly
+// renders each former-customer catalog record into one DESCRIPTIVE section (exactly
 // one mention, no date) plus one CLAIM section per relation whose entire text
 // is the canonical JSON triple, and the pinned Stage 8 recognizer
 // `genesisrag17-structured-recognizer-1` types those occurrences with the
-// SmartGift code verbatim as the resolution key.
+// former-customer code verbatim as the resolution key.
 // @spec ADR-075, ADR-073, docs/plans/GENESISRAG17-CONTRACT.md, docs/KNOWLEDGE-INGESTION-17-STAGE-FLOW.md
 // @tested tests/unit/genesisrag17-parser-2.test.js, tests/integration/genesisrag17-parser-2.test.js
 
-/** Stage 2 profile for structured SmartGift catalog records (contract rev 2, §A). */
+/** Stage 2 profile for structured former-customer catalog records (contract rev 2, §A). */
 export const GENESIS_RAG17_PARSER_VERSION_2 = 'genesisrag17-parser-2'
 /** The one pinned exception to the `defaultRecognizer`-only Stage 8 guard (C-6). */
 export const GENESIS_RAG17_STRUCTURED_RECOGNIZER_VERSION = 'genesisrag17-structured-recognizer-1'
@@ -54,7 +54,7 @@ const OWN_TYPE_BY_ENTITY_TYPE = Object.freeze({
 })
 
 /**
- * SmartGift's bundle code namespace (every BundleOffer `code` is `PKG-…`). A
+ * the former customer's bundle code namespace (every BundleOffer `code` is `PKG-…`). A
  * claim subject that is not the record's own entity — a PriceListEntry's
  * priced item — is typed by this rule. The renderer refuses any record whose
  * own type disagrees with it, so the rule can never silently mistype a record.
@@ -113,18 +113,18 @@ const zStage2Record = z.discriminatedUnion('entityType', [
 
 function assertCode(code, label, { header = false } = {}) {
   if (typeof code !== 'string' || !code || code !== code.trim()) {
-    throw structuredError(`SmartGift ${label} code is missing or not trimmed`, { label })
+    throw structuredError(`Structured catalog ${label} code is missing or not trimmed`, { label })
   }
   // A claim's subject/object must be an exact substring of its JSON text, so a
   // code JSON would escape (quote, backslash, control character) is refused.
-  if (JSON.stringify(code) !== `"${code}"`) throw structuredError(`SmartGift ${label} code needs JSON escaping`, { label })
-  if (header && /\s/u.test(code)) throw structuredError(`SmartGift ${label} code contains whitespace`, { label })
+  if (JSON.stringify(code) !== `"${code}"`) throw structuredError(`Structured catalog ${label} code needs JSON escaping`, { label })
+  if (header && /\s/u.test(code)) throw structuredError(`Structured catalog ${label} code contains whitespace`, { label })
 }
 
 function priceTierCode(itemCode, qty, unitPriceThb) {
   const satang = Math.round(unitPriceThb * 100)
   if (!Number.isSafeInteger(satang) || Math.abs(unitPriceThb * 100 - satang) > 1e-6) {
-    throw structuredError('SmartGift price is not a whole number of satang', { label: 'price' })
+    throw structuredError('Structured catalog price is not a whole number of satang', { label: 'price' })
   }
   return `${itemCode}:qty${qty}:${satang}`
 }
@@ -158,14 +158,14 @@ export function structuredClaimText({ subject, predicate, object, catalogVersion
 
 function assertClaimText(text, { subject, object, catalogVersionDate }) {
   if (subject === object || subject.toLowerCase().replace(/[\s_-]+/gu, ' ') === object.toLowerCase().replace(/[\s_-]+/gu, ' ')) {
-    throw structuredError('SmartGift relation names the same code as subject and object', { label: 'relation' })
+    throw structuredError('Structured catalog relation names the same code as subject and object', { label: 'relation' })
   }
-  if (/[?]/u.test(text) || CLAIM_NEGATION.test(text)) throw structuredError('SmartGift claim text would be read as a question or negation', { label: 'relation' })
+  if (/[?]/u.test(text) || CLAIM_NEGATION.test(text)) throw structuredError('Structured catalog claim text would be read as a question or negation', { label: 'relation' })
   const dates = isoDatesIn(text)
   if (dates.length !== (catalogVersionDate ? 1 : 0) || (catalogVersionDate && dates[0] !== catalogVersionDate)) {
-    throw structuredError('SmartGift claim text must carry exactly the catalog version date, or no date', { label: 'relation' })
+    throw structuredError('Structured catalog claim text must carry exactly the catalog version date, or no date', { label: 'relation' })
   }
-  if (hasUnmappedTemporalLanguage(text)) throw structuredError('SmartGift claim text contains temporal language GKS would hold as unmapped', { label: 'relation' })
+  if (hasUnmappedTemporalLanguage(text)) throw structuredError('Structured catalog claim text contains temporal language GKS would hold as unmapped', { label: 'relation' })
 }
 
 function recordRelations(record) {
@@ -176,7 +176,7 @@ function recordRelations(record) {
     const seen = new Set()
     const relations = []
     for (const component of record.components) {
-      if (seen.has(component.productExternalId)) throw structuredError('SmartGift bundle repeats one component', { label: 'component' })
+      if (seen.has(component.productExternalId)) throw structuredError('Structured catalog bundle repeats one component', { label: 'component' })
       seen.add(component.productExternalId)
       relations.push({ subject: record.code, predicate: STRUCTURED_PREDICATES.HAS_COMPONENT, object: component.productExternalId })
     }
@@ -188,7 +188,7 @@ function recordRelations(record) {
 
 function ownCode(record) {
   if (record.entityType === 'PriceListEntry') return priceTierCode(record.productExternalId, record.qty, record.srpUnitPriceThb)
-  if (record.code !== record.externalId) throw structuredError('SmartGift record code and externalId disagree', { label: 'code' })
+  if (record.code !== record.externalId) throw structuredError('Structured catalog record code and externalId disagree', { label: 'code' })
   return record.code
 }
 
@@ -240,14 +240,14 @@ export function parseStructuredCatalogRecords(content) {
   try {
     value = JSON.parse(String(content ?? ''))
   } catch {
-    throw structuredError('SmartGift structured source is not valid JSON')
+    throw structuredError('Structured source is not valid JSON')
   }
   const list = Array.isArray(value) ? value : [value]
-  if (!list.length) throw structuredError('SmartGift structured source holds no records')
+  if (!list.length) throw structuredError('Structured source holds no records')
   const records = list.map((item, index) => {
     const result = zStage2Record.safeParse(item)
     if (!result.success) {
-      throw structuredError('SmartGift structured record does not match a known catalog shape', {
+      throw structuredError('Structured record does not match a known catalog shape', {
         index,
         issues: result.error.issues.slice(0, 5).map((issue) => ({ path: issue.path.join('.'), code: issue.code })),
       })
@@ -256,12 +256,12 @@ export function parseStructuredCatalogRecords(content) {
   })
   const seen = new Set()
   for (const record of records) {
-    if (seen.has(record.externalId)) throw structuredError('SmartGift structured source repeats one record identity')
+    if (seen.has(record.externalId)) throw structuredError('Structured source repeats one record identity')
     seen.add(record.externalId)
   }
   // C-5 / C-10: one source is uniformly dated or uniformly undated.
   const dates = new Set(records.map((record) => record.catalogVersionDate ?? null))
-  if (dates.size > 1) throw structuredError('SmartGift structured source mixes catalog version dates')
+  if (dates.size > 1) throw structuredError('Structured source mixes catalog version dates')
   return { records, catalogVersionDate: [...dates][0] }
 }
 
@@ -279,16 +279,16 @@ export function renderStructuredCatalogDocument(content) {
     assertCode(code, `${record.entityType} own`, { header: true })
     const ownType = OWN_TYPE_BY_ENTITY_TYPE[record.entityType]
     if (record.entityType !== 'PriceListEntry' && structuredItemSemanticType(code) !== ownType) {
-      throw structuredError('SmartGift record code does not match its type namespace', { label: 'code' })
+      throw structuredError('Structured catalog record code does not match its type namespace', { label: 'code' })
     }
     const descriptive = renderDescriptive(record, code)
-    if (isoDatesIn(descriptive).length) throw structuredError('SmartGift descriptive section must carry no date', { label: 'descriptive' })
+    if (isoDatesIn(descriptive).length) throw structuredError('Structured catalog descriptive section must carry no date', { label: 'descriptive' })
     pieces.push({ kind: 'descriptive', recordIndex, entityType: record.entityType, recordCode: code, predicate: null, text: descriptive })
     for (const relation of recordRelations(record)) {
       assertCode(relation.subject, 'relation subject')
       assertCode(relation.object, 'relation object')
       if (relation.predicate === STRUCTURED_PREDICATES.HAS_COMPONENT && structuredItemSemanticType(relation.object) !== STRUCTURED_SEMANTIC_TYPES.PRODUCT) {
-        throw structuredError('SmartGift bundle component is not a product code', { label: 'component' })
+        throw structuredError('Structured catalog bundle component is not a product code', { label: 'component' })
       }
       const text = structuredClaimText({ ...relation, catalogVersionDate })
       assertClaimText(text, { ...relation, catalogVersionDate })

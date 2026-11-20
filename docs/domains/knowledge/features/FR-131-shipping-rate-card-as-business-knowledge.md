@@ -164,7 +164,7 @@ migration. The honest list:
 
 And one product decision, which blocks the rest: **whether a supplier's rate
 sheet is the Business's own knowledge or needs a per-supplier scope.** The
-table has no supplier column. If SmartGift resells two forwarders' rates, one
+table has no supplier column. If a business resells two forwarders' rates, one
 of them is currently unrepresentable, and adding a column to a projection
 under forced RLS is not a small change made late.
 

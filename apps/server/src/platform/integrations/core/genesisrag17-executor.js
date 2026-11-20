@@ -76,7 +76,7 @@ import {
 // materialized attempt.
 // @req FR-110 — external evidence remains bounded and a successful close is
 // receipt-backed; Tier 1 never writes a GKS or GenesisBlockDB store.
-// @req FR-187 — a structured-record source runs the SmartGift Zero-PII deny
+// @req FR-187 — a structured-record source runs the former-customer Zero-PII deny
 // policy at Stage 5 classify; a denied record stops there with terminal
 // evidence and never reaches Stage 6 or a Stage 9 batch (ADR-075 D5).
 // @req FR-236 — a LINE_FAQ_CANDIDATE source runs the candidate prose policy

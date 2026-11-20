@@ -88,7 +88,7 @@ The approved local slice provides:
 
 This is local RBAC contract evidence. It does not authorize a production write,
 customer data import, LINE/API replay or Supabase cutover. The separate
-approved migration mission owns the bounded SmartGift product projection write.
+approved migration mission owns the bounded legacy product projection write.
 
 ## Relationship to existing Membership
 
@@ -165,7 +165,7 @@ listing, suspending or revoking one binding does not change another.
 
 ### AC-076.4 — Business isolation
 
-A Product Owner assigned to SmartGift cannot read or mutate Product-scoped data
+A Product Owner assigned to one Business cannot read or mutate Product-scoped data
 for Etoh-Muku, Mujeen or EMC without another active binding.
 
 ### AC-076.5 — Product-only permissions
