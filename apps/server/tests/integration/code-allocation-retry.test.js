@@ -314,7 +314,7 @@ describe('human-code allocation retries', () => {
     expect(await prisma.team.count({ where: { businessId: projectContext.business.id, name: input.name } })).toBe(2)
   })
 
-  it('reallocates a WorkContainer code after a stale read inside its transaction', async () => {
+  it('reallocates a WorkContainer code after a stale code read', async () => {
     const project = await createProject({
       workspaceId: projectContext.workspace.id,
       name: 'Container Retry Project',
@@ -366,7 +366,7 @@ describe('human-code allocation retries', () => {
     expect(retried.code).toBe(`${first.code}-2`)
   })
 
-  it('reallocates a signup Person code after a stale read inside its transaction', async () => {
+  it('reallocates a signup Person code after a stale code read', async () => {
     const displayName = 'Signup Retry C9'
     const first = await createAccount({
       email: 'signup-retry-first@example.test',
@@ -383,7 +383,9 @@ describe('human-code allocation retries', () => {
     })
 
     expect(retried.code).toBe(`${first.code}-2`)
-    expect(stale.transactionCalls).toBe(2)
+    // Signup writes in one array transaction after its reads, not an interactive
+    // one, so there is no callback transaction to count: the stale read is the
+    // first direct lookup, and the unique index rejects the colliding insert.
     expect(stale.staleReads).toBe(1)
   })
 
