@@ -21,19 +21,25 @@ function mockDb({ existingByEmail = null, takenCodes = [] } = {}) {
       findUnique: vi.fn(async ({ where }) =>
         (takenCodes.includes(where.code) ? { id: 'someone-else' } : null)),
       findFirst: vi.fn(async () => existingByEmail),
+      // The credential is a nested write on the Person, as in Prisma: it is
+      // recorded as its own row so "one credential" stays a meaningful assertion.
       create: vi.fn(async ({ data }) => {
-        created.people.push(data)
-        return { id: 'per-new', ...data }
+        const { credential, ...person } = data
+        created.people.push(person)
+        if (credential?.create) created.credentials.push({ personId: person.id, ...credential.create })
+        return { ...person }
       }),
-    },
-    personCredential: {
-      create: vi.fn(async ({ data }) => { created.credentials.push(data); return { id: 'cred-1', ...data } }),
     },
     auditEvent: {
       create: vi.fn(async ({ data }) => { created.audits.push(data); return { id: 'a-1', ...data } }),
     },
   }
-  db.$transaction = vi.fn(async (fn) => fn(db))
+  // Array form only: an interactive (callback) transaction is what timed out
+  // under concurrent signups, so the mock refuses to run one.
+  db.$transaction = vi.fn(async (operations) => {
+    if (!Array.isArray(operations)) throw new Error('interactive transaction not allowed')
+    return Promise.all(operations)
+  })
   return db
 }
 
@@ -44,7 +50,7 @@ describe('FR-120 createAccount', () => {
     const db = mockDb()
     const person = await attempt(db)
 
-    expect(person.id).toBe('per-new')
+    expect(person.id).toEqual(expect.any(String))
     expect(db.created.people).toHaveLength(1)
     expect(db.created.credentials).toHaveLength(1)
 
@@ -102,20 +108,22 @@ describe('FR-120 createAccount', () => {
     expect(db.created.credentials).toHaveLength(0)
   })
 
-  it('looks the address up inside the transaction, not before it', async () => {
-    // A check outside the transaction is a check against a snapshot that the
-    // insert does not share. This is still only a check — `Person.email` has no
-    // unique index in either schema — but it is at least the narrowest window
-    // available without a migration, and a refactor that widened it again would
-    // be invisible without this assertion.
+  it('reads before the write and commits it as one batch, never an interactive transaction', async () => {
+    // Prisma's SQLite connector runs one interactive transaction at a time, so
+    // an open callback transaction queued concurrent signups behind it until
+    // they timed out and answered 503. The reads stay outside; the Person, its
+    // credential and its audit event commit together as one array transaction.
     const db = mockDb()
     const order = []
     db.person.findFirst.mockImplementation(async () => { order.push('lookup'); return null })
     const runTransaction = db.$transaction
-    db.$transaction = vi.fn(async (fn) => { order.push('transaction'); return runTransaction(fn) })
+    db.$transaction = vi.fn(async (operations) => { order.push('batch'); return runTransaction(operations) })
 
     await attempt(db)
-    expect(order).toEqual(['transaction', 'lookup'])
+    expect(order).toEqual(['lookup', 'batch'])
+    expect(db.$transaction).toHaveBeenCalledTimes(1)
+    expect(Array.isArray(db.$transaction.mock.calls[0][0])).toBe(true)
+    expect(db.$transaction.mock.calls[0][0]).toHaveLength(2)
   })
 
   it('rejects a malformed address before hashing anything', async () => {
@@ -154,14 +162,14 @@ describe('FR-120 createAccount', () => {
 
   it('writes an audit event that names the account and carries no secret', async () => {
     const db = mockDb()
-    await attempt(db)
+    const person = await attempt(db)
 
     expect(db.created.audits).toHaveLength(1)
     const [event] = db.created.audits
     expect(event.entityType).toBe('PERSON')
-    expect(event.entityId).toBe('per-new')
+    expect(event.entityId).toBe(person.id)
     expect(event.action).toBe('ACCOUNT_SELF_CREATED')
-    expect(event.actorId).toBe('per-new')
+    expect(event.actorId).toBe(person.id)
     expect(event.payloadJson).toContain('signup')
     // Neither the password nor its hash: the stream answers "which accounts
     // exist and how they came to", never "what was the secret".

@@ -49,13 +49,23 @@
  * @param {string|null} [scope.requestId]  FR-198 — correlation, unused today.
  * @param {string|null} [scope.sessionId]  FR-198 — correlation, unused today.
  */
-export async function recordAudit(db, {
+export async function recordAudit(db, fields) {
+  return db.auditEvent.create(auditEventCreateArgs(fields))
+}
+
+/**
+ * The `auditEvent.create` arguments `recordAudit` writes, separated so a caller
+ * that batches its writes in one array `$transaction` can enlist the audit row
+ * as a Prisma operation. `recordAudit` is async and so is not itself one.
+ * Takes the same fields as `recordAudit` after `db`.
+ */
+export function auditEventCreateArgs({
   id = null,
   entityType, entityId, action, payload = {}, actorType = 'LOCAL_USER', actorId = null,
   tenantId = null, businessId = null, reason = null, beforeJson = null, afterJson = null,
   requestId = null, sessionId = null,
 }) {
-  return db.auditEvent.create({
+  return {
     data: {
       ...(id ? { id } : {}),
       entityType,
@@ -72,7 +82,7 @@ export async function recordAudit(db, {
       requestId,
       sessionId,
     },
-  })
+  }
 }
 
 function stringifyOrNull(value) {
