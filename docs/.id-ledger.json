@@ -853,6 +853,7 @@
     "ADR-118",
     "ADR-119",
     "ADR-120",
+    "ADR-121",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11201,6 +11202,19 @@
       "history": [
         {
           "anchor": "verified settlement before order completion and stock issue",
+          "since": "2026-11-25",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-121": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-121-STAGE9-OUTBOX-RETENTION-AND-RECOVERY-CONTRACT.md",
+      "status": "current",
+      "statement_digest": "5f96a9f26b612c4751b58b80f19ca78cb4253b9be28f73014756c97effc6cdbf",
+      "history": [
+        {
+          "anchor": "stage 9 outbox retention and recovery contract",
           "since": "2026-11-25",
           "reason": "declared"
         }
