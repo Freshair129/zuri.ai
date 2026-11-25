@@ -2932,7 +2932,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         },
         {
           "id": "FR-061",
@@ -17025,7 +17025,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 1,
-          "testCount": 7
+          "testCount": 8
         }
       ],
       "evidence": [
@@ -17034,6 +17034,7 @@
         "apps/server/tests/integration/line-account-isolation.test.js",
         "apps/server/tests/integration/line-ingest-tenant-isolation.test.js",
         "apps/server/tests/integration/line-ingest.test.js",
+        "apps/server/tests/unit/application-schema-migration.test.js",
         "apps/server/tests/unit/doc-views.test.js",
         "apps/server/tests/unit/profile-identity-fields-migration.test.js",
         "apps/server/tests/unit/scope-external-ids-migration.test.js"

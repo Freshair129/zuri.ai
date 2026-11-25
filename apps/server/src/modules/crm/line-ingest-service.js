@@ -27,7 +27,8 @@ import { LINE_UNSEND_TOMBSTONE } from './line-unsend-tombstone'
 // @spec ADR-061, ADR-044, ADR-045, BR-001, BR-002, SEC-001, SEC-018
 // @tested tests/integration/line-ingest.test.js, tests/integration/line-account-isolation.test.js,
 //   tests/integration/line-non-text-admission.test.js, tests/integration/crm-conversation-inbox.test.js,
-//   tests/integration/crm-conversation-sessions.test.js
+//   tests/integration/crm-conversation-sessions.test.js,
+//   tests/integration/line-ingest-tenant-isolation.test.js
 
 const CHANNEL = 'LINE'
 const conversationKey = (tenantId, channelAccountId, threadId) => ({
@@ -93,7 +94,7 @@ export async function ingestLineMessage(input, { db = prisma } = {}) {
   const createdCustomer = !customer
   if (!customer) {
     const code = await uniqueHumanCode('CUS', displayName || lineUserId,
-      async (candidate) => Boolean(await db.customer.findUnique({ where: { code: candidate } })))
+      async (candidate) => Boolean(await db.customer.findUnique({ where: { tenantId_code: { tenantId, code: candidate } } })))
     customer = await db.customer.create({
       data: { code, tenantId, businessId: businessId ?? null, personId: identity.personId, displayName: displayName || 'LINE customer' },
     })
@@ -185,7 +186,7 @@ export async function ingestLineConversationEvent(input, { db = prisma } = {}) {
   const createdCustomer = !customer
   if (!customer) {
     const code = await uniqueHumanCode('CUS', displayName || lineUserId,
-      async (candidate) => Boolean(await db.customer.findUnique({ where: { code: candidate } })))
+      async (candidate) => Boolean(await db.customer.findUnique({ where: { tenantId_code: { tenantId, code: candidate } } })))
     customer = await db.customer.create({
       data: { code, tenantId, businessId: businessId ?? null, personId: identity.personId, displayName: displayName || 'LINE customer' },
     })
