@@ -1284,5 +1284,6 @@ export const CURRENT_SCHEMA_CONTRACTS = Object.freeze({
   "supabase/migrations/20261031120000_office_design_registry.sql": "69dadf359f6b7cc9ebed2d6303d92ba57352d9a90958401843b0384b652b1c1c",
   "supabase/migrations/20261102120000_managed_blob_backup_transfer.sql": "63e0152424e7c4149711aaa274ab9d50bd109331a1899bbe5e466ecabe41384a",
   "supabase/migrations/20261113090000_goods_receipt_cost_provenance.sql": "759e6a87eb9ee81b9abe6bf13042415ab4d48b1df9e5f31d69224c859e4faa0f",
-  "supabase/migrations/20261120000000_drop_smartgift_business_data.sql": "c9883f8aa1b520126a107828234d0b0ffd348be2932258f5015de59f2115525d"
+  "supabase/migrations/20261120000000_drop_smartgift_business_data.sql": "c9883f8aa1b520126a107828234d0b0ffd348be2932258f5015de59f2115525d",
+  "supabase/migrations/20261125120000_customer_code_tenant_scope.sql": "6fe618c3ca254b0457fda773e4c9e5c8d5cabbaaa4d02ab41cf7a5511bf8ab88"
 })
