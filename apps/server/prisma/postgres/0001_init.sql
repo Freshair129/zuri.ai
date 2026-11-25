@@ -5220,9 +5220,6 @@ CREATE INDEX "ExternalRef_entityType_entityId_idx" ON "ExternalRef"("entityType"
 CREATE UNIQUE INDEX "ExternalRef_system_value_key" ON "ExternalRef"("system", "value");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Customer_code_key" ON "Customer"("code");
-
--- CreateIndex
 CREATE INDEX "Customer_businessId_idx" ON "Customer"("businessId");
 
 -- CreateIndex
@@ -5230,6 +5227,9 @@ CREATE INDEX "Customer_consentStatus_idx" ON "Customer"("consentStatus");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Customer_tenantId_personId_key" ON "Customer"("tenantId", "personId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Customer_tenantId_code_key" ON "Customer"("tenantId", "code");
 
 -- CreateIndex
 CREATE INDEX "CustomerImportBatch_tenantId_businessId_status_idx" ON "CustomerImportBatch"("tenantId", "businessId", "status");
@@ -6309,10 +6309,10 @@ CREATE INDEX "GoodsReceipt_purchaseOrderId_idx" ON "GoodsReceipt"("purchaseOrder
 CREATE INDEX "GoodsReceipt_businessId_receivedAt_idx" ON "GoodsReceipt"("businessId", "receivedAt");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "GoodsReceipt_tenantId_code_key" ON "GoodsReceipt"("tenantId", "code");
+CREATE INDEX "GoodsReceipt_fxCostSheetId_idx" ON "GoodsReceipt"("fxCostSheetId");
 
 -- CreateIndex
-CREATE INDEX "GoodsReceipt_fxCostSheetId_idx" ON "GoodsReceipt"("fxCostSheetId");
+CREATE UNIQUE INDEX "GoodsReceipt_tenantId_code_key" ON "GoodsReceipt"("tenantId", "code");
 
 -- CreateIndex
 CREATE INDEX "GoodsReceiptLine_receiptId_idx" ON "GoodsReceiptLine"("receiptId");
