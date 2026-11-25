@@ -856,6 +856,7 @@
     "ADR-121",
     "ADR-122",
     "ADR-123",
+    "ADR-124",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11243,6 +11244,19 @@
       "history": [
         {
           "anchor": "keep the deterministic primary keys of eight knowledge",
+          "since": "2026-11-25",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-124": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-124-SESSION-IDLE-TIMEOUT-AND-LOGOUT-ALL.md",
+      "status": "current",
+      "statement_digest": "ff2a6d065182c0dd0f5e27b9c1d773dc0f45e032e1fefed85bb1a52ddd7656b9",
+      "history": [
+        {
+          "anchor": "session idle timeout throttled last seen writes and logout",
           "since": "2026-11-25",
           "reason": "declared"
         }

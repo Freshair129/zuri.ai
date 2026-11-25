@@ -40,6 +40,7 @@ Feature record: [ZAI:FEAT-010 canonical record](feature.md).
 > 🟠 Issue #99 Phase 0 P0
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-088 — MFA factor secrets are sealed at rest](../../decisions/ADR-088-MFA-FACTOR-SECRETS-SEALED-AT-REST.md) — `relates` · `control-block` · `current`
+- [ADR-124 — Session idle timeout, throttled last-seen writes and logout-all](../../decisions/ADR-124-SESSION-IDLE-TIMEOUT-AND-LOGOUT-ALL.md) — `relates` · `metadata` · `current`
 - [Zuri V2 — Project Manager Module: PRD & SDD](../../PRD-SDD-v1.0.md) — `specifies` · `compatibility-export` · `current`
 
 ### [ZAI:FR-096 canonical record](requirements/FR-096.md)

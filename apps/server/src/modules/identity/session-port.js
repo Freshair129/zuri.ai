@@ -2,10 +2,18 @@
 // server-owned, persisted session adapter; the installation-operator capability
 // is resolved per request from the PlatformGrant store.
 // @spec ADR-017, ADR-045 D2-D4, ADR-097, SDD-024, SDD-052, SEC-008, SEC-018
-// @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js, tests/unit/operator-bootstrap.test.js
+// @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js, tests/unit/operator-bootstrap.test.js,
+//   tests/unit/session-idle-timeout.test.js, tests/integration/session-idle-multi-instance.test.js
 
 import prisma from '@/lib/db'
-import { AUTH_SESSION_COOKIE, hashSessionToken, verifySessionToken } from './auth-service'
+import {
+  AUTH_SESSION_COOKIE,
+  hashSessionToken,
+  SESSION_IDLE_TIMEOUT_REMEMBER_SECONDS,
+  SESSION_IDLE_TIMEOUT_SECONDS,
+  SESSION_LAST_SEEN_THROTTLE_SECONDS,
+  verifySessionToken,
+} from './auth-service'
 import { hasOperatorGrant } from './operator-bootstrap'
 import { hasSuperadminGrant } from './superadmin-grant'
 
@@ -51,10 +59,30 @@ function normalizeTrustedSession(value) {
   }
 }
 
+function validDate(value) {
+  if (value == null) return null
+  try {
+    const date = value instanceof Date ? new Date(value.getTime()) : new Date(value)
+    return Number.isFinite(date.getTime()) ? date : null
+  } catch {
+    return null
+  }
+}
+
+async function sessionStoreCall(operation) {
+  try {
+    return await operation()
+  } catch (cause) {
+    const error = new Error('SESSION_STORE_UNAVAILABLE')
+    error.cause = cause
+    throw error
+  }
+}
+
 /**
  * Provider-neutral request session port.
  */
-export function createSessionPort({ readTrustedSession = async () => null, env = process.env, db = prisma } = {}) {
+export function createSessionPort({ readTrustedSession = async () => null, env = process.env, db = prisma, now = () => Date.now() } = {}) {
   return {
     async read(request) {
       const trusted = normalizeTrustedSession(await readTrustedSession(request))
@@ -62,7 +90,8 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
 
       const sessionCookie = readRequestCookie(request, AUTH_SESSION_COOKIE)
       if (sessionCookie) {
-        const session = verifySessionToken(sessionCookie, { secret: env.ZURI_SESSION_SECRET })
+        const nowMs = now()
+        const session = verifySessionToken(sessionCookie, { secret: env.ZURI_SESSION_SECRET, now: nowMs })
         if (!session) return { state: 'UNAUTHENTICATED' }
 
         // Current login tokens carry a session id and must match a live row.
@@ -73,18 +102,45 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
           if (typeof db.session?.findUnique !== 'function') {
             if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
           } else {
-            const persisted = await db.session.findUnique({ where: { id: session.sessionId } })
+            const persisted = await sessionStoreCall(() => db.session.findUnique({ where: { id: session.sessionId } }))
             const live = persisted &&
               persisted.personId === session.principalId &&
               persisted.tokenHash === hashSessionToken(sessionCookie) &&
               persisted.status === 'ACTIVE' &&
-              persisted.expiresAt > new Date()
+              persisted.expiresAt > new Date(nowMs)
             if (!live) return { state: 'UNAUTHENTICATED' }
+
+            const lastSeenAt = validDate(persisted.lastSeenAt)
+            const idleLimitSeconds = session.remember
+              ? SESSION_IDLE_TIMEOUT_REMEMBER_SECONDS
+              : SESSION_IDLE_TIMEOUT_SECONDS
+            const idleExpired = !lastSeenAt || nowMs - lastSeenAt.getTime() >= idleLimitSeconds * 1000
+            if (idleExpired) {
+              if (typeof db.session.updateMany === 'function') {
+                await sessionStoreCall(() => db.session.updateMany({
+                  where: { id: session.sessionId, status: 'ACTIVE' },
+                  data: {
+                    status: 'REVOKED',
+                    revokedAt: new Date(nowMs),
+                    revokeReason: 'IDLE_TIMEOUT',
+                    version: { increment: 1 },
+                  },
+                }))
+              }
+              return { state: 'UNAUTHENTICATED' }
+            }
+
             if (typeof db.session.updateMany === 'function') {
-              await db.session.updateMany({
-                where: { id: session.sessionId, status: 'ACTIVE' },
-                data: { lastSeenAt: new Date() },
-              })
+              if (nowMs - lastSeenAt.getTime() >= SESSION_LAST_SEEN_THROTTLE_SECONDS * 1000) {
+                await sessionStoreCall(() => db.session.updateMany({
+                  where: {
+                    id: session.sessionId,
+                    status: 'ACTIVE',
+                    lastSeenAt: { lt: new Date(nowMs - SESSION_LAST_SEEN_THROTTLE_SECONDS * 1000) },
+                  },
+                  data: { lastSeenAt: new Date(nowMs) },
+                }))
+              }
             }
             persistedExpiresAt = persisted.expiresAt
           }

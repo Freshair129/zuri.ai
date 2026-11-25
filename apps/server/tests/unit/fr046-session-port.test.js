@@ -105,6 +105,7 @@ describe('FR-046 trusted request session', () => {
           tokenHash: hashSessionToken(token),
           status: 'ACTIVE',
           expiresAt,
+          lastSeenAt: new Date(),
         }),
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },

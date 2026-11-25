@@ -51,6 +51,7 @@ export async function POST(request) {
     const result = await authenticateUser({
       username: credentials?.username,
       password: credentials?.password,
+      remember: wantsPersistentSession(credentials?.remember),
     })
     if (!result.success) {
       return NextResponse.json(result, { status: 401 })
@@ -61,18 +62,9 @@ export async function POST(request) {
       user: result.user,
       redirect: '/businesses',
     })
-    // AC-046-15 — "remember me" selects the COOKIE's lifetime and nothing else.
-    // The signed token still carries the same `exp`, and auth-service rejects
-    // anything whose `exp - iat` exceeds SESSION_MAX_AGE_SECONDS, so the ceiling
-    // is unchanged and unchangeable from here. Opting out is therefore strictly
-    // shorter-lived, never longer: the cookie dies with the browser session
-    // while the token it held would have expired at the same moment either way.
-    //
-    // The flag deliberately does not enter the token payload. A claim inside the
-    // token is something the server must then trust and verify; a cookie
-    // `maxAge` is a client-side storage instruction that grants nothing, and
-    // keeping it on that side of the boundary means a forged "remember" buys an
-    // attacker exactly nothing.
+    // AC-046-15 — "remember me" also enters the signed token to select its idle
+    // limit. The token's `exp` still uses SESSION_MAX_AGE_SECONDS, so this flag
+    // never extends the existing seven-day ceiling.
     response.cookies.set(AUTH_SESSION_COOKIE, result.token, {
       httpOnly: true,
       sameSite: 'lax',
