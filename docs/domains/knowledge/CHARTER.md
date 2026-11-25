@@ -1,6 +1,6 @@
 ---
 domain: knowledge
-version: "1.10.2"
+version: "1.10.3"
 status: beta
 last_update: "2026-11-25,Claude Sonnet 5.5"
 module: src/modules/knowledge
@@ -589,10 +589,36 @@ content). It now gets its own explicit `{ provider: 'LINE_STUDIO_DESCRIPTION'
 }` descriptor instead, so it stays outside `ZERO_PII_POLICY_BY_PROVIDER` on
 its own terms.
 
+## Deterministic primary keys (ADR-123, D-D7)
+
+Eight models derive their primary key from their input instead of
+`@default(uuid())`, so a replay lands on the same row. The exception is recorded
+by [ADR-123](../../decisions/ADR-123-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)
+(delegated product-owner decision D-D7, not human approval). Every id is
+`<prefix>_<48 hex of SHA-256 over canonical JSON of the tuple>`; builders live in
+`apps/server/src/platform/integrations/core/genesisrag17-{executor,importer,publication}.js`.
+
+| Model | Prefix | Input tuple | Scope |
+|---|---|---|---|
+| `KnowledgeRawArtifact` | `kra_` | schema/pipeline version, scope, sourceId, documentId, version, contentHash (+ binary fields) | direct |
+| `KnowledgeParsedArtifact` | `kpa_` | raw tuple + parserVersion | direct |
+| `GenesisRag17IngestionIntent` | `gii_` | parsed identity + executionRunId | direct |
+| `GenesisRag17SourceMention` | `gsm_` | executionRunId, Stage 8 attemptId, sourceMentionId, derivationHash | via run |
+| `GenesisRag17Batch` | `grb_` | executionRunId, Stage 9 attemptId | via run |
+| `GenesisRag17StageEvidence` | `gre_` | whole evidence row incl. runId, stage, step, attempt, outcome | via run |
+| `GenesisRag17EvidenceCursor` | `gcur_` | runId, scope | direct |
+| `GenesisRag17PublicationReceipt` | `gpr_` | whole parsed receipt incl. scope and runId | direct |
+
+`executionRunId` is a random UUID created once per scope and source identity, so
+"via run" ids never cross scopes. The exception covers no provider id and no new
+model; changing a tuple, prefix, truncation or canonicalisation needs a new
+decision. Proof: `tests/integration/genesisrag17-deterministic-ids.test.js`.
+
 ## Documentation version diff — 2026-09-16
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.10.2 → 1.10.3 (2026-11-25) | Records the derivation, input tuple and scope of the eight deterministic primary keys under ADR-123 (delegated D-D7) | Documentation and tests only; no id generation, model or migration change |
 | 1.10.1 → 1.10.2 (2026-11-25) | Adds the Stage 9 outbox exception (ADR-121, delegated decision D-D13): the outgoing immutable scoped batch may hold source text; explicit retention bound; recovery by resend; existing rows never auto-deleted; records unbounded retention and unfiltered reply storage as known non-conformance | Documentation only; no code, schema, migration or data change; nothing deleted |
 | 1.10.0 → 1.10.1 (2026-10-26) | Reconciles document admission/access, bounded customer Product disclosure and MSP episodic vault terminology; identifies the unspecified general document-vault audience contract | Documentation only; no new grants or commercial authority |
 | 1.9.0 → 1.10.0 (2026-10-24) | Claims LineProductDisclosurePolicy as Knowledge's default-off, audited per-account decision for selected descriptive Product fields from verified GenesisRAG17 records; Product identity, stock and price authority remain with their existing owners | Additive policy model and owner API; no catalog, stock or price authority transfer |
