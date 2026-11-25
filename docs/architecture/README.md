@@ -190,4 +190,5 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-118 — Document kinds and write homes](../decisions/ADR-118-DOCUMENT-KINDS-AND-WRITE-HOMES.md)
 - [ADR-119 — Remove SmartGift and GoVibe from Zuri](../decisions/ADR-119-REMOVE-SMARTGIFT-AND-GOVIBE-FROM-ZURI.md)
 - [ADR-120 — Verified settlement before order completion and stock issue](../decisions/ADR-120-VERIFIED-SETTLEMENT-BEFORE-ORDER-COMPLETION.md)
-- [ADR-121 — Keep the deterministic primary keys of eight Knowledge models](../decisions/ADR-121-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)
+- [ADR-121 — Stage 9 outbox retention and recovery contract](../decisions/ADR-121-STAGE9-OUTBOX-RETENTION-AND-RECOVERY-CONTRACT.md)
+- [ADR-122 — Keep the deterministic primary keys of eight Knowledge models](../decisions/ADR-122-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)

@@ -1,5 +1,5 @@
 ---
-id: ZAI:ADR-121
+id: ZAI:ADR-122
 title: Keep the deterministic primary keys of eight Knowledge and GenesisRAG17 models
 version: "1.0.0"
 status: accepted
@@ -23,7 +23,7 @@ relations:
     target: ZAI:FR-109
 ---
 
-# ADR-121 — Keep the deterministic primary keys of eight Knowledge models
+# ADR-122 — Keep the deterministic primary keys of eight Knowledge models
 
 **Status:** Accepted on 2026-11-25. It records delegated product-owner decision
 D-D7 (Astra, gpt-6-astra) under owner instruction 2026-11-08, relayed by the

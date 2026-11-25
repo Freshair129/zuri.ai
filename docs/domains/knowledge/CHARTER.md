@@ -1,6 +1,6 @@
 ---
 domain: knowledge
-version: "1.10.2"
+version: "1.10.3"
 status: beta
 last_update: "2026-11-25,Claude Sonnet 5.5"
 module: src/modules/knowledge
@@ -185,6 +185,36 @@ Stage 9–17 evidence cursor, publication-receipt reference and durable Stage 9
 batch state. These records hold source identity, hashes, offsets, counts and
 redacted details; they do not hold GKS facts, canonical entities, embeddings,
 index payloads or GenesisBlockDB data.
+
+**One exception: the Stage 9 outbox ([ADR-121](../../decisions/ADR-121-STAGE9-OUTBOX-RETENTION-AND-RECOVERY-CONTRACT.md),
+delegated decision D-D13).** `GenesisRag17Batch` stores input Zuri must resend,
+so its `requestJson` may hold source text (`source.content`, `chunks[].text`,
+`mentions[].name`) inside the outgoing batch, and nothing else in this lineage
+may. The outbox:
+
+- stores only the outgoing `genesisrag17.v1` batch, its delivery state and the
+  contract reply fields (`schemaVersion`, `scope`, `batchId`, `status`,
+  `decisionId`); it never stores downstream-stage internals (entities, facts,
+  derived rows, embeddings, decision bodies, gate dimensions, receipts) and
+  never copies its text into another table, log or error;
+- is scoped: one row per Stage 9 step and attempt, bound to one scope, read or
+  resent only under that scope; a replay or correction writes a new row;
+- is immutable while `PENDING`: `requestJson`, ids, attempt identity and scope
+  never change, and only the worker moves `status` forward;
+- has an explicit retention bound: text members may stay at most 30 days after
+  the run is terminal and its publication receipt is imported, and a `PENDING`
+  row over 90 days is reported for an owner decision, never deleted (initial
+  values, ADR-121 Open question 1); the text-free envelope stays with the run;
+- is recovered by resending the stored bytes with the same `batchId` and
+  `idempotencyKey` (`resumeGenesisRag17Worker`); after redaction a replay starts
+  a new run and attempt; and
+- is **never auto-deleted**: existing rows are not deleted, redacted or
+  backfilled by any job. Redaction of an over-bound row is an owner-run,
+  dry-run-first operation (ADR-057).
+
+Known non-conformance, recorded and not fixed by that decision: no code redacts
+or deletes a batch row, so retention is unbounded today, and `responseJson`
+stores the whole MSP reply unfiltered (ADR-121 findings F1–F2).
 
 Before Stage 1, `GenesisRag17IngestionIntent` retains the exact scoped source
 request and immutable derivation configuration. The source loop resumes its
@@ -559,11 +589,11 @@ content). It now gets its own explicit `{ provider: 'LINE_STUDIO_DESCRIPTION'
 }` descriptor instead, so it stays outside `ZERO_PII_POLICY_BY_PROVIDER` on
 its own terms.
 
-## Deterministic primary keys (ADR-121, D-D7)
+## Deterministic primary keys (ADR-122, D-D7)
 
 Eight models derive their primary key from their input instead of
 `@default(uuid())`, so a replay lands on the same row. The exception is recorded
-by [ADR-121](../../decisions/ADR-121-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)
+by [ADR-122](../../decisions/ADR-122-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)
 (delegated product-owner decision D-D7, not human approval). Every id is
 `<prefix>_<48 hex of SHA-256 over canonical JSON of the tuple>`; builders live in
 `apps/server/src/platform/integrations/core/genesisrag17-{executor,importer,publication}.js`.
@@ -588,7 +618,8 @@ decision. Proof: `tests/integration/genesisrag17-deterministic-ids.test.js`.
 
 | Version | Change | Runtime impact |
 |---|---|---|
-| 1.10.1 → 1.10.2 (2026-11-25) | Records the derivation, input tuple and scope of the eight deterministic primary keys under ADR-121 (delegated D-D7) | Documentation and tests only; no id generation, model or migration change |
+| 1.10.2 → 1.10.3 (2026-11-25) | Records the derivation, input tuple and scope of the eight deterministic primary keys under ADR-122 (delegated D-D7) | Documentation and tests only; no id generation, model or migration change |
+| 1.10.1 → 1.10.2 (2026-11-25) | Adds the Stage 9 outbox exception (ADR-121, delegated decision D-D13): the outgoing immutable scoped batch may hold source text; explicit retention bound; recovery by resend; existing rows never auto-deleted; records unbounded retention and unfiltered reply storage as known non-conformance | Documentation only; no code, schema, migration or data change; nothing deleted |
 | 1.10.0 → 1.10.1 (2026-10-26) | Reconciles document admission/access, bounded customer Product disclosure and MSP episodic vault terminology; identifies the unspecified general document-vault audience contract | Documentation only; no new grants or commercial authority |
 | 1.9.0 → 1.10.0 (2026-10-24) | Claims LineProductDisclosurePolicy as Knowledge's default-off, audited per-account decision for selected descriptive Product fields from verified GenesisRAG17 records; Product identity, stock and price authority remain with their existing owners | Additive policy model and owner API; no catalog, stock or price authority transfer |
 | 1.8.8b → 1.9.0 (2026-10-23) | Adopts approved Knowledge capability accountability and the user's solo product/development/operations ownership; external component decision rights retained | Local worker scheduling/diagnostic safety only; no model, migration, wire, store or quality-authority transfer |

@@ -1,7 +1,7 @@
 ---
 version: "0.17.0b"
 status: active
-last_update: "2026-11-13T15:33:27+07:00,Codex"
+last_update: "2026-11-25,Claude (D-D6 Person ownership amendment)"
 id: ZAI:DOMAIN-CRM
 relations:
   - type: relates_to
@@ -17,7 +17,6 @@ modules:
   - crm
   - line-crm
 owns_models:
-  - Person
   - Customer
   - CustomerImportBatch
   - CustomerImportProvenance
@@ -44,8 +43,8 @@ owns_models:
 > The optional one-file corpus can be built locally with `npm run docs:llms`;
 > its `llms-full.txt` output is generated and not committed.
 
-Who the business talks to, and what was said: the global Person, the
-tenant-scoped Customer, and the Conversation/Message ingest that every LINE
+Who the business talks to, and what was said: the tenant-scoped Customer (a
+consumer of the global `Person`, which identity owns per D-D6), the and the Conversation/Message ingest that every LINE
 turn flows through before any agent work happens.
 
 ## Boundaries
@@ -301,11 +300,34 @@ turn flows through before any agent work happens.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
-- `Person` is also written by identity's linking/erasure and FR-066 profile
-  flows (`link-line-identity`, `erase-principal`, `onboarding-service`) —
-  PDPA erasure must redact the
-  global Person. Target state per the architecture spec is a contract call
-  into crm; today it is a direct write, recorded here so the gap stays visible.
+- **`Person` is owned by identity, not crm (D-D6, delegated product-owner
+  decision by Astra / gpt-6-astra under the owner's 2026-11-08 delegation,
+  2026-11-25; not human approval).** crm is a consumer: `Customer.personId` and
+  the ingest seam reference it, and crm reads it. This replaces the earlier text
+  that had crm owning `Person` while identity wrote it.
+- **Acknowledged debt: the ownership move is documentary only.** Writer
+  boundaries are not shown to be fixed by it. What is still true in code:
+  - No `apps/server/src/modules/crm` or `line-crm` file calls `person.create`,
+    `update`, `upsert` or `delete` (grep, 2026-11-25). The "Person + Customer +
+    Conversation + Message atomically" contract of `ingestLineMessage` is met by
+    `line-ingest-service` calling identity's `resolveLineIdentity`, which creates
+    the `Person`; the crm-side writes are `Customer`, `Conversation` and
+    `Message` only.
+  - crm depends on identity for `Person` redaction: PDPA erasure
+    (`erase-principal`) redacts the global row; crm's own redaction/retention
+    services (`conversation-redaction-service`, customer erasure and retention
+    flows) act on crm-owned rows and read `Customer.personId`. Their coupling to
+    the `Person` redaction order is not formally contracted.
+  - crm reads `Person` only through relations and `personId` joins, with no
+    direct `person.*` query (`sales-task-service` selects the assignee `Person`
+    columns by relation and checks assignee `Membership`; `customer-consent-service`
+    and the chat-evidence services join on `Customer.personId` and
+    `ChannelIdentity.personId`). None of this goes through an identity read
+    contract.
+  - `prisma/seed.js` writes `Person` for demo data, outside any module.
+  Target state: crm calls an identity-owned contract for any `Person` read or
+  change it needs; that contract does not exist yet, and this change adds no
+  code, schema or ledger id.
 
 ## Declared, not yet in schema (FEAT-014, ADR-054)
 

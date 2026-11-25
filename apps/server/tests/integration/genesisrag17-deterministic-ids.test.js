@@ -13,7 +13,7 @@ import {
 
 // @req FR-109 — deterministic artifact, intent, mention, batch and stage-evidence identities preserve immutable scoped lineage.
 // @req FR-110 — publication receipts and evidence cursors retain deterministic scoped identities.
-// @spec ADR-121
+// @spec ADR-122
 // @tested tests/integration/genesisrag17-deterministic-ids.test.js
 
 const fixtureText = [
