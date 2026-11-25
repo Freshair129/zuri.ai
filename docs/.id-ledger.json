@@ -853,6 +853,7 @@
     "ADR-118",
     "ADR-119",
     "ADR-120",
+    "ADR-121",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11201,6 +11202,19 @@
       "history": [
         {
           "anchor": "verified settlement before order completion and stock issue",
+          "since": "2026-11-25",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-121": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-121-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md",
+      "status": "current",
+      "statement_digest": "0849e1831627943a7746497f0bf8679405362c0016765cbe3bfe73246280cbfb",
+      "history": [
+        {
+          "anchor": "keep the deterministic primary keys of eight knowledge",
           "since": "2026-11-25",
           "reason": "declared"
         }

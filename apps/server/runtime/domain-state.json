@@ -4377,7 +4377,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-110",
@@ -4385,7 +4385,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-118",
@@ -5356,7 +5356,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-110",
@@ -5364,7 +5364,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-111",
@@ -8320,7 +8320,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-110",
@@ -8328,7 +8328,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-123",
@@ -11862,7 +11862,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 19,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-110",
@@ -11870,7 +11870,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 36
+          "testCount": 37
         },
         {
           "id": "FR-111",
@@ -11984,6 +11984,7 @@
         "apps/server/tests/integration/fr253-pricing-catalog.test.js",
         "apps/server/tests/integration/fr254-citation-artifact.test.js",
         "apps/server/tests/integration/fr254-knowledge-console.test.js",
+        "apps/server/tests/integration/genesisrag17-deterministic-ids.test.js",
         "apps/server/tests/integration/genesisrag17-parser-2.test.js",
         "apps/server/tests/integration/genesisrag17-tier1-knowledge-admission-zero-pii.test.js",
         "apps/server/tests/integration/genesisrag17-tier1.test.js",

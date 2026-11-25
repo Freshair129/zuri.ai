@@ -66,7 +66,7 @@ says "all" and the schema says otherwise:
 | `MarketingReportPolicy` | `businessId` | One policy row per Business | Yes — an internal id used as a shared key |
 | `PlanImportReceipt` | `idempotencyKey` | The replay key is the identity of a receipt | Caller-supplied for full plans at schemaVersion 1.2 and deltas; derived as `zai-legacy-plan:v1:<sha256>` for full plans at 1.0/1.1. `docs/appendices/B-db-schema.md` and the ERD describe it; this is still not recorded as an approved exception to BR-002 |
 | `NotionWebhookReceipt` | `eventId` | Duplicate deliveries collapse on insert | **No.** The key is Notion's event id |
-| `KnowledgeRawArtifact`, `KnowledgeParsedArtifact`, `GenesisRag17IngestionIntent`, `GenesisRag17SourceMention`, `GenesisRag17EvidenceCursor`, `GenesisRag17Batch`, `GenesisRag17StageEvidence`, `GenesisRag17PublicationReceipt` | Deterministic `<prefix>_<hex of a hash>` (`kra_`, `kpa_`, `gii_`, `gsm_`, `grb_`; `gre_` for stage evidence; `gpr_` for the publication receipt; `gcur_` for the evidence cursor), built in `apps/server/src/platform/integrations/core/` by `genesisrag17-executor.js`, `genesisrag17-importer.js` and `genesisrag17-publication.js` | Each id is a function of its own input tuple, so the same tuple lands on the same row. Several evidence ids include the run or attempt, so a new attempt makes a new row | Internal, but not random. Not recorded as an approved exception |
+| `KnowledgeRawArtifact`, `KnowledgeParsedArtifact`, `GenesisRag17IngestionIntent`, `GenesisRag17SourceMention`, `GenesisRag17EvidenceCursor`, `GenesisRag17Batch`, `GenesisRag17StageEvidence`, `GenesisRag17PublicationReceipt` | Deterministic `<prefix>_<hex of a hash>` (`kra_`, `kpa_`, `gii_`, `gsm_`, `grb_`; `gre_` for stage evidence; `gpr_` for the publication receipt; `gcur_` for the evidence cursor), built in `apps/server/src/platform/integrations/core/` by `genesisrag17-executor.js`, `genesisrag17-importer.js` and `genesisrag17-publication.js` | Each id is a function of its own input tuple, so the same tuple lands on the same row. Several evidence ids include the run or attempt, so a new attempt makes a new row | Internal, but not random. Approved exception: ADR-121 (delegated D-D7); per-model derivation in the Knowledge charter. Not extended to provider ids or new models |
 | `KnowledgeChunk` | `documentId#ordinal` (`apps/server/src/modules/knowledge/chunking.js`) | A chunk is addressed by its position | Internal, derived |
 | `ManagedBlobRecoveryInstallationFence`, `NotionWebhookVerificationToken` | A fixed id with no default | Singleton or sentinel rows | Internal |
 
@@ -307,7 +307,7 @@ not enforce that pair on every table — the owning service does.
 | # | Gap | Kind |
 |---|---|---|
 | 1 | `NotionWebhookReceipt.eventId` is a provider id used as a primary key | Code; contradicts BR-002 |
-| 2 | Deterministic and derived primary keys (§2) are not recorded as approved exceptions anywhere else | Owner decision |
+| 2 | Deterministic and derived primary keys (§2): the eight Knowledge/GenesisRAG17 models are recorded by ADR-121 (delegated D-D7). `KnowledgeChunk`, `PlanImportReceipt` and the singleton rows remain unrecorded | Owner decision |
 | 3 | Code allocation is check-then-insert, and most callers do not retry on a conflict (§3.6); **Closed in code on 2026-11-13, see §3.6** | Code |
 | 4 | No rule says when a code is installation-wide and when it is Tenant-scoped (§3.5) | Owner decision |
 | 5 | No rule says which external namespaces may live in installation-wide `ExternalRef` (§4) | Owner decision |
