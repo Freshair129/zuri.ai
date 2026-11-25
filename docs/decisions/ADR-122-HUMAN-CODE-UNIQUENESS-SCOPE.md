@@ -1,5 +1,5 @@
 ---
-id: ZAI:ADR-121
+id: ZAI:ADR-122
 title: Human code uniqueness follows the owning scope; Customer.code becomes per-Tenant
 version: "1.0.0"
 status: accepted
@@ -29,7 +29,7 @@ relations:
     target: ZAI:ADR-039
 ---
 
-# ADR-121 — Human code uniqueness follows the owning scope; Customer.code becomes per-Tenant
+# ADR-122 — Human code uniqueness follows the owning scope; Customer.code becomes per-Tenant
 
 **Status:** Accepted on 2026-11-25. It records delegated product-owner decision
 D-D8 (Astra, gpt-6-astra) under owner instruction 2026-11-08, relayed by the

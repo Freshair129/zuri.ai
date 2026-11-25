@@ -2509,7 +2509,7 @@ model ExternalRef {
 // per-tenant CRM record linked to a Person principal (personId), so businesses in
 // one tenant share the customer (the CRM-sharing decision) while the channel
 // identity stays on ExternalIdentity. Customer.code is unique within its Tenant
-// (ADR-121). Soft-delete + version like other aggregates.
+// (ADR-122). Soft-delete + version like other aggregates.
 model Customer {
   id             String    @id @default(uuid())
   code           String

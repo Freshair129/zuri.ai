@@ -19,6 +19,7 @@ owns_routes:
   - src/app/api/platform/harness-pairing/**
   - src/app/api/platform/harness-devices/**
 owns_models:
+  - Person
   - ExternalIdentity
   - IdentityLinkToken
   - ExternalRef
@@ -194,13 +195,24 @@ the separate FR-067 path, unchanged under AC-195.9.
 
 ## Known shared-write exceptions (debt, visible on purpose)
 
-- Writes `Person` (owned by crm) during linking, erasure, FR-066 profile
-  completion (`displayName`/`email`/`profileCompletedAt` in
-  `onboarding-service.js`) and FR-120 self-serve signup (`signup-service.js`
-  creates the row alongside the `PersonCredential` this domain does own) —
-  recorded in both charters; target state is a crm contract call. FR-120 is the
-  same allowance rather than a new claim: it writes the same three columns, in
-  the same lane, for the step that comes immediately before FR-066's.
+- **Person ownership (D-D6, delegated product-owner decision, 2026-11-25).**
+  The global `Person` is an identity principal, so this domain owns it and crm
+  is a consumer. This records the decision as **delegated by Astra
+  (gpt-6-astra) under the owner's 2026-11-08 delegation; it is not human
+  approval.** Moving the claim in documents is **not** evidence that the writer
+  boundaries are fixed; the residual crm side is listed in crm's charter.
+- Every runtime `Person` write already sits in this module: linking
+  (`link-line-identity`), erasure (`erase-principal`), first-contact LINE
+  resolution (`resolve-line-identity`, which `ingestLineMessage` calls), FR-066
+  profile completion (`onboarding-service`), FR-120 signup (`signup-service`,
+  alongside the `PersonCredential` this domain owns) and operator bootstrap
+  (`operator-bootstrap`). Outside it, only `prisma/seed.js` writes `Person`
+  (seed data, not a runtime path). Verified by grep of `apps/server/src`,
+  `scripts` and `prisma` on 2026-11-25; re-run it before relying on this list.
+- Consumers (crm, project-manager, people, platform-control, asset-management,
+  agent) read `Person` and hold `personId` foreign keys. They must not write it;
+  target state for any consumer needing a change is a call into an identity
+  contract. No such contract is written down yet; that gap is acknowledged.
 
 ## Agent harness devices (FR-220, ADR-087 — retired by ADR-110)
 

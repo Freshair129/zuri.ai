@@ -6,7 +6,7 @@ import { describe, expect, it } from 'vitest'
 // from the private zuri_core customer data schema.
 // @spec ADR-033 D8, ADR-018.
 // @req FR-023 — Customer.code is unique within its owning Tenant.
-// @spec BR-001, ADR-121 D1, D3, D4 — a weaker composite key requires no backfill.
+// @spec BR-001, ADR-122 D1, D3, D4 — a weaker composite key requires no backfill.
 
 const migration = readFileSync(
   resolve(process.cwd(), 'supabase/migrations/20260818084011_application_schema.sql'),

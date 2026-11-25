@@ -1,5 +1,5 @@
 -- @req FR-023 — Customer.code is unique within its owning Tenant.
--- @spec BR-001, BR-002, SEC-001, ADR-121 D1-D4 — Tenant is the isolation boundary;
+-- @spec BR-001, BR-002, SEC-001, ADR-122 D1-D4 — Tenant is the isolation boundary;
 -- a human code is not a cross-tenant identifier.
 -- @tested tests/unit/application-schema-migration.test.js
 --

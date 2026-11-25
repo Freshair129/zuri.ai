@@ -3203,8 +3203,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 19,
-            "present": 19
+            "models": 18,
+            "present": 18
           }
         },
         "authorization": {
@@ -3283,7 +3283,7 @@
         "routes": 0,
         "apiRoutes": 0,
         "pageRoutes": 0,
-        "ownedModels": 19,
+        "ownedModels": 18,
         "featureNotes": 10
       },
       "featureIds": [
@@ -3990,8 +3990,8 @@
           ],
           "gaps": [],
           "details": {
-            "models": 22,
-            "present": 22
+            "models": 23,
+            "present": 23
           }
         },
         "authorization": {
@@ -4229,7 +4229,7 @@
         "routes": 40,
         "apiRoutes": 32,
         "pageRoutes": 8,
-        "ownedModels": 22,
+        "ownedModels": 23,
         "featureNotes": 27
       },
       "featureIds": [
