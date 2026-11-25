@@ -57,8 +57,8 @@ const TARGET_LOCAL_SCHEMA_MODELS = Object.freeze([
 // @req TASK-ZAI-012 — include mission draft/evidence in the complete census;
 // portable snapshots preserve the rows and erasure tombstones redact personal source fields.
 // GoodsReceipt cost-provenance fields are bound without changing the table count.
-const FROZEN_SCHEMA_SHA256 = '20f8aaeaec011716977832042d7311b173bd8545cc576a0b5aeeab2cb48728d9'
-const FROZEN_TARGET_SCHEMA_SHA256 = '4cd23aa28f862f446778d8e341b5b10004675ec10880a7f7be32fefbb2afb844'
+const FROZEN_SCHEMA_SHA256 = '3b56c5e09874a6126387edffe16ef90ce3fcd1af3b82bf52676a2f688077b490'
+const FROZEN_TARGET_SCHEMA_SHA256 = '42c68b6006e2ba931d56031dc7e6d77093fc05d1b6aacb13c49b355a024eb677'
 const FROZEN_APPLICATION_TABLE_COUNT = 219
 
 function ordinalCompare(a, b) {

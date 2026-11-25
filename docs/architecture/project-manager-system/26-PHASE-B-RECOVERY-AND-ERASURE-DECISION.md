@@ -845,3 +845,16 @@ static binding does not authorize a live migration or recovery/erasure operation
 - Previous 219-table binding: schema `d31778b1ed01f6e6f5dd9623bfad72b0c0a054ad505d36cdb9fb50a25837abe4`, target `d8258b382545099d079e5cd9ffe781d85c0e2fdd338bcbacbc477c1be2671bc2`.
 - Current 219-table binding: schema `20f8aaeaec011716977832042d7311b173bd8545cc576a0b5aeeab2cb48728d9`, target `4cd23aa28f862f446778d8e341b5b10004675ec10880a7f7be32fefbb2afb844`.
 - The previous binding remains historical and is refused by the current loader and adapters.
+
+## Customer.code Tenant-scope schema rebind (2026-11-25)
+
+ADR-122 (D-D8) replaces the global unique on `Customer.code` with a unique on
+`(tenantId, code)`. This changes the exact canonical schema bytes but adds no
+application table and no column. All 219 table mappings remain unchanged. This
+static binding does not authorize a live migration or recovery/erasure operation;
+the matching Supabase migration is written, not applied (ADR-057).
+
+- Previous 219-table binding: schema `20f8aaeaec011716977832042d7311b173bd8545cc576a0b5aeeab2cb48728d9`, target `4cd23aa28f862f446778d8e341b5b10004675ec10880a7f7be32fefbb2afb844`.
+- Current 219-table binding: schema `3b56c5e09874a6126387edffe16ef90ce3fcd1af3b82bf52676a2f688077b490`, target `42c68b6006e2ba931d56031dc7e6d77093fc05d1b6aacb13c49b355a024eb677`.
+- Both values were recomputed with the loader's own portable-schema rule (LF bytes minus the FR-293 target-local models) and `computeTargetSchemaSha256`; the same method reproduces the previous binding from the previous schema. This is a mechanical hash check only.
+- The previous binding remains historical and is refused by the current loader and adapters.
