@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest'
+import { randomUUID } from 'node:crypto'
 import prisma from '@/lib/db'
 import { createPortfolio, createTenant, createBusiness } from '../factories/scope'
 import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
@@ -30,6 +31,55 @@ describe('ingestLineMessage — cross-tenant thread and message collisions (SEC-
     businessA = await createBusiness({ tenantId: tenantA.id, name: 'Business A', code: 'BUS-LINE-ISO-A' })
     tenantB = await createTenant({ portfolioId: pf.id, name: 'Tenant B', code: 'TNT-LINE-ISO-B' })
     businessB = await createBusiness({ tenantId: tenantB.id, name: 'Business B', code: 'BUS-LINE-ISO-B' })
+  })
+
+  it('allows Customer.code to repeat across tenants but not within one tenant', async () => {
+    const suffix = randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()
+    const code = `CUS-TENANT-SCOPE-${suffix}`
+    const [personA, personB, personASecond] = await Promise.all([
+      prisma.person.create({ data: { code: `PER-CUS-SCOPE-A-${suffix}`, displayName: `Customer A ${suffix}` } }),
+      prisma.person.create({ data: { code: `PER-CUS-SCOPE-B-${suffix}`, displayName: `Customer B ${suffix}` } }),
+      prisma.person.create({ data: { code: `PER-CUS-SCOPE-A2-${suffix}`, displayName: `Customer A2 ${suffix}` } }),
+    ])
+
+    const firstA = await prisma.customer.create({
+      data: { code, tenantId: tenantA.id, personId: personA.id, displayName: 'Shared code A' },
+    })
+    const firstB = await prisma.customer.create({
+      data: { code, tenantId: tenantB.id, personId: personB.id, displayName: 'Shared code B' },
+    })
+    expect(firstB.code).toBe(firstA.code)
+
+    await expect(prisma.customer.create({
+      data: { code, tenantId: tenantA.id, personId: personASecond.id, displayName: 'Same tenant duplicate' },
+    })).rejects.toMatchObject({ code: 'P2002' })
+  })
+
+  it('allocates the unsuffixed Customer.code independently for each tenant', async () => {
+    const suffix = randomUUID().replaceAll('-', '').slice(0, 8).toUpperCase()
+    const displayName = `Scope ${suffix}`
+    const ingest = (tenantId, businessId, label) => ingestLineMessage({
+      tenantId,
+      businessId,
+      lineUserId: `U-code-scope-${suffix}-${label}`,
+      threadId: `U-thread-code-scope-${suffix}-${label}`,
+      text: `Customer code scope ${label}`,
+      displayName,
+    })
+
+    const firstA = await ingest(tenantA.id, businessA.id, 'a1')
+    const secondA = await ingest(tenantA.id, businessA.id, 'a2')
+    const firstB = await ingest(tenantB.id, businessB.id, 'b1')
+    const [customerA, customerASecond, customerB] = await Promise.all([
+      prisma.customer.findUnique({ where: { id: firstA.customerId } }),
+      prisma.customer.findUnique({ where: { id: secondA.customerId } }),
+      prisma.customer.findUnique({ where: { id: firstB.customerId } }),
+    ])
+
+    const unsuffixedCode = `CUS-SCOPE-${suffix}`
+    expect(customerA.code).toBe(unsuffixedCode)
+    expect(customerB.code).toBe(unsuffixedCode)
+    expect(customerASecond.code).toBe(`${unsuffixedCode}-2`)
   })
 
   it('gives each tenant its own conversation for the same external thread id', async () => {
