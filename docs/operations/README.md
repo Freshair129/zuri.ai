@@ -49,6 +49,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Compact managed-blob operator restore/rebind implementation plan](../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md)
 - [Compact Self-host Implementation Plan](../plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md)
 - [Customer.code per-Tenant migration — owner dry-run and apply checklist](../plans/D8-CUSTOMER-CODE-TENANT-SCOPE-MIGRATION-CHECKLIST-20261125.md)
+- [Deferred review decisions D9, D10, D12 — evidence on main (2026-11-25)](../plans/D9-D10-D12-DEFERRED-DECISIONS-EVIDENCE-20261125.md)
 - [Documentation architecture redesign proposal](../plans/DOCS-ARCHITECTURE-REDESIGN-PROPOSAL-20261113.md)
 - [Approved GenesisRAG17 implementation contract](../plans/GENESISRAG17-CONTRACT.md)
 - [GenesisRAG17 on the edge device: Phase 3 deployment design](../plans/GENESISRAG17-EDGE-DEPLOYMENT.md)
