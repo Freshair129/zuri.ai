@@ -30,7 +30,7 @@ Feature record: [ZAI:FEAT-013 canonical record](feature.md).
 **Existing source/design/context links** (graph navigation; the relation is not new evidence):
 - [ADR-073 — GenesisRAG17 isolated execution and publication](../../decisions/ADR-073-GENESISRAG17-ISOLATED-EXECUTION-AND-PUBLICATION.md) — `references` · `metadata` · `current`
 - [ADR-121 — Stage 9 outbox retention and recovery contract](../../decisions/ADR-121-STAGE9-OUTBOX-RETENTION-AND-RECOVERY-CONTRACT.md) — `relates` · `metadata` · `current`
-- [ADR-122 — Keep the deterministic primary keys of eight Knowledge models](../../decisions/ADR-122-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md) — `relates` · `metadata` · `current`
+- [ADR-123 — Keep the deterministic primary keys of eight Knowledge models](../../decisions/ADR-123-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md) — `relates` · `metadata` · `current`
 - [GenesisRAG17 — execution flow and extension map](../../KNOWLEDGE-INGESTION-17-STAGE-FLOW.md) — `relates` · `metadata` · `current`
 - [Knowledge ingestion — surfaces, data flow และ user journey](../../KNOWLEDGE-INGESTION-SURFACES-AND-USER-FLOWS.md) — `relates` · `metadata` · `current`
 - [TASK-ZAI-049 — Durable knowledge storage on self-hosted S3](../../plans/TASK-ZAI-049-DURABLE-KNOWLEDGE-STORAGE.md) — `relates` · `metadata` · `current`

@@ -854,7 +854,7 @@
     "ADR-119",
     "ADR-120",
     "ADR-121",
-    "ADR-122",
+    "ADR-123",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11221,9 +11221,9 @@
         }
       ]
     },
-    "ADR-122": {
+    "ADR-123": {
       "family": "ADR",
-      "source": "docs/decisions/ADR-122-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md",
+      "source": "docs/decisions/ADR-123-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md",
       "status": "current",
       "statement_digest": "0849e1831627943a7746497f0bf8679405362c0016765cbe3bfe73246280cbfb",
       "history": [
