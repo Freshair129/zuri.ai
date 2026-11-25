@@ -355,12 +355,13 @@ AC-195.9.
 | Property | As built |
 |---|---|
 | Cookie | `zuri_session`; `HttpOnly`; `SameSite=Lax`; `Secure` in production; path `/` |
-| Token | `zuri_sess.<payload>.<HMAC-SHA256>`; payload carries `sub`, `iat`, `exp` and, on every token the current sign-in paths issue, `sid`; signed with a session secret of at least 32 characters |
+| Token | `zuri_sess.<payload>.<HMAC-SHA256>`; payload carries `sub`, `iat`, `exp`, `rem` (1 only for a remember-me or passkey session) and, on every token the current sign-in paths issue, `sid`; signed with a session secret of at least 32 characters |
 | Server record | A `Session` row holding the token's SHA-256 hash, status, assurance, `lastSeenAt` and expiry |
-| Lifetime | Seven days from issue (`SESSION_MAX_AGE_SECONDS`). No refresh, no rotation, no idle timeout |
+| Lifetime | Seven days from issue (`SESSION_MAX_AGE_SECONDS`), never extended by activity. No refresh, no rotation. [ADR-124](../../decisions/ADR-124-SESSION-IDLE-TIMEOUT-AND-LOGOUT-ALL.md) adds an idle timeout: 12 hours, or 72 hours for a remember-me or passkey session (the signed `rem` claim). Step-up stays 900 seconds |
+| Idle enforcement | `session-port.js` reads `Session.lastSeenAt` from the shared database. An idle session is revoked with reason `IDLE_TIMEOUT` and the request is unauthenticated. `lastSeenAt` is written at most once per 60 seconds through a conditional update. Tokens issued before ADR-124 carry no `rem` and get 12 hours |
 | Cookie persistence | Password sign-in: browser-session, or seven days with "remember me". Signup: browser-session. Passkey: seven days |
-| Validation | A request verifies the signature and then, for a token with `sid`, the live `Session` row. Production rejects a token without `sid` and fails closed when the session store is unreachable; outside production a legacy token without `sid` is accepted on its signature alone |
-| Revocation | Sign-out revokes one session; password reset revokes all |
+| Validation | A request verifies the signature and then, for a token with `sid`, the live `Session` row. Production rejects a token without `sid` and fails closed with `SESSION_STORE_UNAVAILABLE` (503) when the session store is absent or unreachable; outside production a legacy token without `sid` is accepted on its signature alone |
+| Revocation | Sign-out revokes one session; `POST /api/auth/logout-all` (session and API-write CSRF token required) and password reset revoke all; idle expiry revokes one. No self-service change-password route exists. Session list and token rotation are deferred (ADR-124 D6) |
 | Viewer | `resolveRequestViewer` returns 401 without a session and 503 on a store failure. `resolveViewer({ principalId })` recomputes active, unexpired Memberships on every request; operator and superadmin grants are re-read from the database, never taken from the cookie |
 
 There is exactly one `middleware` file, `apps/server/src/middleware.js`, and it

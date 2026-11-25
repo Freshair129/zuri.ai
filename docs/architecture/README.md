@@ -193,3 +193,4 @@ Generated navigation for current source documents in the architecture grouping. 
 - [ADR-121 — Stage 9 outbox retention and recovery contract](../decisions/ADR-121-STAGE9-OUTBOX-RETENTION-AND-RECOVERY-CONTRACT.md)
 - [ADR-122 — Human code uniqueness follows the owning scope; Customer.code becomes per-Tenant](../decisions/ADR-122-HUMAN-CODE-UNIQUENESS-SCOPE.md)
 - [ADR-123 — Keep the deterministic primary keys of eight Knowledge models](../decisions/ADR-123-KEEP-DETERMINISTIC-IDS-OF-EIGHT-KNOWLEDGE-MODELS.md)
+- [ADR-124 — Session idle timeout, throttled last-seen writes and logout-all](../decisions/ADR-124-SESSION-IDLE-TIMEOUT-AND-LOGOUT-ALL.md)

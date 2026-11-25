@@ -2052,7 +2052,7 @@
           "details": {
             "routes": 7,
             "inventoried": 7,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -2766,7 +2766,7 @@
           "details": {
             "routes": 17,
             "inventoried": 17,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -3434,8 +3434,8 @@
           "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
-          "codeCount": 14,
-          "testCount": 91
+          "codeCount": 15,
+          "testCount": 94
         },
         {
           "id": "FR-059",
@@ -3522,8 +3522,8 @@
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 27,
-          "testCount": 55
+          "codeCount": 28,
+          "testCount": 58
         },
         {
           "id": "FR-096",
@@ -3953,9 +3953,9 @@
             }
           ],
           "details": {
-            "routes": 32,
-            "inventoried": 30,
-            "openApiPaths": 376,
+            "routes": 33,
+            "inventoried": 31,
+            "openApiPaths": 377,
             "missingFromOpenApi": 1
           }
         },
@@ -4012,8 +4012,8 @@
             }
           ],
           "details": {
-            "mutations": 27,
-            "guardedMutations": 23,
+            "mutations": 28,
+            "guardedMutations": 24,
             "reads": 7,
             "unguardedReads": 1
           }
@@ -4226,8 +4226,8 @@
         }
       ],
       "details": {
-        "routes": 40,
-        "apiRoutes": 32,
+        "routes": 41,
+        "apiRoutes": 33,
         "pageRoutes": 8,
         "ownedModels": 23,
         "featureNotes": 27
@@ -4649,7 +4649,7 @@
           "details": {
             "routes": 19,
             "inventoried": 19,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -5122,7 +5122,7 @@
           "details": {
             "routes": 43,
             "inventoried": 43,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -6301,7 +6301,7 @@
           "details": {
             "routes": 16,
             "inventoried": 16,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -6542,7 +6542,7 @@
           "details": {
             "routes": 3,
             "inventoried": 3,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -6794,7 +6794,7 @@
           "details": {
             "routes": 23,
             "inventoried": 23,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7007,7 +7007,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 91
+          "testCount": 94
         },
         {
           "id": "FR-075",
@@ -7023,7 +7023,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 55
+          "testCount": 58
         },
         {
           "id": "FR-105",
@@ -7202,7 +7202,7 @@
           "details": {
             "routes": 6,
             "inventoried": 6,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7427,7 +7427,7 @@
           "details": {
             "routes": 13,
             "inventoried": 13,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -7813,7 +7813,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 91
+          "testCount": 94
         },
         {
           "id": "FR-056",
@@ -8240,7 +8240,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 55
+          "testCount": 58
         },
         {
           "id": "FR-097",
@@ -9583,7 +9583,7 @@
           "details": {
             "routes": 198,
             "inventoried": 198,
-            "openApiPaths": 376,
+            "openApiPaths": 377,
             "missingFromOpenApi": 0
           }
         },
@@ -11537,8 +11537,8 @@
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 32,
-          "testCount": 55
+          "codeCount": 33,
+          "testCount": 58
         },
         {
           "id": "FR-096",
@@ -11566,6 +11566,7 @@
         }
       ],
       "evidence": [
+        "apps/server/src/app/api/auth/logout-all/route.js",
         "apps/server/src/app/api/auth/logout/route.js",
         "apps/server/src/app/api/auth/mfa/factors/route.js",
         "apps/server/src/app/api/auth/mfa/totp/enroll/route.js",
@@ -11661,6 +11662,7 @@
         "apps/server/tests/integration/phase-b-identity-erasure.test.js",
         "apps/server/tests/integration/phase-b-web-recovery.test.js",
         "apps/server/tests/integration/server-line-jobs.test.js",
+        "apps/server/tests/integration/session-idle-multi-instance.test.js",
         "apps/server/tests/unit/agent-context-retrieval.test.js",
         "apps/server/tests/unit/agent-line-catalog-command.test.js",
         "apps/server/tests/unit/agent-mission-recovery.test.js",
@@ -11671,6 +11673,7 @@
         "apps/server/tests/unit/canonical-iam-runtime-role-cutover.test.js",
         "apps/server/tests/unit/fr045-backup-contract.test.js",
         "apps/server/tests/unit/fr046-auth-route.test.js",
+        "apps/server/tests/unit/fr046-logout-all-route.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/identity/agent-tool-authorizer.test.js",
@@ -11692,6 +11695,7 @@
         "apps/server/tests/unit/pricing-backup.test.js",
         "apps/server/tests/unit/production-migration-reconciliation.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
+        "apps/server/tests/unit/session-idle-timeout.test.js",
         "apps/server/tests/unit/sign-out-surfaces-render.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js"
@@ -17966,8 +17970,8 @@
           "title": "Production viewer entry contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 90,
-          "testCount": 91
+          "codeCount": 91,
+          "testCount": 94
         }
       ],
       "evidence": [
@@ -17978,6 +17982,7 @@
         "apps/server/src/app/(pm)/audit/page.jsx",
         "apps/server/src/app/api/audit/route.js",
         "apps/server/src/app/api/auth/login/route.js",
+        "apps/server/src/app/api/auth/logout-all/route.js",
         "apps/server/src/app/api/auth/logout/route.js",
         "apps/server/src/app/api/backup/export/route.js",
         "apps/server/src/app/api/backup/import/route.js",
@@ -18095,6 +18100,7 @@
         "apps/server/tests/integration/password-reset-flow.test.js",
         "apps/server/tests/integration/plan-delta-moves.test.js",
         "apps/server/tests/integration/project-core.test.js",
+        "apps/server/tests/integration/session-idle-multi-instance.test.js",
         "apps/server/tests/integration/work-listing-scope.test.js",
         "apps/server/tests/integration/work-release-gates.test.js",
         "apps/server/tests/unit/api-path-reachability.test.js",
@@ -18119,6 +18125,7 @@
         "apps/server/tests/unit/fr046-api-ui-contract.test.js",
         "apps/server/tests/unit/fr046-auth-route.test.js",
         "apps/server/tests/unit/fr046-entry-read-model.test.js",
+        "apps/server/tests/unit/fr046-logout-all-route.test.js",
         "apps/server/tests/unit/fr046-session-port.test.js",
         "apps/server/tests/unit/fr061-per-business-domain-visibility.test.js",
         "apps/server/tests/unit/fr089-br018-team-grants-nothing.test.js",
@@ -18143,6 +18150,7 @@
         "apps/server/tests/unit/project-team-service.test.js",
         "apps/server/tests/unit/run-bat-database-bootstrap.test.js",
         "apps/server/tests/unit/scope-view-context.test.js",
+        "apps/server/tests/unit/session-idle-timeout.test.js",
         "apps/server/tests/unit/sign-out-surfaces-render.test.js",
         "apps/server/tests/unit/sign-out.test.js",
         "apps/server/tests/unit/topbar-no-dropdown.test.js",

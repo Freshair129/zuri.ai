@@ -472,11 +472,12 @@ describe('OpenAPI document', () => {
       // FR-230 adds the Integration raw-record and Agent trace retention sweeps;
       // FR-245 adds the CRM archive-expiry trigger: three paths and operations.
       // FR-195 adds four AccessInvite paths and operations: 376 + 4 = 380.
-      pathCount: 376,
+      // ADR-124 adds POST /api/auth/logout-all: one path and operation.
+      pathCount: 377,
       // FR-085 adds release GET on existing /api/work/{id}; no new path.
       // FR-133/FR-135 add GET to the existing /api/assets/intakes path (the
       // Register page's ready-intake list): one operation, no new path.
-      operationCount: 492,
+      operationCount: 493,
     })
     const archiveExpiry = doc.paths['/api/crm/archive-expiry'].post
     expect(archiveExpiry.security).toEqual([{ RetentionSweepOperator: [] }])

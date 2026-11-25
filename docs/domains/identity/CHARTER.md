@@ -97,6 +97,10 @@ application/database isolation boundary, see [Identity System Diagram, sections
   model and tool scope values cannot widen this context.
 - `Session` is live request authority; a signed cookie without an active,
   unexpired Session row is not authenticated in the persisted runtime.
+  [ADR-124](../../decisions/ADR-124-SESSION-IDLE-TIMEOUT-AND-LOGOUT-ALL.md) (owner decision
+  2026-11-25) adds an idle timeout read from `Session.lastSeenAt` (12 hours; 72 hours for
+  remember-me), a 60-second `lastSeenAt` write throttle and `POST /api/auth/logout-all`; the
+  seven-day ceiling and 900-second step-up are unchanged. Next review: 2026-12-12.
 - `resolveSotDataPlaneViewer` (FR-102) is a second, narrower request identity: a `SotDataPlaneKey` bearer token scoped to one Tenant, used only by the two FR-100 SoT decision submit/export routes for the external data plane. It never produces an `isOperator` or Person-shaped viewer and is checked ahead of, not instead of, the session seam.
 - **Retired Edge device credential contract (FR-144, ADR-041 D3; ADR-110).** The
   former `resolveEdgeDeviceContext` resolver and `/api/platform/edge-devices/**`

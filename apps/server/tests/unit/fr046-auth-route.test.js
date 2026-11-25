@@ -69,19 +69,18 @@ describe('FR-046 credential auth routes', () => {
     expect(auth.authenticateUser).toHaveBeenCalledWith({
       username: 'owner@example.com',
       password: 'correct horse battery staple',
+      remember: false,
     })
     expect(rateLimit.consumeLoginRateLimits).toHaveBeenCalledWith(expect.objectContaining({ username: 'owner@example.com' }))
     expect(order).toEqual(['limit', 'auth'])
     expect(response.headers.get('set-cookie')).toContain('zuri_session=zuri_sess.signed-token')
     expect(response.headers.get('set-cookie')).toContain('HttpOnly')
     expect(response.headers.get('set-cookie')).toMatch(/SameSite=lax/i)
-    // AC-046-15 — no `remember` in the body, so no Max-Age: the cookie now dies
-    // with the browser by default. This line asserted `Max-Age=604800` until
-    // 2026-08-29; the seven days did not disappear, they became opt-in.
+    // AC-046-15 — no `remember` means no persistent cookie and the normal idle limit.
     expect(response.headers.get('set-cookie')).not.toMatch(/Max-Age=/i)
   })
 
-  describe('AC-046-15 "remember me" selects the cookie lifetime and nothing else', () => {
+  describe('AC-046-15 "remember me" selects cookie lifetime and the signed idle limit', () => {
     const signedIn = () => auth.authenticateUser.mockResolvedValue({
       success: true,
       token: 'zuri_sess.signed-token',
@@ -123,17 +122,13 @@ describe('FR-046 credential auth routes', () => {
       }
     })
 
-    it('never lets the opt-in reach the token or the credential check', async () => {
-      // The flag is a cookie storage instruction on the client's side of the
-      // boundary. If it reached authenticateUser it would be something the
-      // server has to trust; keeping it out means a forged "remember" buys an
-      // attacker nothing but a longer-lived cookie holding the same token,
-      // which expires at the same moment regardless.
+    it('passes the opt-in to the auth service for its signed idle-timeout claim', async () => {
       signedIn()
       await login(request({ username: 'owner@example.com', password: 'pw', remember: true }))
       expect(auth.authenticateUser).toHaveBeenCalledWith({
         username: 'owner@example.com',
         password: 'pw',
+        remember: true,
       })
     })
   })

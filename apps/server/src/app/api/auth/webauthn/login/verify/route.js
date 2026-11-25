@@ -49,7 +49,7 @@ export async function POST(request, options = {}) {
     })
 
     const sessionId = randomUUID()
-    const token = generateSessionToken(person.id, { sessionId })
+    const token = generateSessionToken(person.id, { sessionId, remember: true })
 
     await persistSession({
       token,

@@ -114,6 +114,7 @@ describe('FR-095 persisted IAM sessions', () => {
           tokenHash: hashSessionToken(token),
           status: 'ACTIVE',
           expiresAt: new Date(Date.now() + 60_000),
+          lastSeenAt: new Date(),
         }),
         updateMany: vi.fn().mockResolvedValue({ count: 1 }),
       },
@@ -138,6 +139,7 @@ describe('FR-095 persisted IAM sessions', () => {
       tokenHash: hashSessionToken(token),
       status: 'REVOKED',
       expiresAt: new Date(Date.now() + 60_000),
+      lastSeenAt: new Date(),
     })
     await expect(port.read(new Request('http://localhost/', {
       headers: { cookie: `zuri_session=${token}` },

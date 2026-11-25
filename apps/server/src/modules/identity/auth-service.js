@@ -13,13 +13,17 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // raw token appears exactly once (in the mint response, for out-of-band handover),
 // storage is hash-bound, and consumption revokes every active session.
 // @spec ADR-017, ADR-045 D2, SDD-024, SDD-052, SEC-008, SEC-018
-// @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js
+// @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js,
+//   tests/unit/session-idle-timeout.test.js
 // @tested tests/unit/password-reset-service.test.js, tests/integration/password-reset-flow.test.js,
 //   tests/integration/passkey-lifecycle.test.js
 // @spec SEC-014
 
 export const AUTH_SESSION_COOKIE = 'zuri_session'
 export const SESSION_MAX_AGE_SECONDS = 7 * 24 * 60 * 60
+export const SESSION_IDLE_TIMEOUT_SECONDS = 12 * 60 * 60
+export const SESSION_IDLE_TIMEOUT_REMEMBER_SECONDS = 72 * 60 * 60
+export const SESSION_LAST_SEEN_THROTTLE_SECONDS = 60
 
 const SESSION_PREFIX = 'zuri_sess'
 const PASSWORD_HASH_PREFIX = 'scrypt'
@@ -78,7 +82,7 @@ function sign(value, secret) {
   return createHmac('sha256', secret).update(value).digest('base64url')
 }
 
-export function generateSessionToken(principalId, { secret, now = Date.now(), sessionId = null } = {}) {
+export function generateSessionToken(principalId, { secret, now = Date.now(), sessionId = null, remember = false } = {}) {
   if (typeof principalId !== 'string' || !principalId.trim()) throw new Error('SESSION_PRINCIPAL_REQUIRED')
   const sessionSecret = secret ?? requireSessionSecret()
   const issuedAt = Math.floor(now / 1000)
@@ -86,6 +90,7 @@ export function generateSessionToken(principalId, { secret, now = Date.now(), se
     sub: principalId,
     iat: issuedAt,
     exp: issuedAt + SESSION_MAX_AGE_SECONDS,
+    ...(remember === true ? { rem: 1 } : {}),
     ...(typeof sessionId === 'string' && sessionId.trim() ? { sid: sessionId.trim() } : {}),
   })
   return `${SESSION_PREFIX}.${payload}.${sign(payload, sessionSecret)}`
@@ -115,6 +120,7 @@ export function verifySessionToken(token, { secret, now = Date.now() } = {}) {
   return {
     principalId: payload.sub,
     sessionId: typeof payload.sid === 'string' && payload.sid.trim() ? payload.sid : null,
+    remember: payload.rem === 1,
     issuedAt: payload.iat,
     expiresAt: payload.exp,
   }
@@ -204,7 +210,7 @@ export async function revokeAllSessions(personId, { db = prisma, env = process.e
  * Verify a submitted identifier and password without exposing whether the
  * identifier or the password was the part that failed.
  */
-export async function authenticateUser({ username, password, db = prisma, env = process.env } = {}) {
+export async function authenticateUser({ username, password, remember = false, db = prisma, env = process.env } = {}) {
   const identifier = typeof username === 'string' ? username.trim() : ''
   if (!identifier || typeof password !== 'string' || !password) {
     return { success: false, error: 'INVALID_CREDENTIALS' }
@@ -239,7 +245,7 @@ export async function authenticateUser({ username, password, db = prisma, env = 
   }
 
   const sessionId = randomUUID()
-  const token = generateSessionToken(person.id, { secret: requireSessionSecret(env), sessionId })
+  const token = generateSessionToken(person.id, { secret: requireSessionSecret(env), sessionId, remember })
   await persistSession({
     token,
     sessionId,

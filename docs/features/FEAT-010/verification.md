@@ -86,6 +86,7 @@ status: generated
 
 ### Code paths — graph bindings
 
+- [apps/server/src/app/api/auth/logout-all/route.js](../../../apps/server/src/app/api/auth/logout-all/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/auth/logout/route.js](../../../apps/server/src/app/api/auth/logout/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/auth/mfa/factors/route.js](../../../apps/server/src/app/api/auth/mfa/factors/route.js) — `implements` (`annotation`)
 - [apps/server/src/app/api/auth/mfa/totp/enroll/route.js](../../../apps/server/src/app/api/auth/mfa/totp/enroll/route.js) — `implements` (`annotation`)
@@ -148,6 +149,7 @@ status: generated
 - [apps/server/tests/integration/phase-b-identity-erasure.test.js](../../../apps/server/tests/integration/phase-b-identity-erasure.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/phase-b-web-recovery.test.js](../../../apps/server/tests/integration/phase-b-web-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/integration/server-line-jobs.test.js](../../../apps/server/tests/integration/server-line-jobs.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/integration/session-idle-multi-instance.test.js](../../../apps/server/tests/integration/session-idle-multi-instance.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/agent-mission-recovery.test.js](../../../apps/server/tests/unit/agent-mission-recovery.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/auth-service.test.js](../../../apps/server/tests/unit/auth-service.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/business-routing-page.test.js](../../../apps/server/tests/unit/business-routing-page.test.js) — `verifies` (`transitive`)
@@ -155,6 +157,7 @@ status: generated
 - [apps/server/tests/unit/canonical-iam-runtime-role-cutover.test.js](../../../apps/server/tests/unit/canonical-iam-runtime-role-cutover.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr045-backup-contract.test.js](../../../apps/server/tests/unit/fr045-backup-contract.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/fr046-auth-route.test.js](../../../apps/server/tests/unit/fr046-auth-route.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/fr046-logout-all-route.test.js](../../../apps/server/tests/unit/fr046-logout-all-route.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/fr046-session-port.test.js](../../../apps/server/tests/unit/fr046-session-port.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/iam-session.test.js](../../../apps/server/tests/unit/iam-session.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/identity/mfa-secret-seal.test.js](../../../apps/server/tests/unit/identity/mfa-secret-seal.test.js) — `verifies` (`test-reference`)
@@ -173,6 +176,7 @@ status: generated
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/production-migration-reconciliation.test.js](../../../apps/server/tests/unit/production-migration-reconciliation.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/scope-view-context.test.js](../../../apps/server/tests/unit/scope-view-context.test.js) — `verifies` (`transitive`)
+- [apps/server/tests/unit/session-idle-timeout.test.js](../../../apps/server/tests/unit/session-idle-timeout.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/sign-out-surfaces-render.test.js](../../../apps/server/tests/unit/sign-out-surfaces-render.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/sign-out.test.js](../../../apps/server/tests/unit/sign-out.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/topbar-no-dropdown.test.js](../../../apps/server/tests/unit/topbar-no-dropdown.test.js) — `verifies` (`test-reference`)
