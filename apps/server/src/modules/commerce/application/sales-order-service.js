@@ -35,7 +35,10 @@ import { loadBusiness, notFound } from './commerce-authority'
 //   the order as reference — refused whole when any is short, when a line
 //   names a SERIAL-tracked SKU (a sale cannot pick serials), or when the
 //   viewer lacks Inventory's write authority (a Commerce role does not widen
-//   Inventory). Totals, paid, balance and payment state are computed on every
+//   Inventory). COMPLETE (and so any stock issue) is refused with 409
+//   COMMERCE_SETTLEMENT_NOT_VERIFIED until VERIFIED payments net of refunds
+//   cover the total (D-D11, delegated); POS checkout does not pass this path
+//   and keeps its FR-183 contract. Totals, paid, balance and payment state are computed on every
 //   read from the lines and the verified payments — never stored. Every write
 //   is one transaction with one audit row.
 // @spec ADR-065; ADR-054 D3/D4; BR-001; BR-002; SEC-001; FR-072
@@ -186,6 +189,13 @@ export async function getOrder(id, { viewer, db = prisma } = {}) {
 
 const ACTIONS = Object.freeze({ UPDATE: 'SALES_ORDER_UPDATED', CONFIRM: 'SALES_ORDER_CONFIRMED', COMPLETE: 'SALES_ORDER_COMPLETED', CANCEL: 'SALES_ORDER_CANCELLED' })
 
+/** Verified settlement: VERIFIED payments net of VERIFIED refunds cover the total (a zero-total order has nothing to settle). Pending money never counts. */
+function settlementOf(row) {
+  const total = orderTotals(row.lines, row.discountSatang).total
+  const summary = paymentSummary(row.payments)
+  return { settled: summary.net >= total, total: fromSatang(total), verified: fromSatang(summary.net), pending: fromSatang(summary.pending), shortfall: fromSatang(Math.max(0, total - summary.net)) }
+}
+
 /** Issue every counted line through the Inventory ledger, or nothing; returns what moved. */
 async function issueStockForOrder(tx, viewer, business, order, now) {
   if (!mayManageInventory(viewer, business.id)) throw failure(403, 'COMMERCE_STOCK_ISSUE_REQUIRES_INVENTORY_AUTHORITY')
@@ -252,7 +262,11 @@ export async function applyOrderAction(id, input, { viewer, db = prisma, now = n
       case 'CONFIRM':
         change.confirmedAt = now
         break
-      case 'COMPLETE':
+      case 'COMPLETE': {
+        // D-D11: no completion and no stock issue before verified settlement. Runs before any write,
+        // so a refusal leaves status, stock ledger and audit untouched.
+        const settlement = settlementOf(row)
+        if (!settlement.settled) throw Object.assign(failure(409, 'COMMERCE_SETTLEMENT_NOT_VERIFIED'), { details: [settlement] })
         change.completedAt = now
         change.closedByPersonId = actor(viewer)
         if (data.issueStock) {
@@ -260,6 +274,7 @@ export async function applyOrderAction(id, input, { viewer, db = prisma, now = n
           change.stockIssuedAt = now
         }
         break
+      }
       case 'CANCEL':
         change.cancelledAt = now
         change.cancelReason = data.reason ?? null
