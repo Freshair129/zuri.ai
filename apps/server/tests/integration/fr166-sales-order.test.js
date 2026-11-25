@@ -15,6 +15,7 @@ import { ingestLineMessage } from '@/modules/crm/line-ingest-service'
 import { createCategory, createProduct, createProductMaster } from '@/modules/inventory/application/inventory-catalog-service'
 import { recordMovement, stockSummary } from '@/modules/inventory/application/inventory-stock-service'
 import { applyOrderAction, createOrder, getOrder, listOrders } from '@/modules/commerce/application/sales-order-service'
+import { applyPaymentAction, recordPayment } from '@/modules/commerce/application/payment-service'
 
 const NOW = new Date('2026-09-06T03:00:00Z')
 const DOMAINS = ['projects', 'platform', 'commerce', 'customer', 'inventory']
@@ -54,6 +55,12 @@ describe('FR-166 SalesOrder', () => {
   })
 
   const lines = () => [{ productId: box.id, qty: 2, unitPrice: 745, discount: 45 }, { description: 'ค่าจัดส่ง', qty: 1, unitPrice: 100 }]
+  /** Record and verify one payment (D-D11: COMPLETE needs verified settlement). */
+  const settle = async (order, amount, kind = 'PAYMENT') => {
+    const p = await recordPayment(order.id, { kind, method: 'CASH', amount }, { viewer: rep, now: NOW })
+    await applyPaymentAction(p.id, { action: 'VERIFY', version: 1 }, { viewer: owner, now: NOW })
+    return p
+  }
   const create = (over = {}, viewer = owner) => createOrder({ businessId: busA.id, lines: lines(), ...over }, { viewer, now: NOW })
 
   it('AC-162.1 — creates with a generated ORD code, exact totals from the lines, and the product lending its name', async () => {
@@ -101,12 +108,14 @@ describe('FR-166 SalesOrder', () => {
     expect(noted).toMatchObject({ notes: 'ยังแก้หมายเหตุได้', version: 4 })
     await expect(applyOrderAction(order.id, { action: 'CONFIRM', version: 4 }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'SALES_ORDER_STATUS_INVALID' })
     await expect(applyOrderAction(order.id, { action: 'CANCEL', version: 1 }, { viewer: owner })).rejects.toMatchObject({ status: 409, message: 'SALES_ORDER_VERSION_CONFLICT' })
+    await settle(order, 60)
     await expect(applyOrderAction(order.id, { action: 'COMPLETE', version: 4 }, { viewer: owner, now: NOW })).resolves.toMatchObject({ status: 'COMPLETED', stockIssuedAt: null })
   })
 
   it('AC-162.5 — COMPLETE with issueStock takes every counted line from the Inventory ledger, or nothing', async () => {
     const order = await create({ lines: [{ productId: box.id, qty: 2, unitPrice: 745 }, { productId: card.id, qty: 2, unitPrice: 30 }, { description: 'ค่าจัดส่ง', qty: 1, unitPrice: 100 }] }, rep)
     await applyOrderAction(order.id, { action: 'CONFIRM', version: 1 }, { viewer: rep, now: NOW })
+    await settle(order, 1650)
     await expect(applyOrderAction(order.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: rep, now: NOW })).rejects.toMatchObject({ status: 403, message: 'COMMERCE_STOCK_ISSUE_REQUIRES_INVENTORY_AUTHORITY' })
     const done = await applyOrderAction(order.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: repWithStock, now: NOW })
     expect(done).toMatchObject({ status: 'COMPLETED', version: 3 })
@@ -120,6 +129,7 @@ describe('FR-166 SalesOrder', () => {
 
     const big = await create({ lines: [{ productId: box.id, qty: 10, unitPrice: 745 }] })
     await applyOrderAction(big.id, { action: 'CONFIRM', version: 1 }, { viewer: owner, now: NOW })
+    await settle(big, 7450)
     const error = await applyOrderAction(big.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: owner, now: NOW }).catch((e) => e)
     expect(error).toMatchObject({ status: 409, message: 'COMMERCE_STOCK_SHORTAGE' })
     expect(error.details).toEqual([{ productId: box.id, code: 'BOX-ORD', required: 10, onHand: 3, shortage: 7 }])
@@ -127,7 +137,55 @@ describe('FR-166 SalesOrder', () => {
 
     const serial = await create({ lines: [{ productId: gadget.id, qty: 1, unitPrice: 1 }] })
     await applyOrderAction(serial.id, { action: 'CONFIRM', version: 1 }, { viewer: owner, now: NOW })
+    await settle(serial, 1)
     await expect(applyOrderAction(serial.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 422, message: 'COMMERCE_SERIAL_LINE_UNSUPPORTED' })
+  })
+
+  it('D-D11 — COMPLETE and stock issue are refused whole until VERIFIED payments cover the total; refusal leaves no partial state', async () => {
+    const order = await create({ lines: [{ productId: box.id, qty: 1, unitPrice: 500 }] })
+    await applyOrderAction(order.id, { action: 'CONFIRM', version: 1 }, { viewer: owner, now: NOW })
+    const movements = () => prisma.stockMovement.count({ where: { reference: `ORDER:${order.code}` } })
+    const audits = () => prisma.auditEvent.count({ where: { entityType: 'SALES_ORDER', entityId: order.id, action: 'SALES_ORDER_COMPLETED' } })
+    const onHand = async () => (await stockSummary({ businessId: busA.id, viewer: owner })).products.find((p) => p.code === 'BOX-ORD').onHand
+    const before = await onHand()
+    const refuse = async (issueStock) => {
+      const error = await applyOrderAction(order.id, { action: 'COMPLETE', version: 2, issueStock }, { viewer: owner, now: NOW }).catch((e) => e)
+      expect(error).toMatchObject({ status: 409, message: 'COMMERCE_SETTLEMENT_NOT_VERIFIED' })
+      const after = await prisma.salesOrder.findUnique({ where: { id: order.id } })
+      expect(after).toMatchObject({ status: 'CONFIRMED', version: 2, completedAt: null, stockIssuedAt: null, closedByPersonId: null })
+      expect(await movements()).toBe(0)
+      expect(await audits()).toBe(0)
+      expect(await onHand()).toBe(before)
+      return error
+    }
+    // unpaid
+    expect((await refuse(true)).details).toEqual([{ settled: false, total: 500, verified: 0, pending: 0, shortfall: 500 }])
+    await refuse(false)
+    // a PENDING payment is not settlement
+    const pending = await recordPayment(order.id, { method: 'CASH', amount: 500 }, { viewer: owner, now: NOW })
+    expect((await refuse(true)).details[0]).toMatchObject({ verified: 0, pending: 500 })
+    // a REJECTED payment is not settlement
+    await applyPaymentAction(pending.id, { action: 'REJECT', version: 1, reason: 'bad slip' }, { viewer: owner, now: NOW })
+    await refuse(true)
+    // partial verified money is not settlement
+    await settle(order, 200)
+    expect((await refuse(true)).details[0]).toMatchObject({ verified: 200, shortfall: 300 })
+    // settled: completes, issues stock, audits
+    await settle(order, 300)
+    const done = await applyOrderAction(order.id, { action: 'COMPLETE', version: 2, issueStock: true }, { viewer: owner, now: NOW })
+    expect(done).toMatchObject({ status: 'COMPLETED', paymentState: 'PAID' })
+    expect(await movements()).toBe(1)
+    expect(await audits()).toBe(1)
+    expect(await onHand()).toBe(before - 1)
+  })
+
+  it('D-D11 — a verified refund that drops net below the total blocks completion again', async () => {
+    const order = await create({ lines: [{ description: 'บริการ', qty: 1, unitPrice: 100 }] })
+    await applyOrderAction(order.id, { action: 'CONFIRM', version: 1 }, { viewer: owner, now: NOW })
+    await settle(order, 100)
+    await settle(order, 40, 'REFUND')
+    await expect(applyOrderAction(order.id, { action: 'COMPLETE', version: 2 }, { viewer: owner, now: NOW })).rejects.toMatchObject({ status: 409, message: 'COMMERCE_SETTLEMENT_NOT_VERIFIED' })
+    expect((await getOrder(order.id, { viewer: owner })).status).toBe('CONFIRMED')
   })
 
   it('AC-162.6 — CANCEL keeps the row; the list hides closed orders unless asked and summarises open work', async () => {

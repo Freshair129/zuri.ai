@@ -131,6 +131,7 @@ verifying or rejecting a payment needs Business OWNER or `PAYMENT_VERIFIER`
 - Money is integer satang in every column; the API speaks baht with at most
   two decimals.
 - Lines change only while DRAFT; CONFIRM locks them; COMPLETE needs CONFIRMED.
+- COMPLETE (and with it any stock issue) also needs verified settlement: VERIFIED payments net of VERIFIED refunds cover the order total, else `409 COMMERCE_SETTLEMENT_NOT_VERIFIED` with nothing changed. POS checkout does not pass this path and is unchanged; historical rows are not rewritten ([ADR-120](../../decisions/ADR-120-VERIFIED-SETTLEMENT-BEFORE-ORDER-COMPLETION.md), delegated decision D-D11).
 - A payment cannot be recorded on a CANCELLED order; a refund can, and a refund
   is never verified beyond what was verifiably paid.
 - Only VERIFIED payments count — for the order's state and for revenue.

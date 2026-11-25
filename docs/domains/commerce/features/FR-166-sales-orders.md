@@ -49,6 +49,14 @@ while DRAFT (CONFIRM locks them), compare-and-swap on `version`, one audit row
 per action, nothing deleted; the commerce domain gate then OWNER or
 `SALES_REP`, every refusal of scope the FR-072 404.
 
+## Amendment — verified settlement before COMPLETE (2026-11-25)
+
+`COMPLETE`, and therefore stock issue, is refused with `409
+COMMERCE_SETTLEMENT_NOT_VERIFIED` until VERIFIED payments net of VERIFIED
+refunds cover the total. Delegated decision D-D11, recorded in
+[ADR-120](../../../decisions/ADR-120-VERIFIED-SETTLEMENT-BEFORE-ORDER-COMPLETION.md);
+POS (FR-183) and historical orders are unchanged; no migration.
+
 ## Delivered (local, 2026-09-07)
 
 - `SalesOrder`, `SalesOrderLine` in both schemas; migration

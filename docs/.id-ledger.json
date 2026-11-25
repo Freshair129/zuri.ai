@@ -852,6 +852,7 @@
     "ADR-117",
     "ADR-118",
     "ADR-119",
+    "ADR-120",
     "ZV2-CR-001",
     "ZV2-CR-002",
     "ZV2-CR-003",
@@ -11188,6 +11189,19 @@
         {
           "anchor": "remove smartgift and govibe from zuri",
           "since": "2026-11-15",
+          "reason": "declared"
+        }
+      ]
+    },
+    "ADR-120": {
+      "family": "ADR",
+      "source": "docs/decisions/ADR-120-VERIFIED-SETTLEMENT-BEFORE-ORDER-COMPLETION.md",
+      "status": "current",
+      "statement_digest": "2edadc648e62455be22a66051ca50ece81c73a96fde25a5d3138dd53c607fd95",
+      "history": [
+        {
+          "anchor": "verified settlement before order completion and stock issue",
+          "since": "2026-11-25",
           "reason": "declared"
         }
       ]
