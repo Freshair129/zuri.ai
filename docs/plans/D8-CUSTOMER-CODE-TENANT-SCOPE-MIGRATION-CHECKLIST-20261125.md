@@ -1,6 +1,6 @@
 ---
 status: implementation-plan
-version: "0.1.0"
+version: "0.1.1"
 source_of_truth: false
 ---
 
@@ -54,6 +54,15 @@ anything about Supabase itself. The application test suite was not run against t
 - [ ] The person who applies it is the owner (ADR-057).
 
 ## 1. Pre-checks (read-only, on scratch, then again on production)
+
+The checks below are also scripted, read-only (`BEGIN READ ONLY` … `ROLLBACK`), so one command
+runs them all and a typo cannot change data:
+[`d8-customer-code-precheck.sql`](../../apps/server/scripts/sql/d8-customer-code-precheck.sql) (this
+section) and
+[`d8-customer-code-postcheck.sql`](../../apps/server/scripts/sql/d8-customer-code-postcheck.sql)
+(section 5). Run with `psql "<connection>" -v ON_ERROR_STOP=1 -f <file>`. They were tested on a
+disposable PostgreSQL 16 with a synthetic `Customer` table, not on the real schema or data. The
+post-check does not insert a test row; the live LINE check in section 5 stays manual.
 
 - [ ] Only the old index exists:
 
@@ -124,3 +133,4 @@ anything about Supabase itself. The application test suite was not run against t
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 0.1.0 | 2026-11-25 | Claude Sonnet 5.5 | Initial owner checklist and synthetic dry-run evidence for the ADR-122 migration. |
+| 0.1.1 | 2026-11-25 | Claude Sonnet 5.5 | Link read-only pre-check and post-check SQL scripts. |
