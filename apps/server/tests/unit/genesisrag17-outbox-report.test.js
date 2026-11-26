@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { buildRedactedRequestJson } from '@/modules/knowledge/genesisrag17-outbox-redaction'
 import {
   main,
   parseArgs,
@@ -162,6 +163,51 @@ describe('GenesisRAG17 outbox report', () => {
     const result = await main([], { db, log: vi.fn(), now: () => FIXED_NOW })
     expect(result.rows).toEqual([])
     expect(result.summary.rowsScanned).toBe(1)
+  })
+
+  it('summarizes valid redactions separately and flags an anomalous redacted PENDING row', async () => {
+    const sourceText = 'REPORT_REDACTED_SOURCE_SECRET'
+    const request = requestJson({ content: sourceText, chunks: [{ text: 'REPORT_REDACTED_CHUNK_SECRET' }], mentions: [{ name: 'REPORT_REDACTED_MENTION_SECRET' }] })
+    const redactedRequest = buildRedactedRequestJson(request, {
+      actor: 'Owner One',
+      reason: 'Retention review',
+      redactedAt: '2026-11-27T03:04:05.000Z',
+    })
+    const pendingRequest = buildRedactedRequestJson(request, {
+      actor: 'Owner Two',
+      reason: 'Retention review',
+      redactedAt: '2026-11-27T03:04:05.000Z',
+    })
+    const { db } = readOnlyDb([
+      row({ id: 'redacted-terminal', batchId: 'redacted-terminal', updatedDaysAgo: 45, request: redactedRequest }),
+      { ...row({ id: 'redacted-pending', batchId: 'redacted-pending', status: 'PENDING', createdDaysAgo: 91, updatedDaysAgo: 91, request: pendingRequest }), responseJson: null },
+    ])
+    const log = vi.fn()
+
+    const result = await main(['--json'], { db, log, now: FIXED_NOW })
+    const output = `${JSON.stringify(result)}${JSON.stringify(log.mock.calls)}`
+
+    expect(result.rows.map((entry) => entry.batchId)).toEqual(['redacted-pending'])
+    expect(result.rows[0].reasons).toEqual(['PENDING_PAST_BOUND', 'REDACTED_BUT_PENDING'])
+    expect(result.rows.some((entry) => entry.reasons.includes('TEXT_PAST_TERMINAL_BOUND'))).toBe(false)
+    expect(result.summary.redactedRows).toBe(2)
+    expect(result.summary.redacted).toEqual([
+      {
+        batchId: 'redacted-pending',
+        redactedAt: '2026-11-27T03:04:05.000Z',
+        redactedBy: 'Owner Two',
+        originalSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
+      {
+        batchId: 'redacted-terminal',
+        redactedAt: '2026-11-27T03:04:05.000Z',
+        redactedBy: 'Owner One',
+        originalSha256: expect.stringMatching(/^[a-f0-9]{64}$/),
+      },
+    ])
+    for (const marker of [sourceText, 'REPORT_REDACTED_CHUNK_SECRET', 'REPORT_REDACTED_MENTION_SECRET']) {
+      expect(output).not.toContain(marker)
+    }
   })
 
   it('uses the initial 30/90 day bounds and rejects every unknown or write-like flag', () => {

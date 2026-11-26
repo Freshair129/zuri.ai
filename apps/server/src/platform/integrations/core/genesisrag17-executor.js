@@ -10,6 +10,7 @@ import { normalizeValue } from '@/modules/knowledge/normalization'
 import { classifyAgainst } from '@/modules/knowledge/dedup'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
 import { contractResponseJson } from '../../../modules/knowledge/genesisrag17-response-contract.js'
+import { canonicalRequestSha256, parseRedactionMarker } from '@/modules/knowledge/genesisrag17-outbox-redaction'
 import {
   IDENTITY_REFS_EMPTY,
   KNOWLEDGE_INGESTION_CONTRACT_ID,
@@ -1351,11 +1352,17 @@ async function deliverBatch({ batch, transport, credential }) {
   return response
 }
 
-async function persistBatch(db, { batch, run, stage9, now, idFactory }) {
+export async function persistBatch(db, { batch, run, stage9, now, idFactory }) {
   const existing = await db.genesisRag17Batch.findFirst({ where: { idempotencyKey: batch.idempotencyKey } })
   const requestJson = json(batch)
   if (existing) {
-    if (existing.requestJson !== requestJson || existing.batchId !== batch.batchId || existing.stage9AttemptId !== stage9.attemptId) throw serviceError(409, 'GenesisRAG17 batch idempotency key was reused with different input')
+    if (existing.requestJson !== requestJson) {
+      const redaction = parseRedactionMarker(existing.requestJson)
+      if (!redaction.redacted || redaction.marker.originalSha256 !== canonicalRequestSha256(requestJson)) {
+        throw serviceError(409, 'GenesisRAG17 batch idempotency key was reused with different input')
+      }
+    }
+    if (existing.batchId !== batch.batchId || existing.stage9AttemptId !== stage9.attemptId) throw serviceError(409, 'GenesisRAG17 batch idempotency key was reused with different input')
     return existing
   }
   return db.genesisRag17Batch.create({
@@ -1647,7 +1654,10 @@ export async function ingestGenesisRag17Raw(input, {
   assertGenesisRag17BatchIntegrity(batch)
   let batchRow = await persistBatch(db, { batch, run, stage9, now, idFactory })
   let response = batchRow.responseJson ? JSON.parse(batchRow.responseJson) : null
-  if (!response || batchRow.status === 'PENDING') {
+  const redaction = parseRedactionMarker(batchRow.requestJson)
+  // Redaction is terminal by contract. A redacted PENDING row is anomalous,
+  // but it must never be parsed as a wire batch or sent again.
+  if ((!response || batchRow.status === 'PENDING') && !redaction.redacted) {
     const runtimeTransport = transport || createMspTransportFromEnvironment(env)
     const runtimeCredential = resolveRuntimeCredential({ scope: value.scope, env, credential })
     response = await deliverBatch({ batch, transport: runtimeTransport, credential: runtimeCredential })
@@ -1668,7 +1678,7 @@ export async function ingestGenesisRag17Raw(input, {
     chunks: batch.chunks,
     mentions,
     localStages: localResults,
-    batch: { batchId: batch.batchId, idempotencyKey: batch.idempotencyKey, stage9, decisionId: batchRow.decisionId, status: batchRow.status },
+    batch: { batchId: batch.batchId, idempotencyKey: batch.idempotencyKey, stage9, decisionId: batchRow.decisionId, status: batchRow.status, redacted: redaction.redacted },
   }
 }
 

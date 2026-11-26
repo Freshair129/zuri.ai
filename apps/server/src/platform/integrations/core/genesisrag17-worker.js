@@ -6,6 +6,7 @@ import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag1
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from './genesisrag17-executor'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
 import { contractResponseJson } from '../../../modules/knowledge/genesisrag17-response-contract.js'
+import { parseRedactionMarker } from '@/modules/knowledge/genesisrag17-outbox-redaction'
 import { createKnowledgeRuntimeLoop } from './knowledge-runtime-loop.mjs'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
@@ -50,6 +51,8 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
   const intents = (await lineageRepository.listResumableIntents()).filter((intent) => !runId || intent.executionRunId === runId)
   const resumedIntentRuns = []
   const resumedBatchIds = new Set()
+  const skippedRedactedBatchIds = []
+  const skippedInvalidRedactionMarkerBatchIds = []
   for (const intent of intents) {
     let request
     try {
@@ -60,6 +63,7 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
       throw new Error('GenesisRAG17 persisted ingestion intent is invalid')
     }
     const result = await ingestGenesisRag17Raw(request, { db, viewer, now, transport: send, env, credential: key })
+    if (result.batch?.redacted) skippedRedactedBatchIds.push(result.batch.batchId)
     if (result.batch?.batchId) resumedBatchIds.add(result.batch.batchId)
     resumedIntentRuns.push(result.run?.executionRunId || intent.executionRunId)
   }
@@ -67,6 +71,15 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
   const resumed = []
   for (const row of rows) {
     if (resumedBatchIds.has(row.batchId)) continue
+    const redaction = parseRedactionMarker(row.requestJson)
+    if (redaction.redacted) {
+      skippedRedactedBatchIds.push(row.batchId)
+      continue
+    }
+    if (redaction.invalid) {
+      skippedInvalidRedactionMarkerBatchIds.push(row.batchId)
+      continue
+    }
     const batch = JSON.parse(row.requestJson)
     try { assertGenesisRag17ScopeEqual(batch.scope, normalizedScope) } catch { continue }
     const response = await send('msp_pipeline_submit', { schemaVersion: GENESIS_RAG17_SCHEMA_VERSION, scope: normalizedScope, credential: key, batch })
@@ -76,7 +89,13 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
     await db.genesisRag17Batch.update({ where: { id: row.id }, data: { status: decisionId ? 'ACKNOWLEDGED' : 'PENDING', decisionId, responseJson: JSON.stringify(contractResponseJson(response, decisionId)), updatedAt: typeof now === 'function' ? now() : now } })
     resumed.push(row.batchId)
   }
-  return { schemaVersion: GENESIS_RAG17_SCHEMA_VERSION, resumed, intentsResumed: resumedIntentRuns }
+  return {
+    schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+    resumed,
+    intentsResumed: resumedIntentRuns,
+    skippedRedactedBatchIds,
+    skippedInvalidRedactionMarkerBatchIds,
+  }
 }
 
 /** A process-owned loop; stop awaits its current pass. */

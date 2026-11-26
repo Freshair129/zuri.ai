@@ -4377,7 +4377,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 61
+          "testCount": 64
         },
         {
           "id": "FR-110",
@@ -5355,8 +5355,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 6,
-          "testCount": 61
+          "codeCount": 7,
+          "testCount": 64
         },
         {
           "id": "FR-110",
@@ -8320,7 +8320,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 61
+          "testCount": 64
         },
         {
           "id": "FR-110",
@@ -11867,8 +11867,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 20,
-          "testCount": 61
+          "codeCount": 21,
+          "testCount": 64
         },
         {
           "id": "FR-110",
@@ -11932,6 +11932,7 @@
         "apps/server/src/modules/knowledge/console/KnowledgeConsole.jsx",
         "apps/server/src/modules/knowledge/genesisrag17-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+        "apps/server/src/modules/knowledge/genesisrag17-outbox-redaction.js",
         "apps/server/src/modules/knowledge/genesisrag17-response-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
@@ -12035,8 +12036,11 @@
         "apps/server/tests/unit/genesisrag17-contract.test.js",
         "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+        "apps/server/tests/unit/genesisrag17-outbox-redact-script.test.js",
+        "apps/server/tests/unit/genesisrag17-outbox-redaction.test.js",
         "apps/server/tests/unit/genesisrag17-outbox-report.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+        "apps/server/tests/unit/genesisrag17-persist-redacted.test.js",
         "apps/server/tests/unit/genesisrag17-response-allowlist.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",

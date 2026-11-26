@@ -2,6 +2,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import prisma from '../src/lib/db.js'
 import { GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS } from '../src/modules/knowledge/genesisrag17-response-contract.js'
+import { parseRedactionMarker } from '../src/modules/knowledge/genesisrag17-outbox-redaction.js'
 
 // @req FR-109 — report outbox rows over the ADR-121 bounds without changing them.
 // @spec ADR-121
@@ -25,6 +26,7 @@ const RESPONSE_FIELDS = new Set(GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS)
 const REPORT_REASONS = Object.freeze([
   'TEXT_PAST_TERMINAL_BOUND',
   'PENDING_PAST_BOUND',
+  'REDACTED_BUT_PENDING',
   'RESPONSE_BEYOND_CONTRACT',
   'RESPONSE_UNREADABLE',
   'REQUEST_UNREADABLE',
@@ -115,10 +117,13 @@ function inspectRow(row, nowMs) {
   const created = dateDetails(row.createdAt, nowMs)
   const updated = dateDetails(row.updatedAt, nowMs)
   const text = requestTextDetails(row.requestJson)
+  const request = parseJsonObject(row.requestJson)
+  const redaction = request.readable ? parseRedactionMarker(request.value) : { redacted: false }
   const response = responseDetails(row.responseJson)
   const reasons = []
 
-  if (row.status !== 'PENDING'
+  if (!redaction.redacted
+    && row.status !== 'PENDING'
     && updated.ageMilliseconds !== null
     && updated.ageMilliseconds > TERMINAL_TEXT_RETENTION_DAYS * DAY_MS
     && text.hasText) {
@@ -129,6 +134,7 @@ function inspectRow(row, nowMs) {
     && created.ageMilliseconds > PENDING_MAX_AGE_DAYS * DAY_MS) {
     reasons.push('PENDING_PAST_BOUND')
   }
+  if (redaction.redacted && row.status === 'PENDING') reasons.push('REDACTED_BUT_PENDING')
   if (!response.readable) reasons.push('RESPONSE_UNREADABLE')
   else if (response.extraResponseKeys.length) reasons.push('RESPONSE_BEYOND_CONTRACT')
   if (!text.readable) reasons.push('REQUEST_UNREADABLE')
@@ -148,7 +154,7 @@ function inspectRow(row, nowMs) {
   }
 }
 
-function summarize(reported, rowsScanned) {
+function summarize(reported, rowsScanned, redacted) {
   const reasonCounts = Object.fromEntries(REPORT_REASONS.map((reason) => [reason, 0]))
   for (const row of reported) {
     for (const reason of row.reasons) reasonCounts[reason] = (reasonCounts[reason] ?? 0) + 1
@@ -157,6 +163,8 @@ function summarize(reported, rowsScanned) {
     rowsScanned,
     rowsReported: reported.length,
     countPerReason: reasonCounts,
+    redactedRows: redacted.length,
+    redacted,
     thresholds: {
       terminalTextRetentionDays: TERMINAL_TEXT_RETENTION_DAYS,
       pendingMaxAgeDays: PENDING_MAX_AGE_DAYS,
@@ -184,6 +192,7 @@ function humanOutput(report) {
     ].join(' | '))
   }
   lines.push(`Summary: scanned=${report.summary.rowsScanned}; reported=${report.summary.rowsReported}; countPerReason=${JSON.stringify(report.summary.countPerReason)}`)
+  lines.push(`Redacted rows: count=${report.summary.redactedRows}; records=${JSON.stringify(report.summary.redacted)}`)
   lines.push(`Thresholds: terminalTextRetentionDays=${TERMINAL_TEXT_RETENTION_DAYS}; pendingMaxAgeDays=${PENDING_MAX_AGE_DAYS}`)
   lines.push('dry run: nothing was changed')
   return lines.join('\n')
@@ -199,6 +208,7 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
   if (!Number.isFinite(nowMs)) throw new Error('GENESISRAG17_OUTBOX_REPORT_INVALID_NOW')
 
   const reported = []
+  const redactedRows = []
   let rowsScanned = 0
   let cursorId = null
 
@@ -234,6 +244,16 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
     rowsScanned += page.length
     const lastId = page[page.length - 1]?.id
     for (let index = 0; index < page.length; index += 1) {
+      const request = parseJsonObject(page[index].requestJson)
+      const redaction = request.readable ? parseRedactionMarker(request.value) : { redacted: false }
+      if (redaction.redacted) {
+        redactedRows.push({
+          batchId: page[index].batchId,
+          redactedAt: redaction.marker.redactedAt,
+          redactedBy: redaction.marker.redactedBy,
+          originalSha256: redaction.marker.originalSha256,
+        })
+      }
       const inspected = inspectRow(page[index], nowMs)
       page[index] = null
       if (inspected) reported.push(inspected)
@@ -246,7 +266,7 @@ export async function main(argv = process.argv.slice(2), dependencies = {}) {
     cursorId = lastId
   }
 
-  const report = { rows: reported, summary: summarize(reported, rowsScanned) }
+  const report = { rows: reported, summary: summarize(reported, rowsScanned, redactedRows) }
   log(args.json ? JSON.stringify(report, null, 2) : humanOutput(report))
   return report
 }

@@ -13,6 +13,7 @@ import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
 import { GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS } from '@/modules/knowledge/genesisrag17-response-contract'
+import { buildRedactedRequestJson, parseRedactionMarker } from '@/modules/knowledge/genesisrag17-outbox-redaction'
 import { encodeKnowledgeBinary, hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
 
 // @req FR-173 — scope-bound authority, durable run attachment, lease recovery and no false publication.
@@ -245,6 +246,34 @@ describe('knowledge durable queue', () => {
     expect(acknowledged.mock.calls[0][1].batch.idempotencyKey).toBe(JSON.parse(pending.requestJson).idempotencyKey)
     expect(publish).not.toHaveBeenCalled()
     expect(await prisma.knowledgeCorpusGeneration.count({ where: { corpusId: fixture.corpus.id } })).toBe(0)
+  })
+
+  it('does not resubmit a redacted PENDING batch when the executor resumes its intent', async () => {
+    const fixture = await durableJob()
+    const lostReply = vi.fn(async () => { throw new Error('simulated reply loss after local work') })
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport: lostReply }).runOnce()
+
+    const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    const batch = await prisma.genesisRag17Batch.findFirst({ where: { executionRunId: ingestion.executionRunId } })
+    expect(batch.status).toBe('PENDING')
+    await prisma.genesisRag17Batch.update({
+      where: { id: batch.id },
+      data: {
+        requestJson: buildRedactedRequestJson(batch.requestJson, {
+          actor: 'Owner One',
+          reason: 'Retention review',
+          redactedAt: '2026-11-27T03:04:05.000Z',
+        }),
+      },
+    })
+
+    const restartedTransport = vi.fn()
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport: restartedTransport }).runOnce()
+
+    expect(restartedTransport.mock.calls.filter(([name]) => name === 'msp_pipeline_submit')).toEqual([])
+    expect(await prisma.genesisRag17Batch.count({ where: { executionRunId: ingestion.executionRunId } })).toBe(1)
+    const stored = await prisma.genesisRag17Batch.findUnique({ where: { id: batch.id } })
+    expect(parseRedactionMarker(stored.requestJson).redacted).toBe(true)
   })
 
   it('does not execute a leased job, then resumes after the lease expires', async () => {

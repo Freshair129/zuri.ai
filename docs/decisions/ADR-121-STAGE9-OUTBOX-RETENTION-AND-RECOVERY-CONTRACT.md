@@ -1,15 +1,15 @@
 ---
 id: ZAI:ADR-121
 title: Stage 9 outbox retention and recovery contract
-version: "1.0.1"
+version: "1.1.0"
 status: accepted
 created_at: "2026-11-25"
-last_update: "2026-11-26"
+last_update: "2026-11-27"
 author: Claude Sonnet 5.5
 superseded_by: null
 approval_scope: decision-record-and-charter-amendment-only-no-code-no-schema-no-migration-no-data-change-no-deletion
 approved_on: "2026-11-25"
-approved_by: "Delegated product-owner decision D-D13 (Astra, gpt-6-astra) under owner instruction 2026-11-08, relayed by the lead Claude session; this is not human approval and no other approval is claimed. The numeric bounds in D4 are first values written by this record and are open to owner or Astra confirmation (Open question 1)"
+approved_by: "Delegated product-owner decision D-D13 (Astra, gpt-6-astra) under owner instruction 2026-11-08, relayed by the lead Claude session; this is not human approval and no other approval is claimed. The numeric bounds in D4 are first values written by this record and are open to owner or Astra confirmation (Open question 1). Amendment 1.1.0 (2026-11-27): the redaction marker location (Open question 2, option C) is an owner (human) decision, recorded as provisional ('ไปก่อน') with a review date of 2026-12-27; it is not Astra approval"
 attributes:
   doc_type: architecture-decision
   domain: knowledge
@@ -181,9 +181,39 @@ over-bound row may only be handled by a **dry-run-first, owner-run** operation:
 4. a redacted row is never resent: it is terminal by definition.
 
 Because `persistBatch` compares `requestJson` exactly (F4), the redaction
-marker, and whether a redacted row can still be presented under its old key,
-must be designed with the code change; this record does not choose it (Open
-question 2).
+marker and the way a redacted row is matched under its old key are fixed by
+D5a below (owner decision, provisional).
+
+### D5a — Redaction marker: a field inside the JSON (owner decision, provisional)
+
+**Decision (owner, human, 2026-11-27; marked "ไปก่อน" = provisional; review
+2026-12-27):** option C. The marker is a member of the existing JSON column. No
+Prisma column, Supabase migration or table is added.
+
+1. A redacted `requestJson` keeps its whole envelope and empties the text
+   members (`source.content`, `chunks[].text`, `mentions[].name` become `""`).
+   It gains one top-level member `redaction`:
+   `{ redacted: true, schemaVersion: "genesisrag17.redaction.v1", redactedAt,
+   redactedBy, reason, originalSha256 }`. `originalSha256` is the SHA-256 of the
+   exact original stored `requestJson` string, so the identity of the removed
+   batch stays provable without keeping its text. The marker is validated
+   strictly; a malformed marker is not treated as redacted.
+2. `persistBatch` still compares the exact string for a row that is not
+   redacted. For a validly redacted row it matches the presented batch by
+   `originalSha256` (with the same `batchId` and Stage 9 attempt): the same hash
+   returns the existing row and creates no duplicate; a different hash is still a
+   409. Idempotency is not loosened.
+3. `responseJson` is not marked; its D1 item 3 allowlist is unchanged.
+4. Count, ids, operator and time of a run live in the output of the owner-run
+   script `apps/server/scripts/genesisrag17-outbox-redact.mjs`; each row also
+   carries actor, time, reason and hash in its own marker. The script is
+   dry-run by default, writes only with `--apply` plus `--actor` and `--reason`,
+   touches only rows past the D4 terminal bound, never redacts a `PENDING`
+   row, never deletes a row, and does nothing on a schedule.
+5. This is provisional. If the owner revisits it by 2026-12-27, a different
+   marker location needs its own amendment and, for a column, an ADR-057
+   migration. Nothing here applies the script to any real database; applying it
+   is a separate owner-run operator step.
 
 ### D6 — Existing rows are never auto-deleted
 
@@ -218,19 +248,23 @@ and its own approval; this one does not authorize it.
   and the read-only over-bound report (D4.1–D4.5, D5.1) exists as
   `apps/server/scripts/genesisrag17-outbox-report.mjs`. Redaction (D5.3), the
   marker (Open question 2) and cleanup of older wide `responseJson` rows are
-  not implemented.
+  not implemented. Status as of 1.1.0: the owner-run redaction script, the
+  marker (D5a) and the hash-based `persistBatch` match are implemented in code
+  and tests; nothing has been run against a real database, and cleanup of older
+  wide `responseJson` rows is still not implemented.
 - No schema column, migration, route or scheduler is added. Nothing is deleted.
 
 ## Open questions
 
 1. **Numeric bounds.** D4 uses 30 days after terminal state and 90 days for a
    stuck `PENDING` row. Astra or the owner should confirm or replace them.
-   They are not tied to a measured workload or to a legal retention duty.
-2. **Redaction marker.** Where is a redaction recorded without a new column
-   and without breaking the exact `requestJson` comparison (F4)? Options are
-   a new column (needs a Supabase migration and owner-run apply, ADR-057), a
-   separate evidence row, or a documented JSON member plus a relaxed
-   comparison. Not decided here.
+   They are not tied to a measured workload or to a legal retention duty. Still
+   awaiting owner or Astra confirmation as of 1.1.0; the redaction script uses
+   them as named constants.
+2. **Redaction marker.** Closed on 2026-11-27 by the owner (human): option C,
+   a field inside the existing JSON (D5a). Provisional ("ไปก่อน"); review
+   2026-12-27. Options A (new column) and B (separate evidence row) were not
+   chosen.
 3. **Intent rows.** Does `GenesisRag17IngestionIntent.requestJson` (F3) get the
    same bound? It is also source text with no deletion path, but it is not the
    outbox, so D-D13 does not cover it.
@@ -246,3 +280,4 @@ and its own approval; this one does not authorize it.
 |---|---|---|
 | 1.0.0 | 2026-11-25 | Initial acceptance as delegated decision D-D13 |
 | 1.0.1 | 2026-11-26 | Consequences status only: `responseJson` allowlist and read-only report implemented; the decision is unchanged |
+| 1.1.0 | 2026-11-27 | Adds D5a: owner (human) chose option C (marker field inside the JSON), provisional "ไปก่อน", review 2026-12-27; closes Open question 2; Open question 1 bounds still unconfirmed; F4 resolved by hash match; redaction script and marker implemented in code, not run against real data |
