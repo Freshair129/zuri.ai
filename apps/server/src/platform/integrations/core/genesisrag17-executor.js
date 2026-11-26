@@ -9,6 +9,7 @@ import { buildSourceProvenance } from '@/modules/knowledge/provenance'
 import { normalizeValue } from '@/modules/knowledge/normalization'
 import { classifyAgainst } from '@/modules/knowledge/dedup'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
+import { contractResponseJson } from '../../../modules/knowledge/genesisrag17-response-contract.js'
 import {
   IDENTITY_REFS_EMPTY,
   KNOWLEDGE_INGESTION_CONTRACT_ID,
@@ -1375,6 +1376,9 @@ async function persistBatch(db, { batch, run, stage9, now, idFactory }) {
   })
 }
 
+// @req FR-109 — persist only the validated Stage 9 response contract.
+// @spec ADR-121
+// @tested tests/unit/knowledge-runtime.test.js
 async function updateBatchResponse(db, row, response, now) {
   const decisionId = typeof response.decisionId === 'string' && response.decisionId.length > 0 ? response.decisionId : null
   return db.genesisRag17Batch.update({
@@ -1385,7 +1389,7 @@ async function updateBatchResponse(db, row, response, now) {
       // decision that authorizes downstream evidence and publication.
       status: decisionId ? 'ACKNOWLEDGED' : 'PENDING',
       decisionId,
-      responseJson: json(response),
+      responseJson: json(contractResponseJson(response, decisionId)),
       updatedAt: atDate(now),
     },
   })

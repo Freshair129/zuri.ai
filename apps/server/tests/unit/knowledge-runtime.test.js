@@ -12,6 +12,7 @@ import { ingestGenesisRag17Raw } from '@/platform/integrations/core/genesisrag17
 import { createPipelineRun, requestPipelineReplay, getPipelineMonitor } from '@/platform/integrations/core/pipeline-tracking-service'
 import { KNOWLEDGE_INGESTION_DEFINITION_ID, KNOWLEDGE_INGESTION_CONTRACT_ID } from '@/platform/integrations/core/pipeline-tracking-contract'
 import { hashGenesisRag17Text } from '@/modules/knowledge/genesisrag17-contract'
+import { GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS } from '@/modules/knowledge/genesisrag17-response-contract'
 import { encodeKnowledgeBinary, hashKnowledgeBinaryBytes, KNOWLEDGE_BINARY_ENCODING, KNOWLEDGE_BINARY_PARSER_VERSION } from '@/modules/knowledge/knowledge-binary-parser'
 
 // @req FR-173 — scope-bound authority, durable run attachment, lease recovery and no false publication.
@@ -291,6 +292,46 @@ describe('knowledge durable queue', () => {
     expect(pendingBatch.status).toBe('PENDING')
     return { stuck, transport, pendingBatch }
   }
+
+  // @req FR-109 — initial Stage 9 replies persist only the response contract fields.
+  // @spec ADR-121
+  // @tested tests/unit/knowledge-runtime.test.js
+  it('stores only the response contract fields on the executor path', async () => {
+    const fixture = await durableJob()
+    const transport = vi.fn(async (name, request) => {
+      if (name === 'msp_pipeline_submit') return {
+        schemaVersion: 'genesisrag17.v1',
+        scope: request.scope,
+        batchId: request.batch.batchId,
+        decisionId: null,
+        status: 'PENDING',
+        entities: ['EXTRA_ENTITY_VALUE'],
+        facts: ['EXTRA_FACT_VALUE'],
+        heldRows: ['EXTRA_HELD_ROW_VALUE'],
+        internal: 'EXTRA_INTERNAL_VALUE',
+      }
+      throw new Error('No remote evidence in this focused test')
+    })
+
+    await createKnowledgeAdmissionRuntime({ db: prisma, env: fixture.env, transport }).runOnce()
+
+    const ingestion = await prisma.knowledgeIngestion.findUnique({ where: { id: fixture.job.id } })
+    const batch = await prisma.genesisRag17Batch.findFirst({ where: { executionRunId: ingestion.executionRunId } })
+    const storedResponse = JSON.parse(batch.responseJson)
+    expect(batch).toMatchObject({ status: 'PENDING', decisionId: null })
+    expect(Object.keys(storedResponse)).toEqual(GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS)
+    expect(storedResponse).toEqual({
+      schemaVersion: 'genesisrag17.v1',
+      scope: fixture.actualScope,
+      batchId: batch.batchId,
+      status: 'PENDING',
+      decisionId: null,
+    })
+    expect(batch.responseJson).not.toContain('EXTRA_ENTITY_VALUE')
+    expect(batch.responseJson).not.toContain('EXTRA_FACT_VALUE')
+    expect(batch.responseJson).not.toContain('EXTRA_HELD_ROW_VALUE')
+    expect(batch.responseJson).not.toContain('EXTRA_INTERNAL_VALUE')
+  })
 
   it('closes the orphaned PipelineRun when a job is discovered superseded after its run was created', async () => {
     const fixture = await durableJob()

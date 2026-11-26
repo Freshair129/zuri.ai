@@ -3116,7 +3116,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-243",
@@ -4377,7 +4377,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 59
+          "testCount": 61
         },
         {
           "id": "FR-110",
@@ -4385,7 +4385,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 37
+          "testCount": 39
         },
         {
           "id": "FR-118",
@@ -4465,7 +4465,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 68
+          "testCount": 69
         },
         {
           "id": "FR-187",
@@ -4511,7 +4511,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-223",
@@ -4567,7 +4567,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-242",
@@ -5355,8 +5355,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 5,
-          "testCount": 59
+          "codeCount": 6,
+          "testCount": 61
         },
         {
           "id": "FR-110",
@@ -5364,7 +5364,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 3,
-          "testCount": 37
+          "testCount": 39
         },
         {
           "id": "FR-111",
@@ -5452,7 +5452,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 14,
-          "testCount": 68
+          "testCount": 69
         },
         {
           "id": "FR-187",
@@ -5501,7 +5501,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 10
+          "testCount": 11
         },
         {
           "id": "FR-189",
@@ -5594,7 +5594,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-237",
@@ -8320,7 +8320,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 4,
-          "testCount": 59
+          "testCount": 61
         },
         {
           "id": "FR-110",
@@ -8328,7 +8328,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 7,
-          "testCount": 37
+          "testCount": 39
         },
         {
           "id": "FR-123",
@@ -8592,7 +8592,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 10,
-          "testCount": 68
+          "testCount": 69
         },
         {
           "id": "FR-174",
@@ -8903,7 +8903,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 8,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-237",
@@ -11867,8 +11867,8 @@
           "title": "Seventeen-stage knowledge ingestion stage catalog and job trace",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 19,
-          "testCount": 59
+          "codeCount": 20,
+          "testCount": 61
         },
         {
           "id": "FR-110",
@@ -11876,7 +11876,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 18,
-          "testCount": 37
+          "testCount": 39
         },
         {
           "id": "FR-111",
@@ -11892,7 +11892,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 32,
-          "testCount": 68
+          "testCount": 69
         },
         {
           "id": "FR-254",
@@ -11932,6 +11932,7 @@
         "apps/server/src/modules/knowledge/console/KnowledgeConsole.jsx",
         "apps/server/src/modules/knowledge/genesisrag17-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-lineage-repository.js",
+        "apps/server/src/modules/knowledge/genesisrag17-response-contract.js",
         "apps/server/src/modules/knowledge/genesisrag17-source.js",
         "apps/server/src/modules/knowledge/ingestion-job.js",
         "apps/server/src/modules/knowledge/knowledge-admission-service.js",
@@ -12034,7 +12035,9 @@
         "apps/server/tests/unit/genesisrag17-contract.test.js",
         "apps/server/tests/unit/genesisrag17-executor-legacy-resume.test.js",
         "apps/server/tests/unit/genesisrag17-lineage-repository.test.js",
+        "apps/server/tests/unit/genesisrag17-outbox-report.test.js",
         "apps/server/tests/unit/genesisrag17-parser-2.test.js",
+        "apps/server/tests/unit/genesisrag17-response-allowlist.test.js",
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/genesisrag17-supabase-migration.test.js",
         "apps/server/tests/unit/genesisrag17-thai-safe-chunker.test.js",
@@ -13798,7 +13801,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 5,
-          "testCount": 10
+          "testCount": 11
         }
       ],
       "evidence": [
@@ -13816,6 +13819,7 @@
         "apps/server/tests/unit/genesisrag17-source.test.js",
         "apps/server/tests/unit/ki17-acceptance-harness.test.js",
         "apps/server/tests/unit/knowledge-delivery-fence.test.js",
+        "apps/server/tests/unit/knowledge-runtime.test.js",
         "apps/server/tests/unit/structured-catalog-adapter.test.js"
       ]
     },
@@ -15127,7 +15131,7 @@
           "status": "verified",
           "progressPercent": 100,
           "codeCount": 16,
-          "testCount": 41
+          "testCount": 42
         },
         {
           "id": "FR-237",
@@ -23286,7 +23290,7 @@
       "title": "Every knowledge ingestion stage emits per-stage and pipeline-level metrics",
       "status": "verified",
       "codeCount": 2,
-      "testCount": 9,
+      "testCount": 10,
       "domains": [
         "integration"
       ]
