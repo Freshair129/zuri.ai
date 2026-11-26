@@ -148,11 +148,51 @@ describe('FR-095 persisted IAM sessions', () => {
 
   it('supports explicit logout-all without exposing session material', async () => {
     const updateMany = vi.fn().mockResolvedValue({ count: 2 })
-    await expect(revokeAllSessions('person-1', { db: { session: { updateMany } } })).resolves.toBe(2)
+    const auditCreate = vi.fn().mockResolvedValue({})
+    await expect(revokeAllSessions('person-1', {
+      db: { session: { updateMany }, auditEvent: { create: auditCreate } },
+      env: { NODE_ENV: 'test' },
+    })).resolves.toBe(2)
     expect(updateMany).toHaveBeenCalledWith(expect.objectContaining({
       where: { personId: 'person-1', status: 'ACTIVE' },
       data: expect.objectContaining({ status: 'REVOKED', version: { increment: 1 } }),
     }))
+    expect(auditCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        entityType: 'SESSION',
+        entityId: 'person-1',
+        action: 'SESSIONS_REVOKED_LOGOUT_ALL',
+        actorId: 'person-1',
+        payloadJson: JSON.stringify({ reason: 'LOGOUT_ALL', revokedCount: 2 }),
+      }),
+    })
+  })
+
+  it('does not write a logout-all audit for other reasons or when no sessions were revoked', async () => {
+    const auditCreate = vi.fn().mockResolvedValue({})
+    const updateMany = vi.fn().mockResolvedValue({ count: 1 })
+    const db = { session: { updateMany }, auditEvent: { create: auditCreate } }
+
+    await expect(revokeAllSessions('person-1', {
+      db,
+      env: { NODE_ENV: 'test' },
+      reason: 'PASSWORD_RESET',
+    })).resolves.toBe(1)
+    expect(auditCreate).not.toHaveBeenCalled()
+
+    updateMany.mockResolvedValue({ count: 0 })
+    await expect(revokeAllSessions('person-1', { db, env: { NODE_ENV: 'test' } })).resolves.toBe(0)
+    expect(auditCreate).not.toHaveBeenCalled()
+  })
+
+  it('requires a transaction for production logout-all before revoking any session', async () => {
+    const updateMany = vi.fn().mockResolvedValue({ count: 1 })
+
+    await expect(revokeAllSessions('person-1', {
+      db: { session: { updateMany }, auditEvent: { create: vi.fn() } },
+      env: { NODE_ENV: 'production' },
+    })).rejects.toThrow('SESSION_STORE_UNAVAILABLE')
+    expect(updateMany).not.toHaveBeenCalled()
   })
 
   it('does not silently skip production logout-all without a revocation store', async () => {

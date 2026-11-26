@@ -4,6 +4,7 @@ import prisma from '@/lib/db'
 import {
   authenticateUser,
   hashPassword,
+  hashSessionToken,
   revokeAllSessions,
   revokeSessionToken,
   SESSION_IDLE_TIMEOUT_REMEMBER_SECONDS,
@@ -14,7 +15,7 @@ import { issueApiWriteCsrfToken } from '@/modules/identity/api-write-csrf'
 import { POST as logoutAll } from '@/app/api/auth/logout-all/route'
 
 // @req FR-046, FR-095 — separate session-port instances observe revocation, idle expiry, and throttled lastSeenAt writes.
-// @spec ADR-045 D2, ADR-124, SEC-018
+// @spec ADR-045 D2, ADR-124 D2/D5, SEC-018
 // @tested tests/integration/session-idle-multi-instance.test.js
 // This suite uses the real SQLite integration database; it does not prove PostgreSQL row-lock or serialization behavior.
 
@@ -26,6 +27,33 @@ const env = {
   ZURI_SESSION_SECRET: 'integration-idle-test-secret-with-more-than-32-characters',
 }
 const testPeople = new Set()
+
+function dbWithFailingAuditCreate(cause = new Error('audit write failed')) {
+  const wrapTransactionClient = (tx) => new Proxy(tx, {
+    get(target, property) {
+      if (property === 'auditEvent') {
+        const delegate = Reflect.get(target, property, target)
+        return new Proxy(delegate, {
+          get(auditDelegate, operation) {
+            if (operation === 'create') return async () => { throw cause }
+            return Reflect.get(auditDelegate, operation, auditDelegate)
+          },
+        })
+      }
+      return Reflect.get(target, property, target)
+    },
+  })
+
+  const db = new Proxy(prisma, {
+    get(target, property) {
+      if (property === '$transaction') {
+        return (operation) => target.$transaction((tx) => operation(wrapTransactionClient(tx)))
+      }
+      return Reflect.get(target, property, target)
+    },
+  })
+  return { cause, db }
+}
 
 function controllableClock(initial = Date.now()) {
   let value = initial
@@ -118,6 +146,23 @@ describe('persisted session idle timeout across instances', () => {
     const after = await prisma.session.findUnique({ where: { id: session.sessionId } })
     expect(after).toMatchObject({ status: 'REVOKED', revokeReason: 'IDLE_TIMEOUT' })
     expect(after.revokedAt).toEqual(new Date(clock.now()))
+
+    const audits = await prisma.auditEvent.findMany({
+      where: { entityType: 'SESSION', entityId: session.sessionId, action: 'SESSION_REVOKED_IDLE_TIMEOUT' },
+    })
+    expect(audits).toHaveLength(1)
+    expect(audits[0]).toMatchObject({ entityType: 'SESSION', entityId: session.sessionId, actorType: 'SYSTEM', actorId: null })
+    expect(JSON.parse(audits[0].payloadJson)).toEqual({
+      reason: 'IDLE_TIMEOUT',
+      personId: person.id,
+      revokedCount: 1,
+      remember: false,
+    })
+    const idleAuditJson = JSON.stringify(audits[0])
+    expect(idleAuditJson).not.toContain(session.token)
+    expect(idleAuditJson).not.toContain(hashSessionToken(session.token))
+    expect(idleAuditJson).not.toContain('zuri_session=')
+    expect(idleAuditJson).not.toMatch(/tokenHash|cookie/i)
   })
 
   it('keeps remember sessions alive for 12h and expires them at 72h', async () => {
@@ -210,8 +255,66 @@ describe('persisted session idle timeout across instances', () => {
     expect(response.status).toBe(200)
     await expect(response.json()).resolves.toEqual({ revoked: 2 })
     expect(response.headers.get('set-cookie')).toMatch(/Max-Age=0/i)
+    const audit = await prisma.auditEvent.findFirst({
+      where: { entityType: 'SESSION', entityId: person.id, action: 'SESSIONS_REVOKED_LOGOUT_ALL' },
+    })
+    expect(audit).toMatchObject({ entityType: 'SESSION', entityId: person.id, actorId: person.id })
+    expect(JSON.parse(audit.payloadJson)).toEqual({ reason: 'LOGOUT_ALL', revokedCount: 2 })
+    const logoutAuditJson = JSON.stringify(audit)
+    expect(logoutAuditJson).not.toContain(first.token)
+    expect(logoutAuditJson).not.toContain(hashSessionToken(first.token))
+    expect(logoutAuditJson).not.toContain(second.token)
+    expect(logoutAuditJson).not.toContain(hashSessionToken(second.token))
+    expect(logoutAuditJson).not.toContain('zuri_session=')
+    expect(logoutAuditJson).not.toMatch(/tokenHash|cookie/i)
     await expect(portA.read(requestFor(first.token))).resolves.toEqual({ state: 'UNAUTHENTICATED' })
     await expect(portB.read(requestFor(second.token))).resolves.toEqual({ state: 'UNAUTHENTICATED' })
     await expect(siblingPort.read(requestFor(first.token))).resolves.toEqual({ state: 'UNAUTHENTICATED' })
+  })
+
+  it('does not write a logout-all audit for password reset or a zero-count logout-all', async () => {
+    const person = await createPerson()
+    const session = await login(person)
+
+    await expect(revokeAllSessions(person.id, { db: prisma, env, reason: 'PASSWORD_RESET' })).resolves.toBe(1)
+    await expect(revokeAllSessions(person.id, { db: prisma, env, reason: 'LOGOUT_ALL' })).resolves.toBe(0)
+    await expect(prisma.auditEvent.count({
+      where: { entityType: 'SESSION', entityId: person.id, action: 'SESSIONS_REVOKED_LOGOUT_ALL' },
+    })).resolves.toBe(0)
+    await expect(prisma.session.findUnique({ where: { id: session.sessionId } })).resolves.toMatchObject({
+      status: 'REVOKED',
+      revokeReason: 'PASSWORD_RESET',
+    })
+  })
+
+  it('rolls back logout-all when the audit insert fails', async () => {
+    const person = await createPerson()
+    const session = await login(person)
+    const { db, cause } = dbWithFailingAuditCreate()
+
+    await expect(revokeAllSessions(person.id, { db, env })).rejects.toBe(cause)
+    await expect(prisma.session.findUnique({ where: { id: session.sessionId } })).resolves.toMatchObject({ status: 'ACTIVE' })
+    await expect(prisma.auditEvent.count({
+      where: { entityType: 'SESSION', entityId: person.id, action: 'SESSIONS_REVOKED_LOGOUT_ALL' },
+    })).resolves.toBe(0)
+  })
+
+  it('rolls back idle revocation and refuses the request when the audit insert fails', async () => {
+    const clock = controllableClock()
+    const person = await createPerson()
+    const session = await login(person)
+    const before = await prisma.session.findUnique({ where: { id: session.sessionId } })
+    clock.set(before.lastSeenAt.getTime() + SESSION_IDLE_TIMEOUT_SECONDS * 1000)
+    const { db, cause } = dbWithFailingAuditCreate()
+    const port = createSessionPort({ db, env, now: clock.now })
+
+    await expect(port.read(requestFor(session.token))).rejects.toMatchObject({
+      message: 'SESSION_STORE_UNAVAILABLE',
+      cause,
+    })
+    await expect(prisma.session.findUnique({ where: { id: session.sessionId } })).resolves.toMatchObject({ status: 'ACTIVE' })
+    await expect(prisma.auditEvent.count({
+      where: { entityType: 'SESSION', entityId: session.sessionId, action: 'SESSION_REVOKED_IDLE_TIMEOUT' },
+    })).resolves.toBe(0)
   })
 })

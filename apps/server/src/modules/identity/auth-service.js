@@ -12,9 +12,9 @@ import { recordAudit } from '@/modules/project-manager/application/audit'
 // @req FR-104 — owner-assisted password reset: mint is authenticated authority, the
 // raw token appears exactly once (in the mint response, for out-of-band handover),
 // storage is hash-bound, and consumption revokes every active session.
-// @spec ADR-017, ADR-045 D2, SDD-024, SDD-052, SEC-008, SEC-018
+// @spec ADR-017, ADR-045 D2, ADR-124 D5, SDD-024, SDD-052, SEC-008, SEC-018
 // @tested tests/unit/auth-service.test.js, tests/unit/iam-session.test.js, tests/unit/fr046-auth-route.test.js,
-//   tests/unit/session-idle-timeout.test.js
+//   tests/unit/session-idle-timeout.test.js, tests/integration/session-idle-multi-instance.test.js
 // @tested tests/unit/password-reset-service.test.js, tests/integration/password-reset-flow.test.js,
 //   tests/integration/passkey-lifecycle.test.js
 // @spec SEC-014
@@ -194,16 +194,38 @@ export async function revokeAllSessions(personId, { db = prisma, env = process.e
   }
   if (typeof personId !== 'string' || !personId.trim()) throw new Error('SESSION_PRINCIPAL_REQUIRED')
 
-  const result = await db.session.updateMany({
-    where: { personId, status: 'ACTIVE' },
-    data: {
-      status: 'REVOKED',
-      revokedAt: new Date(now),
-      revokeReason: reason,
-      version: { increment: 1 },
-    },
-  })
-  return result.count
+  const revoke = async (tx) => {
+    const result = await tx.session.updateMany({
+      where: { personId, status: 'ACTIVE' },
+      data: {
+        status: 'REVOKED',
+        revokedAt: new Date(now),
+        revokeReason: reason,
+        version: { increment: 1 },
+      },
+    })
+
+    if (reason === 'LOGOUT_ALL' && result.count > 0) {
+      await recordAudit(tx, {
+        entityType: 'SESSION',
+        entityId: personId,
+        action: 'SESSIONS_REVOKED_LOGOUT_ALL',
+        actorId: personId,
+        payload: { reason: 'LOGOUT_ALL', revokedCount: result.count },
+      })
+    }
+    return result.count
+  }
+
+  if (reason === 'LOGOUT_ALL') {
+    if (typeof db.$transaction === 'function') {
+      // Keep the audit in the revoke transaction: audit failure rolls back the revoke and the route returns 503.
+      return db.$transaction(revoke)
+    }
+    if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
+  }
+
+  return revoke(db)
 }
 
 /**

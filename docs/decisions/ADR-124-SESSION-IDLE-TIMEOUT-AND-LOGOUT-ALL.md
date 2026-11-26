@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-124
 title: Authentication sessions get an idle timeout, throttled last-seen writes and a logout-all route
-version: "1.0.0"
+version: "1.0.1"
 status: accepted
 created_at: "2026-11-25"
-last_update: "2026-11-25"
+last_update: "2026-11-26"
 author: Claude Sonnet 5.5
 superseded_by: null
 approval_scope: session-idle-timeout-throttle-logout-all-no-schema-change-no-migration
@@ -99,7 +99,11 @@ untouched.
 
 - **Added:** `POST /api/auth/logout-all`. It resolves the live session, requires
   the session-bound API-write CSRF token like the sibling write routes, calls
-  `revokeAllSessions` (reason `LOGOUT_ALL`), and clears the cookie.
+  `revokeAllSessions` (reason `LOGOUT_ALL`), and clears the cookie. The revoke and an
+  `AuditEvent` (`SESSION` / `SESSIONS_REVOKED_LOGOUT_ALL`, actor = the Person, payload
+  reason and revoked count, no token material) commit in one transaction. An idle-timeout
+  revoke likewise writes `SESSION` / `SESSION_REVOKED_IDLE_TIMEOUT` (system actor), only when
+  its conditional update claims the row. The profile page exposes the control (Thai copy).
 - **Change password:** no change-password route exists in the repository.
   Password change happens only through owner-assisted reset, which already
   revokes every session (`reason PASSWORD_RESET`). No new path is invented here;
@@ -141,3 +145,4 @@ SYSTEM-DIAGRAM.
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0.0 | 2026-11-25 | Claude Sonnet 5.5 | Initial decision, from owner decision D-D10. |
+| 1.0.1 | 2026-11-26 | Claude Sonnet 5.5 | Gap G10 closed, no new decision: `LOGOUT_ALL` and `IDLE_TIMEOUT` revocations now write an `AuditEvent` in the same transaction as the revoke (audit failure rolls the revoke back; the route returns 503). The profile page gets a "log out of all devices" control. No schema change. |

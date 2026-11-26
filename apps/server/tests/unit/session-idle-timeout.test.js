@@ -13,7 +13,7 @@ import {
 import { createSessionPort } from '@/modules/identity/session-port'
 
 // @req FR-046, FR-095 — persisted sessions expire after an idle timeout and touch lastSeenAt at a bounded rate.
-// @spec ADR-045 D2, SEC-018
+// @spec ADR-045 D2, ADR-124 D2, SEC-018
 // @tested tests/unit/session-idle-timeout.test.js, tests/integration/session-idle-multi-instance.test.js
 
 const secret = 'session-idle-test-secret-with-more-than-32-characters'
@@ -21,7 +21,7 @@ const nowStart = 1_800_000_000_000
 const idleMilliseconds = SESSION_IDLE_TIMEOUT_SECONDS * 1000
 const env = { NODE_ENV: 'test', ZURI_SESSION_SECRET: secret }
 
-function fixture({ remember = false, now = nowStart, lastSeenAt = nowStart } = {}) {
+function fixture({ remember = false, now = nowStart, lastSeenAt = nowStart, env: fixtureEnv = env } = {}) {
   const sessionId = 'session-idle-1'
   const token = generateSessionToken('person-idle-1', {
     secret,
@@ -52,15 +52,17 @@ function fixture({ remember = false, now = nowStart, lastSeenAt = nowStart } = {
     if (data.lastSeenAt) row.lastSeenAt = data.lastSeenAt
     return { count: 1 }
   })
+  const auditCreate = vi.fn().mockResolvedValue({})
   const db = {
     session: { findUnique, updateMany },
+    auditEvent: { create: auditCreate },
     platformGrant: { findFirst: vi.fn().mockResolvedValue(null) },
     superadminGrant: { findFirst: vi.fn().mockResolvedValue(null) },
   }
   let clock = now
-  const port = createSessionPort({ db, env, now: () => clock })
+  const port = createSessionPort({ db, env: fixtureEnv, now: () => clock })
   const request = new Request('http://localhost/', { headers: { cookie: `zuri_session=${token}` } })
-  return { db, findUnique, port, request, row, setNow: value => { clock = value }, token }
+  return { auditCreate, db, findUnique, port, request, row, setNow: value => { clock = value }, token }
 }
 
 describe('signed remember claim and idle timeout', () => {
@@ -125,6 +127,21 @@ describe('signed remember claim and idle timeout', () => {
     })
     expect(expired.row.status).toBe('REVOKED')
     expect(expired.row.revokeReason).toBe('IDLE_TIMEOUT')
+    expect(expired.auditCreate).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        entityType: 'SESSION',
+        entityId: 'session-idle-1',
+        action: 'SESSION_REVOKED_IDLE_TIMEOUT',
+        actorType: 'SYSTEM',
+        actorId: null,
+        payloadJson: JSON.stringify({
+          reason: 'IDLE_TIMEOUT',
+          personId: 'person-idle-1',
+          revokedCount: 1,
+          remember: false,
+        }),
+      }),
+    })
   })
 
   it('keeps a remember session alive at 71h and revokes it at 72h', async () => {
@@ -201,5 +218,34 @@ describe('signed remember claim and idle timeout', () => {
       message: 'SESSION_STORE_UNAVAILABLE',
       cause,
     })
+  })
+
+  it('does not audit when another request already revoked the idle session', async () => {
+    const state = fixture({ now: nowStart + idleMilliseconds })
+    state.db.session.updateMany.mockResolvedValue({ count: 0 })
+
+    await expect(state.port.read(state.request)).resolves.toEqual({ state: 'UNAUTHENTICATED' })
+    expect(state.auditCreate).not.toHaveBeenCalled()
+  })
+
+  it('fails closed when idle revocation audit creation fails', async () => {
+    const state = fixture({ now: nowStart + idleMilliseconds })
+    const cause = new Error('audit write failed')
+    state.auditCreate.mockRejectedValue(cause)
+
+    await expect(state.port.read(state.request)).rejects.toMatchObject({
+      message: 'SESSION_STORE_UNAVAILABLE',
+      cause,
+    })
+  })
+
+  it('requires a transaction for production idle revocation before updating the session', async () => {
+    const state = fixture({ now: nowStart + idleMilliseconds, env: { ...env, NODE_ENV: 'production' } })
+
+    await expect(state.port.read(state.request)).rejects.toMatchObject({
+      message: 'SESSION_STORE_UNAVAILABLE',
+    })
+    expect(state.db.session.updateMany).not.toHaveBeenCalled()
+    expect(state.row.status).toBe('ACTIVE')
   })
 })

@@ -4,10 +4,11 @@
 // @spec SDD-017, docs/features/FR-038-profile-and-permissions.md
 // @tested tests/unit/profile-permission-service.test.js
 import { useEffect, useState } from 'react'
-import { Link2, Monitor } from 'lucide-react'
+import { Link2 } from 'lucide-react'
 import { Card, ErrorState, PageHeader, SectionTitle, StatusPill } from '@/components/ui'
 import { LoadingCard, useFetch } from '@/modules/project-manager/components/useApi'
 import MfaSecurityCard from '@/modules/identity/ui/MfaSecurityCard'
+import LogoutAllCard from '@/modules/identity/ui/LogoutAllCard'
 
 const LANGUAGE_KEY = 'zuri-v2-language'
 
@@ -46,10 +47,7 @@ export default function ProfilePage() {
           <SectionTitle caption="External identity links, not a separate employee account">LINE link</SectionTitle>
           <div className="flex items-center gap-2 text-xs"><Link2 size={16} aria-hidden /> {data.identities.some((identity) => identity.provider === 'LINE') ? 'LINE linked' : 'No LINE identity linked'}</div>
         </Card>
-        <Card>
-          <SectionTitle caption="Signed HttpOnly session cookie for this device">Sessions</SectionTitle>
-          <div className="flex items-center gap-2 text-xs"><Monitor size={16} aria-hidden /> This device · {data.session.active ? 'active authenticated session' : 'inactive'}</div>
-        </Card>
+        <LogoutAllCard active={data.session.active} />
         <MfaSecurityCard />
       </div>
     </div>
