@@ -1,7 +1,7 @@
 // @req FR-046, FR-095, FR-096, FR-107, FR-252 — request identity comes from a
 // server-owned, persisted session adapter; the installation-operator capability
 // is resolved per request from the PlatformGrant store.
-// @spec ADR-017, ADR-045 D2-D4, ADR-097, SDD-024, SDD-052, SEC-008, SEC-018
+// @spec ADR-017, ADR-045 D2-D4, ADR-097, ADR-124 D2, SDD-024, SDD-052, SEC-008, SEC-018
 // @tested tests/unit/fr046-session-port.test.js, tests/unit/iam-session.test.js, tests/unit/operator-bootstrap.test.js,
 //   tests/unit/session-idle-timeout.test.js, tests/integration/session-idle-multi-instance.test.js
 
@@ -16,6 +16,7 @@ import {
 } from './auth-service'
 import { hasOperatorGrant } from './operator-bootstrap'
 import { hasSuperadminGrant } from './superadmin-grant'
+import { recordAudit } from '@/modules/project-manager/application/audit'
 
 // Exported because FR-123's consent gate has to bind its anti-CSRF and signed
 // request tokens to *this* session, and therefore has to read the same cookie
@@ -117,15 +118,44 @@ export function createSessionPort({ readTrustedSession = async () => null, env =
             const idleExpired = !lastSeenAt || nowMs - lastSeenAt.getTime() >= idleLimitSeconds * 1000
             if (idleExpired) {
               if (typeof db.session.updateMany === 'function') {
-                await sessionStoreCall(() => db.session.updateMany({
-                  where: { id: session.sessionId, status: 'ACTIVE' },
-                  data: {
-                    status: 'REVOKED',
-                    revokedAt: new Date(nowMs),
-                    revokeReason: 'IDLE_TIMEOUT',
-                    version: { increment: 1 },
-                  },
-                }))
+                await sessionStoreCall(async () => {
+                  const revoke = async (tx) => {
+                    const result = await tx.session.updateMany({
+                      where: { id: session.sessionId, status: 'ACTIVE' },
+                      data: {
+                        status: 'REVOKED',
+                        revokedAt: new Date(nowMs),
+                        revokeReason: 'IDLE_TIMEOUT',
+                        version: { increment: 1 },
+                      },
+                    })
+
+                    if (result.count > 0) {
+                      await recordAudit(tx, {
+                        entityType: 'SESSION',
+                        entityId: session.sessionId,
+                        action: 'SESSION_REVOKED_IDLE_TIMEOUT',
+                        actorType: 'SYSTEM',
+                        actorId: null,
+                        payload: {
+                          reason: 'IDLE_TIMEOUT',
+                          personId: session.principalId,
+                          revokedCount: 1,
+                          remember: session.remember === true,
+                        },
+                      })
+                    }
+                  }
+
+                  if (typeof db.$transaction === 'function') {
+                    // Audit and revoke commit together; audit failure rolls back and sessionStoreCall preserves the refusal.
+                    return db.$transaction(revoke)
+                  }
+                  if (env.NODE_ENV === 'production') throw new Error('SESSION_STORE_UNAVAILABLE')
+                  return revoke(db)
+                })
+              } else if (env.NODE_ENV === 'production') {
+                throw new Error('SESSION_STORE_UNAVAILABLE')
               }
               return { state: 'UNAUTHENTICATED' }
             }

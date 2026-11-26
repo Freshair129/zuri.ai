@@ -3434,8 +3434,8 @@
           "title": "Production viewer entry contract",
           "declared": "done",
           "status": "verified",
-          "codeCount": 15,
-          "testCount": 94
+          "codeCount": 16,
+          "testCount": 95
         },
         {
           "id": "FR-059",
@@ -3522,8 +3522,8 @@
           "title": "Persisted session lifecycle",
           "declared": "n/a",
           "status": "verified",
-          "codeCount": 28,
-          "testCount": 58
+          "codeCount": 29,
+          "testCount": 59
         },
         {
           "id": "FR-096",
@@ -7007,7 +7007,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 2,
-          "testCount": 94
+          "testCount": 95
         },
         {
           "id": "FR-075",
@@ -7023,7 +7023,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 1,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-105",
@@ -7813,7 +7813,7 @@
           "declared": "done",
           "status": "verified",
           "codeCount": 72,
-          "testCount": 94
+          "testCount": 95
         },
         {
           "id": "FR-056",
@@ -8240,7 +8240,7 @@
           "declared": "n/a",
           "status": "verified",
           "codeCount": 5,
-          "testCount": 58
+          "testCount": 59
         },
         {
           "id": "FR-097",
@@ -11537,8 +11537,8 @@
           "title": "Persisted session lifecycle",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 33,
-          "testCount": 58
+          "codeCount": 34,
+          "testCount": 59
         },
         {
           "id": "FR-096",
@@ -11612,6 +11612,7 @@
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
         "apps/server/src/modules/identity/totp.js",
+        "apps/server/src/modules/identity/ui/LogoutAllCard.jsx",
         "apps/server/src/modules/identity/ui/MfaSecurityCard.jsx",
         "apps/server/src/modules/identity/webauthn-cbor.js",
         "apps/server/src/modules/identity/webauthn-challenge.js",
@@ -11686,6 +11687,7 @@
         "apps/server/tests/unit/identity/webauthn.test.js",
         "apps/server/tests/unit/line-binding-resolver.test.js",
         "apps/server/tests/unit/line-channel-binding.test.js",
+        "apps/server/tests/unit/logout-all-card.test.js",
         "apps/server/tests/unit/mfa-security-card-render.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
@@ -17970,8 +17972,8 @@
           "title": "Production viewer entry contract",
           "status": "verified",
           "progressPercent": 100,
-          "codeCount": 91,
-          "testCount": 94
+          "codeCount": 92,
+          "testCount": 95
         }
       ],
       "evidence": [
@@ -18065,6 +18067,7 @@
         "apps/server/src/modules/identity/request-viewer.js",
         "apps/server/src/modules/identity/session-port.js",
         "apps/server/src/modules/identity/sign-out.js",
+        "apps/server/src/modules/identity/ui/LogoutAllCard.jsx",
         "apps/server/src/modules/project-manager/application/work-read-service.js",
         "apps/server/tests/e2e/fr044-entry-routing.spec.js",
         "apps/server/tests/e2e/fr046-entry-contract.spec.js",
@@ -18134,6 +18137,7 @@
         "apps/server/tests/unit/fr124-product-readiness-read-model.test.js",
         "apps/server/tests/unit/iam-session.test.js",
         "apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js",
+        "apps/server/tests/unit/logout-all-card.test.js",
         "apps/server/tests/unit/operator-bootstrap.test.js",
         "apps/server/tests/unit/password-reset-page.test.js",
         "apps/server/tests/unit/password-reset-service.test.js",
