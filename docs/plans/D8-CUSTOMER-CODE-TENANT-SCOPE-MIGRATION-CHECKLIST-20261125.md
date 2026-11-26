@@ -1,6 +1,6 @@
 ---
 status: implementation-plan
-version: "0.1.1"
+version: "0.1.2"
 source_of_truth: false
 ---
 
@@ -111,6 +111,14 @@ post-check does not insert a test row; the live LINE check in section 5 stays ma
   The new code probes with the composite key and works on both indexes. The old code's
   `findUnique({ where: { code } })` against the new index can read another Tenant's customer.
 - [ ] Confirm the running image contains #861 (check its commit).
+- [ ] **Keep the gap between deploy and apply short: do both in one window.** Between the two steps
+  the new code probes per Tenant (`tenantId_code`) while the database still enforces the global
+  `Customer_code_key`. If two Tenants then try to create a customer with the same generated code,
+  the second `create` fails with `P2002` and that customer is not created. This follows from reading
+  `line-ingest-service.js` (the probe and the `create`); it was **not** reproduced by a test. Until a
+  PostgreSQL test covers it, treat the window as unsafe for new customers, deploy during a quiet
+  period, and apply the migration right after the deploy is healthy. Watch for `P2002` on `Customer`
+  during the gap, as in section 5.
 
 ## 4. Production, before applying
 
@@ -134,3 +142,4 @@ post-check does not insert a test row; the live LINE check in section 5 stays ma
 |---|---|---|---|
 | 0.1.0 | 2026-11-25 | Claude Sonnet 5.5 | Initial owner checklist and synthetic dry-run evidence for the ADR-122 migration. |
 | 0.1.1 | 2026-11-25 | Claude Sonnet 5.5 | Link read-only pre-check and post-check SQL scripts. |
+| 0.1.2 | 2026-11-26 | Claude Sonnet 5.5 | Section 3: warn that the deploy-then-apply gap can fail customer creation with `P2002`; apply in one window. From the 2026-11-26 gap analysis (G3). |

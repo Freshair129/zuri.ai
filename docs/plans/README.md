@@ -18,6 +18,10 @@ checked_base_revision: "189fb41a677b5ebf4a0a92053c3ef6f93ca7e833"
   is the owner-run plan for the ADR-119 drop migration (`apps/server/supabase/migrations/20261120000000_drop_smartgift_business_data.sql`);
   it applies nothing and the migration is a separate owner-instructed operator step.
 
+- [Architecture-review decision register D1–D16](ARCHITECTURE-REVIEW-DECISION-REGISTER-20261126.md)
+  lists each review decision with its status, decider, record and next review
+  (`source_of_truth: false`); it decides nothing.
+
 The 2026-10-23 cleanup removes eleven execution plans, candidate proposals and
 retired DDC plans from this directory. That cleanup created no replacement plan.
 Their original text remains in the

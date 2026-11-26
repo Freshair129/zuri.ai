@@ -46,6 +46,7 @@ Generated navigation for current source documents in the operations grouping. A 
 - [Zuri Refactor Status — อะไรทำอยู่ อะไรยังไม่เริ่ม และรออะไร](../migrations/service-extraction/REFACTOR-STATUS.md)
 - [SCM service extraction — Session 5 handoff](../migrations/service-extraction/SCM-HANDOFF.md)
 - [Codex — Session 4: Market Intelligence Service Extraction](../migrations/service-extraction/SESSION-4-MARKET-INTELLIGENCE-CODEX-PROMPT.md)
+- [Architecture-review decision register D1–D16 (2026-11-26)](../plans/ARCHITECTURE-REVIEW-DECISION-REGISTER-20261126.md)
 - [Compact managed-blob operator restore/rebind implementation plan](../plans/COMPACT-MANAGED-BLOB-RECOVERY-20261029.md)
 - [Compact Self-host Implementation Plan](../plans/COMPACT-SELF-HOST-IMPLEMENTATION-20261027.md)
 - [Customer.code per-Tenant migration — owner dry-run and apply checklist](../plans/D8-CUSTOMER-CODE-TENANT-SCOPE-MIGRATION-CHECKLIST-20261125.md)
