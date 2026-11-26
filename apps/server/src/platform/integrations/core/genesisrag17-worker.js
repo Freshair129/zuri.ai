@@ -5,6 +5,7 @@ import { createMspTransportFromEnvironment } from '@/modules/agent/msp-stdio-tra
 import { GENESIS_RAG17_SCHEMA_VERSION, parseGenesisRag17Scope, assertGenesisRag17ScopeEqual, zGenesisRag17QueryResponse } from '@/modules/knowledge/genesisrag17-contract'
 import { ingestGenesisRag17Raw, resolveRuntimeCredential } from './genesisrag17-executor'
 import { createGenesisRag17LineageRepository } from '@/modules/knowledge/genesisrag17-lineage-repository'
+import { contractResponseJson } from '../../../modules/knowledge/genesisrag17-response-contract.js'
 import { createKnowledgeRuntimeLoop } from './knowledge-runtime-loop.mjs'
 
 // @req FR-173 — only the exact admitted knowledge run accepts private runtime authority.
@@ -36,6 +37,9 @@ export async function queryGenesisRag17({ scope, query, topK = 5, snapshotId, ..
   return result
 }
 
+// @req FR-109 — persist only the validated Stage 9 response contract.
+// @spec ADR-121
+// @tested tests/unit/genesisrag17-worker.test.js
 /** Retry the immutable Stage 9 outbox, retaining its original attempt/key. */
 export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, viewer, transport, env = process.env, credential, now = () => new Date() } = {}) {
   if (!isInstallationOperator(viewer) && !hasKnowledgeScopeAuthority(viewer, scope)) throw denied('GenesisRAG17 source worker requires scoped runtime authority')
@@ -69,7 +73,7 @@ export async function resumeGenesisRag17Worker({ scope, runId, db = prisma, view
     if (!response || response.schemaVersion !== GENESIS_RAG17_SCHEMA_VERSION || response.batchId !== batch.batchId || typeof response.status !== 'string' || (response.decisionId !== null && (typeof response.decisionId !== 'string' || response.decisionId.length === 0))) throw new Error('MSP returned an invalid batch acknowledgement')
     assertGenesisRag17ScopeEqual(response.scope, normalizedScope)
     const decisionId = typeof response.decisionId === 'string' && response.decisionId.length > 0 ? response.decisionId : null
-    await db.genesisRag17Batch.update({ where: { id: row.id }, data: { status: decisionId ? 'ACKNOWLEDGED' : 'PENDING', decisionId, responseJson: JSON.stringify(response), updatedAt: typeof now === 'function' ? now() : now } })
+    await db.genesisRag17Batch.update({ where: { id: row.id }, data: { status: decisionId ? 'ACKNOWLEDGED' : 'PENDING', decisionId, responseJson: JSON.stringify(contractResponseJson(response, decisionId)), updatedAt: typeof now === 'function' ? now() : now } })
     resumed.push(row.batchId)
   }
   return { schemaVersion: GENESIS_RAG17_SCHEMA_VERSION, resumed, intentsResumed: resumedIntentRuns }

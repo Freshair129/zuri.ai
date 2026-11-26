@@ -1,8 +1,8 @@
 ---
 domain: knowledge
-version: "1.10.3"
+version: "1.10.4"
 status: beta
-last_update: "2026-11-25,Claude Sonnet 5.5"
+last_update: "2026-11-26,Claude Sonnet 5.5"
 module: src/modules/knowledge
 owns_routes:
   - src/app/(pm)/knowledge/**
@@ -212,9 +212,12 @@ may. The outbox:
   backfilled by any job. Redaction of an over-bound row is an owner-run,
   dry-run-first operation (ADR-057).
 
-Known non-conformance, recorded and not fixed by that decision: no code redacts
-or deletes a batch row, so retention is unbounded today, and `responseJson`
-stores the whole MSP reply unfiltered (ADR-121 findings F1–F2).
+Known non-conformance, recorded by that decision: no code redacts or deletes a
+batch row, so retention is unbounded today (ADR-121 finding F1). `responseJson`
+is now cut to the contract fields in code (F2, F5); rows written earlier may
+still hold a wider reply. A read-only report,
+`apps/server/scripts/genesisrag17-outbox-report.mjs`, lists over-bound rows
+(D4, D5.1) and changes nothing; the owner-run redaction (D5.3) is not built.
 
 Before Stage 1, `GenesisRag17IngestionIntent` retains the exact scoped source
 request and immutable derivation configuration. The source loop resumes its
@@ -618,6 +621,7 @@ decision. Proof: `tests/integration/genesisrag17-deterministic-ids.test.js`.
 
 | Version | Change | Runtime impact |
 |---|---|---|
+| 1.10.3 → 1.10.4 (2026-11-26) | Updates the Stage 9 outbox note: `responseJson` is allowlisted in code and a read-only over-bound report exists; redaction and the marker stay undecided | Code change in `genesisrag17-executor.js`/`-worker.js` plus a dry-run script; no schema, migration or data change; nothing deleted |
 | 1.10.2 → 1.10.3 (2026-11-25) | Records the derivation, input tuple and scope of the eight deterministic primary keys under ADR-123 (delegated D-D7) | Documentation and tests only; no id generation, model or migration change |
 | 1.10.1 → 1.10.2 (2026-11-25) | Adds the Stage 9 outbox exception (ADR-121, delegated decision D-D13): the outgoing immutable scoped batch may hold source text; explicit retention bound; recovery by resend; existing rows never auto-deleted; records unbounded retention and unfiltered reply storage as known non-conformance | Documentation only; no code, schema, migration or data change; nothing deleted |
 | 1.10.0 → 1.10.1 (2026-10-26) | Reconciles document admission/access, bounded customer Product disclosure and MSP episodic vault terminology; identifies the unspecified general document-vault audience contract | Documentation only; no new grants or commercial authority |

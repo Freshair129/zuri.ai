@@ -187,6 +187,7 @@ status: generated
 - [apps/server/tests/unit/knowledge-candidates-ui.test.js](../../../apps/server/tests/unit/knowledge-candidates-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js](../../../apps/server/tests/unit/knowledge-data-pipeline-map-ui.test.js) — `verifies` (`test-reference`)
 - [apps/server/tests/unit/knowledge-document-zero-pii.test.js](../../../apps/server/tests/unit/knowledge-document-zero-pii.test.js) — `verifies` (`test-reference`)
+- [apps/server/tests/unit/knowledge-runtime.test.js](../../../apps/server/tests/unit/knowledge-runtime.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/marketing-navigation.test.js](../../../apps/server/tests/unit/marketing-navigation.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/pricing-backup.test.js](../../../apps/server/tests/unit/pricing-backup.test.js) — `verifies` (`transitive`)
 - [apps/server/tests/unit/procurement-routes.test.js](../../../apps/server/tests/unit/procurement-routes.test.js) — `verifies` (`transitive`)

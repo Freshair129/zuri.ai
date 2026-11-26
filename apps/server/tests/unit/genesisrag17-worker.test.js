@@ -2,10 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createGenesisRag17SourceWorker, resumeGenesisRag17Worker } from '@/platform/integrations/core/genesisrag17-worker'
 import { GENESIS_RAG17_SCHEMA_VERSION } from '@/modules/knowledge/genesisrag17-contract'
+import { GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS } from '@/modules/knowledge/genesisrag17-response-contract'
 
 // @req FR-109 — a null MSP decision remains a durable pending outbox row until
 // a later retry returns an actual decision identity.
-// @spec ADR-073, docs/plans/GENESISRAG17-CONTRACT.md
+// @spec ADR-073, ADR-121, docs/plans/GENESISRAG17-CONTRACT.md
 // @tested tests/unit/genesisrag17-worker.test.js
 
 const scope = {
@@ -93,6 +94,40 @@ describe('GenesisRAG17 source worker submit retry', () => {
       where: { id: row.id },
       data: expect.objectContaining({ status: 'PENDING', decisionId: null }),
     }))
+    const storedResponse = JSON.parse(prisma.genesisRag17Batch.update.mock.calls[0][0].data.responseJson)
+    expect(Object.keys(storedResponse)).toEqual(GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS)
+    expect(storedResponse.decisionId).toBeNull()
+  })
+
+  it('stores only contract fields while keeping the reply decision in the column', async () => {
+    const row = pendingBatch()
+    const prisma = db(row)
+    const transport = vi.fn(async () => ({
+      schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+      scope,
+      batchId: row.batchId,
+      decisionId: 'worker-decision-1',
+      status: 'ACKNOWLEDGED',
+      entities: ['EXTRA_ENTITY_VALUE'],
+      facts: ['EXTRA_FACT_VALUE'],
+      heldRows: ['EXTRA_HELD_ROW_VALUE'],
+      internal: 'EXTRA_INTERNAL_VALUE',
+    }))
+
+    await resumeGenesisRag17Worker({ scope, runId: row.executionRunId, db: prisma, viewer: makeOperatorViewer(), transport, credential: 'source' })
+
+    const update = prisma.genesisRag17Batch.update.mock.calls[0][0].data
+    expect(update).toMatchObject({ status: 'ACKNOWLEDGED', decisionId: 'worker-decision-1' })
+    const storedResponse = JSON.parse(update.responseJson)
+    expect(Object.keys(storedResponse)).toEqual(GENESIS_RAG17_RESPONSE_CONTRACT_FIELDS)
+    expect(storedResponse).toEqual({
+      schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+      scope,
+      batchId: row.batchId,
+      status: 'ACKNOWLEDGED',
+      decisionId: 'worker-decision-1',
+    })
+    expect(update.responseJson).not.toContain('EXTRA_ENTITY_VALUE')
   })
 
   it('rejects an empty decision identity instead of acknowledging it', async () => {

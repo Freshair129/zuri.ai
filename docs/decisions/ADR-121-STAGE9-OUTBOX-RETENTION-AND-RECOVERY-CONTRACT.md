@@ -1,10 +1,10 @@
 ---
 id: ZAI:ADR-121
 title: Stage 9 outbox retention and recovery contract
-version: "1.0.0"
+version: "1.0.1"
 status: accepted
 created_at: "2026-11-25"
-last_update: "2026-11-25"
+last_update: "2026-11-26"
 author: Claude Sonnet 5.5
 superseded_by: null
 approval_scope: decision-record-and-charter-amendment-only-no-code-no-schema-no-migration-no-data-change-no-deletion
@@ -212,9 +212,13 @@ and its own approval; this one does not authorize it.
   exception, so documentation and code agree: the outbox holds source text, the
   rest of the lineage does not.
 - Until a code and operator change implements D4 and D5, the current
-  unbounded retention (F1) and unfiltered `responseJson` (F2) stand as known
-  non-conformance. This record does not make them conform and does not hide
-  them.
+  unbounded retention (F1) stands as known non-conformance. This record does
+  not make it conform and does not hide it. Status as of 1.0.1: the
+  `responseJson` allowlist (F2, F5, D1.3, D4.5) is implemented for new writes,
+  and the read-only over-bound report (D4.1–D4.5, D5.1) exists as
+  `apps/server/scripts/genesisrag17-outbox-report.mjs`. Redaction (D5.3), the
+  marker (Open question 2) and cleanup of older wide `responseJson` rows are
+  not implemented.
 - No schema column, migration, route or scheduler is added. Nothing is deleted.
 
 ## Open questions
@@ -241,3 +245,4 @@ and its own approval; this one does not authorize it.
 | Version | Date | Change |
 |---|---|---|
 | 1.0.0 | 2026-11-25 | Initial acceptance as delegated decision D-D13 |
+| 1.0.1 | 2026-11-26 | Consequences status only: `responseJson` allowlist and read-only report implemented; the decision is unchanged |
