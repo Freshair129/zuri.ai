@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
+import { buildRedactedRequestJson } from '@/modules/knowledge/genesisrag17-outbox-redaction'
 import { makeOperatorViewer } from '../factories/viewer'
 import { createGenesisRag17SourceWorker, resumeGenesisRag17Worker } from '@/platform/integrations/core/genesisrag17-worker'
 import { GENESIS_RAG17_SCHEMA_VERSION } from '@/modules/knowledge/genesisrag17-contract'
@@ -136,6 +137,31 @@ describe('GenesisRAG17 source worker submit retry', () => {
     const transport = vi.fn(async () => ({ schemaVersion: GENESIS_RAG17_SCHEMA_VERSION, scope, batchId: row.batchId, decisionId: '', status: 'PENDING' }))
 
     await expect(resumeGenesisRag17Worker({ scope, runId: row.executionRunId, db: prisma, viewer: makeOperatorViewer(), transport, credential: 'source' })).rejects.toThrow(/invalid batch acknowledgement/)
+    expect(prisma.genesisRag17Batch.update).not.toHaveBeenCalled()
+  })
+
+  it('skips a validly redacted PENDING batch without parsing or resending its text', async () => {
+    const row = pendingBatch()
+    row.requestJson = buildRedactedRequestJson(JSON.stringify({
+      schemaVersion: GENESIS_RAG17_SCHEMA_VERSION,
+      batchId: row.batchId,
+      idempotencyKey: 'batch-key-1',
+      scope,
+      source: { content: 'PENDING_REDACTED_SOURCE_SECRET' },
+      chunks: [{ text: 'PENDING_REDACTED_CHUNK_SECRET' }],
+      mentions: [{ name: 'PENDING_REDACTED_MENTION_SECRET' }],
+    }), {
+      actor: 'Owner One',
+      reason: 'Retention review',
+      redactedAt: '2026-11-27T03:04:05.000Z',
+    })
+    const prisma = db(row)
+    const transport = vi.fn()
+
+    const result = await resumeGenesisRag17Worker({ scope, runId: row.executionRunId, db: prisma, viewer: makeOperatorViewer(), transport, credential: 'source' })
+
+    expect(result).toMatchObject({ resumed: [], skippedRedactedBatchIds: [row.batchId] })
+    expect(transport).not.toHaveBeenCalled()
     expect(prisma.genesisRag17Batch.update).not.toHaveBeenCalled()
   })
 })
